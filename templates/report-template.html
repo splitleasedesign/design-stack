@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Stack Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --surface-warm: #fdfcfa;
+      --ink: #1a1714;
+      --ink-soft: #4a4640;
+      --ink-muted: #8a857e;
+      --ink-ghost: #bdb8b0;
+      --accent: #2d5a3d;
+      --accent-light: #e8f0eb;
+      --accent-bright: #3a7a52;
+      --signal-warn: #c17a28;
+      --signal-warn-bg: #fef3e2;
+      --signal-danger: #b83a3a;
+      --signal-danger-bg: #fde8e8;
+      --signal-info: #2d5a8a;
+      --signal-info-bg: #e8f0fa;
+      --border: #e2dfd9;
+      --border-strong: #ccc8c0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
+      --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
+      --shadow-lg: 0 8px 30px rgba(26,23,20,0.10);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    .report-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 40px;
+    }
+
+    .report-header h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 36px;
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .report-meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      color: var(--ink-muted);
+      font-size: 13px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .report-meta .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-running { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .badge-complete { background: var(--accent-light); color: var(--accent); }
+    .badge-partial { background: var(--signal-danger-bg); color: var(--signal-danger); }
+
+    /* ── Coherence Alert Bar ── */
+    .coherence-bar {
+      background: var(--signal-warn-bg);
+      border-bottom: 1px solid rgba(193,122,40,0.2);
+      padding: 10px 40px;
+      font-size: 13px;
+      color: var(--signal-warn);
+      display: none;
+    }
+
+    .coherence-bar.has-flags { display: flex; align-items: center; gap: 12px; }
+    .coherence-bar .flag-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+    }
+
+    .coherence-bar.critical {
+      background: var(--signal-danger-bg);
+      border-color: rgba(184,58,58,0.2);
+      color: var(--signal-danger);
+    }
+
+    /* ── Tab Navigation ── */
+    .tab-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-nav button {
+      background: none;
+      border: none;
+      padding: 14px 20px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 200ms var(--ease-out);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-nav button:hover { color: var(--ink-soft); }
+
+    .tab-nav button.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-nav button .layer-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-deep);
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .tab-nav button.active .layer-num {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* ── Main Content ── */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 40px;
+    }
+
+    .tab-panel {
+      display: none;
+      animation: fadeIn 300ms var(--ease-out);
+    }
+
+    .tab-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Spec Card ── */
+    .spec-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .spec-card h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .spec-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+
+    .spec-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── JSON Display ── */
+    .json-block {
+      background: var(--ink);
+      color: #e8e4de;
+      padding: 20px;
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 12px 0;
+    }
+
+    .json-key { color: #7dba95; }
+    .json-string { color: #d4a865; }
+    .json-number { color: #8ab4d6; }
+    .json-bool { color: #c88abd; }
+    .json-null { color: var(--ink-ghost); }
+
+    /* ── Tables ── */
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    .spec-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-muted);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .spec-table td {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    /* ── Mockup Preview ── */
+    .mockup-container {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin: 16px 0;
+      background: white;
+    }
+
+    .mockup-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .mockup-toolbar .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-strong);
+    }
+
+    .mockup-toolbar .dot:nth-child(1) { background: #ed6a5e; }
+    .mockup-toolbar .dot:nth-child(2) { background: #f5bf4f; }
+    .mockup-toolbar .dot:nth-child(3) { background: #62c554; }
+
+    .mockup-iframe {
+      width: 100%;
+      min-height: 500px;
+      border: none;
+      display: block;
+    }
+
+    /* ── State Toggles ── */
+    .state-toggles {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .state-toggle {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      background: var(--surface);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 150ms var(--ease-out);
+      color: var(--ink-soft);
+    }
+
+    .state-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .state-toggle.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* ── Coherence Flags ── */
+    .flag-list { list-style: none; }
+
+    .flag-item {
+      padding: 12px 16px;
+      margin: 8px 0;
+      border-radius: var(--radius-md);
+      border-left: 4px solid;
+      font-size: 14px;
+    }
+
+    .flag-critical { border-color: var(--signal-danger); background: var(--signal-danger-bg); }
+    .flag-warning { border-color: var(--signal-warn); background: var(--signal-warn-bg); }
+    .flag-suggestion { border-color: var(--signal-info); background: var(--signal-info-bg); }
+
+    .flag-item .flag-type {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    /* ── Test List ── */
+    .test-item {
+      padding: 12px 16px;
+      margin: 8px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface-warm);
+    }
+
+    .test-item .test-id {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .test-item .test-category {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-ghost);
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; }
+      .spec-card { padding: 20px; }
+    }
+
+    /* ── Print ── */
+    @media print {
+      .tab-nav, .coherence-bar { display: none; }
+      .tab-panel { display: block !important; page-break-inside: avoid; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Run data injected here by orchestrator -->
+  <!-- INJECT:run-config -->
+  <script id="run-config" type="application/json">{"run_id":"","target":"","status":"pending"}</script>
+
+  <!-- Layer data injection points -->
+  <!-- INJECT:layer-0 -->
+  <script id="data-layer-0" type="application/json">{}</script>
+  <!-- INJECT:layer-1 -->
+  <script id="data-layer-1" type="application/json">{}</script>
+  <!-- INJECT:layer-2 -->
+  <script id="data-layer-2" type="application/json">{}</script>
+  <!-- INJECT:layer-3 -->
+  <script id="data-layer-3" type="application/json">{}</script>
+  <!-- INJECT:layer-4 -->
+  <script id="data-layer-4" type="application/json">{}</script>
+  <!-- INJECT:layer-5 -->
+  <script id="data-layer-5" type="application/json">{}</script>
+  <!-- INJECT:layer-6 -->
+  <script id="data-layer-6" type="application/json">{}</script>
+  <!-- INJECT:layer-7 -->
+  <script id="data-layer-7" type="application/json">{}</script>
+
+  <!-- Mockup HTML (base64 or inline) -->
+  <!-- INJECT:mockup-html -->
+  <script id="mockup-html" type="text/plain"></script>
+
+  <!-- State variant HTML files -->
+  <!-- INJECT:state-loading-html -->
+  <script id="state-loading-html" type="text/plain"></script>
+  <!-- INJECT:state-empty-html -->
+  <script id="state-empty-html" type="text/plain"></script>
+  <!-- INJECT:state-error-html -->
+  <script id="state-error-html" type="text/plain"></script>
+
+  <header class="report-header">
+    <h1 id="report-title">Design Stack Report</h1>
+    <div class="report-meta">
+      <span id="meta-date"></span>
+      <span id="meta-run-id"></span>
+      <span class="badge" id="meta-status"></span>
+      <span id="meta-layers"></span>
+    </div>
+  </header>
+
+  <div class="coherence-bar" id="coherence-bar">
+    <span class="flag-count" id="flag-count"></span>
+    <span id="flag-summary"></span>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="active" data-tab="preview"><span class="layer-num">&#9654;</span> Preview</button>
+    <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
+    <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
+    <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
+    <button data-tab="layer-3"><span class="layer-num">3</span> Looks</button>
+    <button data-tab="layer-4"><span class="layer-num">4</span> Behaves</button>
+    <button data-tab="layer-5"><span class="layer-num">5</span> Feels</button>
+    <button data-tab="layer-6"><span class="layer-num">6</span> Coherence</button>
+    <button data-tab="layer-7"><span class="layer-num">7</span> Tests</button>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Preview Tab: Mockup + State Toggling -->
+    <div class="tab-panel active" id="panel-preview">
+      <div class="spec-card">
+        <h2>Live Preview</h2>
+        <div class="state-toggles" id="state-toggles">
+          <button class="state-toggle active" data-state="default">Default</button>
+          <button class="state-toggle" data-state="loading">Loading</button>
+          <button class="state-toggle" data-state="empty">Empty</button>
+          <button class="state-toggle" data-state="error">Error</button>
+        </div>
+        <div class="mockup-container">
+          <div class="mockup-toolbar">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span style="flex:1"></span>
+            <span id="mockup-label">default state</span>
+          </div>
+          <iframe class="mockup-iframe" id="mockup-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 0: Journey Context -->
+    <div class="tab-panel" id="panel-layer-0">
+      <div class="spec-card">
+        <h2>Layer 0: Journey Context</h2>
+        <div id="content-layer-0"></div>
+      </div>
+    </div>
+
+    <!-- Layer 1: Works -->
+    <div class="tab-panel" id="panel-layer-1">
+      <div class="spec-card">
+        <h2>Layer 1: Process Architect</h2>
+        <div id="content-layer-1"></div>
+      </div>
+    </div>
+
+    <!-- Layer 2: Communicates -->
+    <div class="tab-panel" id="panel-layer-2">
+      <div class="spec-card">
+        <h2>Layer 2: Information Architect</h2>
+        <div id="content-layer-2"></div>
+      </div>
+    </div>
+
+    <!-- Layer 3: Looks -->
+    <div class="tab-panel" id="panel-layer-3">
+      <div class="spec-card">
+        <h2>Layer 3: Visual Designer</h2>
+        <div id="content-layer-3"></div>
+      </div>
+    </div>
+
+    <!-- Layer 4: Behaves -->
+    <div class="tab-panel" id="panel-layer-4">
+      <div class="spec-card">
+        <h2>Layer 4: Interaction Engineer</h2>
+        <div id="content-layer-4"></div>
+      </div>
+    </div>
+
+    <!-- Layer 5: Feels -->
+    <div class="tab-panel" id="panel-layer-5">
+      <div class="spec-card">
+        <h2>Layer 5: Experience Tuner</h2>
+        <div id="content-layer-5"></div>
+      </div>
+    </div>
+
+    <!-- Layer 6: Coherence -->
+    <div class="tab-panel" id="panel-layer-6">
+      <div class="spec-card">
+        <h2>Layer 6: Coherence Auditor</h2>
+        <div id="content-layer-6"></div>
+      </div>
+    </div>
+
+    <!-- Layer 7: Tests -->
+    <div class="tab-panel" id="panel-layer-7">
+      <div class="spec-card">
+        <h2>Layer 7: Test Designer</h2>
+        <div id="content-layer-7"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer style="text-align:center; padding:32px; color:var(--ink-ghost); font-size:12px; font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v1.0
+  </footer>
+
+  <script>
+    // ── Data Loading ──
+    function loadJSON(id) {
+      try {
+        return JSON.parse(document.getElementById(id)?.textContent || '{}');
+      } catch { return {}; }
+    }
+
+    function loadHTML(id) {
+      return document.getElementById(id)?.textContent || '';
+    }
+
+    const config = loadJSON('run-config');
+    const layers = {};
+    for (let i = 0; i <= 7; i++) layers[i] = loadJSON(`data-layer-${i}`);
+    const mockupHTML = loadHTML('mockup-html');
+    const stateHTMLs = {
+      default: mockupHTML,
+      loading: loadHTML('state-loading-html'),
+      empty: loadHTML('state-empty-html'),
+      error: loadHTML('state-error-html')
+    };
+
+    // ── Header ──
+    document.getElementById('report-title').textContent = config.target || 'Design Stack Report';
+    document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
+    document.getElementById('meta-run-id').textContent = config.run_id || '';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = config.status || 'pending';
+    statusEl.className = `badge badge-${config.status || 'running'}`;
+
+    // ── Coherence Bar ──
+    const flags = layers[6]?.flags || [];
+    if (flags.length > 0) {
+      const bar = document.getElementById('coherence-bar');
+      bar.classList.add('has-flags');
+      const criticals = flags.filter(f => f.severity === 'critical').length;
+      if (criticals > 0) bar.classList.add('critical');
+      document.getElementById('flag-count').textContent = `${flags.length} flag${flags.length !== 1 ? 's' : ''}`;
+      document.getElementById('flag-summary').textContent = criticals > 0
+        ? `${criticals} critical issue${criticals !== 1 ? 's' : ''} found`
+        : 'Review recommended';
+    }
+
+    // ── Tab Navigation ──
+    document.getElementById('tab-nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+    });
+
+    // ── State Toggles ──
+    const frame = document.getElementById('mockup-frame');
+    const label = document.getElementById('mockup-label');
+
+    function loadState(state) {
+      const html = stateHTMLs[state] || stateHTMLs.default;
+      if (html) {
+        frame.srcdoc = html;
+        label.textContent = `${state} state`;
+      }
+    }
+
+    document.getElementById('state-toggles').addEventListener('click', (e) => {
+      const btn = e.target.closest('.state-toggle');
+      if (!btn) return;
+      document.querySelectorAll('.state-toggle').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadState(btn.dataset.state);
+    });
+
+    // Load default mockup
+    if (mockupHTML) loadState('default');
+
+    // ── Render JSON into Layer Panels ──
+    function syntaxHighlight(json) {
+      if (typeof json !== 'string') json = JSON.stringify(json, null, 2);
+      return json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
+        .replace(/: "([^"]*)"/g, ': <span class="json-string">"$1"</span>')
+        .replace(/: (\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
+        .replace(/: (true|false)/g, ': <span class="json-bool">$1</span>')
+        .replace(/: (null)/g, ': <span class="json-null">$1</span>');
+    }
+
+    function renderLayer(num, data) {
+      const container = document.getElementById(`content-layer-${num}`);
+      if (!container) return;
+      if (!data || Object.keys(data).length === 0) {
+        container.innerHTML = '<p style="color:var(--ink-ghost); font-style:italic;">No data available for this layer.</p>';
+        return;
+      }
+
+      // Render as structured sections + raw JSON
+      let html = '';
+
+      // Special rendering for coherence flags (Layer 6)
+      if (num === 6 && data.flags) {
+        html += '<h3>Flags</h3><ul class="flag-list">';
+        data.flags.forEach(f => {
+          html += `<li class="flag-item flag-${f.severity}">
+            <div class="flag-type">${f.severity} — ${f.type}</div>
+            <div>${f.description}</div>
+            <div style="margin-top:4px;font-size:12px;color:var(--ink-muted)">Recommendation: ${f.recommendation}</div>
+          </li>`;
+        });
+        html += '</ul>';
+      }
+
+      // Special rendering for tests (Layer 7)
+      if (num === 7 && data.tests) {
+        html += '<h3>Tests</h3>';
+        data.tests.forEach(t => {
+          html += `<div class="test-item">
+            <span class="test-id">${t.id}</span>
+            <span class="test-category">${t.category}</span>
+            <p style="margin-top:6px">${t.description}</p>
+            <p style="margin-top:4px;font-size:13px;color:var(--ink-muted)">Expected: ${t.expected_result}</p>
+          </div>`;
+        });
+        if (data.daily_regression_tests) {
+          html += '<h3 style="margin-top:24px">Daily Regression Tests</h3>';
+          data.daily_regression_tests.forEach(t => {
+            html += `<div class="test-item">
+              <span class="test-id">${t.id}</span>
+              <span style="font-size:11px;color:var(--signal-danger);margin-left:8px">CRITICAL</span>
+              <p style="margin-top:6px">${t.description}</p>
+            </div>`;
+          });
+        }
+      }
+
+      // Always show raw JSON at bottom
+      html += '<h3 style="margin-top:24px">Raw Spec</h3>';
+      html += `<div class="json-block"><pre>${syntaxHighlight(data)}</pre></div>`;
+
+      container.innerHTML = html;
+    }
+
+    for (let i = 0; i <= 7; i++) renderLayer(i, layers[i]);
+  </script>
+</body>
+</html>
