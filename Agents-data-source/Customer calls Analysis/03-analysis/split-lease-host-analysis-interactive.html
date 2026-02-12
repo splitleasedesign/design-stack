@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Call Analysis — Split Lease Research</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F5F5F5;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #31135D;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E0E0E0;
+            z-index: 1000;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: #31135D;
+        }
+
+        .nav-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-dot {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #E0E0E0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #999999;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-dot:hover {
+            border-color: #31135D;
+            color: #31135D;
+            transform: rotate(180deg);
+        }
+
+        .nav-dot.active {
+            background: #31135D;
+            color: #FFFFFF;
+            border-color: #31135D;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 40px 60px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            padding: 60px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .hero-symbol {
+            font-size: 80px;
+            color: #31135D;
+            margin-bottom: 24px;
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 300;
+            color: #31135D;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .hero-subtitle {
+            font-size: 14px;
+            color: #666666;
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .hero-meta {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-value {
+            font-size: 28px;
+            font-weight: 300;
+            color: #31135D;
+        }
+
+        .meta-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #999999;
+        }
+
+        /* Section Styles */
+        .section {
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            padding: 24px 40px;
+            border-bottom: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .section-header:hover {
+            background: #FAFAFA;
+        }
+
+        .section-number {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999999;
+            font-weight: 400;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #31135D;
+        }
+
+        .section-toggle {
+            font-size: 20px;
+            color: #31135D;
+            transition: transform 0.3s ease;
+        }
+
+        .section.open .section-toggle {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+        }
+
+        .section.open .section-content {
+            padding: 40px;
+            max-height: 5000px;
+        }
+
+        /* Divider */
+        .equilibrium-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #E0E0E0 50%, transparent);
+        }
+
+        .divider-symbol {
+            font-size: 20px;
+            color: #CCCCCC;
+            font-weight: 200;
+        }
+
+        /* Status Cards */
+        .status-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: #E0E0E0;
+            margin-bottom: 32px;
+        }
+
+        .status-card {
+            background: #FFFFFF;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .status-card:hover {
+            background: #FAFAFA;
+            transform: translateY(-2px);
+        }
+
+        .status-card.negative {
+            border-left: 3px solid #E74C3C;
+        }
+
+        .status-card.positive {
+            border-left: 3px solid #27AE60;
+        }
+
+        .status-card.warning {
+            border-left: 3px solid #F39C12;
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: 300;
+            color: #31135D;
+            margin-bottom: 8px;
+        }
+
+        .card-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #999999;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 32px;
+        }
+
+        .comparison-table th {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #999999;
+            font-weight: 400;
+            padding: 16px;
+            text-align: left;
+            border-bottom: 2px solid #31135D;
+        }
+
+        .comparison-table td {
+            padding: 16px;
+            border-bottom: 1px solid #E0E0E0;
+            font-size: 13px;
+            color: #333333;
+        }
+
+        .comparison-table tr:hover td {
+            background: #FAFAFA;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .badge.excellent {
+            background: #31135D;
+            color: #FFFFFF;
+        }
+
+        .badge.poor {
+            background: #E0E0E0;
+            color: #666666;
+        }
+
+        .badge.conditional {
+            background: #F39C12;
+            color: #FFFFFF;
+        }
+
+        /* Quote Block */
+        .quote-block {
+            background: #ECE8F7;
+            padding: 32px 40px;
+            margin: 24px 0;
+            border-left: 3px solid #31135D;
+        }
+
+        .quote-text {
+            font-size: 16px;
+            font-style: italic;
+            color: #31135D;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .quote-author {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666666;
+        }
+
+        /* Insight Cards Grid */
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .insight-card {
+            background: #FAFAFA;
+            border: 1px solid #E0E0E0;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .insight-card:hover {
+            border-color: #31135D;
+            transform: translateY(-2px);
+        }
+
+        .insight-number {
+            font-size: 32px;
+            font-weight: 200;
+            color: #31135D;
+            margin-bottom: 8px;
+        }
+
+        .insight-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #31135D;
+            margin-bottom: 8px;
+        }
+
+        .insight-desc {
+            font-size: 12px;
+            color: #666666;
+            line-height: 1.5;
+        }
+
+        /* Host Profile Cards */
+        .host-profiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 24px 0;
+        }
+
+        .host-card {
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .host-card:hover {
+            border-color: #31135D;
+            box-shadow: 0 4px 20px rgba(49, 19, 93, 0.1);
+        }
+
+        .host-card-header {
+            background: #31135D;
+            color: #FFFFFF;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .host-name {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .host-fit {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .host-card-body {
+            padding: 24px;
+        }
+
+        .host-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #F0F0F0;
+            font-size: 12px;
+        }
+
+        .host-detail:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #999999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 9px;
+        }
+
+        .detail-value {
+            color: #31135D;
+            font-weight: 500;
+        }
+
+        .host-quote {
+            background: #FAFAFA;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 12px;
+            font-style: italic;
+            color: #666666;
+            border-left: 2px solid #31135D;
+        }
+
+        /* Mental Burden Spectrum */
+        .spectrum-container {
+            background: #FAFAFA;
+            padding: 32px;
+            margin: 24px 0;
+        }
+
+        .spectrum-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999999;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .spectrum-bar {
+            height: 8px;
+            background: linear-gradient(to right, #27AE60, #F39C12, #E74C3C);
+            border-radius: 4px;
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        .spectrum-labels {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .spectrum-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666666;
+        }
+
+        .spectrum-marker {
+            position: absolute;
+            top: -8px;
+            width: 24px;
+            height: 24px;
+            background: #31135D;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 10px;
+            transform: translateX(-50%);
+        }
+
+        .marker-hosts {
+            left: 20%;
+        }
+
+        .marker-splitlease {
+            left: 70%;
+        }
+
+        /* Recommendation Cards */
+        .recommendation-list {
+            counter-reset: recommendation;
+        }
+
+        .recommendation-item {
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            padding: 24px 24px 24px 80px;
+            margin-bottom: 16px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-item:hover {
+            border-color: #31135D;
+            transform: translateX(4px);
+        }
+
+        .recommendation-item::before {
+            counter-increment: recommendation;
+            content: counter(recommendation);
+            position: absolute;
+            left: 24px;
+            top: 24px;
+            width: 36px;
+            height: 36px;
+            background: #31135D;
+            color: #FFFFFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .rec-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #31135D;
+            margin-bottom: 8px;
+        }
+
+        .rec-desc {
+            font-size: 12px;
+            color: #666666;
+            line-height: 1.5;
+        }
+
+        /* Interactive Toggle */
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            padding: 24px 0;
+            margin-bottom: 24px;
+        }
+
+        .segment-toggle {
+            display: flex;
+            border: 1px solid #E0E0E0;
+        }
+
+        .toggle-btn {
+            padding: 12px 32px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            background: #FFFFFF;
+            color: #666666;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .toggle-btn.active {
+            background: #31135D;
+            color: #FFFFFF;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            background: #FAFAFA;
+        }
+
+        /* Content Blocks */
+        .content-block {
+            margin-bottom: 24px;
+        }
+
+        .block-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #31135D;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .block-text {
+            font-size: 13px;
+            color: #333333;
+            line-height: 1.7;
+        }
+
+        .block-text strong {
+            color: #31135D;
+        }
+
+        /* List Styles */
+        .styled-list {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        .styled-list li {
+            padding: 12px 0 12px 32px;
+            border-bottom: 1px solid #F0F0F0;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .styled-list li::before {
+            content: "⇌";
+            position: absolute;
+            left: 0;
+            color: #31135D;
+        }
+
+        /* Progress Indicators */
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .progress-label {
+            width: 120px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666666;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #E0E0E0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #31135D;
+            transition: width 0.5s ease;
+        }
+
+        .progress-value {
+            width: 60px;
+            text-align: right;
+            font-size: 14px;
+            font-weight: 700;
+            color: #31135D;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: #999999;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 80px 20px 40px;
+            }
+
+            .hero {
+                padding: 40px 24px;
+            }
+
+            .hero-meta {
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .status-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .section.open .section-content {
+                padding: 24px;
+            }
+
+            .nav-container {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav-title">Host Call Analysis</div>
+        <div class="nav-dots">
+            <a href="#executive" class="nav-dot active" title="Executive Summary">1</a>
+            <a href="#segments" class="nav-dot" title="Host Segments">2</a>
+            <a href="#burden" class="nav-dot" title="Mental Burden">3</a>
+            <a href="#tradeoff" class="nav-dot" title="Money vs Work">4</a>
+            <a href="#profiles" class="nav-dot" title="Host Profiles">5</a>
+            <a href="#recommendations" class="nav-dot" title="Recommendations">6</a>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <!-- Hero Section -->
+        <header class="hero" id="executive">
+            <div class="hero-symbol">⇌</div>
+            <h1 class="hero-title">Host Call Deep Analysis</h1>
+            <p class="hero-subtitle">
+                Understanding host psychology, identifying ideal segments, and surfacing platform challenges through qualitative analysis of 48 Craigslist outreach calls.
+            </p>
+            <div class="hero-meta">
+                <div class="meta-item">
+                    <div class="meta-value">48</div>
+                    <div class="meta-label">Calls Analyzed</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">2</div>
+                    <div class="meta-label">Host Segments</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">6</div>
+                    <div class="meta-label">Key Recommendations</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Executive Summary -->
+        <section class="section open">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div>
+                    <div class="section-number">01</div>
+                    <div class="section-title">Executive Summary</div>
+                </div>
+                <div class="section-toggle">⇌</div>
+            </div>
+            <div class="section-content">
+                <div class="quote-block">
+                    <div class="quote-text">
+                        "Split Lease's value proposition is strongest for a segment it's not effectively targeting."
+                    </div>
+                    <div class="quote-author">Core Finding</div>
+                </div>
+
+                <div class="status-cards">
+                    <div class="status-card negative">
+                        <div class="card-icon">⇌</div>
+                        <div class="card-value">Ghost Roommates</div>
+                        <div class="card-label">Rejected by Owner-Occupants</div>
+                    </div>
+                    <div class="status-card positive">
+                        <div class="card-icon">⇌</div>
+                        <div class="card-value">One Guest, Long-Term</div>
+                        <div class="card-label">What Hosts Actually Want</div>
+                    </div>
+                    <div class="status-card warning">
+                        <div class="card-icon">⇌</div>
+                        <div class="card-value">$5,000+/month</div>
+                        <div class="card-label">Investor Host Minimum</div>
+                    </div>
+                    <div class="status-card positive">
+                        <div class="card-icon">⇌</div>
+                        <div class="card-value">Part-Time Occupants</div>
+                        <div class="card-label">Ideal Host Segment</div>
+                    </div>
+                </div>
+
+                <div class="content-block">
+                    <div class="block-title">The Core Discovery</div>
+                    <div class="block-text">
+                        The platform was designed for and resonates with <strong>owner-occupants who use their space part-time</strong> (the "ghost roommate" scenario). However, the Craigslist outreach primarily attracted <strong>professional landlords with investment properties</strong> who have fundamentally different needs.
+                    </div>
+                </div>
+
+                <div class="content-block">
+                    <div class="block-title">Key Finding</div>
+                    <div class="block-text">
+                        Hosts will accept more work and mental burden for more money, but only within specific constraints. The threshold isn't universal — it depends on the host's relationship to the space.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Host Segmentation -->
+        <section class="section" id="segments">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div>
+                    <div class="section-number">02</div>
+                    <div class="section-title">Host Segmentation Framework</div>
+                </div>
+                <div class="section-toggle">⇌</div>
+            </div>
+            <div class="section-content">
+                <div class="toggle-container">
+                    <div class="segment-toggle">
+                        <button class="toggle-btn active" onclick="showSegment('investor', this)">Investor Hosts</button>
+                        <button class="toggle-btn" onclick="showSegment('multilocal', this)">Multi-Local Hosts</button>
+                    </div>
+                </div>
+
+                <div id="investor-content" class="segment-content">
+                    <div class="status-cards">
+                        <div class="status-card negative">
+                            <div class="card-value">Poor Fit</div>
+                            <div class="card-label">Ghost Roommate Model</div>
+                        </div>
+                        <div class="status-card">
+                            <div class="card-value">13-14 Units</div>
+                            <div class="card-label">Average Portfolio Size</div>
+                        </div>
+                        <div class="status-card">
+                            <div class="card-value">$5,000+</div>
+                            <div class="card-label">Monthly Minimum Required</div>
+                        </div>
+                        <div class="status-card">
+                            <div class="card-value">Calendar Fill</div>
+                            <div class="card-label">Primary Goal</div>
+                        </div>
+                    </div>
+
+                    <div class="quote-block">
+                        <div class="quote-text">
+                            "If I commit to [Split Lease] at $2,500 a month, then what do I do? I can't find anyone else... unless the rates are there and the math doesn't add up."
+                        </div>
+                        <div class="quote-author">Tammy — 13-14 Unit Portfolio Owner</div>
+                    </div>
+
+                    <div class="content-block">
+                        <div class="block-title">Characteristics</div>
+                        <ul class="styled-list">
+                            <li>Multiple properties (investment portfolio)</li>
+                            <li>Don't live in the space — purely investment vehicle</li>
+                            <li>Optimize for $/month and calendar fill rate</li>
+                            <li>Already doing 30-day minimum rentals</li>
+                            <li>Have professional systems (cleaners, managers, electronic locks)</li>
+                            <li>Platform-agnostic (use Airbnb, VRBO, Furnished Finder, own sites)</li>
+                            <li>View Split Lease as competition for calendar, not complement</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-block">
+                        <div class="block-title">The Problem</div>
+                        <div class="block-text">
+                            They don't value flexibility — they want <strong>certainty and maximum revenue</strong>. The ghost roommate model adds complexity without clear ROI for this segment.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="multilocal-content" class="segment-content" style="display: none;">
+                    <div class="status-cards">
+                        <div class="status-card positive">
+                            <div class="card-value">Excellent Fit</div>
+                            <div class="card-label">Ghost Roommate Model</div>
+                        </div>
+                        <div class="status-card">
+                            <div class="card-value">1 Property</div>
+                            <div class="card-label">Single Space / Room</div>
+                        </div>
+                        <div class="status-card">
+                            <div class="card-value">$75-150</div>
+                            <div class="card-label">Nightly Rate Expectation</div>
+                        </div>
+                        <div class="status-card">
+                            <div class="card-value">Quality</div>
+                            <div class="card-label">Over Quantity</div>
+                        </div>
+                    </div>
+
+                    <div class="quote-block">
+                        <div class="quote-text">
+                            "I'm not really trying to make that much extra money... I just don't want multiple people coming in and out of my house because I live there."
+                        </div>
+                        <div class="quote-author">Hemeden — Owner-Occupant</div>
+                    </div>
+
+                    <div class="content-block">
+                        <div class="block-title">Characteristics</div>
+                        <ul class="styled-list">
+                            <li>Live in the space (part-time)</li>
+                            <li>Rent out unused time, not investment capacity</li>
+                            <li>Personal relationship matters — want to vet guests</li>
+                            <li>Single property or one room in their home</li>
+                            <li>Flexibility = value (they're away anyway)</li>
+                            <li>Quality over quantity ("don't want strangers coming in and out")</li>
+                            <li>Lower price expectations (monetizing dead time, not maximizing returns)</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-block">
+                        <div class="block-title">The Opportunity</div>
+                        <div class="block-text">
+                            They want <strong>ONE reliable person</strong> who respects their space during times they're not using it. Secondary income without sacrificing their home's sanctity.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equilibrium-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-symbol">⇌</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="content-block">
+                    <div class="block-title">Segment Comparison</div>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Factor</th>
+                            <th>Investor Host</th>
+                            <th>Multi-Local Host</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td># of Properties</td>
+                            <td>Multiple (5-14)</td>
+                            <td>Single / 1 room</td>
+                        </tr>
+                        <tr>
+                            <td>Lives in Space</td>
+                            <td>No</td>
+                            <td>Yes (part-time)</td>
+                        </tr>
+                        <tr>
+                            <td>Primary Goal</td>
+                            <td>Maximize $/month</td>
+                            <td>Monetize unused time</td>
+                        </tr>
+                        <tr>
+                            <td>Price Sensitivity</td>
+                            <td>High (needs $5K+/mo)</td>
+                            <td>Lower ($75-150/night)</td>
+                        </tr>
+                        <tr>
+                            <td>Multiple Guests OK?</td>
+                            <td>Yes if more $</td>
+                            <td>No — adds mental burden</td>
+                        </tr>
+                        <tr>
+                            <td>Ghost Roommate Fit</td>
+                            <td><span class="badge poor">Poor</span></td>
+                            <td><span class="badge excellent">Excellent</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Mental Burden -->
+        <section class="section" id="burden">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div>
+                    <div class="section-number">03</div>
+                    <div class="section-title">The Mental Burden Problem</div>
+                </div>
+                <div class="section-toggle">⇌</div>
+            </div>
+            <div class="section-content">
+                <div class="content-block">
+                    <div class="block-title">The Core Tension</div>
+                    <div class="block-text">
+                        The "two rotating guests" model creates mental burden that many hosts — especially owner-occupants — find unacceptable <strong>regardless of price</strong>.
+                    </div>
+                </div>
+
+                <div class="spectrum-container">
+                    <div class="spectrum-title">Complexity Spectrum</div>
+                    <div class="spectrum-bar">
+                        <div class="spectrum-marker marker-hosts" title="Where hosts want to be">H</div>
+                        <div class="spectrum-marker marker-splitlease" title="Where Split Lease positions">SL</div>
+                    </div>
+                    <div class="spectrum-labels">
+                        <span class="spectrum-label">Simple</span>
+                        <span class="spectrum-label">Complex</span>
+                    </div>
+                </div>
+
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-number">01</div>
+                        <div class="insight-title">Stranger Anxiety</div>
+                        <div class="insight-desc">Having ONE stranger is already outside comfort zone. Having TWO strangers who rotate adds exponential psychological load.</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-number">02</div>
+                        <div class="insight-title">Loss of Control</div>
+                        <div class="insight-desc">Owner-occupants experience the space as their HOME, not a rental unit. Each additional guest = less control over their personal environment.</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-number">03</div>
+                        <div class="insight-title">Cleaning Handoff</div>
+                        <div class="insight-desc">The cleaning handoff between ghost roommates is a point of stress. Who cleans? When? What if it's not done right?</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-number">04</div>
+                        <div class="insight-title">Storage Conflicts</div>
+                        <div class="insight-desc">Where do guests store belongings? How to prevent conflicts? What if something goes missing?</div>
+                    </div>
+                </div>
+
+                <div class="quote-block">
+                    <div class="quote-text">
+                        "I don't like dealing with strangers is one thing. And then two strangers that change — like another level of energy."
+                    </div>
+                    <div class="quote-author">Sherene — On Ghost Roommate Complexity</div>
+                </div>
+
+                <div class="quote-block">
+                    <div class="quote-text">
+                        "I don't really want multiple people coming in and out of my house because I live there... I have a 9-to-5, so it's just going to be too much."
+                    </div>
+                    <div class="quote-author">Hemeden — On Mental Overhead</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Money vs Work Tradeoff -->
+        <section class="section" id="tradeoff">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div>
+                    <div class="section-number">04</div>
+                    <div class="section-title">Money vs. Work Tradeoff</div>
+                </div>
+                <div class="section-toggle">⇌</div>
+            </div>
+            <div class="section-content">
+                <div class="content-block">
+                    <div class="block-title">The Core Question</div>
+                    <div class="block-text">
+                        Will hosts accept more work for more money?<br><br>
+                        <strong>Answer: Yes, BUT with critical constraints.</strong>
+                    </div>
+                </div>
+
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-title">Constraint 1: "Worth My Time"</div>
+                        <div class="insight-desc">Different host types have different thresholds. Investor hosts need $5K+/month. Owner-occupants are satisfied with $300-600/month but reject complexity.</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-title">Constraint 2: Mental Overhead Limit</div>
+                        <div class="insight-desc">Owner-occupants have a hard limit on mental overhead that isn't about money. Some experiences are unacceptable at any price.</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-title">Constraint 3: Relationship Quality</div>
+                        <div class="insight-desc">Some hosts will take LESS money for a better relationship. The equation isn't purely financial.</div>
+                    </div>
+                </div>
+
+                <div class="quote-block">
+                    <div class="quote-text">
+                        "If I have someone who's regular, they'll get a discount because I'd prefer to work with one or two."
+                    </div>
+                    <div class="quote-author">Kris — Premium Property Owner</div>
+                </div>
+
+                <div class="equilibrium-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-symbol">⇌</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="content-block">
+                    <div class="block-title">The Tradeoff Matrix</div>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Money</th>
+                            <th>Work</th>
+                            <th>Host Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1 guest, long-term</td>
+                            <td>Medium</td>
+                            <td>Low</td>
+                            <td><span class="badge excellent">Preferred</span></td>
+                        </tr>
+                        <tr>
+                            <td>1 guest, short-term</td>
+                            <td>High</td>
+                            <td>Medium</td>
+                            <td><span class="badge conditional">Acceptable</span></td>
+                        </tr>
+                        <tr>
+                            <td>2 ghost roommates (owner-occupant)</td>
+                            <td>High</td>
+                            <td>High</td>
+                            <td><span class="badge poor">Rejected</span></td>
+                        </tr>
+                        <tr>
+                            <td>2 ghost roommates (investor)</td>
+                            <td>Very High</td>
+                            <td>High</td>
+                            <td><span class="badge conditional">Conditional</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Host Profiles -->
+        <section class="section" id="profiles">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div>
+                    <div class="section-number">05</div>
+                    <div class="section-title">Host Profiles</div>
+                </div>
+                <div class="section-toggle">⇌</div>
+            </div>
+            <div class="section-content">
+                <div class="content-block">
+                    <div class="block-title">High-Potential Hosts</div>
+                </div>
+
+                <div class="host-profiles">
+                    <div class="host-card">
+                        <div class="host-card-header">
+                            <div class="host-name">Kris</div>
+                            <div class="host-fit">Excellent Fit</div>
+                        </div>
+                        <div class="host-card-body">
+                            <div class="host-detail">
+                                <span class="detail-label">Property</span>
+                                <span class="detail-value">Premium 57th St, 1BR+office</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Pattern</span>
+                                <span class="detail-value">Away 3wk / Home 2wk</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Rent</span>
+                                <span class="detail-value">$5,500/month</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Need</span>
+                                <span class="detail-value">Regular guest, premium price</span>
+                            </div>
+                            <div class="host-quote">"If I have someone who's regular, they'll get a discount because I'd prefer to work with one or two."</div>
+                        </div>
+                    </div>
+
+                    <div class="host-card">
+                        <div class="host-card-header">
+                            <div class="host-name">Sherene</div>
+                            <div class="host-fit">Cautious Interest</div>
+                        </div>
+                        <div class="host-card-body">
+                            <div class="host-detail">
+                                <span class="detail-label">Property</span>
+                                <span class="detail-value">Private room in home</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Asking</span>
+                                <span class="detail-value">$1,200/month</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Concern</span>
+                                <span class="detail-value">Two strangers rotating</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Condition</span>
+                                <span class="detail-value">Will accept for more $</span>
+                            </div>
+                            <div class="host-quote">"I'm not adverse to this arrangement... would have to be closer to $1,200."</div>
+                        </div>
+                    </div>
+
+                    <div class="host-card">
+                        <div class="host-card-header">
+                            <div class="host-name">Hemeden</div>
+                            <div class="host-fit">Single Guest Only</div>
+                        </div>
+                        <div class="host-card-body">
+                            <div class="host-detail">
+                                <span class="detail-label">Property</span>
+                                <span class="detail-value">Owner-occupied room</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Rate</span>
+                                <span class="detail-value">$75/night</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Max Stay</span>
+                                <span class="detail-value">4 weeks (squatter fear)</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Ghost Roommates</span>
+                                <span class="detail-value">Rejected</span>
+                            </div>
+                            <div class="host-quote">"One person would be fine. I don't want multiple people coming in and out."</div>
+                        </div>
+                    </div>
+
+                    <div class="host-card">
+                        <div class="host-card-header">
+                            <div class="host-name">Tammy</div>
+                            <div class="host-fit">Conditional</div>
+                        </div>
+                        <div class="host-card-body">
+                            <div class="host-detail">
+                                <span class="detail-label">Portfolio</span>
+                                <span class="detail-value">13-14 units (9 in NYC)</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Minimum</span>
+                                <span class="detail-value">$5,000/month for 2BR</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Condition</span>
+                                <span class="detail-value">Split Lease must guarantee $</span>
+                            </div>
+                            <div class="host-detail">
+                                <span class="detail-label">Opportunity</span>
+                                <span class="detail-value">Building-level partnership</span>
+                            </div>
+                            <div class="host-quote">"If you guys put together a lease package with two or more tenants that would exceed my monthly..."</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equilibrium-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-symbol">⇌</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="content-block">
+                    <div class="block-title">Ideal Host Profile: "The Part-Time Occupant"</div>
+                </div>
+
+                <div class="insight-grid">
+                    <div class="insight-card">
+                        <div class="insight-title">Demographics</div>
+                        <div class="insight-desc">Lives in space 40-70% of time. Regular travel/work pattern. Single property. Professional. Age 28-50.</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-title">Psychographics</div>
+                        <div class="insight-desc">Sees space as HOME first, income second. Wants ONE reliable guest. Values relationship over speed.</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-title">Where to Find Them</div>
+                        <div class="insight-desc">Consultants (travel M-Th). Flight attendants. Remote workers with second home. Divorced parents.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommendations -->
+        <section class="section" id="recommendations">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div>
+                    <div class="section-number">06</div>
+                    <div class="section-title">Strategic Recommendations</div>
+                </div>
+                <div class="section-toggle">⇌</div>
+            </div>
+            <div class="section-content">
+                <div class="recommendation-list">
+                    <div class="recommendation-item">
+                        <div class="rec-title">Lead with "One Guest, Long-Term"</div>
+                        <div class="rec-desc">
+                            <strong>Current pitch:</strong> Ghost roommates, split schedules, two guests<br>
+                            <strong>Recommended:</strong> "Find ONE reliable professional who needs your space exactly when you don't use it. Same person, every week, for months."
+                        </div>
+                    </div>
+
+                    <div class="recommendation-item">
+                        <div class="rec-title">Refine Target Segment</div>
+                        <div class="rec-desc">
+                            Stop targeting investor hosts via Craigslist. Focus on owner-occupants with part-time usage patterns: consultants, flight attendants, divorced parents, remote workers with multi-city lives.
+                        </div>
+                    </div>
+
+                    <div class="recommendation-item">
+                        <div class="rec-title">Build Co-Host Service</div>
+                        <div class="rec-desc">
+                            Multiple hosts explicitly asked for full-service management. Offer tiers: Self-Service, Assisted (SL creates listing), Full-Service (SL handles everything). Cristina: "If you can do the work for me..."
+                        </div>
+                    </div>
+
+                    <div class="recommendation-item">
+                        <div class="rec-title">Address Mental Burden Proactively</div>
+                        <div class="rec-desc">
+                            In sales calls, address upfront: "You'll have ONE guest, not rotating strangers. They clean before leaving. You meet them on Zoom first. Maximum 4-week trial. Payment 24h after arrival."
+                        </div>
+                    </div>
+
+                    <div class="recommendation-item">
+                        <div class="rec-title">Implement Trial Night Offering</div>
+                        <div class="rec-desc">
+                            Split Lease covers cleaning cost. Guest sends proposal with intended full stay. One trial night. If successful, full booking proceeds. Multiple hosts responded positively.
+                        </div>
+                    </div>
+
+                    <div class="recommendation-item">
+                        <div class="rec-title">Reserve Ghost Roommates for Proven Hosts</div>
+                        <div class="rec-desc">
+                            Ghost roommate model should be a premium upsell for hosts who've proven comfortable with single guests — not the default offering for new hosts.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equilibrium-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-symbol">⇌</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="content-block">
+                    <div class="block-title">The Path Forward</div>
+                    <div class="block-text">
+                        The platform's legal architecture is sound. The challenge is matching that architecture to hosts who actually want what it offers. Target owner-occupants with <strong>single, long-term guests</strong> (not ghost roommates). Build <strong>co-host service</strong> for delegators. Reserve ghost roommate model for proven hosts. Pursue building-level partnerships with investor hosts if unit economics work.
+                    </div>
+                </div>
+
+                <div class="quote-block">
+                    <div class="quote-text">
+                        "Only long-term sublet... six months of weekends or a year of weekends."
+                    </div>
+                    <div class="quote-author">Stephanie — What Hosts Actually Want</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="equilibrium-divider">
+                <div class="divider-line"></div>
+                <div class="divider-symbol">⇌</div>
+                <div class="divider-line"></div>
+            </div>
+            <p>Analysis completed November 27, 2025 — Based on 48 host call transcripts</p>
+        </footer>
+    </main>
+
+    <script>
+        // Toggle sections
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('open');
+        }
+
+        // Segment toggle
+        function showSegment(segment, btn) {
+            // Update buttons
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Show/hide content
+            if (segment === 'investor') {
+                document.getElementById('investor-content').style.display = 'block';
+                document.getElementById('multilocal-content').style.display = 'none';
+            } else {
+                document.getElementById('investor-content').style.display = 'none';
+                document.getElementById('multilocal-content').style.display = 'block';
+            }
+        }
+
+        // Navigation highlighting
+        document.querySelectorAll('.nav-dot').forEach(dot => {
+            dot.addEventListener('click', function(e) {
+                document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Open the section if it's closed
+                    const section = target.closest('.section');
+                    if (section && !section.classList.contains('open')) {
+                        section.classList.add('open');
+                    }
+                }
+            });
+        });
+
+        // Animate on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.insight-card, .host-card, .recommendation-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

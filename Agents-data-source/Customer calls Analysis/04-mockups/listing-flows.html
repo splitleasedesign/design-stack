@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Lease - Listing Flows by Archetype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .flow-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .flow-btn {
+            padding: 12px 24px;
+            border: 2px solid #333;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+
+        .flow-btn:hover {
+            background: #333;
+            color: white;
+        }
+
+        .flow-btn.active {
+            background: #333;
+            color: white;
+        }
+
+        .flow {
+            display: none;
+        }
+
+        .flow.active {
+            display: block;
+        }
+
+        .screen {
+            display: none;
+            background: white;
+            border: 2px solid #333;
+            padding: 30px;
+            margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .screen h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .screen h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .checkbox-group,
+        .radio-group {
+            margin: 15px 0;
+        }
+
+        .checkbox-group label,
+        .radio-group label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group input,
+        .radio-group input {
+            margin-right: 10px;
+            width: auto;
+        }
+
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .days-selector {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .days-selector label {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background: white;
+        }
+
+        .days-selector input {
+            display: none;
+        }
+
+        .days-selector input:checked + span {
+            background: #333;
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 2px solid #333;
+            background: white;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+        }
+
+        .btn-primary {
+            background: #333;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #555;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #333;
+        }
+
+        .info-box {
+            background: #f9f9f9;
+            border-left: 4px solid #333;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .trust-signals {
+            margin: 20px 0;
+        }
+
+        .trust-signals p {
+            margin: 8px 0;
+        }
+
+        .photo-upload {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .photo-box {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #fafafa;
+        }
+
+        .photo-box:hover {
+            border-color: #333;
+        }
+
+        .progress {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .listing-preview {
+            background: #f9f9f9;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+        }
+
+        .link {
+            color: #0066cc;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        .recommendation {
+            background: #fffbea;
+            border: 1px solid #f0e68c;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .flow-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e8f4f8;
+            border-radius: 4px;
+        }
+
+        .flow-info h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .flow-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Split Lease - Host Listing Flows</h1>
+
+        <div class="flow-selector">
+            <button class="flow-btn active" data-flow="passive">Passive Landlord (Anthony)</button>
+            <button class="flow-btn" data-flow="delegator">Time-Poor Delegator (Cristina)</button>
+            <button class="flow-btn" data-flow="verifier">Skeptical Verifier (Dimitri/Tag/Stephanie)</button>
+            <button class="flow-btn" data-flow="opportunist">Pragmatic Opportunist (Robert)</button>
+            <button class="flow-btn" data-flow="standard">Standard (Universal)</button>
+        </div>
+
+        <!-- FLOW 1: PASSIVE LANDLORD -->
+        <div id="passive-flow" class="flow active">
+            <div class="flow-info">
+                <h3>Passive Landlord Flow</h3>
+                <p><strong>Target:</strong> Anthony type - minimal engagement, delegates everything</p>
+                <p><strong>Time:</strong> ~2 minutes | <strong>Screens:</strong> 5</p>
+            </div>
+
+            <!-- Screen 1 -->
+            <div class="screen active" data-screen="1">
+                <h2>Welcome, Anthony</h2>
+                <p style="font-size: 18px; margin: 20px 0;">We'll create your listing for you.</p>
+                <p>Just answer 3 quick questions, then we handle the rest.</p>
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn-primary" onclick="nextScreen('passive', 1)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 2 -->
+            <div class="screen" data-screen="2">
+                <p class="progress">Question 1 of 3</p>
+                <h2>What's the address?</h2>
+                <label>Street Address</label>
+                <input type="text" placeholder="123 Main Street">
+
+                <label>City</label>
+                <input type="text" placeholder="New York">
+
+                <label>Zip</label>
+                <input type="text" placeholder="10001">
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('passive', 2)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('passive', 2)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 3 -->
+            <div class="screen" data-screen="3">
+                <p class="progress">Question 2 of 3</p>
+                <h2>When is the space available?</h2>
+                <div class="radio-group">
+                    <label><input type="radio" name="passive-avail" checked> Available now</label>
+                    <label><input type="radio" name="passive-avail"> Available starting: <input type="date" style="width: auto; display: inline; margin-left: 10px;"></label>
+                    <label><input type="radio" name="passive-avail"> Not sure yet (we'll contact you)</label>
+                </div>
+                <div class="btn-group">
+                    <button onclick="prevScreen('passive', 3)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('passive', 3)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 4 -->
+            <div class="screen" data-screen="4">
+                <p class="progress">Question 3 of 3</p>
+                <h2>How should we reach you?</h2>
+                <label>Phone</label>
+                <input type="tel" placeholder="(555) 123-4567">
+
+                <label>Email</label>
+                <input type="email" placeholder="anthony@email.com">
+
+                <h3>Preferred contact:</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="passive-contact" checked> Text</label>
+                    <label><input type="radio" name="passive-contact"> Call</label>
+                    <label><input type="radio" name="passive-contact"> Email</label>
+                </div>
+                <div class="btn-group">
+                    <button onclick="prevScreen('passive', 4)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('passive', 4)">Submit →</button>
+                </div>
+            </div>
+
+            <!-- Screen 5 -->
+            <div class="screen" data-screen="5">
+                <h2>✓ You're all set!</h2>
+                <p style="margin: 20px 0;">Your agent will contact you within 24 hours to:</p>
+                <ul style="margin-left: 20px; margin-bottom: 20px;">
+                    <li>Get photos of your space</li>
+                    <li>Discuss pricing</li>
+                    <li>Create your listing</li>
+                </ul>
+                <p><strong>No work required from you.</strong></p>
+                <hr class="divider">
+                <div class="info-box">
+                    <p><strong>Your Agent: Bryant</strong></p>
+                    <p>📱 555-0123</p>
+                    <p>✉ bryant@splitlease.com</p>
+                </div>
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn-primary" onclick="resetFlow('passive')">Done</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLOW 2: TIME-POOR DELEGATOR -->
+        <div id="delegator-flow" class="flow">
+            <div class="flow-info">
+                <h3>Time-Poor Delegator Flow</h3>
+                <p><strong>Target:</strong> Cristina type - overwhelmed, needs help, prefers verbal communication</p>
+                <p><strong>Time:</strong> ~3 minutes | <strong>Screens:</strong> 5</p>
+            </div>
+
+            <!-- Screen 1 -->
+            <div class="screen active" data-screen="1">
+                <h2>We know you're busy.</h2>
+                <p style="margin: 20px 0; font-size: 18px;">Fill out this short form, and we'll call you within 2 hours to handle everything else.</p>
+                <p>Takes 3 minutes.</p>
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn-primary" onclick="nextScreen('delegator', 1)">Let's Go →</button>
+                </div>
+            </div>
+
+            <!-- Screen 2 -->
+            <div class="screen" data-screen="2">
+                <h2>About Your Space</h2>
+                <label>Address</label>
+                <input type="text" placeholder="123 Main Street, New York">
+
+                <h3>Type:</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="delegator-type"> Studio</label>
+                    <label><input type="radio" name="delegator-type" checked> 1 Bedroom</label>
+                    <label><input type="radio" name="delegator-type"> 2+ Bedrooms</label>
+                </div>
+
+                <h3>Who will we talk to about this property?</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="delegator-owner"> I own it</label>
+                    <label><input type="radio" name="delegator-owner"> I rent it (I'm the primary tenant)</label>
+                    <label><input type="radio" name="delegator-owner" checked> I'm managing it for someone else</label>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('delegator', 2)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('delegator', 2)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 3 -->
+            <div class="screen" data-screen="3">
+                <h2>When is the space empty?</h2>
+                <div class="radio-group">
+                    <label><input type="radio" name="delegator-schedule" checked> Weekdays (Mon-Fri)</label>
+                    <label><input type="radio" name="delegator-schedule"> Weekends (Sat-Sun)</label>
+                    <label><input type="radio" name="delegator-schedule"> Specific days: <input type="text" placeholder="e.g. Mon, Wed, Fri" style="width: auto; display: inline; margin-left: 10px;"></label>
+                    <label><input type="radio" name="delegator-schedule"> Full-time (always available)</label>
+                    <label><input type="radio" name="delegator-schedule"> Not sure (we'll discuss on call)</label>
+                </div>
+
+                <h3>Starting when?</h3>
+                <input type="date" style="width: auto; margin-right: 10px;">
+                <span>or</span>
+                <label style="margin-left: 10px;"><input type="checkbox"> Not sure yet</label>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('delegator', 3)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('delegator', 3)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 4 -->
+            <div class="screen" data-screen="4">
+                <h2>How to Reach You</h2>
+                <label>Your Name</label>
+                <input type="text" placeholder="Cristina">
+
+                <label>Phone</label>
+                <input type="tel" placeholder="(555) 123-4567">
+
+                <label>Email</label>
+                <input type="email" placeholder="cristina@email.com">
+
+                <h3>Best time for us to call?</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="delegator-calltime"> Morning (9am-12pm)</label>
+                    <label><input type="radio" name="delegator-calltime"> Afternoon (12pm-5pm)</label>
+                    <label><input type="radio" name="delegator-calltime" checked> Evening (5pm-8pm)</label>
+                    <label><input type="radio" name="delegator-calltime"> Anytime</label>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('delegator', 4)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('delegator', 4)">Submit →</button>
+                </div>
+            </div>
+
+            <!-- Screen 5 -->
+            <div class="screen" data-screen="5">
+                <h2>✓ Done! We'll call you soon.</h2>
+                <div class="info-box">
+                    <p><strong>Expect a call from:</strong></p>
+                    <p><strong>Bryant</strong> (your listing specialist)</p>
+                    <p>📱 555-0123</p>
+                    <p style="margin-top: 15px;">Within the next 2 hours.</p>
+                </div>
+                <hr class="divider">
+                <p><strong>We'll discuss:</strong></p>
+                <ul style="margin: 15px 0 15px 20px;">
+                    <li>Photos (you can text them to us)</li>
+                    <li>Pricing (we'll suggest the best rate)</li>
+                    <li>Guest preferences</li>
+                </ul>
+                <p><strong>Save this number: 555-0123</strong><br>
+                (Text us anytime if you have questions)</p>
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn-primary" onclick="resetFlow('delegator')">Done</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLOW 3: SKEPTICAL VERIFIER -->
+        <div id="verifier-flow" class="flow">
+            <div class="flow-info">
+                <h3>Skeptical Verifier Flow</h3>
+                <p><strong>Target:</strong> Dimitri/Tag/Stephanie type - needs transparency, wants control, high risk perception</p>
+                <p><strong>Time:</strong> ~10 minutes | <strong>Screens:</strong> 8</p>
+            </div>
+
+            <!-- Screen 1 -->
+            <div class="screen active" data-screen="1">
+                <h2>Create Your Listing</h2>
+                <div class="trust-signals">
+                    <p>✓ $1M Payment Guarantee</p>
+                    <p>✓ Damage Protection (up to $1,000)</p>
+                    <p>✓ Background-Checked Guests Only</p>
+                    <p>✓ You Approve Every Guest</p>
+                </div>
+                <hr class="divider">
+                <p>This process takes 8-10 minutes.<br>You can save and return anytime.</p>
+                <div class="btn-group">
+                    <button onclick="alert('Help documentation')">Questions? Call us: 555-0123</button>
+                    <button class="btn-primary" onclick="nextScreen('verifier', 1)">Get Started →</button>
+                </div>
+            </div>
+
+            <!-- Screen 2 -->
+            <div class="screen" data-screen="2">
+                <p class="progress">Step 1 of 6: Property Details</p>
+                <h2>Property Details</h2>
+                <label>Street Address</label>
+                <input type="text" placeholder="123 Main Street">
+
+                <label>Apt/Unit</label>
+                <input type="text" placeholder="4B">
+
+                <label>City</label>
+                <input type="text" placeholder="New York">
+
+                <label>Zip</label>
+                <input type="text" placeholder="10001">
+
+                <h3>Property Type</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="verifier-type"> Studio</label>
+                    <label><input type="radio" name="verifier-type" checked> 1 Bedroom</label>
+                    <label><input type="radio" name="verifier-type"> 2 Bedrooms</label>
+                    <label><input type="radio" name="verifier-type"> 3+ Bedrooms</label>
+                    <label><input type="radio" name="verifier-type"> Shared Room</label>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="alert('Saved!')">Save & Exit</button>
+                    <button class="btn-primary" onclick="nextScreen('verifier', 2)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 3 -->
+            <div class="screen" data-screen="3">
+                <p class="progress">Step 2 of 6: Amenities</p>
+                <h2>Amenities</h2>
+                <p>Select all that apply:</p>
+                <div class="amenities-grid">
+                    <label><input type="checkbox"> WiFi</label>
+                    <label><input type="checkbox"> Air Conditioning</label>
+                    <label><input type="checkbox"> Laundry (in-unit)</label>
+                    <label><input type="checkbox"> Heating</label>
+                    <label><input type="checkbox"> Laundry (in-building)</label>
+                    <label><input type="checkbox"> Workspace/Desk</label>
+                    <label><input type="checkbox"> Kitchen (full)</label>
+                    <label><input type="checkbox"> TV</label>
+                    <label><input type="checkbox"> Kitchen (partial)</label>
+                    <label><input type="checkbox"> Parking (street)</label>
+                    <label><input type="checkbox"> Dishwasher</label>
+                    <label><input type="checkbox"> Parking (garage)</label>
+                </div>
+
+                <label>Special Features (optional)</label>
+                <textarea placeholder="e.g. Rooftop access, gym in building, doorman..."></textarea>
+
+                <div class="btn-group">
+                    <button onclick="alert('Saved!')">Save & Exit</button>
+                    <button onclick="prevScreen('verifier', 3)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('verifier', 3)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 4 -->
+            <div class="screen" data-screen="4">
+                <p class="progress">Step 3 of 6: Photos</p>
+                <h2>Photos</h2>
+                <p><strong>Listings with 5+ photos get 3x more proposals.</strong></p>
+
+                <div class="photo-upload">
+                    <div class="photo-box">+ Add Photo</div>
+                    <div class="photo-box">+ Add Photo</div>
+                    <div class="photo-box">+ Add Photo</div>
+                </div>
+
+                <h3>Or choose an alternative:</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="verifier-photos"> I'll upload photos later</label>
+                    <label><input type="radio" name="verifier-photos"> Text photos to: 555-0123</label>
+                    <label><input type="radio" name="verifier-photos"> Have an agent help me with photos (call me)</label>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="alert('Saved!')">Save & Exit</button>
+                    <button onclick="prevScreen('verifier', 4)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('verifier', 4)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 5 -->
+            <div class="screen" data-screen="5">
+                <p class="progress">Step 4 of 6: Availability & Pricing</p>
+                <h2>Availability & Pricing</h2>
+
+                <h3>When is your space available?</h3>
+                <label>Start Date</label>
+                <input type="date">
+
+                <label>End Date</label>
+                <input type="date">
+                <label style="margin-left: 10px;"><input type="checkbox"> Ongoing</label>
+
+                <h3>Which days?</h3>
+                <div class="days-selector">
+                    <label><input type="checkbox"><span>Mon</span></label>
+                    <label><input type="checkbox"><span>Tue</span></label>
+                    <label><input type="checkbox"><span>Wed</span></label>
+                    <label><input type="checkbox"><span>Thu</span></label>
+                    <label><input type="checkbox"><span>Fri</span></label>
+                    <label><input type="checkbox"><span>Sat</span></label>
+                    <label><input type="checkbox"><span>Sun</span></label>
+                </div>
+
+                <hr class="divider">
+
+                <h3>Your nightly rate?</h3>
+                <input type="number" placeholder="120" style="width: 150px;">
+                <span> per night</span>
+
+                <div class="recommendation">
+                    <p><strong>💡 Suggested rate: $110-130/night</strong></p>
+                    <p style="font-size: 14px;">(Based on similar listings in your area)</p>
+                </div>
+
+                <div class="radio-group">
+                    <label><input type="radio" name="verifier-pricing"> Use suggested rate</label>
+                    <label><input type="radio" name="verifier-pricing" checked> I'll set my own rate (entered above)</label>
+                    <label><input type="radio" name="verifier-pricing"> I want to discuss pricing with an agent</label>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="alert('Saved!')">Save & Exit</button>
+                    <button onclick="prevScreen('verifier', 5)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('verifier', 5)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 6 -->
+            <div class="screen" data-screen="6">
+                <p class="progress">Step 5 of 6: Guest Preferences</p>
+                <h2>Guest Preferences</h2>
+
+                <h3>What type of guest are you looking for?</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox"> Business travelers</label>
+                    <label><input type="checkbox"> Remote workers</label>
+                    <label><input type="checkbox"> Medical professionals</label>
+                    <label><input type="checkbox"> Commuters (multi-city professionals)</label>
+                    <label><input type="checkbox"> Graduate students</label>
+                    <label><input type="checkbox"> Other: <input type="text" placeholder="Specify" style="width: auto; display: inline; margin-left: 10px;"></label>
+                </div>
+
+                <h3>Gender preference (if any):</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="verifier-gender" checked> No preference</label>
+                    <label><input type="radio" name="verifier-gender"> Female only</label>
+                    <label><input type="radio" name="verifier-gender"> Male only</label>
+                </div>
+
+                <h3>Additional requirements?</h3>
+                <textarea placeholder="Any other preferences or requirements for guests..."></textarea>
+
+                <div class="btn-group">
+                    <button onclick="alert('Saved!')">Save & Exit</button>
+                    <button onclick="prevScreen('verifier', 6)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('verifier', 6)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 7 -->
+            <div class="screen" data-screen="7">
+                <p class="progress">Step 6 of 6: Review Your Listing</p>
+                <h2>Review Your Listing</h2>
+
+                <div class="listing-preview">
+                    <p><strong>123 Main St, Apt 4B, New York, NY 10001</strong></p>
+                    <p>1 Bedroom • $120/night • Available Mon-Thu</p>
+                    <p>Photos: 5 uploaded</p>
+                    <p>Amenities: WiFi, Laundry, Workspace...</p>
+                    <button onclick="prevScreen('verifier', 7)" style="margin-top: 10px;">Edit</button>
+                </div>
+
+                <hr class="divider">
+
+                <h3>Before You Publish: How We Protect You</h3>
+                <div class="trust-signals">
+                    <p>✓ Every guest is background-checked</p>
+                    <p>✓ Employment & income verified</p>
+                    <p>✓ You review each proposal before accepting</p>
+                    <p>✓ We guarantee all payments to you</p>
+                    <p>✓ Damage protection up to $1,000</p>
+                </div>
+                <p><a href="#" class="link">View Complete Protection Details</a></p>
+
+                <hr class="divider">
+
+                <label><input type="checkbox"> I agree to the Terms & Conditions</label>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('verifier', 7)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('verifier', 7)">Publish Listing →</button>
+                </div>
+            </div>
+
+            <!-- Screen 8 -->
+            <div class="screen" data-screen="8">
+                <h2>✓ Your Listing is Live!</h2>
+
+                <h3>What happens next:</h3>
+                <ol style="margin: 20px; line-height: 2;">
+                    <li><strong>Guests submit proposals</strong><br>
+                    <span style="font-size: 14px; color: #666;">(You'll get email & text notifications)</span></li>
+
+                    <li><strong>Review each proposal</strong><br>
+                    <span style="font-size: 14px; color: #666;">(See guest profile, background check, references)</span></li>
+
+                    <li><strong>Accept or decline</strong><br>
+                    <span style="font-size: 14px; color: #666;">(You have full control)</span></li>
+
+                    <li><strong>We schedule a video intro</strong><br>
+                    <span style="font-size: 14px; color: #666;">(Meet the guest via Zoom before they move in)</span></li>
+
+                    <li><strong>Guest moves in</strong><br>
+                    <span style="font-size: 14px; color: #666;">(We handle payment, you get paid in 3 days)</span></li>
+                </ol>
+
+                <hr class="divider">
+
+                <div class="info-box">
+                    <p><strong>Your Agent: Bryant</strong></p>
+                    <p>📱 555-0123 • ✉ bryant@splitlease.com</p>
+                    <p style="font-style: italic; margin-top: 10px;">"I'm here if you have any questions."</p>
+                </div>
+
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn-primary" onclick="resetFlow('verifier')">Go to Dashboard →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLOW 4: PRAGMATIC OPPORTUNIST -->
+        <div id="opportunist-flow" class="flow">
+            <div class="flow-info">
+                <h3>Pragmatic Opportunist Flow</h3>
+                <p><strong>Target:</strong> Robert type - wants speed, solution-focused, comfortable with digital</p>
+                <p><strong>Time:</strong> ~5 minutes | <strong>Screens:</strong> 3-5</p>
+            </div>
+
+            <!-- Screen 1 -->
+            <div class="screen active" data-screen="1">
+                <h2>List Your Space in 5 Minutes</h2>
+                <p style="font-size: 18px; margin: 20px 0;">Start earning from empty days.</p>
+                <p style="text-align: center; margin: 30px 0;">
+                    <strong>Quick Setup → Instant Proposals → Get Paid</strong>
+                </p>
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn-primary" onclick="nextScreen('opportunist', 1)">Start Now →</button>
+                </div>
+            </div>
+
+            <!-- Screen 2 -->
+            <div class="screen" data-screen="2">
+                <p class="progress">Quick Setup (1 of 2)</p>
+                <h2>Basic Info</h2>
+
+                <label>Address</label>
+                <input type="text" placeholder="123 Main Street, New York">
+
+                <label>Type</label>
+                <select>
+                    <option>Studio</option>
+                    <option selected>1 Bedroom</option>
+                    <option>2 Bedrooms</option>
+                    <option>3+ Bedrooms</option>
+                </select>
+
+                <h3>Available:</h3>
+                <div class="days-selector">
+                    <label><input type="checkbox" checked><span>Mon</span></label>
+                    <label><input type="checkbox" checked><span>Tue</span></label>
+                    <label><input type="checkbox" checked><span>Wed</span></label>
+                    <label><input type="checkbox" checked><span>Thu</span></label>
+                    <label><input type="checkbox"><span>Fri</span></label>
+                    <label><input type="checkbox"><span>Sat</span></label>
+                    <label><input type="checkbox"><span>Sun</span></label>
+                </div>
+
+                <h3>Starting:</h3>
+                <input type="date" style="width: auto; margin-right: 10px;">
+                <span>or</span>
+                <button style="margin-left: 10px;">Today</button>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('opportunist', 2)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('opportunist', 2)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 3 -->
+            <div class="screen" data-screen="3">
+                <p class="progress">Quick Setup (2 of 2)</p>
+                <h2>Pricing & Contact</h2>
+
+                <h3>Nightly Rate</h3>
+                <div class="recommendation">
+                    <p><strong>We recommend: $115/night</strong></p>
+                    <p style="font-size: 14px;">(Based on your location and similar listings)</p>
+                </div>
+
+                <label>Your rate:</label>
+                <input type="number" value="115" style="width: 150px;">
+                <span> per night</span>
+
+                <hr class="divider">
+
+                <h3>Key Amenities (select any)</h3>
+                <div class="checkbox-group" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                    <label><input type="checkbox" checked> WiFi</label>
+                    <label><input type="checkbox"> Laundry</label>
+                    <label><input type="checkbox" checked> Workspace</label>
+                    <label><input type="checkbox" checked> Kitchen</label>
+                </div>
+
+                <hr class="divider">
+
+                <h3>Your Contact</h3>
+                <label>Phone</label>
+                <input type="tel" placeholder="(555) 123-4567">
+
+                <label>Email</label>
+                <input type="email" placeholder="robert@email.com">
+
+                <p style="font-size: 14px; color: #666; margin-top: 20px;">
+                    You can add photos and details after publishing.
+                </p>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('opportunist', 3)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('opportunist', 3)">Publish Listing →</button>
+                </div>
+            </div>
+
+            <!-- Screen 4 -->
+            <div class="screen" data-screen="4">
+                <h2>✓ You're Live!</h2>
+                <p style="margin: 20px 0;">Your listing is already visible to guests.</p>
+
+                <hr class="divider">
+
+                <h3>Want more proposals? (optional)</h3>
+
+                <div style="margin: 20px 0;">
+                    <button class="btn-primary" onclick="nextScreen('opportunist', 4)" style="width: 100%; margin-bottom: 10px;">
+                        → Add Photos (2 min)<br>
+                        <span style="font-size: 14px; font-weight: normal;">+50% more interest</span>
+                    </button>
+
+                    <button style="width: 100%; margin-bottom: 10px;">
+                        → Add More Details (3 min)<br>
+                        <span style="font-size: 14px;">+30% more proposals</span>
+                    </button>
+
+                    <button onclick="resetFlow('opportunist')" style="width: 100%;">
+                        Skip for Now - Go to Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- Screen 5 (Optional) -->
+            <div class="screen" data-screen="5">
+                <h2>Add Photos (Optional)</h2>
+
+                <div class="photo-upload">
+                    <div class="photo-box">+ Add</div>
+                    <div class="photo-box">+ Add</div>
+                    <div class="photo-box">+ Add</div>
+                </div>
+
+                <p style="margin: 20px 0;">Prefer to text them? <strong>555-0123</strong></p>
+
+                <div class="btn-group">
+                    <button onclick="alert('Photos saved!')">Save</button>
+                    <button class="btn-primary" onclick="resetFlow('opportunist')">Skip - Go to Dashboard →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLOW 5: STANDARD (UNIVERSAL) -->
+        <div id="standard-flow" class="flow">
+            <div class="flow-info">
+                <h3>Standard Universal Flow</h3>
+                <p><strong>Target:</strong> All host types - adaptive approach with choice</p>
+                <p><strong>Time:</strong> 5-10 minutes (depends on path) | <strong>Screens:</strong> 6-7</p>
+            </div>
+
+            <!-- Screen 1 -->
+            <div class="screen active" data-screen="1">
+                <h2>List Your Space</h2>
+                <p style="margin: 20px 0;">Choose your speed:</p>
+
+                <div style="margin: 30px 0;">
+                    <div class="info-box" style="margin-bottom: 20px; cursor: pointer;" onclick="setStandardPath('quick')">
+                        <h3 style="margin: 0 0 10px 0;">🚀 Quick Listing (5 min)</h3>
+                        <p style="margin: 0;">We'll handle the details</p>
+                        <button class="btn-primary" style="margin-top: 15px;" onclick="setStandardPath('quick')">Start Quick Setup →</button>
+                    </div>
+
+                    <div class="info-box" style="cursor: pointer;" onclick="setStandardPath('complete')">
+                        <h3 style="margin: 0 0 10px 0;">🎯 Complete Listing (10 min)</h3>
+                        <p style="margin: 0;">Full control over every detail</p>
+                        <button class="btn-primary" style="margin-top: 15px;" onclick="setStandardPath('complete')">Start Full Setup →</button>
+                    </div>
+                </div>
+
+                <hr class="divider">
+                <p style="text-align: center;">Need help? <a href="#" class="link">Call us: 555-0123</a></p>
+            </div>
+
+            <!-- Screen 2 - Property Basics (Quick Path) -->
+            <div class="screen" data-screen="2" data-path="quick">
+                <h2>Property Basics</h2>
+
+                <label>Address</label>
+                <input type="text" placeholder="123 Main Street, New York">
+
+                <label>Type</label>
+                <select>
+                    <option>Studio</option>
+                    <option selected>1 Bedroom</option>
+                    <option>2 Bedrooms</option>
+                    <option>3+ Bedrooms</option>
+                </select>
+
+                <h3>Available Days:</h3>
+                <div class="days-selector">
+                    <label><input type="checkbox"><span>Mon</span></label>
+                    <label><input type="checkbox"><span>Tue</span></label>
+                    <label><input type="checkbox"><span>Wed</span></label>
+                    <label><input type="checkbox"><span>Thu</span></label>
+                    <label><input type="checkbox"><span>Fri</span></label>
+                    <label><input type="checkbox"><span>Sat</span></label>
+                    <label><input type="checkbox"><span>Sun</span></label>
+                </div>
+
+                <h3>Start Date:</h3>
+                <input type="date" style="width: auto; margin-right: 10px;">
+                <span>or</span>
+                <button style="margin-left: 10px;">Available Now</button>
+
+                <p style="margin-top: 20px;"><a href="#" class="link" onclick="setStandardPath('complete')">Need more options? Switch to Full Setup</a></p>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('standard', 2)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('standard', 2)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 2 - Property Details (Complete Path) -->
+            <div class="screen" data-screen="2" data-path="complete">
+                <p class="progress">Step 1 of 5: Property Details</p>
+                <h2>Property Details</h2>
+
+                <label>Street Address</label>
+                <input type="text" placeholder="123 Main Street">
+
+                <label>Apt/Unit</label>
+                <input type="text" placeholder="4B">
+
+                <label>City</label>
+                <input type="text" placeholder="New York">
+
+                <label>Zip</label>
+                <input type="text" placeholder="10001">
+
+                <label>Property Type</label>
+                <select>
+                    <option>Studio</option>
+                    <option selected>1 Bedroom</option>
+                    <option>2 Bedrooms</option>
+                    <option>3+ Bedrooms</option>
+                </select>
+
+                <label>Square Footage (optional)</label>
+                <input type="number" placeholder="650">
+
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <label>Floor</label>
+                        <input type="text" placeholder="4">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Elevator</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="standard-elevator"> Yes</label>
+                            <label><input type="radio" name="standard-elevator"> No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="margin-top: 20px;"><a href="#" class="link" onclick="setStandardPath('quick')">Prefer quick setup? Switch to Quick Path</a></p>
+
+                <div class="btn-group">
+                    <button onclick="alert('Saved!')">Save & Exit</button>
+                    <button onclick="prevScreen('standard', 2)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('standard', 2)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 3 - Smart Pricing -->
+            <div class="screen" data-screen="3">
+                <h2>Pricing</h2>
+
+                <div class="recommendation">
+                    <p><strong>Our Recommendation: $115/night</strong></p>
+                    <p style="font-size: 14px; margin-top: 10px;">Based on:</p>
+                    <ul style="margin-left: 20px; font-size: 14px;">
+                        <li>Your location (Manhattan, West Village)</li>
+                        <li>Similar 1BR listings ($105-125/night)</li>
+                        <li>Your availability (Mon-Thu = business travelers)</li>
+                    </ul>
+                </div>
+
+                <hr class="divider">
+
+                <div class="radio-group">
+                    <label><input type="radio" name="standard-pricing" checked>
+                        <strong>Use recommended rate ($115)</strong>
+                    </label>
+
+                    <label><input type="radio" name="standard-pricing">
+                        <strong>Set my own rate:</strong>
+                        <input type="number" placeholder="115" style="width: 100px; margin-left: 10px;"> per night
+                    </label>
+
+                    <label><input type="radio" name="standard-pricing">
+                        <strong>Let me talk to an agent first</strong><br>
+                        <span style="font-size: 14px; color: #666; margin-left: 24px;">(We'll call you in 2 hours)</span>
+                    </label>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('standard', 3)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('standard', 3)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 4 - Photos -->
+            <div class="screen" data-screen="4">
+                <h2>Photos</h2>
+
+                <div class="info-box">
+                    <p><strong>Listings with photos get 5x more proposals.</strong></p>
+                </div>
+
+                <div class="photo-upload">
+                    <div class="photo-box">+ Upload</div>
+                    <div class="photo-box">+ Upload</div>
+                    <div class="photo-box">+ Upload</div>
+                </div>
+
+                <hr class="divider">
+
+                <h3>Can't do photos right now?</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="standard-photos"> Text them later: 555-0123</label>
+                    <label><input type="radio" name="standard-photos"> Have an agent call me to help</label>
+                    <label><input type="radio" name="standard-photos"> Skip for now (publish without photos)</label>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('standard', 4)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('standard', 4)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 5 - Contact & Preferences -->
+            <div class="screen" data-screen="5">
+                <h2>Contact & Preferences</h2>
+
+                <label>Your Name</label>
+                <input type="text" placeholder="Your name">
+
+                <label>Phone</label>
+                <input type="tel" placeholder="(555) 123-4567">
+
+                <label>Email</label>
+                <input type="email" placeholder="your@email.com">
+
+                <hr class="divider">
+
+                <h3 style="cursor: pointer;" onclick="toggleSection('standard-filters')">
+                    Guest Preferences (optional)
+                    <span id="standard-filters-toggle">▼ Show Filters</span>
+                </h3>
+                <div id="standard-filters" style="display: none; margin-top: 15px;">
+                    <div class="checkbox-group">
+                        <label><input type="checkbox"> Business travelers</label>
+                        <label><input type="checkbox"> Remote workers</label>
+                        <label><input type="checkbox"> Medical professionals</label>
+                        <label><input type="checkbox"> Commuters</label>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <h3>Notification Preferences</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" checked> Text me when someone submits a proposal</label>
+                    <label><input type="checkbox" checked> Email me a daily summary of activity</label>
+                </div>
+
+                <div class="btn-group">
+                    <button onclick="prevScreen('standard', 5)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('standard', 5)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- Screen 6 - Review & Publish -->
+            <div class="screen" data-screen="6">
+                <h2>Review Your Listing</h2>
+
+                <div class="listing-preview">
+                    <p><strong>123 Main St • 1BR • $115/night</strong></p>
+                    <p>Available Mon-Thu starting today</p>
+                    <button onclick="prevScreen('standard', 6)">Edit</button>
+                </div>
+
+                <hr class="divider">
+
+                <h3>How We Protect You:</h3>
+                <div class="trust-signals">
+                    <p>✓ Payment guarantee</p>
+                    <p>✓ Background-checked guests</p>
+                    <p>✓ Damage protection</p>
+                    <p>✓ You approve every guest</p>
+                </div>
+                <p><a href="#" class="link">See Full Details</a></p>
+
+                <hr class="divider">
+
+                <label><input type="checkbox"> I agree to Terms & Conditions</label>
+
+                <div class="btn-group">
+                    <button onclick="alert('Saved as draft!')">Save as Draft</button>
+                    <button onclick="prevScreen('standard', 6)">← Back</button>
+                    <button class="btn-primary" onclick="nextScreen('standard', 6)">Publish Listing →</button>
+                </div>
+            </div>
+
+            <!-- Screen 7 - Success (Adaptive) -->
+            <div class="screen" data-screen="7">
+                <h2>✓ You're Live!</h2>
+
+                <div id="standard-quick-success">
+                    <p style="margin: 20px 0;">Your agent will reach out within 24 hours to optimize your listing (add photos, refine pricing).</p>
+                    <p>In the meantime, you're already visible to guests.</p>
+                </div>
+
+                <div id="standard-complete-success" style="display: none;">
+                    <h3>What happens next:</h3>
+                    <ol style="margin: 20px; line-height: 2;">
+                        <li>Guests submit proposals</li>
+                        <li>You review profiles & background checks</li>
+                        <li>Accept or decline</li>
+                        <li>We schedule video intro (if you want)</li>
+                        <li>Guest moves in, you get paid</li>
+                    </ol>
+                    <div class="info-box">
+                        <p><strong>Your agent: Bryant</strong> (555-0123)</p>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn-primary" onclick="resetFlow('standard')">Go to Dashboard →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Flow management
+        function setActiveFlow(flowName) {
+            // Hide all flows
+            document.querySelectorAll('.flow').forEach(flow => {
+                flow.classList.remove('active');
+            });
+
+            // Show selected flow
+            document.getElementById(flowName + '-flow').classList.add('active');
+
+            // Update button states
+            document.querySelectorAll('.flow-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Reset to first screen
+            resetFlow(flowName);
+        }
+
+        // Screen navigation
+        function nextScreen(flowName, currentScreen) {
+            const flow = document.getElementById(flowName + '-flow');
+            const screens = flow.querySelectorAll('.screen');
+
+            screens[currentScreen - 1].classList.remove('active');
+
+            if (currentScreen < screens.length) {
+                screens[currentScreen].classList.add('active');
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        function prevScreen(flowName, currentScreen) {
+            const flow = document.getElementById(flowName + '-flow');
+            const screens = flow.querySelectorAll('.screen');
+
+            screens[currentScreen - 1].classList.remove('active');
+            screens[currentScreen - 2].classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        function resetFlow(flowName) {
+            const flow = document.getElementById(flowName + '-flow');
+            const screens = flow.querySelectorAll('.screen');
+
+            screens.forEach((screen, index) => {
+                if (index === 0) {
+                    screen.classList.add('active');
+                } else {
+                    screen.classList.remove('active');
+                }
+            });
+
+            window.scrollTo(0, 0);
+        }
+
+        // Standard flow path selection
+        let standardPath = 'quick';
+
+        function setStandardPath(path) {
+            standardPath = path;
+            nextScreen('standard', 1);
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const toggle = document.getElementById(sectionId + '-toggle');
+
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                toggle.textContent = '▲ Hide Filters';
+            } else {
+                section.style.display = 'none';
+                toggle.textContent = '▼ Show Filters';
+            }
+        }
+
+        // Flow selector buttons
+        document.querySelectorAll('.flow-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const flowName = this.getAttribute('data-flow');
+                setActiveFlow(flowName);
+            });
+        });
+
+        // Checkbox styling for days selector
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.days-selector input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const span = this.nextElementSibling;
+                    if (this.checked) {
+                        this.parentElement.style.background = '#333';
+                        this.parentElement.style.color = 'white';
+                        this.parentElement.style.borderColor = '#333';
+                    } else {
+                        this.parentElement.style.background = 'white';
+                        this.parentElement.style.color = '#333';
+                        this.parentElement.style.borderColor = '#ccc';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+{
+  "run_id": "2026-02-11_2118",
+  "layer": 4,
+  "layer_name": "Interaction Engineer",
+  "lens": {
+    "host_call": "andreas-call.txt",
+    "book_extract": "kahneman-part1-two-systems.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Instant Acknowledgment on Every Host Input",
+      "journey_phases": ["listing_creation", "pricing", "proposal_mgmt", "onboarding"],
+      "problem": "In the phone call, Bryant acknowledges every piece of information Andreas provides within a fraction of a second: 'Yep' (1:10), 'Got it' (3:16), 'Yup' (4:26), 'Okay' (3:02). These micro-acknowledgments serve a critical cognitive function: they release the host's working memory from holding the just-provided input while waiting to confirm receipt. On the platform, form fields, toggles, and buttons offer no equivalent signal. The host enters data into a field and sees nothing happen. Their System 2 must hold the input in working memory ('Did it register? Should I click again? Is it saving?') until a visible state change occurs. Kahneman's attention research shows that maintaining items in working memory competes with the same limited resource pool used for decision-making. Every second of 'did that work?' uncertainty depletes the resource the host needs for their next decision. The result is a compounding tax: each unacknowledged input makes the next input slightly harder, accelerating the depletion gradient across the session.",
+      "solution": "Every interactive element on the platform provides an immediate state change within 100ms of the host's action, before any server response or validation occurs. This is the platform's 'Yep.' The acknowledgment is purely visual and local -- it does not depend on network latency, data processing, or backend confirmation. It says 'I heard you' and nothing else. For text fields: the border shifts to accent green (#2d5a3d) on focus, confirming the system is listening. For toggles and chips: the selected state renders instantly (0ms CSS transition), with the easing-out settle animation (350ms, cubic-bezier(0.16, 1, 0.3, 1)) applied to any resulting layout change. For buttons: a 1px translate-y depress on press, with the action result (navigation, modal, save) following within the settle window. For multi-step wizards: a progress indicator advances immediately when the host completes a step, before the next step's content loads. The principle is: local acknowledgment is instant; remote confirmation can follow at network speed. The host never waits for the server to feel heard.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 1:10, 3:02, 3:16, 4:26",
+          "detail": "Bryant's acknowledgment cadence throughout the call: 'Yep' after Andreas describes his units (1:10), 'Okay' after Andreas states his deposit requirement (3:02), 'Got it' after the pricing total is confirmed (3:16), 'Yup' after the credit requirement (4:26). Each acknowledgment is under 500ms, contains no new information, and serves only to confirm receipt. This pattern occurs at least 4 times in a 6-minute call, approximately once per 90 seconds of host input."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "detail": "Kahneman: 'you dispose of a limited budget of attention that you can allocate to activities, and if you try to go beyond your budget, you will fail.' Holding an unacknowledged input in working memory consumes from this budget. Instant acknowledgment releases the held item, freeing the budget for the next input. The cumulative effect across a 6-step wizard is significant: 6 unacknowledged inputs deplete far more than 6 acknowledged ones."
+        },
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 5:12-5:27",
+          "detail": "Andreas's advisor moment flows without interruption: 'just a bed, things for the kitchen... my both units come with a microwave... laundry in the building... in both.' He volunteers 4 data points in rapid succession because Bryant's prior acknowledgments have established a pattern of receipt. The host trusts that his input is being captured. On the platform, this trust must be built through visual acknowledgment so the host can provide information at their natural speed without pausing to verify."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, The Lazy Controller",
+          "detail": "Kahneman on flow: 'a state of effortless concentration so deep that they lose their sense of time.' Flow requires uninterrupted feedback loops. A host entering listing data is in a proto-flow state that depends on continuous acknowledgment. Any gap in feedback ('did that save?') interrupts the loop and forces System 2 to evaluate the platform's state rather than continuing the task."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Interactive element at rest. Border uses standard border color (#e2dfd9). No active indicators. The element communicates 'I am ready for input' through its shape and position, not through motion or color.",
+        "loading": "After acknowledgment, if the action requires server processing, a subtle inline indicator appears adjacent to the element (not overlaid on it). The indicator uses the easing-out animation at 350ms interval. The host can continue interacting with other elements while this one resolves. Loading never blocks further input.",
+        "empty": "For fields that have not yet received input: placeholder text in ink-muted (#8a857e) shows expected format or example. No animation, no pulsing. The empty state is calm, not demanding.",
+        "error": "If validation fails after acknowledgment, the element's border shifts from accent green to signal-danger (#b83a3a) at settle speed (350ms). An inline error message appears below the field in signal-danger, using Outfit 13px. The error appears where the host is looking (near the field), not in a distant notification area. The transition from acknowledged-green to error-red is the platform saying 'I heard you, but here is a problem.'",
+        "success": "For significant completions (step completed, listing saved, proposal accepted): the element or its container shows a brief accent-light (#e8f0eb) background flash at 300ms duration, then settles. For milestone completions (listing published, proposal confirmed), the spring easing (cubic-bezier(0.34, 1.56, 0.64, 1)) is used at 500ms duration. This is the platform's 'Got it' -- reserved for moments that warrant celebration."
+      },
+      "transition_principle": "Acknowledgment is instant and local; confirmation is settle-speed and may involve the server. The host's perception of the interaction is determined by the acknowledgment, not the confirmation. The acknowledgment happens on the host's timeline; the confirmation happens on the system's timeline. These timelines never block each other.",
+      "timing": {
+        "response_target": "Sub-100ms for acknowledgment (local state change). 350ms for settle (layout adjustment, content reveal). 500ms for celebrate (milestone completion). No transition exceeds 500ms.",
+        "easing": "Acknowledgment: none (instant). Settle: cubic-bezier(0.16, 1, 0.3, 1). Celebrate: cubic-bezier(0.34, 1.56, 0.64, 1).",
+        "rationale": "Sub-100ms matches Bryant's verbal acknowledgment cadence and falls below the threshold where humans perceive delay (approximately 100-150ms). 350ms settle matches Kahneman's concept of System 2's natural processing speed for simple state changes. 500ms celebrate is long enough to register as distinct from normal transitions but short enough to not interrupt flow."
+      },
+      "journey_state_awareness": {
+        "early_journey": "During onboarding and first listing creation, acknowledgment is paired with contextual help: after the host's input is acknowledged, a brief tooltip or inline note appears confirming what the input means ('Washington Heights -- we will use this as your listing location'). This bridges the gap between input and understanding for first-time users.",
+        "mid_journey": "During listing creation steps 3-6 and proposal review, acknowledgment is minimal -- just the visual state change. The host has learned the acknowledgment pattern and no longer needs contextual reinforcement. Reducing feedback to the essential prevents it from feeling patronizing.",
+        "late_journey": "During active lease and retention, acknowledgment on routine actions (checking payment status, viewing schedules) is reduced to the absolute minimum: state change only, no settle animation. Experienced hosts operating in System 2's low-effort mode do not need visual confirmation for familiar actions."
+      },
+      "edge_cases": [
+        "Rapid sequential inputs: when the host taps multiple toggles or enters data quickly (like Andreas volunteering 4 data points at 5:12-5:27), each acknowledgment must be independent. Stacking acknowledgments (queuing animations) creates a visual backlog that contradicts the 'instant' principle. Each element acknowledges independently on its own timeline.",
+        "Network failure after acknowledgment: if the server rejects an input after the local acknowledgment, the error state must be clear and specific. The host saw 'Yep' but the server says 'no.' The transition from acknowledged to error must explain what happened without undermining trust in future acknowledgments. The pattern: 'Your input was received but could not be saved. Here is why. Please try again.'",
+        "Reduced motion preference: when prefers-reduced-motion is active, all settle and celebrate animations are replaced with instant state changes (opacity shift only). The acknowledgment timing (sub-100ms) is unaffected because it is already instant. The principle remains: the host always knows their input was received.",
+        "Offline or slow connection: acknowledgment still fires instantly (it is local). A persistent, subtle banner appears at the top of the screen when the connection is slow or absent: 'Your changes are being saved. You can keep working.' This separates the acknowledgment guarantee from the network guarantee."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Sequential Disclosure: One Question at a Time, in the Call's Order",
+      "journey_phases": ["listing_creation", "onboarding", "proposal_mgmt"],
+      "problem": "Bryant's conversation with Andreas follows a strict sequential structure: furnishing (1:29), roommate matching (1:58), agreement details (2:43), deposit (3:02), broker fee (3:16), payment guarantee (3:28), credit requirements (4:06), furnishing options (4:36), logistics (5:27). Each topic is raised, addressed, and resolved before the next one begins. No topic is revisited, and no two topics compete for attention simultaneously. This is not accidental -- it is the natural structure of a conversation optimized for a depleted System 2. Kahneman's research on ego depletion shows that making a series of choices that involve conflict is a known depletor of self-control. When a platform presents multiple unrelated input fields simultaneously (as a traditional form does), each field represents a micro-decision that competes with every other field for the host's depleted attention. The host must decide not just WHAT to enter, but WHICH field to enter first, WHICH can be skipped, and WHETHER the fields are related. These meta-decisions about the form itself consume the same cognitive resources as the actual decisions within the form.",
+      "solution": "The platform presents input fields and decision points one at a time or in tightly grouped clusters of 2-3 related fields, following the natural information sequence that emerged in the phone call. Each cluster is revealed only after the prior cluster is completed and acknowledged. The reveal uses the settle animation (350ms, easing-out) to draw the eye smoothly to the next input. The sequence mirrors the call's topic order where applicable: identity and location first (who/where), features second (what it has), terms third (pricing and rules), logistics fourth (scheduling, photos). Within each cluster, fields are visually grouped on a single card or section, with no scrolling required to see all fields in the cluster. The host's experience is: answer this, see the next thing, answer that. Never: here are 12 fields, figure out the order yourself.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 1:29 through 5:27",
+          "detail": "The call's topic sequence: furnishing (1:29) -> roommate concept (1:58) -> agreement (2:43) -> deposit (3:02) -> broker fee (3:16) -> payment guarantee (3:28) -> credit (4:06) -> furnishing options (4:36) -> logistics (5:27). Each topic is fully resolved before the next begins. Bryant never asks about two things at once. Andreas never has to hold one unanswered question while processing another. The call achieves complex information exchange through simple sequential structure."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, The Busy and Depleted System 2",
+          "detail": "Kahneman: 'making a series of choices that involve conflict -- conflict between your preferences and the options available -- is a known depletor of self-control.' A form with multiple visible fields creates conflict at the meta level: which field first? Can I skip this one? Are these related? Sequential disclosure eliminates meta-conflict by removing choice about sequence. The host's only choice is WHAT to enter, not WHERE or WHEN."
+        },
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 3:02-3:16",
+          "detail": "Andreas processes the pricing sequence one item at a time: 'first month' (processes), 'broker's fee? One month' (processes), 'Three months. Okay. Got it' (concludes). Each item is a micro-cycle of input, processing, and resolution. The platform's sequential disclosure must create the same micro-cycle rhythm: present, process, resolve, advance."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "detail": "Kahneman: 'We normally avoid mental overload by dividing our tasks into multiple easy steps, committing intermediate results to long-term memory or to paper rather than to an easily overloaded working memory.' Sequential disclosure IS this principle implemented in UI. Each completed cluster is 'committed to paper' (saved visually above the current input) while the host focuses working memory on the current cluster alone."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The current input cluster is fully visible on a surface card with primary visual weight. Completed clusters are collapsed above in a summary strip showing the host's prior inputs in ink-soft (#4a4640). Upcoming clusters are invisible -- no skeleton screens, no grayed-out previews. The host sees only what is relevant now and what they already did.",
+        "loading": "When advancing to the next cluster after the host completes the current one, the new cluster slides in with the settle animation (350ms, easing-out). The completed cluster simultaneously collapses to its summary strip. Both animations run concurrently so the transition feels like a single movement, not two sequential ones.",
+        "empty": "If the host reaches a cluster where no data has been pre-filled (no call data, no prior input to carry forward), the cluster opens with placeholder examples drawn from comparable listings or from the call context. The empty state is never a blank form -- it always suggests what goes here.",
+        "error": "If a completed cluster has a validation error discovered later (e.g., during a final review), the summary strip for that cluster highlights in signal-warn-bg (#fef3e2) with the specific error in signal-warn (#c17a28). Tapping the strip re-expands the cluster for correction. The host is returned to the specific field, not to the beginning of the step.",
+        "success": "When all clusters in a step are complete, a brief accent-light (#e8f0eb) wash animates across the step's section with settle timing (350ms). The progress indicator advances. The step collapses to a review summary. The host sees their completed work as a coherent summary, confirming that the sequential inputs produced a complete result."
+      },
+      "transition_principle": "The host's attention moves forward through the sequence, never backward unless they choose to edit. Each transition carries the host's eye from the completed cluster to the revealed cluster using a single directional motion (top-to-bottom or left-to-right, never both). The direction is consistent throughout the journey so the host builds a spatial mental model: 'down means forward, up means review.'",
+      "timing": {
+        "response_target": "Cluster reveal: 350ms with easing-out. Cluster collapse: 350ms concurrent with reveal. Total transition: 350ms perceived (both animations are simultaneous). No delay between the host completing a cluster and the next one appearing.",
+        "easing": "Reveal and collapse: cubic-bezier(0.16, 1, 0.3, 1). The easing starts fast (the host sees something happening immediately) and decelerates into the final position (the new cluster settles into place without overshoot).",
+        "rationale": "350ms matches Bryant's pacing between topics: a brief pause (the conversational equivalent of a transition animation) before introducing the next subject. Shorter would feel jarring -- like being interrupted. Longer would feel sluggish -- like waiting for the platform to catch up. 350ms is the conversational beat between 'Got it' and the next question."
+      },
+      "journey_state_awareness": {
+        "early_journey": "During onboarding and first listing creation, each cluster reveal is accompanied by a one-line context sentence (Outfit 14px, ink-soft) explaining why this information matters: 'This helps us match your space to the right tenants.' Context sentences disappear for returning hosts.",
+        "mid_journey": "During repeat listing creation (the second unit, like Andreas's two apartments), the sequence compresses. Clusters that have identical answers to the first listing are pre-filled and auto-collapsed. Only clusters with differences (floor, specific amenities) are presented for input. The platform duplicates-and-modifies, matching how Andreas thinks about his two similar units.",
+        "late_journey": "During proposal review and active lease actions, sequential disclosure is minimal because the host is reviewing pre-packaged content, not constructing from scratch. The sequence is: summary (confirm or adjust?) -> action. Two steps, not six."
+      },
+      "edge_cases": [
+        "Host wants to skip ahead: a 'Skip for now' link appears on every non-required cluster, allowing the host to advance without completing. Skipped clusters are marked in the progress indicator and surfaced during final review. The host is never trapped in a sequence.",
+        "Host wants to go back: tapping any completed summary strip re-expands that cluster for editing. The current cluster collapses. The host can navigate the sequence non-linearly after the first pass, but the initial pass is always forward-sequential.",
+        "Multi-unit batch: when the host is creating a second listing (as Andreas would), the system detects shared attributes and presents only the delta: 'Your second unit shares most details with Unit 1. Here is what is different.' The sequence shows only the differing clusters, pre-filled where possible.",
+        "Session interruption: if the host leaves mid-sequence and returns, the platform reopens at the exact cluster where they stopped. Completed clusters are preserved. The returning host sees their prior work summarized above and the current cluster ready for input. No restart required."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Confirm-Not-Construct: Proposals Respond to a Tap, Not a Form",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "Bryant presents the tenant arrangement to Andreas as a completed package: 'Ariel and Amber both came to us individually and we matched them as roommates' (1:58). The host's role is to evaluate and accept or adjust, not to construct a response from scratch. The journey map shows that countering a proposal requires 7 navigational steps and a form where the host must modify terms field by field. This transforms the host's role from endorser (System 1 can handle this) to constructor (System 2 must handle this). Kahneman's distinction is critical: 'when all goes smoothly, System 2 adopts the suggestions of System 1 with little or no modification.' A well-structured proposal IS a System 1 suggestion. A counter-offer form requires System 2 construction. The interaction pattern must preserve the host's role as endorser for the default path (acceptance) while making the secondary path (adjustment) feel like modifying a completed package, not building one from nothing.",
+      "solution": "The proposal arrives as a single-screen, pre-packaged summary that the host can accept with one tap. The accept action is the visually dominant interaction element: a full-width button at the bottom of the proposal card in accent green (#2d5a3d). No scrolling is required to reach it from the proposal summary. If the host wants to adjust, they tap 'Adjust terms' (a secondary, text-style link below the accept button), which reveals inline modification controls on the same screen. Each modifiable term (dates, price, duration) appears as the current proposed value with an edit affordance (pencil icon, tap-to-edit). The host modifies individual values within the existing proposal structure -- they never see a blank form. After modifications, the accept button text updates to 'Send counter-offer' and the financial summary recalculates in real time, reflecting the changes. The interaction flow is: scan proposal -> accept (one tap, done) OR scan proposal -> adjust specific terms -> review updated summary -> send counter (three interactions). Both paths stay on a single screen.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 1:58-2:19",
+          "detail": "Bryant presents Ariel and Amber as a complete package: matched, located, use-case defined, lifestyle assessed. Andreas does not construct a counter-proposal; he evaluates the package and either accepts it (implicitly, by continuing the conversation) or raises concerns (he raises none about the tenants themselves). The interaction is evaluate-then-endorse, not construct-then-submit."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, Plot Synopsis",
+          "detail": "Kahneman: 'System 1 continuously generates suggestions for System 2: impressions, intuitions, intentions, and feelings. If endorsed by System 2, impressions and intuitions turn into beliefs, and impulses turn into voluntary actions. When all goes smoothly, which is most of the time, System 2 adopts the suggestions of System 1 with little or no modification.' A pre-packaged proposal IS a System 1 suggestion. The accept button IS System 2 endorsement. The entire interaction can complete within System 2's 'comfortable low-effort mode.'"
+        },
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 2:43-2:54",
+          "detail": "Bryant frames the agreement as pre-defined: 'We have a customer rental agreement which sort of defines the relationship between Ariel and Amber... we define the cleaning responsibilities as well as storage.' The host does not negotiate these terms; they review what has been defined. The interaction pattern is review-then-approve, not negotiate-then-agree."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, The Busy and Depleted System 2",
+          "detail": "Kahneman: 'tired and hungry judges tend to fall back on the easier default position of denying requests for parole.' The default action matters enormously for depleted users. If acceptance is the easiest action (one tap, visually dominant), depleted hosts accept. If the UI treats acceptance and rejection as equally weighted choices, the depleted host defaults to inaction (closing the page), which is functionally a rejection. Making acceptance the path of least resistance is not manipulation -- it reflects the fact that the proposal has already been pre-vetted."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The proposal summary is fully loaded: tenant names with trust badges, one-line use case, primary financial total in IBM Plex Mono at 28px, and the accept button in accent green. The adjust-terms link is visible but visually subordinate. The host sees a complete package ready for endorsement.",
+        "loading": "While the proposal data loads, the screen shows the host's listing name and the agent's identity (from communicates-006) as anchors, with a subtle skeleton state for the tenant details and financial figure. The accept button is disabled but visible, establishing the screen's purpose before the data arrives. Loading should complete in under 2 seconds.",
+        "empty": "If no proposals exist, the screen shows the host's listing with a message attributed to the agent: 'No proposals yet. Bryant will notify you when tenants are interested in [property address].' The empty state is never a generic 'nothing here' -- it is personalized and forward-looking.",
+        "error": "If the proposal cannot be loaded, the error is specific and action-oriented: 'Could not load this proposal. This may be a connection issue. Tap to retry or contact Bryant directly.' The error state always offers an escape to the human agent, maintaining the trust bridge.",
+        "success": "After acceptance or counter-offer submission: the spring easing celebration (500ms, cubic-bezier(0.34, 1.56, 0.64, 1)) animates the accept button into a confirmation state. The button text changes to 'Accepted' or 'Counter-offer sent' with a checkmark. The proposal card shifts to an accent-light (#e8f0eb) background. A one-line confirmation appears: 'Bryant will confirm the next steps with you.' The celebration is the platform's 'Got it' for the most important action in the proposal phase."
+      },
+      "transition_principle": "The host moves from reading to acting in a single visual flow. No page navigation between the proposal summary and the action. The adjust-terms reveal is an inline expansion, not a navigation event. The screen state changes; the screen itself does not change. This preserves the host's spatial context and prevents the disorientation of landing on a new page mid-decision.",
+      "timing": {
+        "response_target": "Accept tap acknowledgment: sub-100ms (button depress). Confirmation animation: 500ms with spring easing. Adjust-terms reveal: 350ms with easing-out. Financial recalculation on term modification: sub-200ms (client-side computation).",
+        "easing": "Accept: spring cubic-bezier(0.34, 1.56, 0.64, 1) for the celebration. Adjust reveal: out cubic-bezier(0.16, 1, 0.3, 1) for the expand. Term modification recalculation: no animation, instant number update to maintain the 'live calculator' feel.",
+        "rationale": "The accept action uses spring easing because it is the single most significant interaction in the proposal phase -- the moment the host commits to a tenant. This warrants the 500ms celebration. Term adjustments use the standard settle because they are iterative, not conclusive. Financial recalculation is instant because the host needs to see the impact of their change immediately, like mental math in conversation ('Three months. Okay. Got it.')."
+      },
+      "journey_state_awareness": {
+        "early_journey": "For the host's first proposal ever, the screen includes a brief orientation: 'This is your first proposal. Here is what Ariel and Amber are requesting, and what it means for you.' The orientation disappears after the first proposal interaction.",
+        "mid_journey": "For subsequent proposals, the screen leads with what is different from previous proposals: different tenants, different dates, different pricing. The host evaluates the delta, not the full package, because they already understand the structure.",
+        "late_journey": "For returning hosts with active leases, proposals for additional units or renewals use a pre-accepted frame: 'Based on your current lease terms, here is a renewal proposal.' The terms are pre-filled from the existing agreement. The host is confirming continuity, not evaluating novelty."
+      },
+      "edge_cases": [
+        "Multiple proposals simultaneously: each proposal is a separate card in a vertical stack. The host evaluates one at a time. No side-by-side comparison view, because comparing proposals forces System 2 to hold multiple packages in working memory simultaneously, which Kahneman identifies as high-effort.",
+        "Proposal with terms that conflict with the listing: conflicting terms (e.g., requested price below listing price) are highlighted in signal-warn (#c17a28) with an inline explanation: 'This is $200 below your listed price.' The accept button remains available -- the platform informs but does not block. The host decides.",
+        "Expired proposal: if the host returns to a proposal after the response window has passed, the screen shows the proposal in a dimmed state with a clear explanation: 'This proposal expired on [date]. The tenants may have found another space.' No action buttons are available. A link to contact the agent is prominent.",
+        "Host has never seen the platform before and receives a proposal via email: the email links directly to the proposal screen, bypassing the dashboard. The proposal screen includes the agent's identity, the listing anchor, and the proposal summary. No onboarding flow gates the proposal review. The host can accept before creating an account -- account creation follows acceptance as a lightweight step."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Save-and-Resume: The Platform Remembers Where You Stopped",
+      "journey_phases": ["listing_creation", "onboarding", "pricing"],
+      "problem": "Andreas is building a bar in his house (0:15) while evaluating this rental opportunity. He is a multi-tasking investor host whose attention is divided across projects. Kahneman's ego depletion research predicts that a depleted host who is interrupted during a multi-step process (listing wizard, onboarding) will not return to start over. The cognitive cost of re-engaging with a form from the beginning -- re-reading completed fields, re-making resolved decisions, re-orienting to the sequence -- is higher than the cost of the original engagement, because the host must now reconcile their memory of prior inputs with the platform's state. If the platform does not preserve progress, every interruption becomes a dropout event. The phone call does not have this problem because Bryant can pick up where they left off ('Last time we talked about your two units...'). The platform must match this conversational resume capability.",
+      "solution": "Every input the host provides is auto-saved to local storage and server in real time, without a save button. The platform never asks 'Save your progress?' because saving is not an action -- it is a guarantee. When the host returns after an interruption (minutes, hours, or days), the platform reopens at the exact point of departure: same step, same cluster, same field focus. Completed inputs are shown in their summary-strip form above the current position. The returning host sees their prior work and the current question simultaneously, with a one-line contextual message attributed to the agent: 'Welcome back, Andreas. You were setting up pricing for your 5th floor unit.' This message bridges the time gap by re-establishing context, just as Bryant would on a follow-up call.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 0:15",
+          "detail": "Andreas mentions 'I'm actually building a bar in my house,' revealing that he is managing multiple projects simultaneously. His attention for the Split Lease process competes with other demands. Kahneman's law of least effort predicts that if the platform process requires a single uninterrupted session, hosts with competing demands will defer the task until they have a clear block of time -- which for busy investor hosts may be never."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "detail": "Kahneman: 'We normally avoid mental overload by dividing our tasks into multiple easy steps, committing intermediate results to long-term memory or to paper rather than to an easily overloaded working memory.' Auto-save IS 'committing to paper.' The platform serves as the host's external memory, holding intermediate results so the host's working memory does not have to."
+        },
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 6:03-6:11",
+          "detail": "Bryant closes with 'I'll be reaching out to you shortly after the call.' There is an implicit time gap between the call and the next interaction. The host will have moved on to other activities (the bar project, other tenants). When the next touchpoint arrives, it must resume the conversation, not restart it. The platform's save-and-resume is the digital equivalent of Bryant's follow-up call that picks up where they left off."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, The Busy and Depleted System 2",
+          "detail": "Kahneman: 'an effort of will or self-control is tiring; if you have had to force yourself to do something, you are less willing or less able to exert self-control when the next challenge comes around.' Restarting a process from scratch after an interruption requires even more self-control than starting it the first time, because the host must overcome both the original effort barrier AND the frustration of lost progress. Auto-save eliminates the restart penalty entirely."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The platform continuously auto-saves without visual interruption. No save buttons, no save indicators during normal operation. Saving is invisible when it works.",
+        "loading": "When the host returns after an interruption, a brief restore animation plays: the completed summary strips slide in from the top (350ms settle), then the current cluster fades into view (350ms settle, staggered 100ms after the summaries). Total restore animation: under 500ms. The host sees their prior work reconstruct before their eyes.",
+        "empty": "If the host arrives at a step with no prior data (first visit, no call data to pre-fill), the step opens fresh with placeholder guidance. The empty state is identical to first-time behavior. Save-and-resume only activates when there is something to resume.",
+        "error": "If auto-save fails (network issue), a non-blocking toast appears at the bottom of the screen: 'Could not save your progress. Your work is stored locally and will sync when connected.' The toast uses signal-warn-bg (#fef3e2) with signal-warn (#c17a28) text. Local storage serves as the fallback -- the host's work is never lost even if the server is unreachable.",
+        "success": "On successful resume, the agent-attributed welcome-back message serves as the success signal: 'Welcome back. You were on Step 3 of your listing.' No celebration animation -- resuming is expected behavior, not an achievement. The absence of friction IS the success."
+      },
+      "transition_principle": "The transition between sessions is invisible to the host. The platform's state when they return is indistinguishable from the state when they left, except for the welcome-back context message. Time is not a factor in the interaction -- the platform waits indefinitely without degrading the host's progress or changing the interface.",
+      "timing": {
+        "response_target": "Auto-save: within 2 seconds of each input (debounced to avoid excessive writes). Restore on return: under 1 second for local data, under 3 seconds for server data. Welcome-back message: appears 500ms after restore completes, ensuring the host sees their restored progress before reading the message.",
+        "easing": "Restore animation: cubic-bezier(0.16, 1, 0.3, 1) for summary strips and current cluster. Welcome-back message: fade-in at 300ms, no position animation.",
+        "rationale": "2-second auto-save debounce prevents saving on every keystroke while ensuring no meaningful input is lost. Sub-1-second restore from local storage ensures the returning host sees their work before they have time to wonder whether it was preserved. The 500ms delay on the welcome-back message ensures it reads as contextual (appearing after the content) rather than intrusive (appearing before or over the content)."
+      },
+      "journey_state_awareness": {
+        "early_journey": "During onboarding and first listing, the welcome-back message is more detailed: 'Welcome back, Andreas. Last time, you completed your unit details. Next up: setting your pricing.' This orientation bridges the cognitive gap for a host still learning the platform.",
+        "mid_journey": "During later listing creation or proposal work, the welcome-back message is brief: 'Welcome back. Picking up where you left off.' The host knows the platform; they just need confirmation of their position.",
+        "late_journey": "During active lease or retention, save-and-resume is invisible. The host's dashboard always reflects current state. There is no 'session' to resume because the dashboard is a live view, not a wizard. The save-and-resume pattern only applies to sequential, multi-step processes."
+      },
+      "edge_cases": [
+        "Host returns on a different device: server-synced progress is restored. If local and server states conflict (host entered data offline on Device A, then opened Device B), the platform shows both states and lets the host choose: 'You have progress from two sessions. Which would you like to continue?' No data is silently overwritten.",
+        "Listing data becomes stale: if a host returns after weeks and market conditions have changed (pricing defaults, availability), the platform notes the change: 'Your pricing defaults have been updated since your last visit. Your custom entries are preserved.' Stale defaults are refreshed; host inputs are never overwritten.",
+        "Host deliberately wants to start over: a 'Start fresh' option exists in the step's overflow menu. It requires a confirmation: 'This will clear your progress on this step. Your completed steps are preserved.' Starting fresh is intentional, never accidental.",
+        "Browser clears local storage: all progress is synced to the server within the 2-second save window. Local storage is a performance optimization and offline fallback, not the primary store. Clearing it has no effect on a connected host's progress."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "The Advisor Trigger: Shift the Host from Data Entry to Expertise Sharing",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "At 5:12, Andreas transforms from a host evaluating a proposition into an advisor contributing expertise: 'if they just go there to sleep, I think just a bed, things for the kitchen.' This shift is psychologically significant because it changes the host's self-concept from 'person being sold to' to 'expert being consulted.' Kahneman's associative machine explains why: when the host advises, System 1 constructs a narrative where the host is part of the outcome, creating forward momentum that makes disengagement feel inconsistent. The platform's current forms treat the host exclusively as a data provider: enter your address, select your features, set your price. Data provision is System 2 work (deliberate, effortful, depleting). Advising is System 1 work (pattern-matching from experience, effortless, energizing). The platform never creates the cognitive opening for the host to shift from provider to advisor, missing the most powerful commitment mechanism observed in the call.",
+      "solution": "At one specific point in each eligible phase -- after essential data entry is complete but before the phase ends -- the platform inserts an advisor trigger. This is a transition from structured input to open contribution. The trigger follows a three-part pattern: (1) Validation: a one-line acknowledgment of what the host has completed ('Your listing details look great'). This mirrors Bryant's validation of Andreas's credit standard at 4:26 ('Yup. And we require that'), which preceded the advisor shift. (2) Question: a single, experience-based question that only someone who knows the property could answer ('What should tenants know about living here?' or 'Any tips for making this space feel like home?'). The question must be genuinely useful -- the answer becomes part of the listing or tenant guide. (3) Open response: a simple text field with no character limit, no formatting requirements, and an optional skip button. The interaction shifts from clicking and selecting (System 2) to reflecting and contributing (System 1). The host's response is immediately visible in a preview of how it will appear on their listing.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 5:12-5:27",
+          "detail": "Andreas's unprompted advisor moment: 'if you're telling me that they just go there to sleep, I think just a bed, things for the kitchen. My both units come with a microwave... laundry in the building... in both.' He volunteers four practical recommendations without being asked. He has shifted from evaluating (questions at 1:29-3:16) to advising (recommendations at 5:12). This shift happened naturally in conversation after Bryant validated his credit standard. The platform must engineer the same opening: validate, then invite."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, The Associative Machine",
+          "detail": "Kahneman: 'your System 1 made as much sense as possible of the situation... by linking the words in a causal story; it evaluated the possible threat and created a context for future developments by preparing you for events that had just become more likely.' When the host starts advising, their System 1 constructs a story where they are part of the tenant's future. This story makes abandonment psychologically inconsistent: you do not advise on furnishing for a space you intend to withdraw from."
+        },
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 4:06-4:26",
+          "detail": "The advisor shift is primed by validation. Andreas states his standard ('excellent credit on every single tenant') and Bryant validates it ('Yup. And we require that'). Forty-six seconds later, Andreas is advising on furnishing. The validation created a psychological opening: the host feels respected, which unlocks the willingness to contribute. Without validation, the advisor question feels like an additional form field. With validation, it feels like a natural conversation."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, The Lazy Controller",
+          "detail": "Kahneman on flow: 'a state of effortless concentration so deep that they lose their sense of time. Flow neatly separates the two forms of effort: concentration on the task and the deliberate control of attention.' Advising from experience is flow-adjacent: the host concentrates on their knowledge (System 1 pattern matching) without deliberate attention control (System 2). This is why the advisor moment is energizing rather than depleting -- it draws from a different cognitive resource than form-filling."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The advisor trigger appears as a visually distinct section after the last structured input cluster. It uses a slightly different visual treatment than the input forms: an accent-light (#e8f0eb) background card with the validation statement in Instrument Serif (recognition typeface) and the question in Outfit (action typeface). The text field uses a larger, more generous input area than standard form fields, signaling that this is an open contribution, not a constrained entry.",
+        "loading": "Not applicable -- the advisor trigger is locally rendered and does not depend on server data. If the host's response is being saved, the standard auto-save behavior (from behaves-004) handles it silently.",
+        "empty": "When the host has not yet responded, the text field shows a subtle placeholder example drawn from what other hosts have said about similar properties: 'Example: The bodega on the corner is open 24 hours and the 1 train is a 5-minute walk.' The placeholder is in ink-ghost (#bdb8b0) and disappears on focus.",
+        "error": "Errors in the advisor response are nearly impossible because the field is unstructured. If the response is excessively long (indicating the host may have pasted content), a gentle note appears: 'Great detail! Tenants will see the first 200 words prominently.' No truncation, no rejection -- just a note about display priority.",
+        "success": "After the host submits their advice, it immediately appears in a preview panel showing how the advice will look on their listing or in the tenant guide. The preview uses the listing's visual style (serif headline for the host's name, body text for the advice), reinforcing that the host's expertise is being used, not discarded. A subtle accent-light wash (300ms) confirms the save."
+      },
+      "transition_principle": "The transition from data-entry mode to advisor mode is marked by a visual shift: the background changes from surface white to accent-light green, the typography shifts from sans (action) to serif (recognition) for the prompt, and the input area is more generous. This visual differentiation signals to System 1: 'something different is happening now.' The host's eye registers the shift before reading the content, priming the cognitive mode change from 'fill out the form' to 'share what you know.'",
+      "timing": {
+        "response_target": "Validation statement appears immediately when the prior input cluster is completed (0ms delay). Advisor question fades in 300ms after the validation, creating a brief pause that mirrors the conversational beat between Bryant's validation (4:26) and Andreas's advice (5:12). Preview render after response: sub-200ms.",
+        "easing": "Question fade-in: cubic-bezier(0.16, 1, 0.3, 1). Preview render: instant (no animation -- the preview should feel like a live reflection, not a delayed render).",
+        "rationale": "The 300ms delay between validation and question is deliberate. It creates the same pause that occurred in the call between 'Yup. And we require that' (4:26) and the next conversational turn. This pause lets the validation register emotionally before the question arrives intellectually. Instant question-after-validation would feel like a scripted sequence. The pause makes it feel like a natural conversation."
+      },
+      "journey_state_awareness": {
+        "early_journey": "During first listing creation, the advisor trigger appears after Step 2 (Features), when the host has established their property's identity. The question is property-specific: 'What makes this space special?' This is early enough that the commitment effect influences the remaining steps (pricing, rules, photos).",
+        "mid_journey": "During second listing creation, the advisor trigger appears with a different question: 'How is this unit different from your other one?' This acknowledges the host's multi-unit portfolio and solicits comparative expertise, which is a more sophisticated form of the advisor pattern.",
+        "late_journey": "During active lease, the advisor trigger appears periodically as a low-key check-in: 'Any updates about the building or neighborhood that tenants should know?' This maintains the host's advisor identity throughout the lease, not just during onboarding. The check-in is optional and can be dismissed."
+      },
+      "edge_cases": [
+        "Host skips the advisor trigger: the skip button is always visible and never triggers a negative consequence. No reminder, no re-prompt. Skipping is respected. The advisor trigger returns only in the next eligible phase, never within the same phase.",
+        "Host provides very brief advice (under 10 words): the platform accepts it without comment. A brief response ('Great neighborhood, quiet building') is still a commitment signal. Do not prompt for more detail -- that transforms the advisor moment into an interrogation.",
+        "Host provides extensive advice (500+ words): the platform accepts it fully. The preview shows the first 200 words with a 'Read more' expand. The host sees their full contribution is preserved. Extensive advice is a strong commitment signal and should be celebrated, not curtailed.",
+        "Host's advice contradicts listing details (e.g., says 'furnished' but listing says unfurnished): the platform does not flag the contradiction. The advice field is the host's personal voice; the listing fields are structured data. They serve different purposes. If a genuine error exists, it will be caught during the agent's review, not by an automated validator."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Notification as Continuation, Not Interruption",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "Andreas tells Bryant 'You can just email me at any time' (5:44), establishing email as his preferred communication channel. He does not say 'I will check the platform dashboard regularly.' When a proposal arrives, the host discovers it through a notification -- email, push, or in-platform alert. Kahneman's concept of inattentional blindness is directly relevant: 'we can be blind to the obvious, and we are also blind to our blindness.' A host focused on other tasks (building a bar, managing other properties) will not notice platform notifications unless they arrive through the host's chosen channel, in the host's expected tone, with enough context to enable action without requiring a full context-switch. A notification that says 'You have a new proposal' and requires the host to navigate to the dashboard, log in, find the notification, open it, and evaluate the proposal is not a notification -- it is a demand for a context switch. The interaction design must make the notification itself sufficient for action, or at minimum sufficient for informed triage.",
+      "solution": "Notifications are designed as self-contained action units, not as pointers to content elsewhere. Every notification includes: (1) Who: tenant name(s) and verification status ('Ariel and Amber, credit verified'). (2) What: the specific action or event ('Proposal for your 5th floor unit'). (3) The key number: the primary financial figure from the proposal, in the host's native format ('$2,400/month'). (4) A direct action: 'Tap to review and accept' that links directly to the proposal screen (behaves-003), bypassing dashboard navigation. The notification is attributed to the agent ('Bryant: New proposal for your listing'). The notification channel respects the host's stated preference: if Andreas said email, notifications go to email first, with push as a supplement, not a replacement. The notification contains enough information for the host to decide whether to act now or defer, without opening the platform.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 5:44",
+          "detail": "Andreas: 'You can just email me at any time.' This is an explicit channel preference. The host chose email, not push notifications, not SMS, not in-app alerts. The platform's notification system must default to the channel the host established during the call. Sending notifications through a channel the host did not choose is the digital equivalent of calling when they said to email."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, The Characters of the Story",
+          "detail": "Kahneman opens with the gorilla experiment: subjects counting basketball passes fail to notice a gorilla walking through the scene. 'We can be blind to the obvious, and we are also blind to our blindness.' A host counting tasks in their other projects will not notice a red badge on a platform they check infrequently. The notification must arrive where the host IS, not where the platform wants them to be."
+        },
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 3:28-3:51",
+          "detail": "Bryant provides enough information in his guarantee explanation for Andreas to make a decision without further investigation. The notification must achieve the same sufficiency: enough information in the notification itself that the host can triage (act now, defer, or dismiss) without opening the platform. This reduces the cognitive cost of engaging with the notification from 'full context switch' to 'quick scan.'"
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "detail": "Kahneman: 'The often-used phrase pay attention is apt: you dispose of a limited budget of attention that you can allocate to activities, and if you try to go beyond your budget, you will fail.' A notification that requires a full context switch (open app, log in, navigate, find, read, decide) costs a large chunk of the attention budget. A self-contained notification (scan subject, see key number, tap to act) costs a small chunk. The budget differential determines whether the host engages or ignores."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "No pending notifications. The dashboard shows a quiet notification indicator (no badge, no count). The absence of notifications is the default state -- the platform is not attention-seeking.",
+        "loading": "Not applicable for outbound notifications. For the in-platform notification panel: notifications load instantly from local cache, with server sync happening in the background. The host never waits for notifications to load.",
+        "empty": "The notification panel shows 'All caught up.' This is a positive empty state, not a void. It confirms the host has no pending actions, which is reassuring, not disappointing.",
+        "error": "If a notification link leads to a proposal that no longer exists (tenant withdrew, listing changed), the platform shows a specific explanation: 'This proposal is no longer available. Ariel and Amber found another space.' The error acknowledges what happened in human terms and suggests next steps: 'Bryant can help find new tenants for this unit.'",
+        "success": "After the host acts on a notification (accepts a proposal, reviews a payment), the notification transitions to a 'completed' visual state: muted text, checkmark icon, sorted to a 'Recent activity' section. The host can see their action history as evidence of progress."
+      },
+      "transition_principle": "The notification IS the transition. It bridges the host's current context (email inbox, phone home screen) and the platform action (proposal review, payment confirmation). The transition should feel like Bryant tapping the host on the shoulder and saying 'Quick -- Ariel and Amber want your place, here are the numbers,' not like the platform demanding 'Log in to your dashboard to see pending items.'",
+      "timing": {
+        "response_target": "Notification delivery: within 5 minutes of the triggering event (new proposal, payment received). Email notification: near-immediate. Push notification: near-immediate, respecting quiet hours. In-platform badge: instant when the host next loads any page. Deep-link to proposal screen on tap: under 2 seconds including auth.",
+        "easing": "In-platform notification panel: slide-in from right at 350ms, easing-out. Individual notification entry: fade-in at 200ms, staggered 50ms per notification. These animations are peripheral -- they accompany the host's intentional action of opening the notification panel, not interrupt their current task.",
+        "rationale": "5-minute delivery window ensures time-sensitive proposals reach the host quickly without requiring real-time infrastructure for non-real-time decisions. The host does not need to know about a proposal within seconds; they need to know about it before it expires. Email near-immediate because that is the host's stated channel."
+      },
+      "journey_state_awareness": {
+        "early_journey": "For hosts who have not yet completed onboarding, notifications are primarily from the agent ('Bryant has a suggestion for your listing') and serve as gentle nudges to return to the platform. These never feel automated -- they read as personal follow-ups.",
+        "mid_journey": "For hosts with active listings awaiting proposals, notifications are proposal-focused and action-oriented: 'New proposal from verified tenants for your [address].' The notification contains enough information for the host to decide whether to act now.",
+        "late_journey": "For hosts with active leases, notifications are exception-based only: payment confirmations, date-change requests, lease renewal reminders. Routine operations (scheduled payments received on time) are batched into a weekly summary rather than individual notifications. The platform respects the host's attention by not notifying on expected events."
+      },
+      "edge_cases": [
+        "Host does not respond to notifications: after 48 hours, the agent (human) follows up through the host's preferred channel. The platform escalates to human follow-up rather than sending escalating automated reminders. Andreas said 'email me at any time' to Bryant, not to an automated system.",
+        "Host receives multiple notifications in a short period: notifications are grouped by listing ('2 proposals for your 5th floor unit') rather than delivered individually. Grouping reduces notification fatigue while ensuring nothing is missed.",
+        "Host has changed devices or email: the notification system uses server-side records, not device-dependent push tokens, as the source of truth. If push fails, email is the guaranteed fallback. If email bounces, the agent is alerted to follow up personally.",
+        "Notification contains sensitive financial information: email notifications show the key number but mask specific amounts if the host has not verified their email. The full figure is visible only after tapping through to the authenticated platform view. Security does not compromise usability -- the notification still enables triage ('a proposal worth reviewing') without exposing exact figures in an unverified channel."
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Multi-Unit Batch Operations: Duplicate, Modify, and Manage Together",
+      "journey_phases": ["listing_creation", "pricing", "active_lease", "retention"],
+      "problem": "Andreas has two units in the same building: '5th floor walk-up' and '2nd floor walk-up' (1:03-1:10). He describes them together ('both of them are available, I can show them both') and manages them as a portfolio, not as independent listings. The platform's listing wizard treats each listing as a standalone creation process. For a multi-unit host, this means doing the same work twice: entering the same building address, the same amenities (laundry in building, microwave), the same rules, and the same pricing structure. This is a direct violation of Kahneman's law of least effort: the host must expend effort on tasks that produce no new information. The second listing is 80% identical to the first; the platform should require input only for the 20% that differs. Andreas described both units in a single conversational flow (1:03-1:18). The platform should support the same efficiency.",
+      "solution": "After the host completes their first listing, the platform offers a 'Add another unit in this building' action that creates a duplicate listing with all shared attributes pre-filled: address, building amenities, common rules, pricing structure, agent assignment. The host then modifies only what differs: floor, specific unit features, photos. The modification flow uses the same sequential disclosure pattern (behaves-002) but with most clusters pre-filled and auto-collapsed. Only differing clusters are expanded for input. The estimated time for the second listing should be under 2 minutes, compared to 5 minutes for the first. For portfolio management, the dashboard groups listings by building, displaying them as a unit cluster rather than independent cards. Batch operations are available: update pricing for all units, apply a rule change across units, accept proposals for multiple units from the same tenant group.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 1:03-1:18",
+          "detail": "Andreas describes both units in a single conversational turn: 'I have two units. One of them is on the fifth floor walk up. And then the other one is a second floor walk up... Both of them are available, I can show them both.' He does not describe Unit 1 completely, then start over for Unit 2. He describes them as variations of each other. The platform must support this mental model: the second listing is a modification of the first, not a separate creation."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "detail": "Kahneman: 'In the economy of action, effort is a cost, and the acquisition of skill is driven by the balance of benefits and costs. Laziness is built deep into our nature.' Requiring a host to duplicate work that produces no new information is a pure cost with no benefit. The law of least effort predicts that the host will create the first listing and postpone the second indefinitely. Duplication-with-modification reduces the cost of the second listing to the actual information value it requires."
+        },
+        {
+          "source_type": "host_call",
+          "source": "andreas-call.txt, 5:18-5:27",
+          "detail": "Andreas applies shared attributes across both units simultaneously: 'my both units come with a microwave... laundry in the building... in both.' He explicitly notes when attributes are shared ('in both'). The platform's batch model should mirror this: shared attributes are set once and inherited. Unit-specific attributes are set per unit."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part1-two-systems.txt, The Busy and Depleted System 2",
+          "detail": "Kahneman: 'ego depletion is not the same as cognitive busyness.' A host who just completed a 5-minute listing creation is ego-depleted regardless of how busy they feel. Asking them to repeat the process for a second unit stacks depletion on depletion. The duplicate-and-modify pattern acknowledges depletion by dramatically reducing the second listing's cognitive cost."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "After the first listing is published, a prompt appears on the confirmation screen: 'You mentioned another unit in this building. Add it now?' The prompt is pre-filled with the building address and shared attributes. A 'Do this later' option is equally visible -- the host is invited, not pushed.",
+        "loading": "When the duplicate listing is being generated, the host sees a brief animation: the first listing's summary card multiplies into two cards (350ms settle), with the second card highlighting the fields that need the host's input. This animation communicates 'we copied everything; here is what is different.'",
+        "empty": "For the single-unit host who has no other units, this pattern is invisible. No 'Add another unit' prompt appears. The pattern activates only when the host has indicated multiple units (from call data or by self-reporting during listing creation).",
+        "error": "If the duplication process fails (server error), the host is offered two options: 'Retry the copy' or 'Start a new listing from scratch.' The pre-filled data from the first listing is preserved in the retry path. The host never loses their existing listing data due to a duplication error.",
+        "success": "When the second listing is created, both listings appear side by side on the confirmation screen, visually grouped as a building portfolio. The success celebration uses the standard spring easing (500ms) on the portfolio grouping, signaling 'your building is set up.' The agent-attributed message reads: 'Both units are live. Bryant will start matching tenants.'"
+      },
+      "transition_principle": "The transition from single-listing to portfolio view is a natural extension, not a mode change. The host's mental model is 'I have a building with units,' not 'I have independent listings.' The visual and interaction design should reflect the building-first, unit-second hierarchy. Creating the second unit feels like filling in a detail on the building, not starting a new process.",
+      "timing": {
+        "response_target": "Duplicate generation: under 1 second (copying data, not reprocessing). Modification flow: under 2 minutes total (only differing fields require input). Portfolio grouping animation: 500ms with spring easing.",
+        "easing": "Duplication card animation: cubic-bezier(0.34, 1.56, 0.64, 1) -- the spring easing communicates 'something new was created' with a subtle bounce. Modification field reveals: standard easing-out at 350ms.",
+        "rationale": "Sub-1-second duplication is achievable because it is a data copy operation, not a creation flow. The spring easing on the card duplication is justified because creating a second listing is a significant portfolio event -- the host's investment in the platform just doubled. This warrants the same celebration treatment as a listing publication."
+      },
+      "journey_state_awareness": {
+        "early_journey": "The 'Add another unit' prompt appears only after the first listing is fully published. It is never shown mid-wizard to avoid distracting from the current task. The prompt uses the agent's voice: 'Bryant noticed you have a second unit. Ready to add it?'",
+        "mid_journey": "For hosts who have completed two or more listings, the dashboard organizes by building. New units can be added from the building group view with a '+' action that opens the modification flow (not the full wizard). The platform learns the building's shared attributes and applies them automatically.",
+        "late_journey": "For retention, the portfolio view enables batch actions: 'Renew all leases in this building' or 'Update pricing across all units.' The multi-unit host's efficiency need is greatest at renewal time, when they are making decisions about their entire portfolio, not individual units."
+      },
+      "edge_cases": [
+        "Units are in different buildings: the 'Add another unit' prompt asks 'Same building or different location?' Different-location units do not inherit building-specific attributes (laundry, building rules) but do inherit host-specific attributes (pricing structure, credit requirements, agent assignment).",
+        "Host has more than 2 units: the pattern scales. After the second listing, the 'Add another unit' flow becomes even more streamlined: the host selects which existing listing to duplicate from, then modifies only the differences. Ten units should take proportionally less effort than 2x the first listing.",
+        "Units have significantly different characteristics (e.g., one furnished, one unfurnished): the modification flow highlights the differing attributes and asks the host to confirm or change each one. Pre-filled values from the first listing are clearly marked as 'Copied from Unit 1 -- change if different.'",
+        "Host wants to apply a change to all units at once (e.g., price increase): batch editing from the building portfolio view applies the change across all selected units with a confirmation preview showing the before/after for each unit. The host reviews the batch, not individual units."
+      ]
+    }
+  ],
+  "element_count": 7,
+  "coverage": {
+    "discovery": [],
+    "evaluation": [],
+    "onboarding": ["behaves-001", "behaves-002", "behaves-004"],
+    "listing_creation": ["behaves-001", "behaves-002", "behaves-004", "behaves-005", "behaves-007"],
+    "pricing": ["behaves-001", "behaves-004", "behaves-007"],
+    "proposal_mgmt": ["behaves-001", "behaves-002", "behaves-003", "behaves-005", "behaves-006"],
+    "active_lease": ["behaves-005", "behaves-006", "behaves-007"],
+    "retention": ["behaves-006", "behaves-007"]
+  },
+  "layer_3_alignment": {
+    "looks-001_warm_surface_continuity": "Behaves-005 (advisor trigger) uses the accent-light background to visually distinguish the advisor moment from standard data entry, creating the mode shift within the warm surface palette.",
+    "looks-002_typographic_trust_triad": "Behaves-001 (instant acknowledgment) relies on the triad to differentiate what is being acknowledged: serif anchors are recognized, sans instructions are acted upon, mono data is verified. Each typeface zone receives acknowledgment appropriate to its cognitive function.",
+    "looks-003_single_number_focal_point": "Behaves-003 (confirm-not-construct) places the single financial number at the center of the proposal interaction. The host's accept/decline decision is anchored to one number in IBM Plex Mono at 28px, matching the visual pattern.",
+    "looks-004_agent_identity": "Behaves-004 (save-and-resume) uses the agent identity in the welcome-back message, maintaining the human continuity frame across session interruptions. Behaves-006 (notifications) attributes all notifications to the agent, extending the visual anchor into the notification channel.",
+    "looks-005_green_trust_badges": "Behaves-003 (confirm-not-construct) surfaces trust badges on the proposal screen alongside tenant names, using the green badge system to provide instant trust verification within the confirm flow.",
+    "looks-006_progressive_disclosure": "Behaves-002 (sequential disclosure) implements the visual weight tiers dynamically: the current input cluster uses primary weight, completed clusters use secondary weight (summary strips), and upcoming clusters are invisible (tertiary, not yet disclosed).",
+    "looks-007_motion_as_confirmation": "Behaves-001 (instant acknowledgment) directly implements the sub-100ms acknowledgment and 350ms settle timing. Behaves-003 (confirm-not-construct) uses the 500ms spring celebration for proposal acceptance. All timing values are drawn from looks-007's motion tokens."
+  },
+  "layer_2_alignment": {
+    "communicates-001_anchor_then_advance": "Behaves-002 (sequential disclosure) implements anchor-then-advance as an interaction pattern: each new cluster opens with a summary of what the host already provided (anchor) before presenting new input (advance).",
+    "communicates-002_single_sum_financial": "Behaves-003 (confirm-not-construct) surfaces the single financial sum as the decision anchor in proposal interactions. Behaves-006 (notifications) includes the key financial number in the notification itself.",
+    "communicates-003_trust_credential_stack": "Behaves-003 (confirm-not-construct) presents trust credentials within the proposal flow: tenant verification badges appear alongside names, following the mechanism-before-promise pattern.",
+    "communicates-004_seven_second_unit_description": "Behaves-007 (multi-unit batch) enables the conversational-density goal for second listings by pre-filling shared attributes, reducing input to only what differs.",
+    "communicates-005_pre_packaged_proposal": "Behaves-003 (confirm-not-construct) directly implements the pre-packaged proposal principle as an interaction pattern: one-tap acceptance with inline adjustment as the secondary path.",
+    "communicates-006_agent_continuity_frame": "Behaves-004 (save-and-resume) and behaves-006 (notifications) maintain agent attribution across session boundaries and notification channels.",
+    "communicates-007_advisor_prompt": "Behaves-005 (advisor trigger) directly implements the advisor prompt as an interaction pattern with specific timing, states, and edge cases."
+  },
+  "layer_1_alignment": {
+    "works-001_system_1_trust_gate": "Behaves-001 (instant acknowledgment) passes the trust gate by ensuring every interaction receives immediate response, preventing the System 1 suspicion that arises from unresponsive interfaces.",
+    "works-002_depleted_user": "Behaves-002 (sequential disclosure) and behaves-004 (save-and-resume) directly serve depleted users by reducing per-step cognitive load and eliminating restart penalties.",
+    "works-003_call_speed_matching": "Behaves-001 (instant acknowledgment) matches Bryant's verbal acknowledgment cadence. Behaves-007 (multi-unit batch) matches the speed with which Andreas described multiple units in conversation.",
+    "works-004_human_to_digital_trust_bridge": "Behaves-004 (save-and-resume) bridges sessions with agent-attributed messages. Behaves-006 (notifications) bridges channels by attributing notifications to the agent.",
+    "works-005_advisor_moment": "Behaves-005 (advisor trigger) implements the advisor moment as a concrete interaction pattern with timing, states, and journey-state adaptation.",
+    "works-006_mental_model_translation": "Behaves-003 (confirm-not-construct) presents financial data in the host's native format. Behaves-006 (notifications) includes key numbers in the host's preferred format within the notification."
+  },
+  "methodology_notes": "Seven interaction pattern elements extracted from the intersection of Bryant's conversational behaviors in the Andreas call and Kahneman's System 1/System 2 framework. Each element defines HOW the platform responds to user actions (states), WHEN transitions occur (timing with specific easing curves from tokens.json), HOW the pattern adapts across the journey (journey_state_awareness), and WHAT happens at the boundaries (edge_cases). Elements are ordered by priority and scope: behaves-001 (acknowledgment) is the most universal pattern, applying to every interactive element. Behaves-002 (sequential disclosure) and behaves-003 (confirm-not-construct) define the two primary interaction modes. Behaves-004 (save-and-resume) and behaves-006 (notifications) address session-boundary interactions. Behaves-005 (advisor trigger) addresses a specific psychological commitment mechanism. Behaves-007 (multi-unit batch) addresses the portfolio host's efficiency need. No element specifies HTML, CSS, or visual layout -- those belong to Layer 3. These elements define interaction principles: the logic of how and when state changes occur in response to host behavior."
+}

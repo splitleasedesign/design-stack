@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Design Stack Report</title>
+  <title>Design Stack v2 Report</title>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -24,6 +24,8 @@
       --signal-danger-bg: #fde8e8;
       --signal-info: #2d5a8a;
       --signal-info-bg: #e8f0fa;
+      --signal-success: #2d5a3d;
+      --signal-success-bg: #e8f0eb;
       --border: #e2dfd9;
       --border-strong: #ccc8c0;
       --radius-sm: 6px;
@@ -31,371 +33,123 @@
       --radius-lg: 16px;
       --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
       --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
-      --shadow-lg: 0 8px 30px rgba(26,23,20,0.10);
       --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
 
-    body {
-      font-family: 'Outfit', sans-serif;
-      color: var(--ink);
-      background: var(--bg);
-      line-height: 1.6;
-    }
-
-    /* ── Header ── */
-    .report-header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 32px 40px;
-    }
-
-    .report-header h1 {
-      font-family: 'Instrument Serif', serif;
-      font-size: 36px;
-      font-weight: 400;
-      margin-bottom: 8px;
-    }
-
-    .report-meta {
-      display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-      color: var(--ink-muted);
-      font-size: 13px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .report-meta .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 2px 10px;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .badge-running { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    /* Header */
+    .report-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .report-header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; margin-bottom: 4px; }
+    .report-header .lens-label { font-size: 16px; color: var(--ink-soft); margin-bottom: 12px; }
+    .report-meta { display: flex; gap: 24px; flex-wrap: wrap; color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
     .badge-complete { background: var(--accent-light); color: var(--accent); }
-    .badge-partial { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .badge-partial { background: var(--signal-warn-bg); color: var(--signal-warn); }
 
-    /* ── Coherence Alert Bar ── */
-    .coherence-bar {
-      background: var(--signal-warn-bg);
-      border-bottom: 1px solid rgba(193,122,40,0.2);
-      padding: 10px 40px;
-      font-size: 13px;
-      color: var(--signal-warn);
-      display: none;
-    }
+    /* Coherence Alert Bar */
+    .coherence-bar { background: var(--signal-warn-bg); border-bottom: 1px solid rgba(193,122,40,0.2); padding: 10px 40px; font-size: 13px; color: var(--signal-warn); display: none; align-items: center; gap: 12px; }
+    .coherence-bar.has-flags { display: flex; }
+    .coherence-bar .count { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
 
-    .coherence-bar.has-flags { display: flex; align-items: center; gap: 12px; }
-    .coherence-bar .flag-count {
-      font-family: 'IBM Plex Mono', monospace;
-      font-weight: 600;
-    }
-
-    .coherence-bar.critical {
-      background: var(--signal-danger-bg);
-      border-color: rgba(184,58,58,0.2);
-      color: var(--signal-danger);
-    }
-
-    /* ── Tab Navigation ── */
-    .tab-nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 40px;
-      display: flex;
-      gap: 0;
-      overflow-x: auto;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .tab-nav button {
-      background: none;
-      border: none;
-      padding: 14px 20px;
-      font-family: 'Outfit', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink-muted);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 200ms var(--ease-out);
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    /* Tab Nav */
+    .tab-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+    .tab-nav button { background: none; border: none; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms var(--ease-out); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
     .tab-nav button:hover { color: var(--ink-soft); }
+    .tab-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-nav button .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-deep); font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--ink-muted); }
+    .tab-nav button.active .layer-num { background: var(--accent); color: white; }
 
-    .tab-nav button.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-
-    .tab-nav button .layer-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--bg-deep);
-      font-size: 11px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-weight: 600;
-      color: var(--ink-muted);
-    }
-
-    .tab-nav button.active .layer-num {
-      background: var(--accent);
-      color: white;
-    }
-
-    /* ── Main Content ── */
-    .main-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 32px 40px;
-    }
-
-    .tab-panel {
-      display: none;
-      animation: fadeIn 300ms var(--ease-out);
-    }
-
+    /* Main */
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+    .tab-panel { display: none; animation: fadeIn 300ms var(--ease-out); }
     .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    /* Element Card */
+    .element-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .element-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .element-card-header h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; flex: 1; min-width: 200px; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .type-process_pattern { background: #e8f0fa; color: #2d5a8a; }
+    .type-info_architecture { background: #f0e8fa; color: #6a2d8a; }
+    .type-visual_pattern { background: #fae8f0; color: #8a2d5a; }
+    .type-interaction_pattern { background: #faf0e8; color: #8a5a2d; }
+    .type-emotional_element { background: #e8faf0; color: #2d8a5a; }
+    .type-validation_strategy { background: var(--bg-deep); color: var(--ink-soft); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+    .priority-high { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-low { background: var(--bg-deep); color: var(--ink-muted); }
 
-    /* ── Spec Card ── */
-    .spec-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
-    }
+    /* Phase Tags */
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'IBM Plex Mono', monospace; background: var(--accent-light); color: var(--accent); }
 
-    .spec-card h2 {
-      font-family: 'Instrument Serif', serif;
-      font-size: 24px;
-      font-weight: 400;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }
+    /* Problem/Solution */
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .ps-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px; }
+    .ps-box.problem { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .ps-box.solution { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .ps-box label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+    @media (max-width: 700px) { .ps-grid { grid-template-columns: 1fr; } }
 
-    .spec-card h3 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-top: 20px;
-      margin-bottom: 8px;
-      color: var(--ink);
-    }
+    /* Evidence */
+    .evidence-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; color: var(--ink-muted); transition: all 150ms; }
+    .evidence-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .evidence-list { display: none; margin-top: 12px; }
+    .evidence-list.open { display: block; }
+    .evidence-item { padding: 10px 14px; margin: 6px 0; background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+    .evidence-item .source { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+    .evidence-item .quote { color: var(--ink-soft); font-style: italic; }
+    .evidence-item .insight { color: var(--ink); margin-top: 4px; }
 
-    .spec-card h4 {
-      font-size: 13px;
-      font-weight: 600;
-      margin-top: 16px;
-      margin-bottom: 6px;
-      color: var(--ink-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+    /* Layer-specific fields */
+    .extra-fields { margin-top: 16px; display: grid; gap: 8px; }
+    .extra-field { font-size: 13px; }
+    .extra-field label { font-weight: 600; color: var(--ink-soft); font-size: 12px; }
+    .extra-field .value { color: var(--ink); }
 
-    /* ── JSON Display ── */
-    .json-block {
-      background: var(--ink);
-      color: #e8e4de;
-      padding: 20px;
-      border-radius: var(--radius-md);
-      overflow-x: auto;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 13px;
-      line-height: 1.6;
-      margin: 12px 0;
-    }
+    /* Coherence sections */
+    .coherence-section { margin-bottom: 28px; }
+    .coherence-section h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 12px; }
+    .reinforcement-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-success-bg); border-left: 4px solid var(--signal-success); font-size: 14px; }
+    .contradiction-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-danger-bg); border-left: 4px solid var(--signal-danger); font-size: 14px; }
+    .extension-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-info-bg); border-left: 4px solid var(--signal-info); font-size: 14px; }
+    .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
 
-    .json-key { color: #7dba95; }
-    .json-string { color: #d4a865; }
-    .json-number { color: #8ab4d6; }
-    .json-bool { color: #c88abd; }
-    .json-null { color: var(--ink-ghost); }
+    /* Coverage Map */
+    .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .coverage-cell { padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border); }
+    .coverage-cell .phase-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; }
+    .coverage-cell .count { font-size: 24px; font-weight: 700; }
+    .coverage-cell .level { font-size: 11px; color: var(--ink-muted); }
+    .coverage-none { background: var(--signal-danger-bg); }
+    .coverage-thin { background: var(--signal-warn-bg); }
+    .coverage-moderate { background: var(--signal-info-bg); }
+    .coverage-strong { background: var(--signal-success-bg); }
 
-    /* ── Tables ── */
-    .spec-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0;
-      font-size: 14px;
-    }
+    /* Journey Context phase cards */
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 12px; }
+    .phase-card h4 { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .phase-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+    .phase-card .risk { font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 6px; }
+    .risk-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .risk-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .risk-medium { background: var(--signal-info-bg); color: var(--signal-info); }
+    .risk-low { background: var(--bg-deep); color: var(--ink-muted); }
 
-    .spec-table th {
-      text-align: left;
-      padding: 8px 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--ink-muted);
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .spec-table td {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      vertical-align: top;
-    }
-
-    /* ── Mockup Preview ── */
-    .mockup-container {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      margin: 16px 0;
-      background: white;
-    }
-
-    .mockup-toolbar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      font-size: 12px;
-      color: var(--ink-muted);
-    }
-
-    .mockup-toolbar .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--border-strong);
-    }
-
-    .mockup-toolbar .dot:nth-child(1) { background: #ed6a5e; }
-    .mockup-toolbar .dot:nth-child(2) { background: #f5bf4f; }
-    .mockup-toolbar .dot:nth-child(3) { background: #62c554; }
-
-    .mockup-iframe {
-      width: 100%;
-      min-height: 500px;
-      border: none;
-      display: block;
-    }
-
-    /* ── State Toggles ── */
-    .state-toggles {
-      display: flex;
-      gap: 8px;
-      margin: 16px 0;
-      flex-wrap: wrap;
-    }
-
-    .state-toggle {
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 9999px;
-      background: var(--surface);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 150ms var(--ease-out);
-      color: var(--ink-soft);
-    }
-
-    .state-toggle:hover { border-color: var(--accent); color: var(--accent); }
-    .state-toggle.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-
-    /* ── Coherence Flags ── */
-    .flag-list { list-style: none; }
-
-    .flag-item {
-      padding: 12px 16px;
-      margin: 8px 0;
-      border-radius: var(--radius-md);
-      border-left: 4px solid;
-      font-size: 14px;
-    }
-
-    .flag-critical { border-color: var(--signal-danger); background: var(--signal-danger-bg); }
-    .flag-warning { border-color: var(--signal-warn); background: var(--signal-warn-bg); }
-    .flag-suggestion { border-color: var(--signal-info); background: var(--signal-info-bg); }
-
-    .flag-item .flag-type {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 4px;
-    }
-
-    /* ── Test List ── */
-    .test-item {
-      padding: 12px 16px;
-      margin: 8px 0;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: var(--surface-warm);
-    }
-
-    .test-item .test-id {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .test-item .test-category {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      color: var(--ink-ghost);
-      text-transform: uppercase;
-      margin-left: 8px;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; }
-      .spec-card { padding: 20px; }
-    }
-
-    /* ── Print ── */
-    @media print {
-      .tab-nav, .coherence-bar { display: none; }
-      .tab-panel { display: block !important; page-break-inside: avoid; }
-      body { background: white; }
-    }
+    /* Responsive + Print */
+    @media (max-width: 768px) { .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; } }
+    @media print { .tab-nav, .coherence-bar { display: none; } .tab-panel { display: block !important; page-break-inside: avoid; } body { background: white; } }
   </style>
 </head>
 <body>
 
-  <!-- Run data injected here by orchestrator -->
+  <!-- Data injection points -->
   <!-- INJECT:run-config -->
-  <script id="run-config" type="application/json">{"run_id":"","target":"","status":"pending"}</script>
-
-  <!-- Layer data injection points -->
+  <script id="run-config" type="application/json">{"run_id":"","lens":{},"status":"pending"}</script>
   <!-- INJECT:layer-0 -->
   <script id="data-layer-0" type="application/json">{}</script>
   <!-- INJECT:layer-1 -->
@@ -413,35 +167,24 @@
   <!-- INJECT:layer-7 -->
   <script id="data-layer-7" type="application/json">{}</script>
 
-  <!-- Mockup HTML (base64 or inline) -->
-  <!-- INJECT:mockup-html -->
-  <script id="mockup-html" type="text/plain"></script>
-
-  <!-- State variant HTML files -->
-  <!-- INJECT:state-loading-html -->
-  <script id="state-loading-html" type="text/plain"></script>
-  <!-- INJECT:state-empty-html -->
-  <script id="state-empty-html" type="text/plain"></script>
-  <!-- INJECT:state-error-html -->
-  <script id="state-error-html" type="text/plain"></script>
-
   <header class="report-header">
-    <h1 id="report-title">Design Stack Report</h1>
+    <h1>Design Stack v2 Report</h1>
+    <div class="lens-label" id="lens-label"></div>
     <div class="report-meta">
       <span id="meta-date"></span>
       <span id="meta-run-id"></span>
       <span class="badge" id="meta-status"></span>
-      <span id="meta-layers"></span>
+      <span id="meta-elements"></span>
     </div>
   </header>
 
   <div class="coherence-bar" id="coherence-bar">
-    <span class="flag-count" id="flag-count"></span>
-    <span id="flag-summary"></span>
+    <span class="count" id="coherence-count"></span>
+    <span id="coherence-summary"></span>
   </div>
 
   <nav class="tab-nav" id="tab-nav">
-    <button class="active" data-tab="preview"><span class="layer-num">&#9654;</span> Preview</button>
+    <button class="active" data-tab="overview"><span class="layer-num">*</span> Overview</button>
     <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
     <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
     <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
@@ -454,144 +197,82 @@
 
   <main class="main-content">
 
-    <!-- Preview Tab: Mockup + State Toggling -->
-    <div class="tab-panel active" id="panel-preview">
-      <div class="spec-card">
-        <h2>Live Preview</h2>
-        <div class="state-toggles" id="state-toggles">
-          <button class="state-toggle active" data-state="default">Default</button>
-          <button class="state-toggle" data-state="loading">Loading</button>
-          <button class="state-toggle" data-state="empty">Empty</button>
-          <button class="state-toggle" data-state="error">Error</button>
-        </div>
-        <div class="mockup-container">
-          <div class="mockup-toolbar">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span style="flex:1"></span>
-            <span id="mockup-label">default state</span>
-          </div>
-          <iframe class="mockup-iframe" id="mockup-frame" sandbox="allow-scripts allow-same-origin"></iframe>
-        </div>
+    <!-- Overview Tab -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Lens Summary</h3>
+        <p id="overview-lens-summary" style="font-size:16px;color:var(--ink-soft);margin-bottom:20px;"></p>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;">Journey Phase Coverage</h4>
+        <div class="coverage-grid" id="overview-coverage"></div>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin:20px 0 12px;font-family:'IBM Plex Mono',monospace;">Run Statistics</h4>
+        <div id="overview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
       </div>
+      <div id="overview-highlights"></div>
     </div>
 
     <!-- Layer 0: Journey Context -->
     <div class="tab-panel" id="panel-layer-0">
-      <div class="spec-card">
-        <h2>Layer 0: Journey Context</h2>
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Layer 0: Journey Context</h3>
         <div id="content-layer-0"></div>
       </div>
     </div>
 
-    <!-- Layer 1: Works -->
-    <div class="tab-panel" id="panel-layer-1">
-      <div class="spec-card">
-        <h2>Layer 1: Process Architect</h2>
-        <div id="content-layer-1"></div>
-      </div>
-    </div>
-
-    <!-- Layer 2: Communicates -->
-    <div class="tab-panel" id="panel-layer-2">
-      <div class="spec-card">
-        <h2>Layer 2: Information Architect</h2>
-        <div id="content-layer-2"></div>
-      </div>
-    </div>
-
-    <!-- Layer 3: Looks -->
-    <div class="tab-panel" id="panel-layer-3">
-      <div class="spec-card">
-        <h2>Layer 3: Visual Designer</h2>
-        <div id="content-layer-3"></div>
-      </div>
-    </div>
-
-    <!-- Layer 4: Behaves -->
-    <div class="tab-panel" id="panel-layer-4">
-      <div class="spec-card">
-        <h2>Layer 4: Interaction Engineer</h2>
-        <div id="content-layer-4"></div>
-      </div>
-    </div>
-
-    <!-- Layer 5: Feels -->
-    <div class="tab-panel" id="panel-layer-5">
-      <div class="spec-card">
-        <h2>Layer 5: Experience Tuner</h2>
-        <div id="content-layer-5"></div>
-      </div>
-    </div>
+    <!-- Layers 1-5: Element Cards -->
+    <div class="tab-panel" id="panel-layer-1"><div id="content-layer-1"></div></div>
+    <div class="tab-panel" id="panel-layer-2"><div id="content-layer-2"></div></div>
+    <div class="tab-panel" id="panel-layer-3"><div id="content-layer-3"></div></div>
+    <div class="tab-panel" id="panel-layer-4"><div id="content-layer-4"></div></div>
+    <div class="tab-panel" id="panel-layer-5"><div id="content-layer-5"></div></div>
 
     <!-- Layer 6: Coherence -->
     <div class="tab-panel" id="panel-layer-6">
-      <div class="spec-card">
-        <h2>Layer 6: Coherence Auditor</h2>
-        <div id="content-layer-6"></div>
-      </div>
+      <div id="content-layer-6"></div>
     </div>
 
     <!-- Layer 7: Tests -->
-    <div class="tab-panel" id="panel-layer-7">
-      <div class="spec-card">
-        <h2>Layer 7: Test Designer</h2>
-        <div id="content-layer-7"></div>
-      </div>
-    </div>
+    <div class="tab-panel" id="panel-layer-7"><div id="content-layer-7"></div></div>
 
   </main>
 
-  <footer style="text-align:center; padding:32px; color:var(--ink-ghost); font-size:12px; font-family:'IBM Plex Mono',monospace;">
-    SplitLease Design Stack v1.0
+  <footer style="text-align:center;padding:32px;color:var(--ink-ghost);font-size:12px;font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v2.0 — Element Pipeline
   </footer>
 
   <script>
-    // ── Data Loading ──
-    function loadJSON(id) {
-      try {
-        return JSON.parse(document.getElementById(id)?.textContent || '{}');
-      } catch { return {}; }
-    }
-
-    function loadHTML(id) {
-      return document.getElementById(id)?.textContent || '';
-    }
+    function loadJSON(id) { try { return JSON.parse(document.getElementById(id)?.textContent || '{}'); } catch { return {}; } }
 
     const config = loadJSON('run-config');
     const layers = {};
     for (let i = 0; i <= 7; i++) layers[i] = loadJSON(`data-layer-${i}`);
-    const mockupHTML = loadHTML('mockup-html');
-    const stateHTMLs = {
-      default: mockupHTML,
-      loading: loadHTML('state-loading-html'),
-      empty: loadHTML('state-empty-html'),
-      error: loadHTML('state-error-html')
-    };
 
-    // ── Header ──
-    document.getElementById('report-title').textContent = config.target || 'Design Stack Report';
+    // Header
+    const lens = config.lens || layers[0]?.lens || {};
+    document.getElementById('lens-label').textContent = `Lens: ${lens.host_call || '?'} + ${lens.book_extract || '?'}`;
     document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
     document.getElementById('meta-run-id').textContent = config.run_id || '';
     const statusEl = document.getElementById('meta-status');
     statusEl.textContent = config.status || 'pending';
-    statusEl.className = `badge badge-${config.status || 'running'}`;
+    statusEl.className = `badge badge-${config.status || 'partial'}`;
 
-    // ── Coherence Bar ──
-    const flags = layers[6]?.flags || [];
-    if (flags.length > 0) {
+    // Count elements
+    let totalElements = 0;
+    for (let i = 1; i <= 5; i++) totalElements += (layers[i]?.elements || []).length;
+    totalElements += (layers[7]?.elements || []).length;
+    document.getElementById('meta-elements').textContent = `${totalElements} elements`;
+
+    // Coherence bar
+    const coherence = layers[6] || {};
+    const contradictions = coherence.contradictions || [];
+    const reinforcements = coherence.reinforcements || [];
+    if (contradictions.length > 0) {
       const bar = document.getElementById('coherence-bar');
       bar.classList.add('has-flags');
-      const criticals = flags.filter(f => f.severity === 'critical').length;
-      if (criticals > 0) bar.classList.add('critical');
-      document.getElementById('flag-count').textContent = `${flags.length} flag${flags.length !== 1 ? 's' : ''}`;
-      document.getElementById('flag-summary').textContent = criticals > 0
-        ? `${criticals} critical issue${criticals !== 1 ? 's' : ''} found`
-        : 'Review recommended';
+      document.getElementById('coherence-count').textContent = `${contradictions.length} contradiction${contradictions.length !== 1 ? 's' : ''}`;
+      document.getElementById('coherence-summary').textContent = `${reinforcements.length} reinforcement${reinforcements.length !== 1 ? 's' : ''} found`;
     }
 
-    // ── Tab Navigation ──
+    // Tab navigation
     document.getElementById('tab-nav').addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
@@ -601,95 +282,259 @@
       document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
     });
 
-    // ── State Toggles ──
-    const frame = document.getElementById('mockup-frame');
-    const label = document.getElementById('mockup-label');
-
-    function loadState(state) {
-      const html = stateHTMLs[state] || stateHTMLs.default;
-      if (html) {
-        frame.srcdoc = html;
-        label.textContent = `${state} state`;
+    // Evidence toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('evidence-toggle')) {
+        const list = e.target.nextElementSibling;
+        list.classList.toggle('open');
+        e.target.textContent = list.classList.contains('open') ? 'Hide evidence' : `Show evidence (${list.children.length})`;
       }
-    }
-
-    document.getElementById('state-toggles').addEventListener('click', (e) => {
-      const btn = e.target.closest('.state-toggle');
-      if (!btn) return;
-      document.querySelectorAll('.state-toggle').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      loadState(btn.dataset.state);
     });
 
-    // Load default mockup
-    if (mockupHTML) loadState('default');
+    // Render element card
+    function renderElementCard(el) {
+      const phases = (el.journey_phases || []).map(p => `<span class="phase-tag">${p}</span>`).join('');
+      const evidenceItems = (el.evidence || []).map(ev =>
+        `<div class="evidence-item">
+          <div class="source">${ev.source || ''}</div>
+          ${ev.quote ? `<div class="quote">"${ev.quote}"</div>` : ''}
+          ${ev.insight ? `<div class="insight">${ev.insight}</div>` : ''}
+        </div>`
+      ).join('');
+      const evidenceCount = (el.evidence || []).length;
 
-    // ── Render JSON into Layer Panels ──
-    function syntaxHighlight(json) {
-      if (typeof json !== 'string') json = JSON.stringify(json, null, 2);
-      return json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
-        .replace(/: "([^"]*)"/g, ': <span class="json-string">"$1"</span>')
-        .replace(/: (\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
-        .replace(/: (true|false)/g, ': <span class="json-bool">$1</span>')
-        .replace(/: (null)/g, ': <span class="json-null">$1</span>');
+      let extras = '';
+      // Layer-specific fields
+      if (el.user_goal) extras += `<div class="extra-field"><label>User Goal</label> <span class="value">${el.user_goal}</span></div>`;
+      if (el.company_goal) extras += `<div class="extra-field"><label>Company Goal</label> <span class="value">${el.company_goal}</span></div>`;
+      if (el.success_metric) extras += `<div class="extra-field"><label>Success Metric</label> <span class="value">${el.success_metric}</span></div>`;
+      if (el.time_budget) extras += `<div class="extra-field"><label>Time Budget</label> <span class="value">${el.time_budget}</span></div>`;
+      if (el.hierarchy_principle) extras += `<div class="extra-field"><label>Hierarchy</label> <span class="value">${el.hierarchy_principle}</span></div>`;
+      if (el.disclosure_pattern) extras += `<div class="extra-field"><label>Disclosure</label> <span class="value">${el.disclosure_pattern}</span></div>`;
+      if (el.cognitive_load_constraint) extras += `<div class="extra-field"><label>Cognitive Load</label> <span class="value">${el.cognitive_load_constraint}</span></div>`;
+      if (el.brand_alignment) extras += `<div class="extra-field"><label>Brand Alignment</label> <span class="value">${el.brand_alignment}</span></div>`;
+      if (el.visual_hierarchy_rule) extras += `<div class="extra-field"><label>Visual Hierarchy</label> <span class="value">${el.visual_hierarchy_rule}</span></div>`;
+      if (el.transition_principle) extras += `<div class="extra-field"><label>Transitions</label> <span class="value">${el.transition_principle}</span></div>`;
+      if (el.journey_state_awareness) extras += `<div class="extra-field"><label>Journey Awareness</label> <span class="value">${el.journey_state_awareness}</span></div>`;
+      if (el.target_emotion) extras += `<div class="extra-field"><label>Target Emotion</label> <span class="value" style="font-size:16px;font-weight:600;">${el.target_emotion}</span></div>`;
+      if (el.emotion_rationale) extras += `<div class="extra-field"><label>Why</label> <span class="value">${el.emotion_rationale}</span></div>`;
+      if (el.validation_method) extras += `<div class="extra-field"><label>Method</label> <span class="value">${el.validation_method}</span></div>`;
+      if (el.success_criteria) extras += `<div class="extra-field"><label>Success Criteria</label> <span class="value">${el.success_criteria}</span></div>`;
+      if (el.failure_meaning) extras += `<div class="extra-field"><label>Failure Means</label> <span class="value">${el.failure_meaning}</span></div>`;
+      if (el.test_description) extras += `<div class="extra-field"><label>Test</label> <span class="value">${el.test_description}</span></div>`;
+
+      // Copy guidelines
+      if (el.copy_guidelines) {
+        const cg = el.copy_guidelines;
+        extras += `<div class="extra-field" style="margin-top:8px;"><label>Copy Voice</label> <span class="value">${cg.voice || ''}</span></div>`;
+        if (cg.example_good) extras += `<div class="extra-field"><label>Good Example</label> <span class="value" style="color:var(--signal-success);">"${cg.example_good}"</span></div>`;
+        if (cg.example_bad) extras += `<div class="extra-field"><label>Bad Example</label> <span class="value" style="color:var(--signal-danger);text-decoration:line-through;">"${cg.example_bad}"</span></div>`;
+      }
+
+      // Anti-goals / anti-patterns
+      const antiItems = el.anti_goals || (el.anti_patterns || []).map(a => typeof a === 'string' ? a : a.pattern);
+      let antiHTML = '';
+      if (antiItems && antiItems.length) {
+        antiHTML = `<div style="margin-top:12px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--signal-danger);font-family:'IBM Plex Mono',monospace;">Anti-goals</label><ul style="margin-top:4px;padding-left:18px;font-size:13px;color:var(--ink-soft);">${antiItems.map(a => `<li>${a}</li>`).join('')}</ul></div>`;
+      }
+
+      return `<div class="element-card">
+        <div class="element-card-header">
+          <h3>${el.title || el.id}</h3>
+          <span class="type-badge type-${el.type || ''}">${(el.type || '').replace(/_/g, ' ')}</span>
+          <span class="priority-badge priority-${el.priority || 'low'}">${el.priority || 'low'}</span>
+        </div>
+        <div class="phase-tags">${phases}</div>
+        <div class="ps-grid">
+          <div class="ps-box problem"><label>Problem</label>${el.problem || 'N/A'}</div>
+          <div class="ps-box solution"><label>Solution</label>${el.solution || 'N/A'}</div>
+        </div>
+        ${extras ? `<div class="extra-fields">${extras}</div>` : ''}
+        ${antiHTML}
+        ${evidenceCount > 0 ? `<div style="margin-top:16px;">
+          <button class="evidence-toggle">Show evidence (${evidenceCount})</button>
+          <div class="evidence-list">${evidenceItems}</div>
+        </div>` : ''}
+      </div>`;
     }
 
-    function renderLayer(num, data) {
-      const container = document.getElementById(`content-layer-${num}`);
+    // Render element layers (1-5, 7)
+    [1,2,3,4,5,7].forEach(i => {
+      const container = document.getElementById(`content-layer-${i}`);
       if (!container) return;
-      if (!data || Object.keys(data).length === 0) {
-        container.innerHTML = '<p style="color:var(--ink-ghost); font-style:italic;">No data available for this layer.</p>';
+      const data = layers[i];
+      const elements = data?.elements || [];
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No elements discovered by this layer.</p></div>';
         return;
       }
+      const layerNames = {1:'Process Patterns',2:'Info Architecture',3:'Visual Patterns',4:'Interaction Patterns',5:'Emotional Elements',7:'Validation Strategies'};
+      container.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:20px;">Layer ${i}: ${layerNames[i]} <span style="font-size:14px;color:var(--ink-muted);font-family:'IBM Plex Mono',monospace;">(${elements.length} element${elements.length!==1?'s':''})</span></h2>` + elements.map(renderElementCard).join('');
+    });
 
-      // Render as structured sections + raw JSON
+    // Render Layer 0: Journey Context
+    (function renderJourney() {
+      const container = document.getElementById('content-layer-0');
+      if (!container) return;
+      const data = layers[0];
+      if (!data || !data.phases) { container.innerHTML = '<p style="color:var(--ink-ghost);font-style:italic;">No journey context data.</p>'; return; }
+
+      const phaseOrder = ['discovery','evaluation','onboarding','listing_creation','pricing','proposal_mgmt','active_lease','retention'];
+      let html = '';
+      if (data.lens?.lens_summary) html += `<p style="font-size:15px;color:var(--ink-soft);margin-bottom:20px;">${data.lens.lens_summary}</p>`;
+      phaseOrder.forEach(phase => {
+        const p = data.phases[phase];
+        if (!p) return;
+        const risk = p.dropout_risk?.level || 'low';
+        html += `<div class="phase-card">
+          <h4>${phase.replace(/_/g, ' ')}</h4>
+          <p>${p.what_this_lens_reveals || 'No data for this phase.'}</p>
+          ${p.user_state ? `<p style="font-size:12px;color:var(--ink-muted);"><strong>Emotional:</strong> ${p.user_state.emotional_state || '?'} | <strong>Knowledge:</strong> ${p.user_state.knowledge_level || '?'} | <strong>Commitment:</strong> ${p.user_state.commitment_level || '?'}</p>` : ''}
+          <span class="risk risk-${risk}">${risk} dropout risk</span>
+        </div>`;
+      });
+      if (data.cross_phase_patterns?.length) {
+        html += '<h4 style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;color:var(--accent);margin:20px 0 10px;text-transform:uppercase;">Cross-Phase Patterns</h4>';
+        data.cross_phase_patterns.forEach(cp => {
+          html += `<div class="phase-card"><p><strong>${cp.pattern}</strong></p><p style="font-size:12px;color:var(--ink-muted);">Affects: ${(cp.phases_affected||[]).join(', ')} | ${cp.evidence || ''}</p></div>`;
+        });
+      }
+      container.innerHTML = html;
+    })();
+
+    // Render Layer 6: Coherence
+    (function renderCoherence() {
+      const container = document.getElementById('content-layer-6');
+      if (!container) return;
+      const data = layers[6];
+      if (!data || Object.keys(data).length === 0) { container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence data.</p></div>'; return; }
+
       let html = '';
 
-      // Special rendering for coherence flags (Layer 6)
-      if (num === 6 && data.flags) {
-        html += '<h3>Flags</h3><ul class="flag-list">';
-        data.flags.forEach(f => {
-          html += `<li class="flag-item flag-${f.severity}">
-            <div class="flag-type">${f.severity} — ${f.type}</div>
-            <div>${f.description}</div>
-            <div style="margin-top:4px;font-size:12px;color:var(--ink-muted)">Recommendation: ${f.recommendation}</div>
-          </li>`;
-        });
-        html += '</ul>';
-      }
-
-      // Special rendering for tests (Layer 7)
-      if (num === 7 && data.tests) {
-        html += '<h3>Tests</h3>';
-        data.tests.forEach(t => {
-          html += `<div class="test-item">
-            <span class="test-id">${t.id}</span>
-            <span class="test-category">${t.category}</span>
-            <p style="margin-top:6px">${t.description}</p>
-            <p style="margin-top:4px;font-size:13px;color:var(--ink-muted)">Expected: ${t.expected_result}</p>
+      // Reinforcements
+      if (data.reinforcements?.length) {
+        html += `<div class="coherence-section"><h3>Reinforcements (${data.reinforcements.length})</h3>`;
+        data.reinforcements.forEach(r => {
+          html += `<div class="reinforcement-card"><div class="card-label" style="color:var(--signal-success);">Reinforcement</div>
+            <p><strong>${r.new_element_id}</strong> reinforces <strong>${r.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${r.similarity || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${r.recommendation || ''}</p>
           </div>`;
         });
-        if (data.daily_regression_tests) {
-          html += '<h3 style="margin-top:24px">Daily Regression Tests</h3>';
-          data.daily_regression_tests.forEach(t => {
-            html += `<div class="test-item">
-              <span class="test-id">${t.id}</span>
-              <span style="font-size:11px;color:var(--signal-danger);margin-left:8px">CRITICAL</span>
-              <p style="margin-top:6px">${t.description}</p>
-            </div>`;
-          });
-        }
+        html += '</div>';
       }
 
-      // Always show raw JSON at bottom
-      html += '<h3 style="margin-top:24px">Raw Spec</h3>';
-      html += `<div class="json-block"><pre>${syntaxHighlight(data)}</pre></div>`;
+      // Contradictions
+      if (data.contradictions?.length) {
+        html += `<div class="coherence-section"><h3>Contradictions (${data.contradictions.length})</h3>`;
+        data.contradictions.forEach(c => {
+          html += `<div class="contradiction-card"><div class="card-label" style="color:var(--signal-danger);">${c.severity || 'warning'}</div>
+            <p><strong>${c.new_element_id}</strong> conflicts with <strong>${c.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${c.conflict || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${c.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
 
-      container.innerHTML = html;
-    }
+      // Extensions
+      if (data.extensions?.length) {
+        html += `<div class="coherence-section"><h3>Extensions (${data.extensions.length})</h3>`;
+        data.extensions.forEach(ext => {
+          html += `<div class="extension-card"><div class="card-label" style="color:var(--signal-info);">New Territory</div>
+            <p><strong>${ext.new_element_id}</strong> — ${ext.gap_filled || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">${ext.confidence_note || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
 
-    for (let i = 0; i <= 7; i++) renderLayer(i, layers[i]);
+      // Coverage Map
+      if (data.coverage_map) {
+        html += '<div class="coherence-section"><h3>Journey Coverage</h3><div class="coverage-grid">';
+        Object.entries(data.coverage_map).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          html += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g, ' ')}</div>
+            <div class="count">${info.element_count || 0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Emotional Arc
+      if (data.emotional_arc_check) {
+        const arc = data.emotional_arc_check;
+        html += `<div class="coherence-section"><h3>Emotional Arc</h3>`;
+        if (arc.journey_emotion_map?.length) {
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">';
+          arc.journey_emotion_map.forEach(em => {
+            html += `<div style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;text-align:center;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-muted);text-transform:uppercase;">${em.phase}</div>
+              <div style="font-weight:600;color:var(--accent);margin-top:2px;">${(em.target_emotions||[]).join(', ')}</div>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        if (arc.arc_assessment) html += `<p style="font-size:14px;color:var(--ink-soft);">${arc.arc_assessment}</p>`;
+        html += '</div>';
+      }
+
+      container.innerHTML = html || '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence issues detected.</p></div>';
+    })();
+
+    // Overview tab
+    (function renderOverview() {
+      // Coverage
+      const coverageContainer = document.getElementById('overview-coverage');
+      const coverageData = layers[6]?.coverage_map;
+      if (coverageData && coverageContainer) {
+        Object.entries(coverageData).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          coverageContainer.innerHTML += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g,' ')}</div>
+            <div class="count">${info.element_count||0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+      }
+
+      // Lens summary
+      const summaryEl = document.getElementById('overview-lens-summary');
+      if (summaryEl) summaryEl.textContent = layers[0]?.lens?.lens_summary || 'No lens summary available.';
+
+      // Stats
+      const statsEl = document.getElementById('overview-stats');
+      if (statsEl) {
+        const stats = [
+          { label: 'Elements', value: totalElements },
+          { label: 'Reinforcements', value: reinforcements.length },
+          { label: 'Contradictions', value: contradictions.length },
+          { label: 'Extensions', value: (coherence.extensions||[]).length }
+        ];
+        statsEl.innerHTML = stats.map(s =>
+          `<div style="padding:14px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--accent);">${s.value}</div>
+            <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--ink-muted);text-transform:uppercase;">${s.label}</div>
+          </div>`
+        ).join('');
+      }
+
+      // High-priority highlights
+      const highlightsEl = document.getElementById('overview-highlights');
+      if (highlightsEl) {
+        let highPriority = [];
+        [1,2,3,4,5,7].forEach(i => {
+          (layers[i]?.elements || []).forEach(el => {
+            if (el.priority === 'high') highPriority.push(el);
+          });
+        });
+        if (highPriority.length) {
+          highlightsEl.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:24px 0 16px;">High-Priority Elements</h2>` + highPriority.map(renderElementCard).join('');
+        }
+      }
+    })();
   </script>
 </body>
 </html>

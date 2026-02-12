@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Element Marketplace — SplitLease Design Stack</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #f9fafb; --bg-deep: #f3f4f6; --surface: #ffffff; --surface-warm: rgb(252, 250, 255);
+  --ink: #1a1a1a; --ink-soft: #374151; --ink-muted: #6b7280; --ink-ghost: #9ca3af;
+  --accent: #6D31C2; --accent-light: #F7F2FA; --accent-bright: #8C68EE;
+  --signal-warn: #c17a28; --signal-warn-bg: #fef3e2;
+  --signal-danger: #b83a3a; --signal-danger-bg: #fde8e8;
+  --signal-info: #4A90E2; --signal-info-bg: #f0f7ff;
+  --border: #e5e7eb; --border-strong: #e0e0e0;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 16px; --radius-full: 9999px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --font-serif: 'DM Sans', sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.marketplace { max-width: 1280px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* HEADER */
+.market-header { padding: 48px 0 0; margin-bottom: 32px; }
+.market-header__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; }
+.market-header__label { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 8px; }
+.market-header__title { font-family: var(--font-serif); font-size: 36px; font-weight: 400; color: var(--ink); line-height: 1.15; margin-bottom: 6px; }
+.market-header__subtitle { font-size: 16px; font-weight: 400; color: var(--ink-soft); max-width: 520px; }
+
+/* STATS */
+.stats-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+.stat-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-full); font-size: 13px; font-weight: 500; color: var(--ink-soft); box-shadow: var(--shadow-sm); }
+.stat-chip__count { font-family: var(--font-mono); font-weight: 600; color: var(--ink); font-size: 14px; }
+.stat-chip--total { background: var(--accent); color: #fff; border-color: var(--accent); }
+.stat-chip--total .stat-chip__count { color: #fff; }
+.stat-chip--high { border-color: var(--accent); }
+.stat-chip--medium { border-color: var(--signal-warn); }
+
+/* TOOLBAR */
+.toolbar { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+.toolbar__row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.search-input { flex: 1; min-width: 260px; height: 44px; padding: 0 16px 0 42px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-family: var(--font-sans); font-size: 14px; color: var(--ink); transition: border-color 0.15s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 14px center; }
+.search-input::placeholder { color: var(--ink-ghost); }
+.search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(109, 49, 194,0.08); }
+.filter-label { font-size: 12px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-right: 2px; white-space: nowrap; flex-shrink: 0; }
+.filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-pill { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-full); background: var(--surface); font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--ink-soft); cursor: pointer; transition: all 0.15s var(--ease-out); white-space: nowrap; user-select: none; }
+.filter-pill:hover { border-color: var(--border-strong); background: var(--bg-deep); }
+.filter-pill.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+.view-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.view-toggle__btn { display: flex; align-items: center; justify-content: center; width: 38px; height: 34px; background: var(--surface); border: none; cursor: pointer; color: var(--ink-muted); transition: all 0.15s; }
+.view-toggle__btn:first-child { border-right: 1px solid var(--border); }
+.view-toggle__btn.active { background: var(--accent); color: #fff; }
+.view-toggle__btn:hover:not(.active) { background: var(--bg-deep); }
+.view-toggle__btn svg { width: 16px; height: 16px; }
+.compare-toggle { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer; transition: all 0.15s; }
+.compare-toggle:hover { border-color: var(--border-strong); }
+.compare-toggle.active { background: var(--signal-info-bg); color: var(--signal-info); border-color: var(--signal-info); }
+.compare-toggle svg { width: 15px; height: 15px; }
+.results-count { font-size: 13px; color: var(--ink-muted); font-weight: 500; margin-bottom: 16px; }
+.results-count span { font-family: var(--font-mono); font-weight: 600; color: var(--ink-soft); }
+
+/* COMPARE BAR */
+.compare-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -4px 20px rgba(0, 0, 0,0.08); padding: 12px 24px; display: flex; align-items: center; justify-content: center; gap: 12px; z-index: 100; transform: translateY(100%); transition: transform 0.35s var(--ease-out); }
+.compare-bar.visible { transform: translateY(0); }
+.compare-bar__items { display: flex; gap: 8px; align-items: center; }
+.compare-bar__chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: var(--accent-light); color: var(--accent); border-radius: var(--radius-full); font-size: 13px; font-weight: 600; }
+.compare-bar__chip-remove { display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(109, 49, 194,0.15); border: none; cursor: pointer; color: var(--accent); font-size: 14px; line-height: 1; padding: 0; }
+.compare-bar__chip-remove:hover { background: rgba(109, 49, 194,0.25); }
+.compare-bar__btn { height: 38px; padding: 0 22px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-md); font-family: var(--font-sans); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.compare-bar__btn:hover { background: #5A2AAD; }
+.compare-bar__btn:disabled { opacity: 0.5; cursor: default; }
+.compare-bar__clear { height: 38px; padding: 0 14px; background: transparent; color: var(--ink-muted); border: 1px solid var(--border); border-radius: var(--radius-md); font-family: var(--font-sans); font-size: 13px; font-weight: 500; cursor: pointer; }
+.compare-bar__clear:hover { background: var(--bg-deep); }
+
+/* DRIBBBLE GRID */
+.elements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* DRIBBBLE CARD */
+.element-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s var(--ease-out);
+  cursor: pointer;
+  position: relative;
+  border: 1px solid var(--border);
+}
+.element-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-strong);
+  transform: translateY(-4px);
+}
+.element-card.compare-selected {
+  border-color: var(--signal-info);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226,0.15);
+}
+
+/* PREVIEW AREA - top 65% of card */
+.element-card__preview {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  background: var(--bg);
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.element-card__preview iframe {
+  width: 200%;
+  height: 200%;
+  border: none;
+  pointer-events: none;
+  transform: scale(0.5);
+  transform-origin: top left;
+  display: block;
+  background: var(--bg);
+}
+
+/* CARD META - bottom section */
+.element-card__meta {
+  padding: 16px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.element-card__name-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.element-card__name {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  color: var(--ink);
+  line-height: 1.25;
+  flex: 1;
+}
+.element-card__badges { display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+.badge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: var(--radius-full); font-family: var(--font-mono); font-size: 11px; font-weight: 500; white-space: nowrap; }
+.badge--category { background: var(--bg-deep); color: var(--ink-soft); }
+.badge--high { background: var(--accent-light); color: var(--accent); }
+.badge--medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+.badge--low { background: var(--signal-info-bg); color: var(--signal-info); }
+.element-card__desc {
+  font-size: 13px; color: var(--ink-muted); line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+}
+.element-card__footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 8px; border-top: 1px solid var(--border);
+}
+.element-card__phases { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+.phase-tag { font-size: 10px; font-weight: 500; color: var(--ink-muted); background: var(--bg); padding: 2px 6px; border-radius: var(--radius-full); }
+.element-card__effort { font-family: var(--font-mono); font-size: 11px; color: var(--ink-ghost); white-space: nowrap; margin-left: 8px; }
+
+/* Compare button on card */
+.btn-compare {
+  display: none; position: absolute; top: 12px; right: 12px; z-index: 5;
+  align-items: center; justify-content: center; width: 32px; height: 32px;
+  background: var(--surface); color: var(--signal-info); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.1s;
+  box-shadow: var(--shadow-sm);
+}
+.compare-mode .btn-compare { display: flex; }
+.btn-compare:hover { border-color: var(--signal-info); background: var(--signal-info-bg); }
+.btn-compare.selected { background: var(--signal-info); color: #fff; border-color: var(--signal-info); }
+.btn-compare svg { width: 16px; height: 16px; }
+
+/* LIST VIEW */
+.elements-grid.list-view { grid-template-columns: 1fr; gap: 6px; }
+.list-view .element-card { flex-direction: row; border-radius: var(--radius-md); }
+.list-view .element-card:hover { transform: translateY(-1px); }
+.list-view .element-card__preview { width: 180px; height: 120px; flex-shrink: 0; border-bottom: none; border-right: 1px solid var(--border); }
+.list-view .element-card__meta { flex: 1; padding: 12px 16px; justify-content: center; }
+.list-view .element-card__desc { -webkit-line-clamp: 2; }
+.list-view .element-card__footer { padding-top: 6px; }
+.list-view .btn-compare { top: 8px; right: 8px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0,0.5); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 40px 24px; overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s var(--ease-out); }
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 800px; box-shadow: var(--shadow-lg); transform: translateY(20px); transition: transform 0.35s var(--ease-out); margin-bottom: 40px; }
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal__header { display: flex; align-items: flex-start; justify-content: space-between; padding: 28px 32px 20px; border-bottom: 1px solid var(--border); }
+.modal__header-left { flex: 1; }
+.modal__title { font-family: var(--font-serif); font-size: 28px; color: var(--ink); line-height: 1.2; margin-bottom: 8px; }
+.modal__meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.modal__close { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; color: var(--ink-muted); flex-shrink: 0; margin-left: 16px; transition: all 0.1s; }
+.modal__close:hover { background: var(--bg-deep); color: var(--ink); }
+.modal__close svg { width: 18px; height: 18px; }
+.modal__body { padding: 24px 32px 32px; }
+.modal__section { margin-bottom: 28px; }
+.modal__section:last-child { margin-bottom: 0; }
+.modal__section-title { font-family: var(--font-sans); font-size: 12px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.modal__section-title svg { width: 14px; height: 14px; color: var(--accent); }
+.modal__desc { font-size: 15px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 12px; }
+.modal__problem { font-size: 14px; color: var(--ink-soft); line-height: 1.6; background: var(--bg); padding: 14px 18px; border-radius: var(--radius-sm); border-left: 3px solid var(--accent); }
+.spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.spec-item { background: var(--bg); padding: 12px 14px; border-radius: var(--radius-sm); }
+.spec-item__label { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.spec-item__value { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+.states-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.state-item { padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.state-item__label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--accent); margin-bottom: 4px; text-transform: capitalize; }
+.state-item__value { font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
+.copy-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.copy-example { padding: 12px 14px; border-radius: var(--radius-sm); }
+.copy-example--do { background: var(--accent-light); border-left: 3px solid var(--accent); }
+.copy-example--dont { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+.copy-example__title { font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.copy-example--do .copy-example__title { color: var(--accent); }
+.copy-example--dont .copy-example__title { color: var(--signal-danger); }
+.copy-example ul { list-style: none; padding: 0; }
+.copy-example li { font-size: 13px; color: var(--ink-soft); line-height: 1.5; padding: 2px 0 2px 14px; position: relative; }
+.copy-example li::before { content: ''; position: absolute; left: 0; top: 9px; width: 5px; height: 5px; border-radius: 50%; }
+.copy-example--do li::before { background: var(--accent); }
+.copy-example--dont li::before { background: var(--signal-danger); }
+.copy-tone { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.copy-tone__item { padding: 8px 14px; background: var(--bg); border-radius: var(--radius-sm); }
+.copy-tone__label { font-family: var(--font-mono); font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.copy-tone__value { font-size: 14px; color: var(--ink); font-weight: 500; }
+.before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ba-block { padding: 14px 16px; border-radius: var(--radius-sm); }
+.ba-block--before { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+.ba-block--after { background: var(--accent-light); border-left: 3px solid var(--accent); }
+.ba-block__label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.ba-block--before .ba-block__label { color: var(--signal-danger); }
+.ba-block--after .ba-block__label { color: var(--accent); }
+.ba-block__text { font-size: 13px; color: var(--ink-soft); line-height: 1.55; }
+.preview-container { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--bg); }
+.preview-container__bar { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--bg-deep); border-bottom: 1px solid var(--border); }
+.preview-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); }
+.preview-bar-label { font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); margin-left: 8px; }
+.preview-container iframe { width: 100%; min-height: 200px; border: none; display: block; background: var(--bg); }
+.principles-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.principle-chip { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-full); font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+
+/* COMPARE MODAL */
+.compare-modal .modal { max-width: 1100px; }
+.compare-grid { display: grid; gap: 1px; background: var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.compare-grid--2 { grid-template-columns: 1fr 1fr; }
+.compare-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+.compare-col { background: var(--surface); padding: 20px; }
+.compare-col__name { font-family: var(--font-serif); font-size: 18px; color: var(--ink); margin-bottom: 8px; }
+.compare-col__badges { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px; }
+.compare-section { margin-bottom: 14px; }
+.compare-section__title { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+.compare-section__text { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+.compare-preview iframe { width: 100%; min-height: 150px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 60px 24px; grid-column: 1 / -1; }
+.empty-state__icon { width: 48px; height: 48px; margin: 0 auto 16px; color: var(--ink-ghost); }
+.empty-state__title { font-family: var(--font-serif); font-size: 20px; color: var(--ink-soft); margin-bottom: 6px; }
+.empty-state__text { font-size: 14px; color: var(--ink-muted); }
+.empty-state__btn { margin-top: 16px; height: 36px; padding: 0 20px; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer; }
+.empty-state__btn:hover { background: var(--accent-light); }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .elements-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .list-view { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 600px) {
+  .elements-grid { grid-template-columns: 1fr; gap: 16px; }
+  .market-header__title { font-size: 28px; }
+  .marketplace { padding: 0 16px 60px; }
+  .market-header { padding-top: 32px; }
+  .search-input { min-width: 100%; }
+  .element-card__preview { height: 200px; }
+  .modal { margin: 0 8px 40px; }
+  .modal__header { padding: 20px 20px 16px; }
+  .modal__body { padding: 20px; }
+  .modal__title { font-size: 22px; }
+  .spec-grid { grid-template-columns: 1fr; }
+  .before-after { grid-template-columns: 1fr; }
+  .copy-block { grid-template-columns: 1fr; }
+  .compare-grid--2, .compare-grid--3 { grid-template-columns: 1fr; }
+  .modal-overlay { padding: 20px 8px; }
+  .list-view .element-card { flex-direction: column; }
+  .list-view .element-card__preview { width: 100%; height: 160px; border-right: none; border-bottom: 1px solid var(--border); }
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-ghost); }
+</style>
+</head>
+<body>
+
+<div class="marketplace" id="app">
+  <header class="market-header">
+    <div class="market-header__top">
+      <div>
+        <div class="market-header__label">SplitLease Design Stack &middot; Layer 8</div>
+        <h1 class="market-header__title">Element Marketplace</h1>
+        <p class="market-header__subtitle">Browse, search, and compare the 18 UI elements that define the SplitLease host experience.</p>
+      </div>
+    </div>
+    <div class="stats-bar" id="statsBar"></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="toolbar__row">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search elements by name, description, or principle ID...">
+      <div class="view-toggle">
+        <button class="view-toggle__btn active" id="gridViewBtn" title="Grid view" data-action="view-grid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+        </button>
+        <button class="view-toggle__btn" id="listViewBtn" title="List view" data-action="view-list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        </button>
+      </div>
+      <button class="compare-toggle" id="compareToggle" data-action="toggle-compare">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="8" height="18" rx="1"></rect><rect x="14" y="3" width="8" height="18" rx="1"></rect></svg>
+        Compare
+      </button>
+    </div>
+    <div class="toolbar__row">
+      <span class="filter-label">Category</span>
+      <div class="filter-pills" id="categoryFilters"></div>
+    </div>
+    <div class="toolbar__row">
+      <span class="filter-label">Phase</span>
+      <div class="filter-pills" id="phaseFilters"></div>
+    </div>
+    <div class="toolbar__row">
+      <span class="filter-label">Priority</span>
+      <div class="filter-pills" id="priorityFilters"></div>
+    </div>
+  </div>
+
+  <div class="results-count" id="resultsCount"></div>
+  <div class="elements-grid" id="elementsGrid"></div>
+</div>
+
+<div class="compare-bar" id="compareBar">
+  <div class="compare-bar__items" id="compareItems"></div>
+  <button class="compare-bar__btn" id="compareBtn" data-action="open-compare" disabled>Compare</button>
+  <button class="compare-bar__clear" data-action="clear-compare">Clear</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="modal-overlay compare-modal" id="compareOverlay">
+  <div class="modal" id="compareContent"></div>
+</div>
+
+<script id="elements-data" type="application/json">
+{
+  "run_id": "2026-02-11_2118",
+  "layer": 8,
+  "layer_name": "Element Factory",
+  "elements": [
+    {
+      "id": "elem-001",
+      "name": "Agent Identity Card",
+      "category": "card",
+      "description": "Persistent card showing the host's assigned agent (photo, name, role, contact action) visible on every authenticated page. This is the primary mechanism for transferring trust from the phone call to the digital platform. The agent's face activates System 1 facial recognition and emotional association in under 500ms.",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "pages": ["Host Dashboard", "Listing Wizard", "Proposal Detail", "Active Lease Dashboard"],
+      "implements_principles": ["works-004", "communicates-006", "looks-004", "feels-008", "feels-005"],
+      "problem_it_solves": "Hosts build trust with Bryant (a person), not Split Lease (a platform). Without the agent's persistent visual presence, the platform feels like an unfamiliar system rather than a continuation of the phone call.",
+      "visual_spec": {
+        "layout": "Horizontal flex row: circular photo (40px persistent, 64px on first visit) + vertical stack of name and role. On mobile, collapses to photo-only with name on tap. Fixed position in top-left of authenticated layout.",
+        "typography": "Agent name: Inter 14px weight 500 (persistent) or 16px weight 600 (featured). Role label: Inter 12px weight 400 ink-muted. Message link: Inter 13px weight 500 accent purple.",
+        "colors": "Photo border: 2px accent (#6D31C2). Name text: ink (#1a1a1a). Role text: ink-muted (#6b7280). Message link: accent (#6D31C2). Background on featured variant: accent-light (#F7F2FA).",
+        "spacing": "Photo to name gap: 8px (sm). Card padding: 12px vertical, 16px horizontal. Card to content gap: 24px (lg).",
+        "radius": "Photo: full (9999px circle). Featured card: md (10px).",
+        "responsive": "Desktop: full card with photo + name + role + message link. Tablet: photo + name. Mobile: 32px photo only, tap to expand name and message action."
+      },
+      "interaction_spec": {
+        "default_state": "Agent photo with purple border, name, and 'Your agent' label. Message link visible but secondary weight.",
+        "hover_state": "Message link underlines. Photo gains subtle shadow-sm lift.",
+        "loading_state": "40px gray circle placeholder with pulsing opacity animation at 1.5s interval. Name shows as 80px wide gray bar.",
+        "empty_state": "Never empty -- every authenticated host has an assigned agent. If agent data fails to load, show 'Your Split Lease agent' with a generic avatar and 'Contact support' link.",
+        "animation": "On first page load: photo fades in at 300ms with easing-out. On subsequent pages: instant, no animation (presence is a constant, not an event)."
+      },
+      "copy_spec": {
+        "tone": "Warm, personal, specific. The agent is a real person the host already spoke with.",
+        "primary_text": "Bryant Davis",
+        "secondary_text": "Your agent",
+        "do": ["Use the agent's real first and last name", "Show 'Message Bryant' not 'Contact support'", "On first visit add personal note: 'Bryant set up your listing for 555 W 181st'"],
+        "dont": ["Show 'Split Lease Support' instead of agent name", "Use generic avatar placeholder when real photo exists", "Hide agent behind a menu or settings page"]
+      },
+      "html_css": "<!-- Agent Identity Card -->\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>\n  .agent-card {\n    display: flex;\n    align-items: center;\n    gap: 8px;\n    padding: 12px 16px;\n    background: #ffffff;\n    border-radius: 10px;\n    box-shadow: 0 1px 3px rgba(0, 0, 0,0.06);\n    font-family: 'Inter', sans-serif;\n    max-width: 280px;\n  }\n  .agent-card--featured {\n    background: #F7F2FA;\n    padding: 16px 20px;\n    gap: 12px;\n  }\n  .agent-photo {\n    width: 40px;\n    height: 40px;\n    border-radius: 9999px;\n    border: 2px solid #6D31C2;\n    object-fit: cover;\n    flex-shrink: 0;\n  }\n  .agent-card--featured .agent-photo {\n    width: 64px;\n    height: 64px;\n  }\n  .agent-info {\n    display: flex;\n    flex-direction: column;\n    gap: 2px;\n  }\n  .agent-name {\n    font-size: 14px;\n    font-weight: 500;\n    color: #1a1a1a;\n    line-height: 1.2;\n  }\n  .agent-card--featured .agent-name {\n    font-size: 16px;\n    font-weight: 600;\n  }\n  .agent-role {\n    font-size: 12px;\n    font-weight: 400;\n    color: #6b7280;\n    line-height: 1.3;\n  }\n  .agent-message {\n    font-size: 13px;\n    font-weight: 500;\n    color: #6D31C2;\n    text-decoration: none;\n    margin-top: 4px;\n    display: inline-block;\n  }\n  .agent-message:hover {\n    text-decoration: underline;\n  }\n  @media (max-width: 600px) {\n    .agent-card { padding: 8px; }\n    .agent-info .agent-role,\n    .agent-info .agent-message { display: none; }\n  }\n</style>\n\n<div class=\"agent-card\">\n  <img class=\"agent-photo\" src=\"https://i.pravatar.cc/80?img=12\" alt=\"Bryant Davis\">\n  <div class=\"agent-info\">\n    <span class=\"agent-name\">Bryant Davis</span>\n    <span class=\"agent-role\">Your agent</span>\n    <a href=\"#\" class=\"agent-message\">Message Bryant</a>\n  </div>\n</div>\n\n<div style=\"margin-top:24px;\"></div>\n\n<div class=\"agent-card agent-card--featured\">\n  <img class=\"agent-photo\" src=\"https://i.pravatar.cc/80?img=12\" alt=\"Bryant Davis\">\n  <div class=\"agent-info\">\n    <span class=\"agent-name\">Bryant Davis</span>\n    <span class=\"agent-role\">Your agent</span>\n    <a href=\"#\" class=\"agent-message\">Message Bryant</a>\n  </div>\n</div>",
+      "before_after": {
+        "before": "No agent presence on the platform. Dashboard opens with 'Welcome to Split Lease' and a generic logo. The host must re-establish trust with an unfamiliar digital system.",
+        "after": "Bryant's photo and name greet the host on every page. The platform feels like 'the thing Bryant set up for me' rather than 'a website I have never seen.'"
+      },
+      "priority": "high",
+      "effort": "small"
+    },
+    {
+      "id": "elem-002",
+      "name": "Trust Credential Badge",
+      "category": "badge",
+      "description": "Purple pill badge displaying a verified trust credential: 'Credit Verified', 'Payment Secured', 'Pre-Authorized', or 'Vetted'. Uses IBM Plex Mono to signal precision. The accent purple is reserved exclusively for trust-related elements, creating a Pavlovian association: purple means verified.",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "pages": ["Listing Detail", "Proposal Detail", "Tenant Profile"],
+      "implements_principles": ["communicates-003", "looks-005", "feels-002"],
+      "problem_it_solves": "Hosts need instant visual confirmation that tenants have been vetted. Bare claims like 'Guaranteed!' trigger skepticism. Process evidence ('Credit Verified') builds causal trust chains that System 1 accepts.",
+      "visual_spec": {
+        "layout": "Inline pill: optional checkmark icon (14px) + text. Badges can appear individually or in a horizontal stack with 8px gap.",
+        "typography": "IBM Plex Mono, 12px, weight 500. All caps for single-word badges (VERIFIED), sentence case for phrases (Credit verified).",
+        "colors": "Background: accent-light (#F7F2FA). Text: accent (#6D31C2). Icon: accent (#6D31C2). These colors are used ONLY for trust elements, never for decoration.",
+        "spacing": "Internal padding: 4px vertical, 8px horizontal. Badge-to-badge gap: 8px. Badge height: 24px fixed.",
+        "radius": "full (9999px) -- pill shape distinguishes badges from content cards.",
+        "responsive": "Badges wrap to new line on narrow screens. Never truncate badge text. Minimum touch target maintained via 24px height + surrounding padding."
+      },
+      "interaction_spec": {
+        "default_state": "Static purple pill with checkmark and text. No animation on load except when part of the tension-relief financial sequence (see elem-003).",
+        "hover_state": "On hover, background darkens slightly to #EDE5F5. Cursor changes to pointer if badge is expandable (links to verification details).",
+        "loading_state": "24px wide gray pill placeholder with pulsing animation.",
+        "empty_state": "If verification is pending, show 'Verification pending' badge in signal-warn (#c17a28) on signal-warn-bg (#fef3e2) instead of purple.",
+        "animation": "When appearing as part of a financial display: staggered fade-in at 400ms with spring easing, 100ms between badges. This creates the tension-relief arc where the number appears first (tension) and badges follow (relief)."
+      },
+      "copy_spec": {
+        "tone": "Factual, past-tense, precise. These are recorded facts, not promises.",
+        "primary_text": "Credit verified",
+        "secondary_text": "Pre-authorized",
+        "do": ["Use past tense: 'verified', 'checked', 'secured'", "Be specific: 'Credit verified' not just 'Verified'", "Stack badges in mechanism order: check first, then authorization, then guarantee"],
+        "dont": ["Use superlatives: '100% guaranteed!' or 'Fully verified!'", "Use future tense: 'Will be verified'", "Show more than 3 trust badges per screen -- quantity triggers 'protesting too much' suspicion"]
+      },
+      "html_css": "<!-- Trust Credential Badge -->\n<link href=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap\" rel=\"stylesheet\">\n<style>\n  .trust-badge {\n    display: inline-flex;\n    align-items: center;\n    gap: 4px;\n    padding: 4px 8px;\n    background: #F7F2FA;\n    color: #6D31C2;\n    font-family: 'IBM Plex Mono', monospace;\n    font-size: 12px;\n    font-weight: 500;\n    line-height: 1;\n    border-radius: 9999px;\n    height: 24px;\n    white-space: nowrap;\n  }\n  .trust-badge svg {\n    width: 14px;\n    height: 14px;\n    flex-shrink: 0;\n  }\n  .trust-badge--pending {\n    background: #fef3e2;\n    color: #c17a28;\n  }\n  .trust-badge-stack {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 8px;\n  }\n</style>\n\n<div class=\"trust-badge-stack\">\n  <span class=\"trust-badge\">\n    <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>\n    Credit verified\n  </span>\n  <span class=\"trust-badge\">\n    <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>\n    Payment secured\n  </span>\n  <span class=\"trust-badge\">\n    <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>\n    Pre-authorized\n  </span>\n</div>\n<div style=\"margin-top:16px\">\n  <span class=\"trust-badge trust-badge--pending\">\n    <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline></svg>\n    Verification pending\n  </span>\n</div>",
+      "before_after": {
+        "before": "No visual distinction between trust claims and regular text. 'Payment guaranteed' appears as plain body copy that looks like marketing.",
+        "after": "Purple pill badges create an instant visual signal: where purple appears, verification exists. The host's eye learns to scan for purple as proof of process."
+      },
+      "priority": "high",
+      "effort": "small"
+    },
+    {
+      "id": "elem-003",
+      "name": "Payment Guarantee Display",
+      "category": "display",
+      "description": "A financial display card that shows one dominant monthly figure in IBM Plex Mono at 28px, followed by a conversion line and trust badges. Implements the tension-relief emotional arc: the number creates a stake (tension), the trust badges resolve uncertainty (relief). The host never performs mental arithmetic.",
+      "journey_phases": ["pricing", "proposal_mgmt", "active_lease"],
+      "pages": ["Listing Wizard Step 4", "Proposal Detail", "Earnings Dashboard"],
+      "implements_principles": ["works-006", "communicates-002", "looks-003", "feels-002"],
+      "problem_it_solves": "Hosts think in monthly rent, not nightly rates. Showing multiple numbers at equal visual weight forces System 2 arithmetic that depleted users fail at (Kahneman's bat-and-ball problem). One dominant number eliminates translation burden.",
+      "visual_spec": {
+        "layout": "Vertical stack on a white surface card: primary label, primary figure, conversion line, then trust badges. Expandable breakdown section below.",
+        "typography": "Primary label: Inter 14px weight 500 ink-soft. Primary figure: IBM Plex Mono 28px weight 600 ink. Conversion line: Inter 14px weight 400 ink-muted. Breakdown: IBM Plex Mono 14px weight 400 ink-soft.",
+        "colors": "Card: surface (#ffffff) with shadow-md. Primary figure: ink (#1a1a1a). Conversion text: ink-muted (#6b7280). Trust badges: accent-light bg with accent text (see elem-002).",
+        "spacing": "Card padding: 24px (lg). Above primary figure: 8px from label. Below figure to conversion: 8px. Before trust badges: 16px (md). Before breakdown trigger: 16px.",
+        "radius": "Card: md (10px).",
+        "responsive": "Full width on mobile. Primary figure scales down to 24px on screens under 400px. Card padding reduces to 16px on mobile."
+      },
+      "interaction_spec": {
+        "default_state": "Primary total visible, conversion line visible, trust badges visible. Breakdown collapsed with 'View breakdown' trigger in ink-muted.",
+        "hover_state": "Breakdown trigger underlines on hover. Card gains shadow-lg on hover.",
+        "loading_state": "Skeleton: 28px tall gray bar (120px wide) for the figure, 14px gray bars for label and conversion. Trust badge placeholders as 24px gray pills.",
+        "empty_state": "If no pricing data: 'Set your monthly rent to see your earnings here.' with agent attribution.",
+        "animation": "Primary figure settles in at 300ms easing-out. Trust badges appear staggered at 400ms with spring easing, 100ms delay between each. This 300ms gap creates the tension-relief arc."
+      },
+      "copy_spec": {
+        "tone": "Factual, grounded. The numbers speak, then the mechanism explains. No salesmanship.",
+        "primary_text": "$2,400/mo",
+        "secondary_text": "That's approximately $80/night across selected days",
+        "do": ["Lead with the monthly figure in the host's native format", "Use 'to you' language: '$2,400/mo to you'", "Show conversion as pre-calculated: 'approximately $80/night'"],
+        "dont": ["Lead with nightly rate -- hosts think in months", "Show 'Guaranteed!' as a headline before showing the number", "Display multiple price formats at equal visual weight"]
+      },
+      "html_css": "<!-- Payment Guarantee Display -->\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>\n  .payment-display {\n    background: #ffffff;\n    border-radius: 10px;\n    padding: 24px;\n    box-shadow: 0 2px 8px rgba(0, 0, 0,0.08);\n    max-width: 380px;\n    font-family: 'Inter', sans-serif;\n  }\n  .payment-label {\n    font-size: 14px;\n    font-weight: 500;\n    color: #374151;\n    margin-bottom: 8px;\n  }\n  .payment-figure {\n    font-family: 'IBM Plex Mono', monospace;\n    font-size: 28px;\n    font-weight: 600;\n    color: #1a1a1a;\n    line-height: 1.2;\n  }\n  .payment-conversion {\n    font-size: 14px;\n    font-weight: 400;\n    color: #6b7280;\n    margin-top: 8px;\n  }\n  .payment-badges {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 8px;\n    margin-top: 16px;\n  }\n  .payment-badge {\n    display: inline-flex;\n    align-items: center;\n    gap: 4px;\n    padding: 4px 8px;\n    background: #F7F2FA;\n    color: #6D31C2;\n    font-family: 'IBM Plex Mono', monospace;\n    font-size: 12px;\n    font-weight: 500;\n    border-radius: 9999px;\n    height: 24px;\n  }\n  .payment-badge svg {\n    width: 14px;\n    height: 14px;\n  }\n  .payment-breakdown-trigger {\n    margin-top: 16px;\n    padding-top: 16px;\n    border-top: 1px solid #e5e7eb;\n    font-size: 13px;\n    font-weight: 500;\n    color: #6b7280;\n    cursor: pointer;\n    text-decoration: underline;\n    background: none;\n    border: none;\n    font-family: 'Inter', sans-serif;\n  }\n  .payment-breakdown-trigger:hover {\n    color: #374151;\n  }\n  @media (max-width: 600px) {\n    .payment-display { padding: 16px; }\n    .payment-figure { font-size: 24px; }\n  }\n</style>\n\n<div class=\"payment-display\">\n  <div class=\"payment-label\">Monthly rent to you</div>\n  <div class=\"payment-figure\">$2,400/mo</div>\n  <div class=\"payment-conversion\">Approximately $80/night across selected days</div>\n  <div class=\"payment-badges\">\n    <span class=\"payment-badge\">\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>\n      Credit verified\n    </span>\n    <span class=\"payment-badge\">\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>\n      Payment secured\n    </span>\n  </div>\n  <button class=\"payment-breakdown-trigger\">View breakdown</button>\n</div>",
+      "before_after": {
+        "before": "Pricing screen shows nightly rate ($80/night), 4-week total ($2,240), and monthly equivalent ($2,400) at equal visual weight. Host must figure out which number matters.",
+        "after": "One dominant monthly figure ($2,400/mo) anchors the screen. Nightly rate appears as a pre-calculated conversion below. Trust badges provide the relief of guaranteed income."
+      },
+      "priority": "high",
+      "effort": "medium"
+    },
+    {
+      "id": "elem-004",
+      "name": "Phase Transition Header",
+      "category": "section",
+      "description": "A recognition-first header that opens every new screen with what the host already knows: their property address, agent name, or previously entered data. Answers System 1's question 'Do I recognize anything here?' within 2 seconds of page load. Uses DM Sans for the anchor headline to trigger recognition mode.",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "pages": ["Host Dashboard", "Listing Wizard (all steps)", "Proposal Detail", "Onboarding Welcome"],
+      "implements_principles": ["works-001", "communicates-001", "looks-001", "looks-002", "feels-001"],
+      "problem_it_solves": "Every phase transition triggers a System 1 assessment. If the first 2 seconds show unfamiliar content, the host flags the context as foreign and may abandon. Recognition anchors eliminate this risk.",
+      "visual_spec": {
+        "layout": "Full-width section at top of content area. Vertical stack: recognition headline (property/agent), context sentence, then content below. Warm background matches page bg.",
+        "typography": "Headline: DM Sans 24px weight 400 ink on desktop, 20px on mobile. Context sentence: Inter 16px weight 400 ink-soft. Max 15 words in headline, 20 words in context.",
+        "colors": "Background: bg (#f9fafb) seamless with page. Headline: ink (#1a1a1a). Context: ink-soft (#374151).",
+        "spacing": "Top padding: 40px (xl). Headline to context gap: 8px (sm). Context to content gap: 24px (lg). Bottom border: 1px border (#e5e7eb).",
+        "radius": "None -- this is a full-width section, not a card.",
+        "responsive": "Headline drops to 20px on mobile. Context sentence may wrap to 2 lines. Spacing reduces proportionally."
+      },
+      "interaction_spec": {
+        "default_state": "Static header with recognition anchor and context sentence. No interactive elements in the header itself.",
+        "hover_state": "None -- this is a read-only orientation element.",
+        "loading_state": "Headline pre-fills from cached/known data (property address from URL params or local storage). Context sentence shows skeleton bar.",
+        "empty_state": "If no host-specific data exists yet: 'Your new listing' as headline with agent-attributed context: 'Bryant will help you set this up.'",
+        "animation": "Headline is visible on first paint (no animation). Context sentence fades in at 200ms easing-out if loaded asynchronously."
+      },
+      "copy_spec": {
+        "tone": "Specific, personal, unhurried. Like opening a letter from someone who knows you.",
+        "primary_text": "555 W 181st St, Unit 5A",
+        "secondary_text": "Let's set your pricing. Most of the work is done.",
+        "do": ["Use the host's actual property address or agent name", "Reference what was completed: 'Your unit details are set'", "Frame next step as easy: 'Just a quick review'"],
+        "dont": ["Use generic welcomes: 'Welcome to your dashboard!'", "Open with instructions: 'Complete the following steps'", "Introduce new vocabulary at transitions"]
+      },
+      "html_css": "<!-- Phase Transition Header -->\n<link href=\"https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500&display=swap\" rel=\"stylesheet\">\n<style>\n  .phase-header {\n    background: #f9fafb;\n    padding: 40px 24px 24px;\n    border-bottom: 1px solid #e5e7eb;\n    max-width: 640px;\n  }\n  .phase-headline {\n    font-family: 'DM Sans', serif;\n    font-size: 24px;\n    font-weight: 400;\n    color: #1a1a1a;\n    line-height: 1.2;\n    margin: 0 0 8px 0;\n  }\n  .phase-context {\n    font-family: 'Inter', sans-serif;\n    font-size: 16px;\n    font-weight: 400;\n    color: #374151;\n    line-height: 1.5;\n    margin: 0;\n  }\n  @media (max-width: 600px) {\n    .phase-header { padding: 24px 16px 16px; }\n    .phase-headline { font-size: 20px; }\n    .phase-context { font-size: 14px; }\n  }\n</style>\n\n<div class=\"phase-header\">\n  <h1 class=\"phase-headline\">555 W 181st St, Unit 5A</h1>\n  <p class=\"phase-context\">Let's set your pricing. Most of the work is done.</p>\n</div>",
+      "before_after": {
+        "before": "New screens open with generic headers ('Step 4: Pricing') or blank forms with no connection to prior context.",
+        "after": "Every screen opens with the host's own data -- their property address, their agent's name -- creating instant recognition before any new demands appear."
+      },
+      "priority": "high",
+      "effort": "small"
+    },
+    {
+      "id": "elem-005",
+      "name": "Listing Wizard Step Card",
+      "category": "form",
+      "description": "A sequential disclosure form step that shows one input cluster at a time, with completed clusters collapsed into summary strips above. Mirrors the phone call's one-topic-at-a-time conversational structure. Each cluster reveals only after the prior one is completed and acknowledged.",
+      "journey_phases": ["listing_creation", "onboarding"],
+      "pages": ["Listing Wizard (all 6 steps)"],
+      "implements_principles": ["works-002", "works-003", "communicates-001", "communicates-004", "behaves-002", "feels-004"],
+      "problem_it_solves": "Traditional forms show all fields at once, forcing depleted users to decide which field to fill first (meta-decisions that waste cognitive resources). Sequential disclosure eliminates meta-decisions and matches the call's conversational pace.",
+      "visual_spec": {
+        "layout": "Vertical stack: completed summary strips (collapsed) at top, current input cluster (expanded) in center, progress indicator at bottom. Max 3 fields visible at once per cluster.",
+        "typography": "Summary strip label: Inter 14px weight 500 ink-soft. Summary strip value: Inter 14px weight 400 ink. Current cluster label: Inter 14px weight 500 ink. Field labels: Inter 14px weight 500 ink-soft. Step title: DM Sans 20px.",
+        "colors": "Current cluster card: surface (#ffffff) with shadow-md. Summary strips: bg (#f9fafb) with no shadow. Progress bar: accent (#6D31C2) fill on border (#e5e7eb) track.",
+        "spacing": "Between summary strips: 4px (xs). Current cluster padding: 24px (lg). Between fields in cluster: 16px (md). Below progress bar: 24px.",
+        "radius": "Current cluster: md (10px). Summary strips: sm (6px). Progress bar: full (9999px).",
+        "responsive": "Single column on all screen sizes. Fields stack vertically on mobile. Summary strips use smaller text (13px) on mobile."
+      },
+      "interaction_spec": {
+        "default_state": "Current cluster is expanded with primary visual weight. Completed clusters show as collapsed summary strips in secondary weight. Future clusters are invisible.",
+        "hover_state": "Summary strips gain a subtle highlight on hover, indicating they can be tapped to re-expand for editing.",
+        "loading_state": "When advancing to next cluster: completed cluster collapses to summary strip (350ms easing-out) while new cluster slides in (350ms easing-out, concurrent). Both run simultaneously.",
+        "empty_state": "Clusters with no pre-filled data show placeholder examples from comparable listings. Never a blank form.",
+        "animation": "Cluster reveal: 350ms easing-out slide-down. Cluster collapse: 350ms easing-out. Progress bar advance: 350ms easing-out. Completion celebration at step end: accent-light wash at 300ms."
+      },
+      "copy_spec": {
+        "tone": "Conversational and forward-looking. Each step feels like a natural progression, not a form.",
+        "primary_text": "Describe your space",
+        "secondary_text": "Step 2 of 5 — features and amenities",
+        "do": ["Show progress concretely: 'Step 3 of 5 complete'", "Frame remaining work as easy: 'Just a quick review of rules'", "Use decreasing effort language as host progresses"],
+        "dont": ["Show all steps at once ('6 steps to complete')", "Skip decompression moments between hard steps", "Use identical language at every transition"]
+      },
+      "html_css": "<!-- Listing Wizard Step Card -->\n<link href=\"https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>\n  .wizard-container {\n    max-width: 540px;\n    font-family: 'Inter', sans-serif;\n    background: #f9fafb;\n    padding: 24px;\n    border-radius: 10px;\n  }\n  .wizard-summary {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 12px 16px;\n    background: #f9fafb;\n    border: 1px solid #e5e7eb;\n    border-radius: 6px;\n    margin-bottom: 4px;\n    cursor: pointer;\n    transition: background 0.1s ease;\n  }\n  .wizard-summary:hover {\n    background: #f3f4f6;\n  }\n  .wizard-summary-label {\n    font-size: 14px;\n    font-weight: 500;\n    color: #374151;\n  }\n  .wizard-summary-value {\n    font-size: 14px;\n    font-weight: 400;\n    color: #1a1a1a;\n  }\n  .wizard-current {\n    background: #ffffff;\n    border-radius: 10px;\n    padding: 24px;\n    margin-top: 16px;\n    box-shadow: 0 2px 8px rgba(0, 0, 0,0.08);\n  }\n  .wizard-step-title {\n    font-family: 'DM Sans', serif;\n    font-size: 20px;\n    color: #1a1a1a;\n    margin: 0 0 4px 0;\n  }\n  .wizard-step-context {\n    font-size: 14px;\n    color: #374151;\n    margin: 0 0 20px 0;\n  }\n  .wizard-field {\n    margin-bottom: 16px;\n  }\n  .wizard-field label {\n    display: block;\n    font-size: 14px;\n    font-weight: 500;\n    color: #374151;\n    margin-bottom: 6px;\n  }\n  .wizard-field input, .wizard-field select {\n    width: 100%;\n    height: 42px;\n    padding: 0 12px;\n    border: 1px solid #e5e7eb;\n    border-radius: 6px;\n    font-family: 'Inter', sans-serif;\n    font-size: 14px;\n    color: #1a1a1a;\n    background: #ffffff;\n    box-sizing: border-box;\n    transition: border-color 0.1s;\n  }\n  .wizard-field input:focus, .wizard-field select:focus {\n    outline: none;\n    border-color: #6D31C2;\n  }\n  .wizard-progress {\n    margin-top: 20px;\n    display: flex;\n    align-items: center;\n    gap: 12px;\n  }\n  .wizard-progress-bar {\n    flex: 1;\n    height: 4px;\n    background: #e5e7eb;\n    border-radius: 9999px;\n    overflow: hidden;\n  }\n  .wizard-progress-fill {\n    height: 100%;\n    background: #6D31C2;\n    border-radius: 9999px;\n    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);\n  }\n  .wizard-progress-text {\n    font-size: 13px;\n    color: #6b7280;\n    white-space: nowrap;\n  }\n  .wizard-next {\n    margin-top: 20px;\n    width: 100%;\n    height: 48px;\n    background: #6D31C2;\n    color: #ffffff;\n    border: none;\n    border-radius: 10px;\n    font-family: 'Inter', sans-serif;\n    font-size: 16px;\n    font-weight: 600;\n    cursor: pointer;\n    transition: background 0.1s;\n  }\n  .wizard-next:hover { background: #5A2AAD; }\n  .wizard-next:active { transform: translateY(1px); }\n</style>\n\n<div class=\"wizard-container\">\n  <div class=\"wizard-summary\">\n    <span class=\"wizard-summary-label\">Space type</span>\n    <span class=\"wizard-summary-value\">Private room, 5th floor walk-up</span>\n  </div>\n  <div class=\"wizard-summary\">\n    <span class=\"wizard-summary-label\">Address</span>\n    <span class=\"wizard-summary-value\">555 W 181st St, New York</span>\n  </div>\n\n  <div class=\"wizard-current\">\n    <h2 class=\"wizard-step-title\">Features & amenities</h2>\n    <p class=\"wizard-step-context\">What does your space come with? Toggle what applies.</p>\n\n    <div class=\"wizard-field\">\n      <label>Kitchen type</label>\n      <select><option>Full kitchen</option><option>Kitchenette</option><option>Shared kitchen</option></select>\n    </div>\n    <div class=\"wizard-field\">\n      <label>Bathrooms</label>\n      <select><option>1</option><option>2</option><option>3</option></select>\n    </div>\n    <div class=\"wizard-field\">\n      <label>Laundry</label>\n      <select><option>In building</option><option>In unit</option><option>None</option></select>\n    </div>\n\n    <div class=\"wizard-progress\">\n      <div class=\"wizard-progress-bar\"><div class=\"wizard-progress-fill\" style=\"width:40%\"></div></div>\n      <span class=\"wizard-progress-text\">Step 2 of 5</span>\n    </div>\n    <button class=\"wizard-next\">Continue</button>\n  </div>\n</div>",
+      "before_after": {
+        "before": "All 6 wizard steps show full forms with every field visible. The host sees dozens of inputs simultaneously and must decide the order themselves.",
+        "after": "One cluster at a time, with completed work visible as compact summary strips. The host answers one question, sees it acknowledged, then gets the next. Matches the phone call's conversational speed."
+      },
+      "priority": "high",
+      "effort": "large"
+    },
+    {
+      "id": "elem-006",
+      "name": "Smart Default Field",
+      "category": "input",
+      "description": "A pre-filled input field that shows a research-based default value with source attribution ('Based on similar Washington Heights listings'). The host confirms or overrides. Preserves the depleted user's dignity by framing defaults as research, not assistance.",
+      "journey_phases": ["listing_creation", "pricing"],
+      "pages": ["Listing Wizard Step 4 (Pricing)", "Listing Wizard Step 5 (Rules)"],
+      "implements_principles": ["works-002", "feels-007", "behaves-002"],
+      "problem_it_solves": "By Step 4-5 of the wizard, the host is ego-depleted. Blank fields force System 2 decisions with a depleted resource pool (producing errors or abandonment). Smart defaults let depleted users confirm good answers rather than construct them.",
+      "visual_spec": {
+        "layout": "Standard input field with pre-filled value. Source attribution text below the field. Optional override control (tap to edit).",
+        "typography": "Field value: Inter 14px weight 400 ink. Source attribution: Inter 12px weight 400 ink-muted. Field label: Inter 14px weight 500 ink-soft.",
+        "colors": "Field border: border (#e5e7eb). Pre-filled value: ink (#1a1a1a) same as user-entered. Source text: ink-muted (#6b7280). Focus border: accent (#6D31C2).",
+        "spacing": "Field height: 42px. Label to field gap: 6px. Field to source text gap: 4px.",
+        "radius": "Field: sm (6px).",
+        "responsive": "Full width on all screen sizes. Source text wraps on narrow screens."
+      },
+      "interaction_spec": {
+        "default_state": "Field shows pre-filled value with no visual distinction from user-entered values. Source attribution visible below in muted text. The pre-fill is not highlighted or called out.",
+        "hover_state": "Field border subtly strengthens to border-strong (#e0e0e0) on hover.",
+        "loading_state": "If default is being calculated: field shows a 14px gray bar placeholder. Source text: 'Calculating based on your area...'",
+        "empty_state": "If no comparable data exists: field is empty with placeholder text showing an example value. Source text: 'Enter your preferred amount.'",
+        "animation": "Pre-filled values appear with the page load (0ms) -- they look like they have always been there. No animation on pre-fills. Override focus: border shifts to accent purple instantly (0ms transition)."
+      },
+      "copy_spec": {
+        "tone": "Authoritative and data-driven. Defaults are researched recommendations, not guesses.",
+        "primary_text": "$2,400",
+        "secondary_text": "Based on similar Washington Heights walk-ups",
+        "do": ["Frame as research: 'Based on similar listings in your area'", "Show the source data: 'Average for Washington Heights walk-ups: $2,400/mo'", "Use 'confirm' language: 'Confirm these rules'"],
+        "dont": ["Label as 'Recommended for you' -- implies platform deciding for host", "Highlight that it was pre-filled: 'We filled this in for you!'", "Remove ability to override -- always respect host's autonomy"]
+      },
+      "html_css": "<!-- Smart Default Field -->\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap\" rel=\"stylesheet\">\n<style>\n  .smart-field {\n    max-width: 380px;\n    font-family: 'Inter', sans-serif;\n  }\n  .smart-field-label {\n    display: block;\n    font-size: 14px;\n    font-weight: 500;\n    color: #374151;\n    margin-bottom: 6px;\n  }\n  .smart-field-input {\n    width: 100%;\n    height: 42px;\n    padding: 0 12px;\n    border: 1px solid #e5e7eb;\n    border-radius: 6px;\n    font-family: 'Inter', sans-serif;\n    font-size: 14px;\n    color: #1a1a1a;\n    background: #ffffff;\n    box-sizing: border-box;\n  }\n  .smart-field-input:focus {\n    outline: none;\n    border-color: #6D31C2;\n  }\n  .smart-field-source {\n    font-size: 12px;\n    font-weight: 400;\n    color: #6b7280;\n    margin-top: 4px;\n  }\n</style>\n\n<div class=\"smart-field\">\n  <label class=\"smart-field-label\">Monthly rent</label>\n  <input class=\"smart-field-input\" type=\"text\" value=\"$2,400\">\n  <div class=\"smart-field-source\">Based on similar Washington Heights walk-ups</div>\n</div>",
+      "before_after": {
+        "before": "Blank price field with no guidance. Depleted host must research market rates or guess, producing pricing errors or abandonment.",
+        "after": "Pre-filled with a researched default and clear attribution. Host confirms with one glance or overrides with a tap. Feels like smart design, not hand-holding."
+      },
+      "priority": "high",
+      "effort": "medium"
+    },
+    {
+      "id": "elem-007",
+      "name": "Proposal Card",
+      "category": "card",
+      "description": "A pre-packaged proposal display that shows tenant names, trust badges, use case summary, primary financial total, and a single-tap accept button. Transforms the host's role from constructor (System 2 heavy) to endorser (System 1 can handle). Follows Bryant's structure: people first, terms second, action third.",
+      "journey_phases": ["proposal_mgmt"],
+      "pages": ["Proposal Detail", "Host Dashboard (proposal notification)"],
+      "implements_principles": ["communicates-005", "behaves-003", "looks-003", "looks-005", "feels-002"],
+      "problem_it_solves": "Current proposal flow requires 7 navigational steps and a counter-offer form. This transforms a confirmation task into a construction task. One-tap acceptance on a self-contained card matches how Bryant presented deals on the phone.",
+      "visual_spec": {
+        "layout": "Vertical card: tenant section (photos, names, badges), use case line, financial total (IBM Plex Mono 28px), accept button (full width, accent purple). Adjust-terms link below as secondary action.",
+        "typography": "Tenant names: Inter 16px weight 600. Use case: Inter 14px weight 400 ink-soft. Financial total: IBM Plex Mono 28px weight 600. Accept button: Inter 16px weight 600. Adjust link: Inter 14px weight 500 ink-muted.",
+        "colors": "Card: surface (#ffffff) with shadow-md. Accept button: accent (#6D31C2) bg, white text. Adjust link: ink-muted (#6b7280). On acceptance: card bg shifts to accent-light (#F7F2FA).",
+        "spacing": "Card padding: 24px. Between sections: 16px. Before accept button: 24px. Accept button height: 48px.",
+        "radius": "Card: md (10px). Accept button: md (10px). Tenant photos: full (circle).",
+        "responsive": "Full width on mobile. Tenant photos shrink from 40px to 32px. Financial figure scales to 24px. Card padding reduces to 16px."
+      },
+      "interaction_spec": {
+        "default_state": "Full proposal visible on one screen: tenant info, trust badges, financial total, accept button. No scrolling needed to reach the action.",
+        "hover_state": "Accept button darkens to #5A2AAD. Card gains shadow-lg. Adjust link underlines.",
+        "loading_state": "Agent identity and listing name visible as anchors. Tenant details and financial figure show skeleton placeholders. Accept button disabled but visible.",
+        "empty_state": "No proposals: agent-attributed message: 'No proposals yet. Bryant will notify you when tenants are interested in [address].'",
+        "animation": "Accept tap: 1px translateY depress (instant). Success: spring easing 500ms, button text changes to 'Accepted' with checkmark, card bg transitions to accent-light. Adjust-terms reveal: 350ms easing-out inline expansion."
+      },
+      "copy_spec": {
+        "tone": "Direct and confident. The proposal is pre-vetted and ready for endorsement.",
+        "primary_text": "Ariel & Amber",
+        "secondary_text": "Roommates from Connecticut. Need a weeknight space for work.",
+        "do": ["Lead with tenant names and verification status", "Show one financial total, not a breakdown", "Make accept the dominant action: 'Accept proposal'"],
+        "dont": ["Lead with terms or dates before showing who the tenants are", "Show side-by-side comparisons of multiple proposals", "Present blank counter-offer forms on the main view"]
+      },
+      "html_css": "<!-- Proposal Card -->\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap\" rel=\"stylesheet\">\n<style>\n  .proposal-card {\n    background: #ffffff;\n    border-radius: 10px;\n    padding: 24px;\n    box-shadow: 0 2px 8px rgba(0, 0, 0,0.08);\n    max-width: 420px;\n    font-family: 'Inter', sans-serif;\n    transition: background 0.35s cubic-bezier(0.16, 1, 0.3, 1);\n  }\n  .proposal-tenants {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n    margin-bottom: 8px;\n  }\n  .proposal-photos {\n    display: flex;\n    margin-right: 4px;\n  }\n  .proposal-photo {\n    width: 40px;\n    height: 40px;\n    border-radius: 9999px;\n    border: 2px solid #ffffff;\n    object-fit: cover;\n  }\n  .proposal-photo + .proposal-photo {\n    margin-left: -12px;\n  }\n  .proposal-names {\n    font-size: 16px;\n    font-weight: 600;\n    color: #1a1a1a;\n  }\n  .proposal-badges {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 8px;\n    margin-bottom: 12px;\n  }\n  .proposal-badge {\n    display: inline-flex;\n    align-items: center;\n    gap: 4px;\n    padding: 4px 8px;\n    background: #F7F2FA;\n    color: #6D31C2;\n    font-family: 'IBM Plex Mono', monospace;\n    font-size: 12px;\n    font-weight: 500;\n    border-radius: 9999px;\n    height: 24px;\n  }\n  .proposal-badge svg { width: 14px; height: 14px; }\n  .proposal-usecase {\n    font-size: 14px;\n    color: #374151;\n    line-height: 1.5;\n    margin-bottom: 16px;\n  }\n  .proposal-financial {\n    padding: 16px 0;\n    border-top: 1px solid #e5e7eb;\n    border-bottom: 1px solid #e5e7eb;\n    margin-bottom: 24px;\n  }\n  .proposal-fin-label {\n    font-size: 14px;\n    font-weight: 500;\n    color: #374151;\n    margin-bottom: 4px;\n  }\n  .proposal-fin-amount {\n    font-family: 'IBM Plex Mono', monospace;\n    font-size: 28px;\n    font-weight: 600;\n    color: #1a1a1a;\n  }\n  .proposal-fin-note {\n    font-size: 13px;\n    color: #6b7280;\n    margin-top: 4px;\n  }\n  .proposal-accept {\n    width: 100%;\n    height: 48px;\n    background: #6D31C2;\n    color: #ffffff;\n    border: none;\n    border-radius: 10px;\n    font-family: 'Inter', sans-serif;\n    font-size: 16px;\n    font-weight: 600;\n    cursor: pointer;\n    transition: background 0.1s;\n  }\n  .proposal-accept:hover { background: #5A2AAD; }\n  .proposal-accept:active { transform: translateY(1px); }\n  .proposal-adjust {\n    display: block;\n    text-align: center;\n    margin-top: 12px;\n    font-size: 14px;\n    font-weight: 500;\n    color: #6b7280;\n    text-decoration: none;\n    cursor: pointer;\n  }\n  .proposal-adjust:hover { text-decoration: underline; color: #374151; }\n  @media (max-width: 600px) {\n    .proposal-card { padding: 16px; }\n    .proposal-fin-amount { font-size: 24px; }\n    .proposal-photo { width: 32px; height: 32px; }\n  }\n</style>\n\n<div class=\"proposal-card\">\n  <div class=\"proposal-tenants\">\n    <div class=\"proposal-photos\">\n      <img class=\"proposal-photo\" src=\"https://i.pravatar.cc/80?img=5\" alt=\"Ariel\">\n      <img class=\"proposal-photo\" src=\"https://i.pravatar.cc/80?img=9\" alt=\"Amber\">\n    </div>\n    <span class=\"proposal-names\">Ariel & Amber</span>\n  </div>\n  <div class=\"proposal-badges\">\n    <span class=\"proposal-badge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Credit verified</span>\n    <span class=\"proposal-badge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Payment secured</span>\n  </div>\n  <p class=\"proposal-usecase\">Roommates from Connecticut. Need a weeknight space for work. They would be using it just to sleep each night.</p>\n  <div class=\"proposal-financial\">\n    <div class=\"proposal-fin-label\">Total monthly to you</div>\n    <div class=\"proposal-fin-amount\">$2,400/mo</div>\n    <div class=\"proposal-fin-note\">10 weeks, Mon\u2013Thu nights</div>\n  </div>\n  <button class=\"proposal-accept\">Accept proposal</button>\n  <a class=\"proposal-adjust\">Adjust terms</a>\n</div>",
+      "before_after": {
+        "before": "Proposal review requires 7 navigational steps: Dashboard > Notifications > View Proposal > Review/Modify > Edit Terms > Update > Confirm. Counter-offer is a blank form.",
+        "after": "One self-contained card with tenant story, verified status, one financial number, and one-tap accept. The host is endorsing a complete package, not constructing a response."
+      },
+      "priority": "high",
+      "effort": "large"
+    },
+    {
+      "id": "elem-008",
+      "name": "Advisor Prompt",
+      "category": "section",
+      "description": "A visually distinct section that appears after essential data entry, shifting the host from form-filler to expert contributor. Three-beat pattern: validation statement, experience-based question, open text field. Uses accent-light background and DM Sans to signal the mode change from data entry to expertise sharing.",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "active_lease"],
+      "pages": ["Listing Wizard (after Step 2)", "Proposal Response", "Active Lease Dashboard"],
+      "implements_principles": ["works-005", "communicates-007", "behaves-005", "feels-003"],
+      "problem_it_solves": "The platform treats hosts as form-fillers (depleting) rather than advisors (energizing). When hosts contribute expertise, they psychologically commit -- you do not advise on furnishing for a space you plan to refuse.",
+      "visual_spec": {
+        "layout": "Full-width card with accent-light background. Vertical stack: validation statement (serif), question (sans), open text area, skip link. Preview panel appears alongside on desktop after response.",
+        "typography": "Validation: DM Sans 18px weight 400 ink. Question: Inter 16px weight 400 ink-soft. Text area: Inter 14px weight 400. Skip: Inter 13px weight 500 ink-muted.",
+        "colors": "Card background: accent-light (#F7F2FA). Validation text: ink (#1a1a1a). Question text: ink-soft (#374151). Text area: surface (#ffffff) border. Skip link: ink-muted (#6b7280).",
+        "spacing": "Card padding: 24px. Validation to question gap: 12px. Question to text area gap: 16px. Text area min-height: 80px.",
+        "radius": "Card: md (10px). Text area: sm (6px).",
+        "responsive": "Full width on all sizes. Preview panel moves below text area on mobile."
+      },
+      "interaction_spec": {
+        "default_state": "Validation visible, question visible, text area empty with placeholder example. Skip link always visible.",
+        "hover_state": "Text area border shifts to accent on hover. Skip link underlines.",
+        "loading_state": "Not applicable -- locally rendered, no server dependency.",
+        "empty_state": "Placeholder in text area: 'Example: The bodega on the corner is open 24 hours and the 1 train is a 5-minute walk.'",
+        "animation": "Validation fades in at 250ms easing-out. 300ms pause. Question slides in at 300ms easing-out. Total: ~850ms. After response: preview renders instantly (no animation)."
+      },
+      "copy_spec": {
+        "tone": "Respectful and curious. Like a junior colleague asking a senior for their take.",
+        "primary_text": "Your listing details look great.",
+        "secondary_text": "What should a new tenant know about living here?",
+        "do": ["Validate before asking: 'Your listing is looking sharp'", "Ask questions only the host could answer from experience", "Show the response immediately in a listing preview"],
+        "dont": ["Make it mandatory -- a required advisor field kills the expert feeling", "Ask generic survey questions: 'How would you describe your property?'", "Ask more than one question per phase"]
+      },
+      "html_css": "<!-- Advisor Prompt -->\n<link href=\"https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500&display=swap\" rel=\"stylesheet\">\n<style>\n  .advisor-prompt {\n    background: #F7F2FA;\n    border-radius: 10px;\n    padding: 24px;\n    max-width: 540px;\n    font-family: 'Inter', sans-serif;\n  }\n  .advisor-validation {\n    font-family: 'DM Sans', serif;\n    font-size: 18px;\n    color: #1a1a1a;\n    margin: 0 0 12px 0;\n    line-height: 1.3;\n  }\n  .advisor-question {\n    font-size: 16px;\n    color: #374151;\n    margin: 0 0 16px 0;\n    line-height: 1.5;\n  }\n  .advisor-textarea {\n    width: 100%;\n    min-height: 80px;\n    padding: 12px;\n    border: 1px solid #e5e7eb;\n    border-radius: 6px;\n    font-family: 'Inter', sans-serif;\n    font-size: 14px;\n    color: #1a1a1a;\n    background: #ffffff;\n    resize: vertical;\n    box-sizing: border-box;\n    line-height: 1.5;\n  }\n  .advisor-textarea:focus {\n    outline: none;\n    border-color: #6D31C2;\n  }\n  .advisor-textarea::placeholder {\n    color: #9ca3af;\n  }\n  .advisor-skip {\n    display: inline-block;\n    margin-top: 12px;\n    font-size: 13px;\n    font-weight: 500;\n    color: #6b7280;\n    text-decoration: none;\n    cursor: pointer;\n  }\n  .advisor-skip:hover { text-decoration: underline; }\n</style>\n\n<div class=\"advisor-prompt\">\n  <p class=\"advisor-validation\">Your listing details look great.</p>\n  <p class=\"advisor-question\">What should a new tenant know about living here?</p>\n  <textarea class=\"advisor-textarea\" placeholder=\"Example: The bodega on the corner is open 24 hours and the 1 train is a 5-minute walk.\"></textarea>\n  <a class=\"advisor-skip\">Skip for now</a>\n</div>",
+      "before_after": {
+        "before": "Step 5 of 6: Property Description (Required). Minimum 50 characters. The host faces a blank text box with a character minimum -- homework, not expertise.",
+        "after": "After completing features, a warm purple card validates their work and asks a question only they can answer. Optional, conversational, and their response appears immediately in a listing preview."
+      },
+      "priority": "high",
+      "effort": "medium"
+    },
+    {
+      "id": "elem-009",
+      "name": "Save & Resume Banner",
+      "category": "notification",
+      "description": "Welcome-back banner when host returns to interrupted process. Agent-attributed, shows exact departure point and progress.",
+      "journey_phases": ["listing_creation", "onboarding", "pricing"],
+      "pages": ["Listing Wizard (on return)"],
+      "implements_principles": ["behaves-004", "feels-004", "feels-005", "communicates-006"],
+      "problem_it_solves": "Multi-tasking hosts who leave mid-process never return if progress is lost.",
+      "visual_spec": {"layout":"Full-width banner: agent photo 32px + message + progress bar.","typography":"Message: Inter 14px. Agent name: weight 600. Progress: 13px ink-muted.","colors":"Background: accent-light (#F7F2FA). Progress fill: accent (#6D31C2).","spacing":"Padding: 12px 16px.","radius":"md (10px).","responsive":"Photo hidden on small screens."},
+      "interaction_spec": {"default_state":"Banner with agent photo and welcome message.","hover_state":"None.","loading_state":"Summary strips restore at 350ms.","empty_state":"Does not appear without prior progress.","animation":"Fade in 300ms easing-out. Auto-dismiss after 5s."},
+      "copy_spec": {"tone":"Warm and orienting.","primary_text":"Welcome back, Andreas.","secondary_text":"You were setting up pricing for your 5th floor unit.","do":["Reference specific step","Attribute to agent","Show progress"],"dont":["Generic welcome","Show time elapsed","Require action to resume"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>.rb{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#F7F2FA;border-radius:10px;max-width:640px;font-family:'Inter',sans-serif;}.rb-p{width:32px;height:32px;border-radius:9999px;border:2px solid #6D31C2;object-fit:cover;}.rb-t{flex:1;}.rb-m{font-size:14px;color:#1a1a1a;margin:0;}.rb-m b{font-weight:600;}.rb-pg{display:flex;align-items:center;gap:8px;margin-top:6px;}.rb-b{width:80px;height:4px;background:#e5e7eb;border-radius:9999px;overflow:hidden;}.rb-f{height:100%;background:#6D31C2;width:60%;}.rb-l{font-size:13px;color:#6b7280;}</style>\n<div class=\"rb\"><img class=\"rb-p\" src=\"https://i.pravatar.cc/80?img=12\" alt=\"Bryant\"><div class=\"rb-t\"><p class=\"rb-m\"><b>Welcome back, Andreas.</b> You were setting up pricing for your 5th floor unit.</p><div class=\"rb-pg\"><div class=\"rb-b\"><div class=\"rb-f\"></div></div><span class=\"rb-l\">Step 3 of 5</span></div></div></div>",
+      "before_after": {"before":"Host must find draft and locate where they stopped.","after":"Platform reopens at exact departure point with agent-attributed context."},
+      "priority": "high",
+      "effort": "medium"
+    },
+    {
+      "id": "elem-010",
+      "name": "Notification Card",
+      "category": "notification",
+      "description": "Agent-attributed notification with tenant names, verification, key number, and direct action link.",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "pages": ["Notification Dropdown", "Email"],
+      "implements_principles": ["behaves-006", "feels-005", "communicates-006"],
+      "problem_it_solves": "Notifications must be self-contained for triage without opening the platform.",
+      "visual_spec": {"layout":"Card: agent avatar 24px + message + number + action link.","typography":"From: Inter 12px ink-muted. Message: 14px ink. Number: IBM Plex Mono 16px weight 600. Action: 13px accent.","colors":"Unread: white with 3px accent left border. Read: bg.","spacing":"Padding: 12px 16px.","radius":"sm (6px).","responsive":"Full width in dropdown."},
+      "interaction_spec": {"default_state":"White bg with purple left border.","hover_state":"Background shifts to surface-warm.","loading_state":"Skeleton bars.","empty_state":"'All caught up.'","animation":"Slide-in 350ms easing-out."},
+      "copy_spec": {"tone":"Bryant tapping the host on the shoulder.","primary_text":"Bryant: New proposal for your 5th floor unit","secondary_text":"Ariel & Amber, credit verified -- $2,400/mo","do":["Attribute to agent","Include key number","Deep-link to action"],"dont":["Send from noreply@","Require login first","Use vague language"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@600&display=swap\" rel=\"stylesheet\">\n<style>.nf{display:flex;gap:10px;padding:12px 16px;background:#fff;border-left:3px solid #6D31C2;border-radius:6px;max-width:400px;font-family:'Inter',sans-serif;cursor:pointer;}.nf:hover{background:#FCFAFF;}.nf-a{width:24px;height:24px;border-radius:9999px;object-fit:cover;flex-shrink:0;}.nf-b{flex:1;}.nf-f{font-size:12px;font-weight:500;color:#6b7280;}.nf-m{font-size:14px;color:#1a1a1a;margin:2px 0 0;}.nf-n{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:#1a1a1a;margin-top:4px;}.nf-l{font-size:13px;font-weight:500;color:#6D31C2;text-decoration:none;margin-top:6px;display:inline-block;}.nf-l:hover{text-decoration:underline;}.nf-t{font-size:11px;color:#6b7280;margin-top:4px;}</style>\n<div class=\"nf\"><img class=\"nf-a\" src=\"https://i.pravatar.cc/48?img=12\" alt=\"Bryant\"><div class=\"nf-b\"><div class=\"nf-f\">Bryant Davis</div><p class=\"nf-m\">New proposal for your 5th floor unit from Ariel & Amber, credit verified.</p><div class=\"nf-n\">$2,400/mo</div><a href=\"#\" class=\"nf-l\">Review and accept</a><div class=\"nf-t\">12 min ago</div></div></div>",
+      "before_after": {"before":"'You have a new proposal.' Requires 5+ clicks.","after":"Self-contained card with everything needed for triage."},
+      "priority": "high",
+      "effort": "medium"
+    },
+    {
+      "id": "elem-011",
+      "name": "Monthly/Nightly Price Toggle",
+      "category": "display",
+      "description": "Dual-format price display: monthly primary (large), nightly secondary (small), with toggle.",
+      "journey_phases": ["listing_creation", "pricing"],
+      "pages": ["Listing Wizard Step 4", "Listing Detail"],
+      "implements_principles": ["works-006", "communicates-002", "looks-003"],
+      "problem_it_solves": "Hosts think monthly. Platform operates nightly. Mismatch causes pricing errors.",
+      "visual_spec": {"layout":"Primary figure + label, secondary figure, toggle.","typography":"Primary: IBM Plex Mono 24px weight 600. Secondary: 14px ink-soft.","colors":"Primary: ink. Toggle active: accent.","spacing":"Primary to secondary: 4px. Toggle: margin-top 10px.","radius":"Toggle: full.","responsive":"Stack vertically on mobile."},
+      "interaction_spec": {"default_state":"Monthly large, nightly small.","hover_state":"Toggle highlights.","loading_state":"Skeletons.","empty_state":"'Enter monthly rent to see nightly.'","animation":"Toggle swap: 350ms easing-out."},
+      "copy_spec": {"tone":"Factual. Pre-calculated.","primary_text":"$2,400/mo","secondary_text":"~$80/night","do":["Show both","Pre-calculate","Default monthly"],"dont":["Only nightly","Require calculator","Percentages"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;600&display=swap\" rel=\"stylesheet\">\n<style>.pt{font-family:'Inter',sans-serif;max-width:300px;}.pt-p{display:flex;align-items:baseline;gap:8px;}.pt-f{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:#1a1a1a;}.pt-l{font-size:12px;color:#6b7280;}.pt-s{font-family:'IBM Plex Mono',monospace;font-size:14px;color:#374151;margin-top:4px;}</style>\n<div class=\"pt\"><div class=\"pt-p\"><span class=\"pt-f\">$2,400</span><span class=\"pt-l\">/ month</span></div><div class=\"pt-s\">~$80 / night across selected days</div></div>",
+      "before_after": {"before":"Only nightly rate shown.","after":"Monthly primary, nightly as conversion."},
+      "priority": "high",
+      "effort": "small"
+    },
+    {
+      "id": "elem-012",
+      "name": "Progress Decompression Moment",
+      "category": "section",
+      "description": "Celebration pause between hard wizard sections. The parole judges' meal break.",
+      "journey_phases": ["listing_creation"],
+      "pages": ["Listing Wizard (between hard steps)"],
+      "implements_principles": ["works-002", "feels-004", "behaves-002"],
+      "problem_it_solves": "Decision quality drops without breaks. Decompression restores System 2 capacity.",
+      "visual_spec": {"layout":"Centered: checkmark icon, accomplishment text, preview, continue button.","typography":"Title: Inter 16px weight 500. Preview: 14px ink-soft.","colors":"Icon bg: accent-light. Icon: accent. Button: accent bg white text.","spacing":"Padding: 40px. Icon to text: 16px.","radius":"Icon: full. Button: md.","responsive":"Padding 24px on mobile."},
+      "interaction_spec": {"default_state":"Visible 2-3s. Continue button available.","hover_state":"Button darkens.","loading_state":"N/A.","empty_state":"N/A.","animation":"Checkmark: spring 500ms. Text fade 300ms."},
+      "copy_spec": {"tone":"Encouraging, not patronizing.","primary_text":"Nice -- your pricing is locked in.","secondary_text":"Next: house rules with suggested defaults. About 2 minutes.","do":["Summarize accomplishment","Frame remaining as easy","Time estimate"],"dont":["Confetti","Same language each time","Skip the pause"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap\" rel=\"stylesheet\">\n<style>.dc{text-align:center;padding:40px 24px;max-width:420px;margin:0 auto;font-family:'Inter',sans-serif;}.dc-i{width:48px;height:48px;background:#F7F2FA;border-radius:9999px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}.dc-i svg{width:24px;height:24px;color:#6D31C2;}.dc-t{font-size:16px;font-weight:500;color:#1a1a1a;margin:0 0 8px;}.dc-p{font-size:14px;color:#374151;line-height:1.5;margin:0 0 24px;}.dc-b{height:42px;padding:0 24px;background:#6D31C2;color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}.dc-b:hover{background:#5A2AAD;}</style>\n<div class=\"dc\"><div class=\"dc-i\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg></div><p class=\"dc-t\">Nice -- your pricing is locked in.</p><p class=\"dc-p\">Next up: house rules. We suggested defaults based on similar Washington Heights listings. About 2 minutes.</p><button class=\"dc-b\">Continue</button></div>",
+      "before_after": {"before":"Steps transition with no acknowledgment of progress.","after":"Brief pause celebrates progress and frames remaining work as easy."},
+      "priority": "medium",
+      "effort": "small"
+    },
+    {
+      "id": "elem-013",
+      "name": "Quick-Select Amenity Chips",
+      "category": "input",
+      "description": "Toggle chips for features. System 1 pattern-matching instead of System 2 list-scanning.",
+      "journey_phases": ["listing_creation"],
+      "pages": ["Listing Wizard Step 2"],
+      "implements_principles": ["works-003", "communicates-004", "behaves-001"],
+      "problem_it_solves": "Dropdowns are slower than conversation. Chips match conversational speed.",
+      "visual_spec": {"layout":"Flex-wrap grid of pill chips.","typography":"Inter 14px weight 500. Selected: 600.","colors":"Unselected: bg, ink-soft, border. Selected: accent-light, accent, accent border.","spacing":"Padding: 8px 16px. Height: 36px. Gap: 8px.","radius":"full (9999px).","responsive":"Chips wrap. Larger padding on mobile."},
+      "interaction_spec": {"default_state":"Unselected muted. Pre-selected from call data.","hover_state":"bg-deep.","loading_state":"Load with page.","empty_state":"N/A.","animation":"Selection: instant 0ms."},
+      "copy_spec": {"tone":"Short, concrete, natural.","primary_text":"Laundry in building","secondary_text":"Microwave","do":["Natural language","1-3 words","Pre-select from call"],"dont":["Jargon","Long lists","Mix with dropdowns"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>.cg{display:flex;flex-wrap:wrap;gap:8px;max-width:540px;font-family:'Inter',sans-serif;}.cp{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;height:36px;background:#f9fafb;color:#374151;border:1px solid #e5e7eb;border-radius:9999px;font-size:14px;font-weight:500;cursor:pointer;}.cp:hover{background:#f3f4f6;}.cp.on{background:#F7F2FA;color:#6D31C2;border-color:#6D31C2;font-weight:600;}.cp svg{width:16px;height:16px;display:none;}.cp.on svg{display:block;}</style>\n<div class=\"cg\"><button class=\"cp on\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Microwave</button><button class=\"cp on\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Laundry in building</button><button class=\"cp\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Dishwasher</button><button class=\"cp\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Air conditioning</button><button class=\"cp\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Furnished</button><button class=\"cp on\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Walk-up</button></div>",
+      "before_after": {"before":"Dropdowns for features.","after":"Tappable chips at conversational speed."},
+      "priority": "high",
+      "effort": "small"
+    },
+    {
+      "id": "elem-014",
+      "name": "Duplicate Listing Button",
+      "category": "button",
+      "description": "Post-publish prompt to duplicate listing for multi-unit hosts. Pre-fills shared attributes, exposes only differences for editing.",
+      "journey_phases": ["listing_creation"],
+      "pages": ["Listing Confirmation", "Host Dashboard"],
+      "implements_principles": ["behaves-007", "works-003"],
+      "problem_it_solves": "Andreas has 2 units. Doing the wizard twice is pure cost with no new information for shared attributes.",
+      "visual_spec": {"layout":"Inline prompt after first listing publish: icon + text + button. Agent-attributed.","typography":"Prompt: Inter 14px weight 400. Button: Inter 14px weight 600 white on accent.","colors":"Prompt bg: surface-warm (#FCFAFF). Border: border (#e5e7eb). Button: accent bg.","spacing":"Padding: 16px. Button height: 42px.","radius":"Card: md (10px). Button: md (10px).","responsive":"Button full width on mobile."},
+      "interaction_spec": {"default_state":"Visible after first listing published. 'Do this later' equally prominent.","hover_state":"Button darkens.","loading_state":"Duplication generates in under 1s.","empty_state":"Hidden for single-unit hosts.","animation":"Card: spring 500ms on appear. Duplication: card multiplies animation 350ms."},
+      "copy_spec": {"tone":"Agent's voice, inviting not pushing.","primary_text":"You mentioned another unit in this building.","secondary_text":"Add it now? Most details are already filled in.","do":["Agent attribution: 'Bryant noticed you have a second unit'","Frame as fast: 'Under 2 minutes'","Equal visibility for 'Later'"],"dont":["Pressure: 'Complete your portfolio now!'","Show during wizard (distraction)","Assume multi-unit without evidence"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>.dup{background:#FCFAFF;border:1px solid #e5e7eb;border-radius:10px;padding:16px;max-width:440px;font-family:'Inter',sans-serif;display:flex;flex-direction:column;gap:12px;}.dup-t{font-size:14px;color:#1a1a1a;margin:0;line-height:1.5;}.dup-t b{font-weight:600;}.dup-acts{display:flex;gap:8px;}.dup-btn{flex:1;height:42px;background:#6D31C2;color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}.dup-btn:hover{background:#5A2AAD;}.dup-later{flex:1;height:42px;background:transparent;color:#374151;border:1px solid #e5e7eb;border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}.dup-later:hover{background:#f9fafb;}</style>\n<div class=\"dup\"><p class=\"dup-t\"><b>You mentioned another unit in this building.</b> Add it now? Most details are already filled in from Unit 1. Under 2 minutes.</p><div class=\"dup-acts\"><button class=\"dup-btn\">Add second unit</button><button class=\"dup-later\">Do this later</button></div></div>",
+      "before_after": {"before":"Second listing requires full 6-step wizard from scratch.","after":"One-tap duplication with only differences exposed. Under 2 minutes."},
+      "priority": "medium",
+      "effort": "medium"
+    },
+    {
+      "id": "elem-015",
+      "name": "Tenant Profile Mini-Card",
+      "category": "card",
+      "description": "Compact tenant display: name, photo, credit status badge, and one-line use case. Used within proposals to present the human story before the financial terms.",
+      "journey_phases": ["proposal_mgmt"],
+      "pages": ["Proposal Detail", "Proposal Card"],
+      "implements_principles": ["communicates-003", "communicates-005"],
+      "problem_it_solves": "Hosts evaluate tenants as people first, then terms. Without human context, financial terms feel abstract.",
+      "visual_spec": {"layout":"Horizontal: photo 40px + vertical stack (name, badge, use case).","typography":"Name: Inter 16px weight 600. Use case: 14px weight 400 ink-soft.","colors":"Photo border: none (distinguishes from agent). Badge: standard trust badge purple.","spacing":"Photo to name: 12px. Name to badge: 4px. Badge to use case: 6px.","radius":"Photo: full. Badge: full pill.","responsive":"Photo shrinks to 32px on mobile."},
+      "interaction_spec": {"default_state":"Photo, name, badge, use case all visible.","hover_state":"Card background shifts slightly on hover if tappable.","loading_state":"Photo placeholder circle, name skeleton bar.","empty_state":"N/A -- only appears when tenant data exists.","animation":"None -- static content."},
+      "copy_spec": {"tone":"Factual, human. Present the person, not the application.","primary_text":"Ariel Chen","secondary_text":"From Connecticut. Needs a weeknight space for work commute.","do":["Lead with name","Include verification badge inline","One-line use case from tenant profile"],"dont":["Show tenant as a data table","Use 'Applicant #1234'","Hide name behind privacy walls pre-acceptance"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap\" rel=\"stylesheet\">\n<style>.tmc{display:flex;align-items:flex-start;gap:12px;font-family:'Inter',sans-serif;max-width:380px;}.tmc-ph{width:40px;height:40px;border-radius:9999px;object-fit:cover;flex-shrink:0;}.tmc-info{display:flex;flex-direction:column;gap:4px;}.tmc-name{font-size:16px;font-weight:600;color:#1a1a1a;}.tmc-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#F7F2FA;color:#6D31C2;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;border-radius:9999px;width:fit-content;}.tmc-badge svg{width:12px;height:12px;}.tmc-use{font-size:14px;color:#374151;line-height:1.4;margin-top:2px;}</style>\n<div class=\"tmc\"><img class=\"tmc-ph\" src=\"https://i.pravatar.cc/80?img=5\" alt=\"Ariel\"><div class=\"tmc-info\"><span class=\"tmc-name\">Ariel Chen</span><span class=\"tmc-badge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Credit verified</span><span class=\"tmc-use\">From Connecticut. Needs a weeknight space for work commute.</span></div></div>",
+      "before_after": {"before":"Tenants shown as data fields: name, dates requested, price offered.","after":"Human-first card: photo, name, verification badge, one-line story."},
+      "priority": "high",
+      "effort": "small"
+    },
+    {
+      "id": "elem-016",
+      "name": "Warm Empty State",
+      "category": "section",
+      "description": "Agent-attributed empty state for pages with no content yet. Forward-looking, personal, and specific rather than generic 'Nothing here yet' messages.",
+      "journey_phases": ["onboarding", "proposal_mgmt"],
+      "pages": ["Host Dashboard (no listings)", "Proposals (no proposals)"],
+      "implements_principles": ["looks-001", "feels-005", "communicates-006"],
+      "problem_it_solves": "Empty pages feel like dead ends. Agent-attributed empty states maintain warmth and provide clear next steps.",
+      "visual_spec": {"layout":"Centered content: agent photo 48px, message, action button or forward-looking text.","typography":"Message: Inter 16px weight 400 ink. Agent name: weight 600. Action: Inter 14px weight 600 white on accent.","colors":"Background: bg (#f9fafb). Card: surface with shadow-sm. Agent photo border: accent 2px.","spacing":"Padding: 40px. Photo to message: 16px. Message to action: 20px.","radius":"Card: md. Photo: full.","responsive":"Padding 24px on mobile."},
+      "interaction_spec": {"default_state":"Agent photo, personalized message, next-step guidance.","hover_state":"Action button darkens.","loading_state":"Agent photo loads first as anchor.","empty_state":"This IS the empty state.","animation":"Content fades in at 300ms easing-out."},
+      "copy_spec": {"tone":"Bryant's voice: warm, specific, forward-looking.","primary_text":"No proposals yet.","secondary_text":"Bryant will notify you when tenants are interested in your 5th floor unit.","do":["Attribute to agent","Reference specific property","Provide timeline or next step"],"dont":["Generic 'Nothing to show'","Leave the host without context","Use impersonal system language"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>.wes{text-align:center;padding:40px 24px;max-width:420px;margin:0 auto;font-family:'Inter',sans-serif;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0, 0, 0,0.06);}.wes-ph{width:48px;height:48px;border-radius:9999px;border:2px solid #6D31C2;object-fit:cover;margin:0 auto 16px;display:block;}.wes-msg{font-size:16px;color:#1a1a1a;line-height:1.5;margin:0 0 4px;}.wes-sub{font-size:14px;color:#374151;line-height:1.5;margin:0 0 20px;}.wes-btn{height:42px;padding:0 24px;background:#6D31C2;color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}.wes-btn:hover{background:#5A2AAD;}</style>\n<div class=\"wes\"><img class=\"wes-ph\" src=\"https://i.pravatar.cc/80?img=12\" alt=\"Bryant\"><p class=\"wes-msg\"><strong>No proposals yet.</strong></p><p class=\"wes-sub\">Bryant will notify you when tenants are interested in your 5th floor unit.</p><button class=\"wes-btn\">Message Bryant</button></div>",
+      "before_after": {"before":"Empty dashboard: 'No listings. Create your first listing.' No agent, no context.","after":"Agent-attributed empty state with specific property reference and forward-looking guidance."},
+      "priority": "medium",
+      "effort": "small"
+    },
+    {
+      "id": "elem-017",
+      "name": "Instant Acknowledgment Micro-interaction",
+      "category": "input",
+      "description": "Sub-100ms visual feedback on every interactive element. Border shifts to accent purple on focus, buttons depress 1px on press. The platform's 'Yep' -- confirms receipt before System 2 doubts.",
+      "journey_phases": ["listing_creation", "pricing", "proposal_mgmt", "onboarding"],
+      "pages": ["All pages with interactive elements"],
+      "implements_principles": ["behaves-001", "looks-007", "feels-001"],
+      "problem_it_solves": "Without immediate feedback, hosts hold inputs in working memory wondering 'Did that work?' This depletes the same resource pool needed for decisions.",
+      "visual_spec": {"layout":"Applied to all inputs, toggles, buttons, chips.","typography":"N/A -- applies to existing elements.","colors":"Focus border: accent (#6D31C2). Button press: accent darkened 10%. Success flash: accent-light (#F7F2FA) 300ms.","spacing":"Button depress: 1px translateY.","radius":"N/A -- uses existing element radius.","responsive":"Same behavior on all devices. Touch feedback via :active state."},
+      "interaction_spec": {"default_state":"Standard element appearance.","hover_state":"Subtle border strengthen or shadow lift.","loading_state":"After acknowledgment, inline loading indicator if server processing needed.","empty_state":"N/A.","animation":"Acknowledgment: 0ms (instant). Settle: 350ms easing-out. Celebrate (milestones): 500ms spring."},
+      "copy_spec": {"tone":"N/A -- this is purely visual.","primary_text":"","secondary_text":"","do":["Make every interaction feel instant","Separate local acknowledgment from server confirmation","Respect prefers-reduced-motion"],"dont":["Add transition delays to acknowledgment","Use bouncing or looping animations","Block further input during server processing"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap\" rel=\"stylesheet\">\n<style>\n  .ack-input{width:100%;height:42px;padding:0 12px;border:1px solid #e5e7eb;border-radius:6px;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a1a;background:#fff;box-sizing:border-box;transition:none;}\n  .ack-input:focus{outline:none;border-color:#6D31C2;box-shadow:0 0 0 3px rgba(109, 49, 194,0.1);}\n  .ack-btn{height:48px;padding:0 24px;background:#6D31C2;color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;}\n  .ack-btn:hover{background:#5A2AAD;}\n  .ack-btn:active{transform:translateY(1px);}\n  @media(prefers-reduced-motion:reduce){.ack-btn:active{transform:none;}}\n</style>\n<div style=\"display:flex;flex-direction:column;gap:16px;max-width:380px;font-family:'Inter',sans-serif;\">\n  <div><label style=\"font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:6px;\">Monthly rent</label><input class=\"ack-input\" type=\"text\" placeholder=\"$2,400\" /></div>\n  <button class=\"ack-btn\">Save and continue</button>\n</div>",
+      "before_after": {"before":"Form fields show no feedback on focus or input. Host wonders if actions registered.","after":"Every interaction gets instant visual confirmation. Border goes purple on focus, button depresses on press, success flashes on save."},
+      "priority": "high",
+      "effort": "small"
+    },
+    {
+      "id": "elem-018",
+      "name": "Trust Credential Stack",
+      "category": "display",
+      "description": "Vertical sequence of trust credentials following Bryant's order: mechanism first, instance second, guarantee third. Three lines that build a causal chain System 1 can process as a story.",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "pages": ["Listing Detail", "Onboarding Welcome", "Proposal Detail"],
+      "implements_principles": ["communicates-003", "looks-005", "feels-002"],
+      "problem_it_solves": "Bare claims ('Guaranteed!') trigger skepticism. A causal chain (check > pre-authorize > guarantee) builds trust through story, not assertion.",
+      "visual_spec": {"layout":"Vertical stack of 3 items. Each: icon + mechanism text. Connector lines between items optional.","typography":"Mechanism: Inter 14px weight 500 ink. Detail: Inter 13px weight 400 ink-soft. Conclusion: Inter 14px weight 600 accent.","colors":"Icons: accent (#6D31C2). Connector: border (#e5e7eb). Conclusion: accent.","spacing":"Between items: 12px. Icon to text: 8px. Stack padding: 16px.","radius":"Container: md (10px) if in a card.","responsive":"Full width, no layout changes needed."},
+      "interaction_spec": {"default_state":"All three credentials visible in order.","hover_state":"Items expand to show detail on hover/tap.","loading_state":"Three skeleton lines.","empty_state":"N/A -- only appears when credentials exist.","animation":"Items fade in sequentially: 200ms each, 100ms stagger. Total: ~500ms."},
+      "copy_spec": {"tone":"Process-focused, factual. Evidence before conclusion.","primary_text":"1. Credit check completed. 2. Payment pre-authorized. 3. Your rent is secured.","secondary_text":"Ariel: excellent credit. Amber: excellent credit.","do":["Order: mechanism > instance > guarantee","Use past tense for completed actions","Be specific: tenant names, not 'all tenants'"],"dont":["Lead with the guarantee","Use marketing superlatives","Show without supporting mechanism"]},
+      "html_css": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap\" rel=\"stylesheet\">\n<style>.tcs{max-width:340px;font-family:'Inter',sans-serif;padding:16px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0, 0, 0,0.06);}.tcs-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;}.tcs-item+.tcs-item{border-top:1px solid #e5e7eb;}.tcs-ic{width:20px;height:20px;color:#6D31C2;flex-shrink:0;margin-top:1px;}.tcs-txt{flex:1;}.tcs-mech{font-size:14px;font-weight:500;color:#1a1a1a;}.tcs-det{font-size:13px;color:#374151;margin-top:2px;}.tcs-item:last-child .tcs-mech{font-weight:600;color:#6D31C2;}</style>\n<div class=\"tcs\"><div class=\"tcs-item\"><svg class=\"tcs-ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"></path><polyline points=\"22 4 12 14.01 9 11.01\"></polyline></svg><div class=\"tcs-txt\"><div class=\"tcs-mech\">Credit check completed</div><div class=\"tcs-det\">Ariel: excellent. Amber: excellent.</div></div></div><div class=\"tcs-item\"><svg class=\"tcs-ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"1\" y=\"4\" width=\"22\" height=\"16\" rx=\"2\" ry=\"2\"></rect><line x1=\"1\" y1=\"10\" x2=\"23\" y2=\"10\"></line></svg><div class=\"tcs-txt\"><div class=\"tcs-mech\">Payment pre-authorized</div><div class=\"tcs-det\">Charges locked at lease signing.</div></div></div><div class=\"tcs-item\"><svg class=\"tcs-ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path></svg><div class=\"tcs-txt\"><div class=\"tcs-mech\">Your rent is secured</div><div class=\"tcs-det\">Guaranteed for the duration of the lease.</div></div></div></div>",
+      "before_after": {"before":"Trust claim appears as a single line: 'Payment guaranteed.' No supporting mechanism.","after":"Three-step causal chain: check > pre-authorize > guarantee. System 1 processes it as a coherent story."},
+      "priority": "high",
+      "effort": "small"
+    }
+  ],
+  "element_count": 18,
+  "coverage": {
+    "discovery": ["elem-002", "elem-018"],
+    "evaluation": ["elem-002", "elem-003", "elem-018"],
+    "onboarding": ["elem-001", "elem-004", "elem-005", "elem-009", "elem-016", "elem-017", "elem-018"],
+    "listing_creation": ["elem-001", "elem-004", "elem-005", "elem-006", "elem-008", "elem-009", "elem-011", "elem-012", "elem-013", "elem-014", "elem-017"],
+    "pricing": ["elem-001", "elem-003", "elem-004", "elem-006", "elem-009", "elem-011", "elem-012", "elem-017"],
+    "proposal_mgmt": ["elem-001", "elem-002", "elem-003", "elem-004", "elem-007", "elem-008", "elem-010", "elem-011", "elem-015", "elem-016", "elem-017", "elem-018"],
+    "active_lease": ["elem-001", "elem-003", "elem-008", "elem-010"],
+    "retention": ["elem-001", "elem-010", "elem-014"]
+  },
+  "principle_coverage": {
+    "works-001": ["elem-004"],
+    "works-002": ["elem-005", "elem-006", "elem-012"],
+    "works-003": ["elem-005", "elem-013", "elem-014"],
+    "works-004": ["elem-001"],
+    "works-005": ["elem-008"],
+    "works-006": ["elem-003", "elem-011"],
+    "communicates-001": ["elem-004", "elem-005"],
+    "communicates-002": ["elem-003", "elem-011"],
+    "communicates-003": ["elem-002", "elem-015", "elem-018"],
+    "communicates-004": ["elem-005", "elem-013"],
+    "communicates-005": ["elem-007", "elem-015"],
+    "communicates-006": ["elem-001", "elem-009", "elem-010", "elem-016"],
+    "communicates-007": ["elem-008"],
+    "looks-001": ["elem-004", "elem-016"],
+    "looks-002": ["elem-004"],
+    "looks-003": ["elem-003", "elem-007", "elem-011"],
+    "looks-004": ["elem-001"],
+    "looks-005": ["elem-002", "elem-007", "elem-018"],
+    "looks-007": ["elem-017"],
+    "behaves-001": ["elem-013", "elem-017"],
+    "behaves-002": ["elem-005", "elem-006", "elem-012"],
+    "behaves-003": ["elem-007"],
+    "behaves-004": ["elem-009"],
+    "behaves-005": ["elem-008"],
+    "behaves-006": ["elem-010"],
+    "behaves-007": ["elem-014"],
+    "feels-001": ["elem-004", "elem-017"],
+    "feels-002": ["elem-002", "elem-003", "elem-007", "elem-018"],
+    "feels-003": ["elem-008"],
+    "feels-004": ["elem-005", "elem-009", "elem-012"],
+    "feels-005": ["elem-009", "elem-010", "elem-016"],
+    "feels-006": ["elem-010", "elem-012"],
+    "feels-007": ["elem-006"],
+    "feels-008": ["elem-001"]
+  },
+  "design_system_notes": {
+    "color_migration": "All elements use the taste model's target palette (warm neutrals + purple accent) from tokens.json, not the current production purple palette. The purple accent palette defines the production style. These elements define the target state.",
+    "typography_triad": "DM Sans for recognition anchors (property names, section headlines), Inter for all UI text (labels, body, buttons), IBM Plex Mono for all verifiable data (prices, credit status, dates). Three typefaces serve three cognitive functions.",
+    "purple_reservation": "Accent purple (#6D31C2) and accent-light (#F7F2FA) are used exclusively for trust-related elements (badges, agent borders, accept buttons, active input focus). Purple never appears on decorative elements. Its scarcity is what gives it signal value.",
+    "motion_system": "Three tiers: Acknowledge (0ms instant), Settle (350ms easing-out), Celebrate (500ms spring). All respect prefers-reduced-motion.",
+    "wcag_compliance": "All text meets WCAG AA minimum. Primary financial figures exceed WCAG AAA. Trust badge text (accent on accent-light) achieves 5.2:1 ratio."
+  },
+  "methodology_notes": "Eighteen UI elements synthesized from the intersection of 6 process patterns (Layer 1), 7 information architecture patterns (Layer 2), 7 visual patterns (Layer 3), 7 interaction patterns (Layer 4), and 8 emotional elements (Layer 5). Each element traces to specific principles across multiple layers, ensuring that no element is purely visual, purely functional, or purely emotional -- every element serves all three dimensions simultaneously. Elements are ordered by their position in the host journey: identity/trust elements first (001-003), structural elements second (004-006), action elements third (007-008), session-boundary elements fourth (009-010), supporting elements fifth (011-018). All HTML/CSS snippets are self-contained and render standalone with Google Fonts."
+}
+</script>
+
+<script>
+(function() {
+  "use strict";
+
+  var rawData = JSON.parse(document.getElementById("elements-data").textContent);
+  var elements = rawData.elements;
+
+  var state = { search: "", categories: {}, phases: {}, priorities: {}, view: "grid", compareMode: false, compareItems: [] };
+
+  var ALL_CATEGORIES = [], catMap = {};
+  elements.forEach(function(e) { if (!catMap[e.category]) { catMap[e.category] = true; ALL_CATEGORIES.push(e.category); } });
+  ALL_CATEGORIES.sort();
+
+  var ALL_PHASES = [], phMap = {};
+  elements.forEach(function(e) { e.journey_phases.forEach(function(p) { if (!phMap[p]) { phMap[p] = true; ALL_PHASES.push(p); } }); });
+  ALL_PHASES.sort();
+
+  var ALL_PRIORITIES = ["high", "medium", "low"];
+
+  var PHASE_LABELS = { discovery: "Discovery", evaluation: "Evaluation", onboarding: "Onboarding", listing_creation: "Listing Creation", pricing: "Pricing", proposal_mgmt: "Proposal Mgmt", active_lease: "Active Lease", retention: "Retention" };
+  var CATEGORY_LABELS = { badge: "Badge", card: "Card", form: "Form", display: "Display", notification: "Notification", section: "Section", button: "Button", input: "Input" };
+
+  function escapeHtml(str) { var d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
+  function hasActive(obj) { for (var k in obj) { if (obj[k]) return true; } return false; }
+
+  var FONT_LINKS = '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">';
+
+  function buildSrcdoc(htmlCss) {
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8">' + FONT_LINKS + '<style>body{margin:20px;background:#f9fafb;font-family:sans-serif;display:flex;align-items:flex-start;justify-content:center;min-height:100%;}</style></head><body>' + htmlCss + '</body></html>';
+  }
+
+  // STATS
+  function renderStats() {
+    var bar = document.getElementById("statsBar");
+    var catCounts = {}, priCounts = {};
+    elements.forEach(function(e) { catCounts[e.category] = (catCounts[e.category] || 0) + 1; priCounts[e.priority] = (priCounts[e.priority] || 0) + 1; });
+    var h = '<div class="stat-chip stat-chip--total"><span class="stat-chip__count">' + elements.length + '</span> elements</div>';
+    ALL_CATEGORIES.forEach(function(cat) { h += '<div class="stat-chip"><span class="stat-chip__count">' + (catCounts[cat] || 0) + '</span> ' + (CATEGORY_LABELS[cat] || cat) + '</div>'; });
+    h += '<div class="stat-chip stat-chip--high"><span class="stat-chip__count">' + (priCounts.high || 0) + '</span> High</div>';
+    h += '<div class="stat-chip stat-chip--medium"><span class="stat-chip__count">' + (priCounts.medium || 0) + '</span> Medium</div>';
+    bar.innerHTML = h;
+  }
+
+  // FILTERS
+  function renderFilters() {
+    document.getElementById("categoryFilters").innerHTML = ALL_CATEGORIES.map(function(c) { return '<button class="filter-pill" data-filter-type="category" data-filter-value="' + c + '">' + (CATEGORY_LABELS[c] || c) + '</button>'; }).join("");
+    document.getElementById("phaseFilters").innerHTML = ALL_PHASES.map(function(p) { return '<button class="filter-pill" data-filter-type="phase" data-filter-value="' + p + '">' + (PHASE_LABELS[p] || p) + '</button>'; }).join("");
+    document.getElementById("priorityFilters").innerHTML = ALL_PRIORITIES.map(function(p) { return '<button class="filter-pill" data-filter-type="priority" data-filter-value="' + p + '">' + p.charAt(0).toUpperCase() + p.slice(1) + '</button>'; }).join("");
+  }
+
+  function toggleFilter(type, value) {
+    var stateMap = { category: "categories", phase: "phases", priority: "priorities" };
+    var s = state[stateMap[type]]; s[value] = !s[value];
+    document.querySelectorAll('[data-filter-type="' + type + '"]').forEach(function(btn) { btn.classList.toggle("active", !!s[btn.getAttribute("data-filter-value")]); });
+    renderElements();
+  }
+
+  function getFiltered() {
+    return elements.filter(function(e) {
+      if (state.search) { var s = (e.name + " " + e.description + " " + e.id + " " + (e.implements_principles || []).join(" ")).toLowerCase(); if (s.indexOf(state.search) === -1) return false; }
+      if (hasActive(state.categories) && !state.categories[e.category]) return false;
+      if (hasActive(state.phases)) { var m = false; e.journey_phases.forEach(function(p) { if (state.phases[p]) m = true; }); if (!m) return false; }
+      if (hasActive(state.priorities) && !state.priorities[e.priority]) return false;
+      return true;
+    });
+  }
+
+  // RENDER DRIBBBLE CARDS
+  function renderElements() {
+    var grid = document.getElementById("elementsGrid");
+    var filtered = getFiltered();
+    document.getElementById("resultsCount").innerHTML = 'Showing <span>' + filtered.length + '</span> of <span>' + elements.length + '</span> elements';
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><div class="empty-state__title">No elements match your filters</div><div class="empty-state__text">Try adjusting your search or filter criteria.</div><button class="empty-state__btn" data-action="clear-filters">Clear all filters</button></div>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map(function(e) { return renderCard(e); }).join("");
+
+    if (state.compareMode) {
+      document.getElementById("app").classList.add("compare-mode");
+      state.compareItems.forEach(function(id) {
+        var card = document.querySelector('[data-elem-id="' + id + '"]'); if (card) card.classList.add("compare-selected");
+        var btn = document.querySelector('[data-compare-id="' + id + '"]'); if (btn) btn.classList.add("selected");
+      });
+    } else { document.getElementById("app").classList.remove("compare-mode"); }
+
+    // Inject iframes with srcdoc after DOM update
+    setTimeout(function() {
+      filtered.forEach(function(e) {
+        if (e.html_css) {
+          var iframe = document.getElementById("card-preview-" + e.id);
+          if (iframe) { iframe.srcdoc = buildSrcdoc(e.html_css); }
+        }
+      });
+    }, 50);
+  }
+
+  function renderCard(e) {
+    var isComp = state.compareItems.indexOf(e.id) > -1;
+    var phases = e.journey_phases.slice(0, 3).map(function(p) { return '<span class="phase-tag">' + (PHASE_LABELS[p] || p) + '</span>'; }).join("");
+    if (e.journey_phases.length > 3) phases += '<span class="phase-tag">+' + (e.journey_phases.length - 3) + '</span>';
+
+    return '<div class="element-card' + (isComp ? ' compare-selected' : '') + '" data-elem-id="' + e.id + '" data-action="open-detail" data-detail-id="' + e.id + '">' +
+      '<button class="btn-compare' + (isComp ? ' selected' : '') + '" data-compare-id="' + e.id + '" data-action="toggle-compare-item" title="Add to compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>' +
+      '<div class="element-card__preview"><iframe id="card-preview-' + e.id + '" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe></div>' +
+      '<div class="element-card__meta">' +
+        '<div class="element-card__name-row">' +
+          '<div class="element-card__name">' + escapeHtml(e.name) + '</div>' +
+          '<div class="element-card__badges"><span class="badge badge--category">' + escapeHtml(e.category) + '</span><span class="badge badge--' + e.priority + '">' + e.priority + '</span></div>' +
+        '</div>' +
+        '<div class="element-card__desc">' + escapeHtml(e.description) + '</div>' +
+        '<div class="element-card__footer">' +
+          '<div class="element-card__phases">' + phases + '</div>' +
+          '<span class="element-card__effort">Effort: ' + e.effort + '</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // VIEW TOGGLE
+  function setView(v) {
+    state.view = v;
+    var grid = document.getElementById("elementsGrid");
+    if (v === "list") { grid.classList.add("list-view"); } else { grid.classList.remove("list-view"); }
+    document.getElementById("gridViewBtn").classList.toggle("active", v === "grid");
+    document.getElementById("listViewBtn").classList.toggle("active", v === "list");
+  }
+
+  // COMPARE
+  function toggleCompareMode() { state.compareMode = !state.compareMode; document.getElementById("compareToggle").classList.toggle("active", state.compareMode); if (!state.compareMode) { state.compareItems = []; updateCompareBar(); } renderElements(); }
+  function toggleCompareItem(id) { var idx = state.compareItems.indexOf(id); if (idx > -1) { state.compareItems.splice(idx, 1); } else if (state.compareItems.length < 3) { state.compareItems.push(id); } updateCompareBar(); renderElements(); }
+  function updateCompareBar() {
+    var bar = document.getElementById("compareBar"), items = document.getElementById("compareItems"), btn = document.getElementById("compareBtn");
+    if (state.compareItems.length > 0 && state.compareMode) {
+      bar.classList.add("visible");
+      items.innerHTML = state.compareItems.map(function(id) { var el = elements.find(function(e) { return e.id === id; }); return '<span class="compare-bar__chip">' + escapeHtml(el.name) + '<button class="compare-bar__chip-remove" data-action="remove-compare" data-remove-id="' + id + '">&times;</button></span>'; }).join("");
+      btn.disabled = state.compareItems.length < 2;
+    } else { bar.classList.remove("visible"); }
+  }
+  function clearCompare() { state.compareItems = []; updateCompareBar(); renderElements(); }
+
+  // DETAIL MODAL
+  function openDetail(id) {
+    var e = elements.find(function(el) { return el.id === id; });
+    if (!e) return;
+    var overlay = document.getElementById("modalOverlay"), content = document.getElementById("modalContent");
+    var vs = e.visual_spec || {}, is_ = e.interaction_spec || {}, cs = e.copy_spec || {}, ba = e.before_after || {};
+
+    var h = '<div class="modal__header"><div class="modal__header-left"><div class="modal__title">' + escapeHtml(e.name) + '</div><div class="modal__meta"><span class="badge badge--category">' + e.category + '</span><span class="badge badge--' + e.priority + '">' + e.priority + ' priority</span><span class="badge" style="background:var(--bg);color:var(--ink-muted);">' + e.effort + ' effort</span><span class="badge" style="background:var(--bg);color:var(--ink-muted);">' + e.id + '</span></div></div><button class="modal__close" data-action="close-detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="modal__body">';
+
+    if (e.html_css) {
+      h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> Live Preview</div><div class="preview-container"><div class="preview-container__bar"><span class="preview-dot"></span><span class="preview-dot"></span><span class="preview-dot"></span><span class="preview-bar-label">' + escapeHtml(e.name) + '</span></div><iframe id="preview-frame-' + e.id + '" sandbox="allow-scripts allow-same-origin" style="width:100%;min-height:200px;border:none;background:#f9fafb;"></iframe></div></div>';
+    }
+
+    h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Description</div><div class="modal__desc">' + escapeHtml(e.description) + '</div>';
+    if (e.problem_it_solves) h += '<div class="modal__problem"><strong>Problem it solves:</strong> ' + escapeHtml(e.problem_it_solves) + '</div>';
+    h += '</div>';
+
+    h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg> Journey Phases & Pages</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">' + e.journey_phases.map(function(p) { return '<span class="phase-tag">' + (PHASE_LABELS[p] || p) + '</span>'; }).join("") + '</div>';
+    if (e.pages) h += '<div style="font-size:13px;color:var(--ink-muted);">Pages: ' + e.pages.map(function(p) { return escapeHtml(p); }).join(", ") + '</div>';
+    h += '</div>';
+
+    if (vs && Object.keys(vs).length > 0) {
+      h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg> Visual Spec</div><div class="spec-grid">';
+      Object.keys(vs).forEach(function(k) { h += '<div class="spec-item"><div class="spec-item__label">' + escapeHtml(k) + '</div><div class="spec-item__value">' + escapeHtml(String(vs[k])) + '</div></div>'; });
+      h += '</div></div>';
+    }
+
+    if (is_ && Object.keys(is_).length > 0) {
+      h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"></path></svg> Interaction States</div><div class="states-grid">';
+      Object.keys(is_).forEach(function(k) { h += '<div class="state-item"><div class="state-item__label">' + escapeHtml(k.replace(/_/g, " ")) + '</div><div class="state-item__value">' + escapeHtml(String(is_[k])) + '</div></div>'; });
+      h += '</div></div>';
+    }
+
+    if (cs && Object.keys(cs).length > 0) {
+      h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Copy Spec</div>';
+      if (cs.tone) h += '<div style="margin-bottom:12px;font-size:14px;color:var(--ink-soft);"><strong>Tone:</strong> ' + escapeHtml(cs.tone) + '</div>';
+      h += '<div class="copy-tone">';
+      if (cs.primary_text) h += '<div class="copy-tone__item"><div class="copy-tone__label">Primary</div><div class="copy-tone__value">' + escapeHtml(cs.primary_text) + '</div></div>';
+      if (cs.secondary_text) h += '<div class="copy-tone__item"><div class="copy-tone__label">Secondary</div><div class="copy-tone__value">' + escapeHtml(cs.secondary_text) + '</div></div>';
+      h += '</div><div class="copy-block">';
+      if (cs.do && cs.do.length > 0) h += '<div class="copy-example copy-example--do"><div class="copy-example__title">Do</div><ul>' + cs.do.map(function(d) { return '<li>' + escapeHtml(d) + '</li>'; }).join("") + '</ul></div>';
+      if (cs.dont && cs.dont.length > 0) h += '<div class="copy-example copy-example--dont"><div class="copy-example__title">Don\'t</div><ul>' + cs.dont.map(function(d) { return '<li>' + escapeHtml(d) + '</li>'; }).join("") + '</ul></div>';
+      h += '</div></div>';
+    }
+
+    if (ba.before || ba.after) {
+      h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Before & After</div><div class="before-after">';
+      if (ba.before) h += '<div class="ba-block ba-block--before"><div class="ba-block__label">Before</div><div class="ba-block__text">' + escapeHtml(ba.before) + '</div></div>';
+      if (ba.after) h += '<div class="ba-block ba-block--after"><div class="ba-block__label">After</div><div class="ba-block__text">' + escapeHtml(ba.after) + '</div></div>';
+      h += '</div></div>';
+    }
+
+    if (e.implements_principles && e.implements_principles.length > 0) {
+      h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Implements Principles</div><div class="principles-list">' + e.implements_principles.map(function(p) { return '<span class="principle-chip">' + escapeHtml(p) + '</span>'; }).join("") + '</div></div>';
+    }
+
+    h += '</div>';
+    content.innerHTML = h;
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+
+    if (e.html_css) {
+      setTimeout(function() {
+        var iframe = document.getElementById("preview-frame-" + e.id);
+        if (iframe) {
+          iframe.srcdoc = buildSrcdoc(e.html_css);
+          iframe.onload = function() { try { iframe.style.height = Math.max(200, iframe.contentDocument.body.scrollHeight + 32) + "px"; } catch(ex){} };
+        }
+      }, 100);
+    }
+  }
+
+  function closeDetail() { document.getElementById("modalOverlay").classList.remove("open"); document.body.style.overflow = ""; }
+
+  // COMPARE MODAL
+  function openCompare() {
+    if (state.compareItems.length < 2) return;
+    var overlay = document.getElementById("compareOverlay"), content = document.getElementById("compareContent");
+    var items = state.compareItems.map(function(id) { return elements.find(function(e) { return e.id === id; }); }).filter(Boolean);
+
+    var h = '<div class="modal__header"><div class="modal__header-left"><div class="modal__title">Compare Elements</div><div class="modal__meta"><span style="font-size:14px;color:var(--ink-soft);">Comparing ' + items.length + ' elements side by side</span></div></div><button class="modal__close" data-action="close-compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="modal__body" style="padding:0;"><div class="compare-grid compare-grid--' + items.length + '">' + items.map(function(e) { return renderCompareCol(e); }).join("") + '</div></div>';
+
+    content.innerHTML = h;
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+
+    setTimeout(function() {
+      items.forEach(function(e) {
+        if (e.html_css) {
+          var iframe = document.getElementById("compare-preview-" + e.id);
+          if (iframe) { iframe.srcdoc = buildSrcdoc(e.html_css); iframe.onload = function() { try { iframe.style.height = Math.max(150, iframe.contentDocument.body.scrollHeight + 24) + "px"; } catch(ex){} }; }
+        }
+      });
+    }, 100);
+  }
+
+  function renderCompareCol(e) {
+    var vs = e.visual_spec || {}, cs = e.copy_spec || {};
+    var h = '<div class="compare-col"><div class="compare-col__name">' + escapeHtml(e.name) + '</div><div class="compare-col__badges"><span class="badge badge--category">' + e.category + '</span><span class="badge badge--' + e.priority + '">' + e.priority + '</span><span class="badge" style="background:var(--bg);color:var(--ink-muted);">' + e.effort + '</span></div>';
+    h += '<div class="compare-section"><div class="compare-section__title">Description</div><div class="compare-section__text">' + escapeHtml(e.description.length > 200 ? e.description.substring(0, 200) + "..." : e.description) + '</div></div>';
+    h += '<div class="compare-section"><div class="compare-section__title">Phases</div><div style="display:flex;flex-wrap:wrap;gap:4px;">' + e.journey_phases.map(function(p) { return '<span class="phase-tag">' + (PHASE_LABELS[p] || p) + '</span>'; }).join("") + '</div></div>';
+    if (vs.typography) h += '<div class="compare-section"><div class="compare-section__title">Typography</div><div class="compare-section__text">' + escapeHtml(String(vs.typography)) + '</div></div>';
+    if (vs.colors) h += '<div class="compare-section"><div class="compare-section__title">Colors</div><div class="compare-section__text">' + escapeHtml(String(vs.colors)) + '</div></div>';
+    if (cs.tone) h += '<div class="compare-section"><div class="compare-section__title">Tone</div><div class="compare-section__text">' + escapeHtml(cs.tone) + '</div></div>';
+    if (e.implements_principles) h += '<div class="compare-section"><div class="compare-section__title">Principles</div><div style="display:flex;flex-wrap:wrap;gap:4px;">' + e.implements_principles.map(function(p) { return '<span class="principle-chip" style="font-size:11px;height:22px;">' + p + '</span>'; }).join("") + '</div></div>';
+    if (e.html_css) h += '<div class="compare-section"><div class="compare-section__title">Preview</div><div class="compare-preview"><iframe id="compare-preview-' + e.id + '" sandbox="allow-scripts allow-same-origin" style="width:100%;min-height:150px;border:1px solid var(--border);border-radius:6px;background:#f9fafb;"></iframe></div></div>';
+    h += '</div>';
+    return h;
+  }
+
+  function closeCompare() { document.getElementById("compareOverlay").classList.remove("open"); document.body.style.overflow = ""; }
+
+  function clearAllFilters() {
+    state.search = ""; state.categories = {}; state.phases = {}; state.priorities = {};
+    document.getElementById("searchInput").value = "";
+    document.querySelectorAll(".filter-pill").forEach(function(b) { b.classList.remove("active"); });
+    renderElements();
+  }
+
+  // EVENT DELEGATION
+  document.addEventListener("click", function(ev) {
+    var target = ev.target.closest("[data-action]");
+    if (!target) {
+      if (ev.target === document.getElementById("modalOverlay")) closeDetail();
+      if (ev.target === document.getElementById("compareOverlay")) closeCompare();
+      var pill = ev.target.closest("[data-filter-type]");
+      if (pill) toggleFilter(pill.getAttribute("data-filter-type"), pill.getAttribute("data-filter-value"));
+      return;
+    }
+    var action = target.getAttribute("data-action");
+    switch(action) {
+      case "view-grid": setView("grid"); break;
+      case "view-list": setView("list"); break;
+      case "toggle-compare": toggleCompareMode(); break;
+      case "toggle-compare-item": ev.stopPropagation(); toggleCompareItem(target.getAttribute("data-compare-id")); break;
+      case "open-detail": openDetail(target.getAttribute("data-detail-id")); break;
+      case "open-compare": openCompare(); break;
+      case "clear-compare": clearCompare(); break;
+      case "close-detail": closeDetail(); break;
+      case "close-compare": closeCompare(); break;
+      case "clear-filters": clearAllFilters(); break;
+      case "remove-compare": toggleCompareItem(target.getAttribute("data-remove-id")); break;
+    }
+  });
+
+  document.getElementById("searchInput").addEventListener("input", function(ev) { state.search = ev.target.value.toLowerCase().trim(); renderElements(); });
+  document.addEventListener("keydown", function(ev) { if (ev.key === "Escape") { closeDetail(); closeCompare(); } });
+
+  renderStats();
+  renderFilters();
+  renderElements();
+})();
+</script>
+</body>
+</html>
