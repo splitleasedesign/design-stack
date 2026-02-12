@@ -1,0 +1,343 @@
+{
+  "lens": {
+    "host_call": "jessica-filomeno-call.txt",
+    "book_extract": "cialdini-authority-liking-scarcity.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Authority Credential Progressive Disclosure",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "Jessica researched Split Lease before the call ('I did look up split lease yesterday') and opened with defensive interrogation ('Do you work with management companies?'). Professional hosts perform rapid System 1 authority checks: 'Is this company legitimate?' Without immediate visual authority signals during discovery, hosts arrive at evaluation calls in defensive mode, consuming cognitive resources on legitimacy verification rather than economic evaluation. The interaction must respond to this authority-checking behavior by progressively disclosing credentials based on host engagement level: passive browsing → active research → call commitment.",
+      "solution": "Implement progressive authority disclosure that responds to host engagement signals. Default state: broker partnership page loads with primary authority signals visible above fold (licensed platform badge, property count, one social proof element). Loading state: when host clicks 'Download Template Agreement' or 'Schedule Call', trigger micro-interaction that reveals secondary authority layer (testimonials from other brokers expand, case study previews slide in from right). Success state: after download completes or call is scheduled, display confirmation with tertiary authority signal (e.g., 'Join 200+ brokers who've partnered with us'). The interaction adapts based on host behavior: passive browsers see baseline credentials, active researchers see expanded proof, committed hosts see community validation.",
+      "evidence": [
+        {
+          "source": "jessica-filomeno-call.txt, 01:16-01:51",
+          "type": "host_call",
+          "quote": "Jessica: 'I did look up split lease yesterday.' Then immediately: 'Do you work with management companies or is it just individual landlords?'",
+          "insight": "Jessica's pre-call research (active engagement signal) didn't find sufficient authority markers, so she arrived defensive. Interaction pattern should respond to research behavior (page views, time on page, click-throughs) by progressively revealing authority credentials."
+        },
+        {
+          "source": "cialdini-authority-liking-scarcity.txt, line 318",
+          "type": "book",
+          "quote": "Because their positions speak of superior access to information and power, it makes great sense to comply with the wishes of properly constituted authorities.",
+          "insight": "Authority symbols must be visible before compliance (call commitment) is requested. Interaction timing: show credentials first (0-3 seconds), reveal social proof second (3-10 seconds if host scrolls), request commitment third (after authority is established)."
+        },
+        {
+          "source": "looks-elements.json, looks-001",
+          "type": "layer_3",
+          "quote": "Authority Badge Hierarchy: 'Primary visual layer (hero section): Licensed platform badge. Secondary visual layer (below fold): Social proof grid.'",
+          "insight": "Layer 3 defined visual hierarchy. Layer 4 adds interaction timing: primary layer loads immediately (default state), secondary layer reveals on scroll or hover (loading state becomes success state), tertiary layer appears post-commitment (success confirmation)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Broker partnership page loads with primary authority signals visible above fold: licensed platform badge (Instrument Serif 24px bold, accent-bright), property count (Outfit 18px medium, ink-soft), one recognizable partner logo or publication mention. No animation on load—immediate visibility is critical for fast System 1 authority check.",
+        "loading": "When host clicks 'Download Template Agreement' or 'View Case Studies', trigger 300ms expand animation (spring easing) revealing secondary authority layer: broker testimonial cards slide in from right, case study previews expand from collapsed state. Loading spinner (accent color) appears if download takes >500ms. Interaction acknowledges host's deeper engagement by revealing more proof.",
+        "empty": "If host has been on page for 30+ seconds without scrolling or clicking, trigger subtle pulse animation (1.5s duration, out easing) on 'Schedule Call' CTA button, drawing attention without being intrusive. Empty state = passive browsing, needs gentle nudge toward engagement.",
+        "error": "If template agreement download fails, display error banner (signal-danger-bg, signal-danger text) below download button: 'Download failed. [Retry button]'. Error state doesn't remove authority signals—host still sees credentials while troubleshooting.",
+        "success": "After call is scheduled or template is downloaded, display confirmation banner (accent-light-bg, accent text) with tertiary authority signal: 'Thank you! Join 200+ brokers partnered with Split Lease. We'll send confirmation to [email].' Success state reinforces authority through community validation."
+      },
+      "transition_principle": "Authority disclosure transitions should feel like revealing existing information, not creating new content. Use spring easing (cubic-bezier(0.34, 1.56, 0.64, 1)) for expand animations to suggest physical unveiling. Transition duration: 300-400ms—fast enough to feel responsive, slow enough to be perceived as deliberate reveal. Opacity transitions (0 to 1) should lag position transitions by 50ms, creating staggered effect that adds depth.",
+      "timing": {
+        "response_target": "100ms",
+        "easing": "spring (cubic-bezier(0.34, 1.56, 0.64, 1)) for expand animations; out (cubic-bezier(0.16, 1, 0.3, 1)) for fade-ins",
+        "rationale": "Sub-100ms acknowledgment makes interactions feel instant (user action immediately triggers visual response). 300-400ms transitions balance responsiveness with perceivability—host sees authority information being revealed, not appearing magically. Spring easing adds physical realism to expand animations, suggesting information was 'hidden behind' and is now being 'pulled out.'"
+      },
+      "journey_state_awareness": "Discovery phase (host has never engaged): Show only primary authority signals, no animations. Evaluation phase (host clicked from outreach email, spent >30s on page): Trigger scroll-based reveals of secondary authority (testimonials, case studies) as host moves down page. Onboarding phase (host scheduled call or downloaded template): Display success state with community validation, preparing host for partnership.",
+      "edge_cases": [
+        "Host uses ad blocker that prevents analytics tracking: Fall back to time-based progressive disclosure (reveal secondary authority after 10 seconds on page, regardless of scroll depth).",
+        "Host on slow connection: Prioritize loading primary authority signals (text + SVG badge) before images (partner logos, testimonial photos). Display text-only testimonials if images don't load within 3 seconds.",
+        "Host navigates away mid-download: Store download progress in localStorage so if host returns, we can display 'Your template agreement is ready' banner instead of requiring re-download.",
+        "Host has JavaScript disabled: Ensure all authority content is visible in default HTML state (no progressive disclosure, everything loads at once). Graceful degradation to static page with all credentials visible."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Economic Calculator Real-Time Feedback Loop",
+      "journey_phases": ["evaluation", "pricing"],
+      "problem": "Jessica spent 6+ minutes negotiating pricing ('What's the price range?', 'For Manhattan, it's very expensive') because economics were unclear. Robert's verbal explanation ('You give me the price, already marked up') left her without benchmarks. Professional hosts need to mentally model scenarios: traditional broker fee vs. Split Lease commission, upfront cash vs. recurring revenue. Without interactive tools to externalize this calculation, hosts experience cognitive overload. The interaction must respond to host's pricing inputs (base rent, lease duration) by instantly updating ROI comparison, reducing cognitive load from internal mental math to external visual feedback.",
+      "solution": "Build real-time calculator feedback loop that responds to every host input with instant visual updates. Default state: calculator displays example scenario (studio apartment, $2000/month base rent, 6-month lease) with pre-calculated comparison: 'Traditional broker fee: $2,000 upfront. Split Lease commission: $9,000 over 6 months (4.5x more).' Loading state: as host types new base rent value, calculator updates in real-time—no submit button, no delay. Use debouncing (300ms after last keystroke) to prevent excessive calculations, but display loading shimmer on comparison cards during debounce period. Success state: after calculation completes, animate updated values using spring easing count-up from old value to new value (e.g., $2,000 → $2,400 counts up over 400ms), creating visual drama that emphasizes the change.",
+      "evidence": [
+        {
+          "source": "jessica-filomeno-call.txt, 12:08-12:19",
+          "type": "host_call",
+          "quote": "Robert: 'You give me the price, which is already marked up with your fee. I don't want to know how much you marked up.'",
+          "insight": "Robert's autonomy language ('I don't want to know') builds trust but leaves Jessica without visual tools to model her economics. Interactive calculator externalizes the mental math, showing in real-time how different markup scenarios affect total commission."
+        },
+        {
+          "source": "jessica-filomeno-call.txt, 06:29-07:29",
+          "type": "host_call",
+          "quote": "Jessica: 'What's the price range?' Robert: '$1,450 or $1,500.' Jessica: 'For Manhattan, it's very expensive. I could find something maybe for 2000.'",
+          "insight": "Price misalignment consumed call time. Real-time calculator would allow Jessica to input her actual Manhattan prices ($2,000 studio) and instantly see whether Split Lease economics work at that price point, before the call."
+        },
+        {
+          "source": "tokens.json, easing",
+          "type": "design_tokens",
+          "quote": "spring: cubic-bezier(0.34, 1.56, 0.64, 1)",
+          "insight": "Spring easing for value count-up animations creates satisfying visual feedback that emphasizes ROI growth. As commission value counts from $2,000 → $9,000, spring easing creates slight overshoot at end, drawing eye to final number."
+        },
+        {
+          "source": "looks-elements.json, looks-002",
+          "type": "layer_3",
+          "quote": "Economic Transparency Dashboard: 'Use spring animation to count up from 0 to actual number, creating visual drama that emphasizes growing value.'",
+          "insight": "Layer 3 defined animation style. Layer 4 specifies interaction trigger: value count-up animation fires on every calculator input change (debounced 300ms), not just initial load. Host sees their inputs directly affect outcomes through animated feedback."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Calculator displays pre-populated example scenario: $2,000 base rent, 6-month lease, $50/day markup. Comparison cards show calculated results: 'Traditional: $2,000 upfront (1 month broker fee)' vs. 'Split Lease: $9,000 total ($50/day × 180 days)'. Multiplier badge displays '4.5x' in accent-bright color. Input fields use calm visual state: border color, no focus ring yet.",
+        "loading": "As host types in input field (base rent, lease duration, daily markup), display subtle shimmer animation on comparison cards (300ms after last keystroke, during debounce). Shimmer uses gradient animation from bg to bg-deep and back, signaling 'calculation in progress' without blocking UI. Input field shows focus state: accent border, slightly larger shadow.",
+        "empty": "If host clears input field (deletes base rent value), display placeholder text in input: 'e.g., $2,000' (ink-muted color). Comparison cards show dashed placeholder boxes instead of calculated values, with helper text: 'Enter base rent to see your potential commission.' Empty state guides host toward re-engagement.",
+        "error": "If host enters invalid input (negative number, non-numeric characters, base rent >$50,000 which is unrealistic), display inline error below input field (signal-danger text, Outfit 14px): 'Please enter a valid monthly rent between $500-$50,000.' Comparison cards remain in previous valid state, not blanked out. Error state preserves context while guiding correction.",
+        "success": "After valid input and calculation completion, animate commission values counting up from previous value to new value using spring easing (400ms duration). Multiplier badge pulses once (scale from 1.0 → 1.1 → 1.0 over 300ms) if multiplier increases, drawing attention to improved ROI. Success state creates satisfying feedback loop: input → visual response → improved outcome."
+      },
+      "transition_principle": "Calculator interactions should feel instantaneous and fluid, never disruptive. Input changes trigger calculations after 300ms debounce (prevents calculation spam while typing), but visual acknowledgment happens immediately (<100ms): input field focus state, cursor position maintained. Value updates use count-up animation (not sudden replacement) to make changes perceivable and emphasize direction of change (increasing commission = positive). Debounce timing balances responsiveness (host doesn't wait long) with computational efficiency (not recalculating on every keystroke).",
+      "timing": {
+        "response_target": "50ms for input focus acknowledgment; 300ms debounce before calculation; 400ms for value count-up animation",
+        "easing": "spring (cubic-bezier(0.34, 1.56, 0.64, 1)) for value count-up creates satisfying bounce at end; out (cubic-bezier(0.16, 1, 0.3, 1)) for shimmer fade-in",
+        "rationale": "Sub-100ms focus acknowledgment makes typing feel responsive. 300ms debounce is long enough to wait for typing completion but short enough that host doesn't perceive delay. 400ms count-up animation is slow enough to be perceived (host sees numbers changing) but fast enough not to feel sluggish. Spring easing adds delight to value updates, creating micro-celebration of improved economics."
+      },
+      "journey_state_awareness": "Evaluation phase (host hasn't committed yet): Calculator defaults to conservative example ($2,000 rent, 6-month lease) to avoid over-promising. Display helper text: 'Adjust inputs to match your inventory.' Pricing phase (host creating first listing): Pre-populate calculator with their actual listing data from listing creation form. Display comparison: 'Your listing at $X/day generates $Y commission vs. $Z traditional fee.' Host sees real economics for their specific property, not hypothetical example.",
+      "edge_cases": [
+        "Host enters extremely high base rent ($20,000/month penthouse): Calculator displays warning banner (signal-warn-bg): 'High-priced properties may have longer conversion times. See pricing guidance below.' Calculation still completes, but host is warned about market realities.",
+        "Host adjusts lease duration to <1 month: Display informational banner (signal-info-bg): 'Split Lease specializes in 3+ month leases. Short-term rentals may not be available in all markets.' Calculation completes but expectations are managed.",
+        "Host on mobile device with limited screen width: Switch calculator layout from side-by-side comparison cards to stacked vertical layout. Maintain same interaction pattern (real-time updates, count-up animations) but optimize for vertical scrolling.",
+        "Calculation API fails or times out: Fall back to client-side calculation using stored multiplier formulas. Display subtle badge (ink-muted): 'Estimated' next to calculated values to indicate approximation. Host still gets functional calculator even if backend is unavailable.",
+        "Host rapidly changes inputs (slider dragging, rapid typing): Throttle calculation updates to maximum 3 per second to prevent animation jank. Visual feedback (shimmer) continues on every input, but actual calculations are throttled for performance."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Constraint Feedback Anticipatory Guidance",
+      "journey_phases": ["listing_creation", "active_lease"],
+      "problem": "Robert built trust by arguing against Split Lease's interests: 'Pricing things out of the market would be no interest to anybody. Start with lower cost inventory.' This honest constraint advice built credibility but is agent-dependent. Most hosts discover pricing mistakes through failed conversions (no proposals for 7+ days), wasting time and eroding confidence. The interaction must anticipate pricing errors before the host clicks 'Publish Listing' and provide guidance that feels collaborative (not punitive), using visual cues and data-anchored recommendations to prevent failure rather than reacting to it.",
+      "solution": "Implement anticipatory constraint feedback that activates as host approaches problematic pricing thresholds. Default state: pricing slider shows green zone (accent-light background) for recommended range based on comparable listings. Loading state: as host drags slider toward yellow zone (15% above comparable avg), display inline guidance card that slides in from right (300ms spring animation): 'This price is above comparable properties. Expected conversion: 20-30 days vs. 10-day average.' Success state: if host adjusts price back into green zone after seeing guidance, display subtle confirmation (checkmark icon pulses once, Outfit 14px text: 'Pricing optimized for faster conversion'). Error state: if host enters red zone (30%+ above comparable avg), guidance card intensifies (signal-danger-bg background, bolder text): 'Properties at this price rarely convert. Consider reducing by 20% to improve visibility.'",
+      "evidence": [
+        {
+          "source": "jessica-filomeno-call.txt, 18:28-18:54",
+          "type": "host_call",
+          "quote": "Robert: 'Please start with rooms or studios or one bedrooms. Try to go on the lower cost... pricing things out of the market would be no interest to anybody.'",
+          "insight": "Robert's constraint advice was proactive (before Jessica sent overpriced listings) and specific ('lower cost', not vague 'adjust pricing'). Interaction pattern must mirror this: anticipate pricing errors before publish, provide specific recommendations based on data."
+        },
+        {
+          "source": "cialdini-authority-liking-scarcity.txt, Vincent the waiter (referenced in journey-context.json)",
+          "type": "book",
+          "quote": "Vincent's maneuver... proved him to be a trustworthy informant, because he recommended dishes that were slightly less expensive than originally ordered.",
+          "insight": "Honest constraint advice (recommending lower prices) argues against short-term interests but builds long-term trust. Interaction timing: deliver constraint feedback before host commits (publish listing), not after (listing fails to convert). Anticipatory guidance feels helpful; reactive criticism feels punitive."
+        },
+        {
+          "source": "tokens.json, colors",
+          "type": "design_tokens",
+          "quote": "signal-warn: #c17a28, signal-warn-bg: #fef3e2 (amber for warnings, not alarming). signal-danger: #b83a3a, signal-danger-bg: #fde8e8 (red only for errors).",
+          "insight": "Color semantics map to constraint severity: green (safe to proceed), amber (caution, consider adjustment), red (rarely succeeds, strong recommendation to change). Interaction uses color progressively as host moves from recommended → cautionary → problematic pricing."
+        },
+        {
+          "source": "looks-elements.json, looks-003",
+          "type": "layer_3",
+          "quote": "Honest Constraint Feedback: 'Color zones are primary visual feedback: green (safe), yellow (caution), red (rarely converts). Constraint callout card appears when host enters yellow/red zones.'",
+          "insight": "Layer 3 defined visual states. Layer 4 adds interaction triggers: guidance card slides in when host drags slider past green zone threshold (not onClick, but onDrag in real-time). Immediate feedback prevents accidental overpricing."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Pricing slider displays with current price handle positioned in green zone (accent-light background fill). Zone boundaries are visually marked with subtle vertical lines and labels: 'Recommended range: $100-$125/day' (Outfit 14px, ink-soft). Below slider, conversion timeline shows: 'Properties in this range convert in 10 days avg.' (IBM Plex Mono 16px, ink). No guidance card visible yet—host is in safe zone.",
+        "loading": "As host drags slider handle toward yellow zone, guidance card begins to slide in from right edge of container. Animation starts at 80% threshold (host is 80% of way from green to yellow boundary), completing slide-in by time handle reaches yellow zone. During slide-in (300ms spring easing), card opacity fades from 0 to 1. Loading state creates anticipatory feedback: host sees guidance appearing before they fully enter problematic zone.",
+        "empty": "If host hasn't interacted with pricing slider after 30 seconds on listing creation page, display subtle prompt above slider (signal-info-bg, signal-info text): 'Based on comparable listings, we recommend $110-$120/day. Drag slider to set your price.' Empty state nudges engagement without being intrusive.",
+        "error": "If host drags slider into red zone (30%+ above comparable avg), guidance card intensifies: background changes from signal-warn-bg to signal-danger-bg, icon changes from ⚠️ to ❌, text becomes bolder (Outfit 16px medium → Outfit 16px bold). Error message: 'Properties priced 30%+ above market rarely convert. Consider reducing from $180 to $125/day for 3x better visibility.' Error state is strong but not blocking—host can still publish if they choose.",
+        "success": "If host adjusts price back from yellow/red zone into green zone, display success micro-interaction: checkmark icon (✓ accent-bright) pulses once (scale 1.0 → 1.2 → 1.0 over 300ms), guidance card slides out to right (reverse of slide-in animation), and subtle confirmation text appears below slider for 3 seconds: 'Pricing optimized ✓' (Outfit 14px, accent text). Success state creates satisfying feedback loop: host heeds guidance → system acknowledges correction."
+      },
+      "transition_principle": "Constraint feedback should feel like collaborative coaching, not system criticism. Guidance card slides in from right (not drops down from above) to suggest 'additional information appearing' rather than 'blocking your path.' Spring easing on slide-in creates gentle, organic motion (not robotic linear movement). Color transitions (green → yellow → red) are gradual as host drags slider, not sudden jumps—zone background color interpolates smoothly based on slider position. Transition timing: guidance appears anticipatorily (as host approaches problematic zone) not reactively (after host has committed). This timing signals 'we're helping you avoid a mistake' not 'you made a mistake.'",
+      "timing": {
+        "response_target": "100ms for slider drag acknowledgment; 300ms for guidance card slide-in; 300ms for success checkmark pulse",
+        "easing": "spring (cubic-bezier(0.34, 1.56, 0.64, 1)) for guidance card slide-in and checkmark pulse; out (cubic-bezier(0.16, 1, 0.3, 1)) for guidance card fade-in and fade-out",
+        "rationale": "Sub-100ms slider drag response makes interaction feel direct and physical (handle follows cursor precisely). 300ms guidance card slide-in is fast enough to feel responsive but slow enough to be perceived as deliberate reveal (not sudden pop-in). Spring easing adds organic motion that feels less mechanical, aligning with collaborative coaching tone. Success checkmark pulse (300ms) provides satisfying micro-celebration without disrupting workflow."
+      },
+      "journey_state_awareness": "Listing creation phase (host's first listing): Guidance is more verbose and explanatory: 'Properties priced above $125/day in Manhattan typically take 20-30 days to convert vs. 10-day average for $100-125 range.' First-time hosts need education. Active lease phase (host has 5+ published listings, adjusting price on existing listing): Guidance is more concise: 'Above market range. -15% improves conversion 3x.' Experienced hosts need data, not explanation.",
+      "edge_cases": [
+        "Host creates listing in market with limited comparable data (<10 comparable listings): Display guidance with confidence qualifier: 'Limited data available. Estimated conversion: 20-30 days.' Guidance is still provided but uncertainty is acknowledged.",
+        "Host is real estate broker (like Jessica) with superior market knowledge: Allow host to dismiss guidance permanently via 'I set my own pricing' checkbox. Checkbox stores preference; future listings default to guidance-off for this host. Interaction respects expertise.",
+        "Host drags slider rapidly back and forth across zone boundaries: Debounce guidance card animations (max 1 slide-in per 500ms) to prevent animation jank. Slider still responds in real-time, but guidance card animation rate-limits to maintain smoothness.",
+        "Host ignores red zone warning and publishes anyway: Track this decision. If listing receives no proposals in 7 days, send follow-up with constraint feedback: 'Your listing priced at $180/day hasn't received proposals yet. Properties in this range take 30+ days to convert. Consider reducing to $125 for faster results.' Post-publish guidance references original warning, reinforcing that system advice was data-driven.",
+        "Host on mobile device, dragging slider with finger: Increase guidance card slide-in trigger threshold from 80% to 90% (finger obscures guidance card on mobile, so delay appearance until host lifts finger). Maintain same interaction pattern but optimize trigger timing for touch input."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Scarcity Proof Progressive Evidence Accumulation",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "Robert claimed 'We have too much demand and not enough inventory,' but Jessica recognized this as a sales tactic and responded cautiously ('I'll send a couple of listings by Friday'). Cialdini explains that 'newly experienced scarcity is the more powerful kind'—scarcity must be verified through direct experience, not asserted. If Jessica's test listings receive no proposals within 7 days, she'll conclude demand was oversold. The interaction must convert verbal scarcity claims into progressive evidence accumulation: initial demand proof (within 24 hours of commitment) → real-time engagement metrics (within 48 hours of listing live) → conversion velocity celebration (when proposal arrives). Each evidence layer builds on previous, creating cumulative persuasion through direct experience.",
+      "solution": "Build progressive evidence accumulation system that responds to host's journey milestones with demand proof. Default state (within 24 hours of evaluation call commitment): Send email with 'Your Waitlist Snapshot' showing 5 active guest searches matching host's inventory profile. Each search displays as card: guest persona icon, budget range (IBM Plex Mono, accent-bright), move-in timeline. Loading state (within 48 hours of listing going live): Dashboard displays real-time engagement metrics with count-up animations: 'Your listing has been viewed by [23] guests' (number counts from 0 to 23 over 800ms using spring easing). Metrics update every 60 seconds with smooth number transitions (not sudden jumps). Success state (when first proposal arrives): Display celebration banner across dashboard top: '⚡ First proposal in 4 days — faster than 7-day average!' with confetti animation (subtle, 2-second duration). Banner includes CTA: 'Review Proposal →' (accent button).",
+      "evidence": [
+        {
+          "source": "jessica-filomeno-call.txt, 01:54-02:35",
+          "type": "host_call",
+          "quote": "Robert: 'Right now, the way we operate is if we find we have, unfortunately we have right now too much demand and not enough inventory.'",
+          "insight": "Robert's verbal scarcity claim needs experiential validation. Jessica won't fully believe 'too much demand' until she sees her listings receiving proposals. Interaction pattern must convert claim into progressive proof: waitlist snapshot (initial evidence) → engagement metrics (ongoing validation) → proposal arrival (conclusive proof)."
+        },
+        {
+          "source": "cialdini-authority-liking-scarcity.txt, line 520",
+          "type": "book",
+          "quote": "The idea that newly experienced scarcity is the more powerful kind applies to situations well beyond the bounds of the cookie study.",
+          "insight": "Newly experienced scarcity (watching your listing's view count increase in real-time) is more persuasive than described scarcity (being told there's high demand). Interaction must make scarcity visible and dynamic through progressive metric updates, not static claims."
+        },
+        {
+          "source": "jessica-filomeno-call.txt, 14:41-14:49",
+          "type": "host_call",
+          "quote": "Jessica: 'I'll see if I can get a couple [of listings].'",
+          "insight": "Jessica commits cautiously ('a couple'), testing whether demand is real. Interaction timing is critical: evidence must arrive within days (not weeks) to validate scarcity claim before host concludes it was oversold. Day 1: waitlist snapshot. Day 2-3: engagement metrics. Day 4-7: proposal arrival (if pricing is good)."
+        },
+        {
+          "source": "tokens.json, easing",
+          "type": "design_tokens",
+          "quote": "spring: cubic-bezier(0.34, 1.56, 0.64, 1)",
+          "insight": "Spring easing for metric count-up animations creates visual drama that emphasizes growing demand. As view count increases from 18 → 23, spring easing creates slight overshoot at end, drawing eye to the growth and reinforcing 'demand is increasing' message."
+        },
+        {
+          "source": "looks-elements.json, looks-004",
+          "type": "layer_3",
+          "quote": "Scarcity Proof Visualization: 'Use spring animation to count up from 0 to actual number, creating visual drama that emphasizes growing demand. Engagement metrics update with smooth number transitions.'",
+          "insight": "Layer 3 defined animation style for scarcity proof. Layer 4 adds interaction trigger timing: count-up animation fires on initial page load (0 → current value) and on metric updates (every 60 seconds, previous value → new value). Host sees demand growing in real-time through animated feedback."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Dashboard 'Listing Performance' section displays engagement metrics in stat card format: 'Views: 0', 'Saves: 0', 'Matched Searches: 0' (IBM Plex Mono 32px bold, ink). Below metrics, placeholder text (Outfit 16px, ink-soft): 'Metrics will update within 24 hours of your listing going live.' Default state sets expectations for when evidence will appear.",
+        "loading": "When listing goes live and first metrics arrive (within 48 hours), trigger count-up animations: 'Views' counts from 0 → 18 over 800ms (spring easing), then 'Saves' counts from 0 → 3 (staggered by 200ms for cascading effect), then 'Matched Searches' counts from 0 → 5. During count-up, numbers pulse subtly (scale 1.0 → 1.05 → 1.0). Loading state creates visual event that signals 'your listing is getting attention.'",
+        "empty": "If listing has been live for 24 hours but has 0 views (unusual, suggests technical issue), display informational banner (signal-info-bg): 'We're still presenting your listing to guests. Metrics typically appear within 48 hours. [Check listing status →]' Empty state reassures host and provides action path if concerned.",
+        "error": "If metrics API fails or times out, display cached metrics from last successful fetch with timestamp: 'Views: 18 (as of 2 hours ago)' (IBM Plex Mono 32px, ink-muted for timestamp). Below metrics, error banner (signal-danger-bg): 'Unable to load latest data. [Retry]'. Error state preserves last known information while acknowledging staleness.",
+        "success": "When first proposal arrives, trigger celebration sequence: (1) Confetti animation launches from proposal notification area (2-second duration, subtle multi-colored dots using accent, signal-info, signal-warn colors). (2) Banner slides down from top of dashboard (400ms spring easing): '⚡ First proposal in 4 days — faster than 7-day average!' (Instrument Serif 20px bold, accent text on accent-light-bg). (3) Proposal notification badge pulses (scale 1.0 → 1.3 → 1.0, 600ms, draws eye). Success state creates micro-celebration that validates scarcity claim through tangible outcome."
+      },
+      "transition_principle": "Scarcity proof accumulation should feel like evidence building over time, not sudden revelations. Metric count-up animations use staggered timing (200ms delays between metrics) to create cascading effect—host sees metrics populating sequentially, suggesting 'data is arriving.' Spring easing on count-ups creates organic motion that feels less robotic, more human. Celebration sequence (confetti + banner + badge pulse) is orchestrated with intentional timing: confetti draws initial attention, banner provides context, badge pulse directs to action. Each transition reinforces the narrative: 'Demand exists → Your listing is getting attention → A guest wants to book.'",
+      "timing": {
+        "response_target": "800ms for each metric count-up; 200ms stagger between metrics; 2-second confetti animation; 400ms banner slide-down",
+        "easing": "spring (cubic-bezier(0.34, 1.56, 0.64, 1)) for metric count-up and banner slide; out (cubic-bezier(0.16, 1, 0.3, 1)) for confetti fade-out",
+        "rationale": "800ms count-up is slow enough to be perceived and enjoyed (host watches numbers climb) but fast enough not to feel sluggish. 200ms stagger creates pleasing cascade effect without extending total animation duration excessively. 2-second confetti animation is celebratory without being annoying (auto-dismisses, no manual close needed). Spring easing throughout creates cohesive motion language that signals 'positive, organic growth' vs. mechanical updates."
+      },
+      "journey_state_awareness": "Evaluation phase (host just committed to sending listings): Waitlist snapshot email is primary scarcity proof—show 5 active guest searches to validate 'too much demand' claim before host even creates listings. Proposal management phase (host has listings live, waiting for proposals): Real-time engagement metrics (views, saves) provide ongoing validation while host waits. Each metric update reinforces 'your listing is being seen.' Active lease phase (proposal arrived, host reviewing): Conversion velocity celebration ('4 days vs. 7-day average') provides comparison that validates scarcity through competitive framing ('your listing was in demand faster than typical').",
+      "edge_cases": [
+        "Host's listing is in low-demand market (small city, unusual property type): Display engagement metrics with market context: 'Views: 8 — above average for [market name].' Reframe 'low' absolute numbers as 'good' relative performance to maintain host confidence.",
+        "Listing receives high views (50+) but no saves or proposals (suggests pricing issue): After 5 days of this pattern, display guidance banner (signal-warn-bg): 'Your listing has strong visibility (50 views) but guests aren't saving it. Consider reducing price by 10-15% to increase conversion.' Link engagement pattern to actionable recommendation.",
+        "Proposal arrives very slowly (15+ days, slower than average): Celebration banner adjusts framing: 'First proposal received! Here's the guest profile for your review.' (No velocity comparison if it's unflattering). Celebration focuses on outcome (proposal arrived) not timing.",
+        "Multiple proposals arrive simultaneously (3 proposals in same day): Celebration banner emphasizes competition: '⚡ 3 proposals in 24 hours! Your listing is in high demand. Review proposals to choose best fit.' Scarcity framing shifts from 'demand exists' to 'competitive demand' (Cialdini: demand-driven scarcity is most powerful).",
+        "Host has multiple listings, varying performance: Dashboard shows comparative metrics: 'Listing A: 23 views. Listing B: 8 views (below average).' Comparison creates internal benchmark—host sees which listings are performing and can investigate why (pricing, photos, description) without platform needing to diagnose."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Communication Preference Adaptive Routing",
+      "journey_phases": ["onboarding", "proposal_mgmt", "active_lease"],
+      "problem": "Jessica explicitly stated 'Text is preferred because you can imagine how many emails I get.' If Split Lease sends time-sensitive notifications (proposals arriving, guest questions) via email, Jessica may miss them due to email overload, costing conversions and eroding trust. The interaction must honor stated preferences across all touchpoints and journey phases, routing time-sensitive communications through preferred channel while maintaining non-urgent communications through email. Preference must be visible, editable, and consistently applied—host shouldn't wonder 'Will I get this via text or email?'",
+      "solution": "Implement adaptive communication routing that responds to host's stated preference and journey context. Default state: During onboarding, preference capture screen displays two large tappable channel cards (email, text). Selection persists to host profile and displays in dashboard header as persistent badge: '💬 Text preferred · Change' (Outfit 14px, surface-warm background, rounded-pill shape). Loading state: When time-sensitive notification is triggered (new proposal arrives), system checks host preference, routes to text if selected, and displays sending acknowledgment in dashboard: 'Proposal notification sent via text 2 min ago' (Outfit 14px, ink-muted). Success state: Host clicks 'Change' link in preference badge, modal opens with channel cards, host selects different preference, modal closes with confirmation toast: 'Preference updated. Future time-sensitive notifications will be sent via email.' (signal-info-bg, 4-second auto-dismiss).",
+      "evidence": [
+        {
+          "source": "jessica-filomeno-call.txt, 18:07-18:14",
+          "type": "host_call",
+          "quote": "Jessica: 'Text is preferred because you can imagine how many emails I get.'",
+          "insight": "Jessica's explicit preference with rationale (email overload) must be captured, displayed, and honored. Interaction pattern: capture once during onboarding, display persistently in header badge (constant visibility = constant reassurance), apply consistently to all time-sensitive notifications across journey."
+        },
+        {
+          "source": "cialdini-authority-liking-scarcity.txt, line 85-88 (similarity principle)",
+          "type": "book",
+          "quote": "We like people who are similar to us. Consequently, those who wish to be liked can accomplish that purpose by appearing similar to us in any of a wide variety of ways.",
+          "insight": "Honoring communication preference is a liking tactic—adapting to host's workflow signals 'we respect how you work.' Interaction must make adaptation visible: preference badge shows 'we remember and respect your choice,' notification acknowledgments show 'we're routing to your preferred channel.'"
+        },
+        {
+          "source": "tokens.json, radius",
+          "type": "design_tokens",
+          "quote": "full: 9999px (rounded-pill shape)",
+          "insight": "Preference badge uses rounded-pill radius (full: 9999px from tokens) to create soft, approachable shape that signals 'personal preference' vs. rigid rectangular system setting. Visual softness reinforces 'we're adapting to you' message."
+        },
+        {
+          "source": "looks-elements.json, looks-005",
+          "type": "layer_3",
+          "quote": "Communication Preference Indicator: 'Preference badge in dashboard header, always visible. Icon (✉️ for email, 💬 for text) + label + edit link.'",
+          "insight": "Layer 3 defined visual design. Layer 4 adds interaction behavior: badge is persistent (always in header, not hidden in settings), clickable (opens preference modal on click), and acknowledges routing ('Notification sent via text 2 min ago' appears in activity feed when communication is sent)."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Dashboard header displays preference badge (top-right, near host profile): '💬 Text preferred · Change' (surface-warm background, border, rounded-pill radius: 9999px, Outfit 14px medium, ink-soft). Badge is persistent across all dashboard pages. Hover state: badge background darkens slightly (bg-deep), cursor changes to pointer, signaling interactivity. Default state provides constant visibility of active preference.",
+        "loading": "When host clicks 'Change' link in badge, preference modal slides up from bottom (mobile) or fades in center (desktop) over 300ms (out easing). Modal displays two channel cards (email, text) with current selection highlighted (accent-light background, accent border). Host selects new preference, clicks 'Save', modal shows saving spinner (accent color, centered, 200px size) while preference updates in database (typically <500ms). Loading state acknowledges action in progress.",
+        "empty": "If host somehow reaches dashboard without preference being captured (edge case: incomplete onboarding), display prominent preference capture banner at top of dashboard (signal-info-bg): 'Help us communicate effectively: How would you prefer to receive time-sensitive notifications? [Email] [Text]' Banner dismisses after selection, preference saves, badge appears in header. Empty state recovers from incomplete onboarding gracefully.",
+        "error": "If preference update fails (network error, API timeout), display error toast (signal-danger-bg, signal-danger text): 'Unable to update preference. Your notifications are still being sent via [current preference]. [Retry]' (4-second duration, manual dismissible). Error state preserves current preference while acknowledging failure, providing retry path.",
+        "success": "After preference is successfully updated, preference modal closes (300ms fade-out) and confirmation toast slides in from top (signal-info-bg, signal-info text): 'Preference updated ✓. Future time-sensitive notifications will be sent via [new preference].' (4-second auto-dismiss). Dashboard header badge updates immediately to show new preference: '✉️ Email preferred · Change'. Success state provides clear confirmation with immediate visual feedback in badge."
+      },
+      "transition_principle": "Preference interactions should feel lightweight and reversible—host can change preference anytime without friction. Modal animations (slide-up on mobile, fade-in on desktop) match platform conventions for familiarity. Preference badge updates immediately after save (optimistic UI update) while database sync happens in background—host sees change instantly without waiting for server confirmation. Toast notifications for confirmation/error use slide-in from top (not pop-up from center) to be noticeable without blocking UI. Auto-dismiss after 4 seconds respects host's attention—no manual close needed for success messages.",
+      "timing": {
+        "response_target": "100ms for badge hover state; 300ms for modal open/close; 500ms for preference save (server round-trip); 4-second auto-dismiss for toasts",
+        "easing": "out (cubic-bezier(0.16, 1, 0.3, 1)) for modal fade-in/out and toast slide-in; spring (cubic-bezier(0.34, 1.56, 0.64, 1)) for modal slide-up on mobile",
+        "rationale": "Sub-100ms hover response makes badge feel interactive and discoverable. 300ms modal animations balance speed (host doesn't wait) with perceivability (animation is smooth, not jarring). 500ms target for preference save assumes typical API latency; optimistic UI update makes change feel instant while server sync completes in background. 4-second toast duration is long enough to read confirmation but short enough not to linger annoyingly."
+      },
+      "journey_state_awareness": "Onboarding phase (first preference capture): Preference modal includes explanatory text: 'We'll send time-sensitive notifications (proposals, guest questions) via your preferred channel. Non-urgent updates (weekly summaries, platform news) will be sent via email.' Education during first capture sets expectations. Proposal management phase (host actively reviewing proposals): Notification acknowledgments appear in activity feed: 'Proposal notification sent via text 2 min ago.' Visibility reinforces that preference is being honored. Active lease phase (host managing ongoing leases): Guest question notifications route via preferred channel with urgency indicator: '💬 New guest question (sent via text).' Routing adapts to communication urgency.",
+      "edge_cases": [
+        "Host selects text preference but hasn't verified phone number: Display verification banner after selection (signal-warn-bg): 'Please verify your phone number to receive text notifications. [Verify now →]' Preference is saved but notifications will queue until verification completes.",
+        "Host has text preference but carrier blocks Split Lease messages (spam filter): After 2 failed text deliveries, system automatically falls back to email and sends notification: 'We're having trouble reaching you via text. We've sent recent notifications via email instead. Update your preference if needed.' Adaptive routing prevents complete communication failure.",
+        "Host changes preference in middle of proposal management flow (reviewing proposal, changes to email, then gets guest question): Next notification (guest question) routes to new preference (email) immediately. No delay in applying updated preference—host's latest stated choice always wins.",
+        "Host is on free trial with text message limits (e.g., 10 texts/month): Display usage indicator in preference badge: '💬 Text preferred (7 of 10 used this month).' When limit is approached, display upgrade prompt: 'You've used 9 of 10 texts this month. Upgrade to unlimited texting for $5/month.' Preference can remain text, but host is informed of constraint.",
+        "Host operates in market with expensive SMS costs (international): Preference capture includes cost disclaimer for text option: 'Text notifications (standard messaging rates may apply).' Host makes informed choice acknowledging potential costs."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Trust Gate Proactive Transparency Interface",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "Jessica demanded 'I would need for you to sign something with me, a confidentiality agreement' because Robert hadn't proactively addressed relationship protection. Professional hosts (brokers, property managers) fear being bypassed—if Split Lease contacts their landlords directly, they lose reputation and revenue. Jessica's defensive posture ('I have no way of knowing') signals information asymmetry. The interaction must proactively reveal Split Lease's relationship protection mechanisms before hosts raise confidentiality concerns defensively, using visual transparency (who can see what, when) to build trust preemptively.",
+      "solution": "Build proactive transparency interface that makes relationship protection visible throughout journey. Default state: Broker partnership page includes 'How We Protect Your Relationships' section with shield icon (🛡️ 64px, accent color) and three protection principle cards. Each card has checkmark icon (✓ 24px, accent-bright) + headline (Instrument Serif 20px) + explanation (Outfit 16px). Below principles, prominent CTA: 'Download Template Agreement' (accent button with document icon 📄). Loading state: When host clicks download, button shows loading spinner (accent color, replaces icon) during file generation (typically <1 second). Success state: After download completes, button changes to success state (checkmark icon ✓ + 'Downloaded' label, accent-light background) for 3 seconds, then reverts to download state. Onboarding state: Dashboard includes 'Relationship Protection' panel (signal-info-bg) showing access timeline: who viewed which listing, when, with timestamps (IBM Plex Mono 14px).",
+      "evidence": [
+        {
+          "source": "jessica-filomeno-call.txt, 08:42-09:05",
+          "type": "host_call",
+          "quote": "Jessica: 'I would need for you to sign something with me, a confidentiality agreement, something, because I have no way of knowing since you're not giving me any of the information of the client.'",
+          "insight": "Jessica's defensive demand surfaces because Robert hadn't proactively addressed confidentiality. Interaction pattern must flip sequence: instead of host requesting protection (reactive), platform displays protection mechanisms first (proactive). Visual transparency (shield icon, protection principles, downloadable agreement) addresses concern before it's raised."
+        },
+        {
+          "source": "jessica-filomeno-call.txt, 09:05-09:47",
+          "type": "host_call",
+          "quote": "Jessica explains: 'The client signs an agreement with me. I contact the landlord directly.'",
+          "insight": "Jessica operates in structured, documented process where legal agreements are trust gates. Interaction must mirror this norm: make template agreement prominently accessible (not hidden behind 'contact us'), allow host to review terms before committing. Download CTA on partnership page = low-friction access to trust documentation."
+        },
+        {
+          "source": "cialdini-authority-liking-scarcity.txt, line 312-313",
+          "type": "book",
+          "quote": "Consequently, we are trained from birth that obedience to proper authority is right.",
+          "insight": "Legal agreements are authority symbols in professional contexts. By providing template agreement proactively (downloadable without signup, reviewable before commitment), Split Lease aligns with professional norms. Interaction timing: make agreement accessible during evaluation (before call, before commitment), not after (when host has already invested time)."
+        },
+        {
+          "source": "looks-elements.json, looks-006",
+          "type": "layer_3",
+          "quote": "Confidentiality Assurance Module: 'Shield icon (🛡️ 64px, accent) symbolizing protection. Three protection principle cards with checkmark icons. Download template agreement CTA.'",
+          "insight": "Layer 3 defined visual components. Layer 4 adds interaction behaviors: download CTA provides instant access (click → file downloads, no form fill). Dashboard 'Relationship Protection' panel updates in real-time as team members access listings (new access event appears at top of timeline, existing events push down). Transparency is active, not static."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Broker partnership page 'How We Protect Your Relationships' section displays: shield icon (🛡️ 64px, accent) centered at top, three protection principle cards vertically stacked below (surface-warm background, border, shadow-sm, spacing-xl: 40px between cards). Each card shows checkmark ✓ (24px, accent-bright) + headline + explanation. Below cards, download CTA button (accent background, surface text, rounded-lg): '📄 Download Template Agreement' (Outfit 16px bold). Default state makes protection visible and actionable before host requests it.",
+        "loading": "When host clicks download button, button enters loading state: document icon (📄) is replaced by spinner animation (accent color, 20px, rotates continuously), button text changes to 'Downloading...' (same typography), button remains accent background. Loading typically lasts <1 second (file generation time). Loading state provides visual acknowledgment that action is processing.",
+        "empty": "If host reaches onboarding dashboard without having viewed protection section on partnership page (edge case: direct link to signup), display onboarding banner at top of dashboard (signal-info-bg, signal-info border): 'Your landlord relationships are protected. [Learn how →]' Link opens modal with same shield icon + protection principles content. Empty state recovers from skipped evaluation phase gracefully.",
+        "error": "If template agreement download fails (server error, network timeout), button enters error state: spinner is replaced by error icon (❌ 20px, signal-danger), button background changes to signal-danger-bg, text changes to 'Download failed' (signal-danger color). Below button, error message appears (Outfit 14px, signal-danger): 'Unable to generate agreement. [Retry]' Error state preserves context (host still on partnership page) while providing retry path.",
+        "success": "After download completes successfully, button enters temporary success state (3 seconds): checkmark icon (✓ 20px, accent) replaces document icon, button background changes to accent-light, text changes to 'Downloaded ✓' (accent text). After 3 seconds, button reverts to default state (document icon, 'Download Template Agreement'), allowing re-download if needed. Success state provides clear confirmation without permanently changing UI."
+      },
+      "transition_principle": "Trust gate interactions should feel transparent and non-committal—host can review protection mechanisms without pressure to act immediately. Download CTA is instant (no form fill, no signup gate) to signal 'we're giving you this information freely, no strings attached.' Button state transitions (loading → success → default) use smooth color/icon morphs (300ms out easing) rather than abrupt replacements. Success state is temporary (3 seconds) then reverts, signaling 'action completed, you can move on' without permanent UI change. Dashboard 'Relationship Protection' panel uses timeline format (chronological, top-to-bottom) with smooth append animations (new event slides in from top, 300ms spring easing) to make access visibility feel real-time and active.",
+      "timing": {
+        "response_target": "100ms for button click acknowledgment; <1 second for file generation; 300ms for button state transitions; 3-second success state duration",
+        "easing": "out (cubic-bezier(0.16, 1, 0.3, 1)) for button icon/color morphs; spring (cubic-bezier(0.34, 1.56, 0.64, 1)) for dashboard timeline event append",
+        "rationale": "Sub-100ms click acknowledgment makes download feel instant (button state changes immediately to loading). <1 second file generation keeps host engaged without perceivable wait. 300ms button transitions (loading → success, success → default) are smooth enough to be pleasant but fast enough not to delay workflow. 3-second success state is long enough to confirm action but short enough not to linger unnecessarily."
+      },
+      "journey_state_awareness": "Evaluation phase (host reviewing partnership page before call): Protection section is prominent (high on page, large shield icon draws eye), download CTA is accessible without commitment (no signup required). Goal: address confidentiality concern before host raises it on call. Onboarding phase (host creating account, uploading first listing): Dashboard 'Relationship Protection' panel appears in sidebar, initially empty with placeholder text: 'Access history will appear here as team members view your listings.' Sets expectation for future transparency. Active lease phase (listings are live, team is managing): Dashboard panel populates with access events: 'Robert (Split Lease agent) viewed Listing A 2 hours ago.' Real-time updates demonstrate ongoing protection and visibility.",
+      "edge_cases": [
+        "Host downloads template agreement but never signs or returns it: System doesn't block progression—host can proceed with onboarding and listing creation without signed agreement. Download is informational, not gating. If host later raises confidentiality concern, system can reference: 'You downloaded our template agreement on [date]. Would you like us to execute it now?'",
+        "Host modifies template agreement and sends custom version back: Platform legal team reviews custom version manually. During review (typically 1-3 business days), host's dashboard shows status banner (signal-info-bg): 'Your custom confidentiality agreement is under review. We'll respond within 3 business days.' Host can proceed with listing creation while agreement is reviewed.",
+        "Host is in jurisdiction with different legal requirements (international broker): Download CTA includes region selector: 'Select your region: [US] [EU] [UK] [Other]'. Selection determines which template variant downloads (each adapted to local legal norms). Interaction respects jurisdictional differences.",
+        "Multiple team members from same broker firm access dashboard: 'Relationship Protection' panel shows individual-level access: 'Robert viewed Listing A. Sarah viewed Listing B.' Granular transparency demonstrates Split Lease isn't sharing data indiscriminately across team—each access is tracked and visible.",
+        "Host operates multiple broker entities (different LLCs, different markets): Dashboard allows filtering access timeline by entity: 'Show access for: [All entities] [Entity A] [Entity B]'. Host can monitor protection across their portfolio without mixing contexts."
+      ]
+    }
+  ]
+}
