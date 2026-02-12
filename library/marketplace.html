@@ -410,6 +410,19 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     runs.forEach(function(run) {
       ALL_RUNS.push(run.run_id);
       run.elements.forEach(function(el) {
+        // Normalize field names across different run schemas
+        if (!el.name && el.title) el.name = el.title;
+        if (!el.html_css && el.html_snippet) el.html_css = el.html_snippet;
+        if (!el.description && el.visual_spec && el.visual_spec.description) el.description = el.visual_spec.description;
+        if (!el.implements_principles && el.source_elements) el.implements_principles = el.source_elements;
+        if (!el.effort) el.effort = el.priority === "high" ? "medium" : "small";
+        if (!el.problem_it_solves && el.before_after && el.before_after.before) el.problem_it_solves = el.before_after.before;
+        if (el.copy_spec) {
+          if (!el.copy_spec.primary_text && el.copy_spec.headline) el.copy_spec.primary_text = el.copy_spec.headline;
+          if (!el.copy_spec.secondary_text && el.copy_spec.body) el.copy_spec.secondary_text = el.copy_spec.body;
+          if (!el.copy_spec.do && el.copy_spec.micro_copy) el.copy_spec.do = el.copy_spec.micro_copy;
+          if (!el.copy_spec.dont) el.copy_spec.dont = [];
+        }
         el.run_id = run.run_id;
         el.run_date = run.date;
         el.run_summary = run.summary;
@@ -486,6 +499,9 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
   var FONT_LINKS = '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">';
 
   function buildSrcdoc(htmlCss) {
+    if (htmlCss.trim().indexOf('<!DOCTYPE') === 0 || htmlCss.trim().indexOf('<html') === 0) {
+      return htmlCss;
+    }
     return '<!DOCTYPE html><html><head><meta charset="UTF-8">' + FONT_LINKS + '<style>body{margin:20px;background:#f9fafb;font-family:sans-serif;display:flex;align-items:flex-start;justify-content:center;min-height:100%;}</style></head><body>' + htmlCss + '</body></html>';
   }
 
