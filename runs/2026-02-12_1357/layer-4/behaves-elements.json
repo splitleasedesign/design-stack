@@ -1,0 +1,393 @@
+{
+  "lens": {
+    "guest_call": "nneka-call.txt",
+    "book_extract": "kahneman-part1-two-systems.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Stays Manager Weekly Return: Instant Recognition Without Re-Orientation",
+      "journey_phases": ["active_lease"],
+      "problem": "The guest returns to the Stays Manager weekly for 13+ weeks. Each visit is a micro-interaction: check current status, see if anything needs attention, leave. But the current flat table of stays forces the guest to re-orient on every visit -- scanning past completed rows to locate the current week. Kahneman's skill acquisition research shows that repeated tasks should become automatic through System 1 learning, but a table where the current row shifts downward each week defeats spatial memory. The guest's System 1 never develops a stable 'look here' pattern because the target moves. Every Monday morning, when the hybrid worker checks before heading to the property, they face a System 2 scan task on a page that should be a System 1 glance. The interaction pattern must make the 13th visit as effortless as the 3rd -- not harder because 12 completed rows now precede the current one.",
+      "solution": "On every page load, the Stays Manager auto-focuses the hero card for the current or next actionable stay at a fixed screen position (top of content area, never scrolled below the fold). The hero card animates in with a subtle entrance that confirms freshness ('this is new since your last visit') while maintaining positional consistency ('this is always where you look'). Completed stays collapse automatically below the hero card into a muted summary. Future stays collapse into a count. The page remembers the guest's last interaction state: if they expanded the full table last visit, it loads expanded again; otherwise it loads in hero-card mode. On return visits, if the status has changed since last visit (a stay moved from In Progress to Completed, a review became available), the hero card shows a brief change indicator -- a dot or subtle highlight that fades after 2 seconds -- so the guest knows something is different without reading the card. This change indicator is the key interaction distinction between 'first visit of the week' and 'return visit same week': the indicator only appears when something has changed.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 10:17-12:17",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern... typically looking for really weeknights or weekdays each week... 2-3 month commitments typical.",
+          "insight": "The hybrid worker visits the Stays Manager on a predictable weekly cadence. Each visit competes with work preparation for System 2 resources. The interaction must complete in a single glance -- under 3 seconds -- because the guest is not 'using the app,' they are checking a status before starting their work day."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "As you become skilled in a task, its demand for energy diminishes... A general 'law of least effort' applies to cognitive as well as physical exertion.",
+          "insight": "Skill acquisition requires consistency. A hero card in a fixed position develops into a System 1 habit after 2-3 visits: the eye knows where to land. A shifting table row never becomes automatic because the spatial target changes weekly. The interaction pattern must provide the consistency that enables System 1 learning."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 392-408",
+          "type": "usability",
+          "quote": "Stays Table: Columns: Week #, Period (date range), Status (Not Started, In Progress, Completed), Actions. Available Actions: Review, Upload Photos, Report Issue, No action available.",
+          "insight": "The current design gives every row equal interactive weight. 'No action available' rows are indistinguishable from actionable rows until the guest reads the action column. The interaction pattern must differentiate actionable from non-actionable states before the guest reaches for any control."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Lazy Controller",
+          "type": "book",
+          "quote": "System 2 also has a natural speed... there is little strain... Just like a stroll.",
+          "insight": "The weekly check-in should be a cognitive stroll, not a jog. The interaction pattern achieves this by removing all parsing, scanning, and searching from the default view. The guest sees one card, reads one status, and either acts or leaves."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Hero card visible at fixed top position showing current/next stay with week number, date range, status badge, and primary action button. Completed stays collapsed into muted summary line below. Future stays collapsed into count.",
+        "loading": "Hero card skeleton placeholder in exact hero card dimensions appears instantly (within 50ms) at the fixed position, preventing layout shift. Skeleton uses a gentle pulse animation at 1.5s cycle. The skeleton shape matches the hero card so the eye learns the position even during load.",
+        "empty": "If no active lease exists (edge case: lease ended, guest still has access), the hero card position shows a completion summary: 'Your lease at [property] ended on [date]. [Leave Final Review].' No empty state with generic illustration -- always show the last relevant context.",
+        "error": "If stay data fails to load, the hero card position shows a single-line error with retry: 'Could not load your stays. [Try again].' The error replaces the skeleton, not the entire page. Payment schedule and date change sections load independently so partial failures do not blank the whole page.",
+        "success": "When a per-stay action completes (review submitted, photo uploaded, issue reported), the hero card action button transitions to a checkmark with confirmatory text ('Review submitted') that persists for 3 seconds before the button updates to the next available action or disappears. No full-page success toast that obscures the stays view."
+      },
+      "transition_principle": "Every transition on this page must feel like turning a page in a familiar book, not like loading a new application. State changes within the hero card (status badge update, action button change) use crossfade transitions rather than layout shifts. The hero card never moves position -- content within it changes, but the card itself is spatially stable across all 13+ weekly visits.",
+      "timing": {
+        "response_target": "50ms for skeleton render, 300ms for data paint, 200ms for state transitions within the hero card",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The tokens.json 'out' easing (0.16, 1, 0.3, 1) provides a fast start with gentle deceleration, matching the interaction pattern of a quick-check visit: the guest arrives with momentum (fast start) and settles into reading the status (gentle landing). The 200ms transition for in-card state changes is below the 300ms threshold where transitions become consciously noticed, keeping them in System 1 territory."
+      },
+      "journey_state_awareness": "Week 1-2: hero card shows 'Getting Started' framing with a subtle orientation hint ('This card updates each week with your current stay'). Week 3+: orientation hint removed; the guest has learned the pattern. Week 12-13: hero card adds a 'Lease ending soon' contextual note. After final stay: hero card transforms into a completion/review prompt. The interaction evolves with the guest's lease lifecycle without requiring any explicit mode switching.",
+      "edge_cases": [
+        "Guest visits mid-week when status is ambiguous (stay started but not yet 'In Progress' per system clock): hero card shows the stay with a 'Starting [day]' label rather than forcing a premature status badge.",
+        "Multiple active leases: a tab bar or property selector appears above the hero card, but the hero card pattern repeats identically for each lease. Switching leases animates the hero card content but not the card position.",
+        "Guest has not visited in 3+ weeks: hero card shows the most recent actionable stay, with a stacked indicator below showing missed review opportunities ('2 completed stays to review') rather than forcing a table scan.",
+        "Date change pending for current week: hero card shows the change request status inline ('Date change pending for Thu Oct 17 -- Waiting on host') rather than requiring navigation to the Date Change section."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Date Change Request as a Three-Tap Contextual Flow, Not a Separate Page",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "Brad texts Nneka to reschedule because the platform offers no faster alternative. The interaction pattern for date changes must compete with the speed and simplicity of a text message: 'Hey, can I switch Thursday for Tuesday?' takes about 10 seconds to type. Any platform flow that exceeds this cognitive and temporal cost will lose to texting. The current Date Change section presents a 'Request Changes' button that leads to a form with change types, pricing rules, and a submission process -- a multi-step System 2 workflow that a depleted hybrid worker will abandon in favor of a 10-second text. Kahneman's law of least effort predicts that the guest will always choose the path requiring the least cognitive investment. If that path is texting, the platform never captures the interaction, cannot enforce pricing rules, and loses visibility into the guest's schedule behavior.",
+      "solution": "Embed the date change initiation directly within each stay row (or the hero card) so the guest never leaves the Stays Manager. The interaction is three taps: (1) Tap the specific stay or a 'Change' affordance on the hero card. A bottom sheet or inline expansion opens, showing the three change types (Swap, Add, Remove) as tappable cards with financial consequences pre-computed and visible. (2) Tap the desired change type. The view updates to show available alternative dates (pulled from synced host availability in real time), each with its cost delta. Unavailable dates are not shown at all -- the guest never selects a date that will be rejected. (3) Tap the desired date and confirm. The request is submitted, the host is notified, and the stay row updates to show 'Change pending' status. Total interaction time target: under 30 seconds. The key interaction principle: the change flow is contextual (it knows which stay the guest is changing), pre-computed (financial consequences are calculated before the guest sees options), and constrained (only available dates are shown). This eliminates the three System 2 tasks that make forms slow: identifying what to change, computing the cost, and guessing which dates will work.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 01:23-01:42",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day... if I have availability.",
+          "insight": "Brad's rescheduling vocabulary is exactly three elements: which night he cannot make, a request for a different night, and a conditional on availability. The platform flow must capture these same three elements in three taps, not in a multi-field form."
+        },
+        {
+          "source": "nneka-call.txt, 07:22-07:45",
+          "type": "guest_call",
+          "quote": "If Brad was to add a book tonight, and add instead of like replace, is that something that you would be open to... it would be a different rate.",
+          "insight": "The distinction between replace and add has financial consequences the guest may not anticipate. The interaction pattern must present both options with their costs visible at the same time, so the guest makes an informed choice in a single comparison rather than discovering the cost difference after selecting."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "A general 'law of least effort' applies to cognitive as well as physical exertion. The law asserts that if there are several ways of achieving the same goal, people will eventually gravitate to the least demanding course of action.",
+          "insight": "Texting is the current least-effort path. The platform must become the new least-effort path by reducing taps, eliminating form fields, pre-computing costs, and showing only viable options. Every field the guest must fill, every option they must evaluate, and every date they must guess at pushes them back toward the text message."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 409-438",
+          "type": "usability",
+          "quote": "Request Changes button - Initiate modification. Accept/Reject incoming requests. Remove expired requests. Flexibility Score displayed as percentage.",
+          "insight": "The current design separates the change initiation (Request Changes button) from the change context (which stay is being changed). The guest clicks a generic button and then must specify the stay. The interaction pattern reverses this: the stay is the entry point, and the change options are contextual to that stay."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Each stay row shows a subtle 'Change' affordance (icon or text link) visible on hover/focus or always-visible on mobile. The hero card for the current week shows the affordance prominently. No separate 'Request Changes' button needed -- changes originate from specific stays.",
+        "loading": "When the change bottom sheet opens, available dates load with a compact skeleton (date chips with pulse animation) that shows the layout shape while availability data loads. Change type cards appear instantly (they require no server data). The split load ensures the guest sees actionable options within 200ms even if availability takes 500ms.",
+        "empty": "If no alternative dates are available for the selected change type (host has no availability), the bottom sheet shows: 'No available dates for this change. Your host's calendar is full for [date range].' with a 'Message host' fallback action. No dead-end empty state.",
+        "error": "If availability data fails to load, the date chips area shows: 'Could not check availability. [Retry] or [Message host].' The change type cards remain visible so the guest can still see the options and their costs even if date selection is temporarily unavailable.",
+        "success": "On submission, the bottom sheet collapses with a downward slide animation, and the stay row updates its status badge to 'Change pending' (amber badge per looks-004). A brief inline confirmation appears on the stay row: 'Request sent to host' that fades after 3 seconds. No full-screen success state that takes the guest away from the Stays Manager."
+      },
+      "transition_principle": "The bottom sheet rises from the bottom of the viewport with the tokens.json spring easing, creating a physical feeling of a drawer opening. Each subsequent tap within the flow (selecting change type, selecting date) triggers a lateral crossfade of the content area within the sheet -- the sheet itself never closes and reopens. The back action within the sheet returns to the previous step with a reverse crossfade. Confirmation dismisses the sheet with a faster downward slide (150ms) than the opening (250ms), creating a satisfying 'done' feeling that is quicker than the exploratory opening.",
+      "timing": {
+        "response_target": "200ms for bottom sheet open, 150ms for step transitions within sheet, 150ms for sheet dismiss on confirmation, 500ms maximum for availability data load",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) for sheet open (spring), cubic-bezier(0.16, 1, 0.3, 1) for content transitions and sheet close (out)",
+        "rationale": "The spring easing (0.34, 1.56, 0.64, 1) from tokens.json gives the bottom sheet a slight overshoot on open, creating a playful physical quality that signals 'this is interactive, not a static page.' The out easing (0.16, 1, 0.3, 1) for content transitions and close provides smooth deceleration. The asymmetry between open (250ms, spring) and close (150ms, out) reflects the psychological difference: opening is exploratory (slower, with overshoot), closing is decisive (faster, no overshoot)."
+      },
+      "journey_state_awareness": "Early in the lease (Weeks 1-3): date change affordance is subtle (icon only) because the guest is still learning the Stays Manager. Mid-lease (Weeks 4-10): affordance becomes more visible if the guest has not yet used it (a one-time tooltip: 'Need to change a date? Tap here'). Late lease (Weeks 11-13): affordance remains but the system preemptively notes 'Limited availability remaining' if the host's calendar is filling up. If the guest has previously completed a date change, the flow skips any instructional framing on subsequent uses.",
+      "edge_cases": [
+        "Guest attempts to change a date that is less than 24 hours away: the flow shows a warning inline ('This stay starts tomorrow. Changes may not be processed in time. [Proceed anyway] or [Message host directly]') rather than blocking the action.",
+        "Host has auto-accept enabled for certain change types: the flow shows 'Instant approval' badge on the change type card, and on submission the status immediately shows 'Confirmed' rather than 'Pending.'",
+        "Guest has a low Flexibility Score: the flow proceeds normally. The Flexibility Score is visible as context but never blocks or delays the change request. The guest should never feel penalized for using the tool.",
+        "Multiple date changes pending for the same week: the system shows a stacked indicator ('2 changes pending for this week') and allows viewing each pending change, but blocks a new change for the same dates until the prior one resolves."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Inline Financial Consequence Preview: Show the Cost Before the Commitment",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "At every financial decision point -- selecting nights on a listing, configuring a proposal, requesting a date change -- the guest must understand the cost impact of their action before they commit. Currently, the listing page recalculates pricing dynamically when the guest changes inputs (days selected, duration, move-in date), but the recalculation produces three numbers (nightly rate, 4-week rent, total) at equal visual weight, forcing System 2 arithmetic. During date changes, the pricing section uses abstract labels ('fair market rate calculation') rather than computed dollar amounts. Kahneman's bat-and-ball research demonstrates that over 50% of elite university students fail simple arithmetic under cognitive ease. When the platform requires the guest to mentally translate nightly rates into monthly budgets, or to infer the cost of a date swap from a pricing policy description, the error rate is unacceptable and the cognitive drain prevents confident decision-making. The interaction pattern must ensure that every action with a financial consequence shows the consequence inline and pre-computed before the guest confirms.",
+      "solution": "Implement a universal 'preview before commit' interaction pattern at every financial touchpoint. The pattern works the same everywhere: (1) The guest takes an action that has financial implications (selects a night, changes a duration, picks a replacement date). (2) Within 200ms, a financial consequence preview appears inline -- adjacent to the action, not in a separate summary area. The preview shows one number: the delta from the current state ('+$0,' '+$15/night,' '-$80 refund'). (3) Only after seeing the preview can the guest confirm. The confirm action is not available until the preview has rendered. This prevents accidental commits before cost is understood. Implementation specifics: On the listing page, each day-of-week toggle shows its cost contribution inline when toggled ('+ $301/night' appears next to the toggled day). On the proposal configuration, changing duration shows the total delta ('Adding 2 weeks: +$2,408'). In date changes, each available date chip shows its cost difference from the original date. The pattern is: the financial preview is attached to the interaction element, not displayed in a separate summary section. The guest never has to look away from where they are acting to see what their action costs.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 03:33-04:26",
+          "type": "guest_call",
+          "quote": "It's not working financially... Originally when I... I believe $1,170, $1,175... the new dates are priced higher now.",
+          "insight": "Seasonal pricing means the cost of a date change is not obvious. The guest who expects a free swap may face a $15/night increase. If this surprise arrives after submission (in a counter-offer from the host), trust is damaged. Showing the delta before submission converts a surprise into a transparent, accepted cost."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Lazy System 2",
+          "type": "book",
+          "quote": "More than 50% of students at Harvard, MIT, and Princeton gave the intuitive -- incorrect -- answer. Many people are overconfident, prone to place too much faith in their intuitions.",
+          "insight": "The guest's intuition is that swapping dates is free. This intuition is wrong when seasonal pricing applies. The interaction pattern must override the intuition not through warnings or disclaimers but through pre-computed numbers that make the cost unmissable at the point of action."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 419-428",
+          "type": "usability",
+          "quote": "Change Types: Add nights (guest pays more), Remove nights (guest gets refund), Swap dates. Pricing: Buying back nights: Host pays guest. Adding nights: Guest pays host. Fair market rate calculation.",
+          "insight": "The current design separates change types from pricing into two sections. The guest must cross-reference between them. The interaction pattern merges type and cost into a single visual unit so no cross-referencing is needed."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Associative Machine",
+          "type": "book",
+          "quote": "Your System 1 made as much sense as possible of the situation... by linking the words in a causal story; it evaluated the possible threat... and created a context for future developments.",
+          "insight": "System 1 creates a causal story for each action: 'I tap this date and it costs this much.' If the cost is not part of the story (because it is in a separate section), System 1 creates an incomplete story and the guest is surprised later. Attaching the cost to the action completes the story at the moment of choice."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Financial consequence preview is hidden until the guest interacts with a cost-bearing control. No preemptive cost display that adds visual noise before the guest has taken action.",
+        "loading": "When the guest interacts with a cost-bearing control (toggles a day, selects a date), a compact cost label appears inline with a brief shimmer animation (150ms) while the backend computes the exact amount. If computation takes more than 200ms, a '...' placeholder appears in the cost label position so the guest knows a number is coming.",
+        "empty": "If a cost-bearing action has no financial impact (swapping to a date in the same pricing season), the preview shows '+$0' explicitly rather than showing nothing. Showing the zero builds trust by demonstrating the system checks every change, even when the answer is 'no cost.'",
+        "error": "If cost computation fails, the preview area shows 'Price unavailable -- [Retry]' and the confirm button is disabled. The guest cannot commit to an action whose cost is unknown. This is a hard block, not a soft warning, because financial surprises are the highest trust-destruction risk.",
+        "success": "After the guest confirms the action, the cost preview transitions into a confirmation label: the delta amount remains visible but the framing shifts from preview to confirmed ('You will pay +$15' becomes 'Confirmed: +$15 added to your next payment'). This label persists for 5 seconds then fades into the updated payment summary."
+      },
+      "transition_principle": "Cost previews appear with a fast fade-in (100ms) and a subtle scale-up from 95% to 100%, creating a 'pop into existence' effect that draws the eye without being disruptive. Cost amounts animate numerically (counting up or down to the final value) over 200ms when the guest changes inputs, providing a sense of continuous calculation rather than discrete jumps. The confirm button enables with a simultaneous opacity transition (from 50% to 100%) and a slight upward shift (2px), signaling readiness without being aggressive.",
+      "timing": {
+        "response_target": "100ms for preview appearance after interaction, 200ms for cost amount update on input change, 200ms maximum for backend cost computation on simple changes, 500ms maximum for complex multi-variable recalculations",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing provides a fast attack (the cost appears quickly, matching the urgency of financial information) with a gentle settle (the number arrives at its final value smoothly, conveying precision rather than abruptness). The 100ms appearance time ensures the cost is visible before the guest's finger moves toward a confirm button, preventing accidental commits."
+      },
+      "journey_state_awareness": "On the listing page (pre-commitment): cost previews are prominent and use larger type because the guest is still evaluating. During proposal configuration: cost previews use medium type because the guest is configuring, not browsing. In the Stays Manager date change flow: cost previews are compact because the guest is making a targeted micro-decision within an established relationship. The visual weight of the cost preview decreases as the guest's commitment level increases, reflecting that financial literacy about the lease grows over time.",
+      "edge_cases": [
+        "Guest rapidly toggles multiple days on the listing page: cost updates debounce with a 150ms delay so the display does not flicker. The total updates once after the guest pauses, not on every individual toggle.",
+        "Cost computation returns a $0 delta that might confuse the guest (e.g., swapping two dates in the same pricing tier): show '+$0 -- same rate period' to explain why the swap is free.",
+        "Guest is on a slow connection and cost computation takes more than 500ms: the preview shows an animated '...' for up to 2 seconds, then falls back to 'Estimated: ~$X based on similar dates' with a note that the exact amount will be confirmed on submission.",
+        "The cost delta is negative (guest removes a night and gets a refund): display in green with a minus sign ('-$80 refund') using the success color token, signaling that this is money returned, not money owed."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Proposal Pipeline as Anxiety-Resolving Status Stream",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "After submitting a proposal, the guest enters a waiting state with no visibility into whether the host has seen it, is reviewing it, or has forgotten about it. Kahneman's research on System 2 activation during uncertainty predicts continuous cognitive drain: the guest cannot stop monitoring the uncertain outcome, which depletes the same System 2 resources needed for their job. Brad's behavior confirms this pattern -- he resorts to texting Nneka directly because the platform provides no status channel. The proposal pipeline currently shows stage names and completion status but not who acts next or how long to wait. This opacity during the most anxiety-producing part of the journey forces the guest into off-platform behavior (texting, emailing the agent) that fragments the experience and removes the platform from the relationship.",
+      "solution": "Transform every waiting state in the proposal pipeline into an active status display that resolves uncertainty. At each stage, the pipeline shows three pieces of information: (1) Current status: who must act ('Waiting on host,' 'Your action needed,' 'Split Lease processing'). (2) Time context: elapsed time since last action and expected resolution ('Submitted 14h ago. Hosts typically respond within 48h.'). (3) Next action preview: what will happen when the waiting ends ('When your host responds, you will see their terms here and can accept, counter, or decline.'). The interaction pattern for status updates uses progressive disclosure within the pipeline itself: the current stage expands into a card showing full context, while completed stages collapse to checkmarks and upcoming stages collapse to dots. When a stage transitions (host responds, document is ready), the guest receives a push notification and the pipeline animates the stage change on next visit -- the completed stage slides into its checkmark position and the new current stage expands into the card. This animation takes 300ms and uses the out easing, providing a sense of progress without demanding attention.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 01:23-01:42",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day... if I have availability.",
+          "insight": "Brad texts because the platform provides no status feedback. The texting is not a preference; it is a workaround for opacity. If the platform had shown 'Your request was sent to Nneka 2 hours ago -- she typically responds within 24 hours,' Brad would have no reason to text."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Plot Synopsis",
+          "type": "book",
+          "quote": "System 2 is activated when an event is detected that violates the model of the world that System 1 maintains.",
+          "insight": "The guest's model after submitting a proposal is: 'I acted, something should happen.' When the pipeline shows no change, the model is violated, and System 2 activates to manage the ambiguity. This activation persists as background cognitive drain until resolved. Status updates resolve the model: 'Nothing has happened yet, and that is normal.'"
+        },
+        {
+          "source": "nneka-call.txt, 08:40-09:07",
+          "type": "guest_call",
+          "quote": "We'll be working on basically just having a way to notify you. So you'll know when a request comes in and then from there you'd be able to either accept the request.",
+          "insight": "Bryant describes a notification system that does not yet exist. The proposal pipeline must be built with notifications as a core interaction channel, not an afterthought. Every status change generates a push notification that links directly to the relevant pipeline stage."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Busy and Depleted System 2",
+          "type": "book",
+          "quote": "Activities that impose high demands on System 2 require self-control, and the exertion of self-control is depleting and unpleasant.",
+          "insight": "Monitoring an uncertain proposal outcome is a continuous, low-grade System 2 demand that drains the guest's cognitive budget for their work. Each status update that resolves uncertainty releases System 2 resources. The pipeline is not just a UI component -- it is a depletion prevention mechanism."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Pipeline visible with current stage expanded into a card showing status, action assignment, and time context. Completed stages show checkmarks. Upcoming stages show dots with names in muted text. The 'who acts next' tag is the most prominent element on the current stage card.",
+        "loading": "Pipeline skeleton renders instantly with correct stage count and position markers. The current stage card skeleton is taller than completed/upcoming indicators, maintaining the visual hierarchy even before data loads. Data populates the current stage card within 300ms.",
+        "empty": "Before any proposal is submitted (guest is configuring), the pipeline shows all stages as upcoming with a 'preview' label: 'After you submit, your proposal will go through these stages.' This sets expectations before commitment and reduces post-submission anxiety by making the process familiar.",
+        "error": "If pipeline status fails to load, the current stage area shows the last known state with a timestamp: 'Status as of [time]. Could not check for updates. [Retry].' The guest is never left with no information -- stale information with a timestamp is better than a blank error state.",
+        "success": "When a stage completes, the current stage card plays a brief completion animation: the card content fades, a checkmark scales up from center (200ms, spring easing), and the card shrinks into the checkmark position on the timeline (300ms, out easing). Simultaneously, the next stage expands from its dot into the new current stage card. The overall effect is a conveyor belt of progress."
+      },
+      "transition_principle": "Stage transitions are the most important animations in the entire guest journey because they represent progress toward having a place to stay. They must feel substantial enough to register as meaningful progress but not so elaborate that they slow the guest's ability to read the new state. The completion-to-expansion transition uses a staggered timing: the outgoing stage completes its collapse (200ms) before the incoming stage begins its expansion (200ms), creating a clear sequential narrative rather than a chaotic simultaneous change.",
+      "timing": {
+        "response_target": "300ms for pipeline data load, 200ms for stage collapse animation, 200ms for stage expand animation (staggered after collapse), push notification delivered within 60 seconds of status change",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) for checkmark scale-up (spring, celebratory), cubic-bezier(0.16, 1, 0.3, 1) for card collapse/expand (out, smooth)",
+        "rationale": "The spring easing for the checkmark conveys a small celebration -- the stage is done, progress was made. The out easing for the structural card transitions keeps the layout change smooth and predictable. The 400ms total transition time (200ms collapse + 200ms expand) is fast enough to feel responsive but slow enough for the guest to register that something changed."
+      },
+      "journey_state_awareness": "First-time proposal submitter: the pipeline includes brief explanatory text at each stage ('Your host will review your dates, rate, and duration. They can accept, counter, or decline.'). Returning user (has completed a proposal before): explanatory text is removed; the pipeline shows only status, assignment, and timing. During negotiation (host countered): the current stage card expands to show the counter-offer terms inline -- the guest never navigates to a separate page to see what changed. At acceptance: the pipeline collapses entirely and is replaced by a confirmation card with move-in details.",
+      "edge_cases": [
+        "Host has not responded in 72+ hours: the pipeline shows an escalation option ('Your host has not responded. [Send a reminder] or [Contact Split Lease support]') without making the guest feel like the proposal failed.",
+        "Guest submits a proposal and immediately wants to modify it: a 'Modify proposal' option is available for 30 minutes after submission (before the host sees it). After 30 minutes, the guest must wait for the host's response and then counter.",
+        "Multiple proposals to different hosts: each proposal has its own pipeline, accessible through tabs or a list view. The most recent/active proposal is the default view. No merged or combined pipeline that confuses different hosts' responses.",
+        "The host accepts instantly (within seconds of submission): the pipeline skips the waiting state entirely and animates directly from submission to acceptance, with a slightly longer celebration animation (500ms) to mark the significance of securing housing."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Payment Schedule as Passive Confidence, Not Active Monitoring",
+      "journey_phases": ["active_lease"],
+      "problem": "The Payment Schedule table in the Guest Leases page shows individual payment rows (Scheduled Date, Actual Date, Rent Amount, Maintenance Fee, Damage Deposit, Total, Payment Status, Receipt) without cumulative context. The guest must mentally track how much they have paid versus how much remains. For a 13-week lease with monthly payments, this means 3-4 payment rows that the guest scans on each visit to verify nothing unexpected happened. Kahneman's ego depletion research shows that monitoring tasks -- even low-effort ones -- draw from the same depleted pool as the guest's work responsibilities. A payment table that requires verification on every visit is a low-grade cognitive tax that accumulates over the lease. The interaction pattern must make payment status a passive confidence signal (everything is fine, I can see it at a glance) rather than an active monitoring task (let me check each row to make sure nothing is wrong).",
+      "solution": "Replace active table monitoring with a passive summary bar that sits at the top of the Payment Schedule section. The summary bar shows: 'Paid: $4,380 of $11,738' with a visual progress indicator. If the next payment is upcoming, it adds: 'Next: $1,460 on Nov 26.' If a payment failed or is overdue, the summary bar changes color (amber for upcoming/warning, red for failed/overdue) and shows the issue: 'Payment of $1,460 due Nov 26 -- card declined. [Update payment method].' The detailed table exists below the summary bar for guests who want to verify individual payments, but the summary bar answers the three questions the guest actually has: (1) Am I on track? (2) What is next? (3) Is anything wrong? These three answers are visible without scrolling and without reading any table rows. The interaction pattern for the summary bar is entirely passive: it updates automatically when payments process, requires no guest interaction, and changes color only when attention is needed. On weekly visits where everything is on track, the guest glances at the green progress bar and moves on. This is the 'everything is fine' System 1 signal that prevents unnecessary System 2 engagement.",
+      "evidence": [
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 369-386",
+          "type": "usability",
+          "quote": "Payment Schedule Table: Columns: Scheduled Date, Actual Date, Rent Amount, Maintenance Fee, Damage Deposit, Total, Payment Status, Receipt (downloadable).",
+          "insight": "Six columns of financial data per row is a System 2 parsing task. The guest must read Payment Status to know if everything is fine. If the status is always 'Paid,' reading it every week is wasted effort. A green progress bar at the top communicates 'all payments current' without requiring any row-level scanning."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Lazy Controller",
+          "type": "book",
+          "quote": "System 2 also has a natural speed... there is little strain. You make many small decisions as you drive your car... all with little effort and no strain.",
+          "insight": "The weekly payment check should have the cognitive strain of checking a fuel gauge: a glance at a bar, not a reading of a spreadsheet. The progress bar interaction pattern converts a six-column table scan into a single-element glance."
+        },
+        {
+          "source": "nneka-call.txt, 03:33-04:26",
+          "type": "guest_call",
+          "quote": "Originally when I... I believe $1,170, $1,175.",
+          "insight": "Both parties reference pricing in aggregate monthly terms. The payment summary bar should show aggregate paid/remaining, matching the mental model. Individual payment rows are verification data for disputes, not weekly monitoring data."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "You dispose of a limited budget of attention that you can allocate to activities.",
+          "insight": "Every weekly table scan, even a quick one, consumes attention budget. Over 13 weeks, this is 13 table scans that serve no purpose when payments are on track. A progress bar that never changes color returns that attention budget to the guest's work and life."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Summary bar at top of Payment Schedule section showing progress (paid/total), next payment date and amount, and a calm visual indicator (green/accent progress fill). Detailed table collapsed below with an expand control. The summary bar is always visible; the table is opt-in.",
+        "loading": "Summary bar skeleton renders with a progress bar placeholder at the correct width (based on cached data from last visit if available). The skeleton prevents layout shift and communicates 'your payment info goes here' even before data loads.",
+        "empty": "Before the first payment (new lease, no payments processed yet): summary bar shows 'First payment: $1,460 on [date]. Auto-pay is [enabled/not set up].' with a call-to-action to set up auto-pay if not configured. No empty progress bar that looks like $0 paid.",
+        "error": "Payment failed: summary bar background transitions to signal-warn-bg (#fef3e2) with signal-warn text. Content updates to: 'Payment of $1,460 on [date] was not processed. [Update payment method].' The summary bar becomes the most prominent element on the page, overriding even the hero card's visual hierarchy, because a payment failure is the highest-urgency state in the active lease.",
+        "success": "When a payment processes successfully, the progress bar extends smoothly (300ms, out easing) to its new position, and a brief confirmation appears: 'Payment of $1,460 processed successfully' with a receipt download link. The confirmation fades after 5 seconds, and the summary bar returns to its calm default state."
+      },
+      "transition_principle": "The payment summary bar is the calmest element on the Stays Manager page. It rarely changes. When it does change (payment processed, payment failed), the transition is deliberate and noticeable -- not because it needs to be dramatic, but because any change to a normally-calm element is inherently noticeable. Kahneman's violation model applies: System 1 notices the change precisely because the element is usually static. This means the payment summary bar can use minimal animation and still capture attention when something changes.",
+      "timing": {
+        "response_target": "Summary bar data loads within 300ms (cached from last visit, refreshed in background). Progress bar extension on payment: 300ms. Error state transition: 200ms. Confirmation fade: 5000ms display then 500ms fade.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing for progress bar extension creates a smooth, unhurried movement that conveys reliability -- the payment system is working steadily. The 300ms duration is slow enough to be perceived as a real update (not a glitch) but fast enough to not demand sustained attention."
+      },
+      "journey_state_awareness": "First payment cycle: summary bar includes a one-time note ('Your first payment was processed on [date]. You will be charged $1,460 every 4 weeks.'). Mid-lease: summary bar shows just the progress and next payment. Final payment: summary bar highlights 'Final payment: $1,460 on [date]. This is your last scheduled payment.' Post-lease: summary bar shows 'All payments complete. Total paid: $11,738. [Download all receipts].'",
+      "edge_cases": [
+        "Guest has auto-pay disabled and a payment is upcoming within 7 days: summary bar shows a gentle amber reminder ('Payment of $1,460 due in 3 days. [Pay now]') without alarm. The guest may prefer manual payment.",
+        "Payment amount changes due to a date change mid-cycle: summary bar shows the updated amount with a brief note ('Adjusted from $1,460 to $1,475 due to date change on [date]. [See details]').",
+        "Guest disputes a payment: summary bar shows 'Payment dispute in progress. [View status].' The disputed payment row in the table is highlighted but the summary bar does not turn red (disputes are not failures).",
+        "Multiple leases with different payment schedules: each lease's payment summary bar is independent, visible only when that lease's tab is selected. No combined financial view that mixes payments across properties."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Batched Review Prompts at Natural Reflection Points, Not Per-Stay Interruptions",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager activates a 'Review' button after every completed stay. Over a 13-week lease, this creates 13 review prompts that accumulate as an unfinished to-do list visible on every visit. Kahneman's ego depletion research shows that sequential self-control tasks drain from a shared pool: the first review is thoughtful, but by Week 5, the guest's System 2 has been depleted by four prior reviews plus their work responsibilities. The interaction problem is not just fatigue -- it is that the accumulating unreviewd stays create a guilt signal on every visit. The Stays Manager, which should feel like a helpful dashboard, starts to feel like a nagging task list. The guest who ignores 5 review buttons feels irresponsible; the guest who dutifully completes them feels drained. Neither outcome serves the guest or the platform. The interaction pattern must collect high-quality feedback without converting the Stays Manager into an obligation.",
+      "solution": "Replace per-stay review buttons with three batched review moments at natural lease milestones: after Week 4 (first payment cycle), at the lease midpoint, and after the final stay. Each review moment appears as a highlighted card in the hero position of the Stays Manager, gently displacing the weekly status card for one visit. The review card includes pre-filled context (the weeks covered, the property name, a sentence summarizing the period) and asks for a single overall rating plus one optional text field. The interaction is: see the card, tap a rating, optionally type a sentence, submit. Under 90 seconds. Between review moments, completed stays show a muted 'Reviewed' or 'Review at Week [N]' label rather than active 'Review' buttons. The key interaction principle: the review card appears once at each milestone, and if dismissed without completion, it moves to a secondary position (below the hero card) for the next 2 visits, then disappears entirely. The platform does not nag. Three thoughtful reviews at reflection points yield richer data than thirteen perfunctory star ratings.",
+      "evidence": [
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 453-459",
+          "type": "usability",
+          "quote": "After each stay: 'Review' button becomes active. Guest rates property/host. Rates on: Cleanliness, accuracy, communication. Writes text review (optional).",
+          "insight": "13 active Review buttons over 13 weeks creates an accumulating to-do list. Each unreviewd stay is a small guilt signal. The interaction pattern must eliminate this accumulation by collecting feedback at defined intervals rather than after every single stay."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Busy and Depleted System 2",
+          "type": "book",
+          "quote": "An effort of will or self-control is tiring; if you have had to force yourself to do something, you are less willing or less able to exert self-control when the next challenge comes around.",
+          "insight": "Each review is a self-control task: recall the week, evaluate three dimensions, compose optional text. The depletion from one review reduces the likelihood and quality of the next. Batching to three review moments respects the depletion curve: the guest gives feedback when they have something meaningful to reflect on, not when the system's per-week data structure demands it."
+        },
+        {
+          "source": "nneka-call.txt, 10:17-12:17",
+          "type": "guest_call",
+          "quote": "Hybrid workers... typically looking for really weeknights or weekdays each week.",
+          "insight": "The target guest is a working professional. Their cognitive budget for platform administration is minimal. The interaction pattern must treat review as a secondary activity that fits into the guest's existing weekly visit pattern, not as a primary obligation that demands a separate session."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "We normally avoid mental overload by dividing our tasks into multiple easy steps, committing intermediate results to long-term memory or to paper rather than to an easily overloaded working memory.",
+          "insight": "Kahneman advocates dividing tasks into easy steps, but the current design over-divides: 13 micro-reviews are individually easy but collectively overwhelming. The batched approach consolidates to 3 meaningful reflection moments that are richer and lighter."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Between review milestones: no review prompts visible. Completed stays show a small 'Reviewed' chip or 'Review at Week [N]' note in muted text. The Stays Manager is a clean status dashboard, not a task list.",
+        "loading": "Review card skeleton renders in the hero position with a star rating placeholder and text field outline. The skeleton establishes that a review is being requested before the context data loads, giving the guest a moment to prepare mentally.",
+        "empty": "If the review milestone is reached but no stays are completed (unlikely edge case): the review card does not appear. Reviews are only prompted when there is something to review. No 'You have no stays to review' empty state.",
+        "error": "If review submission fails, the review card shows an inline error: 'Could not save your review. [Try again].' The guest's rating and text input are preserved so they do not need to re-enter. The card does not disappear on error.",
+        "success": "On submission, the review card plays a brief thank-you animation: the star rating pulses once, a checkmark appears, and the card shrinks smoothly (300ms, out easing) to reveal the hero card beneath. A small toast appears: 'Thank you for your feedback.' No full-page celebration that feels disproportionate to a review submission."
+      },
+      "transition_principle": "The review card enters from above (sliding down into hero position, 250ms, out easing) on the first visit after a milestone, displacing the weekly hero card downward. This spatial relationship communicates that the review is temporarily more important than the weekly status, but the weekly status is still present below. When the review is submitted or dismissed, it exits upward (sliding up, 200ms, out easing) and the hero card slides back up to its default position. The movement metaphor is: the review card is a brief visitor in the hero position, not a permanent resident.",
+      "timing": {
+        "response_target": "Review card appearance: 250ms slide-in on page load at milestone visit. Star rating tap response: immediate (<50ms). Review submission: 500ms maximum server response. Success animation: 300ms. Card exit: 200ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing for the review card's entrance and exit creates a smooth, non-jarring insertion into the page flow. The 250ms entrance is slow enough to be noticed (the guest should see the review card arrive) but fast enough to not feel like a loading delay. The 200ms exit is faster than the entrance because dismissal should feel swift and decisive."
+      },
+      "journey_state_awareness": "Week 4 review: framed as 'first impressions' ('How were your first 4 weeks at [property]?'). Midpoint review: framed as 'settled-in assessment' ('You are halfway through. How is the space working for your routine?'). Final review: framed as 'overall experience' ('Your lease at [property] has ended. How was the experience overall?'). Each framing gives the guest a cognitive anchor for their reflection, reducing the effort of generating a response from scratch.",
+      "edge_cases": [
+        "Guest dismisses the Week 4 review card: it moves to secondary position (below hero card) for 2 visits, then disappears. If still unreviewed by midpoint, the midpoint review covers Weeks 1 through midpoint instead of just the recent period.",
+        "Guest's lease is shorter than 8 weeks (no midpoint): only two review moments -- after Week 4 and after the final stay.",
+        "Guest wants to review a specific week in detail: an 'Add details for a specific week' expand option within the batched review card lets the guest drill into individual weeks. This is opt-in, never required.",
+        "Guest submits a very negative review: the review card does not immediately close. It shows a follow-up prompt: 'Would you like to report a specific issue? [Report issue]' -- connecting the review to the action system rather than leaving negative feedback as a dead end."
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Notification-Driven Re-Engagement: Pull the Guest Back Only When Something Changed",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "The guest has no reason to visit the platform unless something requires their attention. During active_lease, the weekly visit pattern exists because the guest needs to check their stay status. But during negotiation (waiting for a host response) and between payment cycles, the guest has no trigger to return. Brad texts Nneka because there is no notification system telling him what happened with his request. Bryant explicitly describes the missing notification infrastructure: 'We will be working on basically just having a way to notify you. So you will know when a request comes in' (08:40-09:07). Without notifications, the guest must actively check the platform for updates -- a polling behavior that is effortful, anxiety-producing, and unsustainable. Kahneman's ego depletion research predicts that the guest will stop polling after a few fruitless checks, and then miss important updates when they finally arrive.",
+      "solution": "Implement a notification system that is the primary driver of guest re-engagement during waiting states. The system operates on one rule: notify when action is needed or a status changed, never for marketing or engagement farming. Notification types: (1) 'Host responded to your proposal' -- links directly to the counter-offer view. (2) 'Date change approved/declined' -- links to the updated stay in the Stays Manager. (3) 'Payment processed' -- links to the receipt in the Payment Schedule. (4) 'Upcoming payment in 3 days' -- links to the payment method confirmation. (5) 'Review available' -- links to the batched review card at the milestone. Each notification is a single sentence that tells the guest what happened and what (if anything) they need to do. Tapping the notification deep-links to the exact context: not the dashboard, not the leases list, but the specific stay, payment, or proposal stage that changed. The deep-link ensures the guest's System 2 is immediately engaged with the relevant content, not wasted on navigation. The interaction pattern for notifications is: one sentence, one action, one destination. No notification leads to a page that requires further navigation to find the relevant content.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 08:40-09:07",
+          "type": "guest_call",
+          "quote": "We'll be working on basically just having a way to notify you. So you'll know when a request comes in and then from there you'd be able to either accept the request.",
+          "insight": "Bryant describes notifications as a core missing feature, not a nice-to-have. The current system has no way to tell the guest that something happened. This forces the guest into manual polling or off-platform communication, both of which are cognitively expensive."
+        },
+        {
+          "source": "nneka-call.txt, 01:23-01:42",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day.",
+          "insight": "Texting is Brad's notification system. He texts because no push notification told him whether his previous request was handled. If a push notification had said 'Your date change was approved -- Oct 15 swapped for Oct 22,' he would have no reason to text."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Plot Synopsis",
+          "type": "book",
+          "quote": "System 2 is mobilized when a question arises for which System 1 does not offer an answer.",
+          "insight": "The question 'Did the host see my proposal?' has no System 1 answer because the platform provides no signal. System 2 remains mobilized to monitor this unanswered question. A notification that says 'Your host viewed your proposal 2 hours ago' answers the question and releases System 2."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "The often-used phrase 'pay attention' is apt: you dispose of a limited budget of attention that you can allocate to activities.",
+          "insight": "Every manual platform check ('let me see if the host responded') costs attention from the guest's limited budget. Notifications invert this cost: the platform spends compute to save the guest attention. This is the correct trade-off for a platform serving depleted hybrid workers."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "No notification badge or indicator when nothing has changed. The absence of notifications is itself a positive signal: 'Everything is on track, nothing needs your attention.' The platform does not create artificial urgency.",
+        "loading": "Not applicable to notifications themselves. When the guest taps a notification and the deep-linked content loads, the destination page loads with a highlighted state on the relevant element (a brief golden outline or background flash that fades after 2 seconds) so the guest immediately sees what changed.",
+        "empty": "If the guest opens a notification center or in-app notification list and has no notifications: 'All caught up. We will notify you when something needs your attention.' This is an affirmative empty state, not a void.",
+        "error": "If a notification deep-link fails (the referenced proposal was withdrawn, the payment was reversed): the destination page shows the current state with a note: 'This notification referred to [event] which has since been updated. Here is the current status.' No broken link dead-end.",
+        "success": "Notification tapped and action completed (e.g., guest accepts counter-offer from notification): the notification is marked as resolved, and a brief inline confirmation replaces the notification content: 'Done -- counter-offer accepted.' The notification list shows a checkmark on resolved items."
+      },
+      "transition_principle": "Notifications arrive silently during non-active use (the guest's phone vibrates or shows a standard push notification). When the guest returns to the app from a notification, the transition to the deep-linked content uses a special entrance animation: the relevant element (a proposal stage, a stay row, a payment summary) briefly highlights with a warm glow (accent-light background that fades over 2 seconds) to guide the eye directly to what changed. This highlight is the only animation -- the rest of the page loads normally. The highlight answers the question 'what is different since my last visit?' without requiring the guest to scan the entire page.",
+      "timing": {
+        "response_target": "Push notification delivery: within 60 seconds of status change. Deep-link page load: under 1 second. Highlight animation on relevant element: 2 second fade from accent-light (#e8f0eb) to transparent.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for highlight fade",
+        "rationale": "The 2-second highlight fade using out easing provides a gentle, warm indication of change that does not feel like an alarm. The accent-light green (#e8f0eb) from tokens.json is chosen because it is the platform's trust color, signaling 'something good happened here' rather than 'danger.' The 60-second notification delivery window balances real-time urgency with infrastructure practicality."
+      },
+      "journey_state_awareness": "During negotiation: notifications are frequent and high-priority (host responded, counter-offer received, proposal accepted). The guest expects these and the notification system delivers them within 60 seconds. During active_lease: notifications are infrequent and routine (payment processed, review milestone, date change resolved). The guest has settled into a weekly rhythm and notifications serve as gentle supplements, not primary drivers. Post-lease: notifications reduce to zero except for final review prompt and deposit return status. The notification cadence mirrors the emotional intensity of each journey phase.",
+      "edge_cases": [
+        "Guest has notifications disabled at the OS level: the in-app notification center becomes the primary status channel. A subtle badge on the app icon (if supported) or an in-app banner on next visit communicates unread updates.",
+        "Multiple status changes occur between guest visits (e.g., host countered, then withdrew counter, then re-countered): notifications are coalesced into the most recent state rather than showing a confusing sequence. The guest sees 'Host updated their offer' not three separate notifications.",
+        "Guest receives a notification during a different app session (e.g., while in the Stays Manager): the notification appears as an in-app banner at the top of the screen that slides down (200ms, out easing) and auto-dismisses after 5 seconds unless tapped.",
+        "Notification references a lease the guest is no longer active on (post-lease deposit return): the notification links to a post-lease summary view, not to the now-inactive Stays Manager."
+      ]
+    }
+  ]
+}

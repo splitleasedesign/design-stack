@@ -192,6 +192,27 @@ Read `STACK_DIR/runs/manifest.json`. Add a new entry for this run:
 ```
 Save back to `STACK_DIR/runs/manifest.json`.
 
+### Update Library
+After updating the manifest, rebuild the library data by running:
+
+```
+node STACK_DIR/library/rebuild-library.js
+```
+
+This script reads `runs/manifest.json`, loads each completed run's `layer-8/ui-elements.json`, and generates `library/library-data.js` — an external data file loaded by `library.html` via `<script src>`.
+
+**Why this step exists:** Per-run `library-of-elements.html` pages only show that run's elements. The Library (`library/library.html`) is the master aggregation page where designers browse ALL elements across ALL runs, filter by run/category/phase/priority, and compare elements side-by-side.
+
+**Architecture:**
+- `library.html` — static template (60KB, no data, safe to merge in git)
+- `library-data.js` — generated data file (auto-rebuilt, gitignored)
+- `rebuild-library.js` — rebuild script, run after any new run or `git pull`
+
+**Data loading priority in library.html:**
+1. `window.__LIBRARY_DATA` from `library-data.js` (works from `file://`)
+2. Dynamic `fetch("../runs/manifest.json")` (works from HTTP)
+3. Inline `<script id="elements-data">` fallback (empty by default)
+
 ### Finalize
 Update `RUN_DIR/run-config.json` with `status: "complete"`, element counts, and `completed_at` timestamp.
 

@@ -26,7 +26,7 @@
   --font-mono: 'IBM Plex Mono', monospace;
 }
 body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
-.marketplace { max-width: 1280px; margin: 0 auto; padding: 0 24px 80px; }
+.library-page { max-width: 1280px; margin: 0 auto; padding: 0 24px 80px; }
 
 /* HEADER */
 .market-header { padding: 48px 0 0; margin-bottom: 32px; }
@@ -192,7 +192,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 .list-view .btn-compare { top: 8px; right: 8px; }
 
 /* MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0,0.5); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 40px 24px; overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s var(--ease-out); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0,0.55); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 40px 24px; overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s var(--ease-out); }
 .modal-overlay.open { opacity: 1; pointer-events: auto; }
 .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 800px; box-shadow: var(--shadow-lg); transform: translateY(20px); transition: transform 0.35s var(--ease-out); margin-bottom: 40px; }
 .modal-overlay.open .modal { transform: translateY(0); }
@@ -245,8 +245,12 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 .preview-container { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--bg); }
 .preview-container__bar { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--bg-deep); border-bottom: 1px solid var(--border); }
 .preview-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); }
-.preview-bar-label { font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); margin-left: 8px; }
-.preview-container iframe { width: 100%; min-height: 200px; border: none; display: block; background: var(--bg); }
+.preview-bar-label { font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted); margin-left: 8px; flex: 1; }
+.btn-copy-code { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; height: 26px; padding: 0 10px; background: transparent; color: var(--ink-muted); border: 1px solid var(--border); border-radius: var(--radius-full); font-family: var(--font-mono); font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+.btn-copy-code:hover { background: var(--surface); color: var(--accent); border-color: var(--accent); }
+.btn-copy-code.copied { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-copy-code svg { width: 13px; height: 13px; }
+.preview-container iframe { width: 100%; min-height: 200px; border: none; display: block; background: var(--bg); transform: translateZ(0); will-change: transform; }
 .principles-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .principle-chip { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-full); font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--ink-soft); }
 
@@ -279,7 +283,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 @media (max-width: 600px) {
   .elements-grid { grid-template-columns: 1fr; gap: 16px; }
   .market-header__title { font-size: 28px; }
-  .marketplace { padding: 0 16px 60px; }
+  .library-page { padding: 0 16px 60px; }
   .market-header { padding-top: 32px; }
   .search-input { min-width: 100%; }
   .element-card__preview { height: 200px; }
@@ -320,7 +324,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 </head>
 <body>
 
-<div class="marketplace" id="app">
+<div class="library-page" id="app">
   <header class="market-header">
     <div class="market-header__top">
       <div>
@@ -386,7 +390,8 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
   <div class="modal" id="compareContent"></div>
 </div>
 
-<script id="elements-data" type="application/json">{"run_id":"","elements":[]}</script>
+<script src="library-data.js"></script>
+<script id="elements-data" type="application/json">{"runs":[]}</script>
 
 <script>
 (function() {
@@ -413,6 +418,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
         // Normalize field names across different run schemas
         if (!el.name && el.title) el.name = el.title;
         if (!el.html_css && el.html_snippet) el.html_css = el.html_snippet;
+        if (!el.html_css && el.html_css_snippet) el.html_css = el.html_css_snippet;
         if (!el.description && el.visual_spec && el.visual_spec.description) el.description = el.visual_spec.description;
         if (!el.implements_principles && el.source_elements) el.implements_principles = el.source_elements;
         if (!el.effort) el.effort = el.priority === "high" ? "medium" : "small";
@@ -429,6 +435,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
         el.run_lens = run.lens;
         el.report_url = run.report_url;
         el.library_url = run.library_url;
+        el._uid = run.run_id + "--" + el.id;
         elements.push(el);
         if (!catMap[el.category]) { catMap[el.category] = true; ALL_CATEGORIES.push(el.category); }
         el.journey_phases.forEach(function(p) { if (!phMap[p]) { phMap[p] = true; ALL_PHASES.push(p); } });
@@ -440,6 +447,13 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 
   function loadData() {
     showLoading();
+    // Priority 1: external library-data.js (sets window.__LIBRARY_DATA)
+    if (window.__LIBRARY_DATA && window.__LIBRARY_DATA.runs && window.__LIBRARY_DATA.runs.length > 0) {
+      initFromData(window.__LIBRARY_DATA.runs);
+      boot();
+      return;
+    }
+    // Priority 2: fetch from manifest (works via HTTP)
     fetch("../runs/manifest.json")
       .then(function(r) { return r.json(); })
       .then(function(manifest) {
@@ -468,10 +482,13 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
       })
       .catch(function(err) {
         console.error("Failed to load manifest, falling back to embedded data:", err);
-        var rawData = JSON.parse(document.getElementById("elements-data").textContent);
-        if (rawData.elements && rawData.elements.length > 0) {
-          initFromData([{ run_id: rawData.run_id || "unknown", date: "", lens: {}, summary: "", element_count: rawData.elements.length, principle_count: 0, report_url: "", library_url: "", elements: rawData.elements }]);
-        }
+        // Priority 3: inline embedded data
+        try {
+          var rawData = JSON.parse(document.getElementById("elements-data").textContent);
+          if (rawData.runs && rawData.runs.length > 0) {
+            initFromData(rawData.runs);
+          }
+        } catch(ex) {}
         boot();
       });
   }
@@ -490,7 +507,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     }
   }
 
-  var PHASE_LABELS = { discovery: "Discovery", evaluation: "Evaluation", onboarding: "Onboarding", listing_creation: "Listing Creation", pricing: "Pricing", proposal_mgmt: "Proposal Mgmt", active_lease: "Active Lease", retention: "Retention" };
+  var PHASE_LABELS = { discovery: "Discovery", search: "Search", listing_evaluation: "Listing Evaluation", proposal_creation: "Proposal Creation", negotiation: "Negotiation", acceptance: "Acceptance", move_in: "Move-In", evaluation: "Evaluation", onboarding: "Onboarding", listing_creation: "Listing Creation", pricing: "Pricing", proposal_mgmt: "Proposal Mgmt", active_lease: "Active Lease", retention: "Retention" };
   var CATEGORY_LABELS = { badge: "Badge", card: "Card", form: "Form", display: "Display", notification: "Notification", section: "Section", button: "Button", input: "Input" };
 
   function escapeHtml(str) { var d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
@@ -565,6 +582,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
         h += '<div class="run-banner__summary">' + escapeHtml(run.summary || '') + '</div>';
         h += '<div class="run-banner__meta">';
         if (run.lens && run.lens.host_call) h += '<span>Host: ' + escapeHtml(run.lens.host_call) + '</span>';
+        if (run.lens && run.lens.guest_call) h += '<span>Guest: ' + escapeHtml(run.lens.guest_call) + '</span>';
         if (run.lens && run.lens.book_extract) h += '<span>Book: ' + escapeHtml(run.lens.book_extract) + '</span>';
         h += '<span>' + (run.element_count || 0) + ' elements</span>';
         h += '<span>' + (run.principle_count || 0) + ' principles</span>';
@@ -601,7 +619,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     setTimeout(function() {
       filtered.forEach(function(e) {
         if (e.html_css) {
-          var iframe = document.getElementById("card-preview-" + e.id);
+          var iframe = document.getElementById("card-preview-" + e._uid);
           if (iframe) { iframe.srcdoc = buildSrcdoc(e.html_css); }
         }
       });
@@ -609,13 +627,13 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
   }
 
   function renderCard(e) {
-    var isComp = state.compareItems.indexOf(e.id) > -1;
+    var isComp = state.compareItems.indexOf(e._uid) > -1;
     var phases = e.journey_phases.slice(0, 3).map(function(p) { return '<span class="phase-tag">' + (PHASE_LABELS[p] || p) + '</span>'; }).join("");
     if (e.journey_phases.length > 3) phases += '<span class="phase-tag">+' + (e.journey_phases.length - 3) + '</span>';
 
-    return '<div class="element-card' + (isComp ? ' compare-selected' : '') + '" data-elem-id="' + e.id + '" data-action="open-detail" data-detail-id="' + e.id + '">' +
-      '<button class="btn-compare' + (isComp ? ' selected' : '') + '" data-compare-id="' + e.id + '" data-action="toggle-compare-item" title="Add to compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>' +
-      '<div class="element-card__preview"><iframe id="card-preview-' + e.id + '" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe></div>' +
+    return '<div class="element-card' + (isComp ? ' compare-selected' : '') + '" data-elem-id="' + e._uid + '" data-action="open-detail" data-detail-id="' + e._uid + '">' +
+      '<button class="btn-compare' + (isComp ? ' selected' : '') + '" data-compare-id="' + e._uid + '" data-action="toggle-compare-item" title="Add to compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>' +
+      '<div class="element-card__preview"><iframe id="card-preview-' + e._uid + '" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe></div>' +
       '<div class="element-card__meta">' +
         '<div class="element-card__name-row">' +
           '<div class="element-card__name">' + escapeHtml(e.name) + (ALL_RUNS.length > 1 && e.run_id ? '<span class="run-chip">' + e.run_id.slice(-4) + '</span>' : '') + '</div>' +
@@ -646,7 +664,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     var bar = document.getElementById("compareBar"), items = document.getElementById("compareItems"), btn = document.getElementById("compareBtn");
     if (state.compareItems.length > 0 && state.compareMode) {
       bar.classList.add("visible");
-      items.innerHTML = state.compareItems.map(function(id) { var el = elements.find(function(e) { return e.id === id; }); return '<span class="compare-bar__chip">' + escapeHtml(el.name) + '<button class="compare-bar__chip-remove" data-action="remove-compare" data-remove-id="' + id + '">&times;</button></span>'; }).join("");
+      items.innerHTML = state.compareItems.map(function(id) { var el = elements.find(function(e) { return e._uid === id; }); return '<span class="compare-bar__chip">' + escapeHtml(el.name) + '<button class="compare-bar__chip-remove" data-action="remove-compare" data-remove-id="' + id + '">&times;</button></span>'; }).join("");
       btn.disabled = state.compareItems.length < 2;
     } else { bar.classList.remove("visible"); }
   }
@@ -654,7 +672,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 
   // DETAIL MODAL
   function openDetail(id) {
-    var e = elements.find(function(el) { return el.id === id; });
+    var e = elements.find(function(el) { return el._uid === id; });
     if (!e) return;
     var overlay = document.getElementById("modalOverlay"), content = document.getElementById("modalContent");
     var vs = e.visual_spec || {}, is_ = e.interaction_spec || {}, cs = e.copy_spec || {}, ba = e.before_after || {};
@@ -665,12 +683,13 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
       h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">';
       h += '<span style="padding:2px 8px;background:var(--bg-deep);border-radius:var(--radius-full);">Run: ' + escapeHtml(e.run_id) + '</span>';
       if (e.run_lens && e.run_lens.host_call) h += '<span style="padding:2px 8px;background:var(--bg-deep);border-radius:var(--radius-full);">Host: ' + escapeHtml(e.run_lens.host_call) + '</span>';
+      if (e.run_lens && e.run_lens.guest_call) h += '<span style="padding:2px 8px;background:var(--bg-deep);border-radius:var(--radius-full);">Guest: ' + escapeHtml(e.run_lens.guest_call) + '</span>';
       if (e.run_lens && e.run_lens.book_extract) h += '<span style="padding:2px 8px;background:var(--bg-deep);border-radius:var(--radius-full);">Book: ' + escapeHtml(e.run_lens.book_extract) + '</span>';
       h += '</div>';
     }
 
     if (e.html_css) {
-      h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> Live Preview</div><div class="preview-container"><div class="preview-container__bar"><span class="preview-dot"></span><span class="preview-dot"></span><span class="preview-dot"></span><span class="preview-bar-label">' + escapeHtml(e.name) + '</span></div><iframe id="preview-frame-' + e.id + '" sandbox="allow-scripts allow-same-origin" style="width:100%;min-height:200px;border:none;background:#f9fafb;"></iframe></div></div>';
+      h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg> Live Preview</div><div class="preview-container"><div class="preview-container__bar"><span class="preview-dot"></span><span class="preview-dot"></span><span class="preview-dot"></span><span class="preview-bar-label">' + escapeHtml(e.name) + '</span><button class="btn-copy-code" data-action="copy-code" data-copy-uid="' + e._uid + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg><span>Copy HTML</span></button></div><iframe id="preview-frame-' + e._uid + '" sandbox="allow-scripts allow-same-origin" style="width:100%;min-height:200px;border:none;background:#f9fafb;"></iframe></div></div>';
     }
 
     h += '<div class="modal__section"><div class="modal__section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> Description</div><div class="modal__desc">' + escapeHtml(e.description) + '</div>';
@@ -723,10 +742,15 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 
     if (e.html_css) {
       setTimeout(function() {
-        var iframe = document.getElementById("preview-frame-" + e.id);
+        var iframe = document.getElementById("preview-frame-" + e._uid);
         if (iframe) {
           iframe.srcdoc = buildSrcdoc(e.html_css);
-          iframe.onload = function() { try { iframe.style.height = Math.max(200, iframe.contentDocument.body.scrollHeight + 32) + "px"; } catch(ex){} };
+          var resized = false;
+          iframe.onload = function() {
+            if (resized) return;
+            resized = true;
+            try { iframe.style.height = Math.max(200, iframe.contentDocument.body.scrollHeight + 32) + "px"; } catch(ex){}
+          };
         }
       }, 100);
     }
@@ -738,7 +762,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
   function openCompare() {
     if (state.compareItems.length < 2) return;
     var overlay = document.getElementById("compareOverlay"), content = document.getElementById("compareContent");
-    var items = state.compareItems.map(function(id) { return elements.find(function(e) { return e.id === id; }); }).filter(Boolean);
+    var items = state.compareItems.map(function(id) { return elements.find(function(e) { return e._uid === id; }); }).filter(Boolean);
 
     var h = '<div class="modal__header"><div class="modal__header-left"><div class="modal__title">Compare Elements</div><div class="modal__meta"><span style="font-size:14px;color:var(--ink-soft);">Comparing ' + items.length + ' elements side by side</span></div></div><button class="modal__close" data-action="close-compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div class="modal__body" style="padding:0;"><div class="compare-grid compare-grid--' + items.length + '">' + items.map(function(e) { return renderCompareCol(e); }).join("") + '</div></div>';
 
@@ -749,8 +773,8 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     setTimeout(function() {
       items.forEach(function(e) {
         if (e.html_css) {
-          var iframe = document.getElementById("compare-preview-" + e.id);
-          if (iframe) { iframe.srcdoc = buildSrcdoc(e.html_css); iframe.onload = function() { try { iframe.style.height = Math.max(150, iframe.contentDocument.body.scrollHeight + 24) + "px"; } catch(ex){} }; }
+          var iframe = document.getElementById("compare-preview-" + e._uid);
+          if (iframe) { iframe.srcdoc = buildSrcdoc(e.html_css); var done = false; iframe.onload = function() { if (done) return; done = true; try { iframe.style.height = Math.max(150, iframe.contentDocument.body.scrollHeight + 24) + "px"; } catch(ex){} }; }
         }
       });
     }, 100);
@@ -765,7 +789,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     if (vs.colors) h += '<div class="compare-section"><div class="compare-section__title">Colors</div><div class="compare-section__text">' + escapeHtml(String(vs.colors)) + '</div></div>';
     if (cs.tone) h += '<div class="compare-section"><div class="compare-section__title">Tone</div><div class="compare-section__text">' + escapeHtml(cs.tone) + '</div></div>';
     if (e.implements_principles) h += '<div class="compare-section"><div class="compare-section__title">Principles</div><div style="display:flex;flex-wrap:wrap;gap:4px;">' + e.implements_principles.map(function(p) { return '<span class="principle-chip" style="font-size:11px;height:22px;">' + p + '</span>'; }).join("") + '</div></div>';
-    if (e.html_css) h += '<div class="compare-section"><div class="compare-section__title">Preview</div><div class="compare-preview"><iframe id="compare-preview-' + e.id + '" sandbox="allow-scripts allow-same-origin" style="width:100%;min-height:150px;border:1px solid var(--border);border-radius:6px;background:#f9fafb;"></iframe></div></div>';
+    if (e.html_css) h += '<div class="compare-section"><div class="compare-section__title">Preview</div><div class="compare-preview"><iframe id="compare-preview-' + e._uid + '" sandbox="allow-scripts allow-same-origin" style="width:100%;min-height:150px;border:1px solid var(--border);border-radius:6px;background:#f9fafb;"></iframe></div></div>';
     h += '</div>';
     return h;
   }
@@ -778,6 +802,21 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     document.querySelectorAll(".filter-pill").forEach(function(b) { b.classList.remove("active"); });
     updateRunBanner();
     renderElements();
+  }
+
+  // COPY CODE
+  function copyCode(btn) {
+    var uid = btn.getAttribute("data-copy-uid");
+    var el = elements.find(function(e) { return e._uid === uid; });
+    if (!el || !el.html_css) return;
+    navigator.clipboard.writeText(el.html_css).then(function() {
+      btn.classList.add("copied");
+      btn.querySelector("span").textContent = "Copied!";
+      setTimeout(function() {
+        btn.classList.remove("copied");
+        btn.querySelector("span").textContent = "Copy HTML";
+      }, 2000);
+    });
   }
 
   // EVENT DELEGATION
@@ -803,6 +842,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
       case "close-compare": closeCompare(); break;
       case "clear-filters": clearAllFilters(); break;
       case "remove-compare": toggleCompareItem(target.getAttribute("data-remove-id")); break;
+      case "copy-code": ev.stopPropagation(); copyCode(target); break;
     }
   });
 

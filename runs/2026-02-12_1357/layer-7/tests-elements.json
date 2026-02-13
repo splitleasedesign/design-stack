@@ -1,0 +1,1110 @@
+{
+  "lens": {
+    "guest_call": "nneka-call.txt",
+    "book_extract": "kahneman-part1-two-systems.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Validate Self-Service Date Change Completes in Under 60 Seconds",
+      "validates_element": "works-001",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "The three-tap date change flow may still be slower or more confusing than sending a text message. If the flow requires more than 60 seconds or more than 3 taps, guests will revert to texting the host directly, and the platform loses visibility into schedule changes.",
+      "solution": "Run a moderated usability test with 8-10 participants representing the hybrid worker persona. Give each participant the task: 'You cannot make it this Thursday. Swap it for next Tuesday.' Measure time from first tap to submission. Observe whether participants understand the three change types (Swap, Add, Remove) without instruction. Record any hesitations, backtracking, or confusion points.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day... if I have availability.",
+          "insight": "Brad's texting benchmark is approximately 10-15 seconds. The platform flow must approach this speed to compete. If usability testing reveals the flow takes more than 60 seconds, the design must be simplified before launch."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "A general 'law of least effort' applies to cognitive as well as physical exertion.",
+          "insight": "The law of least effort predicts that any flow slower than texting will be abandoned. The usability test must measure not just completion time but cognitive ease -- does the participant appear strained, or does the interaction feel effortless?"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Moderated task-based usability test. Participants are given a scenario (swap Thursday for Tuesday) and asked to complete it on a prototype. Measure: task completion time, number of taps, error rate, and post-task ease rating (1-7 scale). Compare against the texting benchmark: composing 'Hey, can I switch Thursday for Tuesday?' on a phone (measured for the same participants as a control).",
+      "success_criteria": "Median task completion time under 45 seconds. Zero participants require more than 3 taps to complete. At least 7 of 10 participants correctly identify the difference between Swap, Add, and Remove on first attempt without instruction. Post-task ease rating median of 6 or higher.",
+      "failure_meaning": "If completion time exceeds 60 seconds, the flow has too many steps or the change type selection is confusing. If more than 2 participants confuse Swap and Add, the labeling and financial consequence display need redesign. Failure means the platform cannot compete with texting for speed.",
+      "implementation_hint": "Build the test on a clickable prototype in Figma with realistic data (actual dates, actual pricing). Recruit participants who match the hybrid worker profile (employed, commuting 3+ days/week). Run the texting control task first so participants anchor on their own texting speed before attempting the platform flow."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Validate Financial Legibility of Replace/Add/Remove Options",
+      "validates_element": "works-002",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "Guests may not understand the financial distinction between Replace, Add, and Remove even with inline pricing. If the financial consequences are unclear, guests will select the wrong change type and experience surprise charges, generating support tickets and eroding trust.",
+      "solution": "Conduct a comprehension test embedded in the usability study. After participants see the three date change options with their financial consequences, ask: 'Which option costs you the most? Which one gets you money back? What happens to your price if you swap to a date in a different season?' Score responses for accuracy.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "If Brad was to add a book tonight, and add instead of like replace, is that something that you would be open to... it would be a different rate.",
+          "insight": "Even the Split Lease team had to explicitly clarify the pricing distinction. The comprehension test validates whether the design eliminates this confusion for guests."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Your System 1 made as much sense as possible of the situation... by linking the words in a causal story.",
+          "insight": "System 1 must be able to form a complete story for each option (action + cost). If comprehension fails, the option cards are not self-contained stories -- they require cross-referencing or inference."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Embedded comprehension check within the date change usability test. After viewing the three option cards (Swap: +$12 seasonal, Add: +$95, Remove: -$80 refund), participants answer three questions: (1) Which option costs nothing extra? (2) Which gets you money back? (3) If you swap to January dates, will your rate change? Score 0-3.",
+      "success_criteria": "At least 8 of 10 participants score 3/3 on the comprehension test. No participant confuses Add and Swap. At least 9 of 10 correctly identify Remove as the refund option.",
+      "failure_meaning": "Comprehension scores below 80% indicate the option cards are not self-explanatory. The most likely failure point is the seasonal adjustment on Swap -- participants may not notice the '+$12 seasonal' badge. Failure requires increasing the visual weight of the delta badge or adding a one-line explanation.",
+      "implementation_hint": "Test with both a zero-delta swap ($0) and a seasonal-delta swap (+$12) to verify that participants understand swaps can have a cost. Include at least one scenario where the seasonal adjustment exceeds $30 to test whether higher amounts change comprehension."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Validate Stays Manager Hero Card Reduces Time-to-Status",
+      "validates_element": "works-003",
+      "journey_phases": ["active_lease"],
+      "problem": "The hero card design may not meaningfully reduce the time guests need to find their current week status compared to the existing flat table. If the hero card adds visual complexity without reducing scan time, the redesign is not justified.",
+      "solution": "Run an A/B test comparing the existing flat table design against the hero card + collapsed summary design. Measure time-to-first-action (time from page load to the guest clicking an action or navigating away) and self-reported ease on each weekly visit.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "As you become skilled in a task, its demand for energy diminishes.",
+          "insight": "The hero card should show a declining time-to-status over multiple visits (skill acquisition) while the flat table should show flat or increasing time-to-status as rows accumulate. The A/B test must track the metric over multiple weeks, not just a single session."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern... 2-3 month commitments typical.",
+          "insight": "The weekly return cadence means the test can collect longitudinal data within a single lease. Compare early-lease visits (Week 2-3) against mid-lease visits (Week 7-8) to measure the learning curve for each design."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Split active-lease guests into two cohorts: (A) existing flat table Stays Manager, (B) hero card + collapsed summary Stays Manager. Track time-to-first-action per visit over 8+ weeks. Secondary metrics: per-stay action completion rate (reviews, photo uploads), and Stays Manager page bounce rate.",
+      "success_criteria": "Cohort B achieves median time-to-first-action under 8 seconds by Week 4. Cohort B shows a declining time-to-first-action curve over weeks while Cohort A shows flat or increasing. Per-stay action completion rate in Cohort B is at least 20% higher than Cohort A.",
+      "failure_meaning": "If Cohort B does not outperform Cohort A on time-to-first-action, the hero card may not be visually prominent enough, or the collapsed summaries may be confusing. If time-to-first-action does not decline over weeks for Cohort B, the positional consistency of the hero card is not enabling System 1 learning.",
+      "implementation_hint": "Ensure both cohorts have similar lease durations and start dates to control for seasonality. The key longitudinal measurement requires at least 8 weeks of data per participant. Track the specific row/card the guest clicks first on each visit to verify that Cohort B guests consistently target the hero card."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Validate Off-Platform Communication Reduction After In-Platform Tools Launch",
+      "validates_element": "works-004",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Even after launching in-platform date change and messaging tools, guests may continue texting hosts because the behavioral priming toward texting is already established. The platform tools may be used by new guests but ignored by existing guests who already have the host's phone number.",
+      "solution": "Track platform-initiated versus manually-entered date changes before and after tool launch. Survey a sample of active guests 6 weeks after launch to measure awareness and preference for in-platform versus text-based communication.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day... if I have availability.",
+          "insight": "Brad's texting is an established habit. The analytics must distinguish between new guests (no prior texting habit) and existing guests (established texting habit) to measure the tool's ability to change behavior versus prevent new habit formation."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Exposure to a word causes immediate and measurable changes in the ease with which many related words can be evoked.",
+          "insight": "Priming effects mean that guests who have already established texting patterns will be harder to redirect. The validation must measure adoption curves separately for new and existing guests."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Pre-launch baseline: count date changes mediated by the Split Lease team (manually entered) as a proxy for off-platform changes. Post-launch: count platform-initiated date changes vs. manually-entered. Segment by new guests (started lease after tool launch) vs. existing guests (already had active lease). Survey 30 active guests at 6 weeks post-launch on awareness and preference.",
+      "success_criteria": "Within 3 months: platform-initiated date changes exceed 60% of all changes for new guests. For existing guests: platform-initiated changes exceed 40%. Survey: at least 70% of respondents are aware of the in-platform tool. At least 50% of existing-lease guests report using it at least once.",
+      "failure_meaning": "If new guest adoption is below 60%, the tool is not easier than texting -- revisit the three-tap flow speed. If existing guest adoption is below 40%, the behavioral priming toward texting is too strong -- consider a one-time migration prompt ('You can now manage date changes right here. Try it?').",
+      "implementation_hint": "Use the Split Lease team's manual date change entries as the baseline proxy. After launch, keep the manual entry path available for the transition period but track it separately. The survey should include an open-text question: 'The last time you needed to change a date, how did you do it?' to capture unstructured behavioral data."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Validate Pricing Transparency Reduces Mid-Lease Support Tickets",
+      "validates_element": "works-005",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "Front-loading seasonal pricing information may not actually prevent surprise. Guests who see a rate range at listing evaluation may still anchor on the lower end of the range and feel surprised when they encounter the higher end during a date change.",
+      "solution": "Track pricing-related support tickets as a percentage of active leases before and after implementing the three-touchpoint disclosure pattern (listing evaluation, acceptance, date change). Complement with a post-date-change micro-survey asking whether the price was expected.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "It's not working financially... Originally when I... I believe $1,170, $1,175... the new dates are priced higher now.",
+          "insight": "The pricing dispute is real and documented. The validation must measure whether pre-commitment disclosure reduces the frequency of this exact dispute pattern."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Now that you have measured the lines, you -- your System 2 -- have a new belief: you know that the lines are equally long. But you still see the bottom line as longer.",
+          "insight": "The Muller-Lyer illusion means the guest will still feel the higher rate is unfair even after disclosure. The validation must measure whether disclosure prevents the guest from escalating that feeling into a support ticket -- not whether it eliminates the feeling entirely."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Baseline: count pricing-related support tickets per 100 active leases per month for 3 months pre-launch. Post-launch: same metric for 3 months after implementing the seasonal rate range display (listing), pricing clause (acceptance), and rate comparison (date change). Secondary: post-date-change micro-survey (2 questions) triggered after every date change completion: 'Was the price you paid what you expected? (Yes/No)' and 'If no, what was different?'",
+      "success_criteria": "Pricing-related support tickets drop below 3% of active leases per month (from whatever the baseline is). Post-date-change survey: at least 80% of respondents answer 'Yes' to 'Was the price what you expected?'",
+      "failure_meaning": "If support tickets do not decrease, the disclosure is not visible enough or arrives too early in the journey for guests to remember it at date-change time. If the micro-survey shows low expectation-match despite disclosure, the rate range display may need to be more prominent or the date change screen may need to reinforce the seasonal context more aggressively.",
+      "implementation_hint": "Categorize support tickets using keyword tagging (price, rate, charge, unexpected, different) to isolate pricing-related tickets from the general queue. The micro-survey should appear inline in the date change confirmation flow, not as a separate email -- capture the response while the experience is fresh."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Validate Batched Reviews Produce Higher Quality Feedback Than Per-Stay Reviews",
+      "validates_element": "works-006",
+      "journey_phases": ["active_lease"],
+      "problem": "Batching reviews to 3 milestone moments may reduce the total volume of feedback without meaningfully improving quality. If batched reviews produce the same perfunctory '5 stars, no text' pattern as per-stay reviews, the redesign trades frequency for nothing.",
+      "solution": "Run an A/B test comparing per-stay review prompts (current) versus batched review prompts at Week 4, midpoint, and final stay. Measure review completion rate, average review word count, rating variance, and the presence of actionable feedback in text reviews.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "An effort of will or self-control is tiring; if you have had to force yourself to do something, you are less willing or less able to exert self-control when the next challenge comes around.",
+          "insight": "Ego depletion theory predicts that batched reviews at natural reflection points will yield more thoughtful responses because the guest has not been drained by prior review prompts. The test must compare early-lease versus late-lease review quality in both cohorts."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Hybrid workers... typically looking for really weeknights or weekdays each week.",
+          "insight": "The hybrid worker persona has minimal cognitive budget for platform admin. Fewer, better-timed review moments should yield better engagement from this specific user type."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Split new lease starts into two cohorts: (A) per-stay review buttons on every completed stay, (B) batched review cards at Week 4, midpoint, and final stay. Run for 3 full lease cycles (minimum 13 weeks each). Measure: total reviews submitted per lease, average word count per review, percentage of reviews with text (not just star rating), and review completion rate (reviews submitted / reviews prompted).",
+      "success_criteria": "Cohort B achieves a review completion rate above 60% (reviews submitted / 3 prompts). Cohort B average word count is at least 2x Cohort A late-lease average (Weeks 8-13). At least 40% of Cohort B reviews contain actionable text. Total reviews per lease: Cohort B >= 2 (out of 3 possible) while Cohort A produces fewer than 5 (out of 13 possible) due to late-lease dropoff.",
+      "failure_meaning": "If Cohort B completion rate is below 40%, the batched review moments are not compelling enough -- the timing, framing, or placement of the review card needs adjustment. If word count is not meaningfully higher, the batched approach does not improve reflection quality and the benefit is merely reduced prompts, not better feedback.",
+      "implementation_hint": "Track Cohort A's review completion rate by week number to establish the depletion curve (expected: high Weeks 1-3, declining through Week 13). Compare Cohort B's per-milestone completion rate against the equivalent Cohort A weeks. The most revealing comparison is Cohort B midpoint review versus Cohort A Week 7-8 reviews."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Validate Real-Time Availability Reduces Date Change Rejections",
+      "validates_element": "works-007",
+      "journey_phases": ["search", "listing_evaluation", "active_lease"],
+      "problem": "Surfacing real-time availability depends on reliable calendar sync from Airbnb and other platforms. If the sync is delayed or inaccurate, showing availability inline may create false positives (guest selects an 'available' date that is actually booked) or false negatives (guest cannot see dates that are actually available).",
+      "solution": "Track date change rejection rate (guest-initiated changes rejected by host due to unavailability) before and after implementing inline availability display. Also track availability data freshness (time since last sync) and correlate stale data with rejection events.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Airbnb. I have some of them today. If I worked, then it automatically updates on... you guys have the most up to date.",
+          "insight": "Nneka cross-lists on Airbnb and availability depends on sync. The validation must test whether the sync is reliable enough to support real-time availability display, not just whether the display is useful in theory."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 2 is activated when an event is detected that violates the model of the world that System 1 maintains.",
+          "insight": "A date shown as available that turns out to be booked is a worse model violation than not showing availability at all. The validation must confirm that sync reliability is high enough before exposing the data to guests."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Phase 1 (pre-launch): measure calendar sync accuracy by comparing platform availability data against actual host calendar states (spot-check 50 hosts weekly for 4 weeks). Phase 2 (post-launch): track date change rejection rate per 100 changes for 3 months. Correlate rejections with availability data age (time since last sync). Measure: rejection rate trend, sync staleness distribution, and false-positive rate (guest selected an 'available' date that was rejected).",
+      "success_criteria": "Calendar sync accuracy above 95% (spot-check). Date change rejection rate below 10% of guest-initiated changes (post-launch). False-positive rate (guest sees available, host rejects for availability) below 3%. Average sync staleness under 2 hours for active hosts.",
+      "failure_meaning": "If sync accuracy is below 95%, the availability display should not launch -- it will create worse trust violations than the current opacity. If rejection rate does not decrease post-launch, the availability data is either stale or the display is not preventing guests from selecting unavailable dates. The confidence indicator ('Availability last updated 2 hours ago') may need to be mandatory for hosts with infrequent syncs.",
+      "implementation_hint": "The spot-check in Phase 1 requires manual comparison: a team member checks 50 hosts' Airbnb calendars against Split Lease availability data once per week. Automate where possible by comparing API data directly. For Phase 2, log the availability sync timestamp alongside every date change request to enable staleness correlation."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Validate Current-Week Hero Card Is Found Faster Than Table Row",
+      "validates_element": "communicates-001",
+      "journey_phases": ["active_lease"],
+      "problem": "The hero card information hierarchy may not successfully draw the guest's eye before the table rows below it. If the hero card is not visually dominant enough, the guest may still scan the table first, negating the hierarchy inversion.",
+      "solution": "Run an eye-tracking study on 6-8 participants viewing the Stays Manager with the hero card design. Measure first fixation target, time to first fixation on the hero card, and scan path across the page.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 1 operates automatically and quickly, with little or no effort and no sense of voluntary control.",
+          "insight": "The hero card must capture System 1 attention automatically. Eye tracking reveals whether the visual hierarchy achieves this -- if the first fixation is on the hero card, System 1 is working as designed. If the first fixation is elsewhere, the visual weight is insufficient."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern... 2-3 month commitments typical.",
+          "insight": "The test participants should match the hybrid worker persona and should be shown the page in contexts that simulate a Monday morning quick-check (time pressure, competing attention)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Eye-tracking study with 6-8 participants. Show the Stays Manager with hero card design in a Week 7 state (6 completed stays, 1 current, 6 upcoming). Ask: 'What is your status this week?' Measure: first fixation location, time to first fixation on hero card, number of fixations before the hero card, and total time to answer the question. Run on both desktop and mobile viewports.",
+      "success_criteria": "At least 6 of 8 participants fixate on the hero card first. Time to first hero card fixation under 500ms. Total time to answer 'What is your status this week?' under 3 seconds. No participant scans more than 2 elements before reaching the hero card.",
+      "failure_meaning": "If fewer than 6 participants fixate on the hero card first, the visual weight differential between the card and the collapsed summary is insufficient. Increase shadow depth, border accent width, or card size. If time to answer exceeds 3 seconds, the hero card content may be too complex -- simplify to fewer data points.",
+      "implementation_hint": "Use a high-fidelity prototype with realistic data (actual dates, property names). Include the collapsed completed-stays summary and collapsed future-stays count so the full visual context is present. Test with at least 2 participants on mobile to verify the hero card dominates above the fold on smaller screens."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Validate One-Number Financial Display Reduces Pricing Computation Errors",
+      "validates_element": "communicates-002",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "Showing monthly cost as the primary number may confuse guests who are comparing Split Lease listings to Airbnb listings displayed as nightly rates. The format switch may create new comprehension problems rather than solving existing ones.",
+      "solution": "Run a comprehension test comparing the current three-number display (nightly, 4-week, total) versus the one-number display (monthly primary, nightly secondary). Ask participants to determine whether a listing fits their monthly budget. Measure accuracy and time.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "More than 50% of students at Harvard, MIT, and Princeton gave the intuitive -- incorrect -- answer.",
+          "insight": "If elite students fail simple arithmetic, the baseline error rate for nightly-to-monthly conversion under listing evaluation cognitive load should be even higher. The test measures whether eliminating the conversion requirement reduces errors."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Originally when I... I believe $1,170, $1,175.",
+          "insight": "Both hosts and guests reference pricing in monthly terms. The test should confirm that the monthly primary display matches the user's native mental model."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Between-subjects comprehension test. Group A sees the current listing page with three financial figures. Group B sees the redesigned page with monthly cost primary. Both groups are given the same task: 'Your monthly housing budget is $4,000. Does this listing fit your budget?' Measure: answer accuracy (correct yes/no), response time, and confidence rating (1-5).",
+      "success_criteria": "Group B accuracy above 90% (versus expected Group A accuracy of 60-70% based on Kahneman's bat-and-ball findings). Group B response time at least 40% faster than Group A. Group B confidence rating median of 4 or higher.",
+      "failure_meaning": "If Group B accuracy is not meaningfully higher than Group A, the monthly cost figure may be positioned or labeled in a way that does not register as the primary financial signal. If confidence is low despite accuracy, the guest may not trust the pre-computed number and may try to verify it by reverse-calculating from the nightly rate.",
+      "implementation_hint": "Use realistic listing data where the monthly cost is close to the $4,000 threshold (e.g., $3,850 or $4,150) to test genuine computation ability, not obvious yes/no. Include 3 listings at different price points to test across the range. Run with 12-16 participants total (6-8 per group)."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Validate Inline Date Change Pricing Prevents Cross-Referencing",
+      "validates_element": "communicates-003",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "Merging change type and financial consequence into a single card may create information-dense cards that overwhelm the guest. If each card contains too much text, the guest may skip reading the financial detail and select based on the action label alone.",
+      "solution": "Run a 5-second exposure test. Show participants the three date change option cards for 5 seconds, then hide them. Ask: 'Which option costs the most? Which gives you money back?' Measure recall accuracy as a proxy for whether the financial information was processed within a natural scan.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "If Brad was to add a book tonight, and add instead of like replace, is that something that you would be open to... it would be a different rate.",
+          "insight": "The 5-second test simulates the rapid evaluation a guest performs when seeing their options. If the financial consequences are memorable after 5 seconds, the design succeeds. If not, the cards need stronger visual differentiation."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 1 operates automatically and quickly, with little or no effort and no sense of voluntary control.",
+          "insight": "5 seconds is the System 1 processing window. If financial consequences are processed in this window, they are part of the System 1 story. If they require longer, the guest needs System 2 engagement, which they may not invest."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "5-second exposure test with 10 participants. Display the three date change cards (Swap: +$12, Add: +$95, Remove: -$80) for exactly 5 seconds. Hide the display. Ask: 'Which option costs the most money? Which gets you a refund? Roughly how much was the refund?' Score on 3 criteria: correct most-expensive, correct refund option, refund amount within $20 of actual.",
+      "success_criteria": "At least 8 of 10 participants correctly identify Add as the most expensive. At least 9 of 10 correctly identify Remove as the refund. At least 6 of 10 recall the refund amount within $20 of $80. These thresholds indicate that the financial information is processed at System 1 speed.",
+      "failure_meaning": "If the most-expensive identification fails, the cost badge color coding (amber for Add, green for Remove, gray for Swap) is not creating sufficient differentiation. If the refund amount is not recalled, the dollar figures may be too small or visually subordinate to the action labels. Increase badge prominence or dollar figure font size.",
+      "implementation_hint": "Show the cards at realistic size (matching mobile or desktop viewport). Vary the dollar amounts across participants to prevent word-of-mouth contamination if running in groups. Include the Swap card with its +$12 seasonal adjustment to test whether small-delta swaps are noticed."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Validate Pre-Commitment Rate Anchoring Prevents Betrayal Emotion",
+      "validates_element": "communicates-004",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "acceptance"],
+      "problem": "Showing a rate range at listing evaluation may cause sticker shock at the high end and reduce conversion. Guests seeing '$280-$301/night' may anchor on $301 and perceive the listing as more expensive than if they had seen only '$280/night,' potentially reducing proposals.",
+      "solution": "Run an A/B test on the listing page comparing single-rate display versus rate-range display. Measure listing-to-proposal conversion rate, and then track downstream pricing disputes for guests who converted under each variant.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Now that you have measured the lines, you -- your System 2 -- have a new belief: you know that the lines are equally long. But you still see the bottom line as longer.",
+          "insight": "Anchoring on the rate range may reduce initial conversion but prevent downstream betrayal. The A/B test must measure the full funnel: conversion at listing evaluation AND pricing disputes during active_lease. A higher conversion with more disputes is a worse outcome than lower conversion with zero disputes."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "It's not working financially... Originally when I... I believe $1,170, $1,175... the new dates are priced higher now.",
+          "insight": "The validation must measure the end-to-end effect: does pre-commitment disclosure reduce the pricing conflict Nneka describes?"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test on listings where the lease period spans pricing seasons. Variant A: single nightly rate shown (the rate for the guest's first month). Variant B: rate range shown ($280-$301/night depending on season). Track: listing-to-proposal conversion rate, proposal-to-acceptance conversion rate, pricing-related support tickets during active_lease, and guest satisfaction score at midpoint review.",
+      "success_criteria": "Variant B listing-to-proposal conversion is within 10% of Variant A (a small decline is acceptable). Variant B pricing-related support tickets are at least 50% lower than Variant A during active_lease. Variant B midpoint satisfaction score is at least 0.3 points higher on a 5-point scale.",
+      "failure_meaning": "If Variant B conversion drops more than 15%, the rate range display is scaring guests away. Consider showing only the first-month rate prominently with a smaller 'rates may vary by season' note. If Variant B disputes are not lower, the disclosure is too subtle or too early to be remembered at date-change time.",
+      "implementation_hint": "Only include listings with genuine seasonal rate variation in the test. Listings with flat rates across all months should be excluded as they show no difference between variants. Track guests through their entire lease to capture the long-tail pricing dispute metric."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Validate Proposal Pipeline Reduces Guest Anxiety and Off-Platform Polling",
+      "validates_element": "communicates-005",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "Showing elapsed time and expected response duration may increase anxiety rather than resolve it. A guest who sees 'Submitted 47 hours ago. Hosts typically respond within 48 hours.' may panic as the deadline approaches, leading to more support contacts rather than fewer.",
+      "solution": "Measure support contact rate (emails, calls) during the proposal waiting period before and after implementing the action-assigned pipeline with time estimates. Complement with a brief post-acceptance survey asking how anxious the guest felt during the waiting period.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 2 is activated when an event is detected that violates the model of the world that System 1 maintains.",
+          "insight": "Time estimates resolve the model violation ('something should have happened by now') by providing a framework ('this is normal, the response should arrive by Friday'). The validation must confirm that bounded uncertainty is less anxiety-producing than open-ended uncertainty."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day.",
+          "insight": "Texting the host is the behavioral proxy for unresolved anxiety. If the pipeline reduces the impulse to text, the design is working."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Before/after comparison. Baseline: count support contacts per proposal during the waiting period (time between guest submission and host response) for 3 months. Post-launch: same metric for 3 months after implementing the action-assigned pipeline with time estimates. Secondary: post-acceptance micro-survey asking 'How anxious were you while waiting for your host's response?' (1-5 scale, 1=not anxious, 5=very anxious).",
+      "success_criteria": "Support contacts per proposal during waiting period decrease by at least 30%. Post-acceptance anxiety rating median of 2 or lower on the 1-5 scale. No increase in support contacts as proposals approach the '48 hours' expected response window (indicating the time estimate does not create deadline panic).",
+      "failure_meaning": "If support contacts increase as the 48-hour mark approaches, the time estimate is creating a countdown panic effect. Consider removing the specific hour estimate and replacing it with a vaguer 'usually within a few days.' If overall support contacts do not decrease, the pipeline display is either not noticed or not trusted -- guests may not believe the status information.",
+      "implementation_hint": "Segment support contacts by hour-of-waiting to detect the countdown panic effect. A healthy pattern shows flat or declining contacts over the 48 hours. An unhealthy pattern shows a spike near hour 45-48. Log every pipeline page view during the waiting period to measure polling frequency -- a decrease in page views is a positive signal (the guest trusts the notification system)."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Validate Schedule-First Listing Cards Improve Search Efficiency",
+      "validates_element": "communicates-006",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "Leading with schedule compatibility instead of photos may reduce the visual appeal of listing cards and decrease click-through rates. Guests may be accustomed to photo-first browsing from Airbnb and find the schedule indicator confusing or off-putting.",
+      "solution": "Run an A/B test comparing photo-first listing cards (current) versus schedule-first listing cards (schedule compatibility indicator above photo). Measure click-through rate, time per listing card (dwell time), and listing-to-proposal conversion.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern, which we see... so there can be some difficulties there in matching with your listing availability.",
+          "insight": "If schedule-first cards reduce clicks on incompatible listings while maintaining clicks on compatible ones, the design preserves the guest's attention budget for listings they can actually use."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "You dispose of a limited budget of attention that you can allocate to activities.",
+          "insight": "The attention budget test: measure total listings viewed before a proposal is submitted. Schedule-first cards should reduce this number (fewer wasted evaluations) while maintaining or improving proposal submission rate."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test on search results. Variant A: current photo-first listing cards. Variant B: schedule-first cards with day-of-week compatibility indicator above photo. Track: card click-through rate (total and segmented by schedule compatibility), listings viewed per session, time from first search to first proposal submission, and proposal conversion rate.",
+      "success_criteria": "Variant B listings-viewed-per-session decreases by at least 20% (fewer wasted evaluations). Variant B proposal conversion rate is at least equal to Variant A (guests who view fewer listings still submit at the same rate). Variant B click-through rate on schedule-compatible listings is at least equal to Variant A.",
+      "failure_meaning": "If click-through rate drops across all listings (compatible and incompatible), the schedule indicator is visually off-putting or confusing. Consider reducing its size or moving it adjacent to the photo rather than above it. If proposal conversion drops, the schedule indicator may be causing guests to self-select out too aggressively -- they may be skipping partially-compatible listings that could have worked.",
+      "implementation_hint": "Only run the test for guests who have selected specific days-of-week in their search filters (so the compatibility indicator has meaningful data). Exclude searches with no day-of-week filter. Segment results by compatibility level: full match, partial match (3 of 4 days), and low match (1-2 of 4 days)."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Validate Batched Review Information Architecture Reduces Guilt Signals",
+      "validates_element": "communicates-007",
+      "journey_phases": ["active_lease"],
+      "problem": "Removing per-stay review buttons may make it harder for guests who genuinely want to review individual weeks. Some guests may find the batched approach frustrating if they want to give specific feedback about a particular week.",
+      "solution": "After implementing the batched review system, track the usage rate of the optional 'Add details for a specific week' expansion within the batched review card. Monitor for any increase in support contacts related to review functionality.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "An effort of will or self-control is tiring; if you have had to force yourself to do something, you are less willing or less able to exert self-control when the next challenge comes around.",
+          "insight": "If the batched approach is working, the opt-in per-week detail expansion should be used by a small minority (10-20%) who are intrinsically motivated. The majority should complete the batched review without expanding. High expansion rates would suggest guests feel the batched review is insufficient."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Hybrid workers... typically looking for really weeknights or weekdays each week.",
+          "insight": "The hybrid worker target persona is time-constrained. Monitor whether any users express frustration about the batched approach or request the old per-week system through support channels."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Post-launch analytics on the batched review system. Track: per-week detail expansion rate within batched reviews, review card dismissal rate versus completion rate, support contacts mentioning review functionality, and qualitative feedback from the review text fields (scan for mentions of individual weeks or specific incidents).",
+      "success_criteria": "Per-week expansion usage below 20% (most guests are satisfied with the batched summary). Review card completion rate above 60% at each milestone. Zero increase in review-related support contacts. Review text mentions specific incidents or patterns rather than generic 'everything was fine.'",
+      "failure_meaning": "If per-week expansion exceeds 30%, guests may feel the batched review does not capture their experience adequately. Consider increasing the number of review dimensions (e.g., separate ratings for space quality and host communication). If dismissal rate exceeds 60%, the review card may be appearing at inconvenient times -- test alternative triggers.",
+      "implementation_hint": "Include a 'Tell us more about a specific week' expandable section in each batched review card but do not promote it. Track whether expansions increase over the three milestones (suggesting growing frustration with the batch format) or stay stable (suggesting a consistent minority preference)."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Validate Hero Card Visual Weight Dominates the Stays Manager Page",
+      "validates_element": "looks-001",
+      "journey_phases": ["active_lease"],
+      "problem": "The hero card's visual treatment (elevated shadow, purple accent border, white surface) may not create sufficient contrast against the collapsed summary below it, especially on low-contrast displays or in bright ambient lighting conditions typical of office environments.",
+      "solution": "Test the hero card's visual dominance using a preference test and a first-click test across multiple device types and ambient conditions.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 1 operates automatically and quickly, with little or no effort and no sense of voluntary control.",
+          "insight": "Visual dominance is a System 1 property. The test must verify that the hero card captures attention involuntarily -- the guest does not choose to look at it; their eye lands there automatically."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern... 2-3 month commitments typical.",
+          "insight": "The hybrid worker checks in from various environments: home, office, commute. The visual hierarchy must hold up across all ambient conditions, not just the controlled environment of a usability lab."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "First-click test with 12 participants across 3 device types (phone, laptop, tablet). Show the Stays Manager page and ask: 'Click on the information about your current week.' Measure: first-click target (hero card vs. other elements), time to first click, and click accuracy. Run half the sessions in a brightly-lit room to simulate office conditions.",
+      "success_criteria": "At least 11 of 12 participants click the hero card as their first action. Time to first click under 2 seconds. No meaningful difference in performance between bright and normal ambient lighting conditions.",
+      "failure_meaning": "If participants click collapsed sections or the table expand control instead of the hero card, the visual weight differential is insufficient. Increase shadow depth from --shadow-md to --shadow-lg, or increase the purple border width from 3px to 4px. If bright lighting degrades performance, the contrast between the hero card and the collapsed background needs to increase.",
+      "implementation_hint": "Use a high-fidelity prototype with realistic data. Vary the week number (test with Week 3, Week 7, and Week 12) to ensure the hero card works regardless of lease progress. On mobile, verify the hero card is fully visible above the fold without scrolling."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Validate Single-Sum Financial Display Matches Guest Mental Model",
+      "validates_element": "looks-002",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "The 3:1 typographic size ratio between the primary monthly figure and the secondary nightly rate may cause the nightly rate to be missed entirely. Guests who need to compare Split Lease pricing with Airbnb listings (shown in nightly rates) may struggle to find the nightly rate for cross-platform comparison.",
+      "solution": "Run a dual-task test: Task 1 asks 'Does this fit your monthly budget?' (validates the primary figure) and Task 2 asks 'How does this compare per-night to an Airbnb listing at $275/night?' (validates the secondary figure is findable). Measure completion time and accuracy for both tasks.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Effort is required to maintain simultaneously in memory several ideas that require separate actions, or that need to be combined according to a rule.",
+          "insight": "The financial hierarchy should make the primary task (monthly budget check) effortless and the secondary task (nightly rate comparison) easy but not automatic. The test measures whether the hierarchy serves both use cases."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Originally when I... I believe $1,170, $1,175.",
+          "insight": "Users think in monthly terms for budget decisions. The primary number should be instantly processable for this use case."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Sequential task test with 10 participants. Task 1: 'Your budget is $4,000/month. Does this listing work?' (measure time and accuracy). Task 2: 'An Airbnb listing costs $275/night. Is this Split Lease listing cheaper per night?' (measure time and accuracy). Record whether participants need to scroll, expand, or search for the nightly rate.",
+      "success_criteria": "Task 1: median time under 3 seconds, accuracy above 90%. Task 2: median time under 8 seconds, accuracy above 80%. No more than 2 of 10 participants fail to locate the nightly rate for Task 2.",
+      "failure_meaning": "Task 1 failure indicates the monthly figure is not prominent enough or is confusing. Task 2 failure indicates the nightly rate is too visually subordinate. If 3+ participants cannot find the nightly rate, increase its visual weight while keeping it secondary (e.g., move from 14px to 16px, or add a subtle label 'per night').",
+      "implementation_hint": "Present the listing page as a full screen, not a cropped excerpt. The test must reveal whether the guest can find both numbers in the context of the full page, not in isolation. Include realistic surrounding elements (photos, host info, day selector) to ensure the financial display is tested in context."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Validate Date Change Option Cards Are Visually Distinct Under Rapid Scanning",
+      "validates_element": "looks-003",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "The three option cards (Swap, Add, Remove) may look too similar when scanned quickly, especially if the colored cost badges are the only differentiator. Color-blind users may not distinguish between the amber (Add) and green (Remove) badges.",
+      "solution": "Run an accessibility review and a rapid differentiation test. The accessibility review checks color contrast for deuteranopia and protanopia color blindness. The differentiation test shows the three cards for 2 seconds and asks participants to sort them by financial impact.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 1 operates automatically and quickly, with little or no effort and no sense of voluntary control.",
+          "insight": "Differentiation must work at System 1 speed (under 2 seconds) and must not rely solely on color. The test verifies both speed and accessibility."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "If Brad was to add a book tonight, and add instead of like replace... it would be a different rate.",
+          "insight": "The financial distinction between options must be visually immediate. If the test reveals confusion, additional differentiators (icons, directional arrows, plus/minus signs) should be added alongside color."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "manual_review",
+      "test_description": "Part 1: Accessibility audit. Simulate deuteranopia and protanopia using a color blindness simulator on the option cards. Verify that all three cards remain distinguishable by at least one non-color signal (text label, icon, directional indicator, position). Part 2: Rapid differentiation test. Show 8 participants the three cards for 2 seconds. Ask them to rank the options from 'costs me most' to 'gives me money back.' Measure ranking accuracy.",
+      "success_criteria": "Part 1: All three cards are distinguishable under both deuteranopia and protanopia simulation, with at least one non-color differentiator per card. Part 2: At least 7 of 8 participants rank correctly within 2-second exposure. All participants correctly identify the refund option.",
+      "failure_meaning": "Part 1 failure: add icons (arrows up for Add, arrows swap for Swap, arrow down for Remove) alongside color badges. Part 2 failure: the cost badges are not prominent enough at rapid scan speed -- increase badge size, use monospace for dollar figures to create a consistent column for quick number comparison.",
+      "implementation_hint": "Use a real color blindness simulation tool (not just a desaturated view). Test the most common form of color blindness (deuteranopia, ~6% of males). For the rapid differentiation test, randomize card order across participants to prevent positional learning."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Validate Status Badge System Creates Consistent Cross-Section Recognition",
+      "validates_element": "looks-004",
+      "journey_phases": ["active_lease", "negotiation", "acceptance"],
+      "problem": "Using the same badge system across stays, date changes, and payments may create confusion if the same color means different things in different contexts (e.g., purple means 'In Progress' for stays but 'Your action needed' for proposals).",
+      "solution": "Run a cross-section matching test. Show participants badges from different sections of the Stays Manager and ask them to identify the meaning without reading the text label, based on color alone.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 1 operates automatically and quickly, with little or no effort and no sense of voluntary control.",
+          "insight": "Color-to-meaning mapping is a System 1 operation. The test verifies whether the color vocabulary is consistent enough for System 1 to transfer meaning across page sections."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Several of the mental actions in the list are completely involuntary. You cannot refrain from understanding simple sentences in your own language.",
+          "insight": "Color recognition should be as involuntary as language comprehension. The test checks whether the badge colors have become a visual language that the guest reads without effort."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Cross-section matching test with 8 participants. Show a Stays Manager mockup with all three sections visible (stays, date changes, payments). Point to specific badges in each section and ask: 'What does this color mean?' without letting participants read the text. Then ask: 'Do these two badges [pointing to badges of the same color in different sections] mean the same kind of thing?' Measure consistency of interpretation across sections.",
+      "success_criteria": "At least 6 of 8 participants consistently interpret the same color as the same meaning across sections (e.g., purple = 'active/current' everywhere, amber = 'needs attention' everywhere). No participant interprets the same color as contradictory meanings in different sections.",
+      "failure_meaning": "If color interpretation is inconsistent across sections, the semantic mapping is not clear enough. Consider adding small icons within badges (checkmark for completed, clock for pending, exclamation for attention needed) as secondary signals alongside color.",
+      "implementation_hint": "Ensure the test mockup shows at least 2 badges per section so participants can compare within and across sections. Include one section with no attention-needed badges to verify that participants correctly interpret the absence of amber/red as 'all good.'"
+    },
+    {
+      "id": "tests-019",
+      "type": "validation_strategy",
+      "title": "Validate Seasonal Rate Comparison Display Prevents Price Shock",
+      "validates_element": "looks-005",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "The side-by-side rate comparison (original rate vs. new date rate with delta) may draw excessive attention to the price increase, making it feel larger than it is. The visual comparison could amplify the anchoring effect rather than mitigate it.",
+      "solution": "Run a sentiment test comparing two display variants: (A) the rate comparison with delta badge, and (B) a simple statement of the new rate without comparison. Measure emotional response and willingness to proceed with the date change.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Now that you have measured the lines, you -- your System 2 -- have a new belief: you know that the lines are equally long. But you still see the bottom line as longer.",
+          "insight": "The Muller-Lyer insight predicts that showing the comparison will make the increase feel real but not unfair. Hiding the comparison will make the increase feel hidden and suspicious. The test measures which emotional response is less damaging to trust."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "It's not working financially... the new dates are priced higher now.",
+          "insight": "The real-world scenario involves a meaningful rate difference. The test should use realistic delta amounts ($15-$25/night) to measure genuine emotional reactions, not trivial amounts."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Between-subjects test with 12 participants. Both groups see a date change scenario with a $20/night seasonal increase. Group A: sees the full comparison display (Your rate: $280/night. New date rate: $300/night. Difference: +$20). Group B: sees only the new rate ($300/night) with no comparison. Both groups answer: 'How fair does this price feel?' (1-5 scale), 'Would you proceed with the change?' (yes/no), and 'How much do you trust the platform's pricing?' (1-5 scale).",
+      "success_criteria": "Group A fairness rating is at least 0.5 points higher than Group B on the 1-5 scale. Group A trust rating is at least 0.5 points higher. Group A willingness to proceed is at least equal to Group B. If Group A shows both higher trust AND higher willingness to proceed, the comparison display is validated.",
+      "failure_meaning": "If Group A shows lower willingness to proceed despite higher trust, the comparison makes the increase more salient without improving acceptance. Consider showing the comparison as expandable (default: new rate only; expand: full comparison) to give the guest control over disclosure depth.",
+      "implementation_hint": "Use a realistic scenario that participants can relate to: 'You have been staying at a property for 8 weeks. You need to swap this Thursday for a Friday next week, which is in a higher-rate period.' The emotional context matters -- the test must simulate mid-lease, not first-time evaluation."
+    },
+    {
+      "id": "tests-020",
+      "type": "validation_strategy",
+      "title": "Validate Schedule Compatibility Indicator Is Understood on First Exposure",
+      "validates_element": "looks-006",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "The day-of-week compatibility strip (S M T W T F S with color-coded indicators) may be a novel UI pattern that guests do not immediately understand. The small circular day indicators at 16px may be too small on mobile to read or tap.",
+      "solution": "Run a guerrilla usability test showing 10 participants a listing card with the compatibility strip and asking them to explain what it means without any instruction.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern, which we see.",
+          "insight": "The compatibility strip represents the guest's specific M-F pattern against the host's availability. The test verifies that this mapping is intuitive without explanation."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "You dispose of a limited budget of attention that you can allocate to activities.",
+          "insight": "The strip must be understood in under 3 seconds or it wastes the attention budget. If participants cannot explain it in 3 seconds, the visual language is too novel."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Guerrilla test. Show 10 participants a listing card on a phone screen with the day-of-week compatibility strip (M T W highlighted in purple, T F dimmed, S S crossed out). Ask: 'What do you think this [pointing to strip] is telling you?' Do not provide any context beyond 'You are looking for a place to stay during the work week.' Record: whether participants correctly identify it as a schedule match, time to initial interpretation, and specific confusion points.",
+      "success_criteria": "At least 7 of 10 participants correctly interpret the strip as showing which days are available within 5 seconds. At least 8 of 10 understand that purple days are their days and dimmed/crossed-out days are unavailable. No participant confuses the strip with a booking calendar or a date picker.",
+      "failure_meaning": "If fewer than 7 participants understand the strip, the visual metaphor is too novel. Consider adding a small label ('Fits your M-Th schedule' or '3 of 4 nights') adjacent to the strip to provide textual context alongside the visual. If participants confuse it with a date picker, add a visual distinction (smaller size, no tap affordance).",
+      "implementation_hint": "Test on actual mobile devices, not desktop simulations. The 16px day indicators need to be verified for legibility on common phone screen sizes (5.5-6.7 inches). If legibility is an issue on smaller screens, increase to 20px."
+    },
+    {
+      "id": "tests-021",
+      "type": "validation_strategy",
+      "title": "Validate Proposal Pipeline Visual Hierarchy Resolves Waiting-State Anxiety",
+      "validates_element": "looks-007",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "The action-assigned pipeline visual design may not be noticed by guests who are accustomed to generic progress trackers. The 'Waiting on host' tag may blend into the page and not register as the primary information element.",
+      "solution": "Run a first-impression test. Show participants the proposal pipeline in a waiting state for 5 seconds. Ask: 'What is happening right now? Who needs to do something?' Measure whether the action assignment is the first piece of information recalled.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 2 is activated when an event is detected that violates the model of the world that System 1 maintains.",
+          "insight": "The pipeline must resolve the model violation ('something should have happened') within the first 5 seconds of viewing. If the action assignment is not recalled in 5 seconds, the visual hierarchy is not working."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "We'll be working on basically just having a way to notify you.",
+          "insight": "The pipeline is the in-page equivalent of the notification system. It must deliver the same clarity that a push notification would: who, what, when."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "5-second test with 8 participants. Show the proposal pipeline in a 'Waiting on host -- submitted 14h ago, typically 48h' state. After 5 seconds, hide the display. Ask: (1) 'What is the current status of your proposal?' (2) 'Who needs to do something next?' (3) 'How long ago was your proposal sent?' Record accuracy of all three recall questions.",
+      "success_criteria": "At least 6 of 8 correctly identify 'waiting on host' as the current status. At least 7 of 8 correctly identify the host as the next actor. At least 5 of 8 recall the approximate time elapsed (within 4 hours of 14h).",
+      "failure_meaning": "If status recall is low, the action assignment tag is not visually prominent enough. Increase its size or move it to a standalone line above the stage name. If time elapsed is not recalled, the time context text may need to be separated from the stage description and given its own visual treatment (e.g., a small clock icon).",
+      "implementation_hint": "Test with participants who have just submitted something (to simulate the emotional state of waiting). Use a realistic scenario: 'You just submitted a proposal for a 3-month stay. This is what you see when you check the status.'"
+    },
+    {
+      "id": "tests-022",
+      "type": "validation_strategy",
+      "title": "Validate Flexibility Score Does Not Discourage Date Change Requests",
+      "validates_element": "looks-008",
+      "journey_phases": ["active_lease"],
+      "problem": "Even with the redesigned contextual framing ('Your host has accommodated 4 of 5 change requests'), the Flexibility Score may still feel like a depleting resource that discourages guests from requesting changes. Guests may interpret '4 of 5' as 'I only have 1 left.'",
+      "solution": "Run a behavioral test. Show participants the date change flow with the Flexibility Score visible and measure their willingness to submit a change request. Compare against a control group where the Flexibility Score is hidden entirely.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 1 operates automatically and quickly, with little or no effort and no sense of voluntary control.",
+          "insight": "System 1 processes '4 of 5' as a fraction approaching a limit. The test verifies whether this automatic interpretation discourages change requests or whether the contextual framing ('accommodated') neutralizes the depletion interpretation."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "By providing him the flexibility, you're not leaving the days available that were booked before.",
+          "insight": "The host's flexibility has real costs. The test must balance the guest's freedom to request changes against the need to communicate that flexibility is not unlimited. The ideal outcome is informed requesting, not suppressed requesting."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Between-subjects test with 12 participants. All participants see a date change scenario where they need to swap a night. Group A: sees the Flexibility Score ('Your host has accommodated 4 of 5 change requests') with the subtle progress bar. Group B: does not see any Flexibility Score. Both groups answer: 'Would you submit this change request?' (yes/no), 'How comfortable do you feel making this request?' (1-5), and 'Do you feel like this platform makes it easy to adjust your schedule?' (1-5).",
+      "success_criteria": "Group A willingness to submit is within 10% of Group B (the score does not significantly suppress requests). Group A comfort rating is within 0.5 points of Group B. No participant in Group A interprets the score as 'I only have 1 request left.'",
+      "failure_meaning": "If Group A willingness drops more than 15% below Group B, the Flexibility Score is acting as a deterrent. Remove it from the date change flow and show it only in a separate 'lease details' section. If any participant interprets it as a finite resource, the framing language ('accommodated') needs strengthening.",
+      "implementation_hint": "During the debrief, ask Group A participants directly: 'What did the 4 of 5 information mean to you?' Listen for limit-based interpretations ('I only have 1 left') versus descriptive interpretations ('my host has been flexible'). The qualitative data from this question is as valuable as the quantitative metrics."
+    },
+    {
+      "id": "tests-023",
+      "type": "validation_strategy",
+      "title": "Validate Weekly Return Interaction Completes Within 3-Second Glance",
+      "validates_element": "behaves-001",
+      "journey_phases": ["active_lease"],
+      "problem": "The hero card auto-focus behavior and change indicators may introduce loading delays or visual jank that slow the weekly glance instead of accelerating it. If the skeleton placeholder takes longer than 50ms or the content transition introduces layout shift, the experience is worse than the flat table.",
+      "solution": "Performance testing on actual devices (not just lab conditions). Measure page load to interactive time, layout stability (Cumulative Layout Shift), and the change indicator's visibility at realistic scan speeds.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "As you become skilled in a task, its demand for energy diminishes.",
+          "insight": "The weekly return must be sub-3-second on every visit, not just the first. Performance testing must simulate Week 7 and Week 12 data volumes (more completed stays) to ensure the collapsed sections do not add load time."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern.",
+          "insight": "The Monday morning quick-check likely happens on mobile data while commuting. Performance must hold on 4G connections, not just WiFi."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated performance test on the Stays Manager page across 3 network conditions (WiFi, 4G, 3G) and 3 data states (Week 3, Week 7, Week 12). Measure: First Contentful Paint (hero card visible), Time to Interactive (hero card actionable), Cumulative Layout Shift (CLS), and Largest Contentful Paint. Run on real devices: iPhone 12, Pixel 6, and Samsung Galaxy A53 (budget device).",
+      "success_criteria": "Hero card First Contentful Paint under 800ms on 4G across all data states. CLS below 0.1 (no perceptible layout shift). Time to Interactive under 1.5 seconds on 4G. On budget device (Galaxy A53): all metrics within 1.5x of the premium device benchmarks.",
+      "failure_meaning": "If FCP exceeds 1 second on 4G, the hero card may need to be statically rendered (SSR) rather than client-rendered. If CLS exceeds 0.1, the skeleton placeholder is not preventing layout shift -- verify that skeleton dimensions exactly match rendered card dimensions. If budget device performance degrades beyond 2x, the collapsed section rendering may be too heavy.",
+      "implementation_hint": "Use WebPageTest or Lighthouse in CI/CD to automate these checks on every deployment. Set the performance thresholds as blocking criteria for deploys that affect the Stays Manager. The Week 12 data state is the critical test case because it has the most collapsed stays."
+    },
+    {
+      "id": "tests-024",
+      "type": "validation_strategy",
+      "title": "Validate Three-Tap Date Change Is Faster Than Composing a Text Message",
+      "validates_element": "behaves-002",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "The bottom sheet interaction pattern (open, select type, select date, confirm) may feel slow or disorienting compared to the linear simplicity of typing a text. The spring animation on open and the lateral crossfade between steps may add perceived duration even if actual duration is short.",
+      "solution": "Timed comparison test. Participants complete the same date change via (A) the platform three-tap flow and (B) composing an equivalent text message. Measure actual completion time and perceived effort for both.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day.",
+          "insight": "Brad's text is the competitive benchmark. The three-tap flow must meet or beat this speed to justify using the platform instead of texting."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "A general 'law of least effort' applies to cognitive as well as physical exertion.",
+          "insight": "Perceived effort matters as much as actual time. A 25-second platform flow that feels effortless may beat a 15-second text that feels like composing a message. The test must measure both dimensions."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Within-subjects comparison with 8 participants. Each participant performs both tasks in counterbalanced order: (A) use the platform to swap Thursday Oct 15 for Tuesday Oct 22, (B) compose a text message to the host requesting the same swap. Measure: completion time for each, post-task perceived effort rating (1-7 SEQ scale), and preference ('Which would you use next time?').",
+      "success_criteria": "Platform median completion time under 35 seconds (competitive with texting at 15-20 seconds, considering that the platform also shows availability and cost). Perceived effort rating for the platform within 1 point of texting on the 7-point scale. At least 6 of 8 participants prefer the platform for 'next time' (because of added benefits: seeing availability, knowing cost).",
+      "failure_meaning": "If completion time exceeds 45 seconds, the flow has too many steps or the animations add too much perceived duration. Consider removing the spring animation on open (use a simple slide) and reducing step transition time from 150ms to 100ms. If perceived effort is 2+ points worse than texting, the flow feels like a form -- revisit the conversational copy and visual density.",
+      "implementation_hint": "For the text message condition, have participants actually compose the text in their phone's native messaging app (do not simulate it). This captures realistic text composition time including autocorrect fumbles and message formatting. For the platform condition, use a clickable prototype on the same phone."
+    },
+    {
+      "id": "tests-025",
+      "type": "validation_strategy",
+      "title": "Validate Inline Financial Preview Prevents Accidental Commits",
+      "validates_element": "behaves-003",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "The preview-before-commit pattern (confirm button disabled until cost renders) may frustrate fast users who want to skip the preview. If the 200ms cost computation delay causes a perceptible pause before the confirm button enables, users may experience it as lag rather than a safety mechanism.",
+      "solution": "Run a controlled test where participants attempt to confirm a date change quickly. Measure whether the delayed-enable pattern prevents unintended actions without causing perceived lag complaints.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "More than 50% of students at Harvard, MIT, and Princeton gave the intuitive -- incorrect -- answer.",
+          "insight": "The preview-before-commit pattern exists because people make financial mistakes under cognitive ease. The test must verify that the safety mechanism works without introducing new friction."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "It's not working financially... the new dates are priced higher now.",
+          "insight": "An accidental commit at a higher rate would directly cause the financial dispute Nneka describes. The prevention mechanism must be reliable."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Task-based test with 8 participants. Scenario: 'You want to swap Thursday for Tuesday. Go as fast as you can.' Observe whether any participant attempts to tap confirm before the cost preview appears. After task completion, ask: 'Did you notice the price before confirming?' and 'Did anything feel slow?' Measure: percentage who notice the cost, percentage who attempt early confirm tap, and perceived lag complaints.",
+      "success_criteria": "At least 7 of 8 participants report noticing the price before confirming. Zero participants successfully submit without a cost preview visible. Fewer than 2 of 8 report perceived lag from the confirm button delay.",
+      "failure_meaning": "If participants do not notice the cost, the preview is too visually subtle -- increase font size or add a brief attention-drawing animation (scale-up). If multiple participants report lag, reduce the computation wait time or show an optimistic preview based on cached rates, updating to the precise amount within 500ms.",
+      "implementation_hint": "Deliberately set one test scenario where the date change has a non-trivial cost (+$25). Verify that participants who notice the cost can articulate the amount. This confirms that the preview is not just visible but actually processed. Include one scenario with a $0 cost to verify the '+$0' display is also noticed."
+    },
+    {
+      "id": "tests-026",
+      "type": "validation_strategy",
+      "title": "Validate Proposal Pipeline Status Updates Reduce Manual Polling Frequency",
+      "validates_element": "behaves-004",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "The proposal pipeline may provide status information but still not reduce the guest's compulsion to check manually. If the 'breathing animation' during waiting states is too subtle, the guest may not perceive the system as 'alive' and may continue polling.",
+      "solution": "Track page view frequency during the proposal waiting period before and after the pipeline redesign. A decrease in page views indicates the guest trusts the status display and notification system.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 2 is mobilized when a question arises for which System 1 does not offer an answer.",
+          "insight": "Each page view during the waiting period represents an unanswered question that System 2 is trying to resolve. Fewer page views mean the pipeline is providing enough information to resolve the question without manual checking."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day.",
+          "insight": "Off-platform communication is the ultimate polling failure. Track whether the pipeline reduces not just page views but also support contacts and off-platform messages during the waiting period."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Before/after analytics. Baseline: track average page views per proposal during the waiting period (submission to host response) for 3 months. Post-launch: same metric for 3 months after implementing the status pipeline with breathing animation, time estimates, and push notifications. Secondary: track push notification open rate (are guests engaging with notifications instead of polling?).",
+      "success_criteria": "Average page views per proposal during waiting decrease by at least 30%. Push notification open rate above 60% (guests are using notifications as their primary status channel). Time between page views increases (longer intervals = less compulsive checking).",
+      "failure_meaning": "If page views do not decrease, the status display is either not visible enough or not trusted. If notification open rate is low, notifications may be too generic or not deep-linking to useful content. Consider adding a 'seen by host' indicator (if the host has viewed the proposal) as an additional uncertainty-resolving signal.",
+      "implementation_hint": "Segment the analysis by host response time. Proposals where the host responds in under 12 hours should show minimal polling regardless of design. The meaningful comparison is for proposals where the host takes 24-72 hours -- this is where the pipeline's anxiety-resolving effect should be most visible."
+    },
+    {
+      "id": "tests-027",
+      "type": "validation_strategy",
+      "title": "Validate Payment Summary Bar Replaces Active Monitoring With Passive Glance",
+      "validates_element": "behaves-005",
+      "journey_phases": ["active_lease"],
+      "problem": "The payment summary bar may provide too little detail for guests who want to verify individual payments. If the detailed table is collapsed by default, guests who prefer granular control may feel the platform is hiding information.",
+      "solution": "Track the table-expand rate after implementing the summary bar. Measure whether guests who expand the table do so once (curiosity) and then stop (trust established), or repeatedly (the summary bar is insufficient).",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 2 also has a natural speed... there is little strain... Just like a stroll.",
+          "insight": "The summary bar should be sufficient for the weekly stroll. The table expand should be a rare, deliberate System 2 engagement. If expand rate is high and recurring, the summary bar is not providing enough confidence."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Originally when I... I believe $1,170, $1,175.",
+          "insight": "Users track pricing in aggregate terms. The summary bar's 'Paid: $4,380 of $11,738' matches this mental model. But if aggregate is insufficient for trust, per-payment detail must remain accessible."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Post-launch analytics on the payment summary bar. Track: table expand rate per visit, repeat expand rate (same guest expanding on consecutive visits), time spent viewing the expanded table, and payment-related support contacts. Monitor for 2 full payment cycles (8 weeks).",
+      "success_criteria": "Table expand rate below 30% of visits. Repeat expand rate (guest expands on 3+ consecutive visits) below 10%. Payment-related support contacts stable or decreased. No guest feedback requesting the table as the default view.",
+      "failure_meaning": "If expand rate exceeds 40%, the summary bar does not provide enough information for guest confidence. Consider adding the next payment date and amount to the summary bar. If repeat expand rate is high, specific guest segments may need the table by default -- offer a preference toggle.",
+      "implementation_hint": "Distinguish between 'first-time expand' (curiosity, learning the interface) and 'recurring expand' (insufficient summary). A guest who expands on their first 2 visits and then stops has established trust in the summary. A guest who expands every visit for 6 weeks has not."
+    },
+    {
+      "id": "tests-028",
+      "type": "validation_strategy",
+      "title": "Validate Batched Review Interaction Feels Invitational, Not Obligatory",
+      "validates_element": "behaves-006",
+      "journey_phases": ["active_lease"],
+      "problem": "The batched review card appearing in the hero position may feel like a mandatory detour, not an invitation. If the card blocks access to the weekly status (by displacing the hero card), guests may resent it more than the accumulating review buttons it replaces.",
+      "solution": "Measure the review card's dismiss rate on first appearance and the guest's time-to-status on visits when the review card is shown versus visits when it is not.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "An effort of will or self-control is tiring; if you have had to force yourself to do something, you are less willing or less able to exert self-control when the next challenge comes around.",
+          "insight": "If dismissing the review card is itself a depleting action (because it displaces the information the guest came for), the design is adding friction rather than removing it. The test must verify that the review card coexists with the status information, not blocks it."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Hybrid workers... typically looking for really weeknights or weekdays each week.",
+          "insight": "The hybrid worker arrives to check status, not to review. The review card must not prevent status checking."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Post-launch analytics on review milestone visits. Compare: time-to-first-action on visits with the review card present versus visits without. Track: immediate dismiss rate (dismissed within 3 seconds), deferred dismiss rate (dismissed after 3+ seconds), and completion rate per milestone. Also track whether the hero card (weekly status) is visible alongside the review card on the same viewport.",
+      "success_criteria": "Time-to-first-action on review-card visits is no more than 3 seconds longer than on non-review visits. Immediate dismiss rate below 30% (most guests at least read the card). The hero card remains visible on mobile when the review card is present (both fit above the fold).",
+      "failure_meaning": "If time-to-first-action increases by more than 5 seconds, the review card is blocking access to status information. Redesign it as a floating element or sidebar rather than displacing the hero card. If immediate dismiss rate exceeds 50%, the card appearance is perceived as an interruption -- reduce its visual weight or move it below the hero card from the start.",
+      "implementation_hint": "On mobile viewports, verify that the review card and the hero card both fit above the fold. If the review card pushes the hero card below the fold, it is functionally a blocker even if technically dismissible. Adjust card heights to ensure coexistence."
+    },
+    {
+      "id": "tests-029",
+      "type": "validation_strategy",
+      "title": "Validate Push Notifications Drive Re-Engagement Without Annoyance",
+      "validates_element": "behaves-007",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Push notifications may be perceived as spam by guests who are not accustomed to receiving platform notifications for housing management. If notification frequency is too high, guests will disable notifications entirely, losing the primary re-engagement channel.",
+      "solution": "Track notification opt-out rate over time and correlate with notification frequency. Measure deep-link completion rate (does the guest complete the action the notification suggests?) as a proxy for notification relevance.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "We'll be working on basically just having a way to notify you. So you'll know when a request comes in.",
+          "insight": "Bryant describes notifications as critical infrastructure, not a marketing tool. The validation must confirm guests perceive notifications as helpful status updates, not as spam."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "The often-used phrase 'pay attention' is apt: you dispose of a limited budget of attention that you can allocate to activities.",
+          "insight": "Each notification consumes attention budget. If the notification is irrelevant, the attention cost exceeds the information benefit. Track whether notifications lead to actions (high value) or are immediately dismissed (low value)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Post-launch analytics over 3 months. Track: notification permission grant rate (initial opt-in), notification opt-out rate over time (weekly cohort analysis), notification tap rate by type (proposal update, date change, payment, review), deep-link completion rate (guest completed the suggested action after tapping), and average notifications per user per week.",
+      "success_criteria": "Initial notification permission grant rate above 70%. Opt-out rate below 5% per month. Tap rate for proposal updates above 50% (highest urgency). Deep-link completion rate above 40% for actionable notifications. Average notifications per user per week below 3 during active_lease (frequency is restrained).",
+      "failure_meaning": "If opt-out rate exceeds 10% per month, notification frequency is too high or content is too generic. Reduce frequency by coalescing related events and removing low-value notification types. If tap rate is below 30% across all types, notifications are not deep-linking to useful content or the notification copy is not compelling enough.",
+      "implementation_hint": "Start with only high-value notification types: host responded to proposal, date change decided, payment processed. Add lower-priority types (review milestone, upcoming payment reminder) only after the high-value types demonstrate good tap rates. Never launch all notification types simultaneously."
+    },
+    {
+      "id": "tests-030",
+      "type": "validation_strategy",
+      "title": "Validate Weekly Emotional Arc Evolution Is Perceived by Guests",
+      "validates_element": "feels-001",
+      "journey_phases": ["active_lease"],
+      "problem": "The three-phase emotional arc (warm orientation, efficient routine, grateful close) may be too subtle for guests to notice. If the tonal shifts are imperceptible, the emotional design effort is wasted. Conversely, if shifts are too abrupt, they may feel jarring.",
+      "solution": "Run a longitudinal diary study with 5-8 active-lease guests. At Week 2, Week 7, and Week 12, ask participants to describe how the Stays Manager 'feels' using open-ended prompts. Analyze responses for evidence of the intended emotional progression.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "As you become skilled in a task, its demand for energy diminishes.",
+          "insight": "The emotional arc should mirror the cognitive ease gradient. If diary entries at Week 7 describe the page as 'easy' and 'familiar,' the efficient-routine phase is working. If Week 12 entries mention appreciation or closure, the grateful-close phase is working."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern... 2-3 month commitments typical.",
+          "insight": "The diary study participants should be hybrid workers with 10+ week leases to capture the full arc."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Longitudinal diary study with 5-8 participants over a full lease duration. At 3 points (Week 2, Week 7, Week 12), send a brief prompt: 'Describe how checking your Stays Manager felt this week. Use any words that come to mind.' Analyze responses for themes matching the target emotions: orientation/warmth (Week 2), efficiency/familiarity (Week 7), gratitude/closure (Week 12).",
+      "success_criteria": "At least 3 of 5 participants' Week 2 responses include words associated with guidance, newness, or learning ('helpful', 'showed me', 'getting used to'). At least 3 of 5 Week 7 responses include words associated with routine or ease ('quick', 'easy', 'just checked'). At least 3 of 5 Week 12 responses include words associated with completion or appreciation.",
+      "failure_meaning": "If Week 7 responses still describe orientation difficulty ('confusing', 'hard to find'), the efficient-routine phase tone is not established by Week 4 as designed. If Week 12 responses describe fatigue rather than appreciation, the grateful-close tone is not counteracting the accumulated lease fatigue.",
+      "implementation_hint": "Send the diary prompts via the guest's preferred channel (email or in-app message). Keep the prompt to one sentence to minimize response fatigue. Do not mention the Stays Manager design -- ask about the experience of 'checking your housing status' to capture the emotional layer without priming design awareness."
+    },
+    {
+      "id": "tests-031",
+      "type": "validation_strategy",
+      "title": "Validate Price Surprise Shield Prevents Betrayal Emotion at Date Change",
+      "validates_element": "feels-002",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation", "active_lease"],
+      "problem": "The emotional architecture for preventing price surprise may succeed at reducing complaints but fail at the deeper emotional level: the guest may still feel betrayed even if they do not escalate it. Silent betrayal is worse for retention than vocal complaints because the guest churns without giving the platform a chance to fix the relationship.",
+      "solution": "After date changes involving a rate adjustment, trigger a one-question micro-survey: 'Did the price of this change feel fair?' with a 1-5 fairness rating. Track the correlation between fairness ratings and lease renewal/extension behavior.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Now that you have measured the lines, you -- your System 2 -- have a new belief: you know that the lines are equally long. But you still see the bottom line as longer.",
+          "insight": "The illusion of unfairness persists even with disclosure. The micro-survey captures the emotional residue that analytics cannot detect. A guest who rates fairness 2/5 but does not contact support is silently eroding toward churn."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "It's not working financially... the new dates are priced higher now.",
+          "insight": "The financial friction between original and seasonal rates is real. The emotional validation must measure whether disclosure transforms 'betrayal' into 'acceptable market reality.'"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Post-date-change micro-survey for all date changes involving a rate adjustment above $0. One question: 'How fair did the pricing of this change feel?' (1=Very unfair, 5=Very fair). Track: average fairness rating, correlation between fairness rating and lease renewal behavior, and qualitative analysis of open-text responses (optional field: 'Anything else?').",
+      "success_criteria": "Average fairness rating above 3.5 on the 1-5 scale. Guests who rate fairness 4-5 show at least 20% higher renewal rate than guests who rate 1-2. Fewer than 10% of open-text responses include betrayal-adjacent language ('unfair', 'surprise', 'did not expect', 'hidden').",
+      "failure_meaning": "If average fairness is below 3.0, the rate comparison display is not creating a perception of transparency -- the emotional architecture is failing. If renewal correlation is weak, fairness perception may not be the primary driver of renewal (other factors dominate). If betrayal-adjacent language appears in more than 15% of responses, the disclosure is either too late or too subtle.",
+      "implementation_hint": "Only trigger the survey for rate-adjustment changes (where the delta is non-zero). Do not trigger for $0 swaps -- those are not emotionally risky. Include the survey as an inline element in the date change confirmation, not as a popup or email. Timing matters: ask immediately after confirmation, while the emotional response is fresh."
+    },
+    {
+      "id": "tests-032",
+      "type": "validation_strategy",
+      "title": "Validate Waiting-State Emotional Design Converts Helplessness to Informed Patience",
+      "validates_element": "feels-003",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "The three elements of emotional infrastructure (acknowledgment, timeline, agency) may be intellectually useful but emotionally insufficient. A guest who reads 'Waiting on Nneka. Submitted 14h ago.' may still feel helpless if they do not trust the platform to actually notify them.",
+      "solution": "After a proposal is resolved (host responds), send a one-question survey: 'While waiting for your host's response, how did you feel?' with emotion-word options (Anxious, Patient, Helpless, Confident, Frustrated, Calm). Track the distribution of selections.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 2 is activated when an event is detected that violates the model of the world that System 1 maintains.",
+          "insight": "The emotional survey captures whether the status display resolved the model violation or left it open. 'Patient' and 'Calm' indicate resolution. 'Anxious' and 'Helpless' indicate the design failed to resolve uncertainty."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day.",
+          "insight": "Brad's texting is the behavioral symptom of unresolved helplessness. If the emotional survey shows 'Patient' or 'Calm' as dominant, the texting impulse should decrease."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Post-resolution micro-survey triggered when the host responds to a proposal. One question: 'While waiting for [host name]'s response, how did you feel?' with 6 emotion options: Anxious, Patient, Helpless, Confident, Frustrated, Calm. Track distribution and correlate with waiting duration (did longer waits produce more negative emotions despite the pipeline display?).",
+      "success_criteria": "'Patient' or 'Calm' selected by at least 60% of respondents. 'Helpless' selected by fewer than 10%. No strong correlation between waiting duration and negative emotions (the pipeline should make 48h feel as manageable as 12h).",
+      "failure_meaning": "If 'Anxious' exceeds 30%, the timeline information is not sufficient -- guests do not trust the time estimate. If 'Helpless' exceeds 15%, the agency element ('send a reminder') is either not visible or not trusted. If longer waits correlate with sharply worse emotions, the pipeline needs to escalate reassurance over time (e.g., additional messages at 24h and 36h).",
+      "implementation_hint": "Present the emotion options as tappable chips, not a dropdown. Chips allow faster, more intuitive selection. Randomize the order of emotion options across respondents to prevent position bias. Include an optional 'Tell us more' text field for qualitative data."
+    },
+    {
+      "id": "tests-033",
+      "type": "validation_strategy",
+      "title": "Validate Platform Feels Easier Than Texting for Active-Lease Interactions",
+      "validates_element": "feels-004",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "The conversational tone and message-send animations may feel forced or inconsistent with the rest of the platform's visual language. If the 'casual' design elements clash with the structured data displays (payment schedules, stays tables), the tonal inconsistency may reduce rather than increase trust.",
+      "solution": "Run a preference test comparing the conversational date change copy ('Swap Thu for Tue? Same rate. [Send to Nneka]') against the formal copy ('Date Change Request: Replace Thursday for Tuesday. Rate adjustment: $0.00. [Submit Request]'). Measure preference, ease, and perceived trustworthiness.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day.",
+          "insight": "Brad's texting language is casual. The platform copy should match this register to feel like a natural extension of the guest's existing communication style."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "A general 'law of least effort' applies to cognitive as well as physical exertion.",
+          "insight": "Casual language is cognitively easier to process than formal language. But trust is also a factor -- if casual feels unprofessional for financial transactions, formality may win despite higher cognitive cost."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Between-subjects preference test with 12 participants. Group A sees the conversational variant. Group B sees the formal variant. Both complete a date change task. After completion, each group rates: 'How easy did this feel?' (1-5), 'How much do you trust this platform with your money?' (1-5), and 'How would you describe the tone of this interaction?' (open-ended). Then show both variants side by side and ask: 'Which would you prefer to use regularly?'",
+      "success_criteria": "Conversational variant preferred by at least 7 of 12 participants. Ease rating for conversational is at least 0.5 points higher. Trust rating for conversational is within 0.3 points of formal (casual does not significantly reduce trust). Open-ended descriptions of conversational include words like 'easy', 'friendly', 'quick'.",
+      "failure_meaning": "If fewer than 6 prefer conversational, the casual tone may feel unprofessional for a housing/financial platform. Consider a middle ground: semi-formal copy that uses first names and short sentences but avoids slang and contractions. If trust drops more than 0.5 points for conversational, the casual register undermines credibility for financial transactions.",
+      "implementation_hint": "Include a financial component in the test scenario (a date change with a +$15 cost) to test whether casual tone holds up when money is involved. The trust question is critical specifically for the financial moment. Casual may feel fine for status checks but inappropriate for 'you owe an additional $15.'"
+    },
+    {
+      "id": "tests-034",
+      "type": "validation_strategy",
+      "title": "Validate Removal of Per-Stay Review Buttons Reduces Administrative Guilt",
+      "validates_element": "feels-005",
+      "journey_phases": ["active_lease"],
+      "problem": "Removing per-stay review buttons eliminates the guilt accumulator but may also eliminate the guilt-as-motivation for guests who only review because they see the button. Total review volume may drop below acceptable levels if the batched approach does not compensate.",
+      "solution": "Before/after comparison of Stays Manager sentiment. In the current design (per-stay buttons), ask a sample of guests at Week 8: 'When you see uncompleted reviews on your Stays Manager, how does that make you feel?' After implementing batched reviews, ask the same question. Compare qualitative responses.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "An effort of will or self-control is tiring; if you have had to force yourself to do something, you are less willing or less able to exert self-control when the next challenge comes around.",
+          "insight": "The guilt from unfinished reviews is a form of ego depletion that compounds with each visit. Removing the guilt signal should produce measurably different emotional responses to the Stays Manager by Week 8."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Hybrid workers... typically looking for really weeknights or weekdays each week.",
+          "insight": "Administrative guilt is especially damaging for time-constrained professionals who already feel behind on work tasks. The emotional relief of a guilt-free dashboard is disproportionately valuable to this persona."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Qualitative comparison. Pre-implementation: survey 15 active guests at Week 8 with 5+ uncompleted reviews. Ask: 'How do you feel about the reviews you have not completed?' and 'Does seeing the review buttons affect how you feel about the Stays Manager page?' Post-implementation: survey 15 active guests at Week 8 (batched system, 1 review completed at Week 4). Ask: 'How do you feel about the review process on your Stays Manager?' Code responses for emotional valence (positive, neutral, negative) and specific themes (guilt, obligation, ease, lightness).",
+      "success_criteria": "Pre-implementation: majority of responses coded as negative (guilt, obligation, overwhelm). Post-implementation: majority coded as neutral or positive (ease, no pressure, fine). Shift from negative to neutral/positive demonstrates the guilt accumulator has been eliminated.",
+      "failure_meaning": "If post-implementation responses are still negative, the batched review card at Week 4 may itself feel like an obligation. Check whether the review card framing ('How are your first 4 weeks?') is invitational or demanding. If responses are simply indifferent rather than positive, the emotional design may need to actively reward review completion (a brief thank-you message that acknowledges the guest's time).",
+      "implementation_hint": "The pre-implementation survey must be done while the per-stay review buttons are still active and guests have accumulated unreviewed stays. Time the survey for Week 8 specifically, when the guilt accumulation is at its peak (7-8 unreviewed stays visible)."
+    },
+    {
+      "id": "tests-035",
+      "type": "validation_strategy",
+      "title": "Validate Discovery Messaging Sets Expectations That Survive Active-Lease Reality",
+      "validates_element": "feels-006",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Honest discovery messaging ('transparent flexibility' instead of 'easy flexibility') may reduce initial conversion by scaring away guests who want the simpler promise. If the honest framing depresses top-of-funnel conversion without measurably improving retention, the business case is weak.",
+      "solution": "Run a full-funnel A/B test on discovery messaging. Track from first visit through active_lease to measure whether honest framing reduces initial conversion but improves downstream retention and satisfaction.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Ideas that have been evoked trigger many other ideas, in a spreading cascade of activity in your brain... it has been called associatively coherent.",
+          "insight": "Discovery priming cascades through the entire journey. The A/B test must measure the full cascade: does honest priming create a more resilient associative network that survives contact with mid-lease friction?"
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Brad and I had our contract ended in January or February... it's not working financially.",
+          "insight": "Brad's active-lease friction is the reality that discovery messaging must prepare guests for. The test measures whether guests exposed to honest discovery messaging experience less friction-related distress during active_lease."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Full-funnel A/B test. Variant A: current discovery messaging (assumed to lean toward 'easy, flexible housing'). Variant B: honest messaging ('transparent flexibility with clear pricing and real-time availability'). Track: discovery-to-search conversion, search-to-proposal conversion, proposal-to-acceptance conversion, and active-lease metrics (support contacts, satisfaction scores, renewal intent). Run for 6+ months to capture full lease cycles.",
+      "success_criteria": "Variant B discovery-to-search conversion is within 15% of Variant A (acceptable top-of-funnel decline). Variant B active-lease support contacts are at least 20% lower than Variant A. Variant B renewal intent (measured at final review) is at least 15% higher. The full-funnel conversion rate (discovery to renewal) is at least equal for both variants.",
+      "failure_meaning": "If Variant B discovery conversion drops more than 20%, the honest messaging is too deterring -- it may need to lead with benefits ('see what changes cost before you commit') rather than process ('proposal-based booking with negotiation'). If active-lease metrics do not improve, the expectation gap may not be the primary driver of mid-lease friction -- other factors (tool usability, pricing) dominate.",
+      "implementation_hint": "This is the longest-running test in the validation suite (6+ months). Start it early and run it in parallel with all other tests. Segment by guest persona (hybrid workers vs. others) to detect whether honest messaging resonates differently with the primary target audience."
+    },
+    {
+      "id": "tests-036",
+      "type": "validation_strategy",
+      "title": "Validate Invisible System Design Produces Sub-5-Second Routine Visits",
+      "validates_element": "feels-007",
+      "journey_phases": ["active_lease"],
+      "problem": "Designing for the 90% nothing-needs-attention case may create a page that is confusing when something does need attention. If the collapsed-by-default design hides an urgent issue (payment failure, date change rejection), the guest may miss it entirely because they are accustomed to glancing and leaving.",
+      "solution": "Test both the happy path (nothing needs attention, under 5 seconds) and the alert path (something needs attention) to verify the design handles both extremes. Measure whether guests notice the alert-state change when it occurs after weeks of nothing-to-do visits.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "System 2 is activated when an event is detected that violates the model of the world that System 1 maintains.",
+          "insight": "After weeks of calm visits, the guest's System 1 model is 'this page is always green and simple.' When the alert state changes (payment failure, new color), the model violation should trigger System 2 attention. The test verifies this violation-detection mechanism works in practice."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Hybrid workers... typically looking for really weeknights or weekdays each week.",
+          "insight": "The test must simulate the real usage pattern: 6+ weeks of calm visits followed by a single alert. The guest's habituation to the calm state is what makes alert detection critical."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Simulated longitudinal test with 8 participants. Show participants a sequence of Stays Manager screenshots representing 6 weekly visits (all calm, nothing to do) followed by a 7th visit where a payment has failed (summary bar turns amber, alert message visible). After each screenshot, ask: 'Anything you need to do?' Measure: time per calm visit, whether the alert is noticed on Visit 7, time to notice the alert, and whether the guest can identify the issue.",
+      "success_criteria": "Calm visit assessment time under 5 seconds per screenshot. At least 7 of 8 participants notice the alert state on Visit 7 without prompting. Time to notice the alert under 4 seconds. All participants who notice the alert can correctly identify it as a payment issue.",
+      "failure_meaning": "If more than 1 participant misses the alert, the color change from calm (green/gray) to alert (amber) is not dramatic enough. Consider adding a persistent banner above the hero card for error states, rather than relying solely on summary bar color change. If calm visit time exceeds 5 seconds, the default view is still too information-dense.",
+      "implementation_hint": "Use screenshots rather than a live prototype to control the longitudinal simulation. Show each screenshot for exactly 8 seconds and ask the assessment question. The 6 calm visits establish the habituation baseline; the critical measurement is Visit 7. Do not warn participants that an alert is coming."
+    },
+    {
+      "id": "tests-037",
+      "type": "validation_strategy",
+      "title": "Journey-Level Validation: End-to-End Ego Depletion Measurement Across Guest Journey Phases",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "active_lease"],
+      "problem": "Individual elements may each pass their own validation but collectively create a journey that is still cognitively depleting. The cross-phase ego depletion cascade -- where each phase depletes the System 2 budget needed for the next -- cannot be detected by testing elements in isolation. A guest who passes through a well-designed listing page and a well-designed proposal page may still arrive at negotiation too depleted to engage effectively.",
+      "solution": "Run an end-to-end task flow test where participants complete the full journey from search through proposal acceptance in a single session. Measure self-reported cognitive fatigue at each phase transition using the NASA-TLX (Task Load Index) or a simplified effort scale. Plot the depletion curve across the journey.",
+      "evidence": [
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "An effort of will or self-control is tiring; if you have had to force yourself to do something, you are less willing or less able to exert self-control when the next challenge comes around. The phenomenon has been named ego depletion.",
+          "insight": "Ego depletion is cumulative and sequential. Testing each phase in isolation misses the compounding effect. The end-to-end test captures the same depletion cascade that Kahneman's parole judges experienced."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Brad and I had our contract ended in January or February... it's not working financially.",
+          "insight": "Brad's active-lease frustration may be partly attributable to depletion accumulated during the initial proposal and negotiation phases. The end-to-end test measures whether the journey design prevents this cumulative depletion."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "End-to-end task flow with 6 participants. Each participant completes: search for a listing (filtered by their days), evaluate 2-3 listings, create a proposal, view a simulated host counter-offer, negotiate (accept modified terms), and confirm acceptance. At each phase transition, participants rate their current effort level on a 1-7 scale (1=no effort, 7=maximum effort). Plot the depletion curve. After completion, participants rate the overall journey effort and identify the most and least effortful moments.",
+      "success_criteria": "No phase transition shows a median effort rating above 5. The effort curve is relatively flat (no phase-over-phase increase greater than 1.5 points). The negotiation phase (where the host counters) does not produce effort ratings more than 2 points above the search phase. Overall journey effort rating median below 4.",
+      "failure_meaning": "If any phase transition exceeds effort rating 5, that phase is a depletion bottleneck. If the effort curve rises steeply from listing evaluation through negotiation, the cumulative load of financial computation, configuration, and counter-offer evaluation is exceeding the guest's System 2 budget. Consider adding a decompression moment (a confirmation screen with zero required actions) between proposal creation and negotiation.",
+      "implementation_hint": "Build the full journey as a connected prototype with realistic data. The host counter-offer should involve a meaningful change (extended duration, adjusted rate) that requires the guest to re-evaluate terms. The negotiation phase is the critical stress test for cumulative depletion. Allow participants to take a natural break between phases to measure whether the design provides adequate decompression."
+    },
+    {
+      "id": "tests-038",
+      "type": "validation_strategy",
+      "title": "Journey-Level Validation: Active-Lease Platform Stickiness vs. Off-Platform Drift",
+      "validates_element": "journey-level",
+      "journey_phases": ["active_lease"],
+      "problem": "The active_lease phase has the highest element coverage (22 elements) but the most critical real-world risk: the guest drifts off-platform to manage their housing through text messages and informal channels. No single element test captures whether the combined design is sticky enough to keep the guest on-platform across a 13-week lease. Platform stickiness requires that the Stays Manager, date change flow, payment tracking, and notifications work together as a cohesive system, not just as individually well-designed components.",
+      "solution": "Measure in-platform activity as a percentage of all guest-host interactions over the course of a full lease. Track weekly platform engagement (Stays Manager visits, date change submissions, notification interactions) alongside estimated off-platform activity (support team-mediated changes as proxy). Plot engagement over the 13 weeks to detect drift patterns.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day... if I have availability.",
+          "insight": "Brad's off-platform behavior is the ultimate failure metric. The journey-level validation measures whether the combined design prevents this drift or merely delays it."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt",
+          "type": "book",
+          "quote": "Laziness is built deep into our nature.",
+          "insight": "The platform must be the laziest path, not just at Week 1 but at Week 13. If engagement declines over the lease, the design is losing the law-of-least-effort competition to informal channels. Stable or increasing engagement indicates the platform has become the default."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Longitudinal cohort analysis over 3+ full lease cycles (13 weeks each). Track per-guest per-week: Stays Manager visits, date change initiations (platform vs. team-mediated), notification interactions, payment schedule views, and review submissions. Plot engagement curves over the 13 weeks. Segment by: guests with date changes (active managers) vs. guests without (passive tenants). Compare engagement curves for guests onboarded with the new design vs. historical cohorts.",
+      "success_criteria": "Weekly Stays Manager visit rate stable or increasing from Week 1 through Week 13 (no significant decline). Platform-initiated date changes exceed 70% of all changes by Week 8 for active managers. Notification interaction rate above 50% throughout the lease. No guest segment shows engagement declining by more than 20% from Week 4 to Week 12.",
+      "failure_meaning": "If engagement declines by more than 30% from Week 4 to Week 12, the platform is losing to off-platform channels mid-lease. Identify which activity type declines most (visits, date changes, notification interactions) to target the weak link. If date change platform usage drops while total changes remain constant, the date change tool is not maintaining its speed advantage over texting. If visit frequency drops while date changes stay on-platform, the Stays Manager hero card is not providing enough value to justify weekly returns.",
+      "implementation_hint": "The historical comparison is critical -- compare against cohorts that used the old flat-table Stays Manager to quantify the design's impact. Control for lease duration, property location, and guest persona. The 'active managers' segment (guests with at least 2 date changes) is the most revealing cohort because they have the highest opportunity to drift off-platform."
+    }
+  ]
+}

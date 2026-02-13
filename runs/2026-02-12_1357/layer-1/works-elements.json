@@ -1,0 +1,324 @@
+{
+  "lens": {
+    "guest_call": "nneka-call.txt",
+    "book_extract": "kahneman-part1-two-systems.txt"
+  },
+  "elements": [
+    {
+      "id": "works-001",
+      "type": "process_pattern",
+      "title": "Self-Service Date Changes at Conversational Speed",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "The guest's most frequent interaction with Split Lease during an active lease is managing schedule changes: replacing a night they cannot make, adding an extra night, or swapping dates. Currently, no self-service rescheduling tool exists (Bryant confirms at 00:32-01:02 that 'we've been working on this rescheduling tool'). Brad must text Nneka directly ('He was texting me and saying, Hey, you know, I can't make it for another day,' 01:23-01:42), Nneka must manually check her Airbnb calendar, and the Split Lease team mediates. This three-party process for a single date change forces the guest to context-switch from their work responsibilities (hybrid workers are the primary guest persona, per Bryant at 10:17-12:17) into a manual coordination task. Kahneman's law of least effort predicts that guests facing this friction will either stop rescheduling (leading to no-shows and wasted nights) or handle everything off-platform (text messages), where the platform loses visibility, cannot enforce pricing rules, and cannot protect either party. The Stays Manager UI (Guest Leases page) shows per-week stays with status badges and a Date Change section with Accept/Reject actions, but without a self-service initiation flow, the guest has no way to start a change request from inside the platform.",
+      "solution": "Build the date change flow as a three-tap interaction that completes within the guest's existing Stays Manager visit: (1) Tap the specific week/stay row to open it. (2) Select the change type (replace night, add night, remove night) from clearly labeled options that show the pricing implication inline ('Replace: same rate,' 'Add: current market rate,' 'Remove: refund amount'). (3) See available alternative dates (pulled from synced host availability), pick one, and submit. The host receives a notification and accepts or counters. The entire guest-side flow should take under 60 seconds. The key design principle: the Date Change section in the Stays Manager must be the entry point, not a separate page or a message thread. The guest is already visiting this page weekly to check their stays. Meet them where they already are, at the cognitive speed of their existing visit pattern.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 01:23-01:42",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day... if I have availability.",
+          "insight": "Brad's rescheduling process is entirely manual and off-platform. The guest's need is simple ('I can't make Thursday, can I do Tuesday instead?') but the process requires texting the host, waiting for a response, and hoping the dates align. Each step introduces delay and failure risk."
+        },
+        {
+          "source": "nneka-call.txt, 00:32-01:02",
+          "type": "guest_call",
+          "quote": "We've been working on this rescheduling tool and specifically working more on the traveler side... looking to improve that.",
+          "insight": "Bryant confirms that no self-service rescheduling tool exists yet. The fact that the platform team is actively building this tool confirms the gap is known and critical."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "A general 'law of least effort' applies to cognitive as well as physical exertion. The law asserts that if there are several ways of achieving the same goal, people will eventually gravitate to the least demanding course of action.",
+          "insight": "The least demanding course of action for a date change is texting the host. If the platform tool is not faster and easier than a text message, the guest will never use it. The platform must compete with the cognitive simplicity of 'Hey, can I switch Thursday for Tuesday?'"
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 409-438 (Date Change Section)",
+          "type": "usability",
+          "quote": "Request Changes button - Initiate modification. Change Types: Add nights, Remove nights, Swap dates. Pricing: Buying back nights: Host pays guest. Adding nights: Guest pays host. Fair market rate calculation.",
+          "insight": "The UI structure exists in the design but the guest-initiated flow is missing. The Date Change section shows incoming requests and their statuses but does not provide a clear, fast path for the guest to create a new request from a specific stay week."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Change a date on my active lease in under 60 seconds, from inside the page I already visit weekly, without leaving the platform or texting anyone.",
+      "company_goal": "Capture 100% of schedule changes inside the platform where pricing rules are enforced, availability is verified in real time, and both parties have a record of what was agreed.",
+      "time_budget": "Under 60 seconds for the guest to initiate a date change request. Under 30 seconds for a simple replace (same night type, same week). The benchmark is: faster than composing and sending a text message.",
+      "anti_goals": [
+        "DO NOT require the guest to navigate away from the Stays Manager to initiate a date change. The change flow must live inside the page they already visit.",
+        "DO NOT present date change as a messaging thread. It is a structured action with specific inputs (old date, new date, change type), not a conversation.",
+        "DO NOT hide pricing implications until after the guest submits. The cost difference must be visible before the guest commits to the change.",
+        "DO NOT require the guest to understand the difference between 'replace,' 'add,' and 'swap' through labels alone. Show the financial consequence of each option inline.",
+        "DO NOT force the guest to check host availability manually or guess which dates are open. Show only available dates."
+      ],
+      "success_metric": "Percentage of date changes initiated through the platform (vs. off-platform text/call). Target: above 80% within 3 months of tool launch. Secondary: median time from change initiation to submission under 45 seconds."
+    },
+    {
+      "id": "works-002",
+      "type": "process_pattern",
+      "title": "Make Replace, Add, and Remove Financially Legible at the Moment of Choice",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "The guest journey currently treats all date changes as a single category, but the Nneka call reveals that 'replace' and 'add' have fundamentally different pricing implications. Bryant asks: 'If Brad was to add a book tonight, and add instead of like replace, is that something you would be open to?' and Nneka responds that additions would be at a 'different rate' (07:22-07:45). Nneka also states that replacing dates at the old rate is 'not working financially' due to seasonal pricing changes (03:33-04:26). This means: (a) replacing dates may trigger a price adjustment if the new dates fall in a different pricing season, (b) adding dates is always at the current market rate, and (c) removing dates triggers a refund calculation. The guest currently has no way to understand these distinctions before acting. Kahneman's research on System 1 associative coherence shows that the mind does not automatically distinguish between similar-seeming actions with different consequences. A guest who thinks 'change my dates' is performing one simple mental operation; the platform must not force them to perform three separate cognitive evaluations to understand the financial implications of replace vs. add vs. remove.",
+      "solution": "When the guest initiates a date change, present the three options (Replace, Add, Remove) as a single choice screen where each option shows its financial consequence in one number: (1) Replace: 'Swap Oct 15 for Oct 22. Price difference: +$0' or '+$12 (seasonal adjustment).' (2) Add: 'Add Oct 22. Cost: $85 (current rate).' (3) Remove: 'Remove Oct 15. Refund: $73.' The guest selects one option and sees the specific financial impact before confirming. No mental arithmetic. No ambiguity about which action costs money and which saves money. The Flexibility Score (already in the Date Change section of the Stays Manager) should be visible but not positioned as a guilt mechanism; it should explain what it means ('Your host has accommodated 4 of 5 change requests') rather than just showing a percentage.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 07:22-07:45",
+          "type": "guest_call",
+          "quote": "If Brad was to add a book tonight, and add instead of like replace, is that something that you would be open to and if so, would that be at a different rate... it would be a different rate.",
+          "insight": "Even the Split Lease team must explicitly ask about the pricing distinction between replace and add. If the internal team needs clarification, the guest certainly cannot be expected to understand this without explicit presentation."
+        },
+        {
+          "source": "nneka-call.txt, 03:33-04:26",
+          "type": "guest_call",
+          "quote": "It's not working financially... Originally when I... I believe $1,170, $1,175. And that was... therefore I am not able to do that.",
+          "insight": "Seasonal pricing means that even a 'replace' action can have a cost delta. The guest who thinks they are doing a simple swap may face a price increase because the replacement dates are in a higher-priced season. This surprise must be eliminated by showing the delta before confirmation."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Associative Machine",
+          "type": "book",
+          "quote": "Your System 1 made as much sense as possible of the situation... by linking the words in a causal story; it evaluated the possible threat... and created a context for future developments.",
+          "insight": "System 1 treats 'change dates' as a single coherent action. It does not automatically decompose this into three different actions with three different financial implications. The platform must present the decomposition explicitly, with financial consequences attached to each option, so the guest's System 1 can evaluate each option as a distinct story with a clear outcome."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 419-428 (Change Types and Pricing)",
+          "type": "usability",
+          "quote": "Change Types: Add nights (guest pays more), Remove nights (guest gets refund), Swap dates. Pricing: Buying back nights: Host pays guest. Adding nights: Guest pays host. Fair market rate calculation.",
+          "insight": "The UI design already distinguishes the three change types, but the pricing section uses abstract labels ('buying back nights,' 'fair market rate calculation') that require System 2 translation. The guest needs concrete dollar amounts for their specific situation, not category definitions."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Understand exactly what each type of date change will cost me (or save me) before I commit, without performing any mental arithmetic or reading pricing policy documentation.",
+      "company_goal": "Eliminate post-change pricing disputes and support tickets by making financial consequences transparent at the moment of decision. Ensure seasonal pricing adjustments are understood and accepted before they are applied.",
+      "time_budget": "The guest should comprehend the financial impact of their chosen change type within 5 seconds of seeing the options. One number per option. No scrolling, no expanding sections, no tooltips required.",
+      "anti_goals": [
+        "DO NOT use abstract pricing labels ('fair market rate,' 'seasonal adjustment') without showing the specific dollar amount for this specific change.",
+        "DO NOT present the three change types without their financial consequences. Type and cost must be a single visual unit.",
+        "DO NOT assume the guest knows that 'replace' can cost money if seasonal rates differ. Show the delta even when it is $0, to build trust that the platform is transparent.",
+        "DO NOT use the Flexibility Score as a pressure mechanism to discourage date changes. Display it as context, not as a barrier."
+      ],
+      "success_metric": "Post-change pricing dispute rate: percentage of completed date changes that result in a support ticket or complaint about unexpected pricing. Target: below 5%. Secondary: guest comprehension rate measured by whether the guest's selected change type matches their stated intent (survey sample)."
+    },
+    {
+      "id": "works-003",
+      "type": "process_pattern",
+      "title": "Design the Stays Manager as a System 1 Weekly Dashboard, Not a System 2 Management Console",
+      "journey_phases": ["active_lease"],
+      "problem": "The Guest Leases page / Stays Manager is the most frequently visited part of the platform for active guests. A guest with a 13-week lease visits this page at least 13 times -- likely more, since they also check payment status, review completed stays, upload photos, and manage date changes. The current Stays Manager design (as described in the guest journey document) presents a data table with columns for Week #, Period, Status, and Actions. This is a System 2 interface: it requires the guest to scan rows, identify the current week, determine its status, and select the appropriate action. Each weekly visit forces the guest to re-orient in a table of 13+ rows. Kahneman's research on cognitive ease shows that 'as you become skilled in a task, its demand for energy diminishes.' But a table that grows with each passing week does not become easier -- it becomes harder, because the completed weeks accumulate visual noise that the guest must filter past to find the current week. The weekly visit should be a System 1 glance ('everything is fine, nothing needs my attention') not a System 2 scan ('let me find my current week in this table and figure out what to do').",
+      "solution": "Restructure the Stays Manager around the current week as the primary focal point, with completed weeks collapsed and future weeks summarized. On each visit, the guest should see: (1) A hero card for the current or next upcoming stay: 'Week 7: Oct 14-18. Status: In Progress. [No action needed]' or 'Week 6: Oct 7-11. Status: Completed. [Leave Review] [Upload Photos].' (2) A collapsed summary of past weeks: '6 stays completed. All reviewed.' Expandable on demand. (3) A compact preview of upcoming weeks: '6 weeks remaining. Next: Week 8, Oct 21-25.' (4) A notification-style alert area for any pending date changes, payment issues, or host messages. The page loads with the answer to the guest's primary question: 'What do I need to do right now?' This is a System 1 assessment (glance at a single card) rather than a System 2 scan (parse a 13-row table). The full table remains accessible for guests who want the detailed view, but it is not the default.",
+      "evidence": [
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 392-408 (Stays Management)",
+          "type": "usability",
+          "quote": "Stays (X) - Individual visit tracking. Stays Table: Columns: Week #, Period (date range), Status (Not Started, In Progress, Completed), Actions. Available Actions: Review, Upload Photos, Report Issue, No action available.",
+          "insight": "The current design presents all stays as equal rows in a table. Week 1 (completed two months ago) and Week 13 (three weeks from now) have the same visual weight. The guest must visually scan to find the relevant row, which is a System 2 task that should not be required on a page visited weekly."
+        },
+        {
+          "source": "nneka-call.txt, 10:17-12:17",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern... typically looking for really weeknights or weekdays each week... 2-3 month commitments typical.",
+          "insight": "The primary guest persona is a hybrid worker visiting 4-5 nights per week for 2-3 months. This means 8-13 weekly stays. The Stays Manager must handle this volume without creating a wall of data. A hybrid worker checking their Stays Manager on Monday morning before heading to the property should get their answer in under 3 seconds."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "As you become skilled in a task, its demand for energy diminishes... A general 'law of least effort' applies to cognitive as well as physical exertion.",
+          "insight": "Weekly visits should become easier over time, not harder. A table with more completed rows each week becomes harder to scan. A hero card showing only the current week becomes a familiar pattern that the guest processes with decreasing effort on each visit -- exactly the skill acquisition curve Kahneman describes."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Lazy Controller",
+          "type": "book",
+          "quote": "System 2 also has a natural speed... there is little strain... Just like a stroll. Accelerating beyond my strolling speed completely changes the experience.",
+          "insight": "The weekly Stays Manager check-in should be a cognitive 'stroll': glance at one card, confirm status, leave. It should never require the cognitive acceleration of parsing a multi-row table. The System 2 'sprint' should be reserved for actual management tasks (date changes, reviews), not for basic orientation."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "On each weekly visit to the Stays Manager, immediately see what needs my attention right now without scanning a table or searching for my current week.",
+      "company_goal": "Increase weekly return rate to the Stays Manager by making the experience effortless, and increase completion rate for per-stay actions (reviews, photo uploads) by surfacing them at the right moment rather than burying them in table rows.",
+      "time_budget": "Under 3 seconds to answer 'what do I need to do this week?' on each visit. The hero card must be visible without scrolling. The full table is available but never the default view.",
+      "anti_goals": [
+        "DO NOT present all stays as equal-weight rows in a flat table as the default view. Completed stays, current stay, and future stays have different information needs and different urgency levels.",
+        "DO NOT force the guest to scroll past completed weeks to find the current one. The current week is always the primary element.",
+        "DO NOT show 'No action available' for future stays in the default view. This is noise. Future stays should be summarized ('6 weeks remaining') not individually listed.",
+        "DO NOT remove the table view entirely. Some guests will want the full spreadsheet. Provide it as a secondary view, not the primary one."
+      ],
+      "success_metric": "Average time-to-first-action on the Stays Manager page (time from page load to the guest clicking an action or leaving). Target: under 8 seconds for routine weekly visits. Secondary: per-stay review completion rate above 60% (currently unmeasured)."
+    },
+    {
+      "id": "works-004",
+      "type": "process_pattern",
+      "title": "Eliminate Off-Platform Communication as the Default Coordination Channel",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Brad communicates with host Nneka via text messages for all schedule changes (01:23-01:42). Bryant acknowledges the need for in-app messaging (09:07-09:21: 'have the ability to message with Brad... having some way to talk with Brad would be useful'). When the host-guest relationship operates through text messages, the platform becomes invisible during the most active phase of the journey. This creates three compounding failures: (a) No enforcement of pricing rules -- Nneka is absorbing rescheduling costs at old rates because there is no system to calculate and present the fair price adjustment. (b) No record of agreements -- if Brad and Nneka disagree about what was agreed via text, neither party has platform-backed evidence. (c) No data for Split Lease -- the platform cannot learn from, optimize, or even observe the most critical interactions in the guest journey. Kahneman's priming research predicts that once the guest is primed to use text messages for coordination ('this is how I talk to my host'), they will continue using text messages even after an in-app tool exists. The platform must intervene in the workflow, not just offer an alternative channel.",
+      "solution": "Make the platform the path of least resistance for every host-guest interaction during active_lease: (1) When a guest needs to change dates, the platform flow must be faster than composing a text message. Pre-filled dates, one-tap change types, and instant availability visibility make the platform the easier path. (2) When the host responds to a change request, the guest receives a push notification with the decision, not a text message. The notification links directly to the updated Stays Manager. (3) For unstructured communication (questions about the space, logistics), provide a simple messaging interface within the Guest Leases page. Keep it adjacent to the stays and date change sections so context is always visible. (4) For the transition period: when a guest or host initiates contact off-platform (detected by the absence of in-platform activity paired with a schedule change), the platform should prompt: 'It looks like your stay dates changed. Want to log this change so your payment schedule stays accurate?' This bridges off-platform behavior back to the platform without punishing the user.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 01:23-01:42",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day... if I have availability.",
+          "insight": "Text messaging is the current default for schedule coordination. This is not a technology failure but an experience failure: the platform offers no tool that is easier than texting. Until the platform tool is faster and simpler, texting will remain the default."
+        },
+        {
+          "source": "nneka-call.txt, 09:07-09:21",
+          "type": "guest_call",
+          "quote": "Also have the ability to message with Brad. I know you have his number as well, but having some way to talk with Brad would be useful.",
+          "insight": "Even the host recognizes the need for in-platform communication. The absence of messaging is not just a guest problem; it creates friction for both parties and forces both into informal channels."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Marvels of Priming",
+          "type": "book",
+          "quote": "Exposure to a word causes immediate and measurable changes in the ease with which many related words can be evoked... The 'Florida effect' involves two stages of priming. First, the set of words primes thoughts of old age; second, these thoughts prime a behavior.",
+          "insight": "Once a guest is primed to use text messages for host communication, this primes the behavior of reaching for their phone's messaging app every time they need to contact the host. Breaking this priming requires the platform to insert itself into the behavioral chain before the guest reaches for the text app -- ideally through a push notification or a visible 'Request Change' button on the Stays Manager page they already visit."
+        },
+        {
+          "source": "nneka-call.txt, 03:33-04:26",
+          "type": "guest_call",
+          "quote": "It's not working financially... the new dates are priced higher now.",
+          "insight": "Off-platform communication fails to enforce pricing rules. Nneka absorbed pricing losses because there was no system to calculate and present seasonal rate adjustments during a text-message rescheduling conversation. The platform must own the pricing calculation, which means it must own the communication channel."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Handle all schedule changes and host communication through one place that keeps a record, shows me availability, and tells me what things cost -- without needing my host's phone number.",
+      "company_goal": "Capture all host-guest interactions inside the platform to enforce pricing rules, maintain a dispute-resolution record, and generate behavioral data that improves matching and retention.",
+      "time_budget": "Any in-platform action must be completable in less time than composing an equivalent text message. For a date change: under 45 seconds (vs. ~30 seconds for a text, plus wait time for a response). For a simple message: under 15 seconds (matching text speed).",
+      "anti_goals": [
+        "DO NOT block or prevent off-platform communication. Guests and hosts will always have each other's contact info. The goal is to make the platform the better option, not the only option.",
+        "DO NOT create a messaging system that is slower or more cumbersome than texting. If the in-app messaging requires more taps than opening a text conversation, it will not be used.",
+        "DO NOT treat messaging as a separate feature from stays management. Messages should be contextual: attached to specific stays, date changes, or issues, not a standalone inbox.",
+        "DO NOT send notifications for every message. Notify for actionable items (change request, payment issue) and batch non-urgent updates."
+      ],
+      "success_metric": "In-platform communication rate: percentage of schedule changes and host-guest messages that originate inside the platform. Target: above 70% within 6 months of messaging launch. Leading indicator: percentage of date changes that are platform-initiated vs. manually entered by the Split Lease team."
+    },
+    {
+      "id": "works-005",
+      "type": "process_pattern",
+      "title": "Front-Load Pricing Transparency to Prevent Mid-Lease Trust Erosion",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "Nneka reveals that her original rate for Brad was $1,170-$1,175 per month, but seasonal pricing means new dates are priced higher (03:33-04:26). Brad likely anchored on his original rate and will experience any increase as a loss. Kahneman's research on anchoring and loss aversion predicts that the original price becomes the guest's reference point; deviations upward feel like overcharges even when they reflect legitimate market changes. This creates a trust erosion pattern: the guest agrees to one price, discovers mid-lease that rescheduling or extending triggers a different price, and interprets the difference as unfair or deceptive. The Guest Leases page shows a Payment Schedule with fixed amounts ($1,400 + $60 maintenance = $1,460 per period), but the Date Change section uses 'fair market rate calculation' and 'price adjustment' without explaining how these relate to the original rate. The gap between the anchored price and the adjustment price is where trust breaks down.",
+      "solution": "At three critical moments, make the relationship between the guest's original rate and any potential adjusted rate explicit and comprehensible: (1) At listing evaluation / proposal creation: Show the guest that nightly rates may vary by season. Display the rate range for their lease period: 'Your rate: $80/night (Oct-Dec). Note: rates for Jan-Feb are $95/night if you extend or reschedule into those months.' This sets expectations before commitment. (2) At acceptance: Include a one-line pricing clause in the confirmation summary: 'Date changes are priced at the rate for the new dates, which may differ from your original rate.' (3) At each date change request in the Stays Manager: Show the original rate and the new rate side by side: 'Your original rate: $80/night. Rate for the requested date: $95/night. Difference: +$15.' The pattern is: never surprise the guest with a price they did not expect. Anchor them on the possibility of rate differences before they encounter one.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 03:33-04:26",
+          "type": "guest_call",
+          "quote": "It's not working financially... Originally when I... I believe $1,170, $1,175... the new dates are priced higher now.",
+          "insight": "Seasonal pricing creates a rate difference between the guest's original commitment and any rescheduled dates. If the guest is not prepared for this difference, it feels like a penalty for flexibility rather than a market adjustment."
+        },
+        {
+          "source": "nneka-call.txt, 04:26-04:50",
+          "type": "guest_call",
+          "quote": "By providing him the flexibility, you're not leaving the days available that were booked before... by pushing them back, it's sort of taking days away that were previously available.",
+          "insight": "Rescheduling has an opportunity cost for the host (blocked dates that cannot be rebooked). The guest may not understand why rescheduling is not free. Making the economic logic visible -- not just the price, but why the price is different -- transforms a trust violation into a comprehensible market dynamic."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Lazy System 2",
+          "type": "book",
+          "quote": "More than 50% of students at Harvard, MIT, and Princeton gave the intuitive -- incorrect -- answer. Many people are overconfident, prone to place too much faith in their intuitions.",
+          "insight": "The guest's intuition is that their rate is fixed for the duration of the lease. This intuition is wrong if seasonal pricing applies to rescheduled dates, but it feels correct because the original rate was prominently displayed and repeatedly confirmed. The platform must override this intuition with explicit, pre-commitment disclosure -- not by relying on the guest to read fine print."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 424-428 (Pricing section)",
+          "type": "usability",
+          "quote": "Pricing: Buying back nights: Host pays guest. Adding nights: Guest pays host. Fair market rate calculation.",
+          "insight": "The UI uses 'fair market rate calculation' as a label without showing what the calculation produces for this specific guest's situation. Abstract labels require System 2 interpretation. Concrete numbers ('Your rate: $80. New date rate: $95. Difference: +$15') are System 1 legible."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Know before I commit to a lease that date changes might cost more, and see the exact cost difference at the moment I request a change, so I am never surprised by a price I did not expect.",
+      "company_goal": "Eliminate mid-lease pricing disputes that damage guest retention and generate support overhead. Convert seasonal rate adjustments from trust-breaking surprises into transparent, accepted market dynamics.",
+      "time_budget": "Pricing disclosure at listing evaluation: one additional line, processable in under 3 seconds. Pricing comparison at date change: a two-column display (original rate vs. new rate) processable in under 5 seconds. No additional screens or modals required.",
+      "anti_goals": [
+        "DO NOT bury seasonal pricing disclosure in terms and conditions or FAQ pages. It must appear inline, in the same visual context as the rate the guest is evaluating.",
+        "DO NOT show only the new rate without comparing it to the original. The comparison is what makes the difference comprehensible and fair.",
+        "DO NOT frame seasonal adjustments as penalties. Use neutral, market-based language: 'rate for the requested date' not 'price increase' or 'surcharge.'",
+        "DO NOT wait until the date change confirmation to reveal the price difference. Show it at the moment the guest selects the new date, before they are emotionally committed to the change."
+      ],
+      "success_metric": "Pricing-related support tickets during active_lease phase: target below 3% of all active leases per month. Secondary: date change completion rate (changes initiated vs. changes confirmed) above 75%, indicating that guests who start changes are not abandoning due to price shock."
+    },
+    {
+      "id": "works-006",
+      "type": "process_pattern",
+      "title": "Protect the Guest's Cognitive Budget by Batching Active-Lease Administrative Tasks",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager asks the guest to perform multiple administrative actions per stay: Review the stay (rate cleanliness, accuracy, communication, write text), Upload Photos (document property condition), and Report Issues. Over a 13-week lease, this is potentially 39 separate prompts. Each prompt is a System 2 task: the guest must recall the specific stay, evaluate their experience, compose a rating or description, and submit. Kahneman's ego depletion research shows that sequential self-control tasks drain from a shared pool. A hybrid worker returning from a long workday to the Stays Manager faces administrative tasks that compete with the same depleted System 2 resources they used for work. The result is predictable: guests complete reviews for the first few weeks, then compliance drops as depletion accumulates. The per-stay review process treats each week as equally important, but the guest's cognitive capacity for administrative tasks degrades over the lease duration -- precisely when their feedback about the long-term living experience becomes most valuable.",
+      "solution": "Batch administrative tasks to match the guest's natural energy rhythms rather than the platform's per-week data structure: (1) Instead of prompting for a review after every stay, batch reviews at natural intervals: after Week 4 (end of first payment cycle), at the midpoint of the lease, and after the final stay. Three thoughtful reviews are more valuable than 13 perfunctory ones. (2) Photo uploads should be prompted once at move-in (document initial condition) and once at move-out (document final condition), not weekly. Mid-lease photos are optional and available on demand but never prompted. (3) Issue reporting is the exception: this must be available immediately and prominently at any time, because issues are time-sensitive. But the 'Report Issue' button should be a persistent element, not a per-stay action buried in a table row. (4) Each batched review moment should take no more than 2 minutes and should present pre-filled context: 'Your stay over the past 4 weeks covered Oct 1-25, across 4 weeks. How was it?' This eliminates the recall burden of week-by-week evaluation.",
+      "evidence": [
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 453-459 (Stay Review Process)",
+          "type": "usability",
+          "quote": "After each stay: 'Review' button becomes active. Guest rates property/host. Rates on: Cleanliness, accuracy, communication. Writes text review (optional).",
+          "insight": "The current design activates a review prompt after every single stay (every week). For a 13-week lease, this is 13 review prompts. Each requires the guest to recall the specific week, evaluate three dimensions, and optionally write text. This is a classic ego depletion cascade: each review draws from the same depleted pool, making subsequent reviews less likely and less thoughtful."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Busy and Depleted System 2",
+          "type": "book",
+          "quote": "An effort of will or self-control is tiring; if you have had to force yourself to do something, you are less willing or less able to exert self-control when the next challenge comes around. The phenomenon has been named ego depletion.",
+          "insight": "The review fatigue pattern mirrors Kahneman's ego depletion cascade exactly. The first review is completed with care. By Week 5, the guest's System 2 has been depleted by four prior reviews (plus their work responsibilities), and the review either becomes perfunctory (5 stars, no text) or is skipped entirely."
+        },
+        {
+          "source": "nneka-call.txt, 10:17-12:17",
+          "type": "guest_call",
+          "quote": "Hybrid workers... typically looking for really weeknights or weekdays each week... 2-3 month commitments.",
+          "insight": "The target guest is a working professional visiting 4-5 nights per week. They arrive at the property after work and leave for work in the morning. Their cognitive budget for platform administrative tasks is minimal -- it competes directly with work responsibilities. Batching reviews to natural break points respects this constraint."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "We normally avoid mental overload by dividing our tasks into multiple easy steps, committing intermediate results to long-term memory or to paper rather than to an easily overloaded working memory.",
+          "insight": "Kahneman recommends dividing tasks into easy steps -- but the current design does the opposite: it creates too many easy steps (13 weekly reviews) that in aggregate become an overwhelming administrative burden. The solution is not more steps; it is fewer, better-timed steps that capture the same information with less total effort."
+        }
+      ],
+      "priority": "medium",
+      "user_goal": "Provide meaningful feedback about my living experience without feeling like I am filling out a weekly survey. Administrative tasks should respect my time and arrive when I have something meaningful to say.",
+      "company_goal": "Increase review completion rates and review quality by reducing review fatigue. Capture higher-quality feedback at natural reflection points rather than low-quality feedback at forced weekly intervals.",
+      "time_budget": "Each batched review moment: under 2 minutes. Total administrative time over a 13-week lease: under 10 minutes (3 reviews x 2 minutes + 2 photo sessions x 2 minutes). Current design theoretical maximum: 13 reviews x 3 minutes = 39 minutes.",
+      "anti_goals": [
+        "DO NOT prompt for a review after every single stay. Weekly review prompts create fatigue that reduces both completion rate and review quality.",
+        "DO NOT treat photo uploads as a weekly obligation. Move-in and move-out photos serve the damage deposit function; weekly photos serve no clear purpose and create busywork.",
+        "DO NOT batch issue reporting. Issues are time-sensitive and must be reportable immediately from a persistent, visible button.",
+        "DO NOT eliminate the ability to review individual weeks for guests who want to. The batch approach is the default; the per-week option is available on demand."
+      ],
+      "success_metric": "Review completion rate: percentage of lease periods that receive at least one completed review. Target: above 70% (vs. current per-week completion rate, likely below 30% by end of lease). Secondary: average review word count above 20 words (indicating thoughtful feedback rather than perfunctory submission)."
+    },
+    {
+      "id": "works-007",
+      "type": "process_pattern",
+      "title": "Surface Real-Time Availability Inside the Guest's Decision Flow",
+      "journey_phases": ["search", "listing_evaluation", "active_lease"],
+      "problem": "Host availability on Split Lease depends on external platforms, primarily Airbnb. Nneka confirms: 'Airbnb. I have some of them today. If I worked, then it automatically updates on' (05:06-05:44). Bryant asks about screenshots of availability as a workaround (05:27). The guest has no visibility into this dependency. When Brad requests a reschedule, his success depends on Nneka's Airbnb calendar -- a system he cannot see and may not know exists. This creates a pattern of opaque rejection: the guest requests a date, the host says no (because Airbnb shows the date as booked), and the guest experiences this as arbitrary hostility rather than a factual constraint. During search and listing evaluation, the same problem manifests differently: the guest sees a listing that appears available, but the actual available dates are a subset constrained by the host's cross-platform bookings. Kahneman's violation model predicts that when 'an event is detected that violates the model of the world that System 1 maintains,' the guest's trust is damaged. The guest's model is: 'if the listing is on Split Lease, the dates are available on Split Lease.' The reality violates this model.",
+      "solution": "Integrate host availability into every guest-facing decision point where dates matter: (1) In search results, show only dates that are actually available (synced from the host's calendar, including Airbnb). Never show a listing as available for dates that are blocked on the host's external calendar. (2) On the listing evaluation page, the day-of-week selector should gray out unavailable dates rather than allowing the guest to select them and discover unavailability later. (3) In the Stays Manager Date Change flow, show available dates inline so the guest never requests a date that will be rejected. 'Available dates this week: Mon, Tue, Wed (Thu-Fri booked).' (4) When availability changes after a guest has submitted a proposal or change request, notify the guest immediately rather than letting the request sit in limbo. The pattern is: never let the guest invest cognitive effort in evaluating or requesting a date that is not available.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 05:06-05:44",
+          "type": "guest_call",
+          "quote": "Airbnb. I have some of them today. If I worked, then it automatically updates on... you guys have the most up to date... we can update that.",
+          "insight": "Host availability is managed on Airbnb and synced (or manually updated) to Split Lease. The guest interacts with Split Lease but their success depends on Airbnb data they cannot see. This hidden dependency creates unpredictable failures."
+        },
+        {
+          "source": "nneka-call.txt, 10:17-10:27",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern... so there can be some difficulties there in matching with your listing availability.",
+          "insight": "Bryant acknowledges that availability matching between guest usage patterns and host calendars is a fundamental challenge. The platform's search and evaluation phases do not currently surface this matching problem, forcing the guest to discover incompatibility through trial and rejection."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Plot Synopsis",
+          "type": "book",
+          "quote": "System 2 is activated when an event is detected that violates the model of the world that System 1 maintains. In that world, lamps do not jump, cats do not bark.",
+          "insight": "In the guest's mental model, 'listed on Split Lease' means 'available on Split Lease.' A rejection due to Airbnb conflicts violates this model, triggering the same surprise-and-suspicion response as Kahneman's lamps-jumping example. The platform must prevent this violation by never showing unavailable options."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 436-438 (Date Change Actions)",
+          "type": "usability",
+          "quote": "Request Changes button - Initiate modification. Accept/Reject incoming requests. Remove expired requests.",
+          "insight": "The current 'Request Changes' flow allows the guest to submit a change that may be rejected due to availability constraints the guest cannot see. Showing available dates before the guest submits eliminates rejected requests and the frustration they cause."
+        }
+      ],
+      "priority": "medium",
+      "user_goal": "Only see dates and listings that are actually available, so I never waste time evaluating, requesting, or waiting for something that was never possible.",
+      "company_goal": "Reduce rejected proposals and date change requests by surfacing availability constraints before the guest commits cognitive effort. Decrease time-to-match by eliminating false-positive availability in search results.",
+      "time_budget": "Availability data must load within the page load of any date-related view. The guest should never need to submit a request and wait to learn if the date was available. Availability is a prerequisite to the request, not a response to it.",
+      "anti_goals": [
+        "DO NOT show listings in search results for date ranges where the host has no availability. This wastes the guest's evaluation effort and damages platform credibility.",
+        "DO NOT allow the guest to request a date change to a date that is known to be unavailable. Gray out or remove unavailable dates from the picker.",
+        "DO NOT expose the complexity of cross-platform availability syncing to the guest. The guest should never see 'this date is blocked on Airbnb.' They should simply not see the date as an option.",
+        "DO NOT rely on manual availability updates. If the sync with external calendars is not real-time, show a confidence indicator ('Availability last updated 2 hours ago') rather than presenting stale data as current."
+      ],
+      "success_metric": "Date change rejection rate: percentage of guest-initiated date changes rejected due to availability. Target: below 10% (indicating the guest almost never requests an unavailable date). Secondary: search-to-proposal conversion rate improvement, measured by the reduction in listings viewed before a proposal is submitted."
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "lens": {
+    "guest_call": "nneka-call.txt",
+    "book_extract": "kahneman-part1-two-systems.txt"
+  },
+  "elements": [
+    {
+      "id": "looks-001",
+      "type": "visual_pattern",
+      "title": "Stays Manager Hero Card: Visual Weight That Matches Cognitive Priority",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager is the guest's most-visited page -- weekly for 13+ weeks. The current design (per the guest journey document, lines 392-408) presents stays as a flat data table where every row has equal visual weight: same font size, same row height, same color treatment. Week 1 (completed two months ago) and Week 8 (the current stay) look identical. The guest's System 1 cannot instantly locate the current week because no visual signal differentiates it from the 12 other rows. Kahneman's research on cognitive ease shows that repeated tasks should become easier with practice, but a table where the target row shifts downward each week never develops the spatial consistency needed for System 1 recognition. The guest is forced into a System 2 scan on every single visit -- parsing row after row -- when they should be performing a System 1 glance at a fixed, visually prominent element.",
+      "solution": "Create a clear visual hierarchy where the current/next stay occupies a hero card with dramatically different visual treatment from all other stays. The hero card uses a white surface (#ffffff / --bg-white) with an elevated shadow (--shadow-md) and the accent purple left border (--secondary-purple, 3px) to create a 'this is your focus' signal. It sits above the fold, always in the same position regardless of how many weeks have passed. Completed stays below collapse into a muted summary row using --bg-light (#f9fafb) with --text-light-gray for the count. Future stays use the same muted treatment. The status badge on the hero card uses color-coded backgrounds: In Progress = --secondary-purple with white text, Completed = --status-success-light with --status-success-text, Not Started = --bg-light-gray with --text-gray. The hero card is the only element at full visual intensity; everything else is visually receded. This creates a System 1 focal point: the eye lands on the hero card because it is the only high-contrast, elevated element on the page.",
+      "evidence": [
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 392-408",
+          "type": "usability",
+          "quote": "Stays Table: Columns: Week #, Period (date range), Status (Not Started, In Progress, Completed), Actions. Available Actions: Review, Upload Photos, Report Issue, No action available.",
+          "insight": "The flat table design gives 'No action available' rows the same visual weight as actionable rows. The guest's eye must distinguish between 'Review' (important) and 'No action available' (noise) across 13 rows, with no visual differentiation to guide the scan."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "As you become skilled in a task, its demand for energy diminishes.",
+          "insight": "A hero card in a fixed position becomes a System 1 pattern after 2-3 visits: the guest knows exactly where to look without scanning. A table where the current row shifts downward each week defeats skill acquisition because the spatial target moves."
+        },
+        {
+          "source": "nneka-call.txt, 10:17-12:17",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern... typically looking for really weeknights or weekdays each week... 2-3 month commitments typical.",
+          "insight": "The hybrid worker checks the Stays Manager on Monday morning before heading to the property. Their System 2 is allocated to work. The hero card must deliver the answer in a single glance -- the visual hierarchy must make the current week unmissable without cognitive effort."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--bg-white", "--bg-light", "--secondary-purple", "--text-dark", "--text-gray", "--text-light-gray", "--shadow-md"],
+        "typography": ["Inter 600 20px (hero card week number)", "Inter 400 14px (hero card date range)", "Inter 600 12px (status badge)"],
+        "spacing": ["--spacing-2xl (hero card padding)", "--spacing-lg (internal card gaps)", "--spacing-sm (badge padding)"],
+        "new_tokens_needed": ["--hero-card-border-left: 3px solid var(--secondary-purple)", "--status-badge-radius: var(--rounded-pill)"]
+      },
+      "contrast_requirements": "WCAG AA. Hero card: --text-dark (#1a1a1a) on --bg-white (#ffffff) = 16.1:1. Status badge: white (#ffffff) on --secondary-purple (rgb(109, 49, 194)) = 6.4:1. Muted summary: --text-gray (#6b7280) on --bg-light (#f9fafb) = 4.7:1. All pass AA for normal text.",
+      "visual_hierarchy_rule": "Eye lands on the hero card first because it is the only elevated, full-contrast surface. The left purple border provides a color accent that anchors attention. Status badge is the second fixation point because it is the only colored element within the card. Muted collapsed sections are peripheral -- visible but not competing for first-glance attention.",
+      "brand_alignment": "Taste model: 'Trustworthy, not corporate. Rounded corners, human language, real data.' The hero card delivers real data (this week, these dates, this status) in a warm, non-corporate format. The purple left border connects to the brand accent without overwhelming. Taste model: 'The UI should adapt to who you are and where you are in your journey.' The hero card adapts to the current week automatically -- it is relentlessly personalized, never generic."
+    },
+    {
+      "id": "looks-002",
+      "type": "visual_pattern",
+      "title": "Single-Sum Financial Display: One Number at Primary Visual Weight",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "The guest's financial decision is 'Can I afford this monthly?' but the platform presents financial information in three simultaneous formats: nightly rate ($300.98/night), 4-week rent ($3,611.79), and reservation total ($11,738.32). All three numbers appear at comparable visual weight on the listing page. Kahneman's bat-and-ball research demonstrates that over 50% of elite university students fail simple arithmetic under cognitive ease conditions. When the guest sees three financial figures at equal visual prominence, their System 1 must choose which number to anchor on. Because System 1 gravitates to the first or largest number, it may anchor on the nightly rate (misleadingly low) or the total (alarmingly high) rather than the monthly equivalent they need. In the Stays Manager Payment Schedule, the same problem recurs: individual payment rows ($1,400 + $60 = $1,460) appear without cumulative context, forcing the guest to mentally track how much they have paid versus how much remains.",
+      "solution": "At every financial touchpoint, establish a strict typographic hierarchy: one number at primary weight, supporting numbers at secondary weight, and breakdowns on demand. The primary financial figure uses Outfit 700 28px (--text-2xl, --font-weight-bold) in --text-dark. This is the monthly-equivalent cost. The supporting figure (nightly rate) uses Outfit 400 14px (--text-base, --font-weight-normal) in --text-gray, positioned directly below as a derivation note. The full breakdown is hidden behind an expand control using --text-sm in --text-light-gray. In the Payment Schedule, each row shows the period amount in --text-base, but a persistent summary bar at the top of the table shows 'Paid: $4,380 of $11,738' in --text-lg --font-weight-semibold, using a progress bar with --secondary-purple fill on --bg-light-gray track. The visual weight ratio between primary and secondary financial figures should be approximately 3:1 (28px bold vs. 14px regular), making it impossible for the eye to fixate on the secondary number first.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 03:33-04:26",
+          "type": "guest_call",
+          "quote": "Originally when I... I believe $1,170, $1,175.",
+          "insight": "Both hosts and guests reference pricing in monthly terms, not nightly. The platform's nightly-rate-first display serves the data model, not the mental model. The visual hierarchy must put the monthly figure at primary weight because that is the number the guest's System 1 evaluates."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Lazy System 2",
+          "type": "book",
+          "quote": "More than 50% of students at Harvard, MIT, and Princeton gave the intuitive -- incorrect -- answer.",
+          "insight": "If elites fail simple arithmetic, guests comparing listings while evaluating photos and rules will produce even higher error rates when converting nightly to monthly. The platform must eliminate all guest-side arithmetic by pre-computing the monthly figure and making it visually dominant."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 369-386",
+          "type": "usability",
+          "quote": "Payment Schedule Table: Columns: Scheduled Date, Actual Date, Rent Amount, Maintenance Fee, Damage Deposit, Total, Payment Status, Receipt.",
+          "insight": "The Payment Schedule is a six-column data table with no cumulative summary. The guest sees per-period amounts but has no visual representation of their total commitment or how much is paid versus remaining. A summary bar with a progress indicator converts this from a System 2 parsing task into a System 1 glance."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--text-dark", "--text-gray", "--text-light-gray", "--secondary-purple", "--bg-light-gray", "--bg-white"],
+        "typography": ["Outfit 700 28px (primary financial figure)", "Outfit 400 14px (supporting nightly rate)", "Outfit 600 18px (payment summary bar)", "IBM Plex Mono 500 14px (exact dollar amounts in tables)"],
+        "spacing": ["--spacing-xs (between primary figure and supporting text)", "--spacing-lg (above and below the financial display block)", "--spacing-md (payment summary bar padding)"],
+        "new_tokens_needed": ["--payment-progress-track: var(--bg-light-gray)", "--payment-progress-fill: var(--secondary-purple)"]
+      },
+      "contrast_requirements": "WCAG AA. Primary figure: --text-dark (#1a1a1a) on --bg-white (#ffffff) = 16.1:1. Supporting text: --text-gray (#6b7280) on --bg-white (#ffffff) = 4.6:1 (AA for normal 14px text). Mono dollar amounts: --text-dark on --bg-white = 16.1:1. Progress bar: --secondary-purple on --bg-light-gray passes AA for graphical objects (3:1 minimum).",
+      "visual_hierarchy_rule": "The eye lands on the primary financial figure first because it is 2x the size and 2x the weight of any other number on the screen. The supporting nightly rate is perceived as an annotation, not a competing anchor. In the Payment Schedule, the summary bar is the first fixation point because it spans the full table width and uses --font-weight-semibold, while individual rows use --font-weight-normal.",
+      "brand_alignment": "Taste model: 'Confident, not flashy. The product speaks through clarity, not decoration.' A single bold number is the ultimate expression of confidence -- it says 'this is what matters' without hedging. Taste model: 'Mono for data/trust (prices, stats, badges). IBM Plex Mono signals precision and reliability.' Using mono for exact dollar amounts in the Payment Schedule table reinforces that the platform is precise and trustworthy with the guest's money."
+    },
+    {
+      "id": "looks-003",
+      "type": "visual_pattern",
+      "title": "Date Change Options as Visually Distinct Financial Cards, Not Abstract Menu Items",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "The Date Change section of the Stays Manager presents three change types (Add nights, Remove nights, Swap dates) alongside abstract pricing rules ('Buying back nights: Host pays guest. Adding nights: Guest pays host. Fair market rate calculation'). These are visually separated -- the types in one area, the pricing rules in another. The guest must cross-reference between the two sections, which is a System 2 table-lookup task. Kahneman's associative coherence research shows that System 1 creates stories by linking related information into a single unit. When type and cost are visually separated, System 1 cannot form a complete story ('I swap and pay nothing extra') because the cost information is in a different visual location than the type selection. Nneka's call confirms the real-world consequence: even Bryant had to explicitly ask whether replace and add have different pricing (07:22-07:45). If the Split Lease team needs clarification, the guest certainly cannot parse it from separated abstract labels.",
+      "solution": "Present each date change option as a self-contained card where the action, the specific dates, and the financial consequence are a single visual unit. Each card uses --bg-white surface with --border-color border and --rounded-xl radius. Inside each card: the action verb in --font-weight-semibold --text-md, the specific dates in --text-base --text-gray, and the dollar impact in a colored badge. For Swap: dollar impact badge uses --bg-light-gray with --text-dark ('$0 difference' or '+$12 seasonal'). For Add: badge uses --signal-warn-bg equivalent (--status-warning-light / #FDF4E3) with --status-warning-text ('+ $95 at current rate'). For Remove: badge uses --status-success-light (#E6F5EE) with --status-success-text ('- $80 refund'). The color coding creates instant System 1 differentiation: neutral gray = no cost change, warm amber = you pay more, green = you get money back. No cross-referencing required. The guest taps one card and the story is complete.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 07:22-07:45",
+          "type": "guest_call",
+          "quote": "If Brad was to add a book tonight, and add instead of like replace, is that something that you would be open to... it would be a different rate.",
+          "insight": "The financial distinction between replace and add is not obvious -- even the platform team must ask. The visual design must make this distinction unmissable by color-coding the financial consequence directly on each option card."
+        },
+        {
+          "source": "nneka-call.txt, 03:33-04:26",
+          "type": "guest_call",
+          "quote": "It's not working financially... the new dates are priced higher now.",
+          "insight": "Seasonal pricing means even a 'swap' can have a cost delta. Showing '+$0' on a cost-neutral swap and '+$12' on a seasonal-adjusted swap in the same visual format builds trust through consistency -- the guest sees the platform is transparent even when the answer is zero."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, The Associative Machine",
+          "type": "book",
+          "quote": "Your System 1 made as much sense as possible of the situation... by linking the words in a causal story; it evaluated the possible threat... and created a context for future developments.",
+          "insight": "Each option card is a self-contained causal story: 'I do this action, on these dates, and it costs this much.' System 1 can evaluate each story independently. Separated type and pricing sections force System 2 to construct the story by cross-referencing, which depleted guests will not do."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--bg-white", "--border-color", "--text-dark", "--text-gray", "--bg-light-gray", "--status-warning-light", "--status-warning-text", "--status-success-light", "--status-success-text"],
+        "typography": ["Inter 600 16px (action verb: Swap, Add, Remove)", "Inter 400 14px (specific dates)", "IBM Plex Mono 600 14px (dollar impact in badge)"],
+        "spacing": ["--spacing-lg (card padding)", "--spacing-md (gap between cards)", "--spacing-sm (badge internal padding)"],
+        "new_tokens_needed": ["--date-change-card-gap: var(--spacing-md)", "--cost-badge-radius: var(--rounded-pill)"]
+      },
+      "contrast_requirements": "WCAG AA. Action verb: --text-dark on --bg-white = 16.1:1. Dates: --text-gray on --bg-white = 4.6:1. Cost badge (warn): --status-warning-text (#92620E) on --status-warning-light (#FDF4E3) = 7.2:1. Cost badge (success): --status-success-text on --status-success-light = passes AA. Cost badge (neutral): --text-dark on --bg-light-gray = 14.8:1. All pass AA.",
+      "visual_hierarchy_rule": "Eye scans vertically across the three cards, comparing dollar impact badges first (because they are the only colored elements in otherwise neutral cards). The colored badge draws the first fixation; the action verb above it provides context; the specific dates below confirm relevance. This is a top-to-bottom hierarchy within each card: badge (emotional signal) then verb (what) then dates (when).",
+      "brand_alignment": "Taste model: 'Trustworthy, not corporate.' Showing the dollar amount even when it is $0 is an act of radical transparency that builds trust. Taste model: 'Premium-accessible. Feels high quality without feeling exclusive.' The card-based layout with rounded corners and gentle shadows feels polished without being clinical. Taste model color philosophy: 'Amber for warnings/urgency (warm, not alarming).' The warm amber for cost-increase badges signals 'this costs more' without triggering alarm."
+    },
+    {
+      "id": "looks-004",
+      "type": "visual_pattern",
+      "title": "Status Badge System: Color-Coded Glanceability Across All Stays Manager States",
+      "journey_phases": ["active_lease", "negotiation", "acceptance"],
+      "problem": "The Stays Manager uses three status labels for stays (Not Started, In Progress, Completed) and three for date changes (Active, Expired, Pending), plus payment statuses across the Payment Schedule. These statuses appear as text labels within table rows, all in the same typographic treatment. The guest cannot distinguish at a glance whether their lease is healthy (everything on track) or requires attention (a date change is pending, a payment failed). Kahneman's System 1 operates through pattern recognition -- it can instantly detect a red signal in a field of green, but it cannot instantly parse six different text labels at the same font weight and color. The visual cost of parsing status is paid on every weekly visit, compounding over a 13-week lease. Without a consistent visual language for status across all sections of the Stays Manager (stays, date changes, payments), the guest must read each label individually, which is a System 2 task.",
+      "solution": "Implement a unified status badge system across all Stays Manager sections using consistent color semantics: (1) Active/In Progress: --secondary-purple background, white text. This is the 'you are here' signal. (2) Completed/Paid: --bg-light-gray background, --text-gray text. This is the 'done, no action needed' signal -- visually receded. (3) Pending/Upcoming: --status-warning-light background, --status-warning-text text. This is the 'needs attention soon' signal. (4) Expired/Failed: --status-error-light background, --status-error-text text. This is the 'problem' signal. (5) Not Started: --bg-light-gray background, --text-light-gray text. This is the 'future, not relevant yet' signal -- most visually receded. All badges use --rounded-pill shape, --text-xs font size, --font-weight-semibold, and --spacing-xs vertical / --spacing-sm horizontal padding. The same badge appears identically whether it labels a stay, a date change, or a payment. System 1 learns one color vocabulary and applies it everywhere on the page.",
+      "evidence": [
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 397-408",
+          "type": "usability",
+          "quote": "Status (Not Started, In Progress, Completed). Actions: Review, Upload Photos, Report Issue, No action available.",
+          "insight": "Three status states appear as text labels in a table column. Without color coding, the guest must read each label to determine which row requires action. Color-coded badges allow the guest to scan for the purple (current) or amber (needs attention) badge without reading any text."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 413-418",
+          "type": "usability",
+          "quote": "Status (Active, Expired, Pending). Action (Accept/Reject/Remove).",
+          "insight": "The Date Change section uses different status labels (Active, Expired, Pending) than the Stays section (Not Started, In Progress, Completed). If these use the same visual badge system with consistent color semantics, the guest can transfer their learned color-to-meaning mapping across sections without re-learning."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Two Systems",
+          "type": "book",
+          "quote": "System 1 operates automatically and quickly, with little or no effort and no sense of voluntary control.",
+          "insight": "Color recognition is a System 1 operation -- the guest sees purple and knows 'current' without reading the word 'In Progress.' This is exactly the automatic, effortless processing that should govern weekly status checks. Text labels without color coding force System 2 reading, which is effortful and slow."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "Several of the mental actions in the list are completely involuntary. You cannot refrain from understanding simple sentences in your own language.",
+          "insight": "Color recognition, like language comprehension, is involuntary. A red badge triggers alertness before the guest reads the word 'Failed.' A purple badge triggers recognition of 'current' before the guest reads 'In Progress.' This involuntary processing is the design goal: the guest's body responds to the page's visual signals before their conscious mind engages."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--secondary-purple", "--white", "--bg-light-gray", "--text-gray", "--text-light-gray", "--status-warning-light", "--status-warning-text", "--status-error-light", "--status-error-text"],
+        "typography": ["Inter 600 11px (badge text, --text-xs --font-weight-semibold)"],
+        "spacing": ["--spacing-xs (badge vertical padding, 4px)", "--spacing-sm (badge horizontal padding, 8px)"],
+        "new_tokens_needed": ["--badge-height: 22px", "--badge-font: var(--text-xs)", "--badge-weight: var(--font-weight-semibold)"]
+      },
+      "contrast_requirements": "WCAG AA for all badge color combinations. Active: white on --secondary-purple = 6.4:1 (passes AA). Completed: --text-gray (#6b7280) on --bg-light-gray (#f3f4f6) = 4.2:1 (passes AA at 11px bold, per WCAG large text rules for 14px+ bold; for safety, use --text-description #374151 on --bg-light-gray = 8.5:1). Pending: --status-warning-text (#92620E) on --status-warning-light (#FDF4E3) = 7.2:1 (passes AA). Error: --status-error-text (#9B2C2C) on --status-error-light (#FDE8E8) = 6.8:1 (passes AA). Not Started: --text-light-gray (#9ca3af) on --bg-light-gray (#f3f4f6) = 1.9:1 (intentionally low contrast for future/irrelevant items; these are decorative, not informational -- the guest does not need to read them).",
+      "visual_hierarchy_rule": "Eye is drawn first to the highest-saturation badge on the page: purple (current) or amber (needs attention) or red (problem). Completed badges in muted gray recede. Not Started badges nearly disappear. This creates a natural attention funnel: the page visually pushes the guest toward the one or two things that matter right now.",
+      "brand_alignment": "Taste model: 'Confident, not flashy.' Pill-shaped badges with restrained color (only the status-relevant color, not gradients or shadows) feel confident and clear. Style guide: '--rounded-pill: 20px' for badge shape aligns with the existing pill button pattern. Taste model color philosophy: 'Red only for errors (never for CTAs or emphasis).' The status badge system respects this rule: red only for Expired/Failed, never for decoration."
+    },
+    {
+      "id": "looks-005",
+      "type": "visual_pattern",
+      "title": "Seasonal Rate Transparency Through Visual Comparison, Not Text Explanation",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "Nneka reveals that seasonal pricing means Brad's rescheduled dates cost more than his original rate ($1,170-$1,175 originally, higher now). The guest anchors on the first rate they see. Kahneman's anchoring research shows that the first number becomes the reference point, and deviations feel like gains or losses relative to it -- not objective market values. When the guest encounters a rate change at the Date Change screen, it arrives as text ('fair market rate calculation') without a visual comparison to the anchored price. This forces System 2 to recall the original rate, compare it to the new rate, compute the difference, and judge fairness -- four operations on a depleted user who just wants to swap a Tuesday for a Wednesday. The Muller-Lyer illusion principle from Kahneman is relevant: even after knowing the rates are fair, the guest will feel the increase is unfair because their System 1 anchored on the lower number. Visual design cannot change this feeling, but it can prevent the surprise that triggers it.",
+      "solution": "At every point where a rate comparison is relevant (listing evaluation across seasons, proposal creation for multi-season leases, and date changes in the Stays Manager), display the comparison visually rather than explaining it textually. Use a compact two-column layout: left column shows the original/current rate with 'Your rate' label in --text-gray, right column shows the new/adjusted rate with 'New date rate' label in --text-gray. Between them, a delta badge shows the difference: '+$0' in --bg-light-gray (neutral), '+$15' in --status-warning-light (increase), or '-$10' in --status-success-light (decrease). The original rate uses --text-dark at --text-base weight. The new rate uses --text-dark at --text-md --font-weight-semibold to draw attention. The delta badge uses IBM Plex Mono at --text-sm for precision. This layout is a visual sentence: 'Your rate [amount] becomes [amount], difference [amount].' System 1 can process this as a spatial comparison (left vs. right) rather than a textual computation.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 03:33-04:26",
+          "type": "guest_call",
+          "quote": "It's not working financially... Originally when I... I believe $1,170, $1,175... the new dates are priced higher now.",
+          "insight": "The rate difference is real and significant. The guest who does not see this comparison visually will discover it as an unexplained charge, which triggers the System 1 violation response. A visual side-by-side comparison pre-empts the surprise."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Illusions",
+          "type": "book",
+          "quote": "Now that you have measured the lines, you -- your System 2 -- have a new belief: you know that the lines are equally long. But you still see the bottom line as longer.",
+          "insight": "The Muller-Lyer illusion demonstrates that knowing something is fair does not make it feel fair. The guest will always feel the original rate is the 'real' rate. The design cannot eliminate this illusion but can prevent the surprise that amplifies it. A visual comparison shown before commitment gives System 2 a chance to prepare System 1 for the difference."
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 424-428",
+          "type": "usability",
+          "quote": "Pricing: Buying back nights: Host pays guest. Adding nights: Guest pays host. Fair market rate calculation.",
+          "insight": "'Fair market rate calculation' is an abstract label that requires System 2 interpretation. A concrete visual comparison ($80 -> $95, +$15) requires no interpretation. The visual design must convert abstract pricing rules into concrete, pre-computed visual comparisons."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--text-dark", "--text-gray", "--bg-light-gray", "--status-warning-light", "--status-warning-text", "--status-success-light", "--status-success-text", "--bg-white", "--border-color"],
+        "typography": ["Inter 400 14px (rate labels: 'Your rate', 'New date rate')", "Outfit 400 14px (original rate amount)", "Outfit 600 16px (new rate amount, emphasized)", "IBM Plex Mono 500 12px (delta badge amount)"],
+        "spacing": ["--spacing-lg (comparison block padding)", "--spacing-md (gap between left and right columns)", "--spacing-sm (delta badge padding)"],
+        "new_tokens_needed": ["--rate-comparison-gap: var(--spacing-md)", "--rate-delta-radius: var(--rounded-pill)"]
+      },
+      "contrast_requirements": "WCAG AA. Rate labels: --text-gray (#6b7280) on --bg-white (#ffffff) = 4.6:1 (passes AA). Rate amounts: --text-dark (#1a1a1a) on --bg-white = 16.1:1. Delta badge (increase): --status-warning-text (#92620E) on --status-warning-light (#FDF4E3) = 7.2:1. Delta badge (neutral): --text-dark on --bg-light-gray = 14.8:1. All pass AA.",
+      "visual_hierarchy_rule": "Eye is drawn to the delta badge first because it is the only colored element in an otherwise neutral comparison block. The color (amber for increase, green for decrease, gray for neutral) delivers the emotional signal before the number is read. Then the eye scans left-to-right: original rate, arrow or separator, new rate -- following the natural reading pattern for a comparison.",
+      "brand_alignment": "Taste model: 'Trustworthy, not corporate.' Showing the price comparison transparently -- including when the delta is $0 -- is an act of radical honesty that builds trust. Taste model: 'Mono for data/trust (prices, stats, badges).' The delta badge in IBM Plex Mono signals precision: this is an exact calculation, not an estimate. Taste model: 'Red only for errors.' Price increases use amber/warm, never red, because a higher rate is not an error -- it is a market reality communicated with warmth."
+    },
+    {
+      "id": "looks-006",
+      "type": "visual_pattern",
+      "title": "Schedule Compatibility Indicator: Day-of-Week Pattern as First Visual Signal on Listing Cards",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "The guest's primary filter is schedule compatibility -- do the available nights at this listing match the nights I need? Bryant describes this as the core matching challenge: 'Monday to Friday is a very popular usage pattern... so there can be some difficulties there in matching with your listing availability' (10:17-10:27). Yet the current listing card hierarchy leads with property photos, followed by location, title, and two pricing displays. The guest must click into the listing detail page to discover whether their Monday-Thursday pattern aligns with the host's available nights. This means every incompatible listing the guest evaluates wastes attention from Kahneman's limited attention budget. The visual design of listing cards prioritizes the information that matters least (photos of a space you may never be able to use) over the information that matters most (can you actually use this space on your days).",
+      "solution": "Add a compact day-of-week compatibility strip as the first information element on each listing card, positioned above the photo. The strip shows S M T W T F S as small circular indicators (similar to the existing day-badge pattern in the style guide, but at --icon-xs / 16px size). Available days matching the guest's selected pattern use --secondary-purple background with white text. Available days not in the guest's pattern use --bg-light-gray with --text-light-gray. Unavailable days use a strikethrough or X mark in --text-light-gray on transparent background. The strip also shows a compact compatibility percentage or label: 'Full match' in --status-success-text or '3 of 4 nights' in --status-warning-text. This strip is 24px tall and adds minimal visual overhead, but it converts the card from 'look at this property' to 'this property works for your schedule.' On listing cards where the match is zero or very low, the entire card is visually muted (--opacity-disabled / 0.5 opacity) to deprioritize it in the scan.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 10:17-10:27",
+          "type": "guest_call",
+          "quote": "Monday to Friday is a very popular usage pattern, which we see... so there can be some difficulties there in matching with your listing availability.",
+          "insight": "Schedule matching is the primary compatibility filter. A listing that fails this filter is irrelevant regardless of its photos, price, or location. The visual design must surface this filter before any other listing attribute."
+        },
+        {
+          "source": "nneka-call.txt, 10:41-10:53",
+          "type": "guest_call",
+          "quote": "Would you prefer me to come to you with a guest, even if it wouldn't work for your exact listing availability? -- No.",
+          "insight": "Hosts will reject schedule-incompatible guests. Showing these listings at full prominence wastes the guest's evaluation effort on proposals that will be rejected. Visual deprioritization (muted opacity) of incompatible listings preserves the guest's attention budget."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Attention and Effort",
+          "type": "book",
+          "quote": "You dispose of a limited budget of attention that you can allocate to activities, and if you try to go beyond your budget, you will fail.",
+          "insight": "Every listing card evaluated depletes the attention budget. A card that leads with schedule fit lets the guest skip incompatible listings in under 2 seconds. A card that leads with photos consumes 5-10 seconds before the guest discovers incompatibility -- attention wasted on a listing they can never use."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--secondary-purple", "--white", "--bg-light-gray", "--text-light-gray", "--status-success-text", "--status-warning-text", "--text-dark"],
+        "typography": ["Inter 600 10px (day letters in circular indicators)", "Inter 500 11px (compatibility label: 'Full match' or '3 of 4 nights')"],
+        "spacing": ["--spacing-xs (gap between day circles)", "--spacing-sm (strip padding)", "--spacing-md (gap between strip and photo below)"],
+        "new_tokens_needed": ["--day-indicator-size: 16px", "--day-indicator-font: 10px", "--card-muted-opacity: 0.5"]
+      },
+      "contrast_requirements": "WCAG AA for matched day indicators: white on --secondary-purple = 6.4:1 (passes). Non-graphical indicators (unmatched, unavailable) are decorative and do not require AA compliance, but --text-light-gray on --bg-light-gray is intentionally low-contrast to signal irrelevance. Compatibility label: --status-success-text on --bg-white passes AA. --status-warning-text on --bg-white = 4.6:1 (passes AA for bold 11px text).",
+      "visual_hierarchy_rule": "The day-of-week strip is the first element the eye encounters on each card because it sits at the top, above the photo. Purple-highlighted days are the first fixation point within the strip because they are the only saturated color in an otherwise gray row. The compatibility label ('Full match') reinforces the signal as text. Only after confirming schedule fit does the eye move to the photo and price below.",
+      "brand_alignment": "Taste model: 'Core Value: Relentless Personalization. The UI should adapt to who you are and where you are in your journey.' The day-of-week strip is personalized to the guest's selected schedule -- it shows their specific pattern against the host's availability. This is not a generic feature display; it is a personalized compatibility assessment rendered visually. Style guide: day badges are an existing signature component. The compact day indicators on listing cards are a miniaturized version of the same pattern, creating visual continuity across the platform."
+    },
+    {
+      "id": "looks-007",
+      "type": "visual_pattern",
+      "title": "Proposal Pipeline as Action-Assigned Progress Bar, Not Stage-Name Timeline",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "The proposal flow uses a six-stage progress tracker (Submit Proposal, Rental Application, Host Review, Finalize Documents, Lease Documents, Initial Payment). The current design shows stage names and completion status as a horizontal timeline with filled and unfilled dots or segments. This tells the guest where they are in the sequence but not who acts next or how long to wait. After submitting a proposal, the guest enters an anxiety-producing waiting state with no visual indicator of whether the host has seen it. Kahneman describes this as continuous System 2 activation: 'System 2 is activated when an event is detected that violates the model of the world that System 1 maintains.' The guest's model after submission is 'I acted, something should happen.' When nothing visibly changes, System 2 remains activated to monitor the uncertainty, creating persistent cognitive drain that competes with the hybrid worker's job responsibilities.",
+      "solution": "Transform the progress tracker from a stage-name timeline into an action-assigned progress bar. The current stage is visually dominant: it uses a --bg-white card with --shadow-sm, --secondary-purple left border (3px), and contains three pieces of information: (1) stage name in --font-weight-semibold --text-md, (2) action assignment as a colored tag -- 'Waiting on host' in --status-warning-light/--status-warning-text, or 'Your action needed' in --secondary-purple/--white, or 'Processing' in --bg-light-gray/--text-gray, (3) elapsed time or expected duration in --text-sm --text-light-gray ('Submitted 14h ago. Hosts respond within 48h.'). Completed stages collapse to filled circles in --secondary-purple with a checkmark icon. Upcoming stages are empty circles in --border-color with stage names in --text-light-gray. The current stage card is 3-4x the visual height of a completed or upcoming stage indicator, creating an unmistakable focal point. The action tag uses the same badge system as the Stays Manager (looks-004), maintaining visual consistency: purple = your turn, amber = waiting, gray = processing.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt, 01:23-01:42",
+          "type": "guest_call",
+          "quote": "He was texting me and saying, Hey, you know, I can't make it for another day.",
+          "insight": "Brad resorts to texting because the platform provides no status visibility. If the proposal pipeline had shown 'Waiting on host -- submitted 2h ago,' the guest would know the request is in progress. The visual design must resolve waiting-state uncertainty to prevent off-platform workarounds."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Plot Synopsis",
+          "type": "book",
+          "quote": "System 2 is activated when an event is detected that violates the model of the world that System 1 maintains.",
+          "insight": "A proposal pipeline with no action assignment or time estimate leaves the guest in a permanent model-violation state: 'I expected a response but I see nothing.' The visual design must provide enough information for System 1 to form a new, resolved model: 'The host has not responded yet, but that is normal, and I should check back tomorrow.'"
+        },
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 311-327",
+          "type": "usability",
+          "quote": "Progress Tracker (Six Stages): Proposal Submitted (completed), Rental Application Submitted (completed), Review Host Modifications (current/action needed), Finalizing Documents (upcoming), Lease Documents (upcoming), Initial Payment (upcoming).",
+          "insight": "The progress tracker shows stage names and completion status but not who acts next or when. 'Review Host Modifications' is labeled 'action needed' but the modifications themselves may not be visible inline. The current-stage card must surface the relevant content (counter-offer terms) without requiring navigation away from the pipeline."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--bg-white", "--secondary-purple", "--white", "--status-warning-light", "--status-warning-text", "--bg-light-gray", "--text-gray", "--text-light-gray", "--text-dark", "--border-color", "--shadow-sm"],
+        "typography": ["Inter 600 16px (current stage name)", "Inter 600 11px (action assignment tag)", "Inter 400 12px (elapsed time/expected duration)", "Inter 400 14px (upcoming stage names)"],
+        "spacing": ["--spacing-lg (current stage card padding)", "--spacing-sm (gap between pipeline stages)", "--spacing-xs (tag internal padding)"],
+        "new_tokens_needed": ["--pipeline-stage-completed-size: 24px", "--pipeline-stage-upcoming-size: 24px", "--pipeline-connector-color: var(--border-color)"]
+      },
+      "contrast_requirements": "WCAG AA. Current stage card: --text-dark on --bg-white = 16.1:1. Action tag 'Your action': white on --secondary-purple = 6.4:1. Action tag 'Waiting': --status-warning-text on --status-warning-light = 7.2:1. Elapsed time: --text-light-gray on --bg-white = 2.6:1 (this is supplementary/decorative; for AA compliance, use --text-gray #6b7280 = 4.6:1). Completed stage checkmark: white on --secondary-purple = 6.4:1.",
+      "visual_hierarchy_rule": "Eye lands on the current stage card because it is the only elevated, full-width element in the pipeline. The action assignment tag is the second fixation because it is the only colored badge on the card. Completed stages are peripheral (small filled circles). Upcoming stages are barely visible (empty circles with light text). The pipeline reads as: one active card surrounded by minimal indicators of past and future.",
+      "brand_alignment": "Taste model: 'Confident, not flashy.' The pipeline uses one prominent card, not animated progress bars or percentage indicators. The confidence comes from telling the guest exactly who acts next and when, not from visual decoration. Taste model: 'Premium-accessible.' The pipeline feels premium because it provides information that most platforms do not (who acts, how long). It feels accessible because that information is in plain language, not status codes. Taste model animation philosophy: 'Fast response, gentle settle.' When a stage completes, the card slides to become a filled circle and the next stage expands into the card position. The transition uses --easing-ease-out at --transition-slow (0.3s)."
+    },
+    {
+      "id": "looks-008",
+      "type": "visual_pattern",
+      "title": "Flexibility Score as Contextual Trust Signal, Not Numeric Pressure Gauge",
+      "journey_phases": ["active_lease"],
+      "problem": "The Date Change section includes a Flexibility Score displayed as a percentage. The guest journey document describes it as tracking 'accommodation willingness' and notes it 'may affect future bookings.' From the guest's perspective, a bare percentage creates two problems: (1) If the score is high, the number is meaningless because the guest does not know what 100% means or what a 'good' score is. (2) If the score is low, it feels like a guilt mechanism discouraging the guest from requesting changes. Kahneman's concept of System 1 pattern recognition means a percentage displayed prominently will be interpreted emotionally before it is understood rationally. A '72%' displayed in large purple text might feel like a failing grade to a guest primed by school experiences, even if 72% is excellent for flexibility. The visual treatment of the Flexibility Score determines whether it builds trust ('my host is flexible') or creates anxiety ('I am using up my flexibility budget').",
+      "solution": "Redesign the Flexibility Score from a prominent numeric display to a contextual trust signal. Present it as a small, inline element within the Date Change section, not as a featured metric. Use a brief human-readable label rather than a raw percentage: 'Your host has accommodated 4 of 5 change requests' in --text-sm --text-gray, with a small progress indicator using --secondary-purple fill on --bg-light-gray track. The progress indicator is narrow (4px height) and compact (120px width), positioned after the text. The overall visual weight is low -- this is supplementary context, not a headline metric. If the guest has never made a change request, the Flexibility Score section does not appear at all (avoiding empty-state confusion). The color of the progress bar remains constant (--secondary-purple) regardless of the percentage -- no red/amber/green color shift that would create performance anxiety. The score is framed as a description of the host's behavior, not a judgment of the guest's behavior.",
+      "evidence": [
+        {
+          "source": "Split Lease - Complete Guest Journey.txt, lines 429-433",
+          "type": "usability",
+          "quote": "Flexibility Score: Displayed as percentage. Tracks accommodation willingness. May affect future bookings.",
+          "insight": "A percentage that 'may affect future bookings' is a veiled threat. The visual design must neutralize this threat by framing the score as a positive host attribute ('your host is flexible') rather than a depleting guest resource ('you have used 72% of your flexibility')."
+        },
+        {
+          "source": "kahneman-part1-two-systems.txt, Two Systems",
+          "type": "book",
+          "quote": "System 1 operates automatically and quickly, with little or no effort and no sense of voluntary control.",
+          "insight": "A prominently displayed percentage triggers automatic System 1 evaluation: is this number good or bad? The guest's school-trained System 1 interprets any percentage below 80% as mediocre or poor. A human-readable label ('4 of 5 accommodated') bypasses this automatic grading reflex because it is a narrative, not a score."
+        },
+        {
+          "source": "nneka-call.txt, 04:26-04:50",
+          "type": "guest_call",
+          "quote": "By providing him the flexibility, you're not leaving the days available that were booked before... by pushing them back, it's sort of taking days away.",
+          "insight": "Flexibility has real costs for the host. The Flexibility Score should acknowledge this by describing what the host has done ('accommodated 4 of 5 requests'), which honors the host's effort while informing the guest. A raw percentage honors neither."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--text-gray", "--secondary-purple", "--bg-light-gray"],
+        "typography": ["Inter 400 12px (descriptive label: 'Your host has accommodated 4 of 5 change requests')"],
+        "spacing": ["--spacing-sm (between text and progress indicator)", "--spacing-md (section margin above and below)"],
+        "new_tokens_needed": ["--flexibility-bar-height: 4px", "--flexibility-bar-width: 120px"]
+      },
+      "contrast_requirements": "WCAG AA. Label text: --text-gray (#6b7280) on --bg-white (#ffffff) = 4.6:1 (passes AA). Progress bar: --secondary-purple on --bg-light-gray passes the 3:1 minimum for graphical objects. The progress bar is decorative/supplementary -- the text label carries the primary information.",
+      "visual_hierarchy_rule": "The Flexibility Score is visually subordinate to the date change option cards (looks-003). It sits below the options as contextual metadata, not above them as a gatekeeper. The eye reaches it only after evaluating the change options and their costs. The narrow progress bar and small font size signal 'supplementary information' not 'primary metric.' The Flexibility Score never competes with the hero card (looks-001) or the financial displays (looks-002) for the guest's first attention.",
+      "brand_alignment": "Taste model: 'Trustworthy, not corporate.' A raw percentage feels corporate (KPIs, performance metrics). A human-readable description ('4 of 5 accommodated') feels trustworthy and human. Taste model: 'Warm, not cold.' The framing centers the host's positive behavior rather than the guest's consumption of a resource. Taste model: 'The UI should adapt to who you are.' The Flexibility Score only appears when the guest has made at least one change request, avoiding an empty or zero-state that creates confusion for new guests."
+    }
+  ]
+}
