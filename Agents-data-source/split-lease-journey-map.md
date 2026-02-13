@@ -135,7 +135,55 @@ The Guest clicks **"Accept Host Terms"**. A confirmation dialog appears: **"Yes,
 
 ---
 
-## Journey Summary
+## Phase 5: Post-Acceptance — Documents, Leases & Active Stay Management
+
+### Page: Documents Delivery
+Once both parties accept the proposal, Split Lease generates and sends the lease documents to both Host and Guest. Documents include the lease agreement with the agreed terms (dates, duration, nightly rate, total price, house rules). Both parties receive email/in-app notifications with the documents to review and sign.
+
+### Page: Leases
+Both Host and Guest now have access to the **Leases** page (accessible from the main navigation). This is the central hub for managing active and past agreements. The Leases page shows:
+
+- **All active and completed leases** with status indicators
+- **Payment schedule and history** — upcoming payments, completed payments, amounts, dates
+- **Stay management** — each lease contains one or more stays that can be individually managed
+
+### Page: Stays Manager — Date Change Tool
+Within an active lease, both Host and Guest can use the **Date Change Tool** to modify their scheduled stays:
+
+- **Add dates** — request additional nights within the lease term
+- **Remove dates** — cancel specific upcoming nights
+- **Swap dates** — exchange one set of dates for another (e.g., move a Tuesday stay to Thursday)
+
+Date change requests follow the same confirmation flow ("Yes, Proceed") and may require the other party's approval depending on the lease terms.
+
+### Page: Stay Review
+At the end of each stay, both Host and Guest are prompted to **review the experience**:
+
+- **Guest reviews the Host and space** — cleanliness, accuracy, communication, overall experience
+- **Host reviews the Guest** — respectfulness, cleanliness, adherence to house rules, communication
+
+Reviews are submitted after each individual stay (not just at lease end), building a track record over time.
+
+### Feature: Host-Guest Communication
+During the active lease, Host and Guest can communicate through the platform:
+
+- **Guest notifies arrival** — Guest sends a message to the Host indicating they are arriving (e.g., "On my way" or "Arriving at 3pm")
+- **Guest sends cleaning photos** — At the end of each stay, the Guest takes and sends photos showing the space has been cleaned and left in good condition. This serves as documentation for both parties.
+- **General messaging** — Both parties can exchange messages about logistics, questions, or issues
+
+### Page: House Manual
+Each listing includes a **House Manual** accessible to the Guest once the lease is active. The House Manual contains:
+
+- **House rules** — quiet hours, guest policies, smoking, pets, parking instructions
+- **Guidelines** — how to use appliances, Wi-Fi password, trash/recycling schedule, emergency contacts
+- **Check-in/check-out procedures** — key access, lockbox codes, where to leave keys
+- **Neighborhood info** — nearby transit, grocery stores, restaurants, emergency services
+
+The Host creates and maintains the House Manual from their listing management page. The Guest can access it at any time from the active lease view.
+
+---
+
+
 
 | Phase | Actor | Action | Key Pages |
 |-------|-------|--------|-----------|
@@ -143,6 +191,7 @@ The Guest clicks **"Accept Host Terms"**. A confirmation dialog appears: **"Yes,
 | 2 | Guest | Finds the listing and submits a proposal | Homepage, Auth Modal, Listing Detail, Proposal Summary |
 | 3 | Host | Reviews and counters with modified terms | Homepage, Auth Modal, Dashboard, Notifications, Proposal Detail, Edit Terms |
 | 4 | Guest | Reviews counter-offer and accepts | Homepage, Auth Modal, My Proposals, Acceptance Confirmation |
+| 5 | Both | Manage active lease, stays, payments, communication | Documents, Leases, Stays Manager, Date Change Tool, Reviews, House Manual |
 
 ---
 
@@ -153,3 +202,7 @@ The Guest clicks **"Accept Host Terms"**. A confirmation dialog appears: **"Yes,
 - **Notifications**: The Host discovers new proposals through a notification icon and dropdown, which links directly to the relevant proposal.
 - **Confirmation dialogs**: All critical actions (submitting proposals, countering, accepting) require a **"Yes, Proceed"** confirmation step to prevent accidental submissions.
 - **Price transparency**: Pricing details (nightly rate, total, first 4 weeks) are surfaced at every decision point - on the listing page, during proposal creation, after the counter-offer, and before acceptance.
+- **Post-acceptance flow**: Documents are sent automatically upon acceptance. The Leases page becomes the central hub for payments, stays, and date management.
+- **Stay lifecycle**: Each stay within a lease has its own cycle — arrival notification, active stay, cleaning photos, review. This repeats for every stay in the lease.
+- **Date flexibility**: The Date Change Tool (add/remove/swap) gives both parties flexibility without renegotiating the entire lease.
+- **House Manual**: Serves as the single reference for rules, guidelines, and logistics — reducing back-and-forth messaging between Host and Guest.
