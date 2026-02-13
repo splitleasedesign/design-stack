@@ -15,6 +15,51 @@ const STACK_DIR = path.resolve(__dirname, "..");
 const MANIFEST_PATH = path.join(STACK_DIR, "runs", "manifest.json");
 const OUTPUT_PATH = path.join(__dirname, "library-data.js");
 
+/**
+ * Normalize element field names to canonical schema.
+ * Different models produce different field names — this is the single
+ * source of truth that catches all variations before they hit library.html.
+ */
+function normalizeElement(el) {
+  // name / title → name
+  if (!el.name && el.title) el.name = el.title;
+
+  // phase (string) / journey_phase / journey_phases → journey_phases (array)
+  if (!el.journey_phases && el.phase) {
+    el.journey_phases = Array.isArray(el.phase) ? el.phase : [el.phase];
+  }
+  if (!el.journey_phases && el.journey_phase) {
+    el.journey_phases = Array.isArray(el.journey_phase) ? el.journey_phase : [el.journey_phase];
+  }
+  if (!el.journey_phases) el.journey_phases = [];
+
+  // html_css / html_snippet / html_css_snippet → html_css
+  if (!el.html_css && el.html_snippet) el.html_css = el.html_snippet;
+  if (!el.html_css && el.html_css_snippet) el.html_css = el.html_css_snippet;
+
+  // source_elements / implements_principles → both present
+  if (!el.implements_principles && el.source_elements) el.implements_principles = el.source_elements;
+  if (!el.source_elements && el.implements_principles) el.source_elements = el.implements_principles;
+
+  // effort fallback
+  if (!el.effort) el.effort = el.priority === "high" ? "medium" : "small";
+
+  // problem_it_solves fallback
+  if (!el.problem_it_solves && el.before_after && el.before_after.before) {
+    el.problem_it_solves = el.before_after.before;
+  }
+
+  // copy_spec normalization
+  if (el.copy_spec) {
+    if (!el.copy_spec.primary_text && el.copy_spec.headline) el.copy_spec.primary_text = el.copy_spec.headline;
+    if (!el.copy_spec.secondary_text && el.copy_spec.body) el.copy_spec.secondary_text = el.copy_spec.body;
+    if (!el.copy_spec.do && el.copy_spec.micro_copy) el.copy_spec.do = el.copy_spec.micro_copy;
+    if (!el.copy_spec.dont) el.copy_spec.dont = [];
+  }
+
+  return el;
+}
+
 function main() {
   if (!fs.existsSync(MANIFEST_PATH)) {
     console.error("Error: manifest.json not found at", MANIFEST_PATH);
@@ -37,7 +82,7 @@ function main() {
     }
 
     const uiData = JSON.parse(fs.readFileSync(uiPath, "utf8"));
-    const elements = uiData.elements || [];
+    const elements = (uiData.elements || []).map(normalizeElement);
     totalElements += elements.length;
 
     runs.push({
