@@ -7,176 +7,735 @@
     {
       "id": "tests-001",
       "type": "validation_strategy",
-      "title": "Conversational Speed Parity Validation",
-      "validates_element": "works-005",
-      "journey_phases": ["evaluation", "listing_creation", "pricing"],
-      "problem": "If conversational speed parity is poorly implemented, hosts will perceive the platform as slower than phone calls, leading them to default to calling Bryant instead of using digital tools. This defeats the platform's goal of scaling beyond human-mediated interactions.",
-      "solution": "Measure actual vs perceived speed across information transfer tasks. Track time-to-completion for data entry tasks that were accomplished verbally in under 60 seconds during phone calls.",
+      "title": "Self-Evidence Gate Validation",
+      "validates_element": "works-001",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "If phase entry screens are not self-evident, Drew will either click the wrong element (satisficing on ambiguous UI), text Bryant instead of using the platform, or abandon entirely — but silently, so the failure is invisible in analytics.",
+      "solution": "Run a 5-second usability test on each phase entry screen: show it to 10 hosts for 5 seconds, then ask 'What is this page for?' and 'What would you do first?' Measure correctness rate against the 90% target.",
       "evidence": [
         {
-          "source": "drew-call.txt:00:45-01:03",
-          "type": "host_call",
-          "quote": "the title of it is the comfortable one bed, one bath. One bedroom, one bath. Yep. Yep. In Chelsea. Yep. Yep. To confirm that would be a 2000 a month, I think is what it's listed here. That's right. Okay.",
-          "insight": "Drew confirmed all essential listing data in 18 seconds with 6 acknowledgments. If the platform takes longer than 60 seconds to capture equivalent information, hosts will perceive it as inefficient."
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "It means that as far as is humanly possible, when I look at a Web page it should be self-evident. Obvious. Self-explanatory. I should be able to 'get it' — what it is and how to use it — without expending any effort thinking about it.",
+          "insight": "Krug's First Law provides the validation criterion itself: if a user can't 'get it' in seconds, the page fails. The 5-second test operationalizes this law as a measurable gate."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
-          "type": "usability",
-          "quote": "We're usually in a hurry. Much of our Web use is motivated by the desire to save time.",
-          "insight": "Speed perception is more important than actual speed - validation must measure both objective completion time and subjective speed assessment."
+          "source": "drew-call.txt, 00:40-00:52",
+          "type": "host_call",
+          "quote": "the title of it is the comfortable one bed, one bath. One bedroom, one bath. Yep. In Chelsea. Yep. Yep.",
+          "insight": "Drew confirms his listing in under 10 seconds through conversational shorthand — zero interpretation needed. The platform's listing page must achieve the same instant recognition in the 5-second test."
         }
       ],
       "priority": "high",
       "validation_method": "usability_test",
-      "test_description": "Time hosts completing property data entry tasks (type, location, price, deposit) while measuring both completion time and perceived efficiency compared to phone conversation. Include post-task questions about speed perception.",
-      "success_criteria": "Average completion time under 60 seconds for core property data entry. Speed satisfaction score above 4/5. No hosts voluntarily request phone call instead of platform completion.",
-      "failure_meaning": "Platform creates perceived inefficiency that will drive hosts back to human-mediated interactions, limiting platform adoption and scalability.",
-      "implementation_hint": "Use Playwright to measure form completion times. Create A/B tests comparing rapid-input patterns (quick-select chips, sliders) vs traditional form fields. Track analytics events for 'call instead' requests."
+      "test_description": "For each phase entry screen (onboarding landing, listing wizard step 1, pricing confirmation, proposal review, active lease dashboard, renewal prompt), recruit 10 hosts who have completed a call with an agent but have not seen the platform. Show each screen for 5 seconds, then ask: (1) 'What is this page for?' (2) 'What would you do first?' Record answers verbatim.",
+      "success_criteria": "90% of hosts correctly identify the page's purpose AND correctly identify the primary action within 5 seconds of viewing. Both conditions must be met — identifying purpose without knowing the action, or vice versa, counts as a partial failure.",
+      "failure_meaning": "If hosts cannot identify the page's purpose, the Tier 1 anchor (headline/heading) is either missing, uses platform jargon instead of call vocabulary, or competes visually with other elements. If hosts identify purpose but not the action, the Tier 2 action button lacks sufficient visual prominence or clickability signaling. In either case, the billboard hierarchy has failed and must be redesigned before launch.",
+      "implementation_hint": "Can be run as an unmoderated remote test using a tool like Maze or UsabilityHub. Show a static screenshot of each phase entry screen for 5 seconds, then redirect to a survey with the two questions. Segment results by whether the host had a call with an agent (target users) vs. cold visitors (secondary insight). Run before development — use Figma prototypes."
     },
     {
       "id": "tests-002",
       "type": "validation_strategy",
-      "title": "System 1 Trust Gate Effectiveness",
-      "validates_element": "communicates-001",
-      "journey_phases": ["onboarding", "listing_creation"],
-      "problem": "If recognition-before-instruction fails, hosts will experience cognitive disconnect between the conversation context and platform context. System 1 will flag the platform as unfamiliar, causing abandonment before System 2 evaluation begins.",
-      "solution": "Measure first-impression recognition speed and platform continuity perception. Track how quickly hosts recognize conversation context and whether they perceive the platform as continuation or new interaction.",
+      "title": "Scanning vs. Reading Behavior Validation",
+      "validates_element": "works-002",
+      "journey_phases": [
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "If decision points are designed for reading rather than scanning, Drew will miss critical information (guest name, duration, total rent) and either satisfice on incorrect assumptions or abandon the page to text Bryant for a verbal summary.",
+      "solution": "Use heatmap analysis (via Hotjar, FullStory, or eye-tracking study) to validate that the host's first fixation lands on primary information within 2 seconds of page load.",
       "evidence": [
         {
-          "source": "drew-call.txt:05:01",
-          "type": "host_call",
-          "quote": "I can get back to you with more information on split lease as well as links to the agreements",
-          "insight": "Bryant promised specific follow-up. If the platform doesn't reference this promise or Drew's specific property details, it will feel disconnected from the conversation."
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "What they actually do most of the time (if we're lucky) is glance at each new page, scan some of the text, and click on the first link that catches their interest or vaguely resembles the thing they're looking for.",
+          "insight": "Krug establishes that scanning is the primary mode. Heatmaps validate whether the visual hierarchy successfully guides scanning toward the right targets."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
-          "type": "usability",
-          "quote": "When we're creating sites, we act as though people are going to pore over each page, reading our finely crafted text... What they actually do most of the time is glance at each new page, scan some of the text",
-          "insight": "Hosts will scan for familiar elements within seconds. Recognition cues must be immediately scannable, not buried in explanatory text."
+          "source": "drew-call.txt, 03:44-04:18",
+          "type": "host_call",
+          "quote": "split lease doubled the deposit, and guarantees payments to you as the landlord... Okay. Okay. Okay. Alright.",
+          "insight": "Drew scans Bryant's 30-second pitch and extracts one conclusion: 'I get paid.' On the platform, the guarantee must be equally scannable — the heatmap should show fixation on 'Your rent is guaranteed' rather than on the mechanism paragraph."
         }
       ],
       "priority": "high",
-      "validation_method": "usability_test",
-      "test_description": "Show hosts their first platform screen after phone calls. Measure recognition time using eye-tracking or think-aloud protocols. Ask whether platform feels like continuation of conversation or separate experience.",
-      "success_criteria": "Average recognition time under 3 seconds. 80% of hosts immediately identify their property details without searching. Continuity perception score above 4/5.",
-      "failure_meaning": "System 1 rejection will cause hosts to abandon platform before System 2 can evaluate its value, leading to persistent dependence on human-mediated interactions.",
-      "implementation_hint": "Implement A/B test comparing generic onboarding vs personalized onboarding with call context. Use heatmaps to track where hosts look first. Monitor session recordings for confusion signals."
+      "validation_method": "analytics",
+      "test_description": "Deploy heatmap tracking on proposal review, pricing confirmation, and listing wizard pages. Collect data from the first 50 hosts who reach each page. Analyze first-fixation zones and scan patterns to determine whether hosts fixate on primary information (guest name, duration, total rent) before secondary information (fee breakdowns, legal terms, system statuses).",
+      "success_criteria": "80% of hosts' first fixation point lands on the Tier 1 anchor (primary information) within 2 seconds of page load. The scan path should flow from Tier 1 (anchor) → Tier 2 (action button) → Tier 3 (details), matching the billboard hierarchy. If more than 20% of hosts fixate first on Tier 3 elements, the visual hierarchy has failed.",
+      "failure_meaning": "First-fixation on Tier 3 (details, fees, legal text) instead of Tier 1 (anchor heading) indicates that the visual weight contrast between tiers is insufficient. The Tier 1 anchor is not 'loud' enough — it needs larger font size, bolder weight, more whitespace isolation, or higher contrast to claim the scanning eye first. Alternatively, Tier 3 elements may be styled too prominently, competing with the anchor.",
+      "implementation_hint": "Use Hotjar or FullStory heatmap and session recording on production pages. Filter sessions to first-time visitors only (returning users have learned the layout). For a more rigorous study, run a Tobii eye-tracking study with 8-10 participants using the actual production pages or high-fidelity prototypes. Compare heatmaps across the three page types to identify consistent hierarchy failures."
     },
     {
       "id": "tests-003",
-      "type": "validation_strategy", 
-      "title": "Accommodation Behavior Reinforcement",
-      "validates_element": "works-006",
-      "journey_phases": ["proposal_mgmt", "active_lease"],
-      "problem": "If accommodation interface design fails, accommodating hosts like Drew will find the platform makes flexibility feel difficult or unnatural, leading them to handle guest requests through direct communication instead of platform tools.",
-      "solution": "Measure accommodation response rates and guest satisfaction for hosts who demonstrated accommodating behavior in initial calls. Track whether platform accommodation tools increase or decrease collaborative behavior.",
+      "type": "validation_strategy",
+      "title": "Satisficing-Safe Default Correctness Validation",
+      "validates_element": "works-003",
+      "journey_phases": [
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "If pre-populated defaults are incorrect, Drew will accept them without scrutiny (because he satisfices). The listing goes live with wrong data — wrong price, wrong deposit, wrong property type — and the error surfaces only when a guest or agent catches it, creating trust damage and operational problems.",
+      "solution": "Audit default acceptance rate paired with post-publication data accuracy: track what percentage of hosts accept defaults AND whether those accepted defaults are factually correct compared to the agent's call notes.",
       "evidence": [
         {
-          "source": "drew-call.txt:05:18-05:32",
-          "type": "host_call",
-          "quote": "they've indicated, ideally they'd want to start with a four months is what they indicated to me. Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
-          "insight": "Drew showed immediate accommodation without deliberation. If the platform makes this same response feel complex or uncertain, it changes the host's natural behavior pattern."
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "most of the time we don't choose the best option — we choose the first reasonable option, a strategy known as satisficing.",
+          "insight": "Satisficing means Drew will accept defaults without checking. The validation must verify not just that Drew accepted (behavioral success) but that what he accepted was correct (outcome success). Behavioral success without outcome success is a silent failure."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
-          "type": "usability",
-          "quote": "We don't make optimal choices. We satisfice... As soon as we find a link that seems like it might lead to what we're looking for, there's a very good chance that we'll click it",
-          "insight": "Accommodating hosts will click the first reasonable response option. If accommodation isn't the most prominent option, their natural behavior will be redirected toward less collaborative responses."
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "To confirm that would be a 2000 a month, I think is what it's listed here. That's right.",
+          "insight": "Drew's $2,000/month is a known fact. If the platform pre-populates this correctly, Drew confirms in 3 seconds. If it pre-populates $1,857 (a derivation error), Drew may accept it — creating a listing with the wrong price."
         }
       ],
-      "priority": "medium",
+      "priority": "high",
       "validation_method": "analytics",
-      "test_description": "Compare accommodation rates between hosts who showed accommodation behavior in calls vs those who showed neutral/resistant behavior. Measure guest satisfaction scores for hosts using platform accommodation tools vs direct communication.",
-      "success_criteria": "Accommodating hosts maintain 75%+ positive response rate on platform. Guest satisfaction scores remain equivalent between platform-mediated and direct accommodation responses.",
-      "failure_meaning": "Platform discourages the collaborative behavior that drives guest satisfaction, forcing accommodation back to off-platform channels and reducing platform value.",
-      "implementation_hint": "Track proposal response patterns by host accommodation history from calls. Create cohort analysis comparing guest satisfaction scores. Implement feedback surveys for guests who receive accommodating responses."
+      "test_description": "For all pre-populated fields in the listing wizard and pricing step, track two metrics: (1) Default acceptance rate — percentage of hosts who submit without modifying the pre-populated value. (2) Default correctness rate — percentage of accepted defaults that match the agent's call notes (verified by comparing submitted data against CRM records from the call). Run on the first 100 listings created after launch.",
+      "success_criteria": "85% of hosts accept pre-populated defaults AND 95% of accepted defaults are correct when compared to agent call notes. If acceptance is high but correctness is low, the system is producing confident errors. If acceptance is low but correctness is high, the pre-fill is correct but hosts don't trust it (a presentation problem, not a data problem).",
+      "failure_meaning": "High acceptance + low correctness = the derivation logic or CRM-to-platform data pipeline has errors. Hosts trust the defaults but the defaults are wrong. Fix the data pipeline. Low acceptance + high correctness = hosts are editing correct defaults unnecessarily, possibly because the defaults lack provenance annotations ('from your call with Bryant') and feel untrustworthy. Fix the presentation with source attribution. Low acceptance + low correctness = both the data and the presentation are broken.",
+      "implementation_hint": "Instrument each pre-populated field with analytics events: 'field_loaded' (with pre-filled value), 'field_modified' (with old and new values), 'field_submitted' (with final value). Compare submitted values against CRM call notes via a weekly automated report. For the correctness audit, start with the three highest-stakes fields: monthly rent, security deposit, and property address — errors in these fields have the greatest downstream impact."
     },
     {
       "id": "tests-004",
       "type": "validation_strategy",
-      "title": "Asset Enthusiasm Preservation", 
-      "validates_element": "works-007",
-      "journey_phases": ["listing_creation", "retention"],
-      "problem": "If asset transfer friction elimination fails, hosts who offer additional materials during calls will not follow through with platform uploads, resulting in lower listing quality and missed opportunities for improvement.",
-      "solution": "Measure asset upload completion rates for hosts who indicated asset availability during calls. Track listing quality improvement and correlation with initial enthusiasm signals.",
+      "title": "Convention Compliance Audit",
+      "validates_element": "works-004",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "If platform interactions deviate from conventions Drew knows (StreetEasy, Airbnb, Venmo), Drew must learn a new system instead of using existing muscle memory. Each convention violation adds a question mark and increases the chance Drew defers to texting Bryant.",
+      "solution": "Conduct a systematic convention audit: for each platform interaction pattern, identify the closest conventional analog and score the deviation on a 3-point scale (identical, minor deviation, significant deviation).",
       "evidence": [
         {
-          "source": "drew-call.txt:04:21-04:38",
-          "type": "host_call",
-          "quote": "one more question I had was about, uh, pictures of the space and wondered if you had any more, um, that you could share with me or maybe like a video tour or something like that. Yes. I have more pictures and I can send you",
-          "insight": "Drew immediately offered additional assets. If the platform makes uploading these assets difficult or unrewarding, the enthusiasm shown in the call won't translate to platform behavior."
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "If you're not going to use an existing Web convention, you need to be sure that what you're replacing it with either (a) is so clear and self-explanatory that there's no learning curve — so it's as good as a convention, or (b) adds so much value that it's worth a small learning curve.",
+          "insight": "Krug provides the audit criterion: every non-conventional pattern must pass either the 'no learning curve' or the 'worth the learning curve' test. If it passes neither, it should be replaced with the convention."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
-          "type": "usability",
-          "quote": "If we find something that works, we stick to it. Once we find something that works--no matter how badly--we tend not to look for a better way",
-          "insight": "If the first asset upload experience is frustrating, hosts will stick to minimal assets rather than improving their listings over time."
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "2000 a month, I think is what it's listed here. That's right.",
+          "insight": "Drew uses the universal convention of monthly rent. If the platform forces a nightly rate input, it violates the convention Drew (and every landlord) knows."
         }
       ],
-      "priority": "medium",
-      "validation_method": "analytics",
-      "test_description": "Track asset upload rates for hosts who indicated additional asset availability during onboarding calls. Measure correlation between call enthusiasm signals and actual platform upload behavior.",
-      "success_criteria": "70% of hosts who offer additional assets during calls complete uploads within 24 hours. Asset upload success rate above 95% with minimal technical support requests.",
-      "failure_meaning": "Friction in asset upload processes wastes host enthusiasm and prevents listing quality improvements that drive guest engagement and platform success.",
-      "implementation_hint": "Implement upload funnel analytics tracking drop-off points. Create cohort analysis comparing hosts with high call enthusiasm vs platform upload completion. Monitor support tickets related to asset upload issues."
+      "priority": "high",
+      "validation_method": "manual_review",
+      "test_description": "Create a convention audit matrix: list every platform interaction (listing form, pricing input, proposal review, payment display, photo upload, deposit entry, renewal prompt). For each, identify the closest conventional analog from StreetEasy, Airbnb, Zillow, or Venmo. Score each interaction: (1) Follows convention — same pattern, same field order, same vocabulary. (2) Minor deviation — similar pattern but with one novel element. (3) Significant deviation — new pattern, new vocabulary, or new interaction model. For each item scored 2 or 3, evaluate against Krug's two-part test.",
+      "success_criteria": "75% or more of platform interactions score a 1 (follows convention). Every interaction scoring a 3 (significant deviation) passes Krug's two-part test — either it has zero learning curve (validated via 5-second test) or it adds sufficient value (justified in writing by the product team with specific user benefit). No more than 2 interactions may score a 3.",
+      "failure_meaning": "Multiple significant deviations without justification indicate that the design team is reinventing the wheel — creating novel patterns where conventions would serve better. The fix is not to add tooltips or help text (these are bandaids for convention violations) but to redesign the interaction to follow the convention. Krug's warning: 'sometimes it just amounts to time spent reinventing the wheel.'",
+      "implementation_hint": "Assign a designer and a product manager to independently complete the audit matrix, then compare scores. Disagreements indicate interactions where the convention boundary is unclear — these should be prioritized for usability testing. The audit should be run quarterly as the platform evolves, since new features may introduce new convention violations. Use screenshots of StreetEasy, Airbnb, and Venmo as reference benchmarks."
     },
     {
       "id": "tests-005",
       "type": "validation_strategy",
-      "title": "Emotional Arc Continuity Validation",
-      "validates_element": "feels-001",
-      "journey_phases": ["evaluation", "onboarding", "listing_creation"],
-      "problem": "If conversational confidence continuity fails, hosts will experience emotional discontinuity between the confident phone interaction and uncertain platform interaction, leading to abandonment or reversion to human-mediated processes.",
-      "solution": "Measure confidence levels across the phone-to-platform transition using both behavioral indicators (completion rates, time-on-task) and self-reported confidence scores.",
+      "title": "Guided-to-Self-Service Cliff Drop-off Validation",
+      "validates_element": "works-005",
+      "journey_phases": [
+        "evaluation",
+        "onboarding",
+        "listing_creation"
+      ],
+      "problem": "If the transition from Bryant's guided call to the platform's self-service interface is too abrupt, hosts who successfully completed the call will fail to complete their first platform action — not because the call failed, but because the platform failed to continue the guided experience.",
+      "solution": "Track post-call platform activation rate: the percentage of hosts who click the agent's follow-up link and complete at least one confirmation action on the platform within the same session.",
       "evidence": [
         {
-          "source": "drew-call.txt:00:45-01:03",
+          "source": "drew-call.txt, 05:01-05:18",
           "type": "host_call",
-          "quote": "One bedroom, one bath. Yep. Yep. In Chelsea. Yep. Yep. To confirm that would be a 2000 a month, I think is what it's listed here. That's right. Okay.",
-          "insight": "Drew showed zero hesitation during the call. If the platform introduces uncertainty or confusion, it breaks the confidence pattern established in the conversation."
+          "quote": "I can get back to you with more information on split lease as well as links to the agreements which are referenced.",
+          "insight": "Bryant promises to send links. The next touchpoint is an email. If the linked platform requires Drew to self-navigate, it violates the guided experience the call established. The activation rate measures whether this promise is fulfilled."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
-          "type": "usability",
-          "quote": "Making pages self-evident is like having good lighting in a store: it just makes everything seem better. Using a site that doesn't make us think about unimportant things feels effortless, whereas puzzling over things that don't matter to us tends to sap our energy and enthusiasm",
-          "insight": "Platform complexity directly undermines the confidence established during human interaction. The validation must measure this confidence transfer."
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through.",
+          "insight": "Drew will not read an onboarding guide. If the platform's first screen requires reading instructions to navigate, Drew's muddling-through will produce incorrect actions or abandonment. The activation rate captures this failure."
         }
       ],
       "priority": "high",
-      "validation_method": "usability_test",
-      "test_description": "Measure confidence scores before and after platform onboarding using validated confidence scales. Track task completion rates and hesitation patterns during first platform interactions.",
-      "success_criteria": "Confidence scores remain stable or increase from call to platform interaction. Task completion rate above 85% without assistance requests. Average hesitation time under 5 seconds per input field.",
-      "failure_meaning": "Confidence degradation will drive hosts back to human-mediated processes, preventing platform adoption and limiting scalability potential.",
-      "implementation_hint": "Use pre/post surveys with validated confidence measures. Implement mouse tracking to detect hesitation patterns. Create A/B tests comparing confidence-optimized vs standard onboarding flows."
+      "validation_method": "analytics",
+      "test_description": "Track a funnel from call completion to first platform action: (1) Call completed (agent marks call as done in CRM). (2) Follow-up email sent (with platform link). (3) Email opened. (4) Link clicked. (5) Platform page loaded. (6) First confirmation action completed (any button click that confirms pre-filled data). Measure the conversion rate at each step, with special attention to the step 5→6 drop-off (platform loaded but no action taken).",
+      "success_criteria": "70% of hosts who click the agent's follow-up link (step 4) complete at least one confirmation action (step 6) within the same session. The step 5→6 conversion rate (page loaded → action taken) should exceed 80%. If hosts load the page but don't act, the self-evidence test has failed at the most critical moment.",
+      "failure_meaning": "High step 4→5 conversion but low step 5→6 conversion means hosts are reaching the platform but the first screen fails the self-evidence test — Drew sees the page but doesn't know what to do. Root causes: (a) the first screen is a generic dashboard instead of a personalized confirmation, (b) the primary action button is not visually prominent, (c) the page uses platform jargon Drew doesn't recognize, (d) the page requires reading instructions. Session recordings of step 5→6 dropouts will reveal the specific failure point.",
+      "implementation_hint": "Instrument the follow-up email link with UTM parameters that identify the host, the agent, and the call timestamp. Use these to build the funnel in Mixpanel or Amplitude. Set up a Slack alert for any host who reaches step 5 but doesn't reach step 6 within 5 minutes — this triggers a manual review of their session recording. For the first 30 hosts, have the product team watch every step 5→6 session recording to identify patterns."
     },
     {
       "id": "tests-006",
       "type": "validation_strategy",
-      "title": "Journey-Level Efficiency Perception",
-      "validates_element": "communicates-002",
-      "journey_phases": ["evaluation", "listing_creation", "pricing", "proposal_mgmt"],
-      "problem": "Individual interactions may feel fast, but if the overall journey feels slower than phone-based alternatives, hosts will revert to calling Bryant for complex requests instead of using platform tools.",
-      "solution": "Measure end-to-end journey efficiency perception by comparing platform completion times with phone call equivalents for complete transactions (evaluation to published listing, proposal to lease agreement).",
+      "title": "One-Click Confirmation Speed Validation",
+      "validates_element": "works-006",
+      "journey_phases": [
+        "proposal_mgmt",
+        "pricing",
+        "retention"
+      ],
+      "problem": "If pre-decided outcomes (price, guests, term) are presented as open decisions with multi-step flows, Drew wastes time re-evaluating things he already decided — and the artificial decision points may introduce doubt where the call established certainty.",
+      "solution": "Measure time-to-confirmation for pre-decided actions: the elapsed time from page load to the host clicking Confirm. Compare against the target of under 10 seconds for pre-discussed proposals and under 5 seconds for pricing confirmations.",
       "evidence": [
         {
-          "source": "drew-call.txt",
+          "source": "drew-call.txt, 05:18-05:32",
           "type": "host_call",
-          "quote": "entire 6-minute call covering discovery, evaluation, pricing, accommodation, and next steps",
-          "insight": "The complete phone interaction took 6 minutes and felt efficient to Drew. If the platform equivalent takes longer or feels more complex, it will be perceived as inferior."
+          "quote": "they'd want to start with a four months... Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
+          "insight": "Drew decides on the lease term in 14 seconds of conversation. The platform must not expand this to minutes of form navigation. Time-to-confirmation measures whether the platform respects Drew's decision speed."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
-          "type": "usability",
-          "quote": "We're usually in a hurry. Much of our Web use is motivated by the desire to save time.",
-          "insight": "Overall journey efficiency is more important than individual screen performance. Hosts will abandon efficient individual interactions if the total experience feels slow."
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "Weighing options may not improve our chances. On poorly designed sites, putting effort into making the best choice doesn't really help.",
+          "insight": "Krug establishes that forcing option-weighing on pre-decided users wastes time without improving outcomes. Long confirmation times indicate the platform is forcing unnecessary weighing."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "For each confirmation screen (proposal acceptance, pricing confirmation, renewal extension), measure the time from page load to the host clicking the primary action button (Confirm/Accept/Extend). Segment by whether the terms were pre-discussed with an agent (flag in CRM). Compare pre-discussed vs. non-pre-discussed confirmation times.",
+      "success_criteria": "Median time-to-confirmation under 10 seconds for proposals where terms were pre-discussed with the agent. Under 5 seconds for pricing confirmations where the rate matches the call. If pre-discussed confirmations take longer than 15 seconds, the platform is treating confirmations as decisions.",
+      "failure_meaning": "Confirmation times exceeding targets indicate one or more problems: (a) the confirmation screen shows editable fields instead of a read-only summary, inviting deliberation; (b) the Confirm button is not the most visually prominent element, forcing Drew to scan for it; (c) additional confirmation dialogs ('Are you sure?') double the interaction cost; (d) the page loads slowly, adding latency before Drew can act. Session recordings will distinguish between 'Drew was deliberating' (problem a-c) and 'Drew was waiting' (problem d).",
+      "implementation_hint": "Track the analytics event 'confirmation_page_loaded' (timestamp) and 'confirmation_action_clicked' (timestamp + action type). Calculate the delta. Set up a dashboard that shows median, p75, and p95 confirmation times per page type. Flag any session where confirmation time exceeds 30 seconds for manual review. For A/B testing, compare a read-only summary + Confirm button against an editable form + Submit button to quantify the time difference."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Billboard Hierarchy Tier Validation",
+      "validates_element": "communicates-001",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "If the three-tier billboard hierarchy (Anchor → Action → Details) is not visually enforced, Drew's scanning eye has no guidance — all information competes equally, and Drew either misses the primary action or fixates on irrelevant details.",
+      "solution": "Run the $25,000 Pyramid test: show each phase entry screen for 5 seconds, then ask the host to point at and name the areas they see. Compare named areas against the intended three-tier structure.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "Glancing around, they should be able to point at the different areas of the page and say, 'Things I can do on this site!' 'Links to today's top stories!' 'Products this company sells!'",
+          "insight": "The Pyramid test operationalizes Krug's area-definition principle. If a host can name the areas, the visual separation is working. If they can't, the areas bleed into each other."
+        },
+        {
+          "source": "drew-call.txt, 01:32-04:18",
+          "type": "host_call",
+          "quote": "[Guest introduction area] Ariel and Amber are both flexible... [Guarantee area] split lease doubled the deposit... [Photos area] one more question I had was about pictures...",
+          "insight": "Bryant's call has clear topic areas with verbal transitions. The platform must create equally clear visual areas. The Pyramid test measures whether it succeeds."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8-10 hosts. For each phase entry screen, show a static screenshot for 5 seconds. Then present a blank wireframe outline of the page and ask: 'Point at the areas you remember and give each one a name.' Record the names and locations. Compare against the intended tier structure: did hosts identify the Anchor area? The Action area? The Details area? Did they name them in terms that match the intended content?",
+      "success_criteria": "80% of hosts identify at least 3 distinct areas AND correctly name the Anchor area (e.g., 'who the guests are' for proposals, 'my apartment' for listings). If hosts cannot distinguish the Anchor from the Details, the visual weight contrast between tiers is insufficient.",
+      "failure_meaning": "If hosts identify fewer than 3 areas, the page lacks sufficient visual separation — areas bleed into each other through insufficient whitespace, same background colors, or competing heading sizes. If hosts identify areas but misname the Anchor (e.g., calling the Details area the most important), the visual weight hierarchy is inverted — Tier 3 elements are stealing attention from Tier 1. Fix by increasing the font size / weight gap between tiers and adding background color alternation.",
+      "implementation_hint": "This can be run in person or via video call using screen share. Show the screenshot for exactly 5 seconds using a timer. Then switch to the blank wireframe and let the host annotate. Use a simple annotation tool (Miro or FigJam) for remote sessions. Run this test early — during the design phase with Figma mockups, not after development. Repeat after significant visual changes."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Call-to-Screen Vocabulary Match Validation",
+      "validates_element": "communicates-002",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "proposal_mgmt"
+      ],
+      "problem": "If the platform uses different vocabulary than the agent used in the call, Drew's scanner cannot find matching trigger words — the information is present but encoded in the wrong vocabulary, making it invisible to his scanning eye.",
+      "solution": "Create a vocabulary mapping audit: for each platform label, heading, and button text, compare against the agent's actual words from the call transcript. Score each label as 'call match,' 'close synonym,' or 'platform jargon.'",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "Take names of things, for example. Typical culprits are cute or clever names, marketing-induced names, company-specific names, and unfamiliar technical names.",
+          "insight": "Krug identifies naming as a primary source of question marks. The vocabulary audit systematically identifies every label that falls into his 'culprit' categories."
+        },
+        {
+          "source": "drew-call.txt, 02:57",
+          "type": "host_call",
+          "quote": "regarding security deposit or damage deposit. Is that something you charge? ... 1000.",
+          "insight": "Bryant uses 'security deposit' — the term Drew knows. If the platform says 'Refundable Guarantee' or 'Damage Protection,' Drew's scanner will not find a match."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "manual_review",
+      "test_description": "Extract every user-facing label, heading, button text, and field name from the platform. For each, search 3+ call transcripts for the equivalent term the agent used. Score each platform term: (1) Call match — the platform uses the exact word the agent used. (2) Close synonym — different word, same meaning, minimal translation needed. (3) Platform jargon — no call equivalent, requires the host to learn a new term. Create a vocabulary mapping table and flag all items scoring 3.",
+      "success_criteria": "80% of platform terms score 1 (call match) or 2 (close synonym). Maximum 1 unfamiliar term per screen (items scoring 3). Zero jargon terms in Tier 1 headings or Tier 2 action button labels — these high-visibility positions must use exact call vocabulary.",
+      "failure_meaning": "Platform terms scoring 3 (jargon) in high-visibility positions indicate that the product team is using internal taxonomy instead of user vocabulary. The fix is direct: replace the platform term with the call term. If the platform concept has no call equivalent (e.g., 'lease style'), it must be flagged for inline explanation on first encounter. Persistent jargon across multiple screens indicates a systemic naming problem that requires a vocabulary standardization initiative.",
+      "implementation_hint": "Build the vocabulary mapping table in a shared spreadsheet with columns: Platform Term | Screen Location | Agent Term (from call) | Score (1/2/3) | Action Required. Assign the audit to the content/UX writing team. Use at least 3 different call transcripts to ensure the 'agent term' is consistent across agents, not just one agent's idiolect. Update the table as new features ship. This becomes a living document that prevents vocabulary drift."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Progressive Disclosure Decision-Sequence Validation",
+      "validates_element": "communicates-003",
+      "journey_phases": [
+        "evaluation",
+        "onboarding",
+        "listing_creation",
+        "proposal_mgmt"
+      ],
+      "problem": "If information is disclosed in the wrong sequence (e.g., financial details before guest identity on proposal pages), Drew satisfices on incomplete information — he may accept or reject a proposal based on the money before understanding who the guests are, leading to suboptimal decisions.",
+      "solution": "Track the scroll and interaction sequence on proposal and listing pages to verify that hosts encounter information in the intended decision-tree order, and conduct a qualitative test where hosts narrate their decision process aloud.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 01:32-04:18",
+          "type": "host_call",
+          "quote": "Ariel and Amber are both flexible... [then] split lease doubled the deposit, and guarantees payments to you... [then] they'd want to start with a four months...",
+          "insight": "Bryant discloses in strict decision-tree order: who → guarantee → terms. The platform must mirror this sequence. If financial terms appear before guest identity, the disclosure order is wrong."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "As soon as we find a link that seems like it might lead to what we're looking for, there's a very good chance that we'll click it.",
+          "insight": "If financial details are shown first, Drew satisfices on the financial signal alone — clicking Accept or Decline based on the dollar amount without processing who the guests are. The disclosure sequence determines the quality of the satisficing decision."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Conduct a think-aloud usability test with 6-8 hosts reviewing a proposal page. Ask them to narrate their thought process as they evaluate the proposal. Record what information they look at first, second, and third. Map their narrated decision sequence against the intended disclosure order (who → what they want → what I earn → should I accept).",
+      "success_criteria": "75% of hosts encounter and process information in the intended decision-tree order during think-aloud narration. Specifically: hosts should mention or reference the guests (who) before mentioning the financial terms (how much). If more than 25% of hosts fixate on financial terms first, the page layout needs to be reordered.",
+      "failure_meaning": "If hosts consistently process financial information before guest identity, the page layout places financial data above or more prominently than guest data — violating the decision-tree disclosure order. The fix is spatial: move guest information above financial information, increase the visual weight of guest names, and reduce the visual weight of dollar amounts until the natural scan order matches the decision-tree order.",
+      "implementation_hint": "Use a moderated think-aloud test (in person or via Zoom with screen share). Provide the scenario: 'You've just had a call with Bryant about guests for your apartment. Open this page and walk me through how you'd evaluate this proposal.' Record both the narration and the screen interaction. Code the transcripts for information-processing order. Run with Figma prototypes during design phase and again with production pages post-launch."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Clickability Disambiguation Validation",
+      "validates_element": "communicates-005",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "problem": "If interactive elements are not visually distinct from informational elements, Drew clicks non-interactive text (wasting time and eroding trust) or misses interactive elements entirely (deferring to texting Bryant instead of using the platform's actions).",
+      "solution": "Run a click-target identification test: show hosts a page screenshot and ask them to circle everything they think is clickable. Compare their answers against the actual interactive elements.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "On Senator Orrin Hatch's Home page... it wasn't clear whether everything was clickable, or nothing was.",
+          "insight": "Krug's Hatch example is the failure case this validation prevents. If hosts can't distinguish clickable from non-clickable elements on a static screenshot, the interactive visual language has failed."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "Since a large part of what people are doing on the Web is looking for the next thing to click, it's important to make it obvious what's clickable and what's not.",
+          "insight": "The test directly measures whether 'what's clickable' is 'obvious' — Krug's exact criterion."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 10 hosts a static screenshot (no hover states, no cursor) of each key platform page. Give them a red marker (physical or digital) and ask: 'Circle everything you think you could click on.' Collect the marked screenshots. Calculate: (1) True positive rate — percentage of actual interactive elements correctly circled. (2) False positive rate — percentage of non-interactive elements incorrectly circled. (3) Miss rate — percentage of actual interactive elements not circled.",
+      "success_criteria": "True positive rate above 90% (hosts identify nearly all clickable elements). False positive rate below 10% (hosts rarely mistake non-interactive elements for interactive ones). Miss rate below 15% for the primary action button — the most important clickable element must never be missed.",
+      "failure_meaning": "High false positive rate indicates that non-interactive elements (headings, labels, badges) share visual properties (color, shape, underline) with interactive elements — the 'Hatch problem.' Fix by restricting the interactive visual vocabulary (--secondary-purple, filled shapes, underlines) exclusively to clickable elements. High miss rate for the primary action indicates the button lacks sufficient visual prominence — increase size, contrast, or whitespace isolation.",
+      "implementation_hint": "Can be run as an unmoderated remote test: email a screenshot to participants with instructions to annotate and return. Or use a tool like Optimal Workshop's First Click Testing. Run with both Figma mockups (design phase) and production screenshots (post-launch). The test takes 5 minutes per participant and provides immediately actionable results. Repeat after visual redesigns."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Billboard Weight Contrast Measurement",
+      "validates_element": "looks-001",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "If the visual weight contrast between Tier 1 (anchor heading) and Tier 3 (supporting text) is too subtle, the billboard hierarchy collapses — Drew's eye finds no dominant entry point and must read rather than scan, which he will not do.",
+      "solution": "Measure the typographic contrast ratio between tiers: the Tier 1 anchor must be at least 2x the font size of Tier 3 text and use a distinct typeface (Instrument Serif vs. Inter) to create a scannable entry point.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "The more important something is, the more prominent it is.",
+          "insight": "Prominence must be measurable — not just 'somewhat larger' but quantifiably larger. A 2x size ratio creates an unambiguous hierarchy visible at billboard speed."
+        },
+        {
+          "source": "drew-call.txt, 03:44-04:18",
+          "type": "host_call",
+          "quote": "split lease doubled the deposit, and guarantees payments to you... Okay. Okay. Okay. Alright.",
+          "insight": "Drew extracts one conclusion from a multi-sentence pitch. The visual equivalent: the conclusion must be 2x louder than the mechanism. If both are the same size, Drew cannot extract the conclusion through scanning."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "For each phase entry screen, measure: (1) Tier 1 anchor font size (target: 28-36px). (2) Tier 3 supporting text font size (target: 14px). (3) Size ratio (target: ≥2.0x). (4) Typeface distinction (Tier 1 should use Instrument Serif, Tier 3 should use Inter). (5) Whitespace above Tier 1 anchor (target: ≥32px). Automate this check using a CSS audit tool or Playwright script that inspects computed styles on the live page.",
+      "success_criteria": "All phase entry screens maintain: (a) Tier 1:Tier 3 font size ratio ≥ 2.0x. (b) Tier 1 uses Instrument Serif (--font-heading / serif). (c) Tier 1 anchor has ≥ 32px whitespace above it. (d) WCAG AAA contrast ratio (≥ 7:1) for the anchor text on its background. Any screen failing any of these four checks must be flagged for visual redesign.",
+      "failure_meaning": "Font size ratio below 2.0x means the hierarchy is too subtle — Tier 1 doesn't claim enough visual attention to guide scanning. Missing typeface distinction (both tiers using Inter) means the eye cannot distinguish 'headline' from 'body' through font family alone — a critical failure for billboard scanning. Insufficient whitespace above the anchor means the anchor competes with navigation or header elements for the eye's first fixation.",
+      "implementation_hint": "Write a Playwright or Cypress test that navigates to each phase entry screen, inspects the computed style of the h1/h2 element (anchor) and the first paragraph element (Tier 3 text), and asserts the size ratio, font-family, and margin-top. Run this as part of the CI pipeline to catch visual hierarchy regressions. The test takes 1 minute to run and prevents the most common hierarchy failure: a developer reducing heading size 'to fit more content above the fold.'"
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Clickability Color Isolation Compliance Check",
+      "validates_element": "looks-002",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "problem": "If the interactive color (--secondary-purple) appears on non-interactive elements (headings, badges, decorative text), Drew cannot distinguish actions from decorations by scanning — the Hatch problem. Every false affordance erodes trust.",
+      "solution": "Automate a CSS audit that verifies --secondary-purple (#6d31c2) and related interactive colors are used ONLY on elements with interactive roles (buttons, links, form controls) and never on static text, headings, or decorative elements.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "On Senator Orrin Hatch's Home page... it wasn't clear whether everything was clickable, or nothing was.",
+          "insight": "The Hatch problem is a color-usage problem: when the same color signals both 'clickable' and 'important text,' clickability becomes invisible. The automated audit prevents this."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "when you force users to think about something that should be mindless like what's clickable, you're squandering the limited reservoir of patience and goodwill.",
+          "insight": "Clickability must be mindless — achieved through strict color isolation. The audit enforces this rule at the code level."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Write a Playwright or custom CSS audit script that: (1) Crawls all platform pages. (2) Finds every element using --secondary-purple (#6d31c2) or its gradient variant as text color, background color, or border color. (3) Checks each element's role: is it a button, link, or form control (interactive)? Or is it a heading, paragraph, span, label, or div (potentially non-interactive)? (4) Flags any non-interactive element using the interactive color as a compliance violation.",
+      "success_criteria": "Zero violations: --secondary-purple appears only on elements with interactive ARIA roles or native interactive elements (button, a, input, select). If any heading, label, badge, or decorative element uses --secondary-purple, it is a violation that must be fixed.",
+      "failure_meaning": "Violations indicate that designers or developers are using the interactive color for emphasis or branding on non-interactive elements. This degrades clickability signaling across the entire platform. The fix is to replace --secondary-purple on non-interactive elements with --primary-purple (for emphasis) or --text-dark (for labels), reserving --secondary-purple exclusively for clickable elements.",
+      "implementation_hint": "Implement as a linting rule in the CSS/design system. In a design token system, create a semantic token --interactive-color that maps to --secondary-purple and restrict its usage documentation to interactive components only. The Playwright audit runs in CI on every PR, preventing regressions. Initial audit on existing pages may surface 10-20 violations — prioritize fixing those on high-traffic pages (proposal review, dashboard, listing wizard)."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Confirmation vs. Decision Visual Language Validation",
+      "validates_element": "looks-004",
+      "journey_phases": [
+        "pricing",
+        "proposal_mgmt",
+        "retention"
+      ],
+      "problem": "If confirmation screens (pre-decided outcomes) look identical to decision screens (open choices), Drew enters deliberation mode on confirmations — spending time weighing options he already chose. Worse, the editable-field visual language suggests the pre-decided value might be wrong, introducing doubt.",
+      "solution": "A/B test two visual treatments for the pricing step: Treatment A (current) shows the price in an editable text field. Treatment B (confirmation pattern) shows the price as a read-only mono-font statement with a single Confirm button. Measure time-to-completion and error rate.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "To confirm that would be a 2000 a month... That's right.",
+          "insight": "Drew's price is a fact to be confirmed, not a field to be filled. The A/B test measures whether the confirmation visual language (read-only + Confirm button) produces faster, more accurate outcomes than the decision visual language (editable field + Submit)."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "Weighing options may not improve our chances.",
+          "insight": "Editable fields invite weighing. Read-only summaries invite confirmation. The A/B test measures whether eliminating the weighing invitation improves speed and accuracy."
         }
       ],
       "priority": "medium",
       "validation_method": "a_b_test",
-      "test_description": "Compare journey completion times and satisfaction scores for platform-only vs phone-assisted host onboarding. Measure overall efficiency perception through post-journey surveys.",
-      "success_criteria": "Platform-only journey completion under 15 minutes for motivated hosts. Efficiency satisfaction score equal to or higher than phone-assisted onboarding. Platform preference rate above 60% for hosts who try both methods.",
-      "failure_meaning": "Poor journey-level efficiency will maintain host dependence on human mediation, preventing platform scaling and increasing operational costs.",
-      "implementation_hint": "Create controlled experiments with hosts randomly assigned to platform-only vs phone-assisted onboarding. Track total time-to-completion and measure satisfaction at journey completion points."
+      "test_description": "On the pricing step of the listing wizard, randomly assign hosts to Treatment A (editable field showing '$2,000' with a Submit button) or Treatment B (mono-font read-only statement '$2,000/mo — from your call with Bryant' with a Confirm button and a small 'Change' link). Measure: (1) Time from page load to action (Confirm/Submit). (2) Modification rate — percentage of hosts who change the pre-populated value. (3) Error rate — percentage of submitted values that don't match the agent's call notes. Run for 200 hosts (100 per treatment).",
+      "success_criteria": "Treatment B (confirmation pattern) produces: (a) 40% faster median time-to-action compared to Treatment A. (b) Equal or lower modification rate (hosts who need to change should still be able to). (c) Equal or lower error rate. If Treatment B is faster without increasing errors, the confirmation visual language is validated.",
+      "failure_meaning": "If Treatment B is not faster, the confirmation visual language may be unfamiliar to hosts — they may spend time trying to figure out how to edit the read-only display, offsetting the time savings from simpler interaction. If Treatment B has a higher error rate, hosts may be confirming incorrect values because the read-only display discourages editing even when editing is needed. In either case, iterate on the visual design: make the 'Change' link more visible or add a brief provenance annotation that helps hosts verify the value.",
+      "implementation_hint": "Implement as a feature flag with 50/50 random assignment. Use the existing analytics pipeline to track time-to-action and modification rate. For error rate, compare submitted values against CRM data in a weekly batch process. Run the test for 4 weeks or until 200 hosts reach the pricing step, whichever comes first. Ensure both treatments are instrumented identically for fair comparison."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Optimistic Confirmation Perceived Speed Validation",
+      "validates_element": "behaves-001",
+      "journey_phases": [
+        "proposal_mgmt",
+        "pricing",
+        "retention"
+      ],
+      "problem": "If confirmation actions show loading spinners before displaying the success state, Drew experiences unnecessary latency that contradicts his instant verbal confirmations in the call. Each loading state is a question mark: 'Did it work? Should I click again?'",
+      "solution": "Measure perceived latency for confirmation actions: the time from Drew's click to the visible success state. Compare optimistic UI (instant success, background server sync) against standard UI (loading spinner, then success).",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 04:18",
+          "type": "host_call",
+          "quote": "Okay. Okay. Okay. Alright.",
+          "insight": "Drew's confirmation is instantaneous. The platform's confirmation UI must match: zero perceived latency between click and success. Any loading state contradicts Drew's certainty."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "every question mark adds to our cognitive workload, distracting our attention from the task at hand.",
+          "insight": "A loading spinner after a confirmation click is a question mark. Optimistic UI eliminates it."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "On the proposal acceptance flow, A/B test: Treatment A (standard) — click Accept → loading spinner for 500-1500ms → success state. Treatment B (optimistic) — click Accept → immediate success state → background server sync. Measure: (1) Host satisfaction score (post-action micro-survey: 'How did that feel? Fast / Normal / Slow'). (2) Double-click rate (hosts who click the button multiple times, indicating uncertainty). (3) Time-to-next-action (how quickly the host moves on to the next task after confirming).",
+      "success_criteria": "Treatment B (optimistic) produces: (a) ≥ 80% 'Fast' satisfaction rating. (b) Double-click rate under 5% (vs. standard UI benchmark). (c) Faster time-to-next-action, indicating hosts feel confident to move on immediately. No increase in server-side errors or rollback events (the optimistic UI must be reliable).",
+      "failure_meaning": "If optimistic UI increases the double-click rate, the success state animation may be too subtle — hosts don't realize the action completed. Increase the visual feedback (larger checkmark, more prominent color change, brief scale animation). If optimistic UI has a high rollback rate (server rejects the action after showing success), the pre-validation logic needs tightening — catch errors before the click, not after. If satisfaction scores are equal, the standard loading time (500ms) may already be fast enough that optimistic UI adds complexity without perceptible benefit.",
+      "implementation_hint": "Implement optimistic UI using a state management pattern: on click, immediately set local state to 'confirmed' and render the success UI. Simultaneously fire the API request. On success response, no change needed. On error response, transition back to default state with inline error. Track rollback events as a separate metric to monitor optimistic UI reliability. Use the spring easing (cubic-bezier(0.34, 1.56, 0.64, 1)) for the checkmark animation to create satisfying tactile feedback."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Conversational Step Progression Completion Rate Validation",
+      "validates_element": "behaves-003",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation"
+      ],
+      "problem": "If multi-step flows use hard cuts between steps (blank screen → new form), Drew loses the guided feeling from the call. Each hard cut feels like starting over, increasing abandonment risk. The listing wizard's 6 steps are 6 opportunities for Drew to encounter a hard cut and leave.",
+      "solution": "Measure wizard completion rates and step-level dropout rates. Compare against the 75% completion target. Identify which specific steps have the highest dropout.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 01:03-02:57",
+          "type": "host_call",
+          "quote": "[Continuous conversational flow from property details through availability, guests, guarantee, photos]",
+          "insight": "Bryant's call has zero dropout — Drew stays engaged through 6 topics because the flow is continuous. The wizard must achieve similarly low dropout through visual continuity between steps."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through.",
+          "insight": "Drew will muddle through the wizard — but only if each step feels like a continuation. If a hard cut forces him to re-orient, his muddling strategy may fail and he abandons."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Instrument each step of the listing wizard with analytics events: 'step_N_started' and 'step_N_completed.' Track the funnel: Step 1 started → Step 1 completed → Step 2 started → ... → Step 6 completed. Calculate: (1) Overall completion rate (Step 1 started → Step 6 completed). (2) Step-level drop-off (which step loses the most hosts). (3) Time per step (which steps take longest). (4) Return rate (hosts who leave and come back to resume). Run on the first 200 hosts.",
+      "success_criteria": "Overall completion rate above 75% (hosts who start the wizard and finish all 6 steps). No single step has a dropout rate above 15%. Pre-filled confirmation steps (1-3) should take under 10 seconds each. If any step has dropout above 15%, investigate with session recordings.",
+      "failure_meaning": "High dropout at a specific step indicates that step has a self-evidence failure: the host arrives and doesn't understand what to do. Common causes: (a) the step introduces unfamiliar vocabulary ('lease style'); (b) the step requires creative input without guidance ('write a description'); (c) the step has a technical friction (photo upload fails, form validation blocks progress). High dropout at step 1 specifically indicates the wizard's entry point fails the self-evidence test — the host doesn't even understand they're starting a wizard. Session recordings of dropout moments will reveal the specific failure.",
+      "implementation_hint": "Use Mixpanel or Amplitude funnel analysis. Set up a real-time dashboard showing the step funnel. Create Slack alerts for any day where overall completion drops below 65% (indicating a systemic issue, possibly a bug). For step-level analysis, segment by device type (mobile vs. desktop) and by agent (do hosts of certain agents complete at higher rates, indicating the quality of the call affects platform behavior?). Review session recordings for the 5 longest-duration steps each week."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Satisfice-Proof Inline Validation Effectiveness",
+      "validates_element": "behaves-004",
+      "journey_phases": [
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "If form validation only fires on submit (post-submission errors), Drew must find and fix errors in a form he barely looked at — the worst interaction pattern for a scanner. If inline validation fires too aggressively, it creates a wall of warnings that Drew scans past.",
+      "solution": "Measure the rate of post-submission errors before and after implementing inline on-blur validation. Track whether inline validation reduces the number of hosts who encounter submission-blocking errors.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "most of the time we don't choose the best option — we choose the first reasonable option, a strategy known as satisficing.",
+          "insight": "Satisficing hosts will not review forms before submitting. Inline validation catches errors at the moment of input rather than at submission — the only strategy that works for scanners."
+        },
+        {
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "To confirm that would be a 2000 a month... That's right.",
+          "insight": "Drew confirms instantly. If a pre-populated field has a derivation error, inline validation must flag it the moment Drew's eye passes over it (on page load for pre-filled fields) — not when he clicks Submit."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track two metrics across all forms: (1) Submission error rate — percentage of form submissions that are rejected due to validation errors. (2) Inline correction rate — percentage of validation errors that are caught and corrected before submission (host sees the inline indicator, fixes the field, then submits successfully). Compare these rates before and after deploying inline on-blur validation. Additionally, track the 'error discovery time' — elapsed time from the error occurring to the host fixing it.",
+      "success_criteria": "After deploying inline validation: (a) Submission error rate drops by 50% or more compared to baseline. (b) Inline correction rate exceeds 80% (most errors are caught and fixed before submission). (c) Error discovery time decreases to under 5 seconds (host fixes the error within seconds of leaving the field, not minutes after submission).",
+      "failure_meaning": "If submission error rate doesn't decrease, inline validation may not be noticeable — the visual indicator (border color change, inline message) is too subtle for Drew's scanning behavior. Increase the visual prominence: larger text, warmer color, or a gentle animation (2 pulses). If inline correction rate is low, hosts may be ignoring inline warnings — either because there are too many (alarm fatigue) or because the warning language doesn't communicate the consequence. Simplify to maximum 1 error per field, in conversational language.",
+      "implementation_hint": "Instrument each form field with events: 'field_blur' (with value), 'inline_error_shown' (with error type), 'field_corrected' (field modified after error shown), 'form_submitted' (with all field values and any remaining errors). Build a dashboard showing inline correction rate per field type. Prioritize fixing fields with low inline correction rates — these are the fields where the validation message is failing to communicate the problem."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Bryant Escape Hatch Usage and Platform Bypass Prevention",
+      "validates_element": "behaves-005",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "If the Bryant escape hatch is not available in-context, hosts text Bryant outside the platform — creating agent bottlenecks and training hosts to permanently bypass the platform. If the escape hatch is too prominent, hosts use it instead of self-serving, creating the same bottleneck.",
+      "solution": "Track escape hatch usage patterns: frequency, context (which screens trigger it), and whether hosts complete the platform action after using the escape hatch or abandon in favor of agent-mediated completion.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 05:38-05:50",
+          "type": "host_call",
+          "quote": "if you have any questions for me, you can feel free to text me or email me.",
+          "insight": "Bryant establishes the escape hatch. The platform must honor it while preventing permanent platform bypass. Usage analytics reveal whether the balance is right."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "If we find something that works, we stick to it. Once we find something that works — no matter how badly — we tend not to look for a better way.",
+          "insight": "If texting Bryant works, Drew will never learn the platform. The escape hatch must be a bridge to platform usage, not a permanent alternative."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) Escape hatch trigger rate — percentage of page views where the host opens the Bryant message panel. (2) Trigger context — which screens/phases generate the most escape hatch usage. (3) Post-trigger completion — after using the escape hatch, does the host complete the platform action (return to self-serve) or abandon the screen (agent takes over)? (4) Repeat usage — does the same host use the escape hatch on subsequent visits (habitual bypass) or only on first encounters (learning aid)?",
+      "success_criteria": "Escape hatch trigger rate between 5-15% of page views (available when needed, not overused). Post-trigger platform completion rate above 60% (hosts get unstuck and return to self-serve, not permanently defer to agent). Repeat usage should decrease across sessions — hosts should need the escape hatch less over time, not more.",
+      "failure_meaning": "Trigger rate above 15% indicates widespread confusion — the platform's self-evidence is failing on too many screens. Investigate the highest-trigger screens for usability improvements. Trigger rate below 5% may indicate the escape hatch is too hidden — hosts who need help can't find it. Post-trigger completion below 60% indicates the escape hatch is being used as a permanent alternative, not a bridge — the agent is completing actions instead of guiding hosts back to the platform. Increasing repeat usage indicates the platform is not learning from escape hatch signals — the confusing screens aren't being improved.",
+      "implementation_hint": "Log every escape hatch interaction: 'escape_hatch_opened' (with current screen, time on page, and whether any errors are visible), 'escape_hatch_message_sent' (with message content hash, not PII), 'escape_hatch_closed' (with time open), 'platform_action_completed_after_escape' (did the host complete the original action?). Build a weekly report showing the top 5 screens by escape hatch trigger rate. These are the screens that need the most usability improvement — use them as the input for the next usability test cycle."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Zero-Friction Continuity Emotional Validation",
+      "validates_element": "feels-001",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation"
+      ],
+      "problem": "If the platform's first screen feels like a new system rather than a continuation of the call, the emotional momentum from Bryant's conversation shatters. Drew shifts from 'someone is taking care of this' to 'now I have to figure this out alone' — a trust-eroding emotional transition that may not be visible in behavioral analytics.",
+      "solution": "Run a qualitative first-impression test: show hosts the platform's first screen immediately after they complete a call with an agent, and ask them to describe their emotional reaction in their own words.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 05:52-06:14",
+          "type": "host_call",
+          "quote": "Sounds good. Okay. No, that'll be all... can we maybe move on?",
+          "insight": "Drew's post-call emotional state is impatient-positive momentum. The first platform screen must sustain this feeling. The qualitative test captures whether it does — through the host's own emotional vocabulary."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "Using a site that doesn't make us think about unimportant things feels effortless, whereas puzzling over things that don't matter to us tends to sap our energy and enthusiasm.",
+          "insight": "Krug identifies the emotional consequence: sapped energy. The qualitative test checks whether hosts describe the first screen as 'effortless' (continuity preserved) or 'confusing/overwhelming' (continuity broken)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8 hosts who have just completed a real call with an agent (within 30 minutes). Send them the agent's follow-up email link and ask them to open it while on a recorded video call. As they see the platform's first screen, ask: 'What's your first reaction?' and 'Does this feel like a continuation of your call, or like something new?' Record their responses verbatim. Code responses into emotional categories: recognition, confusion, relief, frustration, indifference.",
+      "success_criteria": "75% of hosts use recognition or continuation language ('Oh, this is what Bryant was talking about,' 'I see my apartment,' 'This looks right'). Fewer than 15% use confusion or frustration language ('Where am I?,' 'What do I do here?,' 'This doesn't look like what I expected'). The emotional response should match the post-call momentum, not reset it.",
+      "failure_meaning": "If hosts use confusion language, the first screen fails the call-to-platform continuity test. Common causes: (a) no reference to the agent's name or the call on the first screen; (b) generic welcome text instead of personalized context; (c) platform jargon instead of call vocabulary; (d) a dashboard layout that requires navigation before showing relevant content. If hosts use indifference language ('it's fine, I guess'), the screen is adequate but not achieving the emotional continuity target — it's not breaking the experience but not sustaining the momentum either.",
+      "implementation_hint": "Time this test carefully: the host must see the platform within 30 minutes of the call to capture the post-call emotional state. Coordinate with agents to schedule follow-up emails immediately after test calls. The video call observation can be done via Zoom — ask the host to share their screen and think aloud. 8 participants is sufficient for qualitative emotional patterns. Run this test once during the design phase (with mockups) and once post-launch (with the real platform)."
+    },
+    {
+      "id": "tests-019",
+      "type": "validation_strategy",
+      "title": "Guaranteed-Income Calm Financial Display Validation",
+      "validates_element": "feels-003",
+      "journey_phases": [
+        "pricing",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "problem": "If financial displays introduce uncertainty — 'estimated,' 'pending,' 'approximately' — they undo the calm certainty Bryant's verbal guarantee created. Drew may not consciously notice the uncertainty language, but his emotional state shifts from 'I get paid' to 'maybe I get paid.'",
+      "solution": "Audit all financial copy for uncertainty language and conduct a qualitative test measuring emotional response to two versions of the payment display: one with guarantee-first framing and one with deduction-first framing.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 03:44-04:18",
+          "type": "host_call",
+          "quote": "guarantees payments to you as the landlord... in the case that a guest would miss a payment, that doesn't have any effect on you and you still receive the payment... Okay. Okay. Okay. Alright.",
+          "insight": "Bryant's guarantee is absolute: 'guarantees,' 'doesn't have any effect on you,' 'you still receive.' Zero uncertainty. The platform's financial copy must match this certainty."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "the fact that the people who built the site didn't care enough to make things obvious — and easy — can erode our confidence in the site and its publishers.",
+          "insight": "Financial ambiguity erodes confidence. Precision and certainty in financial displays build it."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Two-part validation: (1) Copy audit: review every financial string in the platform for uncertainty words ('estimated,' 'projected,' 'pending,' 'approximately,' 'expected,' 'may'). Flag all instances. (2) Qualitative test: show 10 hosts two versions of the payment summary page. Version A (guarantee-first): 'Your guaranteed rent: $2,000 · Paid on the 1st of every month.' Version B (deduction-first): 'Monthly breakdown: Base rent $2,000 | Split Lease fee -$150 | Net payout: $1,850.' After viewing each version for 10 seconds, ask: 'How confident do you feel about getting paid?' (1-5 scale) and 'Which version makes you feel more secure?' (forced choice).",
+      "success_criteria": "Copy audit: zero uncertainty words in Tier 1 financial headings and Tier 2 payment status labels. Uncertainty language is acceptable only in Tier 3 expandable detail sections. Qualitative test: Version A (guarantee-first) scores at least 1 point higher on the confidence scale (mean) and is preferred by at least 70% of hosts in the forced-choice comparison.",
+      "failure_meaning": "If Version B (deduction-first) scores equally or higher, hosts may value transparency over reassurance — they want to see the math even if it introduces a smaller number. In this case, the solution is to show both: guarantee-first headline with expandable deduction details. If the copy audit reveals uncertainty words in Tier 1/2 positions, these are immediate fixes — replace 'Estimated payout' with 'Your guaranteed rent,' replace 'Processing' with 'Paid on [date].'",
+      "implementation_hint": "The copy audit can be automated with a grep/search across all localization strings for the flagged uncertainty words. Run as a pre-release check. The qualitative test requires showing two static mockups (not the live platform) to avoid contaminating the host's actual experience. Use within-subjects design: each host sees both versions in randomized order. 10 hosts is sufficient for the forced-choice comparison; confidence-scale analysis requires at least 15 for statistical significance."
+    },
+    {
+      "id": "tests-020",
+      "type": "validation_strategy",
+      "title": "Renewal Continuation Framing Validation",
+      "validates_element": "feels-007",
+      "journey_phases": [
+        "retention"
+      ],
+      "problem": "If the renewal prompt triggers re-evaluation ('Should I continue? Was this worth it?') instead of continuation ('Obviously yes — look at what I've earned'), Drew's open-but-uncommitted stance ('maybe the ability to extend') may resolve to 'no' out of inertia rather than out of dissatisfaction.",
+      "solution": "A/B test two renewal prompt framings: continuation ('Extend 4 more months?') versus re-commitment ('Renew your lease for a new term'). Measure click-through rate on the primary CTA.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 05:18-05:32",
+          "type": "host_call",
+          "quote": "Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
+          "insight": "Drew's word is 'extend' — not 'renew' or 'recommit.' The continuation framing uses Drew's own word. The re-commitment framing introduces new language that may trigger re-evaluation."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "Making pages self-evident is like having good lighting in a store: it just makes everything seem better.",
+          "insight": "A simple continuation prompt ('Extend?') is self-evident. A formal renewal process ('Review and accept updated terms') makes Drew think — violating Krug's First Law at the retention touchpoint."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "At the renewal touchpoint (2-3 weeks before lease end), randomly assign hosts to: Treatment A (continuation): '$8,000 earned · Zero issues · Ariel & Amber want to stay. Extend 4 months?' with a single 'Extend' button. Treatment B (re-commitment): 'Your lease expires June 30. To renew, review your terms and confirm your next lease period.' with a 'Start Renewal' button leading to a multi-step form. Measure: (1) CTA click-through rate. (2) Renewal completion rate. (3) Time-to-completion.",
+      "success_criteria": "Treatment A (continuation) produces: (a) CTA click-through rate at least 25% higher than Treatment B. (b) Renewal completion rate at least 20% higher (fewer hosts who click through but abandon the process). (c) Median time-to-completion under 30 seconds (vs. Treatment B's expected multi-minute flow).",
+      "failure_meaning": "If Treatment B performs equally, hosts may value the thoroughness of a formal renewal process — they want to review terms, not just click Extend. This would indicate that the one-click continuation is perceived as too casual for a financial commitment. The compromise: show the continuation framing (evidence + one button) but add a small 'Review terms first' link for hosts who want more information before committing.",
+      "implementation_hint": "This test requires a sufficient sample of hosts reaching the renewal point, which may take months depending on lease cycle timing. Start collecting data from the first cohort of 4-month leases. If sample size is insufficient for statistical significance within one cohort, extend the test across multiple cohorts. Use the continuation framing as the default (Treatment A) and measure against a hold-out group receiving Treatment B — this way, the majority of hosts get the better experience while the test runs."
+    },
+    {
+      "id": "tests-021",
+      "type": "validation_strategy",
+      "title": "End-to-End Journey Arc Validation",
+      "validates_element": "works-001",
+      "journey_phases": [
+        "evaluation",
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "active_lease",
+        "retention"
+      ],
+      "problem": "Individual elements may test well in isolation but fail in sequence — the cumulative effect of small frictions across 8 phases may erode trust, momentum, and engagement even when no single phase is critically broken. The journey arc as a whole may produce a different emotional experience than the sum of its parts.",
+      "solution": "Conduct a longitudinal diary study with 10 hosts across the full journey — from first call to first renewal decision. Track emotional state, friction points, and platform usage at each phase transition.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "every question mark adds to our cognitive workload, distracting our attention from the task at hand. The distractions may be slight but they add up, and sometimes it doesn't take much to throw us.",
+          "insight": "Krug explicitly warns that question marks compound. A journey-level validation is the only way to measure the cumulative effect of micro-frictions that individually seem trivial."
+        },
+        {
+          "source": "drew-call.txt, full transcript",
+          "type": "host_call",
+          "quote": "Drew's entire call is a 6-minute frictionless arc from greeting to next steps. The platform journey — spanning weeks to months — must sustain this frictionless quality across a much longer timeframe.",
+          "insight": "Bryant maintains a consistent conversational quality for 6 minutes. The platform must maintain a consistent experiential quality for 4+ months. The diary study tests whether this consistency is achieved over the full lifecycle."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 10 hosts at the start of their journey (immediately after their first call with an agent). At each phase transition, send a brief survey (3 questions, takes 2 minutes): (1) 'How easy was that? 1-5.' (2) 'Did you contact your agent for help at any point? Yes/No.' (3) 'In one sentence, how do you feel about Split Lease right now?' Track responses across phases over 4+ months. At the end, conduct a 30-minute interview covering the full journey experience.",
+      "success_criteria": "Average ease score remains above 4.0/5.0 across all phases (no significant dip at any phase). Agent contact rate decreases across phases (hosts become more self-sufficient, not more dependent). Sentiment in the one-sentence response maintains a positive or neutral tone throughout — with no phase showing more than 20% negative sentiment. At the exit interview, 80% of hosts describe the overall experience as 'easy' or 'effortless.'",
+      "failure_meaning": "A significant ease-score dip at a specific phase identifies the weakest link in the journey arc — the phase where cumulative friction tips from manageable to frustrating. Increasing agent contact rate across phases indicates the platform is failing to build self-sufficiency — hosts are learning to depend on the agent rather than learning the platform. Negative sentiment spikes identify emotional failure points — phases where the platform's tone, complexity, or friction contradicts the expectations set by the call. The exit interview provides the qualitative context needed to interpret the quantitative signals.",
+      "implementation_hint": "Use a simple survey tool (Typeform, Google Forms) with automated triggers at each phase transition (linked to CRM status changes). The survey must be extremely brief — 3 questions, mobile-friendly, takes under 2 minutes. Longer surveys will have low response rates. Incentivize participation: offer a small rent credit ($25) for completing all phase surveys plus the exit interview. Start with the first cohort of hosts onboarded after launch and run continuously. After 3 cohorts (30 hosts), patterns will be clear enough for systemic improvements."
+    },
+    {
+      "id": "tests-022",
+      "type": "validation_strategy",
+      "title": "Multi-Step Momentum Perception Validation",
+      "validates_element": "feels-004",
+      "journey_phases": [
+        "listing_creation",
+        "onboarding"
+      ],
+      "problem": "If the listing wizard's 6 steps feel like 6 steps (rather than 2-3 quick confirmations plus a photo upload), Drew's 'can we maybe move on?' impatience will tip into abandonment. The perception of length matters as much as actual length.",
+      "solution": "Measure perceived vs. actual wizard duration, and the host's 'almost done' confidence at each step.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 05:52-06:14",
+          "type": "host_call",
+          "quote": "can we maybe move on?",
+          "insight": "Drew's impatience sets a strict emotional tolerance for process length. If the wizard feels long, Drew will abandon even if it's objectively fast."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Introduction",
+          "type": "book",
+          "quote": "If it's short, it's more likely to actually be used.",
+          "insight": "Krug applies this to his own book — perceived brevity drives usage. The wizard must feel short even if it has 6 steps."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "During a moderated usability test of the listing wizard (8 hosts), after each step ask: 'How far through do you think you are? Almost done, halfway, or just getting started?' Record the response alongside the actual step number. After completion, ask: 'How long do you think that took?' and compare against actual elapsed time. Also record whether the host expressed any impatience or 'how much longer?' sentiment during the flow.",
+      "success_criteria": "By Step 3 (halfway point), at least 75% of hosts should say 'almost done' or 'more than halfway.' Perceived duration should be within 50% of actual duration — if the wizard took 3 minutes, hosts should estimate 2-4 minutes, not 8-10 minutes. Fewer than 20% of hosts should express impatience during the flow.",
+      "failure_meaning": "If hosts say 'just getting started' at Step 3, the pre-filled confirmation steps are not registering as progress — they feel like steps to complete rather than steps already done. Fix by strengthening the progress indicator (show 50% completion at Step 3) and reducing the visual weight of confirmation steps (they should feel like quick checkpoints, not full form pages). If perceived duration is significantly longer than actual, the wizard has a 'felt slow' problem — likely caused by insufficient whitespace, dense layouts, or transitions that feel heavy rather than light.",
+      "implementation_hint": "This is best done as a moderated in-person test where the facilitator can interject the 'how far through?' question between steps without breaking the host's flow. Use a stopwatch to record actual elapsed time per step. The question should feel casual: 'Quick check — do you feel like you're almost done, about halfway, or just getting started?' After the wizard, the 'how long did that take?' question captures the time perception gap. Run with both first-time hosts (target audience) and experienced hosts (control group) to see if experience changes perception."
     }
   ]
 }

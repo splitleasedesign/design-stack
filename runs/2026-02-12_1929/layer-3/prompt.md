@@ -1,6 +1,6 @@
 You are running Layer 3 of the SplitLease Design Stack v2.
 
-IMPORTANT: Output ONLY valid JSON. No commentary, no markdown code fences, no explanation. Your entire response must be a single valid JSON object matching the schema in your agent instructions.
+IMPORTANT: You are running in print mode (-p). You have NO tools — no Write, no Read, no Bash. Your ONLY output is stdout. Print the complete JSON directly. No commentary, no markdown code fences, no explanation. Your entire response must be a single valid JSON object matching the schema in your agent instructions.
 
 ## Journey Context
 - **Journey type**: host
@@ -2496,220 +2496,342 @@ If implementing dark mode, use these mappings:
   "lens": {
     "host_call": "drew-call.txt",
     "book_extract": "dontmakemethink-usability-laws.txt",
-    "lens_summary": "This lens reveals how host Drew's accommodating behavior and the usability principles of cognitive load reduction intersect to show the importance of making platform interactions feel as effortless as the phone call."
+    "lens_summary": "This lens reveals how a host who satisfices through a fast, low-friction phone call will scan and muddle through the platform, and how the platform must be self-evident at every phase to match the effortless conversational pace Drew experienced with Bryant."
   },
   "phases": {
     "discovery": {
-      "what_this_lens_reveals": "This lens does not directly address this phase.",
+      "what_this_lens_reveals": "The Drew call begins mid-journey — Drew was already contacted and agreed to speak with Bryant. The call does not reveal how Drew discovered Split Lease. However, Krug's First Law applies directly: whatever brought Drew to the platform (ad, referral, search result) must be self-evident in under 5 seconds. Krug's observation that 'people tend to spend very little time reading most Web pages' (Ch. 2) and instead scan for trigger words means the discovery touchpoint (landing page, ad, LinkedIn message) must pass the 'billboard at 60 mph' test. Drew's call behavior — short answers, no questions about what Split Lease is — suggests his discovery phase was handled entirely by Bryant's outreach, bypassing the platform altogether.",
       "user_state": {
-        "emotional_state": "Not addressed by this lens",
-        "knowledge_level": "Not addressed by this lens", 
-        "commitment_level": "Not addressed by this lens",
-        "data_available": "Not addressed by this lens"
+        "emotional_state": "Neutral-to-open. Drew's tone at 00:06 ('Hello?') is casual, not guarded. He was expecting the call, indicating prior positive contact.",
+        "knowledge_level": "Drew knows he has a listing and has been contacted about specific guests. He does not appear to know much about Split Lease as a company or platform — no questions about the business model.",
+        "commitment_level": "Past discovery. Drew already agreed to take the call, indicating he has moved beyond initial curiosity.",
+        "data_available": "We know Drew's property (Chelsea 1BR/1BA, $2,000/month) was likely found through an external listing. No data on the discovery channel itself."
       },
       "dropout_risk": {
         "level": "medium",
-        "reasons": ["Initial platform contact may not match the accommodating tone of agent interaction"],
-        "evidence": "No specific evidence from this lens"
-      },
-      "key_quotes": []
-    },
-    "evaluation": {
-      "what_this_lens_reveals": "Drew's evaluation happens entirely through conversation with Bryant. The call moves efficiently through key data points (location, price, availability, deposit, guest details) without cognitive friction. Krug's usability laws suggest the platform equivalent must match this conversational efficiency.",
-      "user_state": {
-        "emotional_state": "Accommodating and open - Drew readily shares information and shows flexibility",
-        "knowledge_level": "Knows his space details, pricing, and requirements immediately - no hesitation on key facts",
-        "commitment_level": "Highly engaged - provides detailed information and commits to next steps",
-        "data_available": "Complete property details, pricing, availability timeline, deposit amount, flexibility on terms"
-      },
-      "dropout_risk": {
-        "level": "low",
-        "reasons": ["Host is engaged and accommodating during human interaction"],
-        "evidence": "Drew provides all requested information readily and commits to sending additional photos and details"
+        "reasons": [
+          "If Drew had encountered the platform before the call rather than Bryant's direct outreach, Krug's scanning behavior suggests he would have spent seconds, not minutes, evaluating it",
+          "The platform's discovery touchpoint must compete with 'the first link that catches their interest' (Krug Ch. 2) — if Split Lease's landing page doesn't immediately say 'list your space, get guaranteed rent,' Drew scans past it"
+        ],
+        "evidence": "Krug Ch. 2: 'What they actually do most of the time (if we're lucky) is glance at each new page, scan some of the text, and click on the first link that catches their interest or vaguely resembles the thing they're looking for.'"
       },
       "key_quotes": [
         {
-          "source": "drew-call.txt:01:03",
-          "quote": "That's right. Okay. Got it. And this is an entire apartment, is that right?",
-          "relevance": "Shows Drew's clear, direct communication style - no confusion or hesitation"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "quote": "Don't make me think! ... when I look at a Web page it should be self-evident. Obvious. Self-explanatory. I should be able to 'get it' — what it is and how to use it — without expending any effort thinking about it.",
+          "relevance": "The discovery touchpoint — whatever first brings a host like Drew to Split Lease — must pass this self-evidence test. If the value proposition requires even a moment of interpretation, scanning hosts will move on."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt:22",
-          "quote": "We're usually in a hurry. Much of our Web use is motivated by the desire to save time. As a result, Web users tend to act like sharks: They have to keep moving, or they'll die.",
-          "relevance": "The phone call operates at this efficient pace - platform must match this speed expectation"
+          "source": "drew-call.txt, 00:06-00:18",
+          "quote": "Hello? Hello. Hey, is this Drew? ... I'm doing well. How are you?",
+          "relevance": "Drew's casual opening shows zero friction. Whatever discovery mechanism brought him here (Bryant's direct outreach) created a frictionless entry. The platform's discovery page must achieve the same."
+        }
+      ]
+    },
+    "evaluation": {
+      "what_this_lens_reveals": "The Drew call IS the evaluation phase. Drew evaluates Split Lease entirely through a 6-minute conversation with Bryant. He asks zero questions about the company, zero questions about the platform, and zero questions about how the service works. His evaluation is mediated entirely by Bryant's credibility. Krug's insight about satisficing (Ch. 2) explains why: Drew doesn't optimize — he accepts the first reasonable option. Bryant's pitch (guaranteed payment, doubled deposit, vetted guests) is 'the first reasonable option,' and Drew clicks the mental equivalent of 'that link seems like it might lead to what I'm looking for.' The entire evaluation operates at conversational speed with zero cognitive friction, which sets a dangerous benchmark for any subsequent platform interaction.",
+      "user_state": {
+        "emotional_state": "Accommodating and business-like. Drew answers efficiently, volunteers information ('I have more pictures and I can send you,' 04:38), and agrees to terms without pushback. No anxiety, no skepticism.",
+        "knowledge_level": "Drew knows his property details intimately but shows no knowledge of Split Lease's platform, fee structure, or business model. He accepts Bryant's verbal guarantees without requesting documentation during the call.",
+        "commitment_level": "Evaluating but leaning in. Drew's willingness to share additional photos (04:38), discuss lease terms (05:18-05:32), and exchange email (05:01) shows active evaluation trending toward commitment.",
+        "data_available": "Property: Chelsea 1BR/1BA, $2,000/month, $1,000 security deposit. Current tenant moves out on the 6th. Cleaning needed. Open to 4-month lease with extension. Flexible on start date."
+      },
+      "dropout_risk": {
+        "level": "low",
+        "reasons": [
+          "Drew is accommodating and has not raised objections",
+          "The conversational format matches Krug's satisficing pattern — no comparison shopping",
+          "Risk exists only if the post-call platform experience creates friction that violates the effortless standard set by this call"
+        ],
+        "evidence": "drew-call.txt, 04:18: 'Okay. Okay. Okay. Alright.' — Drew accepts the guarantee explanation with minimal processing, classic satisficing behavior matching Krug Ch. 2: 'we choose the first reasonable option.'"
+      },
+      "key_quotes": [
+        {
+          "source": "drew-call.txt, 03:44-04:18",
+          "quote": "Split lease doubled the deposit, and guarantees payments to you as the landlord... in the case that a guest would miss a payment, that doesn't have any effect on you and you still receive the payment... Okay. Okay. Okay. Alright.",
+          "relevance": "Drew satisfices on the guarantee explanation. He doesn't ask for documentation, proof, or details. This is Krug's satisficing in action: the first reasonable option is accepted. But it also means his evaluation is shallow — trust is in Bryant, not the platform."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "quote": "most of the time we don't choose the best option — we choose the first reasonable option, a strategy known as satisficing. As soon as we find a link that seems like it might lead to what we're looking for, there's a very good chance that we'll click it.",
+          "relevance": "Drew's evaluation behavior mirrors satisficing exactly. He doesn't compare Split Lease to other options. Bryant IS the first reasonable option. The platform must not force Drew into an optimization mode he has already skipped."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "quote": "There's not much of a penalty for guessing wrong. Unlike firefighting, the penalty for guessing wrong on a Web site is usually only a click or two of the Back button.",
+          "relevance": "In Drew's case, the penalty for guessing wrong about Split Lease is also low — he can always find a different tenant. This low-stakes framing enables satisficing but also means the platform must not introduce new perceived risks that raise the stakes."
         }
       ]
     },
     "onboarding": {
-      "what_this_lens_reveals": "The transition from Drew's efficient phone interaction to platform onboarding faces a critical usability challenge. Drew demonstrated he can process information quickly ('1000. Okay. Got it') but Krug's research shows platform interactions inherently create more cognitive load than conversation.",
+      "what_this_lens_reveals": "The call itself is Drew's onboarding — he is being onboarded by Bryant through conversation. The critical Krug insight for this phase is about muddling through (Ch. 2): 'very few people take the time to read instructions. Instead, we forge ahead and muddle through.' When Drew transitions from the call to the platform, he will not read instructions, will not explore the dashboard, will not watch a tutorial. He will scan for something that looks like what Bryant described and click the first thing that resembles it. The call ends with Bryant promising to send 'more information on split lease as well as links to the agreements' (05:01). This means Drew's first platform encounter will likely be through an email link. The landing page for that link must be self-evident (Krug Ch. 1) — Drew must instantly recognize it as 'the thing Bryant told me about.' Any question mark in Drew's head ('Where am I? What do I do here? Is this right?') violates Krug's First Law.",
       "user_state": {
-        "emotional_state": "Expects continued efficiency and accommodation",
-        "knowledge_level": "Has completed evaluation, knows platform exists, expects continuation of conversation", 
-        "commitment_level": "Committed to next steps but hasn't yet engaged with platform",
-        "data_available": "All property information from call, Bryant's contact details, expectation of photo exchange"
+        "emotional_state": "Positive but passive. Drew has been guided through the entire process by Bryant. He expects to continue being guided — not to self-serve.",
+        "knowledge_level": "Drew knows Bryant, knows the guests (Ariel and Amber), knows his property terms. He does NOT know the platform, the dashboard, the listing wizard, or the proposal system.",
+        "commitment_level": "Committed to the relationship with Bryant. Commitment to the platform is untested.",
+        "data_available": "Email exchange promised (05:01). Drew will send photos via text/email. Bryant will send agreements and details."
       },
       "dropout_risk": {
         "level": "high",
-        "reasons": ["Platform may feel slower than phone call", "Unfamiliar interface increases cognitive load", "No guarantee of continued accommodation"],
-        "evidence": "Krug: 'Making pages self-evident is like having good lighting in a store: it just makes everything seem better. Using a site that doesn't make us think about unimportant things feels effortless, whereas puzzling over things that don't matter to us tends to sap our energy and enthusiasm'"
+        "reasons": [
+          "Drew has been fully guided — any self-service requirement is a friction spike",
+          "Krug Ch. 2 muddling through: Drew will not read instructions, will not explore — he will scan and click the first thing that seems right, and if it's wrong, he may leave rather than recover",
+          "The call set a zero-friction benchmark; the platform must match it or Drew perceives degradation",
+          "Drew's passivity ('Sounds good' x3) suggests he expects to be led, not to lead"
+        ],
+        "evidence": "drew-call.txt, 05:01: 'I can get back to you with more information on split lease as well as links to the agreements' — the next touchpoint is an email from Bryant. If the linked platform requires Drew to figure things out on his own, it violates the guided experience the call promised."
       },
       "key_quotes": [
         {
-          "source": "dontmakemethink-usability-laws.txt:19",
-          "quote": "When you're creating a site, your job is to get rid of the question marks.",
-          "relevance": "Drew had zero question marks during the call - platform onboarding must maintain this clarity"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "quote": "Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through, making up our own vaguely plausible stories about what we're doing and why it works.",
+          "relevance": "Drew will muddle through the platform. He will not read onboarding instructions. The platform must be self-evident or Drew's 'vaguely plausible story' about what he's doing may diverge entirely from the intended flow."
         },
         {
-          "source": "drew-call.txt:05:01",
-          "quote": "Sounds good. I'll do that. And then I can get back to you with more information on split lease as well as links to the agreements",
-          "relevance": "Drew expects follow-up information and links - onboarding is the delivery of this promise"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "quote": "I should be able to 'get it' — what it is and how to use it — without expending any effort thinking about it.",
+          "relevance": "Drew's onboarding experience must pass this test. The first screen he sees must communicate 'this is where you manage your Chelsea apartment listing and the guests Bryant told you about.' If it requires even a moment of interpretation, Drew's muddling-through strategy may lead him astray."
+        },
+        {
+          "source": "drew-call.txt, 05:52-06:14",
+          "quote": "Sounds good. Okay. No, that'll be all... let me just send you pictures and, um, did you do a, so we can maybe move on?",
+          "relevance": "Drew's closing language reveals impatience to wrap up efficiently. He is not someone who will invest time in learning a new system. The platform must respect this preference for speed and directness."
         }
       ]
     },
     "listing_creation": {
-      "what_this_lens_reveals": "Drew demonstrated he has all listing information readily available (photos, video tour capability, detailed property specs). Krug's usability principle of 'Don't make me think' suggests the listing wizard must capture this information with the same efficiency Drew showed verbally.",
+      "what_this_lens_reveals": "Drew already has a listing that Bryant referenced ('the comfortable one bed, one bath,' 00:45). The call suggests Drew's listing was created elsewhere (possibly a third-party site where Bryant found it) and now needs to be translated to the Split Lease platform. Krug's Billboard Design 101 (Ch. 3) is directly relevant: the listing creation wizard is a series of pages Drew will scan, not read. Krug's visual hierarchy principle means each wizard step must make the most important action the most prominent thing on the page. Drew's call reveals that he thinks of his listing in simple terms — one bedroom, one bath, Chelsea, $2,000/month, cleaning needed. The 6-step wizard (space snapshot, features, lease styles, pricing, rules, photos) is 6 opportunities for Drew to encounter question marks. Each step must be self-evident. Drew's offer to send more pictures (04:38) and openness to a video tour (04:21) shows he has visual assets ready — the photo upload step should be the easiest, not the hardest.",
       "user_state": {
-        "emotional_state": "Ready to provide information, demonstrated willingness to share additional assets",
-        "knowledge_level": "Complete property knowledge, has additional photos and video tour capability",
-        "commitment_level": "High - already committed to providing more detailed property information",
-        "data_available": "1BR/1BA Chelsea apartment, $2000/month, $1000 deposit, availability date, cleaning requirements"
+        "emotional_state": "Ready to proceed but not eager to invest time. Drew's efficient call style ('Yep. Yep.' at 00:49-00:52) suggests he values brevity.",
+        "knowledge_level": "Drew knows his space intimately. He can describe it in seconds. But he may not know platform-specific categories like 'lease style' or 'space type' dropdowns.",
+        "commitment_level": "Willing to share photos and details — actively participating in listing creation, just through a human channel (Bryant/email) rather than the platform.",
+        "data_available": "Title: 'comfortable one bed, one bath.' Location: Chelsea. Rent: $2,000/month. Deposit: $1,000. Availability: after the 6th + cleaning. Photos: available, to be sent. Video tour: possible."
       },
       "dropout_risk": {
-        "level": "medium",
-        "reasons": ["Wizard may be slower than verbal description", "Multiple steps create cognitive load", "Form fields may not match natural description"],
-        "evidence": "Krug: 'We don't read pages. We scan them... scanning is how we find the relevant bits.' Drew provided property details in natural speech - platform must accommodate scanning behavior"
+        "level": "high",
+        "reasons": [
+          "The 6-step wizard is exactly the kind of multi-page process that Krug warns about — Drew will scan each step and if any step makes him think ('What is lease style? What does nights-of-the-week mean?'), he risks abandoning",
+          "Drew is already providing listing data through email/text to Bryant — if the wizard feels harder than texting, Drew will default to the easier channel",
+          "Krug Ch. 3: 'Designing pages for scanning, not reading' — every wizard step must be a billboard, not a form"
+        ],
+        "evidence": "Krug Ch. 3: 'Faced with the fact that your users are whizzing by, there are five important things you can do to make sure they see — and understand — as much of your site as possible: Create a clear visual hierarchy on each page.' The listing wizard's 6 steps must each have a visual hierarchy that makes the primary action instantly obvious."
       },
       "key_quotes": [
         {
-          "source": "drew-call.txt:04:21",
-          "quote": "one more question I had was about, uh, pictures of the space and wondered if you had any more, um, that you could share with me or maybe like a video tour or something like that. Yes. I have more pictures and I can send you",
-          "relevance": "Drew has assets ready to share - listing creation should make uploading these assets effortless"
+          "source": "drew-call.txt, 00:45-00:52",
+          "quote": "the title of it is the comfortable one bed, one bath. One bedroom, one bath. Yep. In Chelsea. Yep. Yep.",
+          "relevance": "Drew confirms his listing in under 10 seconds of speech. The listing wizard must capture this same information with comparable speed. If typing 'comfortable one bed one bath' into a title field plus selecting Chelsea as a location takes longer than 10 seconds, the platform is slower than the phone call."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt:31-32",
-          "quote": "Create a clear visual hierarchy... The more important something is, the more prominent it is... Things that are related logically are also related visually",
-          "relevance": "Listing wizard must prioritize fields Drew mentioned first (space type, price, deposit) and group related information"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "quote": "The more important something is, the more prominent it is... Things that are related logically are also related visually... Things are 'nested' visually to show what's part of what.",
+          "relevance": "Each listing wizard step must use visual hierarchy to make the primary input field the most prominent element. Secondary options (like 'Load Template' or 'Load Common') should be visually subordinate, not competing for attention."
+        },
+        {
+          "source": "drew-call.txt, 04:38",
+          "quote": "Yes. I have more pictures and I can send you.",
+          "relevance": "Drew has photos ready. The upload step should capitalize on this readiness with a dead-simple upload flow. Krug's convention principle: the upload pattern should match what Drew has seen on every other site — drag-and-drop or file picker, no surprises."
         }
       ]
     },
     "pricing": {
-      "what_this_lens_reveals": "Drew has clear, immediate knowledge of his pricing ($2000/month, $1000 deposit) and showed no hesitation. Krug's research suggests pricing interfaces should match this decisiveness rather than creating unnecessary complexity or choice paralysis.",
+      "what_this_lens_reveals": "Drew's pricing is established in one sentence: '$2,000 a month' (00:52). Confirmed by Bryant: 'That's right.' Total cognitive cost: 3 seconds. On the platform, the pricing wizard (Step 4) presents 'default values already populated' according to the journey map. Krug's satisficing principle predicts Drew will accept defaults without deliberation — which is exactly the right behavior IF the defaults are correct. But the platform thinks in nightly rates while Drew thinks in monthly rent. Krug's Ch. 1 example of the bookstore search (Author/Title/Keyword dropdown) is directly analogous: Amazon eliminated the distinction and 'did whatever makes the most sense.' The pricing step should accept '$2,000/month' and derive everything else, not force Drew to think about nightly rates or 4-week totals.",
       "user_state": {
-        "emotional_state": "Confident in pricing decisions",
-        "knowledge_level": "Knows exact rates, deposit amounts, no calculation needed",
-        "commitment_level": "Decided on pricing, no negotiation needed",
-        "data_available": "$2000/month rent, $1000 security deposit, 4-month minimum with extension possibility"
+        "emotional_state": "Confident. Drew states his price without hesitation or negotiation. This is not a decision point for him — it's a fact.",
+        "knowledge_level": "Drew knows his monthly rent. He may not know the nightly rate equivalent, the Split Lease fee structure, or how guaranteed payment affects his take-home.",
+        "commitment_level": "High on price — this is non-negotiable for Drew. Low on format — he doesn't care how the platform represents it as long as $2,000/month is the outcome.",
+        "data_available": "$2,000/month rent. $1,000 security deposit. No data on Drew's awareness of Split Lease fees or commission structure."
       },
       "dropout_risk": {
-        "level": "low",
-        "reasons": ["Host has clear pricing in mind"],
-        "evidence": "Drew answered pricing questions immediately without hesitation"
+        "level": "medium",
+        "reasons": [
+          "If the pricing step forces Drew to translate $2,000/month into a nightly rate, it introduces a question mark that violates Krug's First Law",
+          "Krug Ch. 1: 'you're squandering the limited reservoir of patience and goodwill' — any unnecessary cognitive work on pricing depletes Drew's willingness to continue",
+          "If defaults are wrong (e.g., pre-populated with a different rate), Drew may not catch the error due to satisficing, leading to a bad listing rather than dropout"
+        ],
+        "evidence": "Krug Ch. 1, Amazon search example: 'Amazon.com, on the other hand, doesn't even mention the Author-Title-Keyword distinction. They just look at what you type and do whatever makes the most sense.' The pricing step should do the same — accept Drew's mental model ($2,000/month) and handle the conversion internally."
       },
       "key_quotes": [
         {
-          "source": "drew-call.txt:00:52",
-          "quote": "To confirm that would be a 2000 a month, I think is what it's listed here. That's right. Okay.",
-          "relevance": "Immediate confirmation - no deliberation needed on pricing"
+          "source": "drew-call.txt, 00:52",
+          "quote": "To confirm that would be a 2000 a month, I think is what it's listed here. That's right.",
+          "relevance": "Drew's entire pricing decision takes 3 seconds. The platform's pricing step must not expand this 3-second decision into a multi-field, multi-format exercise."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt:24-25",
-          "quote": "We don't choose the best option--we choose the first reasonable option, a strategy known as satisficing... There's not much of a penalty for guessing wrong",
-          "relevance": "Drew's quick pricing decisions show satisficing behavior - platform should support this with smart defaults"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "quote": "After all, why should I have to think about how I want to search? And even worse, why should I have to think about how the site's search engine wants me to phrase the question, as though it were some ornery troll guarding a bridge?",
+          "relevance": "Replace 'search' with 'price.' Why should Drew have to think about how the platform wants him to enter his rent? The platform should accept the obvious input ($2,000/month) and figure out the rest."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "quote": "We don't make optimal choices. We satisfice... we choose the first reasonable option.",
+          "relevance": "Drew will satisfice on pricing defaults. If the defaults are pre-populated correctly ($2,000/month), he will accept them instantly. If they require translation or interpretation, he faces a forced question mark — exactly what Krug says to eliminate."
         }
       ]
     },
     "proposal_mgmt": {
-      "what_this_lens_reveals": "Drew demonstrated flexibility and openness to guest requirements (4-month minimum with extension possibility). Krug's usability principles suggest proposal management must feel as conversational and accommodating as Drew's phone manner.",
+      "what_this_lens_reveals": "Drew's call reveals how he evaluates proposals: through Bryant's verbal summary. Bryant describes Ariel and Amber in conversational terms — they live in Connecticut, work in Manhattan, need a weekday pied-à-terre, are flexible on dates, want 4 months with extension possibility (05:18-05:32). Drew processes this in real time and agrees. On the platform, proposals will arrive as structured data (dates, rates, durations, totals). Krug's scanning principle (Ch. 2) predicts Drew will not read proposal details carefully — he will scan for the information that matters to him (who, how long, how much) and satisfice. The proposal page must present these three pieces of information as the visual hierarchy's top tier, not buried in a data table. Krug's convention principle (Ch. 3) also applies: the Accept/Decline/Counter interaction should follow conventions Drew has seen elsewhere (Airbnb booking requests, email RSVP patterns), not invent a new interaction model.",
       "user_state": {
-        "emotional_state": "Accommodating and flexible with guest needs",
-        "knowledge_level": "Understands guest requirements (4-month minimum, extension possibility)",
-        "commitment_level": "Ready to accommodate reasonable requests",
-        "data_available": "Guest timing preferences (4 months + extension), Bryant's vetting information"
+        "emotional_state": "Open and accommodating. Drew's response to the 4-month term (05:18-05:32) is immediate agreement with 'ability to extend.' He is not a difficult negotiator.",
+        "knowledge_level": "Drew understands the proposal in human terms (who the guests are, what they need, how long). He may not understand platform-specific proposal mechanics (counter-offers, term editing, proposal status).",
+        "commitment_level": "High — Drew has already implicitly accepted these specific guests during the call. The platform's proposal step is a formality, not a decision point. The risk is that the platform makes a formality feel like a decision.",
+        "data_available": "Guests: Ariel and Amber. Duration: 4 months with extension. Start: early March (flexible). Rate: $2,000/month. Deposit: $1,000 (doubled by Split Lease to $2,000)."
       },
       "dropout_risk": {
         "level": "medium",
-        "reasons": ["Complex proposal interface may discourage accommodating behavior", "Multiple decision points may create fatigue"],
-        "evidence": "Krug: 'most people are going to spend far less time looking at the pages we design than we'd like to think. As a result, if Web pages are going to be effective, they have to work most of their magic at a glance'"
+        "reasons": [
+          "If the proposal page presents too much information (data tables, legal terms, fee breakdowns), Drew will scan past critical details — Krug Ch. 2: 'There are usually large parts of the page that they don't even look at'",
+          "If Accept/Decline/Counter requires multiple clicks or confirmation steps, Drew's satisficing behavior may lead him to stop mid-process",
+          "The call set the benchmark: proposal evaluation took 30 seconds of conversation. The platform must not expand this to 5 minutes of form navigation"
+        ],
+        "evidence": "drew-call.txt, 05:18-05:32: 'they'd want to start with a four months... Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.' — proposal acceptance in 14 seconds of conversation. The platform must not turn this into a multi-step process."
       },
       "key_quotes": [
         {
-          "source": "drew-call.txt:05:18",
-          "quote": "Uh, so they've indicated, ideally they'd want to start with a four months is what they indicated to me. Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
-          "relevance": "Shows Drew's accommodating approach - proposal management should maintain this collaborative tone"
+          "source": "drew-call.txt, 01:32-02:02",
+          "quote": "Ariel and Amber are both flexible... both have primary residences in Connecticut... they both work in Manhattan... essentially they'd be using this space as a place to come back to after work.",
+          "relevance": "Bryant's proposal summary gives Drew exactly the information he needs: who, why, how. The platform's proposal view must prioritize the same information — guest identity, purpose of stay, and schedule — not financial line items."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt:29",
-          "quote": "If you can't make a page self-evident, you at least need to make it self-explanatory",
-          "relevance": "Proposal terms and decisions must be immediately clear to maintain Drew's cooperative engagement"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "quote": "Break up pages into clearly defined areas... users should be able to point at the different areas of the page and say, 'Things I can do on this site!' 'Links to today's top stories!'",
+          "relevance": "The proposal page must have clearly defined areas: 'Who these guests are,' 'What they're proposing,' 'What you'll earn,' 'What you can do.' Drew should be able to play the $25,000 Pyramid game with this page."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "quote": "every question mark adds to our cognitive workload, distracting our attention from the task at hand.",
+          "relevance": "If Drew encounters any question mark on the proposal page — 'What does counter mean? What happens if I decline? Is this the total or per month?' — each one erodes his willingness to complete the action. The proposal page must be question-mark-free."
         }
       ]
     },
     "active_lease": {
-      "what_this_lens_reveals": "This lens does not directly address this phase.",
+      "what_this_lens_reveals": "The Drew call does not directly address the active lease phase. Drew's tenant moves out 'on the 6th' (02:41) and needs cleaning (02:57), suggesting he has experience managing tenants and understands the practical realities of active leases. However, the call provides no evidence about how Drew would interact with the platform during an active lease. Krug's principle about muddling through (Ch. 2) applies predictively: during an active lease, Drew will need to check payment status, communicate about issues, and manage the relationship. He will not learn the platform's tools — he will muddle through with whatever he finds first. If the platform buries payment status behind navigation, Drew will text Bryant instead. Krug's convention principle means payment dashboards should look like what Drew has seen on banking apps or Venmo — not a custom Split Lease design.",
       "user_state": {
-        "emotional_state": "Not addressed by this lens",
-        "knowledge_level": "Not addressed by this lens",
-        "commitment_level": "Not addressed by this lens", 
-        "data_available": "Not addressed by this lens"
+        "emotional_state": "Not directly observed. Inferred: Drew is an experienced landlord (current tenant, cleaning routine, deposit structure) who likely has a pragmatic, low-drama approach to active leases.",
+        "knowledge_level": "Drew knows landlording. He knows tenants, deposits, cleaning, move-out dates. He does NOT know the Split Lease platform's active lease tools.",
+        "commitment_level": "Not yet relevant — this phase is future-state for Drew.",
+        "data_available": "Drew has a current tenant moving out on the 6th. He charges $1,000 deposit. He arranges cleaning between tenants. These behavioral patterns will carry into the active lease phase."
       },
       "dropout_risk": {
         "level": "medium",
-        "reasons": ["Platform management tools may not match Drew's accommodating communication style"],
-        "evidence": "No specific evidence from this lens"
-      },
-      "key_quotes": []
-    },
-    "retention": {
-      "what_this_lens_reveals": "Drew's willingness to provide additional photos and video tours suggests openness to ongoing platform engagement. Krug's usability principles indicate that retention depends on continued effortless interactions.",
-      "user_state": {
-        "emotional_state": "Willing to invest time in providing better assets and information",
-        "knowledge_level": "Understands platform value proposition through Bryant's explanation",
-        "commitment_level": "Open to ongoing relationship",
-        "data_available": "Contact information exchanged, additional photo assets available"
-      },
-      "dropout_risk": {
-        "level": "medium", 
-        "reasons": ["Platform complexity may discourage continued engagement", "Poor usability may make phone calls seem easier"],
-        "evidence": "Krug: 'your site may not have been that easy to find in the first place and visitors may not know of an alternative... who's to say that the competition will be any less frustrating?'"
+        "reasons": [
+          "Krug Ch. 2: Drew will muddle through — if the active lease dashboard is not self-evident, he will default to texting/calling Bryant for updates",
+          "If payment confirmations are not immediately visible (Krug's billboard test), Drew may lose confidence in the guaranteed payment promise",
+          "Drew's existing landlord workflow (likely informal, text/call-based) is the competition — the platform must be easier than Drew's current system"
+        ],
+        "evidence": "Krug Ch. 2: 'Even technically savvy users often have surprising gaps in their understanding of how things work... I've seen lots of people use software and Web sites effectively in ways that are nothing like what the designers intended.' Drew will use the active lease tools in ways the designers did not intend. The tools must be robust enough to survive this."
       },
       "key_quotes": [
         {
-          "source": "drew-call.txt:04:38",
-          "quote": "Awesome. Yeah, that would be great.",
-          "relevance": "Enthusiasm for providing additional assets suggests willingness to engage further with platform"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "quote": "If we find something that works, we stick to it. Once we find something that works — no matter how badly — we tend not to look for a better way.",
+          "relevance": "If Drew discovers that texting Bryant works for getting lease updates, he will never learn to use the platform's dashboard. The platform must intercept this pattern by making the dashboard the path of least resistance."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt:19",
-          "quote": "Making pages self-evident is like having good lighting in a store: it just makes everything seem better",
-          "relevance": "Retention depends on maintaining the positive experience Drew had during the phone call"
+          "source": "drew-call.txt, 02:41-02:57",
+          "quote": "after that a tenant moves out? Is that right? Yeah... Cleaning.",
+          "relevance": "Drew has a move-out/cleaning/move-in workflow. The active lease phase should integrate with this existing mental model — showing tenant status, upcoming transitions, and maintenance needs in Drew's terms."
+        }
+      ]
+    },
+    "retention": {
+      "what_this_lens_reveals": "The Drew call hints at retention through the '4 months and then maybe the ability to extend' exchange (05:18-05:32). Drew is open to ongoing engagement but has not committed beyond the initial term. Krug's principle about making pages self-evident (Ch. 1) applies to retention touchpoints: when a lease approaches its end, the renewal prompt must be as obvious as Drew's original acceptance was easy. Krug Ch. 1 warns that 'the fact that the people who built the site didn't care enough to make things obvious — and easy — can erode our confidence in the site and its publishers.' If the renewal process introduces friction, Drew's confidence erodes. The book's observation that 'your site may not have been that easy to find in the first place' (Ch. 1) cuts both ways: Drew may not easily find alternatives, but he also may not easily find the renewal path on the platform.",
+      "user_state": {
+        "emotional_state": "Not directly observed. Inferred: if the active lease went well, Drew will be positively disposed. His accommodating nature ('yep,' 'sounds good') suggests he defaults to continuation rather than active re-evaluation.",
+        "knowledge_level": "Drew will know the platform better by this phase (if he used it during active lease). But Krug's muddling-through principle means his knowledge may be patchy and based on incorrect mental models.",
+        "commitment_level": "Conditional. Drew's 'ability to extend' language (05:32) shows he frames continuation as an option, not an assumption.",
+        "data_available": "4-month initial term. Extension possibility discussed. Drew's retention will depend on active lease experience (payment reliability, guest behavior, platform friction)."
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": [
+          "Retention requires Drew to actively choose to continue — satisficing favors the status quo, but only if the status quo is visible and easy to maintain",
+          "If the renewal process requires Drew to navigate to a new page, fill out new forms, or make new decisions, Krug's scanning behavior means he may not complete it",
+          "Drew's alternatives (Craigslist, word of mouth, doing nothing) are frictionless — the renewal path must be equally frictionless"
+        ],
+        "evidence": "Krug Ch. 1: 'Making pages self-evident is like having good lighting in a store: it just makes everything seem better. Using a site that doesn't make us think about unimportant things feels effortless.' If the 4-month renewal feels effortless, Drew stays. If it requires thinking, Drew may not renew — not out of dissatisfaction, but out of friction."
+      },
+      "key_quotes": [
+        {
+          "source": "drew-call.txt, 05:18-05:32",
+          "quote": "they'd want to start with a four months... Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
+          "relevance": "Drew's retention signal: 'ability to extend.' The platform must capitalize on this by making extension a one-click action at the right moment, not a multi-step process that forces re-evaluation."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "quote": "the fact that the people who built the site didn't care enough to make things obvious — and easy — can erode our confidence in the site and its publishers.",
+          "relevance": "Cumulative friction across the host journey erodes the confidence that Bryant built in the call. By the retention phase, every prior question mark has compounded. The renewal prompt must overcome any accumulated friction debt."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "quote": "There's also the 'I've waited ten minutes for this bus already, so I may as well hang in a little longer' phenomenon.",
+          "relevance": "Sunk cost works in Split Lease's favor for retention — Drew has invested time, shared photos, accepted guests. But Krug notes this only applies 'until someone builds one down the street that makes them feel smart.' The renewal must make Drew feel smart, not trapped."
         }
       ]
     }
   },
   "cross_phase_patterns": [
     {
-      "pattern": "Efficiency-to-Friction Gap",
-      "phases_affected": ["evaluation", "onboarding", "listing_creation", "proposal_mgmt"],
-      "evidence": "Drew's call operated at conversational speed with zero cognitive load (immediate answers, no hesitation). Krug's research shows platform interactions inherently create more friction. The gap between call efficiency and platform complexity is a consistent dropout risk."
+      "pattern": "The satisficing host: Drew consistently accepts the first reasonable option without deliberation, across every phase observed in the call — he satisfices on the platform explanation (03:44-04:18), on the guest profiles (01:32-02:02), on the lease term (05:18-05:32), and on next steps (05:38). Krug's satisficing principle (Ch. 2) predicts this behavior will carry to the platform: Drew will click the first thing that looks right and will not compare options, read fine print, or explore alternatives. This means defaults must be correct, primary actions must be visually dominant, and secondary options must not compete for attention.",
+      "phases_affected": [
+        "evaluation",
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "retention"
+      ],
+      "evidence": "drew-call.txt, 04:18: 'Okay. Okay. Okay. Alright.' (accepting guarantee without questions); 05:32: 'Okay. Okay. Sounds good.' (accepting 4-month term). Krug Ch. 2: 'As soon as we find a link that seems like it might lead to what we're looking for, there's a very good chance that we'll click it.'"
     },
     {
-      "pattern": "Accommodation Expectation",
-      "phases_affected": ["evaluation", "pricing", "proposal_mgmt", "retention"],
-      "evidence": "Drew consistently showed flexibility ('Four months and then maybe the ability to extend. Okay. Okay. Sounds good.'). This accommodating stance must be supported by platform design that makes accommodation feel easy, not burdensome."
+      "pattern": "The billboard standard: Drew's call operates at billboard speed — each topic is covered in under 30 seconds, and Drew scans Bryant's verbal output for the parts that matter to him (price, guests, timeline) while ignoring the rest (company name, vetting process details). Krug Ch. 3 establishes that every page should be designed as a billboard going by at 60 mph. Drew's behavior confirms this: every platform page he encounters must communicate its purpose and primary action within seconds, because Drew does not read — he scans.",
+      "phases_affected": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "evidence": "drew-call.txt: The entire 6-minute call covers property confirmation (10 sec), availability (30 sec), guest profiles (30 sec), guarantee (30 sec), photos (15 sec), terms (15 sec). Each topic is a billboard. Krug Ch. 2: 'We're thinking \"great literature\"... while the user's reality is much closer to \"billboard going by at 60 miles an hour.\"'"
     },
     {
-      "pattern": "Information Readiness vs Platform Friction",
-      "phases_affected": ["evaluation", "listing_creation", "pricing"],
-      "evidence": "Drew had all information immediately available (pricing, property details, photos, video capability) but platform interfaces may slow down this information transfer. Krug: 'We're usually in a hurry... We just don't have the time to read any more than necessary.'"
+      "pattern": "Convention reliance over innovation: Drew shows zero interest in understanding how Split Lease works differently from what he already knows. He maps everything to his existing landlord mental model — monthly rent, security deposit, tenant move-out, cleaning. Krug Ch. 3: 'Conventions are your friends... If you're not going to use an existing Web convention, you need to be sure that what you're replacing it with either (a) is so clear and self-explanatory that there's no learning curve, or (b) adds so much value that it's worth a small learning curve.' Any Split Lease convention that deviates from Drew's existing landlord conventions (Zillow, StreetEasy, Craigslist posting) must pass this test.",
+      "phases_affected": [
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "evidence": "drew-call.txt, 00:52: '$2,000 a month' (standard monthly rent convention); 02:57: 'security deposit... $1,000' (standard deposit convention). Krug Ch. 3: 'Designers are often reluctant to take advantage of [conventions]... there's a great temptation to reinvent the wheel.'"
+    },
+    {
+      "pattern": "The guided-to-self-service cliff: Drew's entire experience is guided by Bryant. The call is a conversation, not a form. Bryant asks questions, Drew answers, Bryant confirms. The transition to the platform is a cliff from full guidance to full self-service. Krug Ch. 2's muddling-through principle predicts that Drew will attempt to use the platform the way he 'uses' the phone call — expecting it to ask him questions, confirm his answers, and guide him forward. If the platform presents a blank dashboard and waits for Drew to figure out what to do, it fails the self-evidence test at the highest-risk moment in the journey.",
+      "phases_affected": [
+        "evaluation",
+        "onboarding",
+        "listing_creation"
+      ],
+      "evidence": "drew-call.txt: Every piece of information flows from Bryant's questions, not Drew's exploration. Drew never asks 'what do I do next?' because Bryant always tells him. Krug Ch. 2: 'we forge ahead and muddle through, making up our own vaguely plausible stories about what we're doing and why it works.' Drew's plausible story about the platform will be 'it should work like the phone call with Bryant.'"
+    },
+    {
+      "pattern": "Clickability as trust signal: Krug Ch. 3 warns that unclear clickability erodes confidence ('the fact that the people who built the site didn't care enough to make things obvious — and easy — can erode our confidence'). Drew's trust is currently held by Bryant. Every ambiguous button, unclear link, or uncertain interaction on the platform transfers trust debt from the platform to Bryant — Drew will text Bryant rather than guess. The platform's clickability must be absolutely unambiguous at every phase, because each question mark about 'is this clickable?' is a question mark about 'is this platform trustworthy?'",
+      "phases_affected": [
+        "onboarding",
+        "listing_creation",
+        "proposal_mgmt",
+        "active_lease",
+        "retention"
+      ],
+      "evidence": "Krug Ch. 3: 'Since a large part of what people are doing on the Web is looking for the next thing to click, it's important to make it obvious what's clickable and what's not.' Combined with drew-call.txt, 05:38: 'if you have any questions for me, you can feel free to text me or email me' — Bryant explicitly offers himself as the fallback for any platform confusion."
     }
   ],
   "sources_consulted": [
-    "drew-call.txt - 6-minute host call with Drew about Chelsea 1BR listing, showing efficient information exchange and accommodating attitude",
-    "dontmakemethink-usability-laws.txt - Steve Krug's usability principles about cognitive load, scanning behavior, satisficing, and the importance of effortless user experiences",
-    "Existing element library - Previous patterns about System 1 trust gates, depleted users, conversational speed matching, and human-to-digital trust bridging"
+    "drew-call.txt — Full host call transcript analyzed for behavioral patterns across all journey phases. Drew is a Chelsea 1BR owner, $2,000/month, accommodating and efficient communicator. Key behavioral signals: satisficing on every decision, zero questions about platform, zero questions about company, willing to share photos, open to 4-month term with extension.",
+    "dontmakemethink-usability-laws.txt — Chapters 1-3 plus Introduction and Preface of Steve Krug's Don't Make Me Think, 2nd Edition. Key principles extracted: (1) Krug's First Law — pages must be self-evident; (2) Scanning not reading — users scan pages like billboards at 60 mph; (3) Satisficing — users choose the first reasonable option, not the best; (4) Muddling through — users don't read instructions, they forge ahead with plausible stories; (5) Visual hierarchy — prominence, grouping, and nesting guide scanning; (6) Conventions — use existing patterns unless you have something clearly better; (7) Clickability — make clickable elements obviously clickable; (8) Clearly defined areas — users should be able to play $25,000 Pyramid with any page.",
+    "Journey map (provided inline) — Used to map the 6-step listing wizard, proposal flow, and counter-offer mechanics to Drew's behavioral patterns from the call.",
+    "Element library (library/elements.json) — Reviewed all existing elements (works-001 through works-006, communicates-001 through communicates-007, looks-001 through looks-007, behaves-001 through behaves-007, feels-001 through feels-008, tests-001 through tests-037, plus guest elements). Coverage gaps identified: discovery phase has minimal coverage (only works-001), active_lease has weak coverage (only works-005), retention has weak coverage (only works-004). This lens provides new evidence for all three gap phases."
   ]
 }
-
 ### layer-1/works-elements.json
 {
   "lens": {
@@ -2718,107 +2840,308 @@ If implementing dark mode, use these mappings:
   },
   "elements": [
     {
-      "id": "works-005",
+      "id": "works-001",
       "type": "process_pattern",
-      "title": "Conversational Speed Parity for Information Transfer",
-      "journey_phases": ["evaluation", "listing_creation", "pricing"],
-      "problem": "The host demonstrated complete information readiness during the phone call, providing all essential data within seconds: property type (1BR/1BA), location (Chelsea), pricing ($2000/month), deposit ($1000), availability, and asset availability (more photos, video tour capability). This information transfer happened at natural conversational speed with zero cognitive friction. Platform interfaces traditionally require form-filling, dropdown navigation, and multi-step processes that are inherently slower than speech. When the platform takes longer to capture information the host can provide instantly, it creates a perceived inefficiency that makes the human interaction seem superior to the digital one.",
-      "solution": "Design information capture to match or exceed the speed of verbal communication. This means: (1) Use rapid-input patterns for data the host knows immediately: quick-select chips for property types, slider or stepper controls for pricing, toggle switches for amenities. (2) Allow bulk information entry: if the host says 'Chelsea 1BR/1BA $2000/month $1000 deposit' in 3 seconds, they should be able to type or select this information in under 10 seconds. (3) Implement smart parsing: accept natural language input like 'Chelsea 1BR 2000' and auto-structure it into proper fields. (4) Provide immediate visual confirmation after each input, mirroring conversational acknowledgment ('Got it'). (5) Enable asset upload through drag-and-drop or camera integration to match Drew's offer to 'send you pictures' with equivalent platform ease.",
+      "title": "Self-Evidence at Every Phase Entry",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "active_lease",
+        "retention"
+      ],
+      "problem": "Drew's entire evaluation happens through a 6-minute phone call where every topic is self-evident — Bryant asks, Drew answers, meaning arrives instantly. When Drew transitions to the platform, every new screen demands interpretation: 'Where am I? What do I do here? Is this the thing Bryant told me about?' Krug's First Law states that pages must be self-evident — a user should 'get it' without expending any effort thinking about it. But the platform has no mechanism to ensure that each phase entry point passes this self-evidence test. Drew will not read instructions (Krug Ch. 2: 'very few people take the time to read instructions'). He will scan, form a vaguely plausible story about what he sees, and act on it. If the first screen of any phase makes him think — even for a millisecond — he has encountered a question mark that the phone call never produced. Each question mark compounds across phases, eroding the trust Bryant built.",
+      "solution": "Apply Krug's First Law as a gate for every phase entry: no phase should present its first screen until that screen passes the self-evidence test. Concretely: (1) Every phase entry screen must answer three questions within 2 seconds of visual scanning: 'What is this?' 'What can I do here?' 'Why am I here?' — without requiring the user to read body text or instructions. (2) Use the $25,000 Pyramid test (Krug Ch. 3): a user should be able to point at clearly defined areas and name them ('My listing details,' 'Guests interested in my place,' 'What I'll earn'). (3) The page title or primary heading must use language Drew already heard in the call — not platform jargon. If Bryant said 'Ariel and Amber are interested in your space,' the proposal page heading should echo that framing, not say 'Incoming Proposals (2).' (4) Eliminate every element that exists for the platform's benefit but adds a question mark for the host: tracking IDs, internal status labels, system-generated timestamps that mean nothing to Drew.",
       "evidence": [
         {
-          "source": "drew-call.txt:00:45-01:03",
+          "source": "drew-call.txt, 00:40-00:52",
           "type": "host_call",
-          "quote": "Uh, the title of it is the comfortable one bed, one bath. One bedroom, one bath. Yep. Yep. In Chelsea. Yep. Yep. To confirm that would be a 2000 a month, I think is what it's listed here. That's right. Okay. Got it. And this is an entire apartment, is that right?",
-          "insight": "Drew confirms all core listing data (type, location, price, apartment vs room) in 18 seconds of efficient back-and-forth. Platform must capture this same data with comparable speed."
+          "quote": "Which I've got potluck. Exactly. You think it was be too much? Uh, the title of it is the comfortable one bed, one bath. One bedroom, one bath. Yep. In Chelsea. Yep. Yep.",
+          "insight": "Drew confirms his listing in under 10 seconds through conversational shorthand. Bryant's question is self-evident — Drew doesn't think about what's being asked. The platform must achieve this same instant recognition: when Drew sees his listing page, it must say 'comfortable one bed, one bath — Chelsea' in a way that requires zero interpretation."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
           "type": "book",
-          "quote": "We're usually in a hurry. Much of our Web use is motivated by the desire to save time. As a result, Web users tend to act like sharks: They have to keep moving, or they'll die. We just don't have the time to read any more than necessary.",
-          "insight": "Users expect platform interactions to be faster than alternative methods (phone calls), not slower. Speed is not just preference but expectation."
+          "quote": "It means that as far as is humanly possible, when I look at a Web page it should be self-evident. Obvious. Self-explanatory. I should be able to 'get it' — what it is and how to use it — without expending any effort thinking about it.",
+          "insight": "Krug's First Law is the governing principle. Every phase entry is a new page Drew encounters. Each one must pass this test independently — you cannot assume that passing the test on one screen carries forward to the next."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "Glancing around, they should be able to point at the different areas of the page and say, 'Things I can do on this site!' 'Links to today's top stories!' 'Products this company sells!'",
+          "insight": "The $25,000 Pyramid test: every phase entry screen must have clearly defined areas that Drew can name at a glance. If Drew can't play this game with a screen, the screen fails the self-evidence test."
+        },
+        {
+          "source": "drew-call.txt, 04:18",
+          "type": "host_call",
+          "quote": "Okay. Okay. Okay. Alright.",
+          "insight": "Drew's response to the guarantee explanation is pure acceptance without interpretation. He didn't need to think about what Bryant said — it was self-evident in context. The platform must achieve this 'Okay. Okay. Alright.' response at every phase entry, not 'Hmm. What is this? Where do I go?'"
         }
       ],
       "priority": "high",
-      "user_goal": "Enter my property information as quickly as I can say it, without the platform slowing me down with unnecessary steps or complex interfaces",
-      "company_goal": "Reduce listing creation time to under 3 minutes for hosts who have all information ready, making the platform demonstrably faster than email or phone-based listing",
-      "time_budget": "Core property data entry (type, location, price, deposit) should take under 45 seconds. Complete listing with photos should take under 5 minutes.",
+      "user_goal": "Instantly understand what I'm looking at and what I should do next, at every screen, without reading instructions or figuring out the interface.",
+      "company_goal": "Eliminate the invisible dropout that occurs when hosts encounter a platform screen that makes them think, causing them to defer to texting Bryant instead of completing the action on-platform.",
+      "time_budget": "2 seconds to scan and understand each phase entry screen. If the host hasn't 'gotten it' in 2 seconds, the screen has failed.",
       "anti_goals": [
-        "DO NOT require separate pages or steps for related information that the host thinks of as a single unit",
-        "DO NOT use dropdown menus for data the host knows exactly (like their own address or rental price)",
-        "DO NOT make the host wait for page loads between related inputs",
-        "DO NOT require the host to format their information to match platform expectations - accept natural formats and auto-structure them"
+        "DO NOT use page titles or headings that describe the system's internal concept rather than the user's task. 'Proposal Management' is a system concept. 'Ariel wants to stay at your Chelsea apartment' is the user's reality.",
+        "DO NOT place instructions or explanatory text above the fold as a substitute for self-evident design. If the page needs instructions, the page needs redesigning.",
+        "DO NOT assume that passing the self-evidence test once (e.g., at onboarding) carries forward. Each phase entry must independently pass the test.",
+        "DO NOT add visual elements (badges, tooltips, help icons) to compensate for a page that isn't self-evident. These are bandaids that add question marks of their own."
       ],
-      "success_metric": "Information transfer efficiency ratio: platform input time divided by equivalent verbal communication time. Target ratio: under 3x (if host can say it in 10 seconds, platform should capture it in under 30 seconds)."
+      "success_metric": "5-second usability test: show a new host each phase entry screen for 5 seconds, then ask 'What is this page for?' and 'What would you do first?' Target: 90% of hosts answer both correctly without prompting."
+    },
+    {
+      "id": "works-002",
+      "type": "process_pattern",
+      "title": "Design for Scanning, Not Reading, at Every Decision Point",
+      "journey_phases": [
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "problem": "Drew scans Bryant's verbal output the same way Krug says users scan web pages: he picks out the parts that matter (price, guests, timeline) and ignores the rest (company name, vetting process mechanics). In the call, Bryant covers the guarantee in 23 seconds (03:44-04:18), and Drew absorbs only the conclusion ('I still get paid'). On the platform, the equivalent information will be presented as text, tables, and forms that Drew must read — not scan. Krug Ch. 2 establishes that 'people tend to spend very little time reading most Web pages' and instead scan for 'words or phrases that catch our eye.' But platform decision points (listing wizard steps, pricing fields, proposal details) are typically designed for reading: dense forms, paragraph explanations, multi-option dropdowns. Drew will not read them. He will scan for trigger words ($2,000, Chelsea, Ariel, 4 months) and ignore everything else. If the trigger words are buried in body text or formatted identically to non-essential text, Drew will miss them.",
+      "solution": "Restructure every decision point as a scannable billboard, not a readable document. Following Krug Ch. 3: (1) Create a clear visual hierarchy where the most important information (the thing Drew needs to decide) is the most visually prominent element on the page — larger, bolder, or in a distinctive color. (2) Use trigger words Drew already knows from the call as scannable anchors: '$2,000,' 'Chelsea,' 'Ariel & Amber,' '4 months.' These should be visually distinct, not embedded in sentences. (3) Break dense information into clearly defined areas that Drew can scan independently — Krug's '$25,000 Pyramid' principle. A proposal page should have visually distinct zones: 'Who' (guest photo + name), 'When' (dates), 'How much' (total), 'What to do' (Accept/Decline). (4) Use progressive disclosure: show the scannable summary first, and let Drew tap to expand details only if he wants them. Most of the time, he won't.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "What they actually do most of the time (if we're lucky) is glance at each new page, scan some of the text, and click on the first link that catches their interest or vaguely resembles the thing they're looking for. There are usually large parts of the page that they don't even look at.",
+          "insight": "This is how Drew will use every platform page. The call proves it: Drew ignores Bryant's company pitch and zeroes in on price, guests, and timeline. The platform must design for this scanning behavior, not against it."
+        },
+        {
+          "source": "drew-call.txt, 03:44-04:18",
+          "type": "host_call",
+          "quote": "split lease doubled the deposit, and guarantees payments to you as the landlord... in the case that a guest would miss a payment, that doesn't have any effect on you and you still receive the payment... Okay. Okay. Okay. Alright.",
+          "insight": "Bryant delivers a dense 30-second pitch covering deposit doubling, payment guarantee, vetting, and income verification. Drew's response ('Okay. Okay. Okay. Alright.') shows he scanned for the conclusion — 'I get paid no matter what' — and accepted it. On the platform, this guarantee information must be equally scannable: a single bold statement ('Your rent is guaranteed'), not a paragraph explaining the mechanism."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "The more important something is, the more prominent it is... Things that are related logically are also related visually... Things are 'nested' visually to show what's part of what.",
+          "insight": "Visual hierarchy is the mechanism that makes scanning work. Without it, Drew must read everything to find what matters. With it, the most important element on each page declares itself through size, weight, position, and contrast."
+        },
+        {
+          "source": "drew-call.txt, 01:32-02:02",
+          "type": "host_call",
+          "quote": "both of them have primary residences in Connecticut, uh, but they both work in Manhattan, which is why they're looking for a place. So essentially they'd be using this space as a place to come back to, uh, after work.",
+          "insight": "Bryant's guest summary is a scannable narrative: who (Ariel and Amber), where they live (Connecticut), why they need the space (Manhattan work), how they'll use it (weekday pied-a-terre). The proposal page must present these same four data points as the scannable headline, not a text block."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Find the information that matters to me (who, how long, how much) within seconds of seeing any page, without reading paragraphs or parsing tables.",
+      "company_goal": "Increase the rate at which hosts complete actions on platform pages (accept proposals, publish listings, confirm pricing) by ensuring the essential information and primary action are scannable within 3 seconds.",
+      "time_budget": "3 seconds to scan and identify the key information. 10 seconds to complete the primary action. If scanning takes longer, the visual hierarchy has failed.",
+      "anti_goals": [
+        "DO NOT present information as undifferentiated text blocks where all text is the same size, weight, and color. This forces reading, which Drew will not do.",
+        "DO NOT rely on users reading explanatory text to understand what a field or option means. If it needs explanation, it needs a better name or a better visual treatment.",
+        "DO NOT use data tables as the primary presentation format for proposals or lease terms. Tables are for comparison; Drew is not comparing — he is scanning for acceptance.",
+        "DO NOT make secondary information (fee breakdowns, legal terms, system statuses) as visually prominent as primary information (guest name, duration, total rent)."
+      ],
+      "success_metric": "Heatmap analysis of platform pages: the host's first fixation point should land on the primary information (guest name for proposals, total rent for pricing) within 2 seconds. Target: 80% of hosts fixate on primary information first, not secondary elements."
+    },
+    {
+      "id": "works-003",
+      "type": "process_pattern",
+      "title": "Satisficing-Safe Defaults Across All Input Steps",
+      "journey_phases": [
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "retention"
+      ],
+      "problem": "Drew is a textbook satisficer. He accepts every offer in the call without deliberation: the guarantee (04:18: 'Okay. Okay. Okay. Alright.'), the lease term (05:32: 'Okay. Okay. Sounds good.'), the next steps (05:50: 'Sounds good.'). Krug Ch. 2 establishes that users 'don't choose the best option — we choose the first reasonable option.' On the platform, this means Drew will accept defaults without examining them. If the listing wizard pre-populates a nightly rate derived from $2,000/month but rounds incorrectly, Drew will accept it. If the proposal page pre-selects a counter-offer template that doesn't match what Bryant discussed, Drew will accept it. Satisficing is efficient and correct when defaults are right. It produces silent errors when defaults are wrong. The danger is not dropout — it's a host who publishes a listing or accepts a proposal with incorrect terms because the defaults were close enough to not trigger scrutiny.",
+      "solution": "Make every default the right answer for a satisficing user. (1) Pre-populate all fields with data already known from the phone call and prior phases. Drew's rent is $2,000/month — this should already be the default, not a blank field. His deposit is $1,000 — pre-filled. His listing title is 'comfortable one bed, one bath' — pre-filled from the agent's notes. (2) When defaults require derivation (e.g., nightly rate from monthly rent), show the derivation transparently: '$67/night (based on your $2,000/month rent).' If Drew is satisficing, at least he can verify the math at a glance. (3) For consequential decisions (lease terms, cancellation policies), use Krug's convention of making the recommended option visually prominent and labeling it as recommended — not just listing options equally. (4) Eliminate optional fields that create micro-decisions. Every 'optional' field is a satisficing trap: Drew will either skip it (potentially missing something important) or fill it mindlessly (adding noise). Make fields required with smart defaults, or remove them entirely.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 04:18",
+          "type": "host_call",
+          "quote": "Okay. Okay. Okay. Alright.",
+          "insight": "Drew accepts the guarantee explanation — a complex financial arrangement involving doubled deposits and payment guarantees — with four words and zero follow-up questions. This is satisficing at its purest. On the platform, Drew will accept whatever the screen presents with the same level of non-scrutiny."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "most of the time we don't choose the best option — we choose the first reasonable option, a strategy known as satisficing. As soon as we find a link that seems like it might lead to what we're looking for, there's a very good chance that we'll click it.",
+          "insight": "Satisficing is not a flaw — it's the dominant strategy. The platform must design for it, not against it. Designing for it means making the first reasonable option the correct option."
+        },
+        {
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "To confirm that would be a 2000 a month, I think is what it's listed here. That's right.",
+          "insight": "Drew confirms his price in 3 seconds. On the platform, if the pricing field is pre-populated with $2,000/month, Drew will scan it, see the right number, and move on. If it's blank, Drew must type it — adding friction. If it shows a derived value ($67/night) without context, Drew may accept a wrong number."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "After all, why should I have to think about how I want to search? And even worse, why should I have to think about how the site's search engine wants me to phrase the question, as though it were some ornery troll guarding a bridge?",
+          "insight": "Krug's Amazon example: Amazon eliminated the Author/Title/Keyword distinction and 'did whatever makes the most sense.' Applied to pricing: the platform should accept '$2,000/month' and derive everything else. Drew should never have to think about how the platform wants him to express his rent."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "See my information already filled in correctly and confirm it quickly, rather than entering it from scratch or evaluating unfamiliar options.",
+      "company_goal": "Reduce listing errors, pricing mismatches, and proposal misunderstandings caused by satisficing hosts who accept incorrect defaults without scrutiny.",
+      "time_budget": "Each pre-populated field should take 2 seconds to verify (scan, recognize, move on). Total time for a fully pre-populated step: 15-30 seconds of scanning, not minutes of data entry.",
+      "anti_goals": [
+        "DO NOT present multiple options with equal visual weight when one option is clearly better or more common. The recommended default must be visually dominant.",
+        "DO NOT use blank fields when data is available from prior phases, the phone call, or the agent's notes. A blank field punishes the satisficing user.",
+        "DO NOT show derived values without showing the source. '$67/night' means nothing to Drew without '(from your $2,000/month rent)' — and the unsourced number becomes a silent error if the derivation is wrong.",
+        "DO NOT add 'optional' fields to forms. They create satisficing traps — users either skip important fields or mindlessly fill irrelevant ones."
+      ],
+      "success_metric": "Default acceptance rate with correctness: percentage of hosts who accept pre-populated defaults AND whose published listings have zero data errors. Target: 85% of hosts accept defaults, and 95% of accepted defaults are correct."
+    },
+    {
+      "id": "works-004",
+      "type": "process_pattern",
+      "title": "Convention-First Interaction for Every Platform Pattern",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "problem": "Drew maps everything to conventions he already knows: monthly rent (not nightly rates), security deposits (not 'damage waivers'), tenant move-outs (not 'lease transitions'), cleaning (not 'turnover services'). Krug Ch. 3 states that 'conventions only become conventions if they work' and that 'designers are often reluctant to take advantage of them.' The Split Lease platform risks inventing new interaction patterns for processes Drew already knows how to do on other platforms. If Drew has listed on StreetEasy, he knows how a listing form works. If he's used Venmo, he knows how a payment confirmation looks. If he's used Airbnb, he knows how a booking request appears. Every deviation from these conventions adds a question mark. Krug warns: 'If you're not going to use an existing Web convention, you need to be sure that what you're replacing it with either (a) is so clear and self-explanatory that there's no learning curve, or (b) adds so much value that it's worth a small learning curve.' Most platform deviations meet neither threshold.",
+      "solution": "Audit every platform interaction against the convention Drew would expect from the closest analog: (1) Listing creation should follow the convention of StreetEasy/Zillow listing forms — title, address, type, bedrooms, bathrooms, rent, photos. Same field order. Same field names. Same interaction patterns. If Drew has posted a listing before, this form should feel like doing it again, not learning something new. (2) Pricing should follow banking/payment conventions — monthly amount, clear breakdowns, dollar signs, decimals. Not custom sliders or rate calculators. (3) Proposals should follow Airbnb booking request conventions — guest photo, dates, message, Accept/Decline buttons. Drew has seen this pattern. Use it. (4) Payment confirmations should follow Venmo/banking conventions — date, amount, status, from whom. (5) Only deviate from conventions when the Split Lease model genuinely requires it (e.g., the guarantee concept has no direct conventional analog) — and when you do deviate, make the new pattern so self-explanatory that it needs no learning curve.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "If you're not going to use an existing Web convention, you need to be sure that what you're replacing it with either (a) is so clear and self-explanatory that there's no learning curve — so it's as good as a convention, or (b) adds so much value that it's worth a small learning curve.",
+          "insight": "This is the convention test. Every Split Lease platform pattern must either use an existing convention or pass this two-part test. Most 'innovations' in the platform will fail both parts and should be replaced with conventions."
+        },
+        {
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "2000 a month, I think is what it's listed here. That's right.",
+          "insight": "Drew's price is stated as a monthly rent — the universal convention for apartment listings. The platform must accept and display pricing in this convention. Forcing a nightly rate is a convention violation that adds a question mark."
+        },
+        {
+          "source": "drew-call.txt, 02:57",
+          "type": "host_call",
+          "quote": "regarding security deposit or damage deposit. Is that something you charge? ... 1000.",
+          "insight": "Drew uses standard landlord vocabulary: 'security deposit,' '$1,000.' The platform must use this same vocabulary, not 'damage waiver,' 'refundable guarantee,' or any other non-conventional term."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "Faced with the prospect of using a convention, there's a great temptation for designers to reinvent the wheel instead, largely because they feel (not incorrectly) that they've been hired to do something new and different, and not the same old thing.",
+          "insight": "This is the core risk: the Split Lease team may feel compelled to design a unique listing wizard, a novel pricing interface, a distinctive proposal flow. Krug warns that this temptation is usually wrong. Drew doesn't want new and different — he wants 'the same thing I've done before, but with guaranteed rent.'"
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Use the platform the way I already use similar tools — same patterns, same vocabulary, same expectations — without learning a new system.",
+      "company_goal": "Reduce the learning curve to near-zero for hosts who have used any real estate or rental platform before, thereby increasing first-session completion rates.",
+      "time_budget": "Zero learning time for conventional patterns. If a host who has used StreetEasy or Airbnb needs more than 5 seconds to understand how a Split Lease form works, the convention has been violated.",
+      "anti_goals": [
+        "DO NOT rename conventional concepts to sound more 'branded.' 'Security deposit' is a convention. 'SplitShield Deposit' is a branded term that adds a question mark.",
+        "DO NOT rearrange conventional field orders for aesthetic reasons. If every listing site puts bedrooms before bathrooms, Split Lease must do the same.",
+        "DO NOT use custom interaction widgets (novel sliders, drag-to-set, gesture-based inputs) when standard form elements (text fields, dropdowns, checkboxes) follow convention.",
+        "DO NOT innovate on layout patterns that are universally understood — Accept/Decline buttons go below the proposal summary, not in a sidebar or a popup."
+      ],
+      "success_metric": "First-time-success rate: percentage of hosts who complete a task (submit listing, accept proposal, confirm pricing) on their first attempt without using the back button, help, or contacting Bryant. Target: 75% first-time success for hosts who have used any rental platform before."
+    },
+    {
+      "id": "works-005",
+      "type": "process_pattern",
+      "title": "Eliminate the Guided-to-Self-Service Cliff",
+      "journey_phases": [
+        "evaluation",
+        "onboarding",
+        "listing_creation"
+      ],
+      "problem": "Drew's entire experience is mediated by Bryant. The call is a guided conversation where Bryant asks questions, Drew answers, and Bryant confirms. Drew never asks 'what do I do next?' because Bryant always tells him. The call ends with Bryant promising to send information and agreements (05:01), maintaining the guided mode. Then Drew encounters the platform — and the guidance stops. This is the guided-to-self-service cliff: a sudden transition from a human who asks questions and confirms answers to a digital interface that presents forms and waits. Krug Ch. 2 describes this precisely: 'Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through.' Drew's muddling-through strategy will be based on his mental model of the call: 'the platform should ask me questions and confirm my answers, the way Bryant did.' If instead the platform presents a blank dashboard with navigation menus and waits for Drew to explore, it violates the mental model the call created.",
+      "solution": "Design the post-call platform experience as a continuation of the call, not a separate system. (1) The first platform screen should mirror the call's conversational structure: present one question or confirmation at a time, in sequence, the way Bryant did. Instead of a listing wizard with 6 simultaneous steps visible, present step 1 as a single focused question ('Is this your Chelsea apartment?') with a confirmation button. (2) Use the agent's voice: the platform's microcopy should sound like Bryant. 'Let's confirm your place' not 'Create New Listing.' 'Ariel and Amber are interested — here's what they're proposing' not 'You have 1 new proposal.' (3) Pre-fill everything the call already covered. Drew should not re-enter his rent, his address, or his deposit. The platform should display what Bryant already captured and ask Drew to confirm, not re-enter. (4) Maintain a clear 'what happens next' indicator at every step — Drew is used to Bryant saying 'I'll send you...' and 'I'll get back to you with...' The platform must always show what comes next, not leave Drew on a completed step wondering what to do.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 05:01-05:18",
+          "type": "host_call",
+          "quote": "I can get back to you with more information on split lease as well as links to the agreements which are referenced. Um, and I think those about it, any other questions for me major?",
+          "insight": "The call ends with Bryant maintaining the guide role: he will send information, he will share agreements, he asks if Drew has questions. Drew expects this guidance to continue. The platform must not break this expectation by switching to a self-service mode without warning."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through, making up our own vaguely plausible stories about what we're doing and why it works.",
+          "insight": "Drew's 'vaguely plausible story' about the platform will be: 'it should work like the phone call with Bryant — it asks me things, I answer, it confirms, we move on.' If the platform violates this story, Drew muddles through incorrectly or abandons."
+        },
+        {
+          "source": "drew-call.txt, 05:52-06:14",
+          "type": "host_call",
+          "quote": "Sounds good. Okay. No, that'll be all... let me just send you pictures and, um, did you do a, so we can maybe move on?",
+          "insight": "Drew's closing reveals impatience and a desire to be led. 'Can we maybe move on?' is a request for the next guided step, not an offer to self-navigate. The platform must continue this pacing — always showing the next step, never leaving Drew on a page without a clear forward path."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "We don't figure out how things work. We muddle through... very few people take the time to read instructions.",
+          "insight": "Drew will not explore the platform. He will not read a 'Getting Started' guide. He will click the first thing that looks like what Bryant described and hope it works. The first thing must be the right thing."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Continue the experience Bryant started — being guided through the process step by step — without having to figure out a new system on my own.",
+      "company_goal": "Prevent the post-call dropout that occurs when guided hosts encounter a self-service platform and defer to texting Bryant instead of using the platform, which creates agent bottlenecks and delays the listing-to-proposal pipeline.",
+      "time_budget": "The transition from call to platform should feel like a continuation, not a restart. The host should complete their first platform action (confirming their listing details) within 60 seconds of clicking the link Bryant sends.",
+      "anti_goals": [
+        "DO NOT present a blank dashboard as the first platform experience. A dashboard is for returning users who know the system. Drew has never seen the system.",
+        "DO NOT use 'Getting Started' guides, tutorial overlays, or onboarding tooltips as a substitute for a self-evident first screen. These are instructions, and Drew will not read them.",
+        "DO NOT require Drew to navigate to find his listing. His listing should be the first thing he sees, pre-filled with the details from the call.",
+        "DO NOT switch voice. If Bryant's call was warm and conversational, the platform's microcopy must match. 'Hey Drew, let's get your Chelsea place ready' not 'Complete Listing Setup.'"
+      ],
+      "success_metric": "Post-call platform activation rate: percentage of hosts who click the agent's follow-up link and complete at least one confirmation action on the platform within the same session. Target: 70% activation within 24 hours of the call."
     },
     {
       "id": "works-006",
       "type": "process_pattern",
-      "title": "Accommodation Interface Design",
-      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
-      "problem": "Drew demonstrated a consistently accommodating communication style throughout the call: immediately agreeing to 4-month terms, offering to provide additional photos and video tours, and showing flexibility on extension possibilities. This accommodating behavior is a host strength that drives guest satisfaction and lease success. However, traditional platform interfaces are designed for efficiency and control, not accommodation. They present binary choices (approve/decline), require definitive decisions, and lack the conversational nuance that allows hosts to express flexibility. When the platform makes accommodation feel difficult or rigid, accommodating hosts like Drew will default to off-platform communication, defeating the platform's goal of managing the relationship digitally.",
-      "solution": "Design interaction patterns that make accommodation feel natural and easy. This means: (1) Replace binary approve/decline buttons with contextual response options: 'Yes, that works', 'I can make that work if...', 'Let me suggest...', 'Not possible, but here's an alternative'. (2) Provide template responses for common accommodating scenarios: schedule flexibility, minor lease modifications, guest requests. (3) Enable partial acceptance with counter-offers: if a guest requests a 3-month lease but the host prefers 4 months, make it easy to respond 'I'd prefer 4 months but could do 3 if needed'. (4) Include accommodation history in the host's profile to surface and reinforce their flexible approach. (5) Design confirmation flows that acknowledge accommodation rather than just recording decisions.",
+      "title": "One-Click Actions for Pre-Decided Outcomes",
+      "journey_phases": [
+        "proposal_mgmt",
+        "pricing",
+        "retention"
+      ],
+      "problem": "Drew's call reveals that many platform 'decisions' are actually pre-decided by the time Drew encounters the platform. The price is $2,000/month (decided before the call). The guests are Ariel and Amber (accepted during the call). The term is 4 months with extension (agreed during the call). The deposit is $1,000 (established). Yet the platform presents these as open decisions requiring multi-step interaction: a pricing wizard with blank or editable fields, a proposal review with Accept/Decline/Counter options and details to evaluate, a lease term configurator. Krug Ch. 2 explains why this is wasteful: 'There's not much of a penalty for guessing wrong on a Web site is usually only a click or two of the Back button, making satisficing an effective strategy.' But there's a cost to making Drew re-decide things he's already decided: it introduces question marks ('Wait, should I reconsider? Is $2,000 still right? Should I counter?') that the phone call already resolved. The platform is creating artificial decision points for decisions that are already made.",
+      "solution": "When the outcome is pre-decided (by the phone call, by prior confirmation, by obvious context), reduce the interaction to a single confirmation click. (1) If Bryant already discussed pricing and Drew confirmed $2,000/month, the pricing step should show '$2,000/month — confirmed on your call with Bryant' and a single 'Confirm' button. Not a form. Not a wizard step. A confirmation. (2) If Drew already accepted Ariel and Amber during the call, the proposal should arrive as 'Ariel & Amber — 4 months starting early March — $2,000/month — Confirm this proposal' with a single prominent button. The Counter and Decline options can exist but should be visually subordinate — they are edge cases, not the primary path. (3) If the lease is approaching renewal and Drew has expressed interest in extending, the renewal prompt should be 'Extend for another 4 months? [Yes, extend]' — not a form asking Drew to re-specify terms. (4) Distinguish between genuine decisions (where the host needs to evaluate options) and ceremonial confirmations (where the host is rubber-stamping something already decided). Design each accordingly.",
       "evidence": [
         {
-          "source": "drew-call.txt:05:18-05:32",
+          "source": "drew-call.txt, 05:18-05:32",
           "type": "host_call",
-          "quote": "Uh, so they've indicated, ideally they'd want to start with a four months is what they indicated to me. Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
-          "insight": "Drew shows immediate accommodation without negotiation or resistance. Platform interactions must preserve this collaborative spirit rather than forcing adversarial decision-making."
+          "quote": "they'd want to start with a four months is what they indicated to me. Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
+          "insight": "Drew decides on 4 months with extension in 14 seconds of conversation. This decision is done. The platform should not reopen it as a multi-field form. It should present it as a confirmation: '4 months, March start, with option to extend — Confirm.'"
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
-          "type": "book", 
-          "quote": "We don't make optimal choices. We satisfice... There's not much of a penalty for guessing wrong on a Web site... making satisficing an effective strategy.",
-          "insight": "Accommodating hosts like Drew use satisficing behavior - they'll accept the first reasonable option rather than optimizing. Platform should provide good default accommodations, not force complex negotiations."
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "Weighing options may not improve our chances. On poorly designed sites, putting effort into making the best choice doesn't really help. You're usually better off going with your first guess and using the Back button if it doesn't work out.",
+          "insight": "Krug observes that forcing option-weighing on users who have already decided is pure friction. It does not improve outcomes — it just adds cognitive cost. The platform must distinguish between 'this is a real choice' and 'this is a formality.'"
+        },
+        {
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "To confirm that would be a 2000 a month, I think is what it's listed here. That's right.",
+          "insight": "Even Bryant treats the price as a confirmation, not a negotiation: 'To confirm that would be...' The platform should use the same pattern — confirm what's known, don't re-ask."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "every question mark adds to our cognitive workload, distracting our attention from the task at hand. The distractions may be slight but they add up.",
+          "insight": "Each re-opened decision is an unnecessary question mark. Drew has already decided. Each 'Are you sure?' or 'Would you like to change?' adds cognitive load without adding value."
         }
       ],
       "priority": "medium",
-      "user_goal": "Easily accommodate reasonable guest requests without the platform making me feel like I'm being difficult or creating extra work",
-      "company_goal": "Increase guest satisfaction and lease completion rates by enabling host accommodation behaviors that were previously only possible through direct communication",
-      "time_budget": "Responding to a guest request with accommodation should take under 60 seconds, including any minor customization or counter-proposal",
+      "user_goal": "Confirm what I've already decided with a single tap, without being forced to re-evaluate options I've already chosen.",
+      "company_goal": "Accelerate the pipeline from call-to-published-listing and call-to-accepted-proposal by eliminating artificial decision points that slow pre-decided hosts.",
+      "time_budget": "A pre-decided confirmation should take 5 seconds: scan the summary (3 sec), click Confirm (2 sec). If it takes longer, the platform is treating a confirmation as a decision.",
       "anti_goals": [
-        "DO NOT force hosts into binary approve/decline decisions for requests that could be partially accommodated",
-        "DO NOT make accommodation feel like a special case or extra work - it should feel like the natural response option",
-        "DO NOT require hosts to write custom responses for common accommodation scenarios",
-        "DO NOT hide the host's accommodation history from guests who would appreciate knowing they're working with a flexible host"
+        "DO NOT present pre-decided items as open-ended forms with editable fields. Show them as read-only summaries with a Confirm button.",
+        "DO NOT give Counter/Decline equal visual weight as Accept when the call has already established acceptance. Counter and Decline should be available but visually recessive.",
+        "DO NOT add confirmation dialogs ('Are you sure?') to confirmations. A confirmation of a confirmation is the opposite of 'don't make me think.'",
+        "DO NOT force the host to re-enter or re-specify terms that were already agreed upon in the call."
       ],
-      "success_metric": "Accommodation completion rate: percentage of guest requests that receive accommodating responses (partial or full acceptance) vs rejection. Target: above 75% for hosts who demonstrated accommodation behavior in their initial calls."
-    },
-    {
-      "id": "works-007",
-      "type": "process_pattern", 
-      "title": "Asset Transfer Friction Elimination",
-      "journey_phases": ["listing_creation", "retention"],
-      "problem": "Drew demonstrated immediate readiness to share additional visual assets: 'Yes. I have more pictures and I can send you' (04:38) and expressed capability for video tours. This asset sharing happened naturally within the conversation flow - no separate process, no technical barriers, just immediate willingness to provide better information. Platform asset upload typically involves file selection, format checking, upload progress, and approval workflows that create friction where Drew experienced none. This friction gap is particularly problematic because visual assets are critical for listing success, and hosts like Drew who offer additional assets should be encouraged, not discouraged by platform complexity.",
-      "solution": "Eliminate all friction between asset availability and asset deployment. This means: (1) Enable instant asset sharing: camera integration for real-time photo capture, drag-and-drop from any source, email-to-upload workflows. (2) Auto-optimize uploaded assets without host intervention: resize, compress, enhance lighting automatically. (3) Allow immediate asset updates: if Drew says 'I have more pictures,' he should be able to add them to his live listing within 2 clicks. (4) Provide asset improvement suggestions: 'Your listing could benefit from a video tour' with one-click recording initiation. (5) Make asset sharing feel collaborative, not transactional: 'Would you like to add these photos to help guests understand your space better?' vs 'Upload additional images (max 10MB, .jpg format only)'.",
-      "evidence": [
-        {
-          "source": "drew-call.txt:04:21-04:38",
-          "type": "host_call",
-          "quote": "one more question I had was about, uh, pictures of the space and wondered if you had any more, um, that you could share with me or maybe like a video tour or something like that. Yes. I have more pictures and I can send you",
-          "insight": "Drew's immediate positive response to asset requests shows hosts are willing to provide better materials when the process feels easy and collaborative."
-        },
-        {
-          "source": "dontmakemethink-usability-laws.txt",
-          "type": "book",
-          "quote": "If we find something that works, we stick to it. Once we find something that works--no matter how badly--we tend not to look for a better way.",
-          "insight": "If asset upload is friction-filled during listing creation, hosts will stick to minimal assets rather than improving their listings over time. The initial experience determines ongoing behavior."
-        }
-      ],
-      "priority": "medium", 
-      "user_goal": "Share additional photos and materials as easily as I can offer to send them in conversation, without technical barriers or complex workflows",
-      "company_goal": "Increase listing quality and conversion rates by making high-quality asset sharing effortless for willing hosts, particularly those who demonstrate asset readiness",
-      "time_budget": "Adding photos to an existing listing should take under 30 seconds. Creating a video tour should take under 3 minutes from decision to published asset.",
-      "anti_goals": [
-        "DO NOT require hosts to learn file management, image editing, or upload workflows to improve their listings",
-        "DO NOT separate asset management from the main listing workflow - adding photos should feel like part of describing the space, not a separate technical task",
-        "DO NOT make hosts wait for approval or processing before seeing their assets live on the listing",
-        "DO NOT require hosts to understand technical specifications (file formats, sizes, dimensions) to share assets they already have"
-      ],
-      "success_metric": "Asset enhancement rate: percentage of hosts who add additional assets (photos, video, virtual tour) after their initial listing is published. Target: above 60% for hosts who indicated additional asset availability during onboarding calls."
+      "success_metric": "Time-to-confirmation for pre-decided actions: median time from page load to confirmation click. Target: under 10 seconds for proposals where terms were pre-discussed with the agent, under 5 seconds for pricing confirmations."
     }
   ]
 }
-
 ### layer-2/communicates-elements.json
 {
   "lens": {
@@ -2829,89 +3152,386 @@ If implementing dark mode, use these mappings:
     {
       "id": "communicates-001",
       "type": "info_architecture",
-      "title": "Immediate Recognition Before Instruction",
-      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
-      "problem": "When Drew transitions from the phone call to the platform, his System 1 must instantly assess whether this digital environment is the continuation of his conversation with Bryant or something entirely new. Traditional platform onboarding opens with instructions ('Welcome! Let's create your listing') rather than recognition ('Here's the Chelsea apartment you discussed with Bryant'). This creates a cognitive gap where the host must mentally bridge the conversation context to the platform context. Krug's research shows that users spend far less time reading than designers expect, so platforms have only seconds to establish continuity before the host's attention moves elsewhere.",
-      "solution": "Structure information hierarchy to prioritize recognition over instruction at every phase entry point. The first information the host sees should acknowledge what they already did or provided, then guide toward what comes next. This means: (1) Lead with context, not action: 'Your Chelsea 1BR apartment' before 'Complete your listing'. (2) Reference the conversation: 'As discussed with Bryant' or 'Your $2000/month space'. (3) Show progress made: 'Property details confirmed' before 'Add photos'. (4) Use the host's own words from the call as headings and labels rather than platform terminology.",
+      "title": "Billboard Hierarchy for Every Phase Entry Screen",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "problem": "Drew scans Bryant's verbal output and extracts only what matters — price ($2,000), guests (Ariel and Amber), timeline (4 months) — ignoring everything else. Krug Ch. 2 confirms this is universal: 'What they actually do most of the time (if we're lucky) is glance at each new page, scan some of the text, and click on the first link that catches their interest.' The platform's phase entry screens currently treat all information as equally important — property details, system statuses, navigation labels, and action buttons share visual weight. When Drew arrives at any screen, his eye needs to land on the ONE thing that tells him 'this is what this page is about and this is what you do here.' If no element claims dominance, Drew must read instead of scan — which he will not do. He will either click something wrong (satisficing) or text Bryant (abandoning the platform).",
+      "solution": "Structure every phase entry screen as a three-tier billboard hierarchy: (1) TIER 1 — The Anchor: A single primary element that answers 'What is this page about?' in Drew's language. This must be the largest, boldest element on the page. For proposals: 'Ariel & Amber want your Chelsea apartment.' For pricing: '$2,000/month — your rent.' For active lease: 'Ariel is staying through June.' (2) TIER 2 — The Decision: The primary action Drew needs to take, presented as a single prominent button or confirmation element directly below the anchor. For proposals: 'Accept this proposal.' For pricing: 'Confirm your rate.' (3) TIER 3 — The Details: Supporting information (fee breakdowns, lease terms, guest employment details) collapsed below the fold or in expandable sections. Drew can access it if he wants, but the billboard works without it. This hierarchy must be enforced through visual weight: Tier 1 gets 40% of visual attention (size, position, contrast), Tier 2 gets 35% (button prominence, whitespace isolation), Tier 3 gets 25% (smaller type, muted color, below fold).",
       "evidence": [
         {
-          "source": "drew-call.txt:05:01",
-          "type": "host_call",
-          "quote": "I can get back to you with more information on split lease as well as links to the agreements",
-          "insight": "Bryant promised specific follow-up, but the platform has no way to reference this promise or show that it's delivering on it, creating a disconnect between conversation and platform"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "The more important something is, the more prominent it is... Things that are related logically are also related visually... Things are 'nested' visually to show what's part of what.",
+          "insight": "Krug's visual hierarchy principle provides the structural model. Drew's scanning behavior demands that the hierarchy be exaggerated, not subtle — the tier difference must be obvious at a glance, not after careful inspection."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
+          "source": "drew-call.txt, 03:44-04:18",
+          "type": "host_call",
+          "quote": "split lease doubled the deposit, and guarantees payments to you as the landlord... in the case that a guest would miss a payment, that doesn't have any effect on you and you still receive the payment... Okay. Okay. Okay. Alright.",
+          "insight": "Bryant delivers a multi-sentence guarantee explanation. Drew extracts one thing: 'I get paid.' The platform's guarantee display must put 'Your rent is guaranteed' at Tier 1 — not a paragraph explaining the mechanism. The mechanism is Tier 3 detail."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
           "type": "book",
-          "quote": "When we're creating sites, we act as though people are going to pore over each page, reading our finely crafted text, figuring out how we've organized things, and weighing their options before deciding which link to click. What they actually do most of the time (if we're lucky) is glance at each new page, scan some of the text, and click on the first link that catches their interest",
-          "insight": "Hosts won't read introductory text to understand context - the page hierarchy must communicate continuity through scanning-friendly recognition cues"
+          "quote": "We're thinking 'great literature' (or at least 'product brochure'), while the user's reality is much closer to 'billboard going by at 60 miles an hour.'",
+          "insight": "The billboard metaphor defines the information density constraint. A billboard has one message, one image, one call to action. Platform screens must converge toward this density, not away from it."
+        },
+        {
+          "source": "drew-call.txt, 00:45-00:52",
+          "type": "host_call",
+          "quote": "the title of it is the comfortable one bed, one bath. One bedroom, one bath. Yep. In Chelsea. Yep. Yep.",
+          "insight": "Drew identifies his listing in 7 seconds using three data points: bedrooms, bathrooms, neighborhood. The listing page's Tier 1 anchor should be exactly these three data points — not a system-generated listing ID or a generic 'Your Listing' heading."
         }
       ],
       "priority": "high",
-      "hierarchy_principle": "Context recognition always comes before action instruction. Show what the host already provided (property type, location, pricing) before asking for what they need to provide (photos, description, amenities)",
-      "disclosure_pattern": "Progressive revelation anchored in prior knowledge: start with confirmed information, then layer new requirements one at a time",
-      "cognitive_load_constraint": "First-screen information must be scannable in under 5 seconds. Maximum 3 pieces of new information per screen after recognition anchor",
-      "scan_order": ["Property identifier (their own words)", "Conversation reference (Bryant's name)", "Progress indicator", "Next action"],
-      "exclude": ["Generic welcome messages", "Platform feature explanations", "Legal disclaimers", "Navigation instructions"]
+      "hierarchy_principle": "Primary: the anchor statement (what this page is about, in the host's language). Secondary: the action button (what to do). Tertiary: supporting details (expandable). This order mirrors the phone call structure: Bryant states the topic, asks for confirmation, then provides details only if asked.",
+      "disclosure_pattern": "Show the anchor and action immediately. Collapse details behind a 'See details' or 'How does this work?' link. Most hosts will never expand it — and that's correct behavior, not a failure.",
+      "cognitive_load_constraint": "Maximum 3 data points at Tier 1 (e.g., guest name + duration + amount). Maximum 1 action at Tier 2. Tier 3 has no limit but must be collapsed by default.",
+      "scan_order": [
+        "Anchor statement (what is this about — guest name, listing name, payment amount)",
+        "Primary action button (Confirm, Accept, Publish)",
+        "Supporting detail links (expandable, below fold)"
+      ],
+      "exclude": [
+        "System-generated IDs or reference numbers at Tier 1",
+        "Fee calculation breakdowns above the fold",
+        "Status timestamps that use system format (2026-02-12T19:29:00Z) instead of human format ('Today')",
+        "Navigation breadcrumbs that compete with the anchor for visual dominance"
+      ]
     },
     {
-      "id": "communicates-002", 
+      "id": "communicates-002",
       "type": "info_architecture",
-      "title": "Efficiency Signal Hierarchy",
-      "journey_phases": ["evaluation", "listing_creation", "pricing"],
-      "problem": "Drew's phone call demonstrated information efficiency - he confirmed property details, pricing, and availability within 60 seconds of conversation. The platform must communicate that it operates at equal or superior efficiency, but traditional web hierarchies emphasize completeness over speed. When hosts see lengthy forms, multi-step wizards, or detailed field requirements, their System 1 assessment is that the platform will be slower than the conversation they just had. This perception, formed within seconds of the first platform interaction, becomes difficult to overcome even if the actual process is reasonably fast.",
-      "solution": "Structure information architecture to signal speed and efficiency through visual hierarchy and progressive disclosure. Essential information should be visually prominent and instantly actionable, while comprehensive options remain accessible but secondary. This means: (1) Lead with the fastest path: one-line property entry before detailed form. (2) Show time estimates: 'Complete in under 2 minutes' prominently displayed. (3) Minimize visible fields initially: show only what Drew provided verbally, expand only when needed. (4) Use action-oriented rather than form-oriented language: 'Publish your Chelsea listing' not 'Complete listing form'.",
+      "title": "Call-to-Screen Language Continuity",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "proposal_mgmt"
+      ],
+      "problem": "Drew's mental model is built entirely from Bryant's conversational vocabulary: 'Ariel and Amber,' 'interested in your space,' '4 months,' '$2,000 a month,' 'security deposit,' 'cleaning.' When Drew transitions to the platform, the information architecture must use these exact words as navigational anchors — because these are the words Drew is scanning for. Krug Ch. 2: 'Like Ginger, we tend to focus on words and phrases that seem to match (a) the task at hand or (b) our current or ongoing personal interests.' Drew's trigger words are the specific nouns and numbers from his call. If the platform uses different vocabulary — 'Incoming Proposals' instead of 'Ariel and Amber,' 'Monthly Rate' instead of '$2,000,' 'Lease Configuration' instead of '4 months' — Drew's scanner finds no matches. He sees 'blah blah GINGER blah blah' except there is no GINGER. The information is present but invisible because it's encoded in the wrong vocabulary.",
+      "solution": "Build the information architecture's labeling system from the host's call vocabulary, not the platform's internal taxonomy. (1) Page headings must reference specific entities Drew discussed: 'Ariel & Amber's proposal for your Chelsea apartment' not 'Proposal #1247.' (2) Navigation labels must use landlord vocabulary: 'Your Apartment' not 'Listing,' 'Rent' not 'Rate Configuration,' 'Deposit' not 'Security Parameters.' (3) Status labels must use time-anchored human language: 'Move-in: early March' not 'Lease Start: 2026-03-01.' (4) The information architecture must define a vocabulary mapping table: for each platform concept, the equivalent term the agent used in the call. This mapping drives all labels, headings, button text, and confirmation messages. (5) When a platform concept has no call equivalent (e.g., 'lease style'), the IA must flag it as a high-risk label that requires additional context or inline explanation — because Drew has no mental hook for it.",
       "evidence": [
         {
-          "source": "drew-call.txt:00:45-01:03",
-          "type": "host_call", 
-          "quote": "the title of it is the comfortable one bed, one bath. One bedroom, one bath. Yep. Yep. In Chelsea. Yep. Yep. To confirm that would be a 2000 a month, I think is what it's listed here. That's right. Okay.",
-          "insight": "Drew confirmed all essential listing data in 18 seconds. Platform hierarchy must signal that this same information can be processed with similar speed"
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "Take names of things, for example. Typical culprits are cute or clever names, marketing-induced names, company-specific names, and unfamiliar technical names.",
+          "insight": "Krug identifies naming as a primary source of question marks. Every platform label that doesn't match Drew's call vocabulary is a 'company-specific name' from Drew's perspective — he didn't hear it from Bryant, so it requires translation."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt",
+          "source": "drew-call.txt, 01:32-02:02",
+          "type": "host_call",
+          "quote": "Ariel and Amber are both flexible... both have primary residences in Connecticut... they both work in Manhattan... essentially they'd be using this space as a place to come back to after work.",
+          "insight": "Bryant introduces the guests by name, location, occupation, and usage pattern — in natural language. The proposal page must mirror this exact structure and vocabulary. 'Ariel & Amber — Connecticut residents, work in Manhattan, need a weekday pied-à-terre' not 'Guest Profile: Verified, Employment: Confirmed, Purpose: Part-time occupancy.'"
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
           "type": "book",
-          "quote": "We're usually in a hurry. Much of our Web use is motivated by the desire to save time. As a result, Web users tend to act like sharks: They have to keep moving, or they'll die.",
-          "insight": "Information architecture must communicate speed through visual cues before hosts begin the actual process"
+          "quote": "For instance, suppose a friend tells me that XYZ Corp is looking to hire someone with my exact qualifications... the name they've chosen for their job listings section makes a difference. Jobs! [Click] vs. Employment Opportunities [Hmm. Could be Jobs.]",
+          "insight": "The naming spectrum from 'obvious' to 'requires thought' maps directly to the call-to-screen vocabulary gap. 'Ariel & Amber' is 'Jobs!' — instantly recognizable. 'Proposal #1247' is 'Employment Opportunities' — requires translation."
+        },
+        {
+          "source": "drew-call.txt, 02:57",
+          "type": "host_call",
+          "quote": "regarding security deposit or damage deposit. Is that something you charge? ... 1000.",
+          "insight": "Bryant uses 'security deposit' — the universal landlord term. Drew responds instantly. If the platform labels this 'Refundable Guarantee' or 'Damage Protection,' Drew must translate — adding a question mark where the call had none."
         }
       ],
-      "priority": "high", 
-      "hierarchy_principle": "Speed indicators and fast-path options take visual priority over comprehensive options. Essential actions appear larger and more prominent than optional enhancements",
-      "disclosure_pattern": "Lead with minimal viable input, expand on demand. Show progress constantly to maintain speed perception",
-      "cognitive_load_constraint": "Initial screen should require no more than 3 decisions. Additional complexity revealed only after core path is established",
-      "scan_order": ["Time estimate", "Essential input", "Primary action button", "Optional enhancements link"],
-      "exclude": ["Detailed field explanations", "Optional information until requested", "Legal requirements until completion", "Advanced configuration options"]
+      "priority": "high",
+      "hierarchy_principle": "Primary: entity names from the call (guest names, property nickname, dollar amounts). Secondary: action verbs from the call's implicit flow ('confirm,' 'send photos,' 'review'). Tertiary: platform-specific concepts that have no call equivalent — these must be introduced with inline context.",
+      "disclosure_pattern": "Labels and headings use call vocabulary immediately — no progressive disclosure needed for vocabulary itself. Platform-specific concepts that have no call analog should be introduced with a one-line parenthetical explanation on first encounter only: 'Lease Style (how you want to share your space — by the night, by the week, etc.)'",
+      "cognitive_load_constraint": "Maximum 1 unfamiliar term per screen. If a screen introduces a platform concept Drew has never heard, it must be the only new concept on that screen — everything else must be recognizable from the call.",
+      "scan_order": [
+        "Guest names or property name (the specific entities Drew discussed)",
+        "Dollar amounts ($2,000, $1,000 — numbers Drew already knows)",
+        "Time references (4 months, early March — timeline Drew already agreed to)"
+      ],
+      "exclude": [
+        "Internal system IDs as labels (Proposal #1247, Listing #SL-2026-0042)",
+        "Platform jargon without call-equivalent context ('Lease Style,' 'Rate Configuration,' 'Turnover Window')",
+        "Abbreviations the host hasn't seen before (DTI, LTV, ADR)",
+        "Generic greetings that waste the heading slot ('Welcome to your dashboard!' instead of 'Your Chelsea apartment')"
+      ]
     },
     {
       "id": "communicates-003",
-      "type": "info_architecture", 
-      "title": "Accommodation Affordance Architecture",
-      "journey_phases": ["proposal_mgmt", "active_lease"],
-      "problem": "Drew demonstrated immediate accommodation behavior - agreeing to 4-month terms and extension possibilities without hesitation. Traditional platform interfaces for proposal management emphasize control and finality (Approve/Decline buttons), which doesn't match the collaborative, flexible communication style that makes hosts like Drew valuable. The information hierarchy suggests that decisions are binary and permanent, when accommodating hosts think in terms of flexibility and options. This architectural mismatch discourages the very behavior (accommodation) that drives guest satisfaction.",
-      "solution": "Structure proposal and lease management interfaces to make accommodation the visually prominent and easiest response option. This means: (1) Replace binary decision hierarchies with collaborative response hierarchies. (2) Make flexibility options more prominent than rigid options: 'I can make that work' appears larger than 'Decline'. (3) Group accommodation tools visually: counter-offers, partial acceptance, and alternative suggestions clustered together. (4) Show accommodation history to reinforce this behavior pattern. (5) Use collaborative language in headers: 'Work together on lease terms' not 'Review proposal'.",
+      "type": "info_architecture",
+      "title": "Progressive Disclosure by Decision Readiness",
+      "journey_phases": [
+        "evaluation",
+        "onboarding",
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "The Drew call reveals a strict information sequence: Bryant provides exactly the information Drew needs at each point — guest identity first (01:32), then usage pattern (01:45), then flexibility (02:02), then guarantee (03:44), then next steps (05:01). He never front-loads the guarantee before the guest context, never mentions lease terms before Drew accepts the guests conceptually. This sequencing is not accidental — it follows Drew's decision tree. Drew cannot evaluate a guarantee until he knows who the guests are. He cannot agree to terms until he trusts the guarantee. Each piece of information prepares the ground for the next. On the platform, this natural sequencing is destroyed. Dashboard pages show everything at once: property stats, pending proposals, payment history, messages, lease status. This forces Drew to parse a visual field with no inherent decision sequence — the information equivalent of reading a dictionary instead of a story.",
+      "solution": "Structure information disclosure around the host's decision tree, not the platform's data model. (1) Define the host's decision sequence for each phase. For proposal review: 'Who are these guests?' → 'What do they want?' → 'What do I earn?' → 'Should I accept?' Each question maps to a disclosure stage. (2) Present information in decision-tree order: the answer to question 1 is immediately visible; the answer to question 2 is visible only after question 1 is answered (or acknowledged via scroll/click); question 3 follows from question 2. (3) Use spatial sequencing (top-to-bottom, left-to-right) to enforce the decision tree. The most upstream question lives at the top of the page. Downstream questions live below. (4) For the listing wizard, apply the same principle across steps: Step 1 (space basics) answers 'What is this place?' Step 2 (features) answers 'What's special about it?' Step 3 (pricing) answers 'What will I earn?' Each step's disclosure is gated on the prior step's completion. (5) Never show information that belongs to a downstream decision point alongside an upstream one — it creates false simultaneity that forces comparison when sequential processing is more natural.",
       "evidence": [
         {
-          "source": "drew-call.txt:05:18-05:32",
+          "source": "drew-call.txt, 01:32-02:22",
           "type": "host_call",
-          "quote": "they've indicated, ideally they'd want to start with a four months is what they indicated to me. Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
-          "insight": "Drew's immediate positive response shows accommodation as his default mode, but platform interfaces typically present rejection as equally prominent to acceptance"
+          "quote": "Ariel and Amber are both flexible... both have primary residences in Connecticut... they both work in Manhattan... they'd be using this space as a place to come back to... they can really start, have a lot of flexibility when they could start... ideally they want to start early March.",
+          "insight": "Bryant structures information in decision-tree order: identity → lifestyle → need → timeline → flexibility. Each piece prepares the next. Drew processes sequentially — he doesn't ask about timeline until he understands the guests. The platform must mirror this sequence."
         },
         {
-          "source": "dontmakemethink-usability-laws.txt", 
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
           "type": "book",
-          "quote": "We don't make optimal choices. We satisfice... As soon as we find a link that seems like it might lead to what we're looking for, there's a very good chance that we'll click it",
-          "insight": "Accommodating hosts will click the first reasonable response option. Platform hierarchy must ensure accommodation options appear first and most prominently"
+          "quote": "Dividing the page into clearly defined areas is important because it allows users to decide quickly which areas of the page to focus on and which areas they can safely ignore.",
+          "insight": "Krug's clearly-defined-areas principle supports decision-tree disclosure: each area of the page corresponds to one decision question. Drew can focus on the current question's area and safely ignore downstream areas until he's ready."
+        },
+        {
+          "source": "drew-call.txt, 03:17-04:18",
+          "type": "host_call",
+          "quote": "I wanted to mention as well, so I know I mentioned Ariel and Amber... split lease doubled the deposit... guarantees payments to you... Okay. Okay. Okay. Alright.",
+          "insight": "The guarantee information arrives AFTER Drew has accepted the guests conceptually (he hasn't objected). Bryant sequences trust information after acceptance because the guarantee only matters if Drew is already leaning yes. Showing the guarantee before the guest introduction would be premature — Drew can't evaluate a guarantee for guests he doesn't know."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "As soon as we find a link that seems like it might lead to what we're looking for, there's a very good chance that we'll click it.",
+          "insight": "Satisficing means Drew will act on the first piece of information that seems sufficient. If financial details appear before guest identity, Drew may fixate on the money and skip the guest context entirely — making a poorly-informed satisficing decision. The disclosure order determines the quality of the satisficing outcome."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Primary: the upstream question in the decision tree (the thing that must be understood before anything else makes sense). Secondary: the midstream question (the thing that qualifies the upstream answer). Tertiary: the downstream question (the thing that only matters after the first two are resolved). For proposals: Primary = who, Secondary = what they want, Tertiary = financial terms.",
+      "disclosure_pattern": "Vertical cascade: each decision stage occupies a full-width section. Stages below the current focus are either collapsed or muted. As the host scrolls or clicks 'Continue,' the next stage becomes active. This mirrors Bryant's sequential reveal in the call — one topic at a time, in order.",
+      "cognitive_load_constraint": "Maximum 1 decision question per viewport. The host should never need to hold two unresolved questions in working memory simultaneously. If a screen shows both 'who are these guests?' and 'what will I earn?' at the same time, cognitive load doubles.",
+      "scan_order": [
+        "Decision question 1: the upstream anchor (guest identity for proposals, space basics for listings)",
+        "Decision question 2: the qualifying detail (guest need/timeline for proposals, features for listings)",
+        "Decision question 3: the downstream resolution (financial terms for proposals, pricing for listings)"
+      ],
+      "exclude": [
+        "Financial terms before guest context on proposal pages",
+        "Pricing breakdown before space description on listing pages",
+        "Lease legalese before the host has accepted the basic premise",
+        "Platform metrics (response rate, listing views) during a decision flow — these are retrospective data, not decision inputs"
+      ]
+    },
+    {
+      "id": "communicates-004",
+      "type": "info_architecture",
+      "title": "Clearly Defined Areas via the $25,000 Pyramid Test",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "proposal_mgmt",
+        "active_lease"
+      ],
+      "problem": "Krug describes the $25,000 Pyramid test: a user should be able to point at any area of a page and name what it is — 'Things I can do on this site!' 'Products this company sells!' Drew's phone call had implicit 'areas' defined by topic transitions: property confirmation (00:40-01:03), availability (01:14-01:25), guest introduction (01:32-02:22), guarantee explanation (03:17-04:18), photos (04:21-04:46), terms (05:18-05:32). Each topic was a clearly defined conversational area with a clear boundary. On the platform, information often bleeds across areas: a proposal card might mix guest identity, financial terms, status labels, and action buttons in a single visual unit with no clear internal boundaries. Drew cannot play the Pyramid game — he can't point at a section and say 'that's who the guests are' because guest data is interleaved with lease data and platform chrome.",
+      "solution": "Enforce clear area boundaries on every page using visual separation (whitespace, dividers, background color changes) and area labels (section headings that name the area's content). (1) Every page must pass the Pyramid test: show it to someone for 5 seconds, then ask them to name the areas. If they can't, the boundaries are too weak. (2) For proposal pages, define 4 areas: 'The Guests' (photo, name, background), 'The Proposal' (dates, duration, usage pattern), 'Your Earnings' (monthly rent, total, guarantee), 'Your Decision' (Accept, Counter, Decline buttons). Each area has a visible boundary and a heading. (3) For the listing wizard, each step is one area — never show multiple wizard steps on the same screen. (4) For the active lease dashboard, define areas by the host's recurring questions: 'Who's staying' (guest status), 'Am I getting paid' (payment status), 'What's coming up' (upcoming dates/events). (5) Area boundaries must be maintained even on mobile — stacking areas vertically with clear headings and generous whitespace between them.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "Glancing around, they should be able to point at the different areas of the page and say, 'Things I can do on this site!' 'Links to today's top stories!' 'Products this company sells!' 'Things they're eager to sell me!' 'Navigation to get to the rest of the site!'",
+          "insight": "The Pyramid test is the validation criterion. Any page that fails this test has an information architecture problem — information is not organized into areas that a scanning user can identify and navigate."
+        },
+        {
+          "source": "drew-call.txt, 01:32-04:18",
+          "type": "host_call",
+          "quote": "[01:32] Ariel and Amber are both flexible... [03:17] I wanted to mention as well... split lease doubled the deposit... [04:21] one more question I had was about pictures...",
+          "insight": "Bryant's call has clear topic transitions — each marked by a verbal signal ('I wanted to mention,' 'one more question'). These transitions define conversational areas. The platform must create equally clear visual transitions between content areas."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "Several of the initial eye-tracking studies of Web page scanning suggest that users decide very quickly which parts of the page are likely to have useful information and then almost never look at the other parts — almost as though they weren't there.",
+          "insight": "Drew will visually amputate sections of the page that don't look relevant. If the section boundaries are clear, he amputates correctly (ignoring areas that truly don't matter right now). If boundaries are unclear, he may amputate the wrong section — cutting off the action area because it blended into the details area."
+        },
+        {
+          "source": "drew-call.txt, 05:18-05:32",
+          "type": "host_call",
+          "quote": "they'd want to start with a four months... Is that something that would work yep. Four months and then maybe the ability to extend.",
+          "insight": "Lease terms form their own conversational area in the call — Bryant raises it as a distinct topic after the guarantee area is closed. On the platform, lease terms must be visually separated from the guarantee and from guest information. Mixing them forces Drew to parse a composite that the call kept separate."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Primary: areas that answer the host's current question (what the page is about). Secondary: areas that provide supporting context (details the host may want). Tertiary: areas that enable navigation to other parts of the platform (secondary nav, footer links). Each area must be visually self-contained — a host should be able to screenshot any single area and it would make sense on its own.",
+      "disclosure_pattern": "All areas are visible simultaneously (unlike progressive disclosure which hides downstream content). But the visual weight of each area signals priority: the primary area has a larger heading, more whitespace, and stronger contrast. Secondary areas are visually recessive. This allows Drew to scan the whole page and quickly identify which area to focus on.",
+      "cognitive_load_constraint": "Maximum 4 areas per page. Each area must be nameable in 3 words or fewer ('The Guests,' 'Your Earnings,' 'Your Decision,' 'Lease Terms'). If an area needs more than 3 words to name, it contains multiple concepts and should be split.",
+      "scan_order": [
+        "Primary area (the reason the host came to this page — guest identity on proposals, listing details on listings, payment status on dashboard)",
+        "Action area (what the host can do — Accept/Confirm buttons, isolated in their own area)",
+        "Supporting areas (details, history, secondary information — visually recessive)"
+      ],
+      "exclude": [
+        "Mixed-concept areas that combine guest data with financial data with action buttons in a single undifferentiated card",
+        "Navigation chrome that visually competes with content areas for attention",
+        "Footer areas that contain important information buried below the natural scan termination point",
+        "Interstitial elements (banners, alerts, promotional callouts) that break area boundaries"
+      ]
+    },
+    {
+      "id": "communicates-005",
+      "type": "info_architecture",
+      "title": "Clickability as Information Signal",
+      "journey_phases": [
+        "onboarding",
+        "listing_creation",
+        "proposal_mgmt",
+        "active_lease",
+        "retention"
+      ],
+      "problem": "Krug Ch. 3 devotes an entire section to the danger of unclear clickability: 'it's important to make it obvious what's clickable and what's not... when you force users to think about something that should be mindless like what's clickable, you're squandering the limited reservoir of patience and goodwill.' Drew's call has implicit 'clickability' — every question Bryant asks is an invitation to respond (a verbal affordance). 'Is that right?' is clickable. 'I can get back to you' is informational. The distinction is always obvious. On the platform, the distinction between interactive and informational elements is often ambiguous: text links look like headings, buttons look like labels, cards look like they might be clickable but aren't. Each ambiguity is a micro question mark. Drew, as a satisficing scanner, will click the first thing that looks clickable — and if that thing is actually a label or a section heading styled like a link, Drew has been misdirected. The information architecture must define clickability as an information signal: interactive elements signal 'you can act here,' and informational elements signal 'you can read here.' The two signals must never be confused.",
+      "solution": "Establish a strict clickability vocabulary in the information architecture: (1) Interactive elements (buttons, links, form fields) use a consistent visual language — a specific color, a specific shape (rounded rectangle for buttons, underline for links), and a specific position (action areas only, not embedded in body text unless clearly styled as links). (2) Informational elements (headings, labels, body text, data displays) use a different visual language — no underlines, no button shapes, no hover effects. (3) The clickability signal must be unambiguous even without color (for accessibility) — interactive elements should be distinguishable by shape, position, and typography alone. (4) Cards and tiles must either be entirely clickable (with a clear hover state and cursor change) or entirely informational (with no hover state). Half-clickable cards (where clicking the title opens details but clicking the body does nothing) create maximum ambiguity. (5) On the proposal page, the Accept/Decline/Counter buttons must be the only clickable elements in the action area. Guest names and financial details are informational — they inform the decision but are not actions themselves.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "Since a large part of what people are doing on the Web is looking for the next thing to click, it's important to make it obvious what's clickable and what's not.",
+          "insight": "Drew's scanning behavior is search-for-the-next-click behavior. The information architecture must ensure that the 'next click' is always the right click — the primary action for the current phase."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "On Senator Orrin Hatch's Home page... it wasn't clear whether everything was clickable, or nothing was. There were 18 links on the page, but only two of them invited you to click by their appearance.",
+          "insight": "Krug's Hatch example is a direct warning: when all text is colored, no text signals clickability. Applied to the Split Lease platform: if the design uses purple (the brand color) for both interactive and informational text, Drew cannot distinguish them by scanning."
+        },
+        {
+          "source": "drew-call.txt, 05:38-05:50",
+          "type": "host_call",
+          "quote": "if you have any questions for me, you can feel free to text me or email me... Sounds good. Anything else for me? Drew",
+          "insight": "Bryant explicitly offers two interactive options (text me, email me) at the call's close. The affordance is verbal but unambiguous — Drew knows he can 'click' on either option. The platform must be equally unambiguous about what Drew can interact with."
+        },
+        {
+          "source": "drew-call.txt, 04:21-04:38",
+          "type": "host_call",
+          "quote": "one more question I had was about pictures of the space and wondered if you had any more... Yes. I have more pictures and I can send you.",
+          "insight": "Bryant asks for photos — a clear call to action. Drew responds immediately because the 'clickability' of the request is obvious. On the platform, the photo upload prompt must have equally obvious clickability — a prominent upload button, not a subtle text link saying 'Add photos.'"
         }
       ],
       "priority": "medium",
-      "hierarchy_principle": "Collaborative responses take visual priority over binary decisions. Accommodation tools grouped prominently, rejection options available but secondary",
-      "disclosure_pattern": "Lead with accommodation options, reveal rejection only if accommodation is declined. Show flexibility tools before final decisions",
-      "cognitive_load_constraint": "Maximum 2 decision points per proposal response. Accommodation should require only 1 click plus optional customization",
-      "scan_order": ["Guest request summary", "Accommodation response options", "Custom counter-offer tools", "Decline option"],
-      "exclude": ["Legal warnings until acceptance", "Complex negotiation flows", "Multiple approval steps", "Detailed lease modification tools until needed"]
+      "hierarchy_principle": "Primary: the one action Drew should take now (Accept, Confirm, Upload — a single prominent button). Secondary: alternative actions (Counter, Edit, Skip — visually recessive buttons or text links). Tertiary: navigational actions (Back, Help, Contact Agent — minimal visual weight). Informational elements have NO interactive signal — they sit outside the clickability hierarchy entirely.",
+      "disclosure_pattern": "Clickable elements are always visible — never hidden behind hover states, dropdown menus, or contextual reveals. Drew must be able to identify all possible actions on a page within a 3-second scan without moving his cursor. Progressive disclosure applies to information, not to actions.",
+      "cognitive_load_constraint": "Maximum 3 clickable elements per clearly defined area. Maximum 1 primary action per page. If more than 3 elements are clickable in one area, Drew must choose between them — which violates satisficing (he wants the first reasonable option, not a menu).",
+      "scan_order": [
+        "Primary action button (the one thing Drew should click — largest, most prominent, highest contrast)",
+        "Alternative action buttons (visually subordinate — smaller, lighter, or styled as text links)",
+        "Navigational elements (peripherally located — top nav, sidebar, or footer)"
+      ],
+      "exclude": [
+        "Text styled as links when it's not interactive (colored text that looks clickable but isn't)",
+        "Half-clickable cards where only part of the card is interactive",
+        "Hover-only affordances that require cursor exploration to discover",
+        "Action buttons embedded within body text paragraphs where they compete with reading flow"
+      ]
+    },
+    {
+      "id": "communicates-006",
+      "type": "info_architecture",
+      "title": "Confirmation-First Architecture for Pre-Decided Information",
+      "journey_phases": [
+        "pricing",
+        "proposal_mgmt",
+        "retention"
+      ],
+      "problem": "Drew's call reveals that most 'decisions' on the platform are actually confirmations of decisions already made. The price ($2,000/month) was decided before the call. The guests (Ariel and Amber) were accepted during the call. The term (4 months with extension) was agreed in 14 seconds. Yet the platform's information architecture treats these as open decisions: editable fields, option selectors, multi-step wizards. This architectural mismatch has an information design consequence: the page communicates 'you need to decide something' when it should communicate 'here's what was agreed — confirm it.' The information hierarchy is wrong: open-decision pages put options first and confirmation second. Pre-decided pages should put the agreed outcome first and editing second. Krug Ch. 2: 'Weighing options may not improve our chances... You're usually better off going with your first guess.' Drew's 'first guess' is what Bryant already told him. The information architecture should reinforce this, not undermine it.",
+      "solution": "Create a distinct information architecture pattern for pre-decided outcomes versus genuine decisions. (1) Pre-decided pattern: Present information as a summary statement ('$2,000/month, 4 months, starting March'), not as editable fields. Place a single 'Confirm' button below the summary. Place an 'Edit' or 'Change' link in Tier 3 — available but not competing for attention. The visual language should communicate 'this is settled' — calm, clean, no active form elements. (2) Genuine decision pattern: Present options with visual differentiation, recommended default highlighted, comparison supported. Action buttons offer real choices (Option A / Option B). The visual language should communicate 'you need to choose' — active form elements, contrasting options. (3) The information architecture must classify every platform interaction as either confirmation or decision during the design phase. The classification should be based on what was discussed in the agent call. If the agent covered it, it's a confirmation. If it's new to the host, it's a decision. (4) The confirmation pattern should feel like signing a letter, not filling out a form.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "To confirm that would be a 2000 a month, I think is what it's listed here. That's right.",
+          "insight": "Even Bryant uses confirmation architecture verbally: 'To confirm that would be...' followed by Drew's 'That's right.' The platform should use identical architecture: present the known value, ask for confirmation. Not: present a blank field, ask for input."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "Weighing options may not improve our chances. On poorly designed sites, putting effort into making the best choice doesn't really help. You're usually better off going with your first guess and using the Back button if it doesn't work out.",
+          "insight": "Krug observes that option-weighing is often wasted effort. For pre-decided outcomes, it's definitionally wasted — Drew has already decided. The IA must not force Drew into a weighing architecture when a confirmation architecture is appropriate."
+        },
+        {
+          "source": "drew-call.txt, 05:18-05:32",
+          "type": "host_call",
+          "quote": "they'd want to start with a four months... Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
+          "insight": "The lease term decision takes 14 seconds and ends with 'Sounds good.' The platform should present this as a confirmation summary ('4 months, with option to extend — Confirm'), not as a lease configuration wizard with dropdowns for duration, start date, and renewal terms."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "every question mark adds to our cognitive workload, distracting our attention from the task at hand. The distractions may be slight but they add up.",
+          "insight": "An editable field where a confirmation statement should be is a question mark: 'Should I change this? Is this right? Can I edit this?' The confirmation pattern eliminates these question marks by presenting the answer, not the question."
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "Primary: the agreed outcome stated as fact ('$2,000/month — your Chelsea apartment'). Secondary: the confirmation action ('Confirm' button). Tertiary: the edit escape hatch ('Need to change something?' text link). This inverts the typical form hierarchy where input fields are primary and submit buttons are secondary.",
+      "disclosure_pattern": "Show the pre-decided outcome immediately as a read-only summary. The Confirm button is immediately accessible. The Edit option is hidden behind a text link or requires a deliberate secondary action (tap 'Change' → fields become editable). This makes confirmation the path of least resistance and editing the path of deliberate effort.",
+      "cognitive_load_constraint": "Zero decisions required for the confirmation path. The host reads a summary and clicks one button. Cognitive load should be equivalent to signing a receipt — verify, confirm, done. If the confirmation path requires more than 5 seconds, the summary is too complex.",
+      "scan_order": [
+        "Summary statement (the pre-decided outcome in human language)",
+        "Confirm button (single, prominent, no competing options)",
+        "Edit link (visually subordinate, below the confirm button)"
+      ],
+      "exclude": [
+        "Editable form fields for values already agreed upon in the call",
+        "Multiple action buttons with equal visual weight (Accept / Counter / Decline) when the outcome is pre-decided — Counter and Decline should be visually recessive",
+        "Comparison views that imply the host should evaluate alternatives to the agreed outcome",
+        "Confirmation dialogs ('Are you sure?') that turn a single confirmation into a double confirmation"
+      ]
+    },
+    {
+      "id": "communicates-007",
+      "type": "info_architecture",
+      "title": "Mindless Choices Over Complex Menus",
+      "journey_phases": [
+        "listing_creation",
+        "pricing",
+        "proposal_mgmt"
+      ],
+      "problem": "Krug Ch. 4 introduces the principle that 'users like mindless choices' — given the option between one complex choice and three simple sequential choices, users prefer the simple ones. Drew's call embodies this: Bryant breaks the conversation into a series of single-topic exchanges (property confirmation → availability → guests → guarantee → photos → terms), each requiring a single, simple response from Drew. The platform's listing wizard, by contrast, presents multi-field forms with interdependent options. 'Lease style' requires understanding the difference between nightly, weekly, and monthly — a complex choice. 'Amenities' presents a checklist of 20+ items — a combinatorial choice. 'Pricing' may ask for base rate plus cleaning fee plus security deposit — a multi-variable choice. Each complex choice slows Drew's scanning and forces System 2 engagement. Krug's insight is that breaking complex choices into sequences of simple ones eliminates the cognitive burden of holding multiple variables in working memory simultaneously.",
+      "solution": "Decompose every multi-variable decision into a sequence of binary or near-binary choices. (1) For lease style: instead of presenting 3+ options with paragraphs of explanation, ask one question at a time. 'Do guests stay overnight? [Yes / No]' → if Yes: 'How often? [A few nights a week / Full time]' → derive lease style from answers. Drew never sees the word 'lease style.' (2) For amenities: instead of a 20-item checklist, show the 5 most common amenities as pre-selected defaults and ask 'Anything else?' with an expandable list. Drew confirms 5 defaults in 2 seconds instead of evaluating 20 checkboxes. (3) For pricing: show the pre-populated monthly rate and ask 'Is this right? [Yes / Change it].' No multi-field calculator. (4) The information architecture principle is: each screen presents one choice with 2-3 options. The cumulative effect of simple sequential choices is the same outcome as one complex multi-field form, but with dramatically lower cognitive cost per step.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 4 (referenced in TOC)",
+          "type": "book",
+          "quote": "Animal, vegetable, or mineral? Why users like mindless choices.",
+          "insight": "Krug's entire Chapter 4 argues that users prefer simple, low-stakes choices in sequence over complex, high-stakes choices all at once. The listing wizard must embrace this principle: each step should feel like answering 'Animal, vegetable, or mineral?' not 'Describe your space in detail.'"
+        },
+        {
+          "source": "drew-call.txt, 01:03-01:14",
+          "type": "host_call",
+          "quote": "And this is an entire apartment, is that right? They had found one bedroom, one bath.",
+          "insight": "Bryant asks a yes/no question: 'Is this an entire apartment?' Drew confirms. This is a mindless choice — no deliberation needed. The listing wizard should ask the same kind of question: 'Is this a whole apartment? [Yes / No]' not 'Select property type: Entire apartment / Private room / Shared room / Studio / ...'"
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "Amazon.com, on the other hand, doesn't even mention the Author-Title-Keyword distinction. They just look at what you type and do whatever makes the most sense.",
+          "insight": "Amazon eliminated the complex choice (search type) entirely. The platform should do the same where possible — derive the answer from context rather than asking the question. If Drew has 1 bedroom and 1 bathroom, the platform already knows the unit type. Don't ask."
+        },
+        {
+          "source": "drew-call.txt, 02:57-03:03",
+          "type": "host_call",
+          "quote": "regarding security deposit or damage deposit. Is that something you charge? ... 1000.",
+          "insight": "Bryant asks a binary question (do you charge one?) then a single-value question (how much?). Two mindless choices replace what could be a complex form section with deposit type selection, amount field, refund policy dropdown, and damage waiver options."
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "Primary: the single question being asked (one question per screen or section). Secondary: the 2-3 answer options (presented as large, easy-to-tap choices, not small radio buttons). Tertiary: context that helps the host choose (a one-line explanation under each option, not a paragraph). The question must be answerable without reading the context — the context is insurance, not instruction.",
+      "disclosure_pattern": "Sequential, not simultaneous. Present one question at a time. After the host answers, animate forward to the next question. The sequence should feel like a conversation, not a form — mirroring how Bryant guided Drew through topics one at a time.",
+      "cognitive_load_constraint": "Maximum 3 options per choice. If a decision has more than 3 options, either split it into two sequential choices (each with 2-3 options) or reduce options by providing a smart default and letting the host override only if needed. Zero choices should require the host to hold information from a prior choice in working memory.",
+      "scan_order": [
+        "The question itself (what am I being asked?)",
+        "The options (what can I choose?)",
+        "The context (optional — helps me choose if I'm unsure)"
+      ],
+      "exclude": [
+        "Multi-field forms where multiple variables are edited simultaneously",
+        "Dropdown menus with more than 5 items (these require scrolling and scanning within the dropdown)",
+        "Checkboxes presented as long undifferentiated lists (break into categories or use defaults)",
+        "Conditional fields that appear or disappear based on prior selections (this creates uncertainty — 'did I cause that? should I change my answer?')"
+      ]
     }
   ]
 }
-
 ## Output Instructions
-Output ONLY the valid JSON object matching the looks-elements schema from your agent instructions above. No markdown fences, no commentary. Just the raw JSON.
+You are running in print mode (--print / -p). You have NO tools available — no Write tool, no Read tool, no Bash tool. You cannot save files.
+
+Your ONLY output channel is stdout. Print the complete JSON object directly to stdout. That is how your output gets captured.
+
+Output ONLY the valid JSON object matching the looks-elements schema from your agent instructions above. No markdown fences, no commentary, no preamble, no explanation. Just the raw JSON object starting with { and ending with }.

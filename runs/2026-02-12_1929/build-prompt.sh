@@ -80,7 +80,7 @@ PROMPT_FILE="$RUN_DIR/layer-$LAYER/prompt.md"
 cat > "$PROMPT_FILE" << EOF
 You are running Layer $LAYER of the SplitLease Design Stack v2.
 
-IMPORTANT: Output ONLY valid JSON. No commentary, no markdown code fences, no explanation. Your entire response must be a single valid JSON object matching the schema in your agent instructions.
+IMPORTANT: You are running in print mode (-p). You have NO tools — no Write, no Read, no Bash. Your ONLY output is stdout. Print the complete JSON directly. No commentary, no markdown code fences, no explanation. Your entire response must be a single valid JSON object matching the schema in your agent instructions.
 
 $JOURNEY_CONTEXT_BLOCK
 
@@ -151,7 +151,11 @@ done
 cat >> "$PROMPT_FILE" << EOF
 
 ## Output Instructions
-Output ONLY the valid JSON object matching the ${OUTPUT_FILE%.json} schema from your agent instructions above. No markdown fences, no commentary. Just the raw JSON.
+You are running in print mode (--print / -p). You have NO tools available — no Write tool, no Read tool, no Bash tool. You cannot save files.
+
+Your ONLY output channel is stdout. Print the complete JSON object directly to stdout. That is how your output gets captured.
+
+Output ONLY the valid JSON object matching the ${OUTPUT_FILE%.json} schema from your agent instructions above. No markdown fences, no commentary, no preamble, no explanation. Just the raw JSON object starting with { and ending with }.
 EOF
 
 echo "Layer $LAYER prompt built: $(wc -c < "$PROMPT_FILE") bytes, $(wc -l < "$PROMPT_FILE") lines"
