@@ -75,7 +75,12 @@ function main() {
   let totalElements = 0;
 
   for (const run of completed) {
-    const uiPath = path.join(STACK_DIR, run.layers.ui_elements);
+    const uiRelPath = run.layers.ui_elements || run.layers["element-specification"];
+    if (!uiRelPath) {
+      console.warn("  SKIP " + run.run_id + " — no ui_elements or element-specification layer path");
+      continue;
+    }
+    const uiPath = path.join(STACK_DIR, uiRelPath);
     if (!fs.existsSync(uiPath)) {
       console.warn("  SKIP " + run.run_id + " — ui-elements.json not found at " + uiPath);
       continue;
@@ -88,6 +93,7 @@ function main() {
 
     runs.push({
       run_id: run.run_id,
+      process_type: run.process_type || "design-stack",
       date: run.date,
       journey_type: run.journey_type,
       lens: run.lens,
@@ -99,7 +105,7 @@ function main() {
       elements: elements
     });
 
-    console.log("  " + run.run_id + " — " + elements.length + " elements (" + run.journey_type + ")");
+    console.log("  " + run.run_id + " — " + elements.length + " elements (" + (run.journey_type || run.competitor || run.process_type) + ")");
   }
 
   const data = {

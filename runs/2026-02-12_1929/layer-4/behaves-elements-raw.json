@@ -1,0 +1,338 @@
+{
+  "lens": {
+    "host_call": "drew-call.txt",
+    "book_extract": "dontmakemethink-usability-laws.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Optimistic Confirmation for Pre-Decided Actions",
+      "journey_phases": ["proposal_mgmt", "pricing", "retention"],
+      "problem": "Drew accepts every outcome in the call without deliberation — the guarantee (04:18: 'Okay. Okay. Okay. Alright.'), the lease term (05:32: 'Okay. Okay. Sounds good.'), the price (00:52: 'That's right.'). When Drew encounters these same decisions on the platform, they arrive as pre-decided outcomes requiring only formal confirmation. But the platform's interaction patterns treat confirmations the same as open decisions: multi-step flows with loading spinners, server-round-trip delays, and confirmation dialogs. Each artificial delay introduces a question mark: 'Did it work? Should I click again? Did I make a mistake?' Krug's First Law demands that interactions be self-evident — and a confirmation that takes 3 seconds to process when Drew decided in 0.5 seconds violates the self-evidence of the outcome. The interaction must match the speed of the decision.",
+      "solution": "Apply optimistic UI for all confirmation actions where the outcome is pre-decided. When Drew clicks 'Confirm' on a proposal he already accepted in the call, the UI should immediately transition to the success state — showing the confirmed outcome before the server responds. If the server rejects the action, roll back with an inline error. The principle: for pre-decided outcomes, the UI should move at the speed of the user's certainty, not the speed of the server's processing. Reserve loading states for genuinely uncertain outcomes where the user is waiting for new information, not for confirmations where the user already knows the answer.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 05:18-05:32",
+          "type": "host_call",
+          "quote": "they'd want to start with a four months... Is that something that would work yep. Four months and then maybe the ability to extend. Okay. Okay. Sounds good.",
+          "insight": "Drew confirms a 4-month lease term in 14 seconds with zero hesitation. When he clicks 'Confirm' on the platform, his certainty is already 100%. A loading spinner after this click contradicts Drew's mental state — he already knows the answer. The UI should reflect his certainty instantly."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "every question mark adds to our cognitive workload, distracting our attention from the task at hand. The distractions may be slight but they add up.",
+          "insight": "A loading spinner after a confirmation click is a question mark: 'Did it work? Is something wrong? Should I wait or click again?' For pre-decided actions, this question mark is entirely unnecessary — the user already knows the outcome. Optimistic UI eliminates this question mark by showing the outcome immediately."
+        },
+        {
+          "source": "drew-call.txt, 04:18",
+          "type": "host_call",
+          "quote": "Okay. Okay. Okay. Alright.",
+          "insight": "Drew's four-word acceptance of the guarantee shows his confirmation speed: instantaneous. The platform's confirmation interaction must match this speed. If Drew can say 'Alright' in under a second, the UI should show 'Confirmed' in under a second."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "There's not much of a penalty for guessing wrong. Unlike firefighting, the penalty for guessing wrong on a Web site is usually only a click or two of the Back button.",
+          "insight": "Krug establishes that web interactions are low-stakes. Confirmations of pre-decided outcomes are even lower-stakes — the risk of an optimistic UI needing rollback is negligible. The cost of not being optimistic (added latency, question marks, perceived sluggishness) is higher than the cost of occasional rollback."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The confirmation card shows the pre-decided outcome as a read-only summary with a single prominent 'Confirm' button. The visual language communicates 'this is settled — just sign off.'",
+        "loading": "No visible loading state for pre-decided confirmations. The UI transitions directly from default to success on click. Server processing happens in the background. If the response takes longer than 2 seconds, a subtle progress indicator appears — but the success state is already shown.",
+        "empty": "Not applicable for confirmations — there is always a pre-decided outcome to display. If no outcome data exists (agent hasn't entered it yet), show 'Bryant is preparing your details — we'll notify you when ready' instead of an empty form.",
+        "error": "If the server rejects the optimistic confirmation, the success state gently rolls back: the confirmed checkmark animates to an attention icon, and an inline message appears below the summary: 'Something went wrong — your confirmation didn't go through. [Try again].' Never show a modal error dialog for a failed confirmation — it's too dramatic for the situation.",
+        "success": "Immediate on click: the Confirm button transforms into a checkmark with 'Confirmed' label. The summary card's border shifts to a subtle green or purple accent. A brief micro-animation (scale pulse, 150ms) provides haptic-like feedback. The page automatically scrolls or transitions to the next action within 1 second."
+      },
+      "transition_principle": "Confirmation transitions should feel like a signature, not a submission. The visual transition is a state change (button → checkmark), not a page change (current screen → loading screen → new screen). The interaction stays in place, transforms in place, and then gently advances to the next context. This mirrors the call: Drew says 'Sounds good' and Bryant immediately moves to the next topic — no pause, no 'processing your response.'",
+      "timing": {
+        "response_target": "0ms perceived latency — optimistic UI shows success immediately on click. Server round-trip happens in background (target: under 500ms actual).",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) — the spring easing from tokens.json. The slight overshoot on the checkmark animation creates a satisfying 'landed' feeling that reinforces the confirmation.",
+        "rationale": "Spring easing matches the 'confident, not flashy' brand principle. The overshoot is subtle enough to feel natural (like a physical stamp landing) without being decorative. Zero perceived latency matches Drew's instantaneous verbal confirmations."
+      },
+      "journey_state_awareness": "In proposal_mgmt, where Drew has already accepted guests during the call, the confirmation is near-certain — maximum optimistic confidence. In pricing, where defaults are pre-populated from call data, optimistic confirmation is appropriate but should show the derived values transparently before confirming. In retention, where Drew is deciding whether to extend, the interaction is closer to a genuine decision than a confirmation — use optimistic UI only if the host has expressed clear intent to extend (e.g., clicked 'I want to extend' before reaching the confirmation screen).",
+      "edge_cases": [
+        "Server timeout after optimistic success is shown — the UI must gracefully roll back without losing the host's context or requiring them to restart the flow",
+        "Host double-clicks the Confirm button — the first click should disable the button and show success; the second click should be ignored, not trigger a duplicate submission",
+        "Network disconnection during confirmation — the optimistic success state persists but a subtle offline indicator appears; the confirmation retries automatically when connectivity returns",
+        "Pre-decided values have changed since the call (e.g., guest withdrew) — the confirmation card should detect stale data and show an updated summary with a 'Review changes' prompt before allowing confirmation"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Scan-Speed Page Load for Billboard Screens",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "Krug establishes that users scan pages 'like a billboard going by at 60 miles an hour.' Drew's scanning speed means the page must be scannable before Drew's patience expires — and patience is measured in milliseconds, not seconds. If a phase entry screen loads its content sequentially (skeleton → headings → body text → data → action buttons), Drew is forced to scan an incomplete page and may click the wrong element or abandon before the primary action appears. The loading sequence itself becomes a source of question marks: 'Is this done loading? Where's the button? Should I scroll?' Krug Ch. 1: 'when I look at a Web page it should be self-evident.' A page that is still assembling itself is not self-evident — it is a work in progress that forces Drew to wait and re-scan.",
+      "solution": "Ensure that the Tier 1 anchor and Tier 2 action button are the first elements to render — before any Tier 3 details, secondary navigation, or decorative elements. The principle: the billboard's headline and call-to-action must be visible and scannable within the first paint. If data for the anchor is not yet available from the server, show a content-shaped placeholder (skeleton) that occupies the exact same space the anchor will occupy — preventing layout shift when data arrives. Never show a full-page loading spinner for billboard screens. The page shell (anchor position + action button position) should render in under 200ms from navigation. Data should fill in within 500ms. If data is slower than 500ms, the skeleton holds position and the action button is disabled but visible — Drew can see what he'll be able to do even before the data arrives.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "What they actually do most of the time (if we're lucky) is glance at each new page, scan some of the text, and click on the first link that catches their interest or vaguely resembles the thing they're looking for.",
+          "insight": "Drew's scan starts the instant the page appears. If the page is still loading when Drew starts scanning, he scans the loading state — and may click a skeleton element, scroll past an empty area where the CTA will appear, or leave because the page 'doesn't have what I need.' The CTA must be scannable on first paint."
+        },
+        {
+          "source": "drew-call.txt, 05:52-06:14",
+          "type": "host_call",
+          "quote": "Sounds good. Okay. No, that'll be all... let me just send you pictures and, um, did you do a, so we can maybe move on?",
+          "insight": "Drew's 'can we maybe move on?' reveals zero tolerance for waiting. If a page takes 2+ seconds to show its primary content, Drew perceives it as the platform making him wait — the same friction he wants to avoid. Instant anchor rendering eliminates this perception."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Introduction",
+          "type": "book",
+          "quote": "If something is hard to use, I just don't use it as much.",
+          "insight": "Krug's wife's quote defines the behavioral consequence of slow loading: reduced usage. Every slow page load trains Drew to default to texting Bryant (which is instant) instead of using the platform (which makes him wait)."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "We're usually in a hurry. Much of our Web use is motivated by the desire to save time.",
+          "insight": "Perceived speed is as important as actual speed. A page that shows its billboard structure in 200ms and fills in data at 500ms feels fast — even if total load time is 1 second. A page that shows nothing for 800ms and then renders everything at once feels slow — even if total load time is the same."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The full billboard is rendered: Tier 1 anchor (e.g., 'Ariel & Amber want your Chelsea apartment'), Tier 2 action button ('Accept this proposal'), and Tier 3 details (collapsed but available). All data is populated. The page is fully interactive.",
+        "loading": "The billboard structure renders immediately as a skeleton: Tier 1 shows a heading-shaped placeholder (matching the anchor's font size and position), Tier 2 shows the action button in a disabled state (visible shape, muted color), Tier 3 is hidden. Data fills into the skeleton within 500ms. No full-page spinner, no blank screen, no layout shift when data arrives.",
+        "empty": "If there is genuinely no data for this screen (e.g., no proposals yet), the billboard structure still renders — but the anchor becomes a status message: 'No proposals yet — we're matching guests to your Chelsea apartment.' The action button area shows a secondary action: 'Update your listing' or 'Contact Bryant.' The empty state is never a blank page.",
+        "error": "If data fails to load, the skeleton transitions to an error state: the anchor placeholder becomes 'We couldn't load your [proposals/listing/payments]. [Try again].' The action button becomes the retry button. The page structure is preserved — Drew still sees a billboard, just one that acknowledges the problem and offers a single clear action.",
+        "success": "Not applicable at page level — success states are handled by individual interaction patterns (behaves-001 for confirmations, behaves-003 for form submissions)."
+      },
+      "transition_principle": "Page transitions should feel like turning a page in a book, not like loading a new application. The structure (layout, areas, hierarchy) appears instantly. The content (data, names, numbers) fills in smoothly. Drew should never see the page rearrange itself — the first layout is the final layout. Content fills into fixed positions, like ink appearing on a pre-printed form.",
+      "timing": {
+        "response_target": "200ms to first meaningful paint (billboard structure visible). 500ms to data population. 1000ms maximum for full interactivity including Tier 3 details.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) — the 'out' easing from tokens.json. Data appearing in skeleton placeholders should fade in with this easing over 150ms — fast enough to feel instant, slow enough to avoid a jarring 'pop.'",
+        "rationale": "200ms is the threshold below which transitions feel instantaneous to users. 500ms is the threshold below which users perceive 'fast.' The out easing prevents the abrupt appearance of data that can feel like a UI glitch."
+      },
+      "journey_state_awareness": "During onboarding (Drew's first platform visit), the loading pattern is highest-risk — Drew has no prior experience with the platform and will judge its quality by the first page load. First-visit pages should be pre-rendered or cached from the agent's follow-up link. During active_lease (recurring visits), Drew has learned the layout and expects it — skeleton loading is less critical because Drew's mental model fills in the blanks. But data freshness becomes more important: payment status and guest status must never show stale data from a previous visit.",
+      "edge_cases": [
+        "Extremely slow connection (>3 seconds to data) — the skeleton must not feel frozen. After 2 seconds, add a subtle pulse animation to skeleton elements to signal 'still loading, not broken'",
+        "Partial data load (guest name loads but financial data doesn't) — render what's available and show skeleton only for missing sections, not the whole page",
+        "Cache showing stale data from a previous visit — always show fresh data for financial amounts and guest status, even if it means a brief skeleton flash. Stale money data is worse than a loading state",
+        "Layout shift from unexpected content length (e.g., a guest name that's much longer than the skeleton placeholder) — use max-width constraints and text truncation to ensure data never exceeds the skeleton's dimensions"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Conversational Step Progression in Multi-Step Flows",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "Drew's call flows as a continuous guided conversation — Bryant moves from topic to topic with natural transitions ('I wanted to mention as well...,' 'one more question I had...'). Drew never experiences a hard boundary between topics. On the platform, multi-step flows (listing wizard, onboarding) present hard cuts between steps: click 'Next,' the screen goes blank, a new form appears. Each hard cut breaks the guided feeling and introduces a question mark: 'Where am I now? Is this still the same process? How many more of these are there?' Krug Ch. 2: users 'muddle through, making up their own vaguely plausible stories about what we're doing.' Drew's plausible story is 'the platform should guide me like Bryant did.' Hard step cuts violate this story by making each step feel like a new, disconnected experience rather than the next beat in a conversation.",
+      "solution": "Replace hard step transitions with conversational step progression: each step flows into the next with a smooth visual transition that maintains context. The principle: the outgoing step should compress or slide away while the incoming step expands into view, maintaining a visual through-line that signals 'you are continuing, not starting over.' Concretely: (1) When Drew completes Step 2 and the system advances to Step 3, Step 2's content should compress upward into a summary line (showing what Drew just confirmed), while Step 3's content expands below it. Drew can see his prior answers accumulating above, creating a visible trail of progress. (2) The progress indicator at the top should animate smoothly — the completed segment fills with color as the next segment activates. No instant jumps. (3) The transition should take 300-400ms — fast enough to feel responsive, slow enough to be perceivable as motion rather than a jump.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 01:03-02:57",
+          "type": "host_call",
+          "quote": "[Continuous conversational flow from property details through availability, guests, guarantee, photos — no hard breaks between topics]",
+          "insight": "Bryant's call has no 'step transitions' — topics flow into each other with verbal bridges. The platform's step transitions must feel equally fluid. A hard cut (blank screen → new form) is the visual equivalent of Bryant hanging up and calling back for each new topic."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through, making up our own vaguely plausible stories about what we're doing and why it works.",
+          "insight": "Drew's 'plausible story' about a multi-step wizard is shaped by his call experience: 'one topic at a time, each one leading to the next, with the prior topic still in memory.' A compressed summary of prior steps maintains this story. A hard cut that erases prior context breaks it."
+        },
+        {
+          "source": "drew-call.txt, 05:52-06:14",
+          "type": "host_call",
+          "quote": "can we maybe move on?",
+          "insight": "Drew wants forward momentum. Step transitions that feel like 'moving on' (smooth progression, visible progress) satisfy this desire. Transitions that feel like 'starting over' (blank screen, no context) frustrate it."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "A good visual hierarchy saves us work by preprocessing the page for us, organizing and prioritizing its contents in a way that we can grasp almost instantly.",
+          "insight": "The compressed summary of completed steps IS a visual hierarchy applied to time: 'this is done (small, muted), this is now (full size, active), this is next (invisible, not yet relevant).' It preprocesses the wizard's temporal structure for Drew."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The current step is displayed at full size with its form/content active. Completed steps are compressed into summary lines above (showing the confirmed values — e.g., '1BR, Chelsea, $2,000/mo'). Future steps are not visible. The progress indicator shows cumulative completion.",
+        "loading": "When transitioning between steps, the outgoing step compresses to a summary line while the incoming step's skeleton appears and fills with data. The transition animation itself serves as the loading indicator — no separate spinner needed. If data for the next step takes longer than the transition animation (300ms), the step's skeleton holds position until data arrives.",
+        "empty": "If a step has no pre-populated data (genuinely new information requested), the step presents its input field with a placeholder that echoes Bryant's language: 'What would you like to call your place?' instead of 'Enter listing title.' The empty state is a question, not a blank field.",
+        "error": "If a step's submission fails, the step remains active (does not compress to summary). An inline error message appears below the problematic field. The step's border or background shifts to --signal-warn-bg to visually flag the issue without blocking the entire flow. Drew can correct and re-submit without navigating backward.",
+        "success": "On successful step completion, the step compresses to a single-line summary with a subtle checkmark. The compression animation uses spring easing for a satisfying 'snap into place' feeling. The summary line is tappable — Drew can expand it to edit a prior answer if needed."
+      },
+      "transition_principle": "Step transitions are compressions and expansions, not replacements. The outgoing step doesn't disappear — it condenses. The incoming step doesn't appear from nothing — it grows from the boundary of the outgoing step. This creates a continuous visual thread that mirrors the continuous conversational thread of Bryant's call. The screen never goes blank between steps.",
+      "timing": {
+        "response_target": "300ms for the full step transition animation (compress outgoing + expand incoming). 150ms delay before the incoming step becomes interactive, to prevent accidental input during the transition.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) — the 'out' easing from tokens.json for the compression of the outgoing step (fast start, smooth landing). cubic-bezier(0.34, 1.56, 0.64, 1) — the 'spring' easing for the expansion of the incoming step (slight overshoot that creates a 'settling in' feeling).",
+        "rationale": "300ms is within the 100-400ms range where animations feel responsive but perceivable. The asymmetric easing (out for compression, spring for expansion) creates a visual rhythm: the old step snaps away efficiently, the new step arrives with a gentle bounce that signals 'here's the next thing.' This matches Bryant's conversational rhythm: quick acknowledgment, then a new topic introduced with a slightly different energy."
+      },
+      "journey_state_awareness": "During onboarding (first platform visit), each step should include Bryant's name or reference to the call to maintain the human connection: 'Bryant mentioned your Chelsea apartment — let's confirm the details.' During listing_creation (Step 4-6 of the wizard), the compressed summaries of prior steps serve as a progress trail that combats the 'how much more?' anxiety. By Step 5, Drew can see 4 completed summary lines above — visual evidence that he's almost done.",
+      "edge_cases": [
+        "Drew clicks the browser back button during a multi-step flow — the flow should not break. Instead, the current step should compress and the prior step should re-expand from its summary line, maintaining the visual continuity",
+        "Drew leaves mid-flow and returns later — the flow should resume at the last incomplete step, with all prior completed steps shown as summaries. No re-entry friction.",
+        "A step has validation errors that prevent progression — the step must remain expanded and active, with the error clearly indicated, while all completed summaries above remain visible and accessible",
+        "Drew taps a completed summary line to edit a prior answer — the summary should expand back to full step size, pushing the current step down. After editing, the step re-compresses and the current step scrolls back into view"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Satisfice-Proof Error Prevention on Scannable Forms",
+      "journey_phases": ["listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "Drew is a textbook satisficer — he accepts the first reasonable option without scrutiny. Krug Ch. 2: 'we choose the first reasonable option, a strategy known as satisficing.' On the platform, this means Drew will accept pre-populated defaults, scan past validation rules, and click Submit without reviewing. If the form allows submission with incorrect or incomplete data (because Drew satisficed past a required field), the error surfaces after submission — at which point Drew must find and fix the problem. This is the worst interaction pattern for a scanner: finding a specific error in a form he barely looked at the first time. Krug Ch. 1: 'every question mark adds to our cognitive workload.' A post-submission error is the biggest question mark: 'What went wrong? Where? How do I fix it? Did I lose my other changes?' Error prevention must happen at the moment of input, not at the moment of submission.",
+      "solution": "Implement inline, real-time validation that prevents errors before they reach submission. The principle: validate each field as Drew leaves it (on blur), not when he submits the form. For pre-populated fields, validate on page load and flag any issues before Drew reaches the Submit button. Concretely: (1) Required fields validate on blur — if Drew tabs past a required field, a gentle inline indicator appears immediately: 'This field is needed' with a warm border color change (--signal-warn), not a red alert. (2) Format validation (e.g., phone number, email) provides immediate formatting feedback as Drew types — the field shows the formatted result in real time. (3) Pre-populated fields that have derivation errors (e.g., wrong nightly rate from monthly rent) are flagged before Drew sees them — the flag says 'This looks different from what you told Bryant — please check' in Drew's language. (4) The Submit button remains enabled but, if errors exist, clicking it scrolls to the first error and pulses the error indicator. No modal dialog, no page-top error summary, no form reset.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "most of the time we don't choose the best option — we choose the first reasonable option, a strategy known as satisficing.",
+          "insight": "Satisficing means Drew will not review a form before submitting. He will scan the pre-populated values, accept them if they look reasonable, and click Submit. If an error exists in a field he scanned past, he will not catch it voluntarily. The system must catch it for him, at the moment he leaves the field."
+        },
+        {
+          "source": "drew-call.txt, 00:52",
+          "type": "host_call",
+          "quote": "To confirm that would be a 2000 a month, I think is what it's listed here. That's right.",
+          "insight": "Drew confirms his rent in 3 seconds. If the platform pre-populates $2,000 but a derivation error shows $1,857 as the nightly equivalent, Drew's scan may accept both numbers without noticing the inconsistency. Inline validation must flag derivation mismatches proactively."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "the fact that the people who built the site didn't care enough to make things obvious — and easy — can erode our confidence in the site and its publishers.",
+          "insight": "Post-submission errors feel like the platform's fault, not Drew's. They erode confidence. Inline prevention feels like the platform is helping Drew get it right — which builds confidence. The interaction pattern affects trust."
+        },
+        {
+          "source": "drew-call.txt, 02:57-03:03",
+          "type": "host_call",
+          "quote": "regarding security deposit or damage deposit. Is that something you charge? ... 1000.",
+          "insight": "Drew answers deposit questions instantly. If the platform's deposit field has a minimum requirement that Drew's $1,000 doesn't meet, inline validation should flag this the moment Drew enters (or confirms) the value — not after he submits the entire form."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All form fields display their values (pre-populated or empty) with standard styling. No validation indicators are visible. The form looks clean and inviting — not guarded by rules.",
+        "loading": "During initial data population (pre-filling from call data), fields show skeleton placeholders. Once data arrives, fields populate and any pre-validation issues are flagged immediately — the form arrives pre-validated, not pre-filled-and-unchecked.",
+        "empty": "Empty required fields show a placeholder in Drew's language ('e.g., Comfortable Chelsea 1BR' for listing title). On blur without input, the field's border shifts to --signal-warn (#c17a28) and a single-line message appears below: 'We need this to create your listing.' No red, no exclamation marks, no 'Error: required field.'",
+        "error": "Inline error state: the field's border shifts to --signal-warn (not --signal-danger — warm, not alarming). A single-line message appears directly below the field explaining what's needed in conversational language. The field label remains visible. If Drew scrolls past the error to Submit, clicking Submit scrolls back to the first error and gently pulses the error indicator (2 pulses, 300ms each).",
+        "success": "On valid input, the field's border returns to default. No green checkmarks, no 'Valid!' messages — the absence of error indicators IS the success signal. Over-celebrating correct input is as distracting as over-punishing errors. The form should feel calm when things are right."
+      },
+      "transition_principle": "Validation indicators appear with a gentle fade-in (150ms, out easing) when Drew leaves an invalid field, and disappear with an equally gentle fade-out when Drew corrects the value. The transition is subtle — the indicator 'arrives' rather than 'appears.' No sudden color changes, no shaking animations, no jarring red borders. The tone is helpful, not punitive: the platform is guiding Drew, not scolding him.",
+      "timing": {
+        "response_target": "Validation triggers on blur (when Drew leaves the field) with a 100ms debounce to prevent flickering. Visual feedback appears within 200ms of validation completion. Format-as-you-type validation (e.g., phone numbers) updates with each keystroke, debounced at 50ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) — the 'out' easing for both appearance and disappearance of validation indicators. Smooth and unobtrusive.",
+        "rationale": "On-blur validation catches errors at the moment of maximum relevance — Drew just interacted with the field, so the error context is fresh. Post-submission validation forces Drew to re-find and re-contextualize the error. The 100ms debounce prevents validation from firing on focus-then-immediate-blur (e.g., tabbing through fields quickly)."
+      },
+      "journey_state_awareness": "During listing_creation (Drew's first form experience), validation messages should use language from the call: 'What would you like to call your place?' not 'Title is required.' During pricing, validation should reference the known amount: 'Your monthly rent is $2,000 — does this nightly rate look right?' During proposal_mgmt, validation is minimal (most fields are read-only confirmations) but counter-offer fields should validate in real time to prevent Drew from submitting an impossible counter.",
+      "edge_cases": [
+        "Drew never leaves a field (types and immediately clicks Submit) — Submit should trigger validation on all fields simultaneously, with scroll-to-first-error behavior",
+        "Pre-populated values that are technically valid but inconsistent with call data (e.g., address slight mismatch) — use a softer 'info' indicator (--signal-info) instead of a warning, with 'Please confirm this is correct'",
+        "Drew pastes a long text block into a character-limited field — truncate gracefully and show remaining character count, not an error",
+        "Multiple fields have errors simultaneously — number the errors sequentially in the inline messages ('1 of 3: We need your listing title') so Drew knows how many remain"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Fallback-to-Bryant Escape Hatch at Every Dead End",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "Drew's call ends with Bryant offering himself as a permanent fallback: 'if you have any questions for me, you can feel free to text me or email me' (05:38). This means Drew has a mental escape hatch: whenever the platform confuses him, his instinct is to text Bryant. The problem is not that Drew contacts Bryant — it's that the platform has no awareness of when Drew is confused and offers no in-context path back to Bryant. Drew must leave the platform entirely (open his phone, find Bryant's contact, compose a text) to use the escape hatch. By the time he gets a response, he may have forgotten what he was doing. Krug Ch. 2: 'If we find something that works, we stick to it.' If Drew discovers that texting Bryant works better than using the platform, he will never learn to use the platform. The platform must intercept the 'I'm confused' moment and offer the Bryant fallback in context, before Drew leaves.",
+      "solution": "Place a contextual 'Ask Bryant' button at every potential dead end — error states, empty states, unfamiliar concepts, and complex decision points. The principle: whenever the platform cannot provide self-evident guidance, it should offer the human fallback within the same screen. Concretely: (1) Every error state includes 'Need help? Message Bryant' as a secondary action below the retry button. (2) Every unfamiliar platform concept (lease style, pricing model, counter-offer mechanics) includes a 'Not sure? Bryant can explain' link. (3) The global navigation includes a persistent 'Bryant' icon or chat shortcut that is always one tap away. (4) The 'Ask Bryant' action should pre-fill context: 'Drew has a question about [the proposal from Ariel & Amber] while [reviewing pricing].' Bryant receives a message that includes the host's current screen and context, reducing back-and-forth.",
+      "evidence": [
+        {
+          "source": "drew-call.txt, 05:38-05:50",
+          "type": "host_call",
+          "quote": "if you have any questions for me, you can feel free to text me or email me... Sounds good. Anything else for me?",
+          "insight": "Bryant explicitly establishes the escape hatch. The platform must honor this promise by making Bryant accessible from within the platform, not requiring Drew to leave the platform to reach him."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 2",
+          "type": "book",
+          "quote": "If we find something that works, we stick to it. Once we find something that works — no matter how badly — we tend not to look for a better way.",
+          "insight": "If texting Bryant outside the platform works, Drew will never use the platform's help features. The platform must make the in-context Bryant contact easier than the out-of-platform text message — or Drew will permanently bypass the platform for human support."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "Making pages self-evident is like having good lighting in a store: it just makes everything seem better.",
+          "insight": "The Bryant escape hatch is the 'store employee' analog: when the store layout fails, you ask a human. But the human must be visible and available on the store floor — not in a back office. The 'Ask Bryant' button must be as visible and available as a store employee walking the floor."
+        },
+        {
+          "source": "drew-call.txt, 04:46-05:01",
+          "type": "host_call",
+          "quote": "if you can text me your email address, I will send you pictures... Sounds good. I'll do that.",
+          "insight": "Drew defaults to the simplest communication channel (text) for sharing assets. The platform's 'Ask Bryant' function should feel equally simple — not a support ticket form, not a chatbot, but a direct message to Bryant that feels like a text."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "A small, persistent 'Bryant' avatar or icon sits in a fixed position (bottom-right corner or in the global nav). It's always visible but visually recessive — not competing with the primary content. On hover/tap, it expands to show 'Message Bryant' with a text input field pre-filled with context.",
+        "loading": "When the host sends a message, the button shows a subtle sending indicator (the avatar gets a small progress ring). The message is sent asynchronously — Drew does not wait for a response before continuing to use the platform.",
+        "empty": "If Bryant has not been assigned to this host (edge case), the escape hatch shows 'Message your Split Lease agent' instead. The function works the same — the message routes to the appropriate agent.",
+        "error": "If the message fails to send (network issue), the button shows a retry indicator with the message preserved: 'Message not sent — [Tap to retry].' The message text is never lost.",
+        "success": "After sending, the button briefly shows a checkmark ('Sent to Bryant') that fades back to the default avatar after 2 seconds. If Bryant responds, a notification badge appears on the avatar."
+      },
+      "transition_principle": "The Bryant escape hatch expands and collapses in place — it never opens a new page or modal. The expansion is a smooth scale animation (200ms, spring easing) that feels like opening a small drawer. Drew's context is never lost. The message input appears inline, below the avatar, overlaying the bottom portion of the screen with a semi-transparent background that dims the content behind it without hiding it entirely.",
+      "timing": {
+        "response_target": "The escape hatch should expand within 150ms of tap. The context pre-fill (current screen, current action) should populate within 100ms. Message sending should feel instant (optimistic UI — 'Sent' appears immediately, actual delivery happens in background).",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) — spring easing for the expansion, creating a friendly, approachable 'pop open' that makes the escape hatch feel inviting rather than transactional.",
+        "rationale": "Spring easing makes the escape hatch feel human — it bounces slightly like a conversation starting, not like a form opening. The 150ms expansion time is fast enough to feel responsive but slow enough to be perceived as an animation rather than an instant state change."
+      },
+      "journey_state_awareness": "During onboarding (first visit), the Bryant avatar should be more prominent — slightly larger, with a subtle pulse animation on first appearance and a tooltip: 'Bryant is here if you need help.' During active_lease (recurring visits), the avatar recedes to minimal size — Drew knows it's there. During listing_creation and pricing (high-confusion phases), the avatar should respond to inactivity: if Drew hasn't interacted with the page for 30 seconds, the avatar gently pulses once as a reminder.",
+      "edge_cases": [
+        "Drew sends multiple messages in quick succession — queue them as a single conversation thread, don't create separate tickets",
+        "Bryant is offline (nights, weekends) — the escape hatch should still work but set expectations: 'Bryant will see this when he's back. For urgent issues, call [number]'",
+        "Drew uses the escape hatch on every page (over-reliance) — after 3+ messages in a session, gently offer self-service alternatives: 'Here's a quick guide for [current topic] — or Bryant can help'",
+        "The message context pre-fill includes sensitive data (pricing, guest details) — ensure the pre-fill only includes data Bryant already has access to, not data from other hosts or system internals"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Convention-Matching Hover and Click Affordances",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Krug Ch. 3 warns that unclear clickability is a trust-eroding problem: 'when you force users to think about something that should be mindless like what's clickable, you're squandering the limited reservoir of patience and goodwill.' Drew maps everything to conventions he already knows. When he encounters a UI element, his System 1 classifies it instantly: 'that's a button' or 'that's a heading' or 'that's a link.' This classification is based on visual conventions — filled rectangles are buttons, underlined text is links, large bold text is headings. If the platform uses a filled rectangle for a non-interactive status badge (same shape as a button), Drew's hand reaches for it — and nothing happens. Each false affordance erodes trust. Conversely, if an interactive element looks like static text (no underline, no button shape, no hover change), Drew will never discover it. The interaction pattern must ensure that hover states, click targets, and cursor changes follow the conventions Drew expects.",
+      "solution": "Implement a strict affordance convention: (1) Every clickable element must have a visible hover state that changes cursor to pointer, shifts background color (darken by 8-12%), and optionally adds a subtle shadow. Drew's eye-hand coordination relies on hover feedback to confirm 'yes, this is clickable.' (2) Every non-clickable element must NOT respond to hover — no cursor change, no color shift, no shadow. Static content is static. (3) Buttons must use filled shapes (rounded rectangles) exclusively. No other UI element may use a filled shape of the same color. (4) Text links must use underline or a distinct link color (--secondary-purple) that never appears on non-interactive text. (5) Cards that are entirely clickable must show a hover state across the entire card (shadow lift + slight scale) and cursor:pointer. Cards that are NOT clickable must not respond to hover at all — no partial clickability where only the title is a link but the card body is not.",
+      "evidence": [
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "Since a large part of what people are doing on the Web is looking for the next thing to click, it's important to make it obvious what's clickable and what's not.",
+          "insight": "Drew's scanning behavior is search-for-next-click behavior. The hover state is the confirmation signal that his scan target is correct. Without it, Drew must guess — and guessing is thinking, which violates Krug's First Law."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 3",
+          "type": "book",
+          "quote": "On Senator Orrin Hatch's Home page... it wasn't clear whether everything was clickable, or nothing was.",
+          "insight": "The Hatch example demonstrates the worst case: when everything looks the same, nothing signals clickability. The platform must create a clear visual gap between interactive and non-interactive elements through hover states, shapes, and cursor behavior."
+        },
+        {
+          "source": "drew-call.txt, 04:21-04:38",
+          "type": "host_call",
+          "quote": "one more question I had was about pictures of the space and wondered if you had any more... Yes. I have more pictures and I can send you.",
+          "insight": "Bryant's photo request is a clear verbal affordance — Drew knows he's being asked to act. The platform's photo upload trigger must have equally clear visual affordance: a distinct upload button or drop zone with unmistakable 'click me' styling."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch. 1",
+          "type": "book",
+          "quote": "I should be able to 'get it' — what it is and how to use it — without expending any effort thinking about it.",
+          "insight": "Hover states are the mechanism by which Drew 'gets' what's interactive. Without hover feedback, Drew must click speculatively — which is the opposite of self-evident interaction."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Interactive elements display their resting visual state: buttons have filled backgrounds (--secondary-purple), text links have underlines or distinct link color, form fields have visible borders. Non-interactive elements have no interactive styling — no underlines on headings, no button shapes on badges, no link colors on labels.",
+        "loading": "Interactive elements that trigger async operations show a loading state within the element itself (spinner inside the button, progress bar inside the link). The element remains in its clicked/active visual state during loading — it does not return to the default hover state, which would suggest 'click me again.'",
+        "empty": "Not applicable — affordance conventions apply to all elements regardless of data state.",
+        "error": "If clicking an interactive element results in an error, the element returns to its default state (not the hover state) and an inline error appears nearby. The element remains clickable for retry. The error state should not change the element's affordance — it's still a button, it still looks clickable, it just shows what went wrong.",
+        "success": "After successful click, interactive elements either (a) transition to a success state (checkmark, green border) for confirmation actions, or (b) navigate to the next screen for navigation actions. In both cases, the hover state is replaced by the success/navigation transition — the element should never show a 'you can click again' hover state immediately after a successful click."
+      },
+      "transition_principle": "Hover transitions are instant on entry (0ms delay — the hover state appears the moment the cursor enters the element) and fade out over 150ms on exit (the hover state lingers briefly as the cursor leaves, preventing flickering). Click/active states darken the element by an additional 5% and scale it to 0.98 for 100ms, creating a subtle 'press' effect. These timing conventions must be consistent across ALL interactive elements — buttons, links, cards, form fields — so Drew's muscle memory builds a reliable 'this is how interactive things feel on Split Lease.'",
+      "timing": {
+        "response_target": "0ms for hover state appearance (instant). 150ms for hover state fade-out. 100ms for click/active state. Consistent across all interactive element types.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) — the 'out' easing for hover fade-out. Linear for click/active state (the press should feel mechanical and immediate, not bouncy).",
+        "rationale": "Instant hover entry ensures Drew gets immediate feedback when his cursor finds an interactive element. The 150ms fade-out prevents the flickering that occurs when a cursor grazes an element's edge. The 100ms click state is fast enough to feel responsive but slow enough to be perceived as physical feedback."
+      },
+      "journey_state_awareness": "Hover conventions must be identical across all journey phases — they are a platform-level interaction language, not a phase-specific pattern. The one exception: during onboarding (first visit), the primary CTA button may have a subtle persistent glow or shadow that draws attention before hover, gradually fading after Drew's first successful click as he learns the convention.",
+      "edge_cases": [
+        "Touch devices (no hover) — clickable elements must be identifiable without hover, through shape and color alone. The filled-shape convention for buttons and the underline convention for links provide this redundancy",
+        "Keyboard navigation (tab focus) — focus states must be as visually distinct as hover states, using a visible focus ring (2px solid --secondary-purple) that is never suppressed",
+        "Elements that change clickability based on state (e.g., a disabled button that becomes enabled) — the transition from non-interactive to interactive must include the appearance of hover affordance. The element should 'wake up' with a subtle animation (opacity 0.5 → 1.0, 200ms) when it becomes interactive",
+        "Dropdown menus where hover behavior differs from click behavior — hover opens the menu preview, click selects. The distinction must be communicated through cursor change (pointer on hover) and visual feedback (highlight on hover, fill on click)"
+      ]
+    }
+  ]
+}
