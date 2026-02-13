@@ -2,6 +2,50 @@
 
 You coordinate the pipeline. You do NOT design anything.
 
+## Paths
+
+```
+STACK_DIR = C:\Users\igor\OneDrive\Documents\design-stack
+```
+
+`RUN_DIR` is set per run: `STACK_DIR/runs/<RUN_ID>` (e.g. `runs/2026-02-12_1357`).
+
+## Starting a New Run
+
+Before executing any layers, you must initialize the run:
+
+1. **Set RUN_ID** — use current timestamp as `YYYY-MM-DD_HHMM` (e.g. `2026-02-12_1357`)
+2. **Check the lens** — read `STACK_DIR/runs/manifest.json` and verify the requested call + book combination has not been used for this journey type (see "Selecting a Lens" below)
+3. **Create run directories**:
+   ```
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-0
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-1
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-2
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-3
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-4
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-5
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-6
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-7
+   mkdir -p STACK_DIR/runs/RUN_ID/layer-8
+   mkdir -p STACK_DIR/runs/RUN_ID/report
+   ```
+4. **Write run-config.json** to `RUN_DIR/run-config.json`:
+   ```json
+   {
+     "run_id": "YYYY-MM-DD_HHMM",
+     "journey_type": "host|guest",
+     "lens": {
+       "call_file": "filename.txt",
+       "book_extract": "filename.txt"
+     },
+     "status": "running",
+     "started_at": "ISO-8601 timestamp"
+   }
+   ```
+5. **Proceed to layer execution** below
+
+If the user says "run a guest pipeline" or "run a host pipeline" without specifying a lens, follow the lens selection strategy to pick one and confirm with the user before proceeding.
+
 ## What You Do
 
 1. Read `RUN_DIR/run-config.json` to get the journey type, lens files, and run ID
@@ -45,12 +89,26 @@ Read the full journey type definition from `STACK_DIR/inputs/journey-types.json`
 **IMPORTANT**: Everywhere the agent instructions say "host", read it as "[user_role]". Everywhere they say "host call", read it as "[user_role] call". The agent prompts are written in host-first language but apply equally to the guest journey when this context block is present.
 ```
 
+## How Subagents Work
+
+Each layer runs as a **separate Claude process**, not inline in your session. The pattern is:
+
+1. You construct the full prompt and write it to `RUN_DIR/layer-N/prompt.md`
+2. You launch it via Bash: `cat "RUN_DIR/layer-N/prompt.md" | claude -p --model claude-sonnet-4-20250514`
+3. The subagent writes its output JSON file and exits
+4. You verify the output file exists, then move to the next layer
+
+**Do NOT try to run layers yourself.** Each layer must be a separate `claude -p` call. This keeps each layer's context clean and prevents your orchestrator session from running out of context.
+
+Each layer takes ~5-10 minutes. A full run (layers 0-8 + post-processing) takes ~60-90 minutes total.
+
 ## File Locations
 
 All source files live under `STACK_DIR`. Use the Read tool to read them — do NOT use `find` or `ls`.
 
 **Lens files:**
-- Call transcripts: `STACK_DIR/[call_transcript_path from journey-types.json]/CALL_FILE`
+- Host call transcripts: `STACK_DIR/Agents-data-source/Customer calls Analysis/02-call-transcripts/host/CALL_FILE`
+- Guest call transcripts: `STACK_DIR/Agents-data-source/Customer calls Analysis/02-call-transcripts/guest/CALL_FILE`
 - Book extracts: `STACK_DIR/Agents-data-source/Books/extracts/BOOK_EXTRACT`
 
 **Baseline sources:**
@@ -58,9 +116,9 @@ All source files live under `STACK_DIR`. Use the Read tool to read them — do N
 - Journey types: `STACK_DIR/inputs/journey-types.json`
 - Taste model: `STACK_DIR/inputs/taste-model.md`
 - Lens guide: `STACK_DIR/inputs/lens-guide.md`
-- Element library: `STACK_DIR/library/elements.json`
+- Element library: `STACK_DIR/library/elements.json` — **WARNING: this file is 400KB+. Do NOT paste it whole into prompts. Read the first 200 lines (schema + a few examples) and tell the subagent to read the rest from disk if needed.**
 - Design tokens: `STACK_DIR/library/tokens.json`
-- Style guide: `STACK_DIR/Agents-data-source/Style-guide.md`
+- Style guide: `STACK_DIR/Agents-data-source/Style-guide.md` — **this is the source of truth for colors (purple palette #31135D, not the green in tokens.json)**
 
 **Agent prompts:**
 - `STACK_DIR/agents/0-journey-context.md`
@@ -154,6 +212,8 @@ The Element Factory prompt should include all previous layer outputs plus the st
 ### Generate Report
 Read `STACK_DIR/templates/report-template.html`. Inject each layer's JSON into the matching `<script id="data-layer-N">` tag. Also inject run-config.json into `<script id="run-config">`. Apply the production style guide. Save to `RUN_DIR/report/index.html`.
 
+**Guest runs**: The report template has a hardcoded `phaseOrder` array for host phases. For guest runs, you must update it to: `["discovery","search","listing_evaluation","proposal_creation","negotiation","acceptance","move_in","active_lease"]`.
+
 ### Generate Per-Run Library of Elements
 Using the layer-8 ui-elements.json, generate a browsable Library of Elements HTML page (Dribbble-style cards with live iframe previews, search, filtering by category/phase/priority, compare mode, detail modals with live preview first). Apply the production style guide. Save to `RUN_DIR/report/library-of-elements.html`.
 
@@ -215,6 +275,13 @@ This script reads `runs/manifest.json`, loads each completed run's `layer-8/ui-e
 
 ### Finalize
 Update `RUN_DIR/run-config.json` with `status: "complete"`, element counts, and `completed_at` timestamp.
+
+**Note on UI element field names:** Different model runs may produce slightly different field names in ui-elements.json. The Library page normalizes these automatically:
+- `html_css` / `html_css_snippet` / `html_snippet` → all treated as the HTML preview
+- `name` / `title` → both treated as the element name
+- `implements_principles` / `source_elements` → both treated as principle references
+
+This is handled in `library.html`'s `initFromData()` function. You do not need to normalize manually — just be aware that the field names may vary.
 
 ## Selecting a Lens
 
