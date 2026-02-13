@@ -1,0 +1,372 @@
+{
+  "lens": {
+    "guest_call": "nneka-call.txt",
+    "book_extract": "donnorman-affordances-signifiers-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Validate Rescheduling Policy Discoverability in Search Results",
+      "validates_element": "works-001",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "Guests seeking flexible housing cannot discover whether listings support rescheduling during search. If flexibility badge/signifier is not scannable within 3 seconds, guests will filter out compatible listings or book without understanding flexibility options, leading to post-booking conflict.",
+      "solution": "Run unmoderated usability tests with hybrid workers (target segment) viewing search results mockups. Task: 'Find a listing that allows you to change dates if your work schedule changes.' Success = guest identifies flexible listing within 3 seconds via badge recognition. Failure = guest cannot differentiate flexible from rigid listings without clicking through.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Brad was texting me and saying, Hey, you know, I can't make it, can I do another day? (lines 19-24)",
+          "insight": "Rescheduling happens entirely outside platform because flexibility is invisible during search. Validation confirms badge makes this discoverable."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Signifiers are more important than affordances for designers. Affordances determine what actions are possible. Signifiers communicate where the action should take place. (lines 194-201)",
+          "insight": "Test must validate that signifier (badge) successfully communicates affordance (rescheduling possible) to guest during search scan."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Unmoderated 5-second usability tests with 15 hybrid workers. Show search results page with 6 listings (3 with flexible badges, 3 without). Ask: 'Which listings allow rescheduling if your plans change?' Record: time to first correct identification, accuracy rate, eye-tracking heatmaps on badge location.",
+      "success_criteria": "80% of participants identify at least one flexible listing within 3 seconds. Badge receives 70%+ of fixations during initial scan. Post-test survey shows 90%+ understand badge meaning without explanation.",
+      "failure_meaning": "Badge design fails discoverability test. Indicates: (1) Badge placement not in natural scan path, (2) Badge visual treatment insufficient contrast/salience, (3) Badge icon/label ambiguous meaning. Requires badge redesign with stronger visual hierarchy or alternative signifier strategy (text-based vs icon-based).",
+      "implementation_hint": "Use tools like Maze.co or UserTesting for unmoderated tests. Create 3 variations: icon-only badge, text-only badge, icon+text badge. Test comparatively to identify optimal signifier design. Follow up with A/B test in production measuring click-through rate on flexible vs non-flexible listings among hybrid worker segment."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Validate Asynchronous Feedback Reduces Guest Anxiety During Wait",
+      "validates_element": "works-002",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Five-stage feedback system hypothesizes that progressive status updates during async host decision reduce guest anxiety and inquiry rate. If guests still send 'where's my request?' messages despite status updates, feedback timing or informativeness is insufficient.",
+      "solution": "A/B test with guests submitting rescheduling requests. Control group: single acknowledgment ('Request sent'). Treatment group: five-stage progressive feedback (received → reviewing → checking availability → approved/denied). Measure: guest inquiry rate ('any update?' messages), time-on-page for status screen (engagement with updates), post-resolution satisfaction survey.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Brad was texting me and saying, Hey, you know, I can't make it, can I do another day? (lines 19-24)",
+          "insight": "Current zero-feedback system forces guest to wait in silence. Validation confirms progressive updates fill information vacuum effectively."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. If the delay is too long, people often give up. (lines 261-263)",
+          "insight": "Test validates that incremental feedback (stages 1-3) compensates for unavoidable async delay in final decision (stage 4)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Production A/B test with 200 rescheduling requests (100 control, 100 treatment). Control receives instant acknowledgment only. Treatment receives five-stage updates at defined intervals (instant, 1hr, 4hr, decision, next-action). Track: guest support inquiries during wait period, status page revisit frequency, time between status checks, post-approval NPS score, completion rate for multi-stage flow.",
+      "success_criteria": "Treatment group shows <10% inquiry rate (vs predicted >30% in control). Status page engagement shows 60%+ return within 4 hours to check updates. Post-resolution satisfaction 15+ points higher in treatment. No significant drop-off between feedback stages.",
+      "failure_meaning": "Progressive feedback fails to reduce anxiety if: (1) Inquiry rate remains high (>20%) indicating guests don't trust updates, (2) Status page shows low engagement indicating updates not compelling enough to check, (3) Satisfaction unchanged indicating updates perceived as noise not value. Failure suggests either update timing wrong (too frequent/infrequent), content uninformative ('still processing' vs 'Nneka is checking her Airbnb calendar'), or guest preference for single notification at decision only.",
+      "implementation_hint": "Instrument each feedback stage with analytics events. Use Segment or Mixpanel to track stage transitions and guest behavior between stages. Include qualitative follow-up: survey treatment group asking 'Did status updates help you feel informed during the wait?' Failure mode analysis: if stage 3 (4hr proactive check-in) causes drop-off, may indicate update fatigue—test removing intermediate stages."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Validate Replacement vs Addition Conceptual Model Clarity",
+      "validates_element": "works-003",
+      "journey_phases": ["listing_evaluation", "negotiation"],
+      "problem": "Spatial layout (left=replace, right=add) hypothesizes natural mapping communicates conceptual model without text. If guests select wrong path or show confusion in think-aloud, spatial distinction fails and requires explicit labeling or different visual metaphor.",
+      "solution": "Moderated usability test with rescheduling interface prototypes. Present scenario: 'Your original dates are Feb 1-8. You need to reschedule.' Task 1: 'Change to Feb 15-22 instead' (replacement). Task 2: 'Add Feb 15-22 while keeping Feb 1-8' (addition). Observe path selection, measure time-to-decision, capture think-aloud confusion signals, post-task comprehension check.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Replacing: Brad swaps booked dates for different dates. Adding: Brad books additional nights beyond original contract. Nneka would charge DIFFERENT (higher) rate for additions. (lines 141-145)",
+          "insight": "Host has clear mental model but guest has no access. Test validates spatial layout successfully transfers this model to guest-facing interface."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Mapping is a technical term... When the mapping uses spatial correspondence between the layout of the controls and the devices being controlled, it is easy to determine how to use them. (lines 244-249)",
+          "insight": "Natural mapping hypothesis must be validated empirically—what feels 'natural' to designer may not to user without domain knowledge."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Moderated remote usability tests with 10 guests (5 first-time, 5 repeat users). Show Figma prototype with side-by-side paths (arrow icon vs plus icon, left vs right placement). Give both replacement and addition scenarios in randomized order. Record: correct path selection rate, hesitation time before selection, think-aloud verbalization ('I think this means...'), post-task explanation ('What's the difference between these two options?').",
+      "success_criteria": "90%+ select correct path on first try for both scenarios. Average decision time under 5 seconds. Post-task explanation demonstrates understanding: 'Replace swaps my dates, add keeps original and books more.' Zero participants express confusion about pricing implications (replacement=original rate, addition=current rate).",
+      "failure_meaning": "Spatial mapping fails if: (1) <70% correct selection indicating layout doesn't communicate distinction, (2) High hesitation time (>10s) indicating cognitive effort to interpret, (3) Post-task explanation shows conceptual confusion ('I'm not sure what replace means'). Failure modes: left/right position may not carry semantic meaning without Western reading pattern assumption, arrow/plus icons may be too abstract, pricing implication may require explicit text not just spatial layout. Remedy: add text labels ('Swap dates' vs 'Add more dates'), show pricing preview immediately upon path selection, or collapse into single interface with radio toggle instead of spatial paths."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Validate Crisis Mode Hierarchy Surfaces Outcome Above Fold",
+      "validates_element": "works-004",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "Crisis-optimized hierarchy hypothesizes large serif outcome ('Available'/'Unavailable') at top eliminates scroll-to-see-answer anxiety. If guests still scroll before seeing outcome or miss outcome on initial view, hierarchy fails to prioritize critical information.",
+      "solution": "Eye-tracking usability test with crisis rescheduling prototypes. Scenario: 'Your check-in is tomorrow but you can't make it.' Show outcome page. Track: time to first fixation on outcome, scroll behavior before outcome seen, emotional response (facial coding or self-report), comprehension of next action. Compare crisis hierarchy (outcome-first) vs standard hierarchy (details-first).",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Brad was texting me and saying, Hey, you know, I can't make it, can I do another day? (lines 19-24)",
+          "insight": "Crisis language ('can't make it') requires crisis design. Test validates that outcome-first hierarchy meets urgency of moment."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Communication is especially important when things go wrong. (lines 156-157)",
+          "insight": "Problem state design must be validated separately from normal state. Crisis moments have different information hierarchy needs."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Eye-tracking study with 12 participants using Tobii or similar. Present crisis scenario with urgent rescheduling need. Show two designs: (A) Crisis hierarchy with 32px serif outcome at top, (B) Standard hierarchy with outcome buried in paragraph. Measure: time to first outcome fixation, scroll depth before fixation, pupil dilation (arousal/stress), post-test recall of outcome and next steps.",
+      "success_criteria": "Crisis hierarchy shows outcome fixation within 2 seconds for 90%+ participants. Zero scrolling before outcome seen. Pupil dilation lower in crisis hierarchy (less stress). Post-test recall: 100% correctly state outcome, 80%+ recall next action. Qualitative feedback: 'I saw the answer immediately' vs 'I had to hunt for it.'",
+      "failure_meaning": "Hierarchy fails if: (1) Fixation time >3s indicating outcome not visually dominant despite size/position, (2) Scrolling occurs before outcome seen indicating above-fold placement assumption wrong for actual viewport sizes, (3) Stress markers unchanged indicating hierarchy doesn't reduce cognitive load. Failure modes: 32px may be insufficient contrast if surrounding elements compete, serif font may reduce scanability compared to sans, color choice (green/amber) may not draw eye effectively. Remedy: increase size to 40px, add color background behind outcome (not just text color), add icon reinforcement (checkmark/warning), test left-aligned vs center-aligned for scan path optimization."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Validate Opportunity Cost Visualization Changes Guest Behavior",
+      "validates_element": "works-005",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Color-coded calendar (green/yellow/red consequence states) hypothesizes making opportunity cost visible will modify guest rescheduling behavior, reducing host policy changes. If guests proceed with red (high-cost) requests at same rate as before visualization, transparency doesn't influence decision-making.",
+      "solution": "Longitudinal cohort study comparing guest behavior before/after consequence visualization feature launch. Track: percentage of requests that create opportunity cost (red dates), request approval rate by consequence type, host policy stability (hosts changing from flexible to rigid), repeat rescheduling rate per guest. Measure over 3-month period.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "When Brad pushes dates back, previously available dates get blocked. Nneka can't book those dates to others. Creates opportunity cost. (lines 189-191)",
+          "insight": "Guest has no feedback about impact. Validation tests whether making consequence visible actually changes behavior or just adds information without behavioral change."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "You said you won't be doing that anymore. No, because, um, you know, Brad and I had our contract ended in January or February... it's not working financially. (lines 33-39)",
+          "insight": "Policy change is outcome of invisible cost accumulation. Test validates whether transparency prevents this deterioration pattern."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Cohort analysis using production analytics. Cohort A: guests using platform before opportunity cost visualization (baseline behavior). Cohort B: guests using platform after feature launch. Track over 90 days: distribution of request consequence types (green/yellow/red), request modification rate after seeing red consequence, approval rate by consequence type, host policy changes (flexible→rigid), aggregate opportunity cost per guest-host pair. Control for seasonality and other variables.",
+      "success_criteria": "Cohort B shows: 30% reduction in red (high-cost) requests, 20% increase in request modification after seeing red consequence ('Can I pick different dates?'), host policy stability >70% (vs <50% baseline), aggregate opportunity cost per pair reduced by $200 on average. Post-feature survey: 75%+ guests report 'understood impact on host' influenced their choice.",
+      "failure_meaning": "Visualization fails to change behavior if: (1) Request distribution unchanged (same % red requests), (2) No increase in modification rate indicating guests proceed despite red warning, (3) Host policy stability unchanged indicating transparency doesn't prevent deterioration. Failure suggests: consequence information may be too abstract ('opportunity cost' concept unclear), color coding may not convey severity effectively, or guests in crisis prioritize own needs regardless of host impact. Alternative hypotheses: guests don't check consequence before submitting, or do check but discount long-term relationship cost. Remedy: make consequence more concrete ('Nneka loses $150 if you take these dates'), add friction for red requests (require confirmation dialog), or shift to host-side controls (auto-reject high-cost requests)."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Validate Progressive Pricing Disclosure Prevents Surprise",
+      "validates_element": "works-006",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation"],
+      "problem": "Three-tier disclosure (simplified→specific→complex) hypothesizes guests won't feel deceived when seasonal pricing revealed during rescheduling. If post-rescheduling pricing disputes remain high (>5% target), progressive disclosure fails to set correct expectations.",
+      "solution": "Track pricing dispute rate and measure expectation alignment at each tier. Tier 1 comprehension check: after viewing listing, ask 'Does price change by season?' Tier 2: after proposal, ask 'What is your exact cost?' Tier 3: after rescheduling attempt, measure dispute rate and surprise factor via survey. Compare to baseline (no progressive disclosure).",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Original rate: $1,170-$1,175/month. New dates are priced higher seasonally. By allowing free rescheduling at old rates, Nneka loses money. (lines 123-126)",
+          "insight": "Guest booked without seasonal context, later surprised. Test validates whether Tier 1 signal ('rates vary by season') prevents this surprise pattern."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "A conceptual model is an explanation, usually highly simplified, of how something works. It doesn't have to be complete or even accurate as long as it is useful. (lines 271-273)",
+          "insight": "Simplified model must be accurate enough to prevent breakdown at higher complexity. Test validates transition points between tiers maintain model consistency."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Multi-stage validation across journey. Stage 1 (Listing): Exit survey on 50 listing viewers asking 'Will this price change seasonally? Yes/No/Unsure.' Target 80%+ correct. Stage 2 (Proposal): Form validation ensuring pricing shown matches expectation. Stage 3 (Rescheduling): Track pricing dispute rate (guest contests price after seeing new seasonal rate), measure via support tickets tagged 'pricing surprise' and post-rescheduling satisfaction survey asking 'Was new pricing expected? Very unexpected / Somewhat / Expected / Very expected.' Compare cohorts with/without progressive disclosure.",
+      "success_criteria": "Tier 1: 80%+ viewers correctly understand seasonal variation exists. Tier 2: 95%+ proposals show exact pricing matching guest expectation. Tier 3: Pricing dispute rate <5% (vs predicted 15-20% without disclosure), 'Very unexpected' responses <10%, support tickets related to pricing surprise reduced 60%+.",
+      "failure_meaning": "Progressive disclosure fails if: (1) Tier 1 comprehension <60% indicating 'rates vary' signal too subtle, (2) Tier 3 disputes remain high (>10%) indicating disclosure timing wrong or conceptual model inconsistent across tiers, (3) Qualitative data shows guests feel 'tricked' despite disclosure. Failure modes: Tier 1 may provide signal without retention (guest sees 'varies' but doesn't encode), Tier 2 specificity may create false fixed-price perception ('Jan 15-Feb 15: $1,170' reads as 'always $1,170'), Tier 3 full model may contradict Tier 1/2 framing. Remedy: strengthen Tier 1 with visual calendar heatmap showing variation, add explicit callout in Tier 2 ('This price is for your selected winter dates. Other seasons may differ'), pre-calculate rescheduling pricing in Tier 2 so Tier 3 is reminder not revelation."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Validate Seasonal Calendar Heatmap Establishes Pricing Conceptual Model",
+      "validates_element": "looks-004",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "Color temperature gradient (cool=winter/low, warm=summer/high) hypothesizes natural mapping communicates seasonal variation at-a-glance. If guests fail comprehension test or cannot predict relative pricing from colors, visualization doesn't effectively establish conceptual model.",
+      "solution": "Comprehension test with listing page mockups showing seasonal calendar heatmap. Ask: 'Looking at this calendar, which months cost more: January or July?' and 'Why do prices change?' Measure correct response rate, response time, and ability to articulate conceptual model. Compare heatmap vs text-only pricing description.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Original contract with Brad ended Jan/Feb. Original rate: $1,170-$1,175/month. New dates are priced higher seasonally. (lines 123-126)",
+          "insight": "Seasonal variation is invisible in current pricing display. Test validates calendar heatmap makes this variation discoverable during listing evaluation."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Natural mapping, by which I mean taking advantage of spatial analogies, leads to immediate understanding. (lines 252-253)",
+          "insight": "Color temperature as pricing metaphor relies on learned association (warm=expensive). Must validate this mapping is culturally intuitive for target users."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Unmoderated usability test with 20 participants. Show listing page with seasonal calendar heatmap (cool blue winter, warm amber summer). Ask: (1) 'Which season costs more?' (2) 'Estimate the price difference between winter and summer.' (3) 'Explain why prices change.' Record response accuracy, confidence level, time to answer. Compare three conditions: heatmap only, text explanation only, heatmap + text.",
+      "success_criteria": "Heatmap condition: 85%+ correctly identify higher-cost season within 10 seconds, 60%+ estimate price difference within 20% of actual ($180/month delta), 70%+ articulate seasonal demand as reason. Heatmap outperforms text-only on speed (2x faster comprehension) and matches or exceeds on accuracy.",
+      "failure_meaning": "Heatmap fails if: (1) Accuracy <70% indicating color temperature doesn't map to pricing in user mental models, (2) Time >15s indicating cognitive effort too high for 'at-a-glance' claim, (3) Price estimation wildly off (>50% error) indicating gradient doesn't convey magnitude. Failure modes: warm/cool color association may vary by culture or context (warm could mean 'friendly/affordable' not 'expensive'), gradient may be too subtle to perceive difference, or color-blind users cannot distinguish. Remedy: add explicit legend ('Winter: $1,170-1,240, Summer: $1,320-1,400'), use pattern/texture in addition to color (striped vs solid), or replace temperature metaphor with explicit labels ($ symbols or price tags on months)."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Validate Micro-Animation Feedback Meets Norman's Immediacy Threshold",
+      "validates_element": "looks-007",
+      "journey_phases": ["proposal_creation", "negotiation", "active_lease"],
+      "problem": "Sub-100ms acknowledgment animations hypothesize creating perception of instant response and platform competence. If users perceive delay despite <100ms timing, or if animations cause distraction/annoyance, timing or visual design needs adjustment.",
+      "solution": "Controlled timing study measuring perceived responsiveness at different animation speeds. Show button interactions with varied acknowledgment times: 0ms (instant), 50ms, 100ms, 150ms, 300ms. Ask: 'Did the button respond instantly?' and 'Rate platform responsiveness 1-5.' Measure preference and perception calibration.",
+      "evidence": [
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. (lines 261-262)",
+          "insight": "Norman's 0.1s (100ms) threshold is hypothesis, not guaranteed perception. Must validate empirically that 80-100ms target meets users' 'instant' perception."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "A/B test with 100 participants split across 5 timing conditions (0ms, 50ms, 100ms, 150ms, 300ms) for button press animations. Participants complete proposal creation flow with instrumented buttons. Measure: perceived responsiveness rating (1-5), task completion time, error rate (accidental double-clicks from uncertainty), post-task satisfaction. Collect qualitative feedback on animation feel ('too slow', 'just right', 'too fast/jarring').",
+      "success_criteria": "100ms condition rated 'instant' by 80%+ participants, scores 4.5+ on responsiveness scale, shows no increase in double-click errors vs 0ms. Participant preference: 100ms preferred over 0ms (feels more 'responsive' than truly instant due to visual confirmation) and over 150ms+ (perceived as lag). Qualitative: zero 'too slow' feedback, <10% 'too fast' feedback.",
+      "failure_meaning": "Timing fails if: (1) 100ms perceived as slow (rating <4.0) indicating threshold too conservative for target users, (2) Increased error rate indicating users re-click due to uncertainty, (3) Preference for faster/slower timing indicating 100ms not optimal. Failure modes: button scale animation may be too subtle to perceive at 80ms, or too pronounced causing jarring feel. Alternative hypothesis: perception varies by interaction type (button vs input vs date selection may have different thresholds). Remedy: test 50ms as aggressive target, add sound feedback to supplement visual (audio + visual may have different optimal timing), or vary timing by interaction importance (critical actions faster, secondary actions can be slower)."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Validate Predictive Approval Reduces Submission of Likely-Denied Requests",
+      "validates_element": "behaves-005",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Predictive approval badge ('Likely approved'/'Unavailable') hypothesizes steering guests away from doomed requests, reducing wasted host review time. If guests submit 'Unavailable' flagged requests at same rate, prediction isn't influencing behavior or isn't trusted.",
+      "solution": "A/B test comparing request submission patterns with/without predictive approval. Control: no prediction shown. Treatment: prediction badge displayed after date selection. Measure: submission rate for likely-denied requests, request modification rate ('Let me try different dates'), time spent exploring alternatives, prediction accuracy (did 'likely approved' actually get approved?), trust calibration over time.",
+      "evidence": [
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. If the delay is too long, people often give up. (lines 261-263)",
+          "insight": "Predictive feedback provides instant (200ms) answer to 'will this work?' question, compensating for unavoidable hours-long final decision delay."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Production A/B test with 200 rescheduling attempts (100 control, 100 treatment). Control group sees no prediction. Treatment sees prediction badge after date selection with 200ms calculation. Track: submission rate for dates flagged 'Unavailable' (control baseline vs treatment reduction), alternative date exploration (number of date changes before submission), prediction accuracy (% of 'likely approved' that actually approved, % of 'Unavailable' correctly predicted), false positive handling (guest reaction when 'likely approved' gets denied), secondary 'Request anyway' usage for 'Unavailable' dates.",
+      "success_criteria": "Treatment group shows 50% reduction in submission of dates predicted unavailable (guests explore alternatives instead), alternative exploration increases 40% (guests iterate before submitting), prediction accuracy >85% for both approved and unavailable, false positive rate <10%, 'Request anyway' used <15% (indicates most guests trust prediction). Post-test survey: 80%+ found prediction 'helpful in choosing dates.'",
+      "failure_meaning": "Prediction fails if: (1) Submission rate unchanged indicating guests ignore prediction, (2) Low exploration increase indicating prediction doesn't prompt iteration, (3) Accuracy <70% indicating backend prediction logic unreliable, (4) High 'Request anyway' usage indicating prediction perceived as obstacle not help. Failure modes: 'Likely' language may convey uncertainty causing guests to 'just try it anyway', amber 'Unavailable' may not feel definitive enough to deter submission, or guests in crisis may proceed regardless of prediction. Alternative hypothesis: prediction creates learned helplessness ('platform knows best') reducing guest agency. Remedy: strengthen language ('Available'/'Fully booked' instead of 'Likely approved'/'Unavailable'), show confidence level ('95% certain'), or make prediction opt-in ('Check availability') rather than automatic."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Validate Crisis-to-Certainty Emotional Arc Through Sentiment Analysis",
+      "validates_element": "feels-001",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "Crisis rescheduling flow hypothesizes transforming stress (housing uncertain) into relief (housing secure) through instant acknowledgment and progressive feedback. If post-resolution sentiment remains negative or stress markers don't decrease, emotional arc design failed.",
+      "solution": "Measure emotional state at journey touchpoints using sentiment analysis and physiological stress markers. Compare crisis-optimized flow vs standard flow. Track: sentiment in support messages before/after, stress language in status page interactions, post-resolution NPS and emotional valence survey, repeat usage patterns (do relieved guests return for future reschedules?).",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Brad was texting me and saying, Hey, you know, I can't make it, can I do another day? (lines 19-24)",
+          "insight": "Crisis language ('can't make it') signals acute stress. Test validates whether platform response successfully converts stress→relief or leaves guest anxious."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "When this happens smoothly, the collaboration of person and device feels wonderful. Actually, this is where the most satisfaction can arise: when something goes wrong but the machine highlights the problems, then the person understands the issue, takes the proper actions, and the problem is solved. (lines 158-160)",
+          "insight": "Crisis moments are satisfaction opportunities if handled well. Test measures whether delight actually manifests in measurable emotional outcomes."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Mixed-methods emotional validation. Quantitative: Track 50 crisis rescheduling journeys with crisis-optimized flow. Measure: sentiment analysis of any support messages sent (TextBlob or similar for valence -1 to +1), time between status checks (frequent checking = anxiety), bounce rate on outcome page (relieved users stay to read details vs stressed users exit), post-resolution NPS specific to rescheduling experience, repeat rescheduling rate within 60 days. Qualitative: Post-resolution survey asking 'How did you feel at each stage? Crisis/Anxious/Informed/Relieved/Delighted' with retrospective mapping to journey moments.",
+      "success_criteria": "Sentiment analysis shows negative valence at submission (-0.3 to -0.5), neutral during wait (0.0 to +0.2 from status updates), positive at approval (+0.6 to +0.8). Status check frequency decreases over wait period (reassurance working). Outcome page engagement high (80%+ read details, not just see outcome and exit). Post-resolution NPS >50 for approved requests. Emotional survey shows >75% report 'Relieved' or 'Delighted' at approval moment. Repeat usage: 60%+ who had positive crisis experience use rescheduling again within 60 days.",
+      "failure_meaning": "Emotional arc fails if: (1) Sentiment remains negative throughout indicating stress not relieved, (2) High check frequency maintained indicating anxiety not reduced by updates, (3) Low outcome engagement indicating emotional exhaustion not relief, (4) NPS <30 indicating negative experience despite functional success, (5) Low repeat usage indicating guests avoid rescheduling due to stress memory. Failure modes: instant acknowledgment may feel impersonal ('automated response'), progressive updates may increase anxiety ('Why isn't this decided yet?'), or outcome delivery may lack emotional recognition ('Available' too clinical). Remedy: add empathy language ('We know schedule changes are stressful. Here's where your request stands'), personalize updates ('Nneka opened your request at 2:15pm'), or add celebration moment for approval (confetti animation, warm copy: 'Good news! Your housing is secure')."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Validate Transparent Consequence Visibility Reduces Resentment",
+      "validates_element": "feels-002",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Opportunity cost transparency hypothesizes converting confusion→frustration→resentment into informed empowerment. If guests still report feeling 'unfairly restricted' when requests denied or policies change, transparency didn't build understanding and respect for host constraints.",
+      "solution": "Compare guest sentiment about denials/policy changes in transparent vs opaque conditions. Transparent: guest sees opportunity cost before submission. Opaque: guest learns of denial without explanation. Measure: resentment markers in post-denial surveys, appeal rate ('This is unfair, please reconsider'), host rating after denial, relationship continuation (does guest remain tenant after denial?).",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "When Brad pushes dates back, previously available dates get blocked. Nneka can't book those dates to others. Creates opportunity cost. (lines 189-191)",
+          "insight": "Guest has no visibility into this consequence. Test validates whether seeing consequence before submission reduces emotional backlash when denied."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "You said you won't be doing that anymore. No, because, um, you know, Brad and I had our contract ended in January or February... it's not working financially. (lines 33-39)",
+          "insight": "Opaque cost accumulation leads to sudden policy change perceived as arbitrary by guest. Transparency hypothesis: if guest understood cost earlier, policy change feels justified not arbitrary."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Cohort comparison of denied requests. Cohort A (baseline): denial with generic message 'Those dates are unavailable.' Cohort B (transparent): denial with consequence explanation 'Those dates are booked by another guest. Your original Feb 1-8 dates would have remained blocked, creating $150 opportunity cost.' Track: appeal/complaint rate, negative feedback in surveys, host rating change after denial, relationship continuation (% who remain tenants 30 days post-denial), qualitative sentiment in support tickets. Supplement with post-denial survey asking: 'Do you understand why your request was denied?' and 'Do you feel the decision was fair?'",
+      "success_criteria": "Transparent cohort shows: 60% reduction in appeals/complaints ('This isn't fair'), 30% higher 'understand why denied' comprehension, 20% higher 'decision was fair' perception, host ratings unchanged or improved vs baseline (where denial often causes rating drop), relationship continuation rate 10-15% higher. Qualitative analysis: sentiment shifts from 'frustrated at platform/host' to 'disappointed but understand business constraints.'",
+      "failure_meaning": "Transparency fails to reduce resentment if: (1) Appeal rate unchanged indicating explanation doesn't satisfy emotional need for exception, (2) Fairness perception low (<50%) indicating guests discount host cost as legitimate reason, (3) Host ratings drop equally in both cohorts indicating denial outcome overwhelms explanation quality, (4) Relationship continuation unchanged indicating understanding doesn't prevent abandonment. Failure modes: consequence explanation may read as excuse not reason ('You're blaming me for your lost money'), dollar amounts may trigger guilt not understanding, or guests in crisis may not process explanation ('I don't care about host cost, I need housing'). Alternative hypothesis: transparency increases resentment by making cost explicit ('You're choosing money over helping me'). Remedy: reframe from cost to capacity ('I'm fully booked'), avoid guilt language ('This causes Nneka...'), or provide alternatives proactively ('These dates don't work, but Feb 20-27 do. Request those instead?')."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Validate Warm Visual Continuity Bridges Human-to-Digital Trust",
+      "validates_element": "feels-006",
+      "journey_phases": ["discovery", "onboarding", "listing_evaluation"],
+      "problem": "Continuity design (Bryant's name/photo, warm illustrations, conversation references) hypothesizes inheriting trust from human interaction. If first-visit engagement or account creation rates don't increase vs generic onboarding, visual warmth alone insufficient to bridge trust gap.",
+      "solution": "A/B test onboarding experience with varying continuity levels. Control: generic platform welcome. Treatment A: Bryant's name mentioned. Treatment B: Bryant's name + photo. Treatment C: Full continuity (name, photo, conversation reference, warm illustrations). Measure first-visit engagement, account creation completion, time-on-site, trust perception survey.",
+      "evidence": [
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "The designer expects the user's model to be identical to the design model, but because designers cannot communicate directly with users, the entire burden of communication is on the system image. (lines 297-299)",
+          "insight": "Bryant sets expectation during call. Platform's system image must match this to avoid model fracture. Test validates which continuity elements most effectively maintain coherent system image."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test with 400 guests (100 per variant) clicking onboarding link from Bryant's follow-up. Variants: (A) Control: 'Welcome to Split Lease' generic, (B) Name-only: 'Hi [Name], Bryant sent you this link', (C) Name+photo: Bryant's photo on landing page + name, (D) Full continuity: Bryant photo + conversation reference ('As Bryant mentioned, you discussed flexible weeknight stays'). Track: click-through from email, time to account creation, completion rate, bounce rate on landing page, trust survey ('I feel this is the platform Bryant told me about': Strongly agree/Agree/Neutral/Disagree), first listing interaction rate.",
+      "success_criteria": "Full continuity (D) shows: 25% higher click-through than control, 40% higher account creation completion, 50% lower bounce rate, 90%+ 'Strongly agree' or 'Agree' on trust survey, 60% interact with first listing vs 30% control. Progressive improvement across variants: D > C > B > A, indicating cumulative benefit of continuity elements.",
+      "failure_meaning": "Continuity fails if: (1) No significant difference between variants indicating design changes don't influence trust perception, (2) Name/photo without conversation reference perform poorly indicating personal elements feel creepy without context, (3) Full continuity shows lower engagement indicating too much information overwhelms, (4) Trust survey shows low agreement across all variants indicating fundamental trust gap not addressed by surface continuity. Failure modes: guests may not remember Bryant's name from call (short-term memory decay), photo may not be recognized, conversation reference may feel intrusive ('How do they know what we discussed?'). Alternative hypothesis: trust is earned through functional competence, not visual warmth—guests evaluate platform quality not design aesthetics. Remedy: test functional continuity (pre-filled property details from call) vs aesthetic continuity (warm visuals), add explicit priming during call ('I'll send you a link. You'll see my photo on the first page'), or strengthen trust through social proof (testimonials) not just agent continuity."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Journey-Level: Validate End-to-End Rescheduling Success Rate",
+      "validates_element": "journey-level",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "negotiation", "active_lease"],
+      "problem": "Individual elements optimize specific touchpoints, but journey success requires seamless flow across all phases. If guests discover flexible listings but drop off before booking, or book but experience friction during rescheduling, individual element success doesn't translate to journey-level value delivery.",
+      "solution": "Track cohort of guests from search (flexibility discovery) through active lease (rescheduling completion). Measure conversion through each phase gate and identify dropout points. Compare cohorts using full design stack vs control (no flexibility signifiers, no rescheduling tools). Measure end-to-end success: guest books flexible listing AND successfully reschedules when needed AND maintains relationship with host.",
+      "evidence": [
+        {
+          "source": "journey-context.json",
+          "type": "journey_mapping",
+          "quote": "Journey phases: discovery → search → listing_evaluation → proposal_creation → negotiation → acceptance → move_in → active_lease",
+          "insight": "Guest journey spans 8 phases. Rescheduling elements concentrate in search, evaluation, negotiation, active_lease. Must validate flow across all involved phases."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Longitudinal cohort study tracking 200 hybrid workers (target segment) over 90 days. Cohort A (control): platform without flexibility signifiers or rescheduling tools. Cohort B (treatment): full design stack with all elements. Track funnel: search→listing_view→proposal→booking→rescheduling_request→rescheduling_approval→relationship_continuation. Measure: conversion at each gate, time spent per phase, dropout reasons (exit surveys), total flexibility value realized (successful reschedules / total bookings), host-guest relationship health (NPS at 30/60/90 days).",
+      "success_criteria": "Treatment cohort shows: 35% higher conversion from search to booking (flexibility discovery drives commitment), 60% higher rescheduling request submission rate (tools make action discoverable), 80% rescheduling approval rate (vs <50% baseline via informal text), 70% relationship continuation after reschedule (vs 40% baseline where policy changes drive dropout), NPS 40+ at 90 days (vs 10-20 baseline). End-to-end success: 50%+ of bookings result in at least one successful reschedule without relationship deterioration.",
+      "failure_meaning": "Journey-level failure modes: (1) High search-to-view conversion but low view-to-booking indicates flexibility signifiers attract but don't convert (perhaps concern about complexity), (2) High booking rate but low rescheduling usage indicates guests don't need or don't discover rescheduling when needed, (3) High request rate but low approval indicates tools don't improve host acceptance (perhaps requests still outside policy boundaries), (4) High approval but low relationship continuation indicates rescheduling creates other friction (payment, communication, trust damage). Isolated element success masking systemic failure: if badge tests well but end-to-end conversion low, indicates badge attracts wrong segment or creates false expectations. Remedy: revisit journey context assumptions (is hybrid worker actually target?), test alternative value propositions (maybe guests want simplicity not flexibility), or acknowledge that rescheduling remains fundamentally hard problem that design can't fully solve."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Journey-Level: Validate Host Policy Stability Reduces Guest Churn",
+      "validates_element": "journey-level",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Multiple elements target preventing host policy changes (opportunity cost transparency, predictive approval, consequence visualization). Journey-level hypothesis: if policy stability improves, guest retention during active lease increases. If policy changes still occur at baseline rates despite design interventions, either elements ineffective or policy change driven by factors outside design scope.",
+      "solution": "Track host policy stability over guest active lease periods. Compare cohorts with/without consequence transparency and predictive features. Measure: host policy change rate (flexible→rigid), timing of changes (early vs late in lease), guest retention after policy change, guest satisfaction at renewal. Correlate with rescheduling patterns (frequency, cost accumulation, approval rates).",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "You said you won't be doing that anymore. No, because, um, you know, Brad and I had our contract ended in January or February... it's not working financially. (lines 33-39)",
+          "insight": "Policy change (Nneka stops allowing reschedules) is journey-level failure outcome. Multiple elements attempt to prevent this by making costs visible earlier and reducing expensive requests."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "6-month longitudinal study tracking 100 guest-host pairs. Cohort A (baseline): no consequence transparency or predictive tools. Cohort B (treatment): full opportunity cost visualization and predictive approval features. Track per guest-host pair: rescheduling request frequency, aggregate opportunity cost created, host policy changes (date, trigger), guest retention after policy change, renewal rate at lease end, host satisfaction with rescheduling process. Qualitative: survey hosts who change policies to understand drivers (financial, operational, relationship friction).",
+      "success_criteria": "Treatment cohort shows: 50% reduction in host policy changes (from flexible to rigid), policy changes that do occur happen later in lease (60+ days vs 30 days baseline, indicating tolerance period extended), guest retention after policy change 20% higher (relationship stronger due to transparency/understanding), renewal rate 25% higher overall. Host satisfaction survey: 70%+ report 'rescheduling is manageable' vs 30% baseline.",
+      "failure_meaning": "Journey-level failure if policy stability doesn't improve indicates: (1) Guest behavior unchanged despite consequence visibility (tests-005 failure mode extends to journey impact), (2) Policy changes driven by non-financial factors design doesn't address (relationship fatigue, operational complexity, life changes), (3) Financial threshold too low—even reduced opportunity cost still unsustainable for hosts, or (4) Design elements used but ineffective at actual behavior modification (checkbox effect—guests see warnings, proceed anyway). Systemic failure scenarios: If individual elements test well (consequence viz comprehended, predictive approval trusted) but policy stability unchanged, indicates gap between element performance and journey outcome. Possible causes: time delay between behavior modification and host perception shift (host decision to change policy based on accumulated pattern not recent improvement), or host policy changes proactive not reactive (hosts preemptively restrict flexibility rather than responding to guest actions). Remedy: shift focus from guest behavior modification to host-side controls (auto-enforcement of policies, stricter boundaries), accept that some host-guest pairs incompatible for flexibility and optimize for matching not modification, or address non-financial policy change drivers (provide host tools for easier rescheduling management reducing operational burden)."
+    }
+  ]
+}

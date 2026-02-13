@@ -1,0 +1,374 @@
+{
+  "lens": {
+    "guest_call": "nneka-call.txt",
+    "book_extract": "donnorman-affordances-signifiers-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Five-Stage Asynchronous Feedback for Rescheduling Requests",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Norman's research shows feedback must be immediate (under 0.1 second), yet rescheduling requests are inherently asynchronous requiring hours or days while hosts check availability and calculate pricing. Current system provides zero feedback—guest texts host and waits in silence, violating fundamental interaction principle of immediate acknowledgment. This creates anxiety during crisis moments when guest urgently needs housing certainty.",
+      "solution": "Design five-stage progressive feedback system that provides immediate acknowledgment even when final decision is asynchronous. Stage 1 (0 seconds): instant confirmation with timeline expectation. Stage 2 (1-4 hours): automatic status when host views request. Stage 3 (4-12 hours): proactive check-in explaining delay if no decision. Stage 4 (decision point): clear outcome with pricing comparison. Stage 5 (post-decision): next action clarity. Each stage provides new information, maintaining communication flow during waiting period.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Brad was texting me and saying, Hey, you know, I can't make it, can I do another day? (lines 19-24)",
+          "insight": "Guest sends request via text and waits for Nneka to manually check availability. Zero feedback during this period creates anxiety and uncertainty about housing status."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. If the delay is too long, people often give up, going off to do other activities. (lines 261-263)",
+          "insight": "Platform cannot make host decision instant, but can make acknowledgment instant. Five-stage system separates immediate feedback (stages 1-3) from delayed decision (stage 4)."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Feedback must also be informative. Many companies try to save money by using inexpensive lights or sound generators for feedback. These simple light flashes or beeps are usually more annoying than useful. (lines 263-265)",
+          "insight": "Generic 'Request sent' is uninformative. Each stage must convey specific information: what's happening now, what comes next, why delays exist."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Request form ready for input. Preview of likely approval based on host policy and availability signals visible but not intrusive.",
+        "loading": "Stage 1 (instant): Submission animation (button scale + spinner) under 100ms. Confirmation appears immediately with personalized timeline: 'Request received. Nneka typically responds within 24 hours.' Stage 2: Status updates automatically when host opens request: 'Nneka is reviewing your request' with timestamp. Stage 3: Proactive message if 4+ hours without decision: 'Nneka is checking availability across her calendars. We'll update you as soon as she responds.'",
+        "empty": "No active requests. Dashboard shows: 'Need to change your dates? You can request rescheduling here.' with link to policy explainer and request form.",
+        "error": "Request submission failed: 'We couldn't send your request. Please check your connection and try again.' Preserves all entered data for retry. If host unreachable: 'Nneka hasn't been active in 48 hours. Would you like to call Bryant instead?'",
+        "success": "Stage 4: Clear outcome with context. Approved: 'Approved! Your new dates are Feb 1-8 at $1,280/month (winter → spring pricing). Original Feb 15-22 dates are now available for other guests.' Denied: 'Not available. Those dates are already booked. Here are 3 nearby alternatives [dates with pricing].' Stage 5: Next steps. Approved: 'Your booking is updated. Check-in details sent to email.' Alternative selected: 'Request alternative dates [button].' Original dates kept: 'Your original Feb 15-22 dates remain confirmed.'"
+      },
+      "transition_principle": "Each stage transition is triggered by data availability, not elapsed time. Stage 1 → 2 when host opens request. Stage 2 → 3 when elapsed time exceeds average response time without decision. Stage 3 → 4 when host makes decision. No artificial delays—show new information as soon as it exists.",
+      "timing": {
+        "response_target": "Stage 1 acknowledgment: under 100ms. Stage 2 status update: within 1 second of host viewing request. Stage 3 proactive check-in: 4 hours after submission if no decision. Stage 4 outcome: instant when host decides. Stage 5 next action: immediate after outcome.",
+        "easing": "Button press: ease-out 80ms. Spinner rotation: linear continuous. Status text fade-in: ease-out 200ms. Stage transition: ease-in-out 150ms. Success checkmark: spring easing 400ms for celebratory feel.",
+        "rationale": "Sub-100ms acknowledgment meets Norman's immediacy threshold, creating perception of instant response. Proactive check-in at 4 hours prevents guest from wondering if request was lost. Spring easing on success creates subtle delight at resolution."
+      },
+      "journey_state_awareness": "System tracks guest's schedule pressure: urgent reschedule (< 48 hours until original dates) shows crisis messaging and faster escalation. Routine reschedule (> 2 weeks out) uses standard timelines. Repeat rescheduler (3+ requests) sees aggregate impact in Stage 4: 'This is your 3rd rescheduling. Previous changes cost Nneka ~$400 in lost bookings.'",
+      "edge_cases": [
+        "Host never responds: After 24 hours, Stage 3 message includes: 'Would you like us to contact Nneka directly?' After 48 hours: 'Nneka hasn't responded. Call Bryant for urgent assistance: [number].'",
+        "Guest cancels request mid-review: Host sees cancellation notification immediately. Guest can resubmit with no penalty.",
+        "Multiple simultaneous requests: Each tracked independently with separate status feeds. If conflict detected (requesting overlapping date ranges), second request shows warning before submission.",
+        "Host approves expired request: If guest requested dates that have now passed, system shows: 'These dates have passed. Would you like to request new dates instead?'"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Real-Time Consequence Visualization for Invisible System Impact",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "When guests reschedule dates, they create invisible consequences for hosts: blocked dates preventing new bookings, opportunity cost accumulation. Norman shows users cannot predict outcomes when system models are hidden. Brad perceives rescheduling as neutral 'date swap' because he receives no feedback showing impact. This invisible consequence accumulates until host changes policy suddenly, blindsiding guest.",
+      "solution": "Make opportunity cost visible through real-time visual feedback when guest selects new dates. Color-coded calendar shows impact of proposed change: green for dates that become available (opportunity recaptured), yellow for dates that may remain blocked 2-3 days (neutral), red for dates that cannot be rebooked (opportunity cost). Pricing comparison shows seasonal delta with contextual explanation. Pattern awareness appears after 3+ reschedules showing aggregate impact. Feedback is informative, not judgmental—maintains guest agency while increasing system transparency.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "When Brad pushes dates back, previously available dates get blocked. Nneka can't book those dates to others. Creates opportunity cost. (lines 189-191)",
+          "insight": "Guest action has invisible consequence. Guest receives no feedback about this impact, cannot factor it into decision."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Feedback--communicating the results of an action--is a well-known concept from the science of control and information theory. Imagine trying to hit a target with a ball when you cannot see the target. (lines 260-262)",
+          "insight": "Guest is 'hitting target' (selecting dates) without seeing impact on host calendar. Color-coded consequence visualization makes target visible."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "You said you won't be doing that anymore. No, because, um, you know, Brad and I had our contract ended in January or February... it's not working financially. (lines 33-39)",
+          "insight": "Lack of consequence feedback allowed pattern to continue until host reached breaking point. Earlier transparency could have modified guest behavior before policy changed."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Calendar shows current booking with neutral styling. Original dates highlighted in accent-light. No consequence indicators until guest begins selecting new dates.",
+        "loading": "As guest hovers over potential new dates, calendar computes impact in real-time. Loading state shows subtle pulse on original dates (2s ease-in-out) indicating calculation in progress. Under 200ms to compute and display.",
+        "empty": "No active booking to reschedule. Calendar shows available dates only, no consequence visualization needed.",
+        "error": "Cannot calculate impact (host availability data unavailable): 'We can't check availability right now. Your request will be sent to Nneka for manual review.' Preserves date selection, escalates to human decision.",
+        "success": "Impact visualization complete. Original dates show color-coded states: GREEN with text 'Your Feb 1-8 dates will become available for other guests' + checkmark icon. YELLOW with text 'Your Feb 1-8 dates may remain blocked for 2-3 days' + dash icon. RED with text 'Your Feb 1-8 dates cannot be rebooked this season' + info icon. Pricing comparison shows: 'Your original dates: $1,170/month. Your requested dates: $1,350/month (winter → summer pricing change). Delta: +$180/month' in mono typography. After 3+ reschedules, aggregate impact: 'This is your 3rd rescheduling. Previous changes have cost Nneka approximately $400 in lost bookings. Consider booking with more certainty next time.'"
+      },
+      "transition_principle": "Consequence visualization updates in real-time as guest modifies date selection. No submit-to-see-results delay—feedback is continuous during interaction. Color changes animate smoothly (150ms ease-in-out) to avoid jarring flashes. Pattern awareness appears only after threshold (3 reschedules) to avoid premature judgment.",
+      "timing": {
+        "response_target": "Hover state: 50ms to highlight date. Selection state: 200ms to compute and display consequence visualization. Color transitions: 150ms ease-in-out. Pattern awareness: appears 400ms after 3rd reschedule approval.",
+        "easing": "Date hover: instant (no easing needed). Consequence calculation: linear (precision signal). Color transitions: ease-in-out 150ms (smooth, not abrupt). Pattern awareness fade-in: ease-out 400ms.",
+        "rationale": "200ms consequence calculation feels instant while allowing backend to query host calendar. 150ms color transitions are perceivable but not distracting. Pattern awareness delay prevents it from competing with approval celebration."
+      },
+      "journey_state_awareness": "First reschedule: shows consequence visualization with educational tooltip explaining colors. Second reschedule: visualization only, no tooltip (guest now familiar). Third+ reschedule: adds pattern awareness with aggregate impact. Guest who reschedules frequently (monthly) sees gentler messaging than guest who reschedules rarely (first time in 6 months).",
+      "edge_cases": [
+        "Replacement dates exactly match host availability (rare): All greens, highly positive feedback. 'Perfect match! These dates work great for Nneka's calendar.'",
+        "Requesting dates during already-blocked period: Cannot create additional opportunity cost. Yellow state with explanation: 'These dates were already unavailable, so swapping creates no additional impact.'",
+        "Host manually overrides pricing: Consequence visualization shows 'Nneka set custom pricing for these dates: $1,200/month' instead of calculated seasonal rate.",
+        "Guest reschedules to dates far in future (6+ months): Red opportunity cost unlikely (dates not yet bookable). Shows: 'Your original dates will likely become available since new dates are far out.'"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Spatial Natural Mapping for Conceptual Model Communication",
+      "journey_phases": ["listing_evaluation", "negotiation", "active_lease"],
+      "problem": "Rescheduling system has two conceptual models—REPLACEMENT (swap dates, maintain original pricing) and ADDITION (add dates, charge current seasonal pricing)—but guests have no way to learn this model. Norman's research shows that when devices provide no visible relationship between controls and actions, users operate blindly via trial-and-error. Brad likely believes all rescheduling is 'replacement' because that's what worked initially.",
+      "solution": "Use left-right spatial layout with natural mapping to communicate conceptual model through position. LEFT PATH: 'Replace my dates' shows original dates on left, new dates on right, horizontal arrow between indicating swap. Price maintains original rate. RIGHT PATH: 'Add more dates' shows original dates on left, new dates append to right with plus icon. Price uses current seasonal rate. Natural mapping: left = past/original, right = future/new. Arrow = swap (equal exchange), Plus = addition (new element). Time flows left-to-right matching Western reading pattern.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Replacing: Brad swaps booked dates for different dates. Adding: Brad books additional nights beyond original contract. Nneka would charge DIFFERENT (higher) rate for additions. (lines 141-145)",
+          "insight": "Nneka has clear mental model distinguishing replacement from addition. Spatial visualization (swap vs append layout) makes this invisible model visible through position and iconography."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Mapping is a technical term... meaning the relationship between the elements of two sets of things. When the mapping uses spatial correspondence between the layout of the controls and the devices being controlled, it is easy to determine how to use them. (lines 244-249)",
+          "insight": "Spatial position communicates meaning without reading. Left-right layout for time progression is natural mapping requiring no explanation."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "The designer expects the user's model to be identical to the design model, but because designers cannot communicate directly with users, the entire burden of communication is on the system image. (lines 297-299)",
+          "insight": "Spatial layout IS the system image. Left (original) → right (new) with arrow vs plus icon communicates designer's replacement vs addition model without text."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Interface shows two paths side-by-side. LEFT: 'Replace my dates' card with arrow icon, RIGHT: 'Add more dates' card with plus icon. Both cards equal visual prominence (neither pre-selected). Hover state shows subtle shadow elevation (0 2px 8px) and accent border to signal interactivity.",
+        "loading": "After path selection, selected card animates to prominence (scale 1.05, 300ms spring easing) while other card fades to 50% opacity. Date selection interface loads with appropriate visual metaphor: replacement shows swap arrows, addition shows append arrows. Loading under 400ms.",
+        "empty": "No current booking to base rescheduling on. Shows single path: 'Book additional dates' (addition model only). Replacement unavailable until active booking exists.",
+        "error": "Path selection persists through errors. If replacement dates unavailable: 'These dates are fully booked. Try different dates or switch to Add mode to keep original dates and book additional time.' Error doesn't reset path choice—maintains user's conceptual model selection.",
+        "success": "REPLACEMENT success: Left-right visual shows original dates on left with strikethrough, new dates on right with checkmark, arrow between pulsing once (400ms). Pricing shown: 'Original rate maintained: $1,170/month.' Caption: 'Your dates have been swapped.' ADDITION success: Left-right shows original dates on left with checkmark (kept), new dates on right with checkmark (added), plus icon between. Pricing shown: 'Additional dates at current rate: $1,350/month. Your original Feb 1-8 booking: $1,170/month.' Caption: 'Additional time added to your booking.'"
+      },
+      "transition_principle": "Path selection is explicit, not inferred. Guest must choose replacement or addition before seeing date selection interface. Once chosen, visual metaphor (arrow vs plus) persists throughout flow to reinforce conceptual model. Switching paths mid-flow is allowed but requires explicit re-selection—prevents accidental mode confusion.",
+      "timing": {
+        "response_target": "Hover state on path cards: 50ms. Path selection animation: 300ms spring easing. Date selection interface load: 400ms. Success animation (arrow/plus pulse): 400ms spring. Total interaction from path selection to date selected: under 2 seconds.",
+        "easing": "Hover: instant. Path selection: spring easing for playful, confident feel. Date selection: ease-out for efficiency. Success pulse: spring for celebration. All spring easing uses cubic-bezier(0.34, 1.56, 0.64, 1).",
+        "rationale": "Spring easing on path selection and success creates subtle delight, making conceptual distinction memorable. 400ms success animation long enough to be perceived but not so long as to delay next action."
+      },
+      "journey_state_awareness": "First-time user: tooltip appears after 2 seconds if no path selected: 'Replacing swaps your dates. Adding keeps original dates and books more time.' Returning user (has rescheduled before): no tooltip, assumes familiarity. Guest who only uses replacement: addition path shows 'New: Add dates at seasonal rates' badge for 2 weeks after feature launch.",
+      "edge_cases": [
+        "Guest selects replacement but new dates cost more due to seasonal pricing: Shows warning before proceeding: 'Your new dates are in peak season. Nneka may adjust pricing to $1,350/month. Proceed?' Allows guest to reconsider or switch to addition path.",
+        "Original booking spans multiple months with different seasonal pricing: Replacement calculates blended original rate. Addition uses blended current rate for same duration. Pricing comparison shows both clearly.",
+        "Guest switches from replacement to addition mid-flow: Date selections reset (prevents confusion from mode mismatch). Brief message: 'Switching to Add mode. Your original dates will be kept. Select additional dates below.'",
+        "Addition request would create overlapping dates: System prevents selection with inline error: 'These dates overlap with your existing booking. Use Replace mode instead.'"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Crisis-Optimized Information Hierarchy with Instant Outcome Visibility",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "Platform treats rescheduling as convenience feature but for guests it's crisis management ('I can't make it'). Norman shows when things go wrong, good design becomes essential. Current system uses uniform hierarchy for all content, providing no visual differentiation between critical crisis information (availability, pricing) and supporting details. Crisis moments demand instant answer visibility but equal text treatment forces sequential reading.",
+      "solution": "Invert typographic and spatial hierarchy for crisis contexts. PRIMARY (outcome): Serif bold 32px for binary status ('Available' or 'Unavailable') at top of screen, above fold. Color: accent green for available, amber for unavailable. SECONDARY (actionable details): Sans semibold 18px for pricing and alternatives. TERTIARY (explanations): Sans regular 14px, collapsed by default with expand affordance. Spatial: outcome top, details middle, explanations bottom. Line-height loose (1.8) for outcome to create breathing room, tight (1.2) for explanations to minimize vertical space.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Brad was texting me and saying, Hey, you know, I can't make it, can I do another day? (lines 19-24)",
+          "insight": "Language is crisis framing ('can't make it'). Guest needs fast visual answer to binary question: can I keep my housing or not? Hierarchy must surface this instantly."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "It is relatively easy to design things that work smoothly when things go right. But as soon as there is a problem, the problems arise. This is where good design is essential. (lines 156-158)",
+          "insight": "Normal booking uses standard hierarchy. Crisis rescheduling inverts it: outcome first, details second, explanations last. Design specifically for problem state."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Crisis interface not active. Standard rescheduling interface uses balanced hierarchy. Crisis mode triggers when: (1) Guest requests dates < 48 hours from original check-in, OR (2) Guest flags request as urgent via toggle.",
+        "loading": "Large serif 'Checking availability...' at top with subtle pulse animation (2s ease-in-out). Maintains crisis hierarchy during wait. Loading text is outcome-focused: not 'Processing request' but 'Checking if these dates work' (answer-oriented language).",
+        "empty": "No crisis request active. Standard interface shows: 'Need to change your dates?' with balanced hierarchy.",
+        "error": "Crisis hierarchy maintained in error state. Large serif 'Cannot check availability' at top in signal-danger color. Actionable fallback immediately below: 'Call Bryant now: [phone number as large clickable button].' Explanation of error (network issue, host unreachable) collapsed by default at bottom.",
+        "success": "AVAILABLE outcome: Serif bold 32px 'Available' in accent green at top, above fold, 60px top margin for dramatic isolation. Below in sans semibold 18px: 'New dates: Feb 1-8 at $1,280/month (winter → spring pricing)' + 'Original dates: Feb 15-22 will become available for other guests' as bullet points. Large primary button: 'Confirm new dates.' Explanation of pricing change collapsed in accordion at bottom. UNAVAILABLE outcome: Serif bold 32px 'Unavailable' in signal-warn amber. Below: 'These dates are already booked. Here are 3 alternatives:' with date options in cards showing pricing. Large button per alternative: 'Request [dates].' Explanation of why unavailable collapsed at bottom."
+      },
+      "transition_principle": "Crisis mode activates instantly when urgency detected (under 100ms to re-render with crisis hierarchy). No gradual transition—crisis demands immediate priority shift. Mode persists until request resolved (approved, denied, or cancelled). Guest can manually exit crisis mode via 'Switch to standard view' link at bottom, but this is rarely used.",
+      "timing": {
+        "response_target": "Crisis mode activation: under 100ms. Outcome visibility: instant on page load (no scrolling required). Accordion expand for explanations: 200ms ease-out. Focus shift to primary action button: 300ms after outcome renders.",
+        "easing": "Mode activation: instant (no easing). Accordion expand: ease-out 200ms. Button focus: ease-in-out 300ms to draw eye smoothly.",
+        "rationale": "Instant activation matches crisis urgency—no time for gentle transitions. Outcome above fold ensures guest sees answer immediately without scrolling. Focus shift to action button guides next step without forcing it."
+      },
+      "journey_state_awareness": "First crisis: brief tooltip after 2 seconds explains: 'We prioritized the answer since you need it urgently. Details are below if needed.' Repeat crisis user: no tooltip. Guest who frequently uses crisis mode (3+ times): sees message after resolution: 'You've needed urgent rescheduling 3 times. Consider booking with more schedule certainty, or look for listings with flexible policies.'",
+      "edge_cases": [
+        "Guest triggers crisis mode accidentally (didn't mean to mark urgent): 'Switch to standard view' link always visible at top-right. Clicking it re-renders with balanced hierarchy instantly.",
+        "Multiple alternative dates all unavailable: Shows: 'No nearby alternatives available. Original dates: Feb 15-22 remain confirmed. Would you like to search for completely different dates or contact Bryant?'",
+        "Crisis request during off-hours (11pm - 7am): Outcome shows: 'Checking availability. Nneka typically responds in the morning. If you need an answer sooner, call Bryant's emergency line: [number].'",
+        "Guest has < 24 hours until check-in when requesting change: Red banner above outcome: 'Your check-in is in 18 hours. If these dates aren't approved within 6 hours, call Bryant immediately: [number].'"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Predictive Approval Feedback Before Request Submission",
+      "journey_phases": ["negotiation", "active_lease"],
+      "problem": "Current rescheduling flow requires guest to submit request, then wait hours or days for host decision. This creates anxiety during waiting period and wastes time if request will obviously be denied (dates already blocked, outside host's stated policy). Norman's feedback research shows people need to know likely outcomes before committing to actions. Guest in crisis cannot afford to wait 24 hours to discover request won't work.",
+      "solution": "Show predictive approval likelihood before guest submits request, based on host availability data and stated policies. As guest selects new dates, system immediately shows: 'Based on Nneka's availability, your requested dates will likely be APPROVED' (green badge) or 'UNAVAILABLE - see alternatives below' (amber badge). Prediction based on: host calendar status (blocked/available), host's auto-approval boundaries (< 7 days shift from original dates), and seasonal pricing tolerance. If prediction is negative, show 3 alternative dates that would likely be approved. Guest can still submit unlikely requests, but with informed expectations.",
+      "evidence": [
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. If the delay is too long, people often give up. (lines 261-263)",
+          "insight": "Waiting 24 hours for host decision is 864,000 times slower than Norman's threshold. Predictive feedback provides instant answer to 'will this work?' question, even if final decision takes longer."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Proposed Tool Features: 1. Notification system when request comes in 2. Ability to accept/reject requests 3. See request details (replacement vs addition) 4. Set new nightly price for additions (lines 147-154)",
+          "insight": "Host needs tools to set boundaries and policies. These policies can power guest-side predictive feedback, eliminating obviously doomed requests before submission."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Date picker interface with no dates selected. Prediction badge hidden. Helper text: 'Select your new dates to see if they're available.'",
+        "loading": "Guest selects dates. Prediction calculation begins immediately (under 200ms). Loading state shows badge with pulse animation: 'Checking availability...' in ink-soft color. Query runs against host calendar API and policy settings.",
+        "empty": "No prediction available (host availability data missing or host hasn't set policies). Shows: 'Your request will be sent to Nneka for review. She typically responds within 24 hours.' Falls back to five-stage asynchronous feedback pattern.",
+        "error": "Cannot calculate prediction (API error, data inconsistency). Shows amber badge: 'Cannot verify availability. Your request will be manually reviewed.' Doesn't block submission—degrades gracefully to human decision.",
+        "success": "LIKELY APPROVED: Green badge with checkmark icon: 'Likely approved based on Nneka's calendar.' Below badge in ink-soft: 'These dates are available and within Nneka's flexibility policy.' Pricing preview: 'Estimated cost: $1,280/month (winter → spring rate).' Primary button: 'Request these dates' (confident language). LIKELY DENIED: Amber badge with info icon: 'These dates appear unavailable.' Below badge: 'Nneka's calendar shows these dates are blocked.' 3 alternative date cards immediately visible: 'Try these nearby dates instead:' with each showing dates, pricing, and green 'Likely approved' badges. Secondary button: 'Request anyway' (acknowledges low probability). UNCERTAIN: Gray badge with dash icon: 'Approval uncertain.' Below badge: 'These dates may work, but Nneka needs to review.' Explanation: 'Dates are available but outside her usual flexibility policy (> 14 day shift from original dates).' Primary button: 'Send request for review.'"
+      },
+      "transition_principle": "Prediction updates in real-time as guest modifies date selection. No submit-to-check delay—calculation happens on every date change with 200ms debounce (prevents calculation spam during rapid clicking). Badge transitions smoothly between states (fade 150ms) to avoid jarring color changes. Confidence level determines badge color: high confidence = green or amber, low confidence = gray.",
+      "timing": {
+        "response_target": "Initial prediction: 200ms after date selection. Re-calculation on date change: 200ms debounce then 200ms calculation. Badge transition between states: 150ms fade. Alternative dates load: 400ms if prediction is negative. Total time from date selection to seeing prediction + alternatives: under 1 second.",
+        "easing": "Calculation pulse: ease-in-out 2s continuous loop. Badge color transition: ease-in-out 150ms. Alternative date cards fade-in: ease-out 400ms stagger (100ms delay between each card).",
+        "rationale": "200ms feels instant while allowing backend query. Debounce prevents server spam during multi-click date selection. Staggered alternative card appearance creates progressive disclosure, not overwhelming dump of options."
+      },
+      "journey_state_awareness": "First-time rescheduler: tooltip appears explaining badge: 'This prediction is based on Nneka's calendar and policies. She still reviews each request.' Frequent rescheduler: no tooltip. Guest who previously had request denied: enhanced explanation on next attempt: 'Last request was denied because [reason]. These dates avoid that issue.'",
+      "edge_cases": [
+        "Prediction says 'likely approved' but host denies: Follow-up message to guest explains discrepancy: 'Nneka's availability changed since our prediction. Her calendar was updated after you submitted.' Maintains trust by explaining why prediction was wrong.",
+        "Host has no stated policies: Prediction falls back to pure calendar availability. Badge shows lower confidence: 'Dates appear available' (gray badge) instead of 'Likely approved' (green badge).",
+        "Requested dates are months in the future: Prediction caveat appears: 'Nneka's calendar is tentative this far out. Approval likelihood may change.' Badge remains green if currently available but adds uncertainty signal.",
+        "Guest requests dates during host's blocked-off vacation period: Immediate 'Unavailable' with explanation: 'Nneka is not hosting during this period (vacation marked on calendar).' No 'request anyway' option—hard block.",
+        "Alternative dates also show 'likely denied': System escalates to human: 'No nearby dates are available. Would you like us to help you find a different listing or contact Nneka about other options?'"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Continuous Calendar State Feedback During Date Selection",
+      "journey_phases": ["proposal_creation", "negotiation", "active_lease"],
+      "problem": "Traditional date pickers show availability as binary (available/blocked) with no context about WHY dates are blocked or what consequences selecting certain dates creates. Guest selecting rescheduling dates has no visibility into seasonal pricing changes, host availability patterns, or opportunity cost of their choices. Norman's research shows users need feedback during action performance, not just after completion. Current calendar provides no feedback until date selection is submitted.",
+      "solution": "Transform calendar from passive selection tool into active feedback mechanism. As guest hovers over dates, show real-time contextual information: pricing for that date range, availability status with reason (available, blocked due to other booking, blocked due to host unavailable, within/outside host's flexibility policy), and consequence if replacing current dates (opportunity cost color-coding). Use color temperature gradient for seasonal pricing (cool blue-tinted for low season, warm amber-tinted for high season). Tooltips appear on hover within 50ms showing precise pricing and availability details. Selected date ranges immediately show total cost calculation and pricing comparison to original dates.",
+      "evidence": [
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Original rate: $1,170-$1,175/month. New dates are priced higher seasonally. (lines 123-126)",
+          "insight": "Seasonal pricing variation is invisible during date selection, revealed only after submission. Continuous feedback would make this visible immediately, preventing surprise."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "A misplaced hand will spill the contents, too hard a grip will break the glass, and too weak a grip will allow it to fall. The human nervous system is equipped with numerous feedback mechanisms. (lines 261-262)",
+          "insight": "Physical objects provide continuous haptic feedback during manipulation. Digital calendar must compensate with continuous visual feedback during date selection."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Calendar displays full year with color temperature gradient showing seasonal pricing ranges. Winter months: cool blue-tinted surface, Summer months: warm amber-tinted surface. Current month highlighted with border. No tooltips visible until hover. Available dates have normal cursor, blocked dates have not-allowed cursor.",
+        "loading": "Hover triggers tooltip load. Appears within 50ms containing: date range (if dragging across multiple dates), availability status (available / blocked: other booking / blocked: host unavailable), pricing (nightly rate, total for selected duration, comparison to original booking if rescheduling), consequence (if rescheduling: color-coded opportunity cost indicator). Loading spinner appears only if tooltip data takes > 100ms to load (rare).",
+        "empty": "No active booking to compare against. Calendar shows availability and pricing only, no opportunity cost indicators. Tooltip simplified to show: dates, availability, pricing.",
+        "error": "Cannot load pricing or availability data for hovered dates. Tooltip shows: 'Pricing unavailable. Contact Nneka for details.' Date remains selectable but submission will require manual review. Error state doesn't block interaction—degrades gracefully.",
+        "success": "Selected date range renders with accent background color and white text. Tooltip persists showing full details. Below calendar, summary panel appears (fade-in 200ms) showing: selected dates, total duration, total cost, pricing breakdown (nightly rate x nights), comparison to original dates (if rescheduling): 'Original Feb 1-8: $1,170/month. New Feb 1-8: $1,280/month. Delta: +$110/month (winter → spring pricing).' If rescheduling, opportunity cost visualization shows color-coded original dates. Primary action button: 'Continue with these dates' enabled only when valid selection exists."
+      },
+      "transition_principle": "Feedback is progressive and non-blocking. Hover reveals pricing, click selects date, drag selects range. Each interaction adds more detail: hover = preview, click = selection + summary, submit = full consequence visualization. Calendar state updates in real-time with no submit-to-see delays. Tooltip follows cursor during drag selection, updating continuously as range changes.",
+      "timing": {
+        "response_target": "Hover to tooltip: 50ms. Tooltip content load: under 100ms. Click to select: instant visual feedback (background color change < 16ms). Drag across dates: tooltip updates every 100ms during drag. Summary panel appearance: 200ms fade-in after selection complete. Total time from hover to seeing full pricing details: under 200ms.",
+        "easing": "Hover tooltip: instant (no easing needed for 50ms interaction). Selection background: instant. Summary panel fade-in: ease-out 200ms. Opportunity cost color transition: ease-in-out 150ms.",
+        "rationale": "50ms hover threshold prevents tooltip spam when cursor passes quickly over calendar. 100ms tooltip load ensures information appears before user can perceive delay. Summary panel delay gives guest moment to confirm selection before seeing full details."
+      },
+      "journey_state_awareness": "First-time user selecting dates: tooltip includes helper icon with explainer: 'Pricing varies by season. Winter dates typically cost less than summer dates.' Returning user: standard tooltip without explainer. Guest rescheduling for 3+ time: tooltip adds pattern awareness: 'You've rescheduled 2 times previously. Consider booking with more schedule certainty.'",
+      "edge_cases": [
+        "Guest hovers over date range that spans seasonal pricing change: Tooltip shows blended rate with explanation: 'Your dates span winter and spring. Blended rate: $1,225/month (Feb 1-8: $1,170, Feb 9-15: $1,280).'",
+        "Blocked dates due to other guest booking: Tooltip shows: 'Blocked: Another guest is booked Feb 5-12.' If guest is rescheduling, adds: 'Try dates before Feb 5 or after Feb 12.'",
+        "Host set custom pricing for specific dates (holiday, special event): Tooltip shows: 'Custom rate: $1,500/month (Nneka set special pricing for this period).' with info icon linking to explanation.",
+        "Guest selects dates that create gap in original booking (replace Feb 1-4 and Feb 9-12, leaving Feb 5-8 orphaned): Warning appears in summary panel: 'Your new dates create a gap in your booking. We recommend replacing the full Feb 1-12 period instead.'",
+        "Tooltip positioning near edge of screen: Tooltip repositions to opposite side of cursor to remain fully visible. If calendar at screen bottom, tooltip appears above cursor instead of below."
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Micro-Animation Feedback for Direct Manipulation Confidence",
+      "journey_phases": ["proposal_creation", "negotiation", "active_lease"],
+      "problem": "Norman's research shows feedback must be immediate (under 0.1 second) yet digital interfaces often provide delayed or absent acknowledgment of user actions. When guests interact with date selectors, pricing calculators, or request buttons, absence of immediate visual response creates uncertainty: 'Did it work? Should I click again?' This uncertainty compounds anxiety during crisis moments and creates perception that platform is slow or unresponsive.",
+      "solution": "Implement micro-animations for every interactive element following fast response (<100ms acknowledgment), gentle settle (300-500ms) philosophy. Button press: scale down to 0.97 in 80ms (ease-out), settle back to 1.0 in 400ms (spring easing). Date selection: checkmark icon fades in over 200ms (ease-out) with subtle 5-degree rotation. Input focus: border color transitions from border to accent in 150ms (ease-in-out) with subtle glow (0 0 0 4px accent at 20% opacity). Request submission: button content fades to spinner over 100ms, spinner rotates continuously (linear), success checkmark scales in from 0 to 1.0 over 400ms (spring). Never bounce—all easing is spring or ease-out for gentle, confident motion.",
+      "evidence": [
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. (lines 261-262)",
+          "insight": "100ms button response meets Norman's immediacy threshold. Human perception registers visual change under 100ms as 'instant,' creating feeling of direct manipulation."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "A misplaced hand will spill the contents, too hard a grip will break the glass, and too weak a grip will allow it to fall. The human nervous system is equipped with numerous feedback mechanisms. (lines 261-262)",
+          "insight": "Physical objects provide continuous haptic feedback. Digital interfaces must compensate with visual feedback. Micro-animations are visual equivalent of feeling button depress or switch toggle."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "All interactive elements (buttons, date cells, inputs) rest at scale 1.0, no animation. Cursor changes to pointer on hover to signal interactivity. Focus rings hidden until keyboard navigation.",
+        "loading": "Button press: Active state at scale 0.97 during click/tap (80ms ease-out descent, 400ms spring return). Input focus: Border color animates from ink-ghost to accent (150ms ease-in-out), glow appears (0 0 0 4px accent at 20% opacity). Date selection: Clicked date immediately shows checkmark icon fade-in (200ms ease-out) with 5-degree rotation. Request submission: Button content (text + icon) fades to 0 opacity over 100ms, spinner fades to 1 opacity simultaneously, rotates continuously (linear, 1s per rotation).",
+        "empty": "Interactive elements in disabled state: 50% opacity, no hover effects, cursor defaults to not-allowed. No animations trigger when disabled.",
+        "error": "Submission error: Spinner immediately stops rotating, fades out over 100ms. Error icon (X in circle) scales in from 0 to 1.0 over 400ms (spring) with subtle shake animation (3 degrees left-right-left, 200ms total). Button returns to default state after 2 seconds, allowing retry. Input error: Border color transitions to signal-danger (150ms), error message slides down from input (200ms ease-out).",
+        "success": "Submission success: Spinner fades out over 100ms. Success checkmark scales in from 0 to 1.0 over 400ms (spring easing with slight overshoot to 1.05 then settle to 1.0). Checkmark holds for 1 second before transitioning to next screen. Date selection success: Selected dates show subtle pulse animation (scale 1.0 to 1.03 to 1.0, 400ms spring, plays once). Summary panel slides up from bottom (300ms ease-out)."
+      },
+      "transition_principle": "Animations acknowledge every user action within 100ms, but transitions remain gentle (300-500ms). No action is instant with no animation (feels broken), no action is slow (> 500ms feels laggy). Spring easing creates subtle organic feel without literal bounce. Animation intensity scales with interaction importance: subtle for low-stakes (date hover), pronounced for high-stakes (request submission).",
+      "timing": {
+        "response_target": "Button press acknowledgment: 80ms scale-down. Input focus: 150ms border transition. Date selection checkmark: 200ms fade-in. Submission spinner appear: 100ms. Success checkmark: 400ms scale-in. All under Norman's 100ms perception threshold for acknowledgment, with settle taking 300-500ms.",
+        "easing": "Button press: ease-out 80ms descent, spring 400ms return. Input focus: ease-in-out 150ms. Date checkmark: ease-out 200ms with 5-degree rotation. Spinner rotation: linear continuous. Success checkmark: spring 400ms (overshoot to 1.05, settle to 1.0). Error shake: ease-in-out 200ms.",
+        "rationale": "Sub-100ms acknowledgment creates perception of instant response. Spring easing on success creates subtle delight without being playful. Continuous linear spinner rotation signals ongoing process. Error shake is brief (200ms) to signal problem without annoying."
+      },
+      "journey_state_awareness": "Animations remain consistent across journey phases—no adaptive behavior needed. First-time users and repeat users experience same feedback timing. Reduced motion preference: all animations still trigger but with 0ms duration (instant state changes), maintaining functionality without motion.",
+      "edge_cases": [
+        "Rapid repeated clicks on button: Animation resets on each click, never stacks. If clicked during return animation, immediately returns to 0.97 scale and restarts.",
+        "Focus moves between inputs rapidly (tab navigation): Border animations overlap smoothly, no jarring resets. Previous input fades from accent to ink-ghost as new input animates to accent.",
+        "Network delay causes spinner to rotate for extended period (> 10 seconds): Spinner continues rotating (no timeout) but additional message fades in after 8 seconds: 'This is taking longer than usual...' with option to cancel.",
+        "User submits form, then immediately clicks elsewhere: Spinner animation continues uninterrupted regardless of focus. Success/error animation plays even if user navigated away, providing closure.",
+        "Date selection on touch device with multi-touch: First touch triggers checkmark animation, second simultaneous touch doesn't trigger duplicate animation on same date."
+      ]
+    },
+    {
+      "id": "behaves-008",
+      "type": "interaction_pattern",
+      "title": "Progressive Disclosure for Complexity Management Across Expertise Levels",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "negotiation"],
+      "problem": "Guests have varying expertise with shared housing, seasonal pricing, and lease flexibility. Norman's research shows expert users need density for rapid scanning while novice users need context and explanation. Current platform presents same information density to all guests, either overwhelming novices with detail or boring experts with explanations they don't need. This one-size-fits-all approach creates cognitive load mismatch across user segments.",
+      "solution": "Design parallel interaction paths optimized for different expertise levels with automatic progressive promotion. NOVICE PATH: Information-rich with contextual explanations. Tooltips explain concepts on hover. Helper text for each input field. Examples shown alongside each decision. Seasonal pricing explained with calendar visualization. EXPERT PATH: Information-minimal with density optimized for scanning. No tooltips unless requested. Pre-filled inputs based on prior behavior. Minimal helper text. Pricing shown as compact ranges. TRANSITION: After 3 listings viewed or 1 booking completed, system prompts: 'You seem familiar with Split Lease. Want to hide explanatory text?' Toggle available anytime.",
+      "evidence": [
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt",
+          "type": "book",
+          "quote": "As you become skilled in a task, its demand for energy diminishes. (implied from Kahneman text referenced in works layer)",
+          "insight": "Expert guests have lower cognitive load for familiar concepts, can process dense information quickly. Novice guests need step-by-step, explanation-rich path. Dual architecture respects expertise gradient."
+        },
+        {
+          "source": "nneka-call.txt",
+          "type": "guest_call",
+          "quote": "Hybrid workers returning to office = target market. 2-3 month commitments = typical. (lines 160-167)",
+          "insight": "Hybrid workers likely evaluate multiple listings, become expert users quickly. After viewing 2-3 listings, they understand concepts and don't need repeated explanations."
+        }
+      ],
+      "priority": "low",
+      "states": {
+        "default": "First-time visitor: novice path active by default. Information-rich interface with tooltips, helper text, examples. All explanatory elements visible. Expert toggle hidden until expertise threshold crossed.",
+        "loading": "Path switching: brief transition animation (200ms) as interface re-renders. Loading spinner with message: 'Switching to [expert/novice] view...' During initial page load, expertise level detected from session history (0 views = novice, 3+ views = prompt for expert).",
+        "empty": "No user history available (first visit, cleared cookies): defaults to novice path. Brief banner at top: 'New to Split Lease? We'll guide you through the process. You can switch to compact view anytime.'",
+        "error": "Cannot determine expertise level (API error): defaults to novice path as safer option. No error message shown to user—fails gracefully to more helpful state.",
+        "success": "NOVICE MODE ACTIVE: Tooltips appear on hover over concept terms (50ms delay). Helper text visible under each input field (ink-soft color, sans 14px). Examples shown in light background cards (accent-light) with real data. Seasonal pricing calendar shows full year with color gradient and legend. 'Switch to expert view' link visible at top-right. EXPERT MODE ACTIVE: Tooltips hidden by default, accessible via info icons. No helper text under inputs. Examples hidden, accessible via 'Show examples' toggle. Seasonal pricing shown as compact range: 'Winter: $1,170-1,240/mo, Summer: $1,320-1,400/mo.' 'Switch to guided view' link visible at top-right. TRANSITION PROMPT (3 listings viewed): Modal appears: 'You've viewed 3 listings. You seem familiar with how Split Lease works. Want to switch to expert view with less explanatory text?' Buttons: 'Yes, switch to expert view' (primary), 'No, keep current view' (secondary), 'Don't ask again' (tertiary link)."
+      },
+      "transition_principle": "Expertise promotion is offered but never forced. Guest can remain in novice mode indefinitely or switch to expert mode on first visit via manual toggle. Transition prompt appears once at threshold, respects 'don't ask again' permanently. Mode persists across sessions via cookie/local storage. Switching modes re-renders interface with 200ms transition to avoid jarring instant changes.",
+      "timing": {
+        "response_target": "Tooltip appearance in novice mode: 50ms after hover. Mode switch: 200ms transition animation. Transition prompt: 400ms fade-in after 3rd listing view. Info icon tooltip in expert mode: instant on click.",
+        "easing": "Tooltip fade: ease-out 100ms. Mode switch transition: ease-in-out 200ms. Transition prompt modal: ease-out 400ms. Helper text collapse/expand: ease-out 200ms.",
+        "rationale": "50ms hover delay prevents tooltip spam during cursor movement. 200ms mode switch is perceptible but not slow, signaling that content is reorganizing. 400ms prompt delay ensures it appears after guest finishes viewing listing, not during."
+      },
+      "journey_state_awareness": "Expertise threshold increases with journey progression. 3 listings viewed = basic expert (hides tooltips). 1 booking completed = intermediate expert (pre-fills common inputs). 3 bookings completed = advanced expert (enables keyboard shortcuts, shows power user features). Mode can still be manually overridden at any level.",
+      "edge_cases": [
+        "Guest switches to expert mode, then gets confused: 'Switch to guided view' link always visible. Clicking it re-enables all explanatory elements with confirmation: 'Guided view activated. Explanations and examples are now visible.'",
+        "Guest clears cookies, returns as 'novice' despite being expert: After 1 interaction (listing view, date selection), system shows: 'Welcome back! Want to switch to expert view?' Uses interaction patterns to infer expertise faster than view count.",
+        "Guest uses both mobile and desktop: Expertise mode syncs across devices via account (if logged in). If not logged in, each device tracks independently—mobile users often prefer novice mode even if expert on desktop due to smaller screen.",
+        "First-time guest immediately switches to expert mode (tech-savvy, impatient): Allowed without restriction. No 'are you sure?' confirmation—respects user's self-assessment of expertise.",
+        "Transition prompt appears during critical task (submitting proposal): Prompt deferred until after task completion. Stored in queue: 'After you submit this proposal, we have a suggestion to improve your experience.'"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,530 @@
+{
+  "lens": {
+    "guest_call": "zella-myers-call.txt",
+    "book_extract": "cialdini-commitment-socialproof.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Reciprocal Value Exchange Velocity Test",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "If reciprocal value exchange is too slow or invisible, guests will perceive the platform as extractive rather than collaborative. They'll provide information without seeing results, triggering abandonment. The validation must measure both timing (is value shown within 300ms?) and visibility (does the guest perceive the exchange as fair?).",
+      "solution": "Measure the time between guest input (location submitted, dates selected, budget set) and visible platform response (properties displayed, price validation shown, availability confirmed). Track both technical latency and perceived value through user observation and session recordings. Test whether guests continue engagement after seeing reciprocal value versus those who don't receive immediate feedback.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-001, lines 12-13",
+          "type": "process_pattern",
+          "quote": "Zella provided extensive information throughout the call but received zero concrete listings in return. The guest invested call time and information but left empty-handed.",
+          "insight": "The absence of reciprocal value is the primary dropout trigger. Validation must detect this absence by measuring value delivery latency and guest perception of fairness."
+        },
+        {
+          "source": "zella-myers-call.txt, lines 22-37",
+          "type": "guest_call",
+          "quote": "Guest provides detailed location requirements. Agent responds: 'I do have, uh, some vacations available' without showing anything.",
+          "insight": "Vague acknowledgment without concrete value creates doubt. Tests must measure whether platform shows specific, tangible results (property cards with photos and prices) rather than generic confirmations."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated performance test: Measure time from input completion to result display for location entry, date selection, and budget setting. Target: <300ms for all. Manual usability test: Observe 10 guests completing search flow. Record whether they verbally express satisfaction with results shown ('That's helpful,' 'I see options') versus confusion ('Where are the results?', 'Did it work?').",
+      "success_criteria": "Technical: 95% of value exchanges complete in <300ms. User perception: 80% of test guests express satisfaction with value received after providing search criteria. Session analytics: Guests who see results within 300ms show 40%+ higher continuation to next phase versus those who wait >1s.",
+      "failure_meaning": "If technical timing passes but user satisfaction fails, the value shown is not perceived as valuable (wrong information, insufficient detail). If technical timing fails, infrastructure cannot support real-time reciprocity. If both fail, core promise of element is unvalidated.",
+      "implementation_hint": "Use browser performance API to measure input blur event to DOM render of result cards. Track RUM (Real User Monitoring) to catch network/device variability. For perception testing, use think-aloud protocol during moderated sessions."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Social Proof Relevance and Trust Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "negotiation", "acceptance"],
+      "problem": "Social proof only reduces uncertainty if it comes from similar others and feels authentic. Generic testimonials or demographically mismatched examples could reduce trust rather than build it. Validation must test both similarity matching (are shown guests actually similar to current guest?) and authenticity perception (does guest believe these are real people?).",
+      "solution": "A/B test social proof with varying degrees of similarity: exact match (same location, schedule, budget), adjacent match (same location, different schedule), and generic platform-wide stats. Measure continuation rates for each variant. Conduct trust perception surveys asking guests to rate authenticity of social proof on 1-5 scale after viewing. Monitor whether guests click through to detailed testimonials or dismiss them immediately.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-002, lines 58",
+          "type": "process_pattern",
+          "quote": "Not once during the call does the agent reference other guests with similar needs, successful matches in the CCNY area, typical pricing for Wednesday-Saturday schedules.",
+          "insight": "Complete absence of social proof is current failure mode. Tests must detect whether social proof, when present, is sufficiently specific and credible to address uncertainty."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, lines 497-501",
+          "type": "book",
+          "quote": "We are most influenced in this fashion by the actions of others like us.",
+          "insight": "Similarity is critical variable. Tests must measure whether similarity matching algorithm correctly identifies 'others like us' from guest's perspective."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test with 3 variants: A) Exact similarity match (same location/schedule/budget), B) Adjacent similarity (2 of 3 match), C) Generic platform-wide stats. Measure conversion to next phase for each. Follow-up survey (n=50 per variant): 'The guest stories shown felt: 1-Very fake, 5-Very authentic.' Track click-through on social proof elements (portrait clicks, 'See more stories' expansion).",
+      "success_criteria": "Variant A (exact match) shows 25%+ higher continuation versus Variant C (generic). Authenticity rating averages 4.0+ for Variant A, 3.5+ for Variant B. Click-through rate on social proof >15% indicates engagement. If <5% click-through, social proof is ignored or distrusted.",
+      "failure_meaning": "If all variants show similar continuation rates, social proof has no impact (guests don't value peer validation, or it's presented ineffectively). If authenticity ratings <3.0, guests perceive social proof as manufactured. If click-through <5%, positioning or design makes social proof invisible or irrelevant.",
+      "implementation_hint": "Use geo + schedule + budget as similarity matching parameters. Surface-level similarity is not enough; must match current guest's stated requirements exactly. For authenticity, use real photos and full names with consent, never stock photos. Add 'Verified guest' badge to increase credibility."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Active Momentum Maintenance Engagement Test",
+      "validates_element": "works-003",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "Passive waiting periods create commitment decay even if platform eventually delivers results. Guests who stop engaging during waiting periods are vulnerable to abandoning to parallel housing options. Validation must measure whether active alternate steps actually maintain engagement during waiting periods.",
+      "solution": "Compare two guest cohorts: A) Guests shown active alternate steps during waiting ('While Host X considers your proposal, create proposals on these 3 properties'), B) Guests shown passive status only ('Your proposal is under review'). Measure return visit rate within 24 hours, total engagement time during waiting period, and ultimate booking completion rate. Track whether suggested alternate actions are actually taken.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-003, lines 121",
+          "type": "process_pattern",
+          "quote": "Convert passive waiting into active participation at every phase. Never leave the guest waiting—every phase transition should require an active step from the guest.",
+          "insight": "Element assumes active steps combat decay, but this must be validated. Do guests actually take suggested actions, or do they ignore suggestions and wait anyway?"
+        },
+        {
+          "source": "zella-myers-call.txt, lines 72-75",
+          "type": "guest_call",
+          "quote": "Agent: 'I'll be in touch.' Creates passive waiting where guest has no active role and commitment begins to decay immediately.",
+          "insight": "Current failure mode is pure passive waiting. Test must prove active alternatives change behavior."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Randomized A/B test: Cohort A receives active suggestions during proposal waiting ('Create 2 more proposals to speed up booking'). Cohort B receives status only ('Proposal sent. Host typically responds in 24-48 hours'). Track: return visits within 24hrs, additional proposals created, total session time during waiting period, ultimate booking rate within 14 days.",
+      "success_criteria": "Cohort A shows 30%+ higher return visit rate within 24hrs. Cohort A creates 1.5x more proposals during waiting period. Ultimate booking completion rate 20%+ higher for Cohort A. If <25% of Cohort A guests take suggested actions, alternate steps are ineffective or poorly designed.",
+      "failure_meaning": "If both cohorts show similar engagement and booking rates, active suggestions have no impact. Possible causes: suggestions feel pushy and create resistance, suggested actions are too effortful, guests prefer to wait for their first choice rather than pursue alternatives. Would need qualitative research to understand why.",
+      "implementation_hint": "Make suggested actions extremely low-friction: 'Create proposal' buttons pre-filled with same requirements, one-click to send. Surface suggestions immediately after proposal submission, not hours later. Track whether guests dismiss suggestions vs ignore vs act on them to understand failure modes."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Complexity-Confidence Pairing Comprehension Test",
+      "validates_element": "works-004",
+      "journey_phases": ["search", "listing_evaluation", "negotiation", "acceptance"],
+      "problem": "Pairing complexity with confidence data assumes guests process both simultaneously and find confidence reassuring. If guests focus only on complexity (ignoring confidence) or if confidence data is insufficient to counter complexity anxiety, the pairing fails. Validation must measure whether guests actually perceive complexity as manageable when paired versus overwhelming when alone.",
+      "solution": "Eye-tracking study to measure whether guests view both complexity and confidence sections when paired. Survey after viewing complexity revelations: 'How confident do you feel about this process? 1-Not confident, 5-Very confident.' Compare confidence ratings for guests who saw paired presentation versus those who saw complexity alone. Measure continuation rate at each complexity revelation point.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-004, lines 178-179",
+          "type": "process_pattern",
+          "quote": "Pair every complexity revelation with immediate confidence-building evidence. Complexity + confidence = manageable challenge. Complexity alone = overwhelming obstacle.",
+          "insight": "Element assumes pairing transforms perception. Must validate that guests actually perceive complexity differently when confidence is present."
+        },
+        {
+          "source": "zella-myers-call.txt, lines 55-62",
+          "type": "guest_call",
+          "quote": "Agent explains pricing complexity without outcome ranges. Guest receives landlord economics (too much detail) without her own outcome range (too little).",
+          "insight": "Current failure is complexity without confidence. Test must prove pairing changes guest response."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Moderated usability test (n=15): Present complexity revelations (matching timeline, pricing variability, co-tenant approval) with and without paired confidence data. After each, ask: 'How confident are you that you can successfully complete this?' (1-5 scale). Eye-tracking subset (n=5) to measure visual attention: Do guests look at confidence panel when complexity is shown? Think-aloud protocol: Listen for anxiety signals ('That sounds complicated') versus confidence signals ('Okay, 5-7 days seems doable').",
+      "success_criteria": "Confidence ratings average 4.0+ when complexity paired with confidence versus <3.0 when complexity shown alone. Eye-tracking shows >70% of guests view confidence panel when paired. Think-aloud reveals confidence-building language in 80%+ of paired sessions versus anxiety language in standalone complexity. Continuation rate 60%+ for paired versus <40% for standalone.",
+      "failure_meaning": "If confidence ratings don't improve with pairing, either confidence data shown is insufficient (not specific enough, too generic) or guests don't trust the data (seems manufactured, sample size too small). If eye-tracking shows guests ignore confidence panel, visual design fails to draw attention to reassurance. Would require design iteration on prominence and trustworthiness signals.",
+      "implementation_hint": "Visual hierarchy is critical: confidence panel should be slightly more prominent than complexity (55% vs 45% width, brighter color). Use specific numbers in confidence data ('5-7 days' not 'typically fast') to create concrete expectations. Show sample size ('Based on 500+ similar matches') to justify credibility."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Platform Comprehension Gate Effectiveness Test",
+      "validates_element": "works-005",
+      "journey_phases": ["discovery", "search"],
+      "problem": "Interactive comprehension gating assumes that interaction creates understanding and that preventing commitment without comprehension reduces downstream confusion. If guests find the gate annoying or if passing the gate doesn't actually ensure comprehension, the element creates friction without benefit. Validation must measure both comprehension accuracy and downstream confusion reduction.",
+      "solution": "Compare two cohorts: A) Guests required to complete interactive demo and comprehension check before bid submission, B) Guests allowed to bid without comprehension gate. Measure: comprehension accuracy (post-interaction survey testing actual understanding), frustration signals (abandonment at gate, time spent on demo), downstream support requests about 'how platform works,' and phase continuation rates. Track whether Cohort A shows better retention despite slower early conversion.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-005, lines 229-230",
+          "type": "process_pattern",
+          "quote": "Require demonstrated platform understanding before allowing consequential commitments. Use interactive visualization: guest selects desired days, platform shows complementary co-tenant days.",
+          "insight": "Element assumes comprehension gate prevents confused commitments. Must validate that gate-passers actually understand better and experience less downstream confusion."
+        },
+        {
+          "source": "zella-myers-call.txt, lines 49-52",
+          "type": "guest_call",
+          "quote": "Guest registered AND placed a bid without correctly remembering the platform name. Catastrophic comprehension failure.",
+          "insight": "Current failure is commitments made without understanding. Test must prove gate prevents this while not creating excessive early friction."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Cohort A (gated) must complete interactive demo + comprehension check before bid enabled. Cohort B (ungated) can bid immediately. Measure: early conversion rate (bid within first session), comprehension survey score (5 questions about platform model), support tickets mentioning confusion about platform, dropout rate at complexity revelation phases, ultimate booking completion. Follow-up interviews (n=10 per cohort) asking 'When did you really understand how Split Lease works?'",
+      "success_criteria": "Cohort A comprehension score 90%+ correct versus Cohort B <60%. Cohort A support tickets 50% lower for platform confusion. Cohort A continuation at complexity revelation phases 30%+ higher (no surprise dropouts). Acceptable if Cohort A shows 10-15% lower early bid rate but 40%+ higher ultimate booking rate. Gate abandonment <5% (if >10%, gate is too frustrating).",
+      "failure_meaning": "If both cohorts show similar comprehension scores, either gate is too easy to pass without learning or natural platform use teaches comprehension quickly (gate is unnecessary). If Cohort A abandonment at gate >10%, friction outweighs benefit. If Cohort A booking rate not significantly higher, preventing early commitment doesn't improve quality. Would need to simplify gate or abandon it.",
+      "implementation_hint": "Make interactive demo feel like discovery not testing. Use celebratory language ('See how it works!') not punitive ('You must complete tutorial'). Keep comprehension check to 1 question, simple multiple choice. If guest gets it wrong, show gentle correction with visual diagram and allow immediate retry. Track attempts-to-pass to identify if question is confusing."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Information Hierarchy Recognition Speed Test",
+      "validates_element": "communicates-001",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "If reciprocal value is displayed but guests don't notice it within 2 seconds, the information hierarchy fails. Guests may abandon thinking no results were found, when results are actually present but buried. Validation must measure how quickly guests recognize value delivery and whether the hierarchy guides their attention correctly.",
+      "solution": "Eye-tracking study measuring time-to-first-fixation on reciprocal value elements (property cards, price validation, availability confirmation). Heat maps showing where guests look in first 5 seconds after input. Usability test with think-aloud asking 'What do you see now?' immediately after search completion. Track whether guests scroll or search for results versus seeing them immediately.",
+      "evidence": [
+        {
+          "source": "communicates-elements.json, communicates-001, lines 29",
+          "type": "info_architecture",
+          "quote": "hierarchy_principle: Primary: What guest receives (matching listings). Secondary: What guest provides. The platform must show its value BEFORE asking for more information.",
+          "insight": "Primary value must be visually dominant. Tests must validate that guests actually perceive the hierarchy as intended."
+        },
+        {
+          "source": "zella-myers-call.txt, lines 22-37",
+          "type": "guest_call",
+          "quote": "Guest provides precision, receives vague generality. Information exchange is asymmetric.",
+          "insight": "Visual hierarchy must make platform's value reciprocation impossible to miss."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Moderated usability test with eye-tracking (n=10): Track eye movements during search result delivery. Measure: time to first fixation on property cards, whether guests look at results before scrolling, heat map of first 5 seconds. Think-aloud protocol: 'What do you see on this page?' immediately after results load. Unmoderated remote test (n=50): Survey asking 'Did you see properties matching your search? Yes/No/Not sure.' Track scroll behavior via session replay—do they scroll searching for results or see them immediately?",
+      "success_criteria": "Eye-tracking: 90% of guests fixate on property results within 2 seconds. Heat maps show primary attention on results area, not input area. Think-aloud: 80%+ guests describe results first ('I see 5 properties') not interface elements ('I see a search box'). Survey: 95%+ answer 'Yes' to seeing results. Scroll behavior: <10% scroll down immediately after results load (if many scroll, results are perceived as hidden).",
+      "failure_meaning": "If time-to-fixation >3s or heat maps show attention elsewhere, visual hierarchy fails to guide attention. If survey shows <80% noticed results, contrast/positioning/size is insufficient. If many guests scroll immediately, they expect results below fold (incorrect mental model from other sites). Would require stronger visual weight on results: larger cards, brighter colors, animation on load.",
+      "implementation_hint": "Place results in top 60% of viewport, never requiring scroll. Use entrance animation (300ms fade-in + stagger) to draw attention. High contrast between results and background. Count badge at top: '5 properties match your search' as headline above cards creates cognitive anchor."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Social Proof Contextual Triggering Accuracy Test",
+      "validates_element": "communicates-002",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "negotiation", "acceptance"],
+      "problem": "Social proof shown at wrong moment (too early, too late, or at non-uncertainty points) creates noise rather than reassurance. If triggering algorithm misidentifies uncertainty signals, guests either never see social proof when needed or get bombarded with irrelevant testimonials. Validation must test whether uncertainty detection works and whether timing feels helpful not intrusive.",
+      "solution": "A/B test triggering mechanisms: A) Time-based (social proof appears after 2s on page), B) Interaction-based (appears after hover on complex element for >2s), C) Revisit-based (appears on second visit to same page without action). Measure conversion lift for each trigger type. User survey: 'The guest stories appeared at a: 1-Very unhelpful time, 5-Very helpful time.' Monitor dismissal rate (if >30%, timing is intrusive).",
+      "evidence": [
+        {
+          "source": "communicates-elements.json, communicates-002, lines 49-50",
+          "type": "info_architecture",
+          "quote": "Embed specific, contextual social proof at every decision point where uncertainty could cause dropout. Social proof must be similar-other specific.",
+          "insight": "Element assumes platform can detect uncertainty points. Must validate detection accuracy and guest perception of helpfulness."
+        },
+        {
+          "source": "behaves-elements.json, behaves-002, lines 62-63",
+          "type": "interaction_pattern",
+          "quote": "Trigger patterns: Guest hovers over complex concept for >2s → tooltip appears. Guest returns to same page multiple times without action → banner appears.",
+          "insight": "Specific trigger thresholds must be validated. Is 2s hover the right duration? Do repeat visits reliably indicate uncertainty?"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Multi-variant test with 4 cohorts: A) No social proof (control), B) Time-based trigger (appears after 3s on page), C) Hover-based (appears after 2s hover on complexity element), D) Revisit-based (appears on 2nd+ visit to page without action). Measure: conversion to next phase, dismissal rate (X click on social proof), helpful timing survey (1-5 rating), and click-through on social proof content. Session recordings to observe whether social proof appearance correlates with actual hesitation signals.",
+      "success_criteria": "Variant C (hover-based) or D (revisit-based) shows 15-20% conversion lift versus control. Time-based (B) shows <10% lift (less targeted). Dismissal rate <20% for hover/revisit variants versus >30% for time-based (feels random). Helpful timing rating 4.0+ for hover/revisit, <3.5 for time-based. Session analysis confirms social proof appears when guest pauses/re-reads complex content in 70%+ of cases.",
+      "failure_meaning": "If all variants show similar conversion lift, social proof content is ineffective regardless of timing. If dismissal rates high across all variants (>30%), guests don't want social proof or find it distracting. If session analysis shows poor correlation between triggers and actual hesitation, uncertainty detection algorithm is wrong. Would need to refine triggers or reconsider social proof approach entirely.",
+      "implementation_hint": "Start with conservative triggers to avoid feeling intrusive. 2s hover is good threshold (deliberate engagement, not accidental). Track hover abandon rate: if guests move mouse away within 200ms of social proof appearing, they're annoyed. Use gentle animation (fade in, not pop in) to reduce intrusiveness. Persist dismissal preference per session—never show same proof twice if dismissed."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Commitment Chain Visibility Impact Test",
+      "validates_element": "communicates-003",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "Visible commitment chain assumes that seeing accumulated investment creates consistency pressure to continue. If guests ignore the timeline or if seeing low progress creates discouragement rather than motivation, the element backfires. Validation must measure whether timeline visibility actually increases continuation and whether low-progress users feel motivated or defeated.",
+      "solution": "A/B test: Cohort A sees persistent commitment timeline showing all prior actions. Cohort B sees only current step without history. Measure continuation rate through phases, time-to-abandonment, and survey asking 'How motivated did you feel to continue? 1-Not motivated, 5-Very motivated.' Segment analysis by progress level (many commitments vs few) to see if effect differs by investment level.",
+      "evidence": [
+        {
+          "source": "communicates-elements.json, communicates-003, lines 92-93",
+          "type": "info_architecture",
+          "quote": "Make every guest commitment visible and build progressive commitment chain that shows accumulating investment. Display all prior commitments prominently before requesting new ones.",
+          "insight": "Element assumes visibility increases commitment. Must validate that guests actually feel more invested when they see their history."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, lines 68-69",
+          "type": "book",
+          "quote": "If I can get you to make a commitment, I will have set the stage for your automatic consistency with that earlier commitment.",
+          "insight": "Consistency pressure is psychological theory. Must validate it manifests in measurable behavior change."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Randomized test: Cohort A (visible timeline) sees sticky progress bar with all completed commitments (bid placed, 8 properties viewed, 2 proposals sent). Cohort B (control) sees only current step indicator. Measure: proposal completion rate, acceptance rate after proposal, time from first action to booking, abandonment rate at each phase. Survey both cohorts: 'Seeing your progress motivated you to continue: Strongly disagree (1) to Strongly agree (5).' Segment by commitment count: test whether effect is stronger for high-investment users.",
+      "success_criteria": "Cohort A shows 20%+ higher continuation through proposal and acceptance phases. Survey ratings for motivation average 4.2+ for Cohort A versus <3.5 for Cohort B. Effect is strongest for users with 5+ prior commitments (30%+ lift) showing accumulation matters. If users with 1-2 commitments show no lift, timeline isn't helpful until investment is substantial.",
+      "failure_meaning": "If both cohorts show similar continuation, visible history doesn't create consistency pressure (guests make fresh decisions at each phase, not sunk-cost reasoning). If low-commitment users show decreased continuation in Cohort A, timeline reveals how little they've invested and encourages abandonment. Would need to show timeline only after threshold investment or reconsider sunk-cost strategy entirely.",
+      "implementation_hint": "Don't show timeline until guest has 3+ meaningful commitments to avoid highlighting low investment. Use celebration language for each step ('Nice! You've created 2 proposals') not neutral logging ('2 proposals submitted'). Quantify investment in time/effort: 'You've spent 15 minutes searching—almost there!' makes investment salient."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Complexity-Confidence Co-Revelation Perception Test",
+      "validates_element": "communicates-004",
+      "journey_phases": ["search", "listing_evaluation", "negotiation", "acceptance"],
+      "problem": "Co-revelation assumes guests process both panels simultaneously and that confidence data is sufficient to counter anxiety. If guests read complexity first and form negative impression before seeing confidence, or if confidence data is too abstract to reassure, pairing fails. Validation must measure reading order, emotional response, and whether confidence actually reduces dropout.",
+      "solution": "Eye-tracking study measuring reading order: Do guests look at complexity left panel first, then confidence right panel? Or do they skip confidence entirely? Measure dwell time on each panel. Galvanic skin response (GSR) or facial expression analysis to detect anxiety when complexity shown and relief when confidence shown. Compare dropout rates for paired presentation versus complexity-only control.",
+      "evidence": [
+        {
+          "source": "communicates-elements.json, communicates-004, lines 135-136",
+          "type": "info_architecture",
+          "quote": "Never reveal complexity without simultaneously providing evidence it has been managed by similar others. Pair every complexity explanation with immediate confidence-building information in same visual frame.",
+          "insight": "Simultaneity is critical. Must validate that guests actually experience both as unified presentation, not sequential."
+        },
+        {
+          "source": "looks-elements.json, looks-004, lines 156-157",
+          "type": "visual_pattern",
+          "quote": "Confidence panel (right) should be 55% viewport width vs complexity panel (left) 45%, creating visual bias toward solution.",
+          "insight": "Visual hierarchy attempts to guide attention to confidence first. Must validate whether this works in practice."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Moderated usability with biometric (n=15): Present complexity-confidence paired panels. Eye-tracking measures: first fixation (left or right panel?), reading order (alternating or sequential?), dwell time ratio (do they spend more time on confidence?). GSR or facial coding measures emotional response: anxiety spike when complexity fixated, relief when confidence fixated? Control group (n=15) sees complexity without pairing for comparison. Measure continuation rate and anxiety signals in both groups.",
+      "success_criteria": "Eye-tracking: 60%+ of guests fixate on confidence panel (right) first or within 1s of fixating complexity. Reading pattern shows alternating attention between panels (integrated processing) not purely left-to-right. Dwell time on confidence panel 40-60% of total (indicates balanced processing). Biometric: complexity triggers mild anxiety in both groups, but paired group shows faster return to baseline (within 5s vs >10s). Continuation rate 50%+ higher for paired group.",
+      "failure_meaning": "If guests read only complexity panel and ignore confidence, visual hierarchy fails to direct attention (confidence needs stronger emphasis). If anxiety doesn't reduce after viewing confidence, data shown is insufficient or not credible. If no anxiety spike at complexity, it's not perceived as threatening (element solving wrong problem). Would need to increase confidence panel prominence or specificity.",
+      "implementation_hint": "Use color coding to guide attention: warm amber for complexity (caution), cool green for confidence (safety). Make confidence panel slightly brighter and larger. Lead with outcome statistic in large type ('94% success rate') to capture attention immediately. Consider showing confidence first on mobile (vertical stack) where left-right hierarchy doesn't apply."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Platform Comprehension Retention Test",
+      "validates_element": "communicates-005",
+      "journey_phases": ["discovery", "search"],
+      "problem": "Interactive demo may create momentary comprehension that doesn't persist. If guests 'get it' during demo but forget by the time they create proposals, the comprehension gate is merely friction. Validation must test retention over time and whether comprehension persists when tested in different context from where it was learned.",
+      "solution": "Test comprehension immediately after demo (T0), 24 hours later (T1), and when guest encounters complexity for first time (T2, e.g., at proposal creation when co-tenant matching is relevant). Measure whether guests who passed demo comprehension check actually demonstrate understanding when making real decisions. Compare behavior of demo-passers versus demo-skippers.",
+      "evidence": [
+        {
+          "source": "communicates-elements.json, communicates-005, lines 178-179",
+          "type": "info_architecture",
+          "quote": "Require demonstrated platform understanding before allowing consequential commitments. Interactive demonstration of concept that requires guest participation.",
+          "insight": "Demonstration creates initial understanding, but element assumes it persists. Must validate retention and transfer to real decision contexts."
+        },
+        {
+          "source": "zella-myers-call.txt, lines 49-52",
+          "type": "guest_call",
+          "quote": "Guest registered and placed bid without understanding platform. Confusion persists despite prior exposure.",
+          "insight": "Passive exposure doesn't create lasting comprehension. Test must prove interactive method produces better retention."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Longitudinal usability study (n=30): Guests complete interactive demo at T0. Comprehension tested with 3 questions immediately after. Same guests invited back 24hrs later (T1) for same questions without re-viewing demo. Track whether they maintain 90%+ accuracy. At T2 (when guest creates first proposal), observe whether they demonstrate understanding: Do they reference co-tenant in proposal message? Do they select schedule expecting complementary match? Do they ask support questions revealing confusion?",
+      "success_criteria": "T0 comprehension: 95%+ correct (demo is effective). T1 retention: 80%+ correct after 24hrs (understanding persists short-term). T2 transfer: 75%+ demonstrate understanding in real behavior (co-tenant references, appropriate schedule selection, low support confusion tickets). If T2 <60%, comprehension doesn't transfer to application context despite retention.",
+      "failure_meaning": "If T0 high but T1 low (<60%), demo creates momentary understanding without retention (information not encoded into memory). If T1 high but T2 low, guests remember concept but don't apply it to real decisions (transfer failure). Would need to reinforce comprehension at key decision points, not just at entry. If T0 itself <80%, demo is ineffective at initial teaching.",
+      "implementation_hint": "Use spaced repetition: show brief reminder of split-schedule concept at proposal creation ('Remember: you use Wed-Sat, co-tenant uses Sun-Tue'). Test whether reminder boosts T2 transfer. Interactive demo should be memorable: use animation, let guest manipulate calendar, create small 'aha!' moment. Boring static explanation won't persist."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Visual Value Reciprocity Perception Test",
+      "validates_element": "looks-001",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Progressive value visualization assumes that animated, real-time visual feedback creates perception of reciprocal exchange. If guests focus on input side and never notice output side, or if animations feel gratuitous rather than informative, visual design fails to communicate reciprocity. Validation must measure where guests look and whether they perceive fair exchange.",
+      "solution": "Eye-tracking heat maps showing attention distribution between input (40% viewport) and output (60% viewport). Survey asking 'The platform showed me valuable results for my search: Strongly disagree (1) to Strongly agree (5).' A/B test: static results display versus animated progressive rendering. Measure perceived value and engagement for each.",
+      "evidence": [
+        {
+          "source": "looks-elements.json, looks-001, lines 13-14",
+          "type": "visual_pattern",
+          "quote": "When guest provides location, immediately render map with matching properties. Visual reciprocity through real-time visualization of guest input transforming into platform output.",
+          "insight": "Visual design intends to make reciprocity visible and immediate. Must validate that guests actually perceive the exchange as designed."
+        },
+        {
+          "source": "looks-elements.json, looks-001, lines 42-43",
+          "type": "visual_pattern",
+          "quote": "visual_hierarchy_rule: Visual response must be larger, more colorful, more spatially prominent than input. 60-40 ratio: 60% viewport shows what guest gets.",
+          "insight": "Hierarchy attempts to direct attention to value received. Must test whether this works in practice."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Eye-tracking usability test (n=12): Track gaze patterns during search result delivery. Measure: attention distribution (% time on input vs output), first fixation (input or output?), heat map showing attention concentration. Survey after: 'The results shown were valuable: 1-5.' A/B test (n=100 per variant): Variant A has animated progressive value visualization (properties cascade in, map animates). Variant B has static instant display. Measure perceived value survey and continuation to next phase.",
+      "success_criteria": "Eye-tracking: 65%+ of viewing time on output area (exceeds 60% viewport allocation, shows engagement). First fixation on output area within 2s for 80%+ of guests. Heat maps show primary attention cluster on property cards, not search input. Survey: 4.2+ rating for value received. A/B test: Variant A (animated) shows 15%+ higher continuation, indicating animation increases engagement. If static performs same or better, animation is unnecessary.",
+      "failure_meaning": "If attention splits 50-50 or favors input area, visual hierarchy fails to guide attention to value. If survey ratings <3.5, results shown aren't perceived as valuable (wrong information or insufficient detail, not a visual problem). If Variant B (static) performs better, animation is distracting rather than engaging. Would need to strengthen visual weight on output or simplify animation.",
+      "implementation_hint": "Use entrance animation sparingly: staggered fade-in for property cards (50ms between cards) creates gentle cascade without being distracting. Don't animate everything—limit motion to primary content (property cards) while keeping peripheral elements static. High contrast and larger size on output area is more important than animation."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Social Proof Micro-Portrait Credibility Test",
+      "validates_element": "looks-002",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "negotiation", "acceptance"],
+      "problem": "48px circular portraits of guests assume visual faces create human connection and credibility. If portraits feel like stock photos or if guests dismiss them as manufactured, social proof loses effectiveness. If portraits are too small to convey personality, they become decorative rather than persuasive. Validation must measure credibility perception and emotional connection.",
+      "solution": "A/B test portrait styles: A) Real guest photos (48px, with names and specific outcomes), B) Generic avatars/initials, C) No portraits (text testimonials only). Survey: 'These guest stories feel: 1-Fake/manufactured, 5-Real/authentic.' Measure click-through rate on portraits (do guests engage to learn more?). Track conversion lift for each variant.",
+      "evidence": [
+        {
+          "source": "looks-elements.json, looks-002, lines 50-52",
+          "type": "visual_pattern",
+          "quote": "Embed small portrait photographs (48px circular avatars) of real guests at every uncertainty point. Portraits should feel candid and warm, not stock photo corporate.",
+          "insight": "Element assumes portraits create credibility. Must validate that guests perceive them as authentic rather than manufactured."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, lines 497-501",
+          "type": "book",
+          "quote": "We are most influenced by the actions of others like us.",
+          "insight": "Visual similarity assessment (age, style visible in portrait) helps guests determine relevance. Must validate that 48px is sufficient to make this assessment."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Three-way A/B test (n=150 per variant): Variant A shows real guest photos (48px circular) with full names and outcomes. Variant B shows generic avatar initials (same size). Variant C shows testimonials without any portrait. Measure: continuation to next phase, authenticity survey (1-5 rating), click-through rate on social proof elements. Follow-up interviews (n=5 per variant) asking what made testimonials feel credible or not.",
+      "success_criteria": "Variant A (real photos) shows 18-25% higher continuation versus Variant C (no portraits). Authenticity rating 4.2+ for A versus <3.0 for B (generic avatars feel fake). Click-through rate 12-18% for A versus <5% for B/C (portraits create curiosity). Interviews reveal portrait details (smile, setting, clothing) help guests assess similarity and build connection. If B performs similar to A, portraits don't matter (just testimonial content).",
+      "failure_meaning": "If all variants perform similarly, visual portraits have no impact on credibility (guests read testimonial text only). If Variant B (generic avatars) performs better than A (real photos), real photos trigger skepticism ('those look staged'). If click-through is low across all (<5%), guests don't engage with social proof regardless of presentation. Would indicate social proof is background reassurance, not primary content.",
+      "implementation_hint": "Use genuine guest photos with consent, never stock photos. 48px is large enough to see facial expression and approximate age/style. Add 'Verified guest' badge to increase credibility. Consider showing photo source: 'Shared by Maya from her LinkedIn' creates external validation. Test whether larger portraits (64px) increase credibility at cost of space."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Commitment Timeline Animation Impact Test",
+      "validates_element": "looks-003",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "Spring bounce animations on completed commitments assume celebration creates positive reinforcement. If animations feel childish or distracting, they could reduce perceived professionalism. If animations are too subtle to notice, they provide no reinforcement. Validation must test whether animations create desired emotional response without hurting credibility.",
+      "solution": "A/B test animation styles: A) Spring bounce on checkmark (600ms, spring easing), B) Simple fade-in (300ms, ease-out), C) No animation (instant). Measure: perceived professionalism (survey 1-5), emotional satisfaction ('I felt accomplished: 1-5'), completion rate through proposal flow. Eye-tracking to measure whether animations draw attention to progress.",
+      "evidence": [
+        {
+          "source": "looks-elements.json, looks-003, lines 88-90",
+          "type": "visual_pattern",
+          "quote": "Checkmark icon animates with scale bounce effect (0 to 1.2 to 1.0, 600ms spring easing). Subtle success toast appears.",
+          "insight": "Element uses celebratory animation to create micro-rewards. Must validate that animation creates positive feeling without seeming unprofessional."
+        },
+        {
+          "source": "behaves-elements.json, behaves-003, lines 139-140",
+          "type": "interaction_pattern",
+          "quote": "Checkmarks bounce into place with spring energy, like accomplishments clicking into a trophy case.",
+          "insight": "Animation intends to make progress feel substantial. Must test whether users perceive it this way or find it gimmicky."
+        }
+      ],
+      "priority": "low",
+      "validation_method": "a_b_test",
+      "test_description": "Three-way split test (n=200 per variant): Variant A has spring bounce animation on commitment completion. Variant B has subtle fade-in only. Variant C has instant static update. Survey after completing proposal: 'The interface felt: 1-Unprofessional, 5-Professional' and 'I felt accomplished: 1-Not at all, 5-Very much.' Measure completion rate and time-to-complete for each variant. Eye-tracking subset (n=10 per variant) to see if animation draws attention to timeline.",
+      "success_criteria": "Variant A shows equal or higher professionalism rating versus B/C (>4.0 for all, animation doesn't hurt credibility). Variant A shows significantly higher accomplishment rating (4.5+ vs <4.0 for B/C). Completion rates similar across variants (animation doesn't distract from task). Eye-tracking shows animation draws attention to progress in A but not B/C. If A scores lower on professionalism (<3.8), animation is too playful.",
+      "failure_meaning": "If professionalism suffers in Variant A, spring animation feels childish for housing context. If accomplishment ratings are similar across variants, animation doesn't create emotional impact (subtle satisfaction comes from progress itself, not celebration). If completion rate lower in A, animation is distracting. Would need to eliminate animation or use more subtle version (simple scale, no bounce).",
+      "implementation_hint": "Keep animations subtle and fast. 600ms is borderline—test 400ms version. Spring easing should be gentle (1.2 scale max, not 1.5). Reserve animation for major milestones only (proposal sent, acceptance confirmed), not every micro-action. Professional contexts benefit from restraint."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Real-Time Response Latency Tolerance Test",
+      "validates_element": "behaves-001",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "300ms response target assumes this feels instant to users. If guests have higher tolerance (500ms feels fine) or lower tolerance (200ms is threshold), implementation effort may be misallocated. Validation must find the actual perceptual threshold where delay becomes noticeable and frustrating.",
+      "solution": "Controlled experiment with artificial delays: Show same search results at varying latencies (100ms, 200ms, 300ms, 500ms, 800ms, 1200ms). Survey after each: 'The results appeared: 1-Too slow/frustrating, 5-Instant/perfect.' Measure perceived speed and satisfaction at each threshold. Eye-tracking to detect when guests start looking elsewhere or showing impatience behaviors.",
+      "evidence": [
+        {
+          "source": "behaves-elements.json, behaves-001, lines 46",
+          "type": "interaction_pattern",
+          "quote": "response_target: 300ms. Fast enough to feel instant (below 400ms perceptual threshold).",
+          "insight": "Element assumes 300ms is below perceptual threshold. Must validate this is actually users' experience, not theoretical threshold."
+        },
+        {
+          "source": "looks-elements.json, looks-001, lines 42",
+          "type": "visual_pattern",
+          "quote": "Use optimistic UI patterns where results appear during typing, not after submission.",
+          "insight": "Design aims for sub-perceptual latency. Must test whether achieving this matters to guest satisfaction."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Within-subjects usability test (n=20): Each guest experiences all latency conditions (100ms, 200ms, 300ms, 500ms, 800ms, 1200ms) in randomized order. After each search, rate: 'Speed felt: 1-Frustratingly slow, 5-Perfectly instant.' Measure satisfaction and whether they would continue using platform. Eye-tracking detects when attention wanders (looking away from results area indicates impatience). Find the latency threshold where ratings drop below 4.0.",
+      "success_criteria": "Ratings stay above 4.2 for latencies ≤400ms. Drop to 3.5-4.0 at 500ms (noticeable but tolerable). Drop below 3.0 at >800ms (frustrating). If ratings remain high (>4.0) up to 500ms, 300ms target is stricter than necessary. If ratings drop below 4.0 at <300ms, target is insufficient. Eye-tracking shows attention wander beginning at threshold where ratings decline.",
+      "failure_meaning": "If ratings are high (>4.0) even at 800ms, guests have high latency tolerance and 300ms target is over-optimized (engineering effort better spent elsewhere). If ratings drop at 200ms, guests have very low tolerance and 300ms feels slow. Context matters: housing search may have different expectations than e-commerce. Would need to match target to actual user expectations.",
+      "implementation_hint": "Test on representative devices (not just MacBook Pro with gigabit wifi). Mobile on 4G may have unavoidable network latency. Use optimistic UI to show instant feedback even when backend is slow: show skeleton cards immediately (<50ms), populate with data when ready. Perceived speed > actual speed."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Social Proof Trigger Intrusiveness Balance Test",
+      "validates_element": "behaves-002",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "negotiation", "acceptance"],
+      "problem": "Contextual social proof injection assumes triggering on uncertainty signals feels helpful not manipulative. If guests perceive social proof as algorithmic surveillance ('they're watching how long I hover'), it creates distrust. If triggers are too sensitive, social proof appears constantly (annoying). If too conservative, it never appears when needed. Validation must find the balance.",
+      "solution": "Test trigger sensitivity levels: A) Aggressive (appears after 1s hover, on first page revisit), B) Moderate (2s hover, second revisit), C) Conservative (3s hover, third revisit). Measure: helpfulness perception ('Social proof appeared: 1-Annoyingly often, 5-Helpfully when needed'), dismissal rate (X click), conversion impact. Interviews asking whether timing felt natural versus algorithmic.",
+      "evidence": [
+        {
+          "source": "behaves-elements.json, behaves-002, lines 62-63",
+          "type": "interaction_pattern",
+          "quote": "Trigger patterns: Guest hovers over complex concept for >2s → tooltip appears. Guest returns to same page multiple times without action → banner appears.",
+          "insight": "2s threshold and repeat visit triggers are hypothesized. Must validate these feel helpful and natural, not intrusive."
+        },
+        {
+          "source": "looks-elements.json, looks-002, lines 80-81",
+          "type": "visual_pattern",
+          "quote": "Social proof should feel discovered, not forced. Gentle animations, peripheral positioning so it supports without hijacking attention.",
+          "insight": "Design intends serendipity not algorithmic force. Must validate perception matches intent."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Three sensitivity levels tested (n=100 per variant): A) Aggressive triggers (1s hover, 1st revisit), B) Moderate (2s hover, 2nd revisit), C) Conservative (3s hover, 3rd+ revisit). Measure: conversion to next phase, dismissal rate, helpfulness survey (1-5), and qualitative feedback on timing perception. Follow-up interviews (n=8 per variant): 'Did the timing feel natural or algorithmic? Did you notice social proof appearing? Was it helpful?'",
+      "success_criteria": "Variant B (moderate) shows optimal balance: 15-20% conversion lift, <15% dismissal rate, helpfulness rating 4.0+. Variant A (aggressive) may show higher conversion but >25% dismissal (too intrusive). Variant C (conservative) shows lower conversion lift (<10%, rarely appears). Interviews reveal moderate timing feels 'natural' and 'just when I was wondering' while aggressive feels 'pushy' and conservative 'too late.'",
+      "failure_meaning": "If all variants show high dismissal (>30%), guests don't want social proof regardless of timing. If all show similar conversion, timing doesn't matter (content matters, not when it appears). If interviews reveal guests notice algorithmic behavior ('it knows when I'm hesitating—creepy'), trigger mechanism is too obvious. Would need to make triggers less perceptible or abandon behavioral triggering for time-based only.",
+      "implementation_hint": "Use gentle animation (400ms fade-in) to reduce perception of sudden intrusion. Position social proof in sidebar or tooltip (peripheral vision, not center of attention). 2s hover is good baseline—1s catches accidental hovers, 3s misses genuine hesitation. Respect dismissals permanently per session to avoid repetition annoyance."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Interactive Calendar Comprehension Engagement Test",
+      "validates_element": "behaves-005",
+      "journey_phases": ["discovery", "search"],
+      "problem": "Interactive calendar assumes guests will engage with it (click days, watch co-tenant days highlight) and that this creates comprehension. If guests try to skip the interaction or if interaction doesn't create understanding, the element is friction without benefit. Validation must measure engagement rate and actual comprehension improvement versus passive explanation.",
+      "solution": "A/B test comprehension methods: A) Interactive calendar (must click days, see co-tenant highlight, pass check), B) Animated video explanation (passive watching), C) Text explanation with static diagram. Measure: engagement rate (% who interact vs skip), comprehension score (3 questions post-exposure), time to comprehension, and frustration signals (abandonment, multiple attempts).",
+      "evidence": [
+        {
+          "source": "behaves-elements.json, behaves-005, lines 210-211",
+          "type": "interaction_pattern",
+          "quote": "Interactive calendar demonstration requires guest participation before enabling bid submission. Guest must click to select days, watch complementary co-tenant days highlight.",
+          "insight": "Element mandates interaction assuming it creates better comprehension than passive methods. Must validate this assumption."
+        },
+        {
+          "source": "feels-elements.json, feels-005, lines 338-339",
+          "type": "emotional_element",
+          "quote": "Interactive discovery creates 'aha!' moment, not boring lecture. Transforms confusion into discovery delight.",
+          "insight": "Emotional benefit claimed. Must validate guests actually experience delight rather than frustration with required interaction."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Three-way split (n=100 per variant): A) Interactive calendar (must select days), B) Auto-play video (30s animation), C) Static diagram with text. Measure: engagement rate (A: % who complete interaction vs attempt to skip; B: % who watch full video; C: % who read full text). Comprehension quiz (same 3 questions for all): 'What is Split Lease?' with multiple choice. Time to pass quiz. Frustration signals: abandonment rate, multiple quiz attempts, negative survey comments.",
+      "success_criteria": "Variant A (interactive) shows 90%+ comprehension accuracy versus B/C <75%. Engagement rate 85%+ (most guests complete interaction willingly). Time to comprehension similar or faster than B/C (interaction is efficient, not laborious). Abandonment <5% (not frustrating). If A shows better comprehension AND low frustration, interaction works. If comprehension equal but frustration higher, interaction is unnecessary friction.",
+      "failure_meaning": "If B (video) or C (static) show equal comprehension scores, interaction provides no learning benefit (passive methods sufficient). If A shows high abandonment (>10%), required interaction creates friction that outweighs benefit. If time to comprehension much higher for A, interaction is inefficient. Would indicate passive methods (video or improved static diagram) are better choice.",
+      "implementation_hint": "Make interaction as simple as possible: single click to select day range, automatic highlighting of co-tenant days. Don't require multiple clicks or complex manipulation. Provide example ('Try selecting Wed-Sat') to guide interaction. If guest attempts to skip without interacting, show gentle nudge: 'Click the days you want to see how it works' with visual cue (pulsing calendar)."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Journey-Level Commitment Progression Funnel Test",
+      "validates_element": "journey-wide validation",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Individual elements may work in isolation but fail to create coherent progression through entire journey. Guests could successfully complete early phases but drop out at later phases due to cumulative friction, depletion, or broken commitment chain. Validation must measure end-to-end journey completion and identify which phase transitions are leakiest.",
+      "solution": "Funnel analysis tracking guest progression through all 8 phases. Measure: phase entry count, phase completion count, phase-to-phase continuation rate, time spent in each phase, and total time from discovery to active lease. Identify highest-dropout transitions. Cohort analysis comparing guests who saw all elements versus control without elements to measure overall impact of design system.",
+      "evidence": [
+        {
+          "source": "journey-context.json, lines 7-8",
+          "type": "journey_context",
+          "quote": "Journey phases: discovery → search → listing_evaluation → proposal_creation → negotiation → acceptance → move_in → active_lease",
+          "insight": "8-phase journey requires sustained commitment. Validation must measure whether elements maintain momentum end-to-end, not just locally."
+        },
+        {
+          "source": "coherence-report.json (Layer 6 output)",
+          "type": "coherence_audit",
+          "quote": "Coverage map shows strong coverage for discovery through negotiation (12-16 elements), moderate for acceptance (9 elements), thin for move_in and active_lease (3-4 elements).",
+          "insight": "Uneven coverage may create strong early journey but weak late journey. Funnel will reveal if thin coverage correlates with higher dropout."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Instrumentation tracking guest progression: Log entry and exit for each journey phase with timestamps. Calculate phase completion rate (% who enter and complete) and continuation rate (% who complete Phase N and enter Phase N+1). Segment by: elements-seen (guests exposed to new design) vs control (old design or no design). Measure: overall discovery-to-booking conversion, median time-to-booking, phase-specific dropout rates. Identify top 3 leakiest transitions.",
+      "success_criteria": "Overall conversion from discovery to booking improves 40-60% versus control (elements-seen cohort). Phase continuation rates: discovery→search 80%+, search→evaluation 70%+, evaluation→proposal 60%+, proposal→acceptance 50%+, acceptance→move-in 90%+. Leakiest transitions identified (likely proposal→negotiation based on complexity). Elements-seen cohort shows significantly better continuation at identified weak points versus control.",
+      "failure_meaning": "If overall conversion similar to control, elements don't impact journey completion (working in isolation but not creating coherent progression). If early phases improve but late phases don't, thin coverage in move_in/active_lease is problem. If specific transition shows massive dropout (e.g., >50% abandon at proposal→negotiation), need focused intervention on that transition. Would require additional elements for weak phases or redesign of leakiest transitions.",
+      "implementation_hint": "Use analytics platform (Amplitude, Mixpanel) to define journey phases as events. Track phase entry (viewed listing evaluation page) and phase completion (created proposal). Calculate funnel with time-window constraints (must complete within 30 days to count). Segment by date to compare pre/post element implementation. Deep-dive on dropouts: survey guests who abandon at each phase asking why."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Journey-Level Emotional Arc Coherence Test",
+      "validates_element": "journey-wide validation",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Emotional elements (feels-001 through feels-008) target specific emotions at each phase, but emotional progression may not be coherent. Guests could experience relief in discovery but anxiety resurges in evaluation if social proof is insufficient. Validation must measure whether intended emotional arc (relief → safety → confidence → momentum → belonging) actually manifests in guest experience.",
+      "solution": "Longitudinal survey tracking emotional state at each phase. After completing each phase, guests rate: relief (1-5), safety (1-5), confidence (1-5), momentum (1-5), belonging (1-5). Plot emotional trajectory through journey for individual guests. Compare intended arc to actual arc. Identify phases where emotional state diverges from intention (e.g., confidence should increase but decreases).",
+      "evidence": [
+        {
+          "source": "coherence-report.json, emotional_arc_check",
+          "type": "coherence_audit",
+          "quote": "Emotional arc makes strong sense end-to-end: Relief → Safety → Confidence → Momentum → Belonging. Addresses commitment and social proof themes consistently.",
+          "insight": "Intended arc is theoretically sound. Must validate that guests actually experience this progression in practice."
+        },
+        {
+          "source": "feels-elements.json, feels-001 through feels-008",
+          "type": "emotional_elements",
+          "quote": "8 emotional elements mapping emotions to journey phases. Each targets specific emotional shift.",
+          "insight": "Elements designed to create emotional progression. Must validate that progression is perceived by guests, not just intended by designers."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Longitudinal usability study (n=30 guests): Track same guests through full journey over 2-4 weeks. After completing each phase, brief survey (2 min): Rate current emotional state on 5 scales (relief, safety, confidence, momentum, belonging). Plot individual trajectories and calculate cohort averages at each phase. Compare to intended arc from coherence report. Conduct exit interviews with 10 guests asking: 'When did you feel most confident? Most anxious? Most excited?' to validate quantitative findings.",
+      "success_criteria": "Average relief score 4.0+ at discovery, increasing to 4.3+ at search (element works). Safety score starts 3.5 at search, increases to 4.2+ at evaluation (social proof effective). Confidence starts 3.8 at evaluation, reaches 4.5+ at acceptance (complexity-confidence pairing works). Momentum maintained above 4.0 from proposal through acceptance. Belonging emerges strongly (3.0→4.5) at move-in. No major emotional dips that trigger dropout.",
+      "failure_meaning": "If emotions don't follow intended arc (e.g., confidence drops at evaluation instead of increasing), elements aren't achieving emotional goals. If specific emotion never reaches target (e.g., belonging stays <3.5), corresponding element is ineffective. If dropout correlates with emotional dips, negative emotions drive abandonment. Would require strengthening specific emotional elements or reordering phases to avoid emotional valleys.",
+      "implementation_hint": "Keep surveys ultra-brief (5 questions, 1-5 scale, 2 min max) to avoid survey fatigue across multiple phases. Incentivize completion ($50 gift card for full journey participation). Use emoji scale for emotional ratings to make quick and intuitive. Time surveys immediately after phase completion when emotion is fresh. Qualitative interviews add context to quantitative patterns."
+    }
+  ]
+}

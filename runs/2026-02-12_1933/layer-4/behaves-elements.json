@@ -1,0 +1,387 @@
+{
+  "lens": {
+    "guest_call": "zella-myers-call.txt",
+    "book_extract": "cialdini-commitment-socialproof.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Real-Time Reciprocal Value Response",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Zella provided location details, schedule requirements, budget information, and timeline but received zero visual feedback or concrete results in return. The information exchange was asymmetric—guest gives precision, receives vague verbal acknowledgment. Each piece of guest data should trigger immediate visible platform response, but currently there's no real-time system feedback showing the guest's input is being processed and matched to concrete options.",
+      "solution": "Every guest input must trigger immediate visual response within the same viewport showing reciprocal value. The interaction pattern is: guest provides data → system instantly shows matching results. Input fields should have live validation and instant feedback. Map views update in real-time as location filters change. Price ranges display immediately when budget is set. Calendar shows availability as dates are selected. Use optimistic UI patterns where results appear during typing, not after submission.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-001",
+          "type": "process_pattern",
+          "quote": "Bid placement should immediately return 3-5 matching properties with photos and pricing. Providing location details should trigger real-time map visualization showing available properties in that area.",
+          "insight": "The interaction must feel instant. Guest commitment triggers platform reciprocation within 300ms, creating perception of direct manipulation rather than request-response pattern."
+        },
+        {
+          "source": "communicates-elements.json, communicates-001",
+          "type": "info_architecture",
+          "quote": "Every piece of information the guest provides must unlock an equivalent piece of information they receive, in real-time within the same interaction.",
+          "insight": "Real-time feedback transforms data entry from obligation into discovery. Guest sees their search taking shape as they type, creating engagement through visible progress."
+        },
+        {
+          "source": "looks-elements.json, looks-001",
+          "type": "visual_pattern",
+          "quote": "When guest provides location, immediately render map with matching properties. When guest sets schedule, show calendar visualization with their days highlighted and co-tenant days in complementary visual treatment.",
+          "insight": "Visual reciprocity must be instant and spatially co-located with input. Input on left, response on right within same viewport creates direct cause-effect perception."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Input field with placeholder showing example ('e.g., 125th St, Manhattan') and empty results area with subtle prompt 'Enter location to see available properties'",
+        "loading": "Input field remains active and editable. Results area shows skeleton cards with accent-light backgrounds and subtle pulse animation (1.5s ease-in-out infinite). Loading state appears only if response takes >200ms to prevent flash of loading content.",
+        "empty": "Input field shows green checkmark icon indicating valid input. Results area displays: 'No properties match your exact criteria. Try expanding your search radius or adjusting your dates.' with actionable suggestion chips below.",
+        "error": "Input field border transitions to signal-danger color. Inline error message appears below input in sans 13px signal-danger: 'We couldn't find that location. Try a neighborhood name or street address.' Previous valid results remain visible to prevent loss of context.",
+        "success": "Input field shows green checkmark. Results area animates in (300ms ease-out) with 3-5 property cards. Each card entrance is staggered by 50ms for cascading effect. Total results count shown above cards in mono font."
+      },
+      "transition_principle": "Transitions must feel instant for simple operations (<100ms for input validation, <300ms for search results) and smooth for complex operations (map rendering, image loading). Use optimistic UI: show expected results immediately, then update if needed. Never show blank state during transitions—maintain previous content until new content is ready.",
+      "timing": {
+        "response_target": "300ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "300ms matches tokens.json easing 'out' pattern. Fast enough to feel instant (below 400ms perceptual threshold) but slow enough to see motion and understand state change. Easing creates smooth deceleration that feels confident and controlled."
+      },
+      "journey_state_awareness": "During discovery phase, show broader result sets (10+ properties) to demonstrate platform value. During search phase, show refined results (3-5 properties) matching precise criteria. During listing evaluation, pre-filter results based on prior guest actions (favorited properties, viewed details) to reduce cognitive load on depleted user.",
+      "edge_cases": [
+        "Guest clears input after seeing results: Fade out results (200ms) and return to empty state with prompt, but preserve input history as suggestion chips below field for quick re-selection",
+        "Network timeout: After 3s with no response, show error state but cache the request to retry in background. If retry succeeds, animate in results even if guest has moved focus elsewhere",
+        "Guest types faster than debounce threshold: Use 150ms debounce for text input to prevent excessive API calls, but show immediate visual feedback (typing indicator, character count) so interaction doesn't feel delayed",
+        "Partial matches only: If exact match fails but similar results exist, show 'Showing properties near [location]' header with broadened results rather than empty state"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Contextual Social Proof Injection",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "negotiation", "acceptance"],
+      "problem": "Zella's journey contained zero social proof. She faced uncertainty at multiple decision points (is multi-week timeline normal? is this price fair? do co-tenant matches work?) without seeing evidence from similar guests. Social proof must appear automatically at uncertainty points, not as static page content. The system needs to detect moments of hesitation or complexity and inject relevant peer evidence in real-time.",
+      "solution": "Implement progressive social proof that appears contextually when guest behavior signals uncertainty. Trigger patterns: (1) Guest hovers over complex concept (matching process, pricing factors) for >2s → tooltip appears with similar-guest statistic, (2) Guest returns to same page multiple times without action → banner appears with testimonial from guest who was in same situation, (3) Guest views property but doesn't create proposal within 60s → sidebar animates in showing recent successful proposals on similar properties. Social proof should feel discovered, not forced.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-002",
+          "type": "process_pattern",
+          "quote": "Embed social proof at every point where the guest faces uncertainty. Discovery phase: real guest photos/names/stories. Search phase: how many guests searched here, what prices they accepted. Listing evaluation: reviews from prior guests who stayed in this property.",
+          "insight": "Social proof timing is critical. It must appear when uncertainty peaks, not constantly. Detect hesitation through interaction patterns (long hover, repeated views, no action) and inject proof contextually."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, lines 400-404",
+          "type": "book",
+          "quote": "In an ambiguous situation, the tendency for everyone to be looking to see what everyone else is doing can lead to a fascinating phenomenon.",
+          "insight": "The split-lease model is inherently ambiguous. System must detect ambiguity signals (reading same section multiple times, long pauses on complex pages) and automatically provide social validation."
+        },
+        {
+          "source": "looks-elements.json, looks-002",
+          "type": "visual_pattern",
+          "quote": "Embed small portrait photographs (48px circular avatars) of real guests at every uncertainty point, paired with their specific outcome in data-focused typography.",
+          "insight": "Visual social proof creates instant credibility assessment. System should animate portraits in gently (fade + slight scale, 400ms) when triggered by uncertainty signals."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Social proof elements are hidden but ready. Page displays primary content without distraction. Guest can focus on decision-making without being influenced prematurely.",
+        "loading": "When uncertainty trigger fires (hover duration threshold met, page revisit detected), social proof container fades in at 0 opacity and scales from 0.95 to 1.0 over 400ms. If data fetch is still pending, show avatar placeholder circles with subtle pulse.",
+        "empty": "If no relevant social proof exists for current context (new property type, unusual schedule pattern), show aggregate statistic instead: 'Join 1,200+ guests who found housing through Split Lease' with platform-wide success rate.",
+        "error": "If social proof fetch fails, silently fall back to cached generic proof. Never show error to guest—absence of social proof is acceptable, but showing broken social proof destroys trust.",
+        "success": "Social proof card appears in sidebar or tooltip with guest avatar (48px circular), name in serif 14px medium, specific outcome in mono 13px semibold accent color, and supporting quote in sans 13px ink-soft. Card has subtle shadow (tokens.json shadows.sm) and warm background (surface-warm)."
+      },
+      "transition_principle": "Social proof should feel serendipitous, not algorithmic. Use gentle animations (fade + slight scale) and peripheral positioning (sidebar, tooltip, banner) so it supports the main decision without hijacking attention. Timing must feel natural—appearing too quickly feels manipulative, too slowly feels irrelevant. Target 1-2s after uncertainty signal detected.",
+      "timing": {
+        "response_target": "400ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "400ms creates noticeable but gentle entrance that respects guest's focus on primary task. Matches tokens.json easing 'out' for consistency. Slightly slower than primary interactions (300ms) because social proof is supporting content, not primary action."
+      },
+      "journey_state_awareness": "Discovery phase: Show broad social proof (platform-wide statistics, diverse guest portraits) to establish credibility. Search phase: Show context-specific proof (guests with same location, schedule, budget). Listing evaluation: Show property-specific proof (reviews of this exact property, host response rate). Negotiation: Show price-specific proof (what similar guests paid). Each phase narrows social proof relevance to current decision context.",
+      "edge_cases": [
+        "Guest quickly leaves page after social proof appears: Don't re-show same proof when they return. Cache dismissed/viewed proof client-side for session to prevent annoyance through repetition",
+        "Multiple uncertainty signals fire simultaneously: Queue social proof appearances sequentially with 800ms gaps. Never show multiple social proof elements at once—creates information overload and reduces credibility",
+        "Guest explicitly dismisses social proof: Respect dismissal permanently for that specific proof instance, but allow different social proof to appear for different contexts. Store dismissals in user preferences.",
+        "No similar guests exist yet: Fall back to adjacent similarity (same neighborhood instead of exact address, same weekday pattern instead of exact days, same price range instead of exact amount). Always show something rather than nothing."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Active Commitment Persistence",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "Zella's call ended with passive waiting ('I'll be in touch') creating a commitment decay window. The system needs to maintain visible record of all guest commitments and provide continuous active next steps. Without persistent visual commitment chain and immediate actionable next steps, guests disengage during waiting periods and pursue parallel housing options.",
+      "solution": "Implement persistent progress timeline that remains visible across all pages as sticky header or sidebar. Every guest action (bid placed, property viewed, proposal sent, message read) becomes a recorded commitment displayed with checkmark, timestamp, and description. After any action that creates waiting period (proposal sent, awaiting host response), immediately surface alternate active steps: 'While you wait, create proposals on these 3 similar properties' with pre-configured quick actions. Never leave guest in pure waiting state—always provide agency through alternate actions.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-003",
+          "type": "process_pattern",
+          "quote": "Convert passive waiting into active participation at every phase. End with clear active next step for the guest to maintain commitment momentum. Never leave the guest waiting—every phase transition should require an active step.",
+          "insight": "System must detect passive states (proposal sent but no response yet) and automatically generate active alternatives. Commitment decays during inactivity, so system must provide continuous micro-actions to maintain momentum."
+        },
+        {
+          "source": "communicates-elements.json, communicates-003",
+          "type": "info_architecture",
+          "quote": "Show accumulating commitment chain before each new request: 'You've placed a bid, explored 8 properties, and favorited 2. Ready to create your first proposal?' Make every bid, favorite, proposal, message remain visible.",
+          "insight": "Visibility creates consistency pressure. When guest sees their accumulated commitments displayed prominently, abandoning feels like wasting prior investment. UI must make this visible, persistent, and growing."
+        },
+        {
+          "source": "looks-elements.json, looks-003",
+          "type": "visual_pattern",
+          "quote": "Persistent progress visualization showing all guest commitments as completed steps in vertical timeline. Current active step gets accent-light background and larger typography for emphasis.",
+          "insight": "Timeline must be interactive—clicking completed steps shows detail, clicking future steps previews what's coming. Interaction reinforces commitment by making guest actively engage with their progress."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Timeline shows completed commitments with green checkmarks, current active commitment with accent-light background and pulsing indicator (1.5s ease-in-out infinite), and upcoming steps in ink-ghost with empty circle icons. Timeline is collapsed to show only current phase plus 1 prior and 1 upcoming.",
+        "loading": "When new commitment is being recorded (proposal sending, bid placing), show optimistic UI: add commitment to timeline immediately with loading spinner instead of checkmark. If action fails, smoothly remove from timeline (fade out 300ms) and show error toast.",
+        "empty": "If guest has taken no actions yet, timeline shows only future steps in ink-ghost. Hero section above timeline shows call-to-action: 'Start your search' with accent green button. No empty state messaging—just clear path forward.",
+        "error": "If commitment recording fails (network error, server issue), show toast notification in signal-danger-bg with clear message: 'We couldn't save that action. Try again?' with retry button. Keep UI in pre-action state so guest can retry without losing context.",
+        "success": "New commitment animates into timeline (slide down from current position, 400ms ease-out). Checkmark icon animates with scale bounce effect (0 to 1.2 to 1.0, 600ms spring easing). Subtle success toast appears top-right: 'Proposal sent!' with green accent and fades out after 3s."
+      },
+      "transition_principle": "Commitment recording should feel substantial and celebrated. Use slightly exaggerated animations (bounce, spring easing) for completed commitments to create micro-rewards. Timeline persistence (sticky positioning, always visible) creates constant reminder of progress. When guest completes commitment requiring waiting period, timeline should automatically expand to show next active options without requiring scroll or navigation.",
+      "timing": {
+        "response_target": "600ms",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "600ms allows for celebratory spring animation matching tokens.json easing 'spring'. Longer than standard interactions because commitment completion deserves emphasis and recognition. Spring easing creates playful bounce that feels rewarding."
+      },
+      "journey_state_awareness": "Discovery/search phases: Timeline emphasizes exploration commitments (properties viewed, searches saved, favorites created). Proposal/negotiation phases: Timeline emphasizes transactional commitments (proposals sent, messages exchanged, responses received). Each phase highlights most relevant commitment types while still showing complete history. Active lease phase: Timeline becomes reference log showing key dates and milestones.",
+      "edge_cases": [
+        "Guest completes multiple actions rapidly: Batch timeline updates to prevent overwhelming animation. Queue commitments and animate in sequentially with 200ms stagger rather than all at once.",
+        "Guest abandons action mid-flow: If guest starts proposal creation but navigates away, show 'Draft proposal saved' in timeline with clock icon instead of checkmark. Allow resuming exactly where they stopped.",
+        "Timeline becomes very long: After 10 commitments, auto-collapse older items into expandable sections by phase: 'Show 8 earlier commitments from search phase' as clickable expansion.",
+        "Guest returns after days/weeks away: Timeline greeting message appears above: 'Welcome back! You have 2 active proposals awaiting response and 3 new properties matching your search.' Prioritize re-engagement over pure chronology.",
+        "Multiple parallel processes: If guest has proposals on multiple properties simultaneously, timeline shows branching visualization with separate tracks that converge back. Complex but necessary to show accurate state."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Complexity-Confidence Co-Revelation",
+      "journey_phases": ["search", "listing_evaluation", "negotiation", "acceptance"],
+      "problem": "The agent revealed complexity (matching timeline, co-tenant approval, pricing variability) without paired confidence-building. When complexity is explained alone, it triggers dropout. The system needs to detect when complex information is being displayed and automatically inject confidence data in the same view, same moment. Complexity without confidence = abandonment trigger.",
+      "solution": "Create paired panel interactions where complexity explanation triggers automatic display of confidence visualization. Use side-by-side layout: complexity on left (warm amber signal-warn color), confidence data on right (accent green). When guest hovers over or expands complex concept, both panels animate in together (not sequentially). Interactive data visualizations on confidence side: histogram showing 'Most Wed-Sat guests matched in 5-7 days', bar chart showing price ranges '$100-115/night regardless of configuration'. Make confidence data interactive—guest can hover data points to see specific examples.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-004",
+          "type": "process_pattern",
+          "quote": "Pair every complexity revelation with immediate confidence-building evidence. Matching timeline explanation paired with distribution graph. Pricing complexity paired with 'Most Wednesday-Saturday guests pay $100-115/night regardless of configuration.'",
+          "insight": "Co-revelation must be spatial and temporal: same screen, same moment. System must never show complexity alone—UI should enforce pairing through component architecture that makes separation impossible."
+        },
+        {
+          "source": "communicates-elements.json, communicates-004",
+          "type": "info_architecture",
+          "quote": "Complexity + confidence pairing. Reveal complexity paired with confidence in same disclosure. Outcome validation first, complexity explanation second.",
+          "insight": "Hierarchy matters: confidence data should visually dominate (larger, more colorful, right-side positioning). Guest's eye drawn to reassuring outcome data first, then complexity context second."
+        },
+        {
+          "source": "looks-elements.json, looks-004",
+          "type": "visual_pattern",
+          "quote": "Side-by-side visual pairing: left panel shows complexity explanation with icon, right panel shows confidence data visualization. Use warm amber for complexity elements, accent green for confidence data.",
+          "insight": "Color coding creates instant emotional framing: amber = acknowledge challenge, green = validate success. Split viewport 45% complexity / 55% confidence to bias toward reassurance."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Complexity concepts appear as collapsible accordions with amber warning icons. Collapsed state shows just the heading: 'How co-tenant matching works' with down chevron. No preview of complexity or confidence—neutral starting state.",
+        "loading": "When guest clicks to expand, both complexity and confidence panels fade in together at 0 opacity. If confidence data (charts, statistics) requires fetch, show chart skeleton with subtle pulse while complexity text appears immediately. Never show complexity without at least placeholder confidence visualization.",
+        "empty": "If no confidence data exists for specific complexity topic (new feature, insufficient historical data), show fallback confidence message: 'We're collecting data on this. Meanwhile, our team is available to answer questions' with chat/contact button. Empty confidence is acceptable; missing confidence is not.",
+        "error": "If confidence data fetch fails, fall back to generic confidence: platform-wide statistics instead of context-specific. Complexity panel still displays—never hide complexity due to confidence error, just provide best available reassurance.",
+        "success": "Both panels animate in together (400ms ease-out). Complexity text appears on left with amber accent border. Confidence chart renders on right with subtle entrance animation (bars grow from 0 to full height, 600ms ease-out, staggered by 50ms). Guest can hover individual data points for tooltips with specific examples."
+      },
+      "transition_principle": "Pairing must be perceived as atomic—one interaction reveals both complexity and confidence simultaneously. Use coordinated animations where both panels move together as single unit. Confidence visualization should complete its entrance slightly after complexity text (600ms vs 400ms) to create left-to-right reading flow while maintaining perception of simultaneity.",
+      "timing": {
+        "response_target": "600ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "600ms allows for staggered data visualization rendering. Charts and graphs need slightly more time to draw meaningfully. Matches tokens.json easing 'out' for consistency. Fast enough to feel responsive, slow enough to register visual information."
+      },
+      "journey_state_awareness": "Search phase: Complexity focuses on how platform works (matching process, schedule splits). Confidence shows platform-wide success rates. Listing evaluation: Complexity focuses on specific property factors (pricing, co-tenant requirements). Confidence shows property-specific data (acceptance rates, similar bookings). Negotiation: Complexity focuses on offer mechanics. Confidence shows price ranges from similar negotiations. Narrow confidence relevance as journey progresses.",
+      "edge_cases": [
+        "Guest collapses accordion after viewing: Remember viewed state. Next time they expand, skip entrance animation and show content immediately—they've already seen it.",
+        "Multiple complexity topics on same page: Expanding one complexity section should auto-collapse others to maintain focus. Only one complexity-confidence pair visible at time.",
+        "Guest interacts with confidence chart: Clicking data points could drill into detailed examples. Modal overlay shows 'See 5 guests who matched in this timeframe' with specific guest stories. Deep interaction reinforces confidence through concrete proof.",
+        "Insufficient data for confidence visualization: If sample size too small (<10 examples), show qualitative confidence instead: testimonials from the few guests who did complete this path. Small numbers are honest; missing numbers are concerning."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Interactive Comprehension Gating",
+      "journey_phases": ["discovery", "search"],
+      "problem": "Zella registered and placed a bid without understanding the split-lease model. She confused the platform name and didn't grasp core concepts. Text explanations get skipped. The system needs interactive comprehension verification before allowing consequential commitments. Passive reading doesn't ensure understanding—interaction creates comprehension through participation.",
+      "solution": "Create interactive calendar demonstration of split-lease concept that requires guest participation before enabling bid submission. Guest must click to select their desired days on calendar, watch system automatically highlight complementary co-tenant days in contrasting color, then see cost split calculation update in real-time. After interaction, simple comprehension check appears: 'Which best describes Split Lease? A) Rent full apartment alone, B) Share with co-tenant on different days, C) Visit properties then decide.' Correct answer enables bid button (transitions from 50% opacity disabled to full opacity enabled with accent green color). Wrong answer triggers gentle correction with retry opportunity.",
+      "evidence": [
+        {
+          "source": "works-elements.json, works-005",
+          "type": "process_pattern",
+          "quote": "Require demonstrated platform understanding before allowing consequential commitments. Use interactive visualization: guest selects desired days, platform shows complementary co-tenant days, then requires acknowledgment before bid submission.",
+          "insight": "Interaction creates memory through doing. Guest who clicks calendar cells and watches visual response understands experientially, not just intellectually. System must enforce interaction—no passive skip option."
+        },
+        {
+          "source": "communicates-elements.json, communicates-005",
+          "type": "info_architecture",
+          "quote": "Gate access to commitment actions behind brief comprehension confirmation. Interactive visualization where guest selects days, watches complementary schedule appear, then confirms understanding before bid button becomes enabled.",
+          "insight": "Gating must feel helpful, not punitive. Frame as 'Let's make sure this is right for you' rather than 'Prove you understand.' Comprehension check is service, not test."
+        },
+        {
+          "source": "looks-elements.json, looks-005",
+          "type": "visual_pattern",
+          "quote": "Interactive calendar visualization showing split-schedule concept. Guest selects desired days (green accent highlighting), platform immediately shows complementary co-tenant days in warm neutral. Interaction required before bid button becomes enabled.",
+          "insight": "Visual state transitions create comprehension. Guest sees their selection cause system response, understands cause-effect relationship. Disabled button state (50% opacity) creates clear goal: interact to unlock."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Calendar shows 30-day grid with neutral colors. Headline above: 'Select the days you need' in serif 24px. Below calendar: cost calculation area shows placeholder '—' for values. Bid button at bottom is disabled (50% opacity, cursor not-allowed). Clear but non-threatening starting state.",
+        "loading": "As guest clicks calendar cells, those cells immediately highlight in accent green (no loading—instant feedback). Cost calculation updates synchronously. If system needs to validate selection against availability, show subtle checking indicator next to calendar but keep interaction responsive.",
+        "empty": "If guest deselects all days after selecting some, calendar returns to neutral. Cost calculation returns to '—' placeholders. Bid button returns to disabled state. Gentle prompt appears: 'Select the days you need to see pricing' with arrow pointing to calendar.",
+        "error": "If guest selects invalid pattern (non-consecutive days, single day only, entire month), calendar cells flash briefly in signal-warn color (200ms) then return to unselected. Inline message appears below calendar in sans 14px signal-warn: 'Please select consecutive days (e.g., Wed-Sat)' with example pattern highlighted in visual.",
+        "success": "After valid selection, complementary co-tenant days animate in with warm surface-warm color (300ms fade-in). Cost split calculation animates from placeholders to actual numbers (count-up effect over 800ms). Comprehension question fades in below. When correct answer selected, bid button animates to enabled state (opacity 50% to 100%, scale 0.98 to 1.0, 400ms spring easing)."
+      },
+      "transition_principle": "Every interaction should provide immediate visual feedback to create sense of direct manipulation. Calendar cells respond instantly to clicks (<50ms). Calculations update synchronously with selection changes. Comprehension question appears only after guest has completed meaningful interaction with calendar—timing matters. Enable bid button with celebratory animation (spring bounce) when comprehension verified to create positive reinforcement.",
+      "timing": {
+        "response_target": "50ms for calendar cell selection, 800ms for calculation animation, 400ms for bid button enable",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) for bid button, cubic-bezier(0.16, 1, 0.3, 1) for other transitions",
+        "rationale": "Calendar selection must feel instant (<50ms is perceived as immediate). Calculation count-up animation at 800ms creates satisfying reveal of price breakdown. Bid button enable uses spring easing to create delightful unlock moment matching tokens.json spring pattern."
+      },
+      "journey_state_awareness": "Discovery phase: Comprehension gate is mandatory—cannot proceed without interaction. Search phase: If guest already completed comprehension in discovery, show abbreviated reminder (calendar visual without interaction requirement) when viewing listings. Listing evaluation: No calendar needed—comprehension assumed. Only gate at entry point, then trust verified understanding throughout journey.",
+      "edge_cases": [
+        "Guest tries to skip by clicking disabled bid button: Button shakes horizontally (3px left, 3px right, return, 200ms) and prompt appears: 'First, show us which days you need' with arrow pointing to calendar. Make blocking clear but friendly.",
+        "Guest selects then immediately deselects: Allow experimentation. No error states for exploration. Only validate pattern when guest appears done (2s since last interaction) or when they click comprehension answer.",
+        "Guest gets comprehension question wrong: Incorrect answer highlights in signal-warn-bg briefly (600ms). Explanation appears: 'Not quite. With Split Lease, you share the apartment with a co-tenant on different days.' Visual diagram reinforces correct answer. Allow immediate retry.",
+        "Guest refreshes page mid-interaction: Preserve calendar selection in session storage. On reload, calendar shows prior selection and cost calculation, but comprehension question appears again—verify understanding each session.",
+        "Returning guest who already completed comprehension: Check user profile. If comprehension verified in prior session, show calendar but bid button already enabled. Include small badge: 'You've completed this before' to acknowledge prior effort."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Progressive Timeline Transparency",
+      "journey_phases": ["search", "proposal_creation", "negotiation", "acceptance", "move_in"],
+      "problem": "The agent told Zella matching would take 'a couple of weeks' without visual validation, progress tracking, or agency indicators. Vague timeline creates anxiety. The system needs to show expected timeline, current progress, and actions guest can take to maintain momentum. Static timeline information gets ignored—interactive progress visualization creates tangible sense of movement and control.",
+      "solution": "Implement sticky timeline progress bar that persists across all pages during active booking process. Horizontal bar shows phases: proposal sent → host review → match finding → mutual approval → move-in confirmed. Completed segments in accent green, current phase in accent-light with subtle pulse animation, future phases in ink-ghost. Above bar: precise timestamps in mono font ('Proposal sent 2 hrs ago', 'Response expected in 24 hrs'). Below bar: contextual agency actions as small accent buttons ('Send 2 more proposals to speed up'). Timeline updates in real-time—when host views proposal, timestamp updates and subtle notification appears.",
+      "evidence": [
+        {
+          "source": "communicates-elements.json, communicates-007",
+          "type": "info_architecture",
+          "quote": "Primary: Expected timeline with confidence range ('Most hosts respond within 24-48 hours'). Secondary: Actions guest can take to maintain/accelerate timeline. Tertiary: Progress indicators showing movement toward goal.",
+          "insight": "Timeline must show expectation, agency, and progress simultaneously. System needs real-time updates from backend (host viewed proposal, match candidate found) to make progress visible and create engagement through anticipation."
+        },
+        {
+          "source": "looks-elements.json, looks-007",
+          "type": "visual_pattern",
+          "quote": "Horizontal timeline progress bar showing current phase and expected duration with visual markers. Bar uses accent for completed, accent-light for current, ink-ghost for upcoming. Sticky header element persists during scroll.",
+          "insight": "Sticky positioning makes timeline omnipresent. Guest never loses orientation. Persistent visibility creates constant progress awareness and reduces anxiety about 'what's happening now?'"
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Timeline bar shows all phases with current phase highlighted in accent-light. Pulse animation on current segment (opacity 60% to 100%, 1.5s ease-in-out infinite) creates living feel. Timestamps show elapsed time since last action and expected time to next milestone. Agency actions visible but subtle below bar.",
+        "loading": "When timeline updates (new event from backend: host viewed proposal, match found), current segment shows brief loading spinner overlay (400ms) then animates to updated state. If backend event fetch fails, timeline continues showing last known state—never show error for background updates.",
+        "empty": "Before guest takes any booking actions, timeline is hidden. No need to show progress for non-existent process. Timeline appears only when first proposal sent, then persists throughout booking journey.",
+        "error": "If critical timeline event fails (proposal send, acceptance confirmation), show inline error message within timeline container in signal-danger-bg: 'Action failed. Try again?' with retry button. Timeline remains visible—error is about specific action, not entire timeline.",
+        "success": "When phase completes (host accepts proposal, match confirmed), completed segment animates from accent-light to solid accent (400ms) with checkmark icon appearing. Subtle success notification appears top-right: 'Host accepted your proposal!' Celebration confetti animation (optional, can be disabled in settings) for major milestones like acceptance."
+      },
+      "transition_principle": "Timeline should feel living and responsive. Real-time updates create engagement—when host views proposal, guest sees timestamp update within seconds, creating sense of active process. Phase transitions (current to completed) deserve emphasis through color change and icon addition. Pulse animation on current phase maintains attention without being distracting. Agency actions should gently suggest alternatives without pressuring.",
+      "timing": {
+        "response_target": "400ms for phase transitions, 1500ms for pulse animation cycle, <5s for real-time event updates",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "400ms phase transitions match standard interaction timing from tokens.json. Pulse at 1500ms is slow enough to avoid distraction, fast enough to create vitality. Real-time updates within 5s feel immediate and create engagement through anticipation."
+      },
+      "journey_state_awareness": "Search phase: Timeline shows simplified view with just 'Search → Proposal → Acceptance → Move-in' broad phases. Proposal phase: Timeline expands to show detailed substeps 'Proposal sent → Host review → Response received'. Negotiation: Timeline adds counter-offer steps dynamically as they occur. Acceptance/move-in: Timeline simplifies back to major milestones only. Complexity matches journey phase needs.",
+      "edge_cases": [
+        "Multiple parallel proposals: Timeline shows aggregate status: '3 active proposals: 1 under review, 1 awaiting host, 1 negotiating' with expand option to see individual timelines in overlay modal.",
+        "Timeline becomes stale: If no activity for 48hrs and deadline approaching, timeline shows gentle nudge: 'No activity in 2 days. Consider these actions to maintain momentum' with suggested next steps.",
+        "Guest collapses timeline: Allow minimize to thin bar at top showing only current phase and timestamp. Click to re-expand. Remember preference per session.",
+        "Unexpected delays: If expected timeline passes (48hrs for host response), timeline updates expectation: 'This host responds slower than average. Typical: 24-48hrs, Actual: 3+ days' with suggestion to pursue alternatives.",
+        "Timeline success: When booking confirmed and move-in date set, timeline transitions to countdown mode: '5 days until move-in' with checklist of remaining tasks. Different mode for different journey state."
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Expectation Calibration Through Contrast",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Zella entered with wrong expectations—thought she was speaking to one host, didn't understand platform nature. Expectation mismatches cause dropout when reality differs from assumption. The system needs to proactively show how Split Lease differs from traditional rentals before misconceptions form. Static text comparisons get skipped—interactive visual contrast creates memorable differentiation.",
+      "solution": "Create interactive comparison visualization in discovery phase hero section. Side-by-side cards: 'Traditional Rental' (left, muted ink-soft colors, simplified icons) vs 'Split Lease' (right, accent colors, detailed visuals). Guest can toggle between views to see difference. Traditional shows: single person icon, full month calendar highlighted, high price tag ($2400/month). Split Lease shows: two person icons with different colors, split calendar (Wed-Sat in accent, Sun-Tue in surface-warm), lower price tag ($1200 for your days). Interaction required: guest must click toggle between views at least once before 'Get Started' button becomes prominent.",
+      "evidence": [
+        {
+          "source": "communicates-elements.json, communicates-008",
+          "type": "info_architecture",
+          "quote": "Primary: What guest will experience that differs from traditional rental expectations. Use simple comparative language rather than absolute descriptions. Frame complexity with predictable outcomes.",
+          "insight": "Comparison creates orientation faster than explanation. Guest sees in one glance what makes this different. System should encourage interaction with comparison to ensure comprehension through exploration."
+        },
+        {
+          "source": "looks-elements.json, looks-008",
+          "type": "visual_pattern",
+          "quote": "Side-by-side visual comparison: Traditional (left, ink-soft) vs Split Lease (right, accent colors). Use simple iconography with short labels. 3 comparison points max. Generous spacing to avoid overwhelm.",
+          "insight": "Visual contrast creates instant mental model. Color coding (muted vs vibrant) creates emotional framing: traditional is neutral baseline, Split Lease is highlighted alternative. Spatial positioning (left vs right) leverages reading direction."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Comparison view shows both cards side-by-side with neutral presentation. Toggle button centered between cards shows current view state. Small prompt below: 'Switch between views to understand the difference' with subtle arrow pointing to toggle. Get Started button exists but is secondary visual priority (outlined style, not filled).",
+        "loading": "When guest clicks toggle, cards cross-fade (600ms) while swapping content. Brief loading state only if comparison data requires fetch (unlikely—should be static content). Skeleton loader matches card structure.",
+        "empty": "Not applicable—comparison is static educational content, no empty state exists.",
+        "error": "Not applicable for static comparison. If dynamic pricing data fails to load, fall back to example numbers ($2400 vs $1200) with asterisk noting 'Example pricing.'",
+        "success": "After guest toggles comparison at least once, Get Started button transitions from outlined to filled accent green (400ms scale and color transition) becoming primary CTA. Small checkmark appears near toggle with message: 'You've explored both options' to acknowledge interaction completion."
+      },
+      "transition_principle": "Comparison toggle should feel satisfying and educational. Cross-fade transition (600ms) gives guest time to register content change while maintaining spatial consistency—cards don't move, content swaps. After interaction, CTA button transformation from secondary to primary creates clear progression signal. Interaction is encouraged but not forced—guest can proceed without toggling, but interaction unlocks primary CTA emphasis.",
+      "timing": {
+        "response_target": "600ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "600ms cross-fade is slow enough to register content change, fast enough to maintain engagement. Matches tokens.json easing 'out' for smoothness. Slightly longer than micro-interactions because educational content benefits from deliberate pacing."
+      },
+      "journey_state_awareness": "Discovery phase: Comparison is prominent hero section with interactive toggle strongly encouraged. Search phase: Simplified comparison appears in sidebar as reference 'Reminder: How Split Lease works' but interaction no longer required. Listing evaluation: Comparison hidden—guest has internalized model by this point. Reference available via help icon if needed but not default visible.",
+      "edge_cases": [
+        "Guest ignores comparison: After 30s on page without interaction, subtle animation on toggle button (gentle pulse, accent-light glow) draws attention. If still no interaction after 60s, allow proceeding—don't block forward progress.",
+        "Guest toggles multiple times: Celebrate curiosity. After 3+ toggles, small badge appears: 'Great! You understand the key difference' and CTA button highlights immediately. Reward thoroughness.",
+        "Guest proceeds without interacting: Allow it, but on next page show brief reminder: 'Quick reminder: Split Lease means sharing with co-tenant on different days' with mini comparison visual. Reinforce even if skipped initially.",
+        "Returning guest: Check user profile. If they've seen comparison before (session or user-based tracking), show simplified version without interaction requirement and CTA already prominent. Don't re-teach known concepts.",
+        "Mobile viewport: Stack cards vertically instead of side-by-side. Toggle becomes segmented control at top. Interaction still required for CTA emphasis but spatial layout adapts to narrow screens."
+      ]
+    },
+    {
+      "id": "behaves-008",
+      "type": "interaction_pattern",
+      "title": "Adaptive Information Density",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation"],
+      "problem": "Zella received either too little information (no listings shown) or too much complexity at wrong time (landlord economics during budget discussion). Information density must match decision requirements and viewport constraints. Search needs scannable overview, evaluation needs detailed examination, proposal needs focused decision. Static layouts with fixed density don't adapt to decision context or user depletion state.",
+      "solution": "Implement progressive disclosure with density layers that adapt to interaction. Search phase: cards show 5-7 data points (photo, price, location, dates, 1-2 key amenities) with 'See details' expansion. Evaluation phase: full-width layout with 15-20 organized data points, expandable sections for deep detail. Proposal phase: narrow focused column (400px max-width) with only 3-5 decision-critical fields and everything else pre-filled from prior context. Use density toggle for power users: 'Compact view' option in search to show more properties with less detail per card. System remembers preference.",
+      "evidence": [
+        {
+          "source": "communicates-elements.json, communicates-006",
+          "type": "info_architecture",
+          "quote": "Match information density precisely to decision requirements at each phase. Search: medium-density for comparison. Evaluation: high-density for deciding. Proposal: minimal density for focus. Progressive disclosure reveals detail only when signaled.",
+          "insight": "Density adaptation must be smart and contextual. System should detect user behavior (quick scanning vs deep reading) and adapt density accordingly. Power users get compact, new users get spacious."
+        },
+        {
+          "source": "looks-elements.json, looks-006",
+          "type": "visual_pattern",
+          "quote": "Three visual density patterns: Search cards 280x320px with 3-4 data points. Evaluation full-width with 15-20 points in 3-column grid. Proposal narrow 400px column with 3-5 inputs. Color intensity signals density.",
+          "insight": "Visual constraints enforce information discipline. Search card at 280px width can't physically fit 20 data points—layout prevents over-density. Proposal at 400px creates focus through narrowness."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Content displays at appropriate density for current phase. Search: card grid with medium density. Evaluation: detailed layout with expandable sections initially collapsed. Proposal: minimal focused form. Density feels natural, not overly sparse or overwhelming.",
+        "loading": "When expanding detail sections (clicking 'See full amenities list'), show skeleton loaders matching expanded content structure. Never replace visible content with loading—expand below/beside existing content so guest doesn't lose context.",
+        "empty": "If optional detail sections have no data (property has no reviews yet), hide the empty section entirely rather than showing 'No reviews available.' Reduce density when content doesn't exist.",
+        "error": "If detail fetch fails, show inline error within expansion area: 'Couldn't load details. Try again?' with retry button. Keep main content visible—error affects only expanded detail, not core information.",
+        "success": "Expanded sections slide open (400ms ease-out) revealing additional detail. Use staggered animation for multiple items within expansion (50ms delay per item) to create cascading reveal. Collapse icon rotates 180° to indicate state change. Scroll position adjusts to keep expanded content in viewport."
+      },
+      "transition_principle": "Density changes should feel intentional and reversible. Expanding detail should never hide or replace existing information—only reveal more. Transitions should be smooth (400ms) to allow eye tracking. Staggered cascading for lists (50ms stagger) creates satisfying progressive reveal. User control is paramount—always provide collapse option for expanded sections.",
+      "timing": {
+        "response_target": "400ms for expansion, 50ms stagger for list items",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "400ms expansion is fast enough to feel responsive, slow enough to track visually. Matches tokens.json easing 'out' for consistency. 50ms stagger creates perception of content 'appearing' rather than 'popping' into view."
+      },
+      "journey_state_awareness": "Discovery: Extremely low density (3-4 data points) to reduce overwhelm for first-time visitors. Search: Medium density (5-7 points) for efficient comparison. Evaluation: High density available (15-20 points) but behind progressive disclosure to prevent initial overwhelm. Proposal: Return to low density (3-5 points) because user is depleted and needs focus. Density follows cognitive capacity arc of journey.",
+      "edge_cases": [
+        "Power user wants higher density: Provide 'Compact view' toggle in search that shows 2-column grid with smaller cards (180px instead of 280px) and reduced spacing. Remember preference per user. Allow opt-in to higher density.",
+        "Mobile viewport: Force lower density regardless of preference. Mobile cards max 4-5 data points, evaluation switches to single-column stacked layout. Density must respect physical constraints of small screens.",
+        "Cognitive overload detected: If guest rapidly opens and closes multiple detail sections without reading (5+ expansions in 10s), show gentle suggestion: 'Feeling overwhelmed? Try our compact view for faster scanning' with toggle option.",
+        "Accessibility: Ensure expanded sections are keyboard navigable. Focus management—when section expands, focus moves to first interactive element within expansion. Screen reader announces 'Section expanded, showing 12 additional amenities.'",
+        "Print/share: When guest prints or shares listing, automatically expand all sections to full density so recipient sees complete information. Different density rules for consumption vs comparison contexts."
+      ]
+    }
+  ]
+}
