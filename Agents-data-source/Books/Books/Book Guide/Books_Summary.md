@@ -435,6 +435,40 @@ A practical guide to designing effective microinteractions—the small details t
 
 ---
 
+## 17. The Innovator's Dilemma: When New Technologies Cause Great Firms to Fail
+**Author:** Clayton M. Christensen
+
+### Description
+A landmark business book that explains why great companies that do everything right — listen to customers, invest in R&D, build better products — still lose market leadership. Christensen introduces the theory of disruptive innovation: small, cheap, "worse" products that serve overlooked customers eventually improve enough to displace incumbents. First published in 1997, it remains one of the most influential business books ever written.
+
+### Chapters
+
+**Part One: Why Great Companies Can Fail**
+1. **How Can Great Firms Fail? Insights from the Hard Disk Drive Industry** - The disk drive industry as a microcosm of disruption: 6 generations of architecture changes, and leaders almost always failed to make the leap
+2. **Value Networks and the Concept of Disruption** - Introduces the value network framework: companies are embedded in networks that define what "improvement" means — and disruptive innovations come from outside those networks
+3. **Disruptive Technological Change in the Mechanical Excavator Industry** - Cable-actuated vs. hydraulic excavators: established firms saw the new technology, understood it, but couldn't pursue it because their customers didn't want it (yet)
+4. **What Goes Up, Can't Go Down** - Why firms can move upmarket easily but almost never move downmarket: cost structures, margin expectations, and customer expectations create a one-way ratchet
+
+**Part Two: Managing Disruptive Technological Change**
+5. **Give Responsibility for Disruptive Technologies to Organizations Whose Customers Need Them** - The solution: create or acquire a separate organization whose cost structure and customers match the disruptive market
+6. **Match the Size of the Organization to the Size of the Market** - Large companies need large markets to grow. Disruptive markets start small. This mismatch means large companies literally can't invest in disruption rationally.
+7. **Discovering New and Emerging Markets** - You can't analyze markets that don't exist yet. Traditional market research fails for disruption. The answer: discovery-driven planning, not analytical planning.
+8. **How to Appraise Your Organization's Capabilities and Disabilities** - Resources, processes, and values (RPV framework): what a company *can* do is determined by these three things, and established processes/values actively prevent disruption
+9. **Performance Provided, Market Demand, and the Product Life Cycle** - Performance oversupply: when products become "too good," competition shifts from functionality to reliability to convenience to price — and disruption enters
+
+**Part Three:**
+10. **Managing Disruptive Technological Change: A Case Study** - The electric vehicle as a case study in applying the book's framework: how to think about EVs not as inferior cars but as a new value network
+11. **The Dilemmas of Innovation: A Summary** - Synthesis of all principles into actionable decision framework
+
+### Key Concepts
+- **Sustaining vs. Disruptive Innovation**: Sustaining = making good products better for existing customers. Disruptive = making simpler/cheaper products for overlooked or new customers.
+- **Value Networks**: The context within which a firm identifies and responds to customers' needs, solves problems, reacts to competitors, and strives for profit.
+- **Performance Oversupply**: When product quality exceeds what the market demands, the basis of competition shifts — opening the door for disruption.
+- **RPV Framework**: Resources, Processes, and Values determine organizational capability — and values/processes are the hardest to change.
+- **Asymmetric Motivation**: Entrants are motivated to attack because the market is exciting to them; incumbents are motivated to flee upmarket because margins are better there.
+
+---
+
 ## Additional Files in Collection
 
 The following files appear to be reports/papers rather than books:

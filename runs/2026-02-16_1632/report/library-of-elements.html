@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library of Elements — Booking.com × Hooked Reverse Benchmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-purple: #31135D;
+  --primary-purple-hover: #251047;
+  --secondary-purple: rgb(109, 49, 194);
+  --accent-purple: rgb(140, 104, 238);
+  --text-dark: #1a1a1a;
+  --text-gray: #6b7280;
+  --text-description: #374151;
+  --bg-white: #ffffff;
+  --bg-light: #f9fafb;
+  --bg-off-white: rgb(252, 250, 255);
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-purple-sm: 0 2px 4px rgba(49,19,93,0.2);
+  --shadow-purple-md: 0 4px 8px rgba(49,19,93,0.15);
+  --shadow-purple-lg: 0 6px 20px rgba(109,49,194,0.35);
+  --rounded-lg: 8px;
+  --rounded-xl: 12px;
+  --rounded-pill: 20px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+  background: linear-gradient(135deg, #31135D 0%, rgba(109,49,194,0.92) 100%);
+  padding: 48px 32px 40px;
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(140,104,238,0.25) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(140,104,238,0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+.header-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+.header-content h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+.header-content p {
+  font-size: 15px;
+  opacity: 0.8;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.header-meta {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--rounded-pill);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+}
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-gray);
+  white-space: nowrap;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: var(--rounded-pill);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-white);
+  color: var(--text-gray);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.filter-chip:hover {
+  border-color: var(--accent-purple);
+  color: var(--secondary-purple);
+}
+.filter-chip.active {
+  background: var(--secondary-purple);
+  color: white;
+  border-color: var(--secondary-purple);
+  font-weight: 600;
+}
+.filter-separator {
+  width: 1px;
+  height: 24px;
+  background: var(--border-color);
+  margin: 0 4px;
+}
+.filter-count {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-left: auto;
+}
+.filter-count strong {
+  color: var(--secondary-purple);
+  font-weight: 700;
+}
+
+/* ===== GRID ===== */
+.elements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 28px;
+  padding: 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* ===== ELEMENT CARD ===== */
+.element-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--rounded-xl);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+.element-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(109,49,194,0.18);
+}
+.card-iframe-wrap {
+  width: 100%;
+  height: 340px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-light);
+  overflow: hidden;
+  position: relative;
+}
+.card-iframe-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  transform-origin: top left;
+}
+.card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+
+/* Card Header */
+.card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.card-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--primary-purple);
+  flex: 1;
+  line-height: 1.3;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--rounded-pill);
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-category {
+  background: rgba(109,49,194,0.1);
+  color: var(--secondary-purple);
+}
+.badge-high {
+  background: rgba(220,38,38,0.08);
+  color: #dc2626;
+}
+.badge-medium {
+  background: rgba(217,119,6,0.08);
+  color: #d97706;
+}
+.badge-hook {
+  background: rgba(49,19,93,0.08);
+  color: var(--primary-purple);
+}
+.badges-row { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+
+/* Description */
+.card-description {
+  font-size: 13px;
+  color: var(--text-description);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+/* Problem */
+.card-problem {
+  font-size: 13px;
+  color: var(--text-description);
+  line-height: 1.6;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: rgba(220,38,38,0.03);
+  border-left: 3px solid rgba(220,38,38,0.25);
+  border-radius: var(--rounded-lg);
+}
+.card-problem strong {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #dc2626;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Signature */
+.card-signature {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--accent-purple);
+  line-height: 1.55;
+  padding: 10px 14px;
+  background: rgba(140,104,238,0.05);
+  border-radius: var(--rounded-lg);
+  margin-bottom: 14px;
+  border-left: 3px solid var(--accent-purple);
+}
+
+/* Before/After */
+.before-after { margin-bottom: 14px; }
+.ba-row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--rounded-lg);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-description);
+}
+.ba-row + .ba-row { margin-top: 6px; }
+.ba-row.before { background: rgba(220,38,38,0.04); border-left: 3px solid rgba(220,38,38,0.3); }
+.ba-row.after { background: rgba(22,163,74,0.04); border-left: 3px solid rgba(22,163,74,0.3); }
+.ba-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  width: 48px;
+}
+.ba-row.before .ba-label { color: #dc2626; }
+.ba-row.after .ba-label { color: #16a34a; }
+
+/* Journey Phases */
+.phase-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.phase-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--rounded-pill);
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--bg-off-white);
+  color: var(--primary-purple);
+  border: 1px solid rgba(49,19,93,0.1);
+}
+.phase-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-purple);
+}
+
+/* Expand Toggle */
+.expand-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: auto;
+  padding: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary-purple);
+  transition: color 0.2s;
+  border-top: 1px solid var(--border-color);
+}
+.expand-toggle:hover { color: var(--primary-purple); }
+.expand-toggle svg {
+  width: 14px; height: 14px;
+  transition: transform 0.3s ease;
+}
+.expand-toggle.open svg { transform: rotate(180deg); }
+
+/* Expanded Details */
+.card-details {
+  display: none;
+  padding: 0 20px 20px;
+  animation: slideDown 0.3s ease;
+}
+.card-details.visible { display: block; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.detail-section { margin-bottom: 16px; }
+.detail-section:last-child { margin-bottom: 0; }
+.detail-heading {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-purple);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.detail-heading svg { width: 14px; height: 14px; color: var(--secondary-purple); }
+.detail-table {
+  width: 100%;
+  font-size: 12px;
+  border-collapse: collapse;
+}
+.detail-table td {
+  padding: 5px 0;
+  vertical-align: top;
+  line-height: 1.5;
+  color: var(--text-description);
+}
+.detail-table td:first-child {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: var(--text-gray);
+  width: 110px;
+  padding-right: 12px;
+  white-space: nowrap;
+}
+.detail-list {
+  list-style: none;
+  font-size: 12px;
+  color: var(--text-description);
+  line-height: 1.6;
+}
+.detail-list li { padding: 3px 0; padding-left: 16px; position: relative; }
+.detail-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.detail-list.do-list li::before { background: #16a34a; }
+.detail-list.dont-list li::before { background: #dc2626; }
+.micro-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.micro-chip {
+  padding: 3px 8px;
+  background: var(--bg-off-white);
+  border: 1px solid rgba(109,49,194,0.12);
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--secondary-purple);
+  font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .elements-grid {
+    grid-template-columns: 1fr;
+    padding: 20px 16px;
+    gap: 20px;
+  }
+  .filter-bar { padding: 12px 16px; }
+  .page-header { padding: 32px 20px 28px; }
+}
+@media (max-width: 480px) {
+  .card-iframe-wrap { height: 260px; }
+  .card-body { padding: 16px; }
+  .card-title { font-size: 15px; }
+  .filter-bar { gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="page-header">
+  <div class="header-content">
+    <h1>Library of Elements</h1>
+    <p>Booking.com &times; Hooked Reverse Benchmark &mdash; UI components derived from competitive gap analysis through the lens of <em>Hooked: How to Build Habit-Forming Products</em> (Nir Eyal, Chapters 1&ndash;5: The Complete Hook Model).</p>
+    <div class="header-meta">
+      <span class="meta-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Layer 4 Output
+      </span>
+      <span class="meta-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Hooked Ch. 1&ndash;5
+      </span>
+      <span class="meta-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        7 Elements
+      </span>
+      <span class="meta-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Competitor: Booking.com
+      </span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== FILTER BAR ===== -->
+<div class="filter-bar" id="filterBar">
+  <span class="filter-label">Priority</span>
+  <button class="filter-chip active" data-filter="priority" data-value="all" onclick="setFilter(this)">All</button>
+  <button class="filter-chip" data-filter="priority" data-value="high" onclick="setFilter(this)">High</button>
+  <button class="filter-chip" data-filter="priority" data-value="medium" onclick="setFilter(this)">Medium</button>
+
+  <div class="filter-separator"></div>
+
+  <span class="filter-label">Hook Phase</span>
+  <button class="filter-chip active" data-filter="hook" data-value="all" onclick="setFilter(this)">All</button>
+  <button class="filter-chip" data-filter="hook" data-value="Trigger" onclick="setFilter(this)">Trigger</button>
+  <button class="filter-chip" data-filter="hook" data-value="Action" onclick="setFilter(this)">Action</button>
+  <button class="filter-chip" data-filter="hook" data-value="Variable Reward" onclick="setFilter(this)">Variable Reward</button>
+  <button class="filter-chip" data-filter="hook" data-value="Investment" onclick="setFilter(this)">Investment</button>
+
+  <div class="filter-separator"></div>
+
+  <span class="filter-label">Category</span>
+  <button class="filter-chip active" data-filter="category" data-value="all" onclick="setFilter(this)">All</button>
+  <button class="filter-chip" data-filter="category" data-value="card" onclick="setFilter(this)">Card</button>
+  <button class="filter-chip" data-filter="category" data-value="section" onclick="setFilter(this)">Section</button>
+  <button class="filter-chip" data-filter="category" data-value="form" onclick="setFilter(this)">Form</button>
+  <button class="filter-chip" data-filter="category" data-value="modal" onclick="setFilter(this)">Modal</button>
+
+  <span class="filter-count" id="filterCount"><strong>7</strong> of 7 elements</span>
+</div>
+
+<!-- ===== GRID ===== -->
+<main class="elements-grid" id="elementsGrid"></main>
+
+<script>
+// ===== ELEMENT DATA =====
+var ELEMENTS = [
+  {
+    id: "rb-ui-001",
+    name: "Stay-Cycle Micro-Review Pulse",
+    category: "card",
+    priority: "high",
+    hook_model_phase: "Action",
+    opportunity_id: "opp-001",
+    journey_phases: ["active_lease"],
+    description: "A compact card that appears at the bottom of the Stays Manager after each weekly stay is marked complete. It shows the stay dates, asks a single sentiment question (\u2018How was this stay?\u2019) via three emoji-free tap targets (Great / Fine / Rough), and optionally expands for a one-line note.",
+    problem_it_solves: "Replaces the impossible task of compressing 90 days into a single retrospective form with a one-tap weekly pulse that captures impressions at the moment of peak recall.",
+    why_this_is_a_signature: "No competitor has per-stay-cycle review capture because OTAs have no concept of stay cycles within a lease \u2014 their data model treats every booking as an atomic event with one review opportunity, while Split Lease\u2019s Stays Manager creates 13+ natural touchpoints per lease.",
+    before_after: {
+      before: "Booking.com: Zero review capture during a 90-day stay. One post-checkout email triggers a 7-subcategory retrospective form. The guest must compress months of experience into a single session from faded memory.",
+      after: "Split Lease: After each weekly stay, a gentle one-tap pulse appears in the Stays Manager the guest already visits. Over 13 stays, a temporal review narrative accumulates automatically."
+    },
+    visual_spec: {
+      layout: "Vertical flex container, max-width 400px, centered in Stays Manager column",
+      background: "#ffffff with left-side 3px accent border in secondary-purple",
+      border: "1px solid rgba(49, 19, 93, 0.1)",
+      border_radius: "12px",
+      color_usage: "Secondary purple for the left accent bar and selected state; bg-off-white for hover on tap targets; primary purple for the optional note expand trigger"
+    },
+    interaction_spec: {
+      default_state: "Card visible with three tap targets in neutral state; note field collapsed",
+      hover: "Tap targets gain subtle purple background (rgba(140, 104, 238, 0.08)) and slight scale(1.02)",
+      click: "Selected option fills with secondary-purple background and white text; optional note field slides down with 200ms ease-out",
+      animation: "Card entrance: translateY(8px) to 0 with 300ms ease-out; selection: background-color 150ms; note expand: max-height 200ms ease-out"
+    },
+    copy_spec: {
+      primary_text: "How was your stay?",
+      secondary_text: "Feb 3 - Feb 9 at Marcus\u2019s Room in Harlem",
+      micro_copy: ["Great", "Fine", "Rough", "Add a note (optional)", "Skip for now"],
+      do_list: ["Use conversational tone \u2014 this is a check-in, not a survey", "Reference the specific stay dates and property name"],
+      dont_list: ["Never say \u2018rate\u2019 or \u2018review\u2019 \u2014 this is a pulse, not a form", "Never use numeric scales"]
+    },
+    html_css: "<!DOCTYPE html>\n<html>\n<head>\n<style>\n  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n  :root {\n    --primary-purple: #31135D;\n    --secondary-purple: rgb(109, 49, 194);\n    --accent-purple: rgb(140, 104, 238);\n    --light-purple: rgba(140, 104, 238, 0.08);\n    --text-primary: #1a1a2e;\n    --text-secondary: #4a4a6a;\n    --text-muted: #8888aa;\n    --bg-white: #ffffff;\n    --bg-light: #f8f7fc;\n    --border-light: rgba(49, 19, 93, 0.1);\n    --shadow-sm: 0 2px 8px rgba(49, 19, 93, 0.08);\n  }\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'DM Sans', sans-serif; background: var(--bg-light); padding: 24px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }\n  .pulse-card {\n    background: var(--bg-white);\n    border: 1px solid var(--border-light);\n    border-left: 3px solid var(--secondary-purple);\n    border-radius: 12px;\n    padding: 20px;\n    max-width: 400px;\n    width: 100%;\n    box-shadow: var(--shadow-sm);\n    animation: slideUp 0.3s ease-out;\n  }\n  @keyframes slideUp {\n    from { opacity: 0; transform: translateY(8px); }\n    to { opacity: 1; transform: translateY(0); }\n  }\n  .pulse-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }\n  .stay-dates { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-muted); }\n  .stay-property { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--accent-purple); font-weight: 500; background: var(--light-purple); padding: 2px 8px; border-radius: 20px; }\n  .pulse-prompt { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; color: var(--text-primary); margin-bottom: 16px; }\n  .pulse-options { display: flex; gap: 10px; margin-bottom: 12px; }\n  .pulse-option { flex: 1; padding: 12px 8px; border: 1.5px solid var(--border-light); border-radius: 10px; background: var(--bg-white); cursor: pointer; text-align: center; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-secondary); transition: all 0.15s ease; user-select: none; }\n  .pulse-option:hover { background: var(--light-purple); border-color: rgba(109, 49, 194, 0.2); transform: scale(1.02); }\n  .pulse-option.selected { background: var(--secondary-purple); border-color: var(--secondary-purple); color: #ffffff; transform: scale(1.02); box-shadow: 0 2px 8px rgba(109, 49, 194, 0.3); }\n  .pulse-option .option-icon { display: block; font-size: 20px; margin-bottom: 4px; line-height: 1; }\n  .note-trigger { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--accent-purple); cursor: pointer; display: flex; align-items: center; gap: 4px; border: none; background: none; padding: 0; }\n  .note-field { max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; }\n  .note-field.expanded { max-height: 80px; margin-top: 12px; }\n  .note-field input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border-light); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-primary); outline: none; }\n  .note-field input:focus { border-color: var(--accent-purple); box-shadow: 0 0 0 3px rgba(140, 104, 238, 0.1); }\n  .pulse-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }\n  .skip-btn { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-muted); border: none; background: none; cursor: pointer; }\n  .stay-count { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-muted); }\n  .stay-count span { color: var(--secondary-purple); font-weight: 600; }\n</style>\n</head>\n<body>\n  <div class=\"pulse-card\">\n    <div class=\"pulse-header\">\n      <span class=\"stay-dates\">Feb 3 - Feb 9</span>\n      <span class=\"stay-property\">Marcus's Room in Harlem</span>\n    </div>\n    <div class=\"pulse-prompt\">How was this stay?</div>\n    <div class=\"pulse-options\">\n      <div class=\"pulse-option\" onclick=\"selectOption(this)\"><span class=\"option-icon\">&#9650;</span>Great</div>\n      <div class=\"pulse-option selected\" onclick=\"selectOption(this)\"><span class=\"option-icon\">&#9644;</span>Fine</div>\n      <div class=\"pulse-option\" onclick=\"selectOption(this)\"><span class=\"option-icon\">&#9660;</span>Rough</div>\n    </div>\n    <button class=\"note-trigger\" onclick=\"toggleNote()\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"></line><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"></line></svg>Add a note (optional)</button>\n    <div class=\"note-field\" id=\"noteField\"><input type=\"text\" placeholder=\"e.g. Heater took a while to warm up\" maxlength=\"140\" /></div>\n    <div class=\"pulse-footer\">\n      <button class=\"skip-btn\">Skip for now</button>\n      <span class=\"stay-count\">Stay <span>5</span> of 13</span>\n    </div>\n  </div>\n  <script>\n    function selectOption(el){document.querySelectorAll('.pulse-option').forEach(function(o){o.classList.remove('selected')});el.classList.add('selected');}\n    function toggleNote(){document.getElementById('noteField').classList.toggle('expanded');}\n  </script>\n</body>\n</html>"
+  },
+  {
+    id: "rb-ui-002",
+    name: "Stay-Cycle Review Timeline",
+    category: "section",
+    priority: "high",
+    hook_model_phase: "Variable Reward",
+    opportunity_id: "opp-001",
+    journey_phases: ["active_lease", "discovery"],
+    description: "A horizontal timeline visualization showing week-by-week sentiment across the entire lease. Each weekly stay is a node showing the pulse (Great/Fine/Rough) with optional notes. Reveals patterns over time that flat scores cannot.",
+    problem_it_solves: "Transforms accumulated micro-review pulses into a visible temporal narrative that rewards the reviewer with a sense of growing contribution and gives future guests a chronological view of the stay experience no competitor offers.",
+    why_this_is_a_signature: "No competitor structures reviews around the chronological phases of a stay because they treat every booking as a single atomic event \u2014 Split Lease is the only platform with per-stay-cycle data to render a temporal review narrative.",
+    before_after: {
+      before: "Booking.com: A flat composite score (8.7) with no temporal dimension. A 3-month stay and a 2-night visit look identical. No way to see how the experience evolved over time.",
+      after: "Split Lease: A visual timeline showing week-by-week sentiment across the entire lease. Future guests can see that the heater broke in week 6 but was fixed the next day \u2014 a story that a flat score can never tell."
+    },
+    visual_spec: {
+      layout: "Horizontal scrollable flex container with connected timeline nodes",
+      background: "#ffffff card on bg-light background",
+      border: "1px solid rgba(49, 19, 93, 0.1)",
+      border_radius: "12px for outer card, 50% for timeline nodes",
+      color_usage: "Secondary purple for \u2018Great\u2019 nodes, accent-purple at 50% opacity for \u2018Fine\u2019 nodes, text-muted with border for \u2018Rough\u2019 nodes"
+    },
+    interaction_spec: {
+      default_state: "Timeline visible with all completed stay nodes; current stay node has a subtle pulse animation",
+      hover: "Hovering a node expands to show the date range and any note; tooltip appears with 150ms delay",
+      click: "Clicking a node scrolls to the detailed note if one exists",
+      animation: "Nodes enter sequentially with 50ms stagger on page load; connecting line draws left-to-right on first view with 800ms duration"
+    },
+    copy_spec: {
+      primary_text: "Your Stay Journey",
+      secondary_text: "13 weeks at Marcus\u2019s Room in Harlem",
+      micro_copy: ["Week 1", "Week 2", "Current stay", "See full review", "12 of 13 stays rated"],
+      do_list: ["Label by week number for the reviewer\u2019s own view", "Show the overall pattern, not just individual data points"],
+      dont_list: ["Never show individual micro-reviews on the public listing without the reviewer\u2019s consent", "Never use red/green traffic-light colors \u2014 stay within the purple palette"]
+    },
+    html_css: "<!DOCTYPE html>\n<html>\n<head>\n<style>\n  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n  :root {\n    --primary-purple: #31135D;\n    --secondary-purple: rgb(109, 49, 194);\n    --accent-purple: rgb(140, 104, 238);\n    --light-purple: rgba(140, 104, 238, 0.1);\n    --text-primary: #1a1a2e;\n    --text-secondary: #4a4a6a;\n    --text-muted: #8888aa;\n    --bg-white: #ffffff;\n    --bg-light: #f8f7fc;\n    --border-light: rgba(49, 19, 93, 0.1);\n    --shadow-sm: 0 2px 8px rgba(49, 19, 93, 0.08);\n  }\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'DM Sans', sans-serif; background: var(--bg-light); padding: 24px; display: flex; justify-content: center; }\n  .timeline-card { background: var(--bg-white); border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; max-width: 680px; width: 100%; box-shadow: var(--shadow-sm); }\n  .timeline-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; }\n  .timeline-title { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: var(--primary-purple); }\n  .timeline-subtitle { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); }\n  .timeline-progress { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--accent-purple); font-weight: 500; }\n  .timeline-track { display: flex; align-items: flex-start; overflow-x: auto; padding: 8px 0 16px; gap: 0; }\n  .timeline-node { display: flex; flex-direction: column; align-items: center; min-width: 52px; position: relative; cursor: pointer; }\n  .timeline-node:not(:last-child)::after { content: ''; position: absolute; top: 14px; left: 50%; width: 100%; height: 2px; background: var(--border-light); z-index: 0; }\n  .node-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1; transition: transform 0.15s ease; font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 600; color: #fff; }\n  .node-dot.great { background: var(--secondary-purple); box-shadow: 0 2px 6px rgba(109, 49, 194, 0.3); }\n  .node-dot.fine { background: var(--accent-purple); opacity: 0.75; }\n  .node-dot.rough { background: var(--bg-white); border: 2px solid var(--text-muted); color: var(--text-muted); }\n  .node-dot.current { background: var(--bg-white); border: 2px dashed var(--accent-purple); color: var(--accent-purple); animation: currentPulse 2s ease-in-out infinite; }\n  .node-dot.future { background: var(--bg-light); border: 1px solid var(--border-light); color: var(--text-muted); opacity: 0.4; }\n  @keyframes currentPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(140, 104, 238, 0.3); } 50% { box-shadow: 0 0 0 6px rgba(140, 104, 238, 0); } }\n  .timeline-node:hover .node-dot { transform: scale(1.15); }\n  .node-label { font-family: 'Inter', sans-serif; font-size: 10px; color: var(--text-muted); margin-top: 6px; white-space: nowrap; }\n  .node-note { font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--text-secondary); margin-top: 2px; max-width: 60px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0; transition: opacity 0.15s ease; }\n  .timeline-node:hover .node-note { opacity: 1; }\n  .timeline-summary { display: flex; gap: 20px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light); }\n  .summary-stat { display: flex; align-items: center; gap: 6px; }\n  .summary-dot { width: 8px; height: 8px; border-radius: 50%; }\n  .summary-dot.great { background: var(--secondary-purple); }\n  .summary-dot.fine { background: var(--accent-purple); opacity: 0.75; }\n  .summary-dot.rough { background: var(--text-muted); }\n  .summary-label { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-secondary); }\n  .summary-label strong { color: var(--text-primary); font-weight: 600; }\n</style>\n</head>\n<body>\n  <div class=\"timeline-card\">\n    <div class=\"timeline-header\">\n      <div>\n        <div class=\"timeline-title\">Your Stay Journey</div>\n        <div class=\"timeline-subtitle\">Marcus's Room in Harlem &middot; $850/month</div>\n      </div>\n      <div class=\"timeline-progress\">10 of 13 stays rated</div>\n    </div>\n    <div class=\"timeline-track\">\n      <div class=\"timeline-node\"><div class=\"node-dot great\">&#9650;</div><div class=\"node-label\">Wk 1</div><div class=\"node-note\">Clean, as listed</div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot great\">&#9650;</div><div class=\"node-label\">Wk 2</div><div class=\"node-note\"></div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot great\">&#9650;</div><div class=\"node-label\">Wk 3</div><div class=\"node-note\"></div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot fine\">&#9644;</div><div class=\"node-label\">Wk 4</div><div class=\"node-note\">Neighbor noise</div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot fine\">&#9644;</div><div class=\"node-label\">Wk 5</div><div class=\"node-note\"></div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot rough\">&#9660;</div><div class=\"node-label\">Wk 6</div><div class=\"node-note\">Heater broke</div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot great\">&#9650;</div><div class=\"node-label\">Wk 7</div><div class=\"node-note\">Fixed next day</div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot great\">&#9650;</div><div class=\"node-label\">Wk 8</div><div class=\"node-note\"></div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot great\">&#9650;</div><div class=\"node-label\">Wk 9</div><div class=\"node-note\"></div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot great\">&#9650;</div><div class=\"node-label\">Wk 10</div><div class=\"node-note\"></div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot current\">11</div><div class=\"node-label\">Now</div><div class=\"node-note\"></div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot future\">12</div><div class=\"node-label\">Wk 12</div><div class=\"node-note\"></div></div>\n      <div class=\"timeline-node\"><div class=\"node-dot future\">13</div><div class=\"node-label\">Wk 13</div><div class=\"node-note\"></div></div>\n    </div>\n    <div class=\"timeline-summary\">\n      <div class=\"summary-stat\"><div class=\"summary-dot great\"></div><span class=\"summary-label\"><strong>7</strong> Great</span></div>\n      <div class=\"summary-stat\"><div class=\"summary-dot fine\"></div><span class=\"summary-label\"><strong>2</strong> Fine</span></div>\n      <div class=\"summary-stat\"><div class=\"summary-dot rough\"></div><span class=\"summary-label\"><strong>1</strong> Rough</span></div>\n    </div>\n  </div>\n</body>\n</html>"
+  },
+  {
+    id: "rb-ui-003",
+    name: "Vetting Trust Shield",
+    category: "card",
+    priority: "high",
+    hook_model_phase: "Trigger",
+    opportunity_id: "opp-002",
+    journey_phases: ["discovery", "listing_evaluation"],
+    description: "A compact trust shield card that appears on every listing, replacing the empty review section for new properties with concrete operational data. It displays verification badges and behavioral metrics from platform data.",
+    problem_it_solves: "Fills the trust desert for new and low-review listings by surfacing operational vetting data that Split Lease already collects \u2014 employment verification, credit checks, landlord references \u2014 as visible trust signals.",
+    why_this_is_a_signature: "No OTA performs deep vetting (employment, credit, landlord references) because their business model does not justify it for 2-night stays \u2014 Split Lease already has this data as a core business process, making it a zero-cost trust signal that competitors cannot acquire.",
+    before_after: {
+      before: "Booking.com: A new listing shows an empty review section. The guest sees \u2018No reviews yet\u2019 and must decide whether to commit $2,550 for 3 months based on photos alone.",
+      after: "Split Lease: Even with zero traditional reviews, the listing shows \u2018ID Verified, Employment Confirmed, Credit Checked\u2019 badges plus operational metrics: \u2018Host responds in ~2 hours, 3 of 4 guests renewed their lease.\u2019"
+    },
+    visual_spec: {
+      layout: "Vertical flex card with horizontal badge row and vertical metric list",
+      background: "Linear gradient from #ffffff to rgba(252, 250, 255, 1)",
+      border: "1px solid rgba(49, 19, 93, 0.1); top border 2px solid secondary-purple",
+      border_radius: "12px",
+      color_usage: "Secondary-purple for verification checkmarks; accent-purple for badge backgrounds; primary-purple for the shield icon"
+    },
+    interaction_spec: {
+      default_state: "Shield visible with all available badges and metrics",
+      hover: "Individual badges expand to show verification detail",
+      click: "Clicking a metric opens a detail popover with the methodology explanation",
+      animation: "Shield entrance: fade + subtle scale from 0.98 to 1 over 200ms; checkmark icons animate with a draw stroke effect"
+    },
+    copy_spec: {
+      primary_text: "Split Lease Verified",
+      secondary_text: "Every guest is vetted. Every host is verified.",
+      micro_copy: ["ID Verified", "Employment Confirmed", "Credit Checked", "Responds in ~2hrs", "3 of 4 guests renewed"],
+      do_list: ["Use \u2018verified\u2019 and \u2018confirmed\u2019 language \u2014 these are facts, not opinions", "Show specific numbers where possible"],
+      dont_list: ["Never expose raw credit scores or financial details", "Never say \u2018unverified\u2019 for items not yet checked"]
+    },
+    html_css: "<!DOCTYPE html>\n<html>\n<head>\n<style>\n  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n  :root {\n    --primary-purple: #31135D;\n    --secondary-purple: rgb(109, 49, 194);\n    --accent-purple: rgb(140, 104, 238);\n    --light-purple: rgba(140, 104, 238, 0.08);\n    --text-primary: #1a1a2e;\n    --text-secondary: #4a4a6a;\n    --text-muted: #8888aa;\n    --bg-white: #ffffff;\n    --bg-light: #f8f7fc;\n    --bg-off-white: rgb(252, 250, 255);\n    --border-light: rgba(49, 19, 93, 0.1);\n    --shadow-sm: 0 2px 8px rgba(49, 19, 93, 0.08);\n  }\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'DM Sans', sans-serif; background: var(--bg-light); padding: 24px; display: flex; justify-content: center; }\n  .trust-shield { background: linear-gradient(180deg, var(--bg-white) 0%, var(--bg-off-white) 100%); border: 1px solid var(--border-light); border-top: 2px solid var(--secondary-purple); border-radius: 12px; padding: 20px; max-width: 360px; width: 100%; box-shadow: var(--shadow-sm); }\n  .shield-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }\n  .shield-icon { width: 36px; height: 36px; background: var(--light-purple); border-radius: 10px; display: flex; align-items: center; justify-content: center; }\n  .shield-icon svg { width: 20px; height: 20px; color: var(--secondary-purple); }\n  .shield-title { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; color: var(--primary-purple); }\n  .shield-subtitle { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-muted); }\n  .verification-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }\n  .vbadge { display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--light-purple); border-radius: 20px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; color: var(--secondary-purple); cursor: default; transition: background 0.15s ease; }\n  .vbadge:hover { background: rgba(140, 104, 238, 0.15); }\n  .vbadge svg { width: 13px; height: 13px; flex-shrink: 0; }\n  .metrics-section { border-top: 1px solid var(--border-light); padding-top: 16px; }\n  .metrics-label { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 12px; }\n  .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }\n  .metric-row:not(:last-child) { border-bottom: 1px solid rgba(49, 19, 93, 0.05); }\n  .metric-label { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-secondary); }\n  .metric-value { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--primary-purple); }\n  .metric-value.highlight { color: var(--secondary-purple); }\n  .shield-footer { margin-top: 14px; text-align: center; }\n  .shield-footer a { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--accent-purple); text-decoration: none; cursor: pointer; }\n  .shield-footer a:hover { text-decoration: underline; }\n</style>\n</head>\n<body>\n  <div class=\"trust-shield\">\n    <div class=\"shield-header\">\n      <div class=\"shield-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path></svg></div>\n      <div><div class=\"shield-title\">Split Lease Verified</div><div class=\"shield-subtitle\">Every guest vetted. Every host verified.</div></div>\n    </div>\n    <div class=\"verification-badges\">\n      <div class=\"vbadge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>ID Verified</div>\n      <div class=\"vbadge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Employment Confirmed</div>\n      <div class=\"vbadge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>Credit Checked</div>\n      <div class=\"vbadge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg>References Verified</div>\n    </div>\n    <div class=\"metrics-section\">\n      <div class=\"metrics-label\">Host Performance</div>\n      <div class=\"metric-row\"><span class=\"metric-label\">Response time</span><span class=\"metric-value highlight\">~2 hours</span></div>\n      <div class=\"metric-row\"><span class=\"metric-label\">Guests who renewed</span><span class=\"metric-value\">3 of 4</span></div>\n      <div class=\"metric-row\"><span class=\"metric-label\">Maintenance resolved</span><span class=\"metric-value\">Within 24 hrs</span></div>\n      <div class=\"metric-row\"><span class=\"metric-label\">Leases completed</span><span class=\"metric-value\">6 of 6</span></div>\n    </div>\n    <div class=\"shield-footer\"><a href=\"#\">What does verified mean?</a></div>\n  </div>\n</body>\n</html>"
+  },
+  {
+    id: "rb-ui-004",
+    name: "Priority Picker at Proposal",
+    category: "form",
+    priority: "high",
+    hook_model_phase: "Investment",
+    opportunity_id: "opp-004",
+    journey_phases: ["proposal_creation", "acceptance"],
+    description: "An optional priority selector at the bottom of the proposal confirmation screen. It presents 8 long-term-housing-native quality dimensions as selectable chips, asking the guest to pick their top 3.",
+    problem_it_solves: "Seeds the review habit at the moment of highest commitment by capturing what matters most to the guest, creating a personalized scaffold that transforms the post-lease review from a generic hotel form into a guided reflection.",
+    why_this_is_a_signature: "No platform uses the booking commitment moment to seed review expectations because OTA booking funnels are terrified of adding any friction \u2014 Split Lease\u2019s multi-step proposal flow already has natural pause points where an optional priority question adds negligible friction.",
+    before_after: {
+      before: "Booking.com: The booking confirmation page shows property name, dates, and logistics. Zero review-relevant investment is captured. When the post-stay review arrives 90 days later, it is a generic 7-subcategory form.",
+      after: "Split Lease: After submitting a proposal, the guest selects their top 3 priorities. Every weekly micro-review pulse and the end-of-lease synthesis are scaffolded by these priorities."
+    },
+    visual_spec: {
+      layout: "Vertical flex within proposal confirmation card; chip grid uses flex-wrap",
+      background: "Subtle purple tint: rgba(140, 104, 238, 0.04) section background within white card",
+      border: "1px dashed rgba(140, 104, 238, 0.2) around the priority section",
+      border_radius: "12px for section, 20px (pill) for chips",
+      color_usage: "Unselected chips: white background with border-light border; selected chips: secondary-purple background with white text"
+    },
+    interaction_spec: {
+      default_state: "All 8 chips visible in neutral state; counter shows \u20180 of 3 selected\u2019",
+      hover: "Unselected chips gain light-purple background",
+      click: "Chip toggles between selected/unselected with 150ms color transition; when 3 are selected, remaining unselected chips dim to 40% opacity",
+      animation: "Section entrance: fade in 200ms; chip selection: background and text color transition 150ms; counter update: subtle bounce"
+    },
+    copy_spec: {
+      primary_text: "What matters most for your stay?",
+      secondary_text: "Pick up to 3 \u2014 we\u2019ll check in on these during your lease",
+      micro_copy: ["Quiet neighbors", "Fast maintenance", "Kitchen quality", "Natural light", "Reliable WiFi", "Host communication", "Neighborhood safety", "Cleanliness standards"],
+      do_list: ["Frame as the platform caring about the guest", "Use categories native to long-term housing, not imported from hotel systems"],
+      dont_list: ["Never make this required \u2014 it must feel like a bonus, not a gate", "Never use the word \u2018review\u2019 \u2014 this is about expectations"]
+    },
+    html_css: "<!DOCTYPE html>\n<html>\n<head>\n<style>\n  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n  :root {\n    --primary-purple: #31135D;\n    --secondary-purple: rgb(109, 49, 194);\n    --accent-purple: rgb(140, 104, 238);\n    --light-purple: rgba(140, 104, 238, 0.08);\n    --lighter-purple: rgba(140, 104, 238, 0.04);\n    --text-primary: #1a1a2e;\n    --text-secondary: #4a4a6a;\n    --text-muted: #8888aa;\n    --bg-white: #ffffff;\n    --bg-light: #f8f7fc;\n    --border-light: rgba(49, 19, 93, 0.1);\n    --border-dashed: rgba(140, 104, 238, 0.2);\n    --shadow-sm: 0 2px 8px rgba(49, 19, 93, 0.08);\n  }\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'DM Sans', sans-serif; background: var(--bg-light); padding: 24px; display: flex; justify-content: center; }\n  .proposal-card { background: var(--bg-white); border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; max-width: 440px; width: 100%; box-shadow: var(--shadow-sm); }\n  .proposal-confirmed { display: flex; align-items: center; gap: 10px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); }\n  .confirm-icon { width: 36px; height: 36px; background: rgba(109, 49, 194, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--secondary-purple); }\n  .confirm-text { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: var(--primary-purple); }\n  .confirm-detail { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); }\n  .priority-section { background: var(--lighter-purple); border: 1px dashed var(--border-dashed); border-radius: 12px; padding: 16px; }\n  .priority-prompt { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--primary-purple); margin-bottom: 4px; }\n  .priority-helper { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }\n  .priority-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }\n  .chip { padding: 8px 14px; border: 1.5px solid var(--border-light); border-radius: 20px; background: var(--bg-white); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s ease; user-select: none; }\n  .chip:hover:not(.selected):not(.dimmed) { background: var(--light-purple); border-color: rgba(109, 49, 194, 0.2); }\n  .chip.selected { background: var(--secondary-purple); border-color: var(--secondary-purple); color: #ffffff; box-shadow: 0 2px 6px rgba(109, 49, 194, 0.25); }\n  .chip.dimmed { opacity: 0.4; cursor: default; }\n  .priority-footer { display: flex; justify-content: space-between; align-items: center; }\n  .priority-counter { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--accent-purple); font-weight: 500; }\n  .skip-link { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-muted); border: none; background: none; cursor: pointer; text-decoration: none; }\n</style>\n</head>\n<body>\n  <div class=\"proposal-card\">\n    <div class=\"proposal-confirmed\">\n      <div class=\"confirm-icon\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg></div>\n      <div><div class=\"confirm-text\">Proposal Sent</div><div class=\"confirm-detail\">Marcus's Room in Harlem &middot; $850/month &middot; 13 weeks</div></div>\n    </div>\n    <div class=\"priority-section\">\n      <div class=\"priority-prompt\">What matters most for your stay?</div>\n      <div class=\"priority-helper\">Pick up to 3 &mdash; we'll check in on these during your lease</div>\n      <div class=\"priority-chips\" id=\"chipContainer\">\n        <div class=\"chip selected\" onclick=\"toggleChip(this)\">Quiet neighbors</div>\n        <div class=\"chip\" onclick=\"toggleChip(this)\">Fast maintenance</div>\n        <div class=\"chip selected\" onclick=\"toggleChip(this)\">Kitchen quality</div>\n        <div class=\"chip\" onclick=\"toggleChip(this)\">Natural light</div>\n        <div class=\"chip\" onclick=\"toggleChip(this)\">Reliable WiFi</div>\n        <div class=\"chip selected\" onclick=\"toggleChip(this)\">Host communication</div>\n        <div class=\"chip dimmed\" onclick=\"toggleChip(this)\">Neighborhood safety</div>\n        <div class=\"chip dimmed\" onclick=\"toggleChip(this)\">Cleanliness</div>\n      </div>\n      <div class=\"priority-footer\">\n        <span class=\"priority-counter\" id=\"counter\">3 of 3 selected</span>\n        <button class=\"skip-link\">Skip this step</button>\n      </div>\n    </div>\n  </div>\n  <script>\n    function toggleChip(el){if(el.classList.contains('dimmed')&&!el.classList.contains('selected'))return;el.classList.toggle('selected');updateChips();}\n    function updateChips(){var chips=document.querySelectorAll('.chip');var selected=document.querySelectorAll('.chip.selected').length;document.getElementById('counter').textContent=selected+' of 3 selected';chips.forEach(function(c){if(selected>=3&&!c.classList.contains('selected')){c.classList.add('dimmed')}else{c.classList.remove('dimmed')}});}\n  </script>\n</body>\n</html>"
+  },
+  {
+    id: "rb-ui-005",
+    name: "Trusted Reviewer Profile Card",
+    category: "card",
+    priority: "medium",
+    hook_model_phase: "Variable Reward",
+    opportunity_id: "opp-003",
+    journey_phases: ["active_lease", "discovery"],
+    description: "A profile card that aggregates a user\u2019s review contributions across all their stays. Shows total reviews, stays reviewed, trust tier badge, and impact metrics (\u2018Your reviews were read 234 times\u2019).",
+    problem_it_solves: "Creates the reviewer identity and visible impact that Booking.com\u2019s anonymous system completely lacks, transforming review contributions from disposable acts into accumulated reputation delivering all three of Eyal\u2019s variable reward types.",
+    why_this_is_a_signature: "No platform has built a reviewer identity system for housing because high-volume OTAs do not need individual reviewer retention \u2014 their volume compensates, while Split Lease\u2019s low-volume long-stay model makes every reviewer critical.",
+    before_after: {
+      before: "Booking.com: The reviewer is \u2018First Name + Country Flag.\u2019 Their labor vanishes into an aggregate score. No profile, no history, no impact visibility, no badge, no recognition.",
+      after: "Split Lease: Sarah T. is a \u2018Trusted Long-Stay Reviewer\u2019 with 39 stay pulses across 3 properties over 14 months. 234 people read her reviews. Her investment compounds with every stay."
+    },
+    visual_spec: {
+      layout: "Horizontal flex for avatar+stats row, vertical stack for badges and metrics",
+      background: "#ffffff with subtle gradient overlay at top",
+      border: "1px solid rgba(49, 19, 93, 0.1)",
+      border_radius: "16px",
+      color_usage: "Primary-purple for stat numbers; secondary-purple for trust tier badge; gold (#D4A853) for the \u2018Trusted\u2019 badge star accent"
+    },
+    interaction_spec: {
+      default_state: "Card visible with current stats and badge; impact metric animates count-up on first view",
+      hover: "Stats show tooltips with breakdowns; badge shows earning criteria",
+      click: "Clicking \u2018View full history\u2019 expands to show all review timelines across stays",
+      animation: "Stats count up from 0 on card entrance (800ms); badge has a subtle shimmer animation"
+    },
+    copy_spec: {
+      primary_text: "Your Review Profile",
+      secondary_text: "Your contributions help the Split Lease community",
+      micro_copy: ["Trusted Long-Stay Reviewer", "234 people read your reviews", "3 properties reviewed", "39 stay pulses recorded", "View full history"],
+      do_list: ["Celebrate depth of contribution: number of stays reviewed, not just number of reviews", "Show concrete impact: views, booking influence"],
+      dont_list: ["Never use leaderboard language \u2014 this is reputation, not competition", "Never make badges feel like gamification with points and levels"]
+    },
+    html_css: "<!DOCTYPE html>\n<html>\n<head>\n<style>\n  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n  :root {\n    --primary-purple: #31135D;\n    --secondary-purple: rgb(109, 49, 194);\n    --accent-purple: rgb(140, 104, 238);\n    --light-purple: rgba(140, 104, 238, 0.08);\n    --text-primary: #1a1a2e;\n    --text-secondary: #4a4a6a;\n    --text-muted: #8888aa;\n    --bg-white: #ffffff;\n    --bg-light: #f8f7fc;\n    --bg-off-white: rgb(252, 250, 255);\n    --border-light: rgba(49, 19, 93, 0.1);\n    --shadow-sm: 0 2px 8px rgba(49, 19, 93, 0.08);\n    --gold: #D4A853;\n    --gold-light: #F5E6C3;\n  }\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'DM Sans', sans-serif; background: var(--bg-light); padding: 24px; display: flex; justify-content: center; }\n  .reviewer-card { background: var(--bg-white); border: 1px solid var(--border-light); border-radius: 16px; padding: 24px; max-width: 400px; width: 100%; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }\n  .reviewer-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--secondary-purple), var(--accent-purple)); }\n  .reviewer-top { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }\n  .reviewer-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary-purple), var(--accent-purple)); display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0; }\n  .reviewer-name { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: var(--primary-purple); margin-bottom: 4px; }\n  .reviewer-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; background: var(--gold-light); border: 1px solid rgba(212, 168, 83, 0.3); border-radius: 20px; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; color: #8B6914; }\n  .reviewer-badge svg { width: 11px; height: 11px; color: var(--gold); fill: var(--gold); }\n  .reviewer-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }\n  .stat-box { text-align: center; padding: 12px 8px; background: var(--bg-off-white); border-radius: 10px; }\n  .stat-number { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 700; color: var(--primary-purple); line-height: 1.1; }\n  .stat-label { font-family: 'Inter', sans-serif; font-size: 10px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px; }\n  .impact-section { background: var(--light-purple); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }\n  .impact-row { display: flex; align-items: center; gap: 8px; }\n  .impact-row:not(:last-child) { margin-bottom: 8px; }\n  .impact-icon { width: 18px; height: 18px; color: var(--secondary-purple); flex-shrink: 0; }\n  .impact-text { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-secondary); }\n  .impact-text strong { color: var(--secondary-purple); font-weight: 600; }\n  .reviewer-footer { text-align: center; }\n  .reviewer-footer a { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--accent-purple); text-decoration: none; font-weight: 500; }\n  .reviewer-footer a:hover { text-decoration: underline; }\n</style>\n</head>\n<body>\n  <div class=\"reviewer-card\">\n    <div class=\"reviewer-top\">\n      <div class=\"reviewer-avatar\">ST</div>\n      <div class=\"reviewer-info\">\n        <div class=\"reviewer-name\">Sarah T.</div>\n        <div class=\"reviewer-badge\"><svg viewBox=\"0 0 24 24\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"></polygon></svg>Trusted Long-Stay Reviewer</div>\n      </div>\n    </div>\n    <div class=\"reviewer-stats\">\n      <div class=\"stat-box\"><div class=\"stat-number\">3</div><div class=\"stat-label\">Properties</div></div>\n      <div class=\"stat-box\"><div class=\"stat-number\">39</div><div class=\"stat-label\">Stay Pulses</div></div>\n      <div class=\"stat-box\"><div class=\"stat-number\">14</div><div class=\"stat-label\">Months</div></div>\n    </div>\n    <div class=\"impact-section\">\n      <div class=\"impact-row\"><svg class=\"impact-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg><span class=\"impact-text\"><strong>234</strong> people read your reviews</span></div>\n      <div class=\"impact-row\"><svg class=\"impact-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"></path></svg><span class=\"impact-text\"><strong>12</strong> guests booked after reading you</span></div>\n      <div class=\"impact-row\"><svg class=\"impact-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"23 6 13.5 15.5 8.5 10.5 1 18\"></polyline><polyline points=\"17 6 23 6 23 12\"></polyline></svg><span class=\"impact-text\">Your heater feedback led to a <strong>repair</strong></span></div>\n    </div>\n    <div class=\"reviewer-footer\"><a href=\"#\">View full review history &rarr;</a></div>\n  </div>\n</body>\n</html>"
+  },
+  {
+    id: "rb-ui-006",
+    name: "Passive Signal Dashboard Row",
+    category: "section",
+    priority: "medium",
+    hook_model_phase: "Investment",
+    opportunity_id: "opp-005",
+    journey_phases: ["active_lease", "listing_evaluation"],
+    description: "A horizontal row of behavioral metric cards showing aggregated host behavioral data synthesized from communication and behavioral data the platform already captures.",
+    problem_it_solves: "Converts communication and behavioral data the platform already captures \u2014 message response times, maintenance resolution speed, renewal rates \u2014 into visible review-equivalent quality signals that generate trust without requiring anyone to write a single word.",
+    why_this_is_a_signature: "No competitor synthesizes behavioral data into visible quality signals because OTAs\u2019 2-night bookings generate too few data points \u2014 Split Lease\u2019s multi-month leases with weekly stays generate hundreds of data points per tenancy.",
+    before_after: {
+      before: "Booking.com: Communication quality, maintenance responsiveness, and renewal rates are invisible. The platform has this data but never surfaces it. The guest\u2019s review must reconstruct these from memory.",
+      after: "Split Lease: Every listing shows behavioral metrics: \u2018Response Time: ~2 hours (47 messages, 6 guests). Maintenance Speed: < 24 hrs. 75% renewal rate.\u2019 These are operational facts that generate trust automatically."
+    },
+    visual_spec: {
+      layout: "Horizontal scroll or flex-wrap row of equal-width metric cards",
+      background: "Each card: #ffffff; row background: transparent on listing page",
+      border: "1px solid rgba(49, 19, 93, 0.08) per card",
+      border_radius: "10px per card",
+      color_usage: "Primary-purple for metric values; accent-purple for metric labels; text-muted for source indicators"
+    },
+    interaction_spec: {
+      default_state: "All metric cards visible with current values",
+      hover: "Card elevates slightly with shadow-md; source text becomes fully visible",
+      click: "Clicking a card on the host dashboard opens a detail view with the trend over time",
+      animation: "Cards enter with 100ms stagger from left to right; metric values count up from 0 on first render (600ms)"
+    },
+    copy_spec: {
+      primary_text: "How this host performs",
+      secondary_text: "Based on real platform data, not opinions",
+      micro_copy: ["Response Time", "~2 hrs", "Maintenance Speed", "< 24 hrs", "Renewal Rate", "75%", "Lease Completion", "100%"],
+      do_list: ["Always show the data source and sample size", "Use neutral framing \u2014 present facts, not judgments"],
+      dont_list: ["Never present a behavioral signal without sufficient data (minimum 3 guests, 10 messages)", "Never show individual data points \u2014 always aggregate"]
+    },
+    html_css: "<!DOCTYPE html>\n<html>\n<head>\n<style>\n  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n  :root {\n    --primary-purple: #31135D;\n    --secondary-purple: rgb(109, 49, 194);\n    --accent-purple: rgb(140, 104, 238);\n    --light-purple: rgba(140, 104, 238, 0.06);\n    --text-primary: #1a1a2e;\n    --text-secondary: #4a4a6a;\n    --text-muted: #8888aa;\n    --bg-white: #ffffff;\n    --bg-light: #f8f7fc;\n    --bg-off-white: rgb(252, 250, 255);\n    --border-light: rgba(49, 19, 93, 0.08);\n    --shadow-sm: 0 2px 8px rgba(49, 19, 93, 0.06);\n    --shadow-md: 0 4px 16px rgba(49, 19, 93, 0.12);\n  }\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'DM Sans', sans-serif; background: var(--bg-light); padding: 24px; }\n  .signals-section { max-width: 680px; margin: 0 auto; }\n  .signals-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }\n  .signals-title { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; color: var(--primary-purple); }\n  .signals-subtitle { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-muted); }\n  .signals-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }\n  .signal-card { background: var(--bg-white); border: 1px solid var(--border-light); border-radius: 10px; padding: 16px; transition: box-shadow 0.2s ease, transform 0.2s ease; cursor: default; }\n  .signal-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }\n  .signal-label { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-purple); margin-bottom: 8px; }\n  .signal-value { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 700; color: var(--primary-purple); line-height: 1.1; margin-bottom: 6px; }\n  .signal-value.highlight { color: var(--secondary-purple); }\n  .signal-context { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-muted); line-height: 1.4; }\n  .signal-icon { width: 28px; height: 28px; background: var(--light-purple); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }\n  .signal-icon svg { width: 15px; height: 15px; color: var(--accent-purple); }\n  @media (max-width: 600px) { .signals-grid { grid-template-columns: repeat(2, 1fr); } }\n</style>\n</head>\n<body>\n  <div class=\"signals-section\">\n    <div class=\"signals-header\"><div><div class=\"signals-title\">How this host performs</div><div class=\"signals-subtitle\">Based on real platform data, not opinions</div></div></div>\n    <div class=\"signals-grid\">\n      <div class=\"signal-card\">\n        <div class=\"signal-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline></svg></div>\n        <div class=\"signal-label\">Response Time</div><div class=\"signal-value highlight\">~2 hrs</div><div class=\"signal-context\">Across 47 messages from 6 guests</div>\n      </div>\n      <div class=\"signal-card\">\n        <div class=\"signal-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\"></path></svg></div>\n        <div class=\"signal-label\">Maintenance Speed</div><div class=\"signal-value\">< 24 hrs</div><div class=\"signal-context\">4 issues resolved across 3 leases</div>\n      </div>\n      <div class=\"signal-card\">\n        <div class=\"signal-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"17 1 21 5 17 9\"></polyline><path d=\"M3 11V9a4 4 0 0 1 4-4h14\"></path><polyline points=\"7 23 3 19 7 15\"></polyline><path d=\"M21 13v2a4 4 0 0 1-4 4H3\"></path></svg></div>\n        <div class=\"signal-label\">Renewal Rate</div><div class=\"signal-value highlight\">75%</div><div class=\"signal-context\">3 of 4 guests chose to renew</div>\n      </div>\n      <div class=\"signal-card\">\n        <div class=\"signal-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg></div>\n        <div class=\"signal-label\">Lease Completion</div><div class=\"signal-value\">100%</div><div class=\"signal-context\">6 of 6 leases completed fully</div>\n      </div>\n    </div>\n  </div>\n</body>\n</html>"
+  },
+  {
+    id: "rb-ui-007",
+    name: "End-of-Lease Review Synthesis Modal",
+    category: "modal",
+    priority: "high",
+    hook_model_phase: "Variable Reward",
+    opportunity_id: "opp-001",
+    journey_phases: ["active_lease"],
+    description: "A full-screen modal at lease end that presents the guest\u2019s own micro-review pulses and priority evaluations back to them for confirmation and optional elaboration \u2014 transforming the review from a 15-minute exercise into a 2-minute reflection.",
+    problem_it_solves: "Replaces the cold-start retrospective review form with a synthesis of signals already captured, presenting the guest\u2019s own data back to them for confirmation \u2014 transforming the review from a cognitive exercise into closing a chapter.",
+    why_this_is_a_signature: "No competitor can build a synthesis review because they have no mid-stay data to synthesize \u2014 they must start from scratch at checkout, while Split Lease\u2019s accumulated micro-pulses provide a rich foundation that the guest merely confirms.",
+    before_after: {
+      before: "Booking.com: 24-48 hours after checkout, an email arrives linking to a blank 7-subcategory form. The guest must recall 90 days, evaluate 7 dimensions, write two text blocks, and submit into a void.",
+      after: "Split Lease: At lease end, a modal shows the guest their own story: 13 dots on a timeline, 3 priorities already scored, and a single optional text box. Two minutes, not fifteen."
+    },
+    visual_spec: {
+      layout: "Vertical scroll within centered modal (max-width 520px); timeline, priorities, text, celebration sections",
+      background: "Modal: #ffffff; overlay: rgba(49, 19, 93, 0.4); celebration header: gradient from primary-purple to secondary-purple",
+      border: "none (modal has shadow-xl instead)",
+      border_radius: "20px for modal, 12px for inner cards",
+      color_usage: "White text on primary-purple gradient for the celebration header; secondary-purple for CTA button; accent-purple for priority score highlights"
+    },
+    interaction_spec: {
+      default_state: "Modal opens with celebration header animation; timeline and priorities pre-populated from accumulated data",
+      hover: "Priority scores can be adjusted by clicking; timeline nodes can be clicked to expand notes",
+      click: "CTA button \u2018Publish Your Review\u2019 submits and transitions to a celebration animation",
+      animation: "Modal entrance: fade + translateY(20px) to 0 over 300ms; timeline draws in with 800ms sequence; confetti-style purple particles on publish"
+    },
+    copy_spec: {
+      primary_text: "13 weeks reviewed",
+      secondary_text: "Here\u2019s your stay story at Marcus\u2019s Room in Harlem",
+      micro_copy: ["Your priorities", "Quiet neighbors: Great", "Kitchen quality: Fine", "Host communication: Great", "Anything else to add?", "Publish your review"],
+      do_list: ["Celebrate the completion \u2014 this is a milestone, not a chore", "Show the guest their own data first, then ask for additions"],
+      dont_list: ["Never present this as a form to fill out \u2014 it is a synthesis to confirm", "Never require the text field"]
+    },
+    html_css: "<!DOCTYPE html>\n<html>\n<head>\n<style>\n  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n  :root {\n    --primary-purple: #31135D;\n    --secondary-purple: rgb(109, 49, 194);\n    --accent-purple: rgb(140, 104, 238);\n    --light-purple: rgba(140, 104, 238, 0.08);\n    --text-primary: #1a1a2e;\n    --text-secondary: #4a4a6a;\n    --text-muted: #8888aa;\n    --bg-white: #ffffff;\n    --bg-light: #f8f7fc;\n    --bg-off-white: rgb(252, 250, 255);\n    --border-light: rgba(49, 19, 93, 0.1);\n    --shadow-sm: 0 2px 8px rgba(49, 19, 93, 0.08);\n    --shadow-xl: 0 8px 40px rgba(49, 19, 93, 0.2);\n  }\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'DM Sans', sans-serif; background: rgba(49, 19, 93, 0.4); padding: 24px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }\n  .synthesis-modal { background: var(--bg-white); border-radius: 20px; max-width: 520px; width: 100%; box-shadow: var(--shadow-xl); overflow: hidden; animation: modalEnter 0.3s ease-out; }\n  @keyframes modalEnter { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }\n  .celebration-header { background: linear-gradient(135deg, var(--primary-purple) 0%, var(--secondary-purple) 100%); padding: 28px 32px; color: #ffffff; position: relative; overflow: hidden; }\n  .celebration-header::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.1) 0%, transparent 60%); animation: shimmer 3s ease-in-out infinite; }\n  @keyframes shimmer { 0%, 100% { transform: translateX(-30%) translateY(-30%); } 50% { transform: translateX(30%) translateY(30%); } }\n  .celebration-count { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; line-height: 1.1; margin-bottom: 4px; position: relative; z-index: 1; }\n  .celebration-subtitle { font-family: 'DM Sans', sans-serif; font-size: 14px; opacity: 0.85; position: relative; z-index: 1; }\n  .modal-body { padding: 28px 32px; }\n  .section-label { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 12px; }\n  .mini-timeline { display: flex; align-items: center; gap: 4px; margin-bottom: 24px; padding: 12px 16px; background: var(--bg-off-white); border-radius: 10px; }\n  .mini-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }\n  .mini-dot.great { background: var(--secondary-purple); }\n  .mini-dot.fine { background: var(--accent-purple); opacity: 0.6; }\n  .mini-dot.rough { background: transparent; border: 2px solid var(--text-muted); }\n  .mini-connector { width: 8px; height: 2px; background: var(--border-light); flex-shrink: 0; }\n  .mini-summary { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-muted); margin-left: 8px; white-space: nowrap; }\n  .priorities-list { margin-bottom: 24px; }\n  .priority-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(49, 19, 93, 0.05); }\n  .priority-name { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text-primary); }\n  .priority-result { display: flex; align-items: center; gap: 6px; }\n  .priority-score { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }\n  .priority-score.great { background: rgba(109, 49, 194, 0.1); color: var(--secondary-purple); }\n  .priority-score.fine { background: rgba(140, 104, 238, 0.1); color: var(--accent-purple); }\n  .priority-edit { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--accent-purple); cursor: pointer; border: none; background: none; }\n  .add-note-section { margin-bottom: 24px; }\n  .add-note-textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border-light); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-primary); resize: vertical; min-height: 72px; outline: none; transition: border-color 0.15s; }\n  .add-note-textarea:focus { border-color: var(--accent-purple); box-shadow: 0 0 0 3px rgba(140, 104, 238, 0.1); }\n  .add-note-textarea::placeholder { color: var(--text-muted); }\n  .publish-section { text-align: center; }\n  .publish-btn { width: 100%; padding: 14px; background: var(--secondary-purple); color: #ffffff; border: none; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s ease; box-shadow: 0 4px 12px rgba(109, 49, 194, 0.3); }\n  .publish-btn:hover { background: var(--primary-purple); }\n  .publish-helper { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-muted); margin-top: 10px; }\n</style>\n</head>\n<body>\n  <div class=\"synthesis-modal\">\n    <div class=\"celebration-header\">\n      <div class=\"celebration-count\">13 weeks reviewed</div>\n      <div class=\"celebration-subtitle\">Here's your stay story at Marcus's Room in Harlem</div>\n    </div>\n    <div class=\"modal-body\">\n      <div class=\"section-label\">Your Stay Timeline</div>\n      <div class=\"mini-timeline\">\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot fine\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot fine\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot rough\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div><div class=\"mini-connector\"></div>\n        <div class=\"mini-dot great\"></div>\n        <span class=\"mini-summary\">10 great, 2 fine, 1 rough</span>\n      </div>\n      <div class=\"section-label\">Your Priorities</div>\n      <div class=\"priorities-list\">\n        <div class=\"priority-row\"><span class=\"priority-name\">Quiet neighbors</span><div class=\"priority-result\"><span class=\"priority-score great\">Great</span><button class=\"priority-edit\">Edit</button></div></div>\n        <div class=\"priority-row\"><span class=\"priority-name\">Kitchen quality</span><div class=\"priority-result\"><span class=\"priority-score fine\">Fine</span><button class=\"priority-edit\">Edit</button></div></div>\n        <div class=\"priority-row\"><span class=\"priority-name\">Host communication</span><div class=\"priority-result\"><span class=\"priority-score great\">Great</span><button class=\"priority-edit\">Edit</button></div></div>\n      </div>\n      <div class=\"section-label\">Anything else to add?</div>\n      <div class=\"add-note-section\">\n        <textarea class=\"add-note-textarea\" placeholder=\"Optional: share anything the pulses didn't capture...\"></textarea>\n      </div>\n      <div class=\"publish-section\">\n        <button class=\"publish-btn\">Publish Your Review</button>\n        <div class=\"publish-helper\">This helps future renters make better decisions</div>\n      </div>\n    </div>\n  </div>\n</body>\n</html>"
+  }
+];
+
+// ===== RENDER =====
+function formatPhase(p) {
+  return p.replace(/_/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+}
+
+function esc(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderCard(el) {
+  var priorityClass = 'badge-' + el.priority;
+  var phases = el.journey_phases.map(function(p){ return '<span class="phase-tag">' + formatPhase(p) + '</span>'; }).join('');
+
+  // Build detail sections
+  var visualRows = '';
+  if (el.visual_spec) {
+    var vs = el.visual_spec;
+    if (vs.layout) visualRows += '<tr><td>Layout</td><td>' + esc(vs.layout) + '</td></tr>';
+    if (vs.background) visualRows += '<tr><td>Background</td><td>' + esc(vs.background) + '</td></tr>';
+    if (vs.border) visualRows += '<tr><td>Border</td><td>' + esc(vs.border) + '</td></tr>';
+    if (vs.border_radius) visualRows += '<tr><td>Radius</td><td>' + esc(vs.border_radius) + '</td></tr>';
+    if (vs.color_usage) visualRows += '<tr><td>Color Usage</td><td>' + esc(vs.color_usage) + '</td></tr>';
+  }
+
+  var interactionRows = '';
+  if (el.interaction_spec) {
+    var is2 = el.interaction_spec;
+    if (is2.default_state) interactionRows += '<tr><td>Default</td><td>' + esc(is2.default_state) + '</td></tr>';
+    if (is2.hover) interactionRows += '<tr><td>Hover</td><td>' + esc(is2.hover) + '</td></tr>';
+    if (is2.click) interactionRows += '<tr><td>Click</td><td>' + esc(is2.click) + '</td></tr>';
+    if (is2.animation) interactionRows += '<tr><td>Animation</td><td>' + esc(is2.animation) + '</td></tr>';
+  }
+
+  var copyHtml = '';
+  if (el.copy_spec) {
+    var cs = el.copy_spec;
+    var microChips = '';
+    if (cs.micro_copy) {
+      microChips = '<div class="micro-chips">' + cs.micro_copy.map(function(m){ return '<span class="micro-chip">' + esc(m) + '</span>'; }).join('') + '</div>';
+    }
+    var doList = '';
+    if (cs.do_list && cs.do_list.length) {
+      doList = '<div style="margin-top:8px"><strong style="font-size:11px;color:#16a34a;font-family:Inter,sans-serif">DO:</strong><ul class="detail-list do-list">' + cs.do_list.map(function(d){ return '<li>' + esc(d) + '</li>'; }).join('') + '</ul></div>';
+    }
+    var dontList = '';
+    if (cs.dont_list && cs.dont_list.length) {
+      dontList = '<div style="margin-top:8px"><strong style="font-size:11px;color:#dc2626;font-family:Inter,sans-serif">DON\'T:</strong><ul class="detail-list dont-list">' + cs.dont_list.map(function(d){ return '<li>' + esc(d) + '</li>'; }).join('') + '</ul></div>';
+    }
+    copyHtml = '<div class="detail-section"><div class="detail-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Copy Spec</div>' +
+      '<table class="detail-table"><tr><td>Primary</td><td>' + esc(cs.primary_text || '') + '</td></tr><tr><td>Secondary</td><td>' + esc(cs.secondary_text || '') + '</td></tr></table>' +
+      '<div style="margin-top:8px"><strong style="font-size:11px;color:var(--text-gray);font-family:Inter,sans-serif">MICRO-COPY:</strong>' + microChips + '</div>' +
+      doList + dontList +
+      '</div>';
+  }
+
+  // Encode html_css for srcdoc
+  var srcdoc = el.html_css.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+
+  return '<div class="element-card" data-category="' + el.category + '" data-priority="' + el.priority + '" data-hook="' + el.hook_model_phase + '" data-phases="' + el.journey_phases.join(',') + '">' +
+    '<div class="card-iframe-wrap"><iframe srcdoc="' + srcdoc + '" sandbox="allow-scripts allow-same-origin" loading="lazy" title="' + esc(el.name) + ' preview"></iframe></div>' +
+    '<div class="card-body">' +
+      '<div class="card-header">' +
+        '<div class="card-title">' + esc(el.name) + '</div>' +
+        '<div class="badges-row">' +
+          '<span class="badge badge-category">' + el.category + '</span>' +
+          '<span class="badge ' + priorityClass + '">' + el.priority + '</span>' +
+          '<span class="badge badge-hook">' + el.hook_model_phase + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-description">' + esc(el.description) + '</div>' +
+      '<div class="card-problem"><strong>Problem it solves</strong>' + esc(el.problem_it_solves) + '</div>' +
+      '<div class="before-after">' +
+        '<div class="ba-row before"><span class="ba-label">Before</span><span>' + esc(el.before_after.before) + '</span></div>' +
+        '<div class="ba-row after"><span class="ba-label">After</span><span>' + esc(el.before_after.after) + '</span></div>' +
+      '</div>' +
+      '<div class="card-signature">' + esc(el.why_this_is_a_signature) + '</div>' +
+      '<div class="phase-tags">' + phases + '</div>' +
+      '<button class="expand-toggle" onclick="toggleDetails(this)">' +
+        '<span>Full Specs</span>' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>' +
+      '</button>' +
+    '</div>' +
+    '<div class="card-details">' +
+      '<div class="detail-section"><div class="detail-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>Visual Spec</div>' +
+      '<table class="detail-table">' + visualRows + '</table></div>' +
+      '<div class="detail-section"><div class="detail-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 15l-2 5L9 9l11 4-5 2z"/><path d="M2 2l7.586 7.586"/></svg>Interaction Spec</div>' +
+      '<table class="detail-table">' + interactionRows + '</table></div>' +
+      copyHtml +
+    '</div>' +
+  '</div>';
+}
+
+function toggleDetails(btn) {
+  var card = btn.closest('.element-card');
+  var detail = card.querySelector('.card-details');
+  var isOpen = detail.classList.contains('visible');
+  detail.classList.toggle('visible');
+  btn.classList.toggle('open');
+  btn.querySelector('span').textContent = isOpen ? 'Full Specs' : 'Hide Specs';
+}
+
+// ===== FILTER STATE =====
+var activeFilters = { priority: 'all', hook: 'all', category: 'all' };
+
+function setFilter(chip) {
+  var filterType = chip.dataset.filter;
+  var filterValue = chip.dataset.value;
+  activeFilters[filterType] = filterValue;
+
+  // Update active chip styling within this filter group
+  var allChips = document.querySelectorAll('.filter-chip[data-filter="' + filterType + '"]');
+  allChips.forEach(function(c) { c.classList.remove('active'); });
+  chip.classList.add('active');
+
+  applyFilters();
+}
+
+function applyFilters() {
+  var cards = document.querySelectorAll('.element-card');
+  var visible = 0;
+  cards.forEach(function(card) {
+    var matchPri = activeFilters.priority === 'all' || card.dataset.priority === activeFilters.priority;
+    var matchHook = activeFilters.hook === 'all' || card.dataset.hook === activeFilters.hook;
+    var matchCat = activeFilters.category === 'all' || card.dataset.category === activeFilters.category;
+    var show = matchPri && matchHook && matchCat;
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  document.getElementById('filterCount').innerHTML = '<strong>' + visible + '</strong> of ' + ELEMENTS.length + ' elements';
+}
+
+// Initialize
+(function() {
+  var grid = document.getElementById('elementsGrid');
+  grid.innerHTML = ELEMENTS.map(renderCard).join('');
+})();
+</script>
+</body>
+</html>

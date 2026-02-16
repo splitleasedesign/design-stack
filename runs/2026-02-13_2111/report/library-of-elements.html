@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Element Library — Airbnb x Innovator's Dilemma (Ch 1-4)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-purple: #31135D;
+      --primary-purple-hover: #251047;
+      --secondary-purple: rgb(109,49,194);
+      --accent-purple: rgb(140,104,238);
+      --text-dark: #1a1a1a;
+      --text-gray: #6b7280;
+      --text-light-gray: #9ca3af;
+      --text-description: #374151;
+      --bg-white: #ffffff;
+      --bg-light: #f9fafb;
+      --bg-off-white: rgb(252,250,255);
+      --bg-light-gray: #f3f4f6;
+      --border-color: #e5e7eb;
+      --border-light: #f3f4f6;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-purple-sm: 0 2px 4px rgba(49,19,93,0.2);
+      --shadow-purple-md: 0 4px 8px rgba(49,19,93,0.15);
+      --signal-warn: #C4841D;
+      --signal-warn-bg: #FDF4E3;
+      --signal-danger: #C53030;
+      --signal-danger-bg: #FDE8E8;
+      --signal-info: #2563EB;
+      --signal-info-bg: #EFF6FF;
+      --signal-success: #4B47CE;
+      --signal-success-bg: #E6F5EE;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; color: var(--text-dark); background: var(--bg-light); line-height: 1.6; }
+    .report-header { background: linear-gradient(135deg, #31135D 0%, rgba(109,49,194,0.9) 100%); color: white; padding: 40px 48px 36px; }
+    .report-header h1 { font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .report-header .lens-label { font-size: 15px; opacity: 0.8; margin-bottom: 14px; }
+    .report-meta { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 500; opacity: 0.75; }
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 48px; }
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+    .filter-btn { background: var(--bg-white); border: 1px solid var(--border-color); border-radius: 9999px; padding: 6px 16px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: var(--text-gray); cursor: pointer; transition: all 150ms var(--ease-out); }
+    .filter-btn:hover { border-color: var(--secondary-purple); color: var(--secondary-purple); }
+    .filter-btn.active { background: var(--secondary-purple); border-color: var(--secondary-purple); color: white; }
+    .element-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
+    .elem-card { background: var(--bg-white); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: box-shadow 200ms var(--ease-out); }
+    .elem-card:hover { box-shadow: var(--shadow-purple-sm); }
+    .elem-card-top { padding: 24px 28px; border-bottom: 1px solid var(--border-light); }
+    .elem-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .elem-card-header h3 { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 700; color: var(--primary-purple); flex: 1; min-width: 200px; }
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .cat-listing_component { background: var(--signal-info-bg); color: var(--signal-info); }
+    .cat-search_component { background: var(--signal-success-bg); color: var(--signal-success); }
+    .cat-active_stay_component { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .cat-retention_component { background: #F0EBFF; color: #6B4EE6; }
+    .cat-booking_component { background: rgba(109,49,194,0.1); color: var(--secondary-purple); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 600; }
+    .priority-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-medium { background: var(--bg-light-gray); color: var(--text-gray); }
+    .priority-low { background: var(--bg-light-gray); color: var(--text-light-gray); }
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 600; background: rgba(109,49,194,0.08); color: var(--secondary-purple); }
+    .elem-desc { font-size: 14px; color: var(--text-description); line-height: 1.6; }
+    .elem-desc strong { color: var(--primary-purple); }
+    .section-label { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-gray); margin-bottom: 8px; }
+    .preview-frame { width: 100%; min-height: 440px; border: none; background: var(--bg-light); }
+    .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px 28px; }
+    .before-after .ba-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 13px; line-height: 1.6; }
+    .before-after .before { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .before-after .after { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .before-after label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-gray); margin-bottom: 4px; font-family: 'Inter', sans-serif; }
+    .user-change { padding: 12px 28px 20px; }
+    .user-change-box { padding: 12px 16px; background: rgba(140,104,238,0.06); border: 1px solid rgba(140,104,238,0.15); border-radius: var(--radius-md); font-size: 13px; color: var(--text-description); line-height: 1.6; }
+    .user-change-label { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--secondary-purple); margin-bottom: 4px; }
+    .elem-meta { padding: 16px 28px; border-top: 1px solid var(--border-light); display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: var(--text-gray); font-family: 'Inter', sans-serif; }
+    .elem-meta .meta-item { display: flex; align-items: center; gap: 4px; }
+    .elem-meta .meta-label { font-weight: 600; }
+    .section-title { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 700; color: var(--primary-purple); margin-bottom: 20px; }
+    @media (max-width: 700px) { .before-after { grid-template-columns: 1fr; } .report-header, .main-content { padding-left: 16px; padding-right: 16px; } }
+    @media print { body { background: white; } .preview-frame { display: none; } .elem-card { page-break-inside: avoid; } }
+  </style>
+</head>
+<body>
+  <script id="data-layer-4" type="application/json">{
+  "lens": {
+    "competitor": "Airbnb",
+    "book": "The Innovator's Dilemma -- Clayton M. Christensen, Ch 1-4",
+    "analysis_angle": "Airbnb migrated upmarket into luxury experiences, leaving mid-term shared housing exposed to a new disruptive entrant.",
+    "layer": 4,
+    "layer_name": "Element Specification",
+    "run_id": "2026-02-13_2111",
+    "element_count": 6,
+    "design_philosophy": "Every element inverts Airbnb's property-first architecture. The person is the listing. The relationship is the product. The stay is managed. The memory persists."
+  },
+  "elements": [
+    {
+      "id": "elem-001",
+      "name": "Host Identity Card",
+      "category": "listing_component",
+      "opportunity_id": "opp-001",
+      "source_disappointments": ["disappoint-007", "disappoint-004", "disappoint-006"],
+      "journey_phases": ["listing_evaluation", "search"],
+      "priority": "critical",
+      "problem_it_solves": "Airbnb listings are real estate brochures. Guests evaluating a shared room for an 8-week stay see professional photos of the bed and kitchen but zero structured information about the person they will live with. The listing answers 'What does the space look like?' when the actual question is 'Who will I be living with?' This is the Roommate Blindfold: guests commit to cohabitation based on a profile photo, a two-sentence bio, and review scores designed for vacation stays.",
+      "why_this_is_a_signature": "No platform in the shared housing category has ever made the host -- as a person, not a property owner -- a first-class element of the listing. The Host Identity Card places the human at the same visual prominence as the property photos. It answers the System 1 trust question ('Is this person safe to live with?') in the first 2 seconds of listing evaluation, before System 2 ever engages with amenity lists or pricing. Airbnb cannot copy this without confusing its vacation audience, who evaluate properties not people.",
+      "description": "A card component that sits at the top of the listing detail page, immediately below the photo gallery. It presents the host's name, verified photo, lifestyle summary (morning/evening person, work-from-home status, communication style), cohabitation track record (months hosted, returning guest rate, average stay length), and a 'Daily Life Preview' section showing what a typical day looks like in this shared space. The card uses structured data fields -- not free text -- so guests can scan and compare across listings. The host's communication style is shown as a behavioral tag (e.g., 'Prefers texting over talking', 'Discusses issues directly over coffee') rather than a personality quiz result.",
+      "visual_spec": {
+        "layout": "Full-width card below photo gallery, 2-column on desktop (host info left, daily life preview right), single column stacked on mobile",
+        "host_photo": "80px circular avatar with 3px solid border in --secondary-purple, positioned left",
+        "name_treatment": "24px Inter semibold in --primary-purple, with verified badge inline",
+        "lifestyle_tags": "Pill-shaped badges with --bg-off-white background and --text-purple text, 12px DM Sans medium, 20px border-radius",
+        "track_record_stats": "Three inline stats (Months Hosted, Returning Guests, Avg Stay) in a horizontal row, numbers in 20px Inter bold --primary-purple, labels in 12px DM Sans --text-gray",
+        "daily_life_section": "Right column with subtle --bg-light background, 12px border-radius, showing 3-4 time-of-day entries (Morning, Afternoon, Evening, Night) with one-line descriptions",
+        "card_container": "White background, 1px --border-color border, 12px border-radius, 24px padding, --shadow-purple-sm on hover"
+      },
+      "interaction_spec": {
+        "default_state": "Card is fully visible on page load, no interaction required to see core info",
+        "expand_action": "Tap 'See full profile' to expand the card to reveal additional details: house rules philosophy, conflict handling style, and what previous guests said about living with this host",
+        "hover_state": "Desktop: subtle purple shadow elevation on card hover",
+        "mobile": "Single column stack, lifestyle tags wrap to 2 rows, daily life section below host info"
+      },
+      "copy_spec": {
+        "section_label": "Meet Your Host",
+        "lifestyle_tag_examples": ["Early riser", "Works from home", "Prefers texting", "Quiet after 10pm", "Shared kitchen OK", "Cat in the house"],
+        "daily_life_morning": "Alex is usually up by 6:30am. Coffee is ready by 7. Kitchen is free after 8.",
+        "daily_life_evening": "Home by 6pm most days. Dinner around 7. Living room is shared until 10pm.",
+        "track_record_label_1": "Months Hosted",
+        "track_record_value_1": "14",
+        "track_record_label_2": "Returning Guests",
+        "track_record_value_2": "67%",
+        "track_record_label_3": "Avg Stay",
+        "track_record_value_3": "9 weeks"
+      },
+      "html_css": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Host Identity Card - Split Lease</title><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap\" rel=\"stylesheet\"><style>:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--text-dark:#1a1a1a;--text-gray:#6b7280;--text-purple:rgb(82,31,147);--bg-white:#ffffff;--bg-light:#f9fafb;--bg-off-white:rgb(252,250,255);--border-color:#e5e7eb;--shadow-purple-sm:0 2px 4px rgba(49,19,93,0.2);--shadow-purple-md:0 4px 8px rgba(49,19,93,0.15);--rounded-lg:8px;--rounded-xl:12px;--rounded-pill:20px;--rounded-full:50%}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-light);padding:24px;color:var(--text-dark)}.host-card{background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-xl);padding:24px;max-width:800px;margin:0 auto;transition:box-shadow 0.2s ease}.host-card:hover{box-shadow:var(--shadow-purple-md)}.card-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}.section-label{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--secondary-purple);margin-bottom:12px}.host-avatar{width:80px;height:80px;border-radius:var(--rounded-full);border:3px solid var(--secondary-purple);object-fit:cover;flex-shrink:0}.host-info{flex:1}.host-name{font-size:24px;font-weight:600;color:var(--primary-purple);display:flex;align-items:center;gap:8px;margin-bottom:4px}.verified-badge{display:inline-flex;align-items:center;gap:4px;background:var(--bg-off-white);color:var(--secondary-purple);font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--rounded-pill)}.verified-badge svg{width:14px;height:14px}.host-tagline{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-gray);margin-bottom:12px}.lifestyle-tags{display:flex;flex-wrap:wrap;gap:8px}.lifestyle-tag{background:var(--bg-off-white);color:var(--text-purple);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:4px 12px;border-radius:var(--rounded-pill);white-space:nowrap}.card-body{display:grid;grid-template-columns:1fr 1fr;gap:24px}@media(max-width:600px){.card-body{grid-template-columns:1fr}}.track-record{display:flex;gap:24px;padding-bottom:16px;border-bottom:1px solid var(--border-color);margin-bottom:16px}.stat{text-align:center;flex:1}.stat-value{font-size:20px;font-weight:700;color:var(--primary-purple)}.stat-label{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-gray);margin-top:2px}.daily-life{background:var(--bg-light);border-radius:var(--rounded-lg);padding:16px}.daily-life h4{font-size:14px;font-weight:600;color:var(--primary-purple);margin-bottom:12px}.time-entry{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}.time-entry:last-child{margin-bottom:0}.time-icon{width:28px;height:28px;border-radius:var(--rounded-full);background:var(--bg-off-white);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}.time-label{font-size:11px;font-weight:600;color:var(--secondary-purple);text-transform:uppercase;letter-spacing:0.03em}.time-desc{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-dark);line-height:1.4}.comm-style{margin-top:16px;padding:12px;background:var(--bg-off-white);border-radius:var(--rounded-lg);border-left:3px solid var(--secondary-purple)}.comm-style-label{font-size:11px;font-weight:600;color:var(--secondary-purple);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:4px}.comm-style-text{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-dark)}.expand-link{display:block;text-align:center;margin-top:16px;color:var(--secondary-purple);font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;padding:8px}.expand-link:hover{color:var(--accent-purple)}</style></head><body><div class=\"host-card\"><div class=\"section-label\">Meet Your Host</div><div class=\"card-header\"><img src=\"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&h=160&fit=crop&crop=face\" alt=\"Alex Rivera\" class=\"host-avatar\"><div class=\"host-info\"><div class=\"host-name\">Alex Rivera <span class=\"verified-badge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/></svg> Verified</span></div><div class=\"host-tagline\">Product designer, morning person, 2 years hosting in Brooklyn</div><div class=\"lifestyle-tags\"><span class=\"lifestyle-tag\">Early riser</span><span class=\"lifestyle-tag\">Works from home</span><span class=\"lifestyle-tag\">Prefers texting</span><span class=\"lifestyle-tag\">Quiet after 10pm</span><span class=\"lifestyle-tag\">Cat in the house</span></div></div></div><div class=\"card-body\"><div class=\"left-col\"><div class=\"track-record\"><div class=\"stat\"><div class=\"stat-value\">14</div><div class=\"stat-label\">Months Hosted</div></div><div class=\"stat\"><div class=\"stat-value\">67%</div><div class=\"stat-label\">Returning Guests</div></div><div class=\"stat\"><div class=\"stat-value\">9 wks</div><div class=\"stat-label\">Avg Stay</div></div></div><div class=\"comm-style\"><div class=\"comm-style-label\">Communication Style</div><div class=\"comm-style-text\">Prefers texting for quick things, face-to-face for anything important. Discusses issues directly over coffee rather than letting them build up.</div></div></div><div class=\"daily-life\"><h4>A Day in This Home</h4><div class=\"time-entry\"><div class=\"time-icon\">&#9728;</div><div><div class=\"time-label\">Morning</div><div class=\"time-desc\">Up by 6:30am. Coffee ready by 7. Kitchen free after 8.</div></div></div><div class=\"time-entry\"><div class=\"time-icon\">&#9737;</div><div><div class=\"time-label\">Afternoon</div><div class=\"time-desc\">Works from the living room desk. Shared space is quiet.</div></div></div><div class=\"time-entry\"><div class=\"time-icon\">&#9790;</div><div><div class=\"time-label\">Evening</div><div class=\"time-desc\">Home by 6pm. Dinner around 7. Living room shared until 10.</div></div></div><div class=\"time-entry\"><div class=\"time-icon\">&#9679;</div><div><div class=\"time-label\">Night</div><div class=\"time-desc\">Quiet hours after 10pm. Light sleeper.</div></div></div></div></div><a class=\"expand-link\" href=\"#\">See Alex's full hosting profile &rarr;</a></div></body></html>",
+      "before_after": {
+        "before_platform": "Airbnb",
+        "before_description": "Listing shows professional photos of the room, amenity checklist, host profile photo with 2-sentence bio, response rate, Superhost badge, and 47 reviews rated on Cleanliness, Accuracy, Check-in, Communication, Location, Value. Zero structured information about the host's personality, lifestyle, daily routine, or cohabitation track record. The guest evaluates a property, not a person.",
+        "after_description": "Split Lease listing leads with the Host Identity Card: host's verified photo, lifestyle tags (Early riser, Works from home, Prefers texting), cohabitation track record (14 months hosted, 67% returning guests, 9-week avg stay), communication style description, and a 'Day in This Home' timeline showing morning, afternoon, evening, and night routines. The guest evaluates a person and a lifestyle, not just a property.",
+        "what_changes_for_user": "The guest can answer 'Who will I be living with?' in the first 5 seconds of listing evaluation, before scrolling to property photos. The System 1 trust gate -- 'Is this person safe to live with?' -- is addressed immediately rather than left to inference from vacation-stay reviews."
+      },
+      "implements_principles": ["works-001", "feels-008", "communicates-003"],
+      "effort": "medium"
+    },
+    {
+      "id": "elem-002",
+      "name": "Total Monthly Cost Badge",
+      "category": "search_component",
+      "opportunity_id": "opp-003",
+      "source_disappointments": ["disappoint-002", "disappoint-001"],
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "priority": "critical",
+      "problem_it_solves": "Airbnb displays '$38/night' on search result cards. A guest mentally calculates $38 x 30 = $1,140/month. At checkout, the real number is $1,125 after a 25% monthly discount plus $150 cleaning fee plus $120 service fee -- a 32% gap from the discounted nightly rate impression. For a 3-month stay, the difference between perceived and actual cost is $810. No single number on any Airbnb search result or listing page shows the total monthly out-of-pocket cost. This is the Nightly Rate Mirage.",
+      "why_this_is_a_signature": "Split Lease shows one number first: your total monthly cost, all-in, no surprises. In a category where every platform anchors on nightly rates and reveals true costs at checkout, leading with the honest total is a trust signature that no competitor can copy without creating sticker shock for their vacation audience. Honesty is the feature.",
+      "description": "A prominent price badge that appears on every search result card and at the top of every listing detail page. It shows a single number -- the total monthly cost including all fees -- in large, bold typography. The word 'total' and '/month' are part of the badge. A subtle 'See breakdown' link reveals the nightly equivalent and any component fees on demand, but the total is always the headline. The badge uses the same visual treatment across search cards, listing pages, and proposal summaries to create financial consistency throughout the journey.",
+      "visual_spec": {
+        "badge_container": "Inline badge on search cards, full-width bar on listing detail page, --bg-off-white background with left 3px border in --secondary-purple",
+        "total_number": "28px Inter bold in --primary-purple, preceded by '$' at 20px",
+        "period_label": "'/month total' in 14px DM Sans medium --text-gray, positioned immediately right of the number",
+        "breakdown_link": "'See breakdown' in 12px Inter medium --secondary-purple, appears below the total",
+        "breakdown_expanded": "Slides open below: nightly rate, number of nights, any fees, each in 13px DM Sans --text-gray, with the total repeated at bottom in bold as confirmation",
+        "search_card_position": "Bottom-left of the search result card, above the CTA button",
+        "listing_page_position": "Sticky bar below the photo gallery, above the fold on desktop"
+      },
+      "interaction_spec": {
+        "default_state": "Total monthly cost is visible immediately, breakdown is collapsed",
+        "expand_breakdown": "Tap 'See breakdown' to slide open the fee components below the total. Components animate in top-to-bottom, 200ms ease-out",
+        "collapse_breakdown": "Tap 'Hide breakdown' to collapse. Total remains visible",
+        "sticky_behavior": "On listing detail page, the price badge becomes a sticky bar when scrolled past, so the total is always visible during evaluation",
+        "consistency_rule": "The same total number must appear on the search card, listing detail, proposal creation, and proposal summary. Any variance is a trust-destroying bug."
+      },
+      "copy_spec": {
+        "search_card_format": "$1,800/month total",
+        "listing_detail_format": "$1,800/month total",
+        "breakdown_nightly": "$58/night x 31 nights = $1,798",
+        "breakdown_fees": "Service fee: included",
+        "breakdown_cleaning": "Cleaning fee: included",
+        "breakdown_total_confirm": "You pay: $1,800/month",
+        "trust_line": "This is your total. No hidden fees at checkout."
+      },
+      "html_css": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Total Monthly Cost Badge - Split Lease</title><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap\" rel=\"stylesheet\"><style>:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--text-dark:#1a1a1a;--text-gray:#6b7280;--bg-white:#ffffff;--bg-light:#f9fafb;--bg-off-white:rgb(252,250,255);--border-color:#e5e7eb;--shadow-sm:0 1px 3px rgba(0,0,0,0.05);--shadow-purple-sm:0 2px 4px rgba(49,19,93,0.2);--rounded-lg:8px;--rounded-xl:12px;--rounded-pill:20px}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-light);padding:24px;color:var(--text-dark)}.demo-section{max-width:800px;margin:0 auto}.demo-label{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--secondary-purple);margin-bottom:12px}.search-card{background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-xl);overflow:hidden;max-width:340px;margin-bottom:32px;transition:box-shadow 0.2s ease}.search-card:hover{box-shadow:var(--shadow-purple-sm)}.card-image{width:100%;height:180px;background:linear-gradient(135deg,#31135D 0%,#5a2d8f 100%);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:14px}.card-content{padding:16px}.card-title{font-size:16px;font-weight:600;color:var(--text-dark);margin-bottom:4px}.card-subtitle{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-gray);margin-bottom:12px}.price-badge{background:var(--bg-off-white);border-left:3px solid var(--secondary-purple);border-radius:0 var(--rounded-lg) var(--rounded-lg) 0;padding:12px 16px;margin-bottom:12px}.price-main{display:flex;align-items:baseline;gap:2px}.price-dollar{font-size:20px;font-weight:700;color:var(--primary-purple)}.price-amount{font-size:28px;font-weight:700;color:var(--primary-purple)}.price-period{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-gray);margin-left:4px}.price-trust{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--secondary-purple);margin-top:4px;font-weight:500}.breakdown-toggle{background:none;border:none;color:var(--secondary-purple);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;padding:4px 0;margin-top:8px;display:flex;align-items:center;gap:4px}.breakdown-toggle:hover{color:var(--accent-purple)}.breakdown-toggle svg{width:14px;height:14px;transition:transform 0.2s ease}.breakdown-toggle.open svg{transform:rotate(180deg)}.breakdown-panel{max-height:0;overflow:hidden;transition:max-height 0.3s ease-out}.breakdown-panel.open{max-height:200px}.breakdown-content{padding:12px 0 4px;border-top:1px solid var(--border-color);margin-top:8px}.breakdown-row{display:flex;justify-content:space-between;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-gray);padding:3px 0}.breakdown-row.total{color:var(--primary-purple);font-weight:600;border-top:1px solid var(--border-color);margin-top:6px;padding-top:8px}.listing-price-bar{background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-xl);padding:20px 24px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}.listing-price-left{display:flex;align-items:center;gap:16px}.listing-price-left .price-badge{margin-bottom:0;border-radius:var(--rounded-lg)}.cta-btn{background:var(--secondary-purple);color:#fff;border:none;padding:12px 32px;border-radius:var(--rounded-pill);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s ease}.cta-btn:hover{background:var(--accent-purple)}</style></head><body><div class=\"demo-section\"><div class=\"demo-label\">Search Result Card</div><div class=\"search-card\"><div class=\"card-image\">[ Property Photo ]</div><div class=\"card-content\"><div class=\"card-title\">Sunny Room in Williamsburg</div><div class=\"card-subtitle\">Private room &middot; Shared bath &middot; Brooklyn, NY</div><div class=\"price-badge\"><div class=\"price-main\"><span class=\"price-dollar\">$</span><span class=\"price-amount\">1,800</span><span class=\"price-period\">/month total</span></div><div class=\"price-trust\">No hidden fees at checkout.</div><button class=\"breakdown-toggle\" onclick=\"this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')\">See breakdown <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"6 9 12 15 18 9\"/></svg></button><div class=\"breakdown-panel\"><div class=\"breakdown-content\"><div class=\"breakdown-row\"><span>$58/night &times; 31 nights</span><span>$1,798</span></div><div class=\"breakdown-row\"><span>Service fee</span><span>Included</span></div><div class=\"breakdown-row\"><span>Cleaning fee</span><span>Included</span></div><div class=\"breakdown-row total\"><span>You pay</span><span>$1,800/month</span></div></div></div></div></div></div><div class=\"demo-label\" style=\"margin-top:32px\">Listing Detail Sticky Bar</div><div class=\"listing-price-bar\"><div class=\"listing-price-left\"><div class=\"price-badge\"><div class=\"price-main\"><span class=\"price-dollar\">$</span><span class=\"price-amount\">1,800</span><span class=\"price-period\">/month total</span></div><div class=\"price-trust\">This is your total. No hidden fees at checkout.</div></div></div><button class=\"cta-btn\">Propose Stay</button></div></div></body></html>",
+      "before_after": {
+        "before_platform": "Airbnb",
+        "before_description": "Search results display '$38/night' on each card. Monthly discount is noted only after clicking into the listing. Service fee ($120) and cleaning fee ($150) appear only at checkout. At no point is 'your total monthly out-of-pocket cost' displayed as a single prominent number. The guest mentally calculates a budget of $855/month but actually pays $1,125/month -- a 32% gap discovered at the moment of maximum commitment.",
+        "after_description": "Split Lease search results display '$1,800/month total' as the headline number on every card. The same total appears on the listing detail page, in the proposal, and at acceptance. A 'See breakdown' link reveals the nightly equivalent and fee components on demand, but the total is always the first and largest number. The trust line reads: 'No hidden fees at checkout.'",
+        "what_changes_for_user": "The guest's mental model of cost is accurate from the first search result. There is no sticker shock at checkout because the checkout number matches the search card number. Trust is built through financial honesty at the top of the funnel rather than eroded through fee revelation at the bottom."
+      },
+      "implements_principles": ["communicates-002", "looks-003", "guest-communicates-002", "guest-feels-002"],
+      "effort": "small"
+    },
+    {
+      "id": "elem-003",
+      "name": "Weekly Stay Pulse Check-in",
+      "category": "active_stay_component",
+      "opportunity_id": "opp-002",
+      "source_disappointments": ["disappoint-003", "disappoint-009"],
+      "journey_phases": ["active_lease", "move_in"],
+      "priority": "high",
+      "problem_it_solves": "After booking, Airbnb sends a generic 'How's your trip?' notification around Day 3 and a review prompt after checkout. Between these two touchpoints, the platform is completely absent for 56 days of an 8-week stay. There are no milestone check-ins, no mechanism to flag a wifi outage or an unresponsive host, and no graduated escalation path between 'endure in silence' and 'file a formal complaint.' This is the Post-Booking Silence combined with the Conflict Black Hole: the platform collects its fee and vanishes during the longest and most consequential phase of the journey.",
+      "why_this_is_a_signature": "No platform in the shared housing category provides proactive stay management. Split Lease is the first platform that treats the active stay as its primary product. The Weekly Pulse is the visible expression of this philosophy: a simple, warm, non-invasive check-in that says 'we care about your experience every week, not just at booking and checkout.' Airbnb cannot build this without fundamentally changing its cost structure, because active stay management increases per-booking operational cost with no incremental fee revenue -- irrational in a value network built for millions of low-touch transactions.",
+      "description": "A weekly in-app card that appears in the guest's Stays Manager every 7 days. It asks a single question: 'How is your week going?' with three response options (Great, Fine, Could be better). Tapping 'Great' triggers a positive acknowledgment. Tapping 'Fine' logs the neutral signal. Tapping 'Could be better' opens a structured, private issue-surfacing flow: select a category (Space, Host Communication, Amenities, Noise, Other), add an optional note, and choose whether to surface it to the host gently or keep it as a private log. The platform acts as the diplomatic intermediary -- surfacing issues as 'your guest flagged some items that might need attention' rather than 'your guest filed a complaint.' The check-in also shows the guest their stay progress (Week 3 of 8) and any upcoming milestones.",
+      "visual_spec": {
+        "card_container": "Full-width card within the Stays Manager page, --bg-white background, 1px --border-color border, 12px border-radius, 20px padding",
+        "header": "'Week 3 of 8' in 11px DM Sans semibold uppercase --secondary-purple, with a subtle progress bar below showing 37.5% filled in --accent-purple",
+        "question": "'How is your week going?' in 18px Inter semibold --primary-purple",
+        "response_buttons": "Three pill buttons in a row: 'Great' (outline --secondary-purple with smile icon), 'Fine' (outline --text-gray with neutral icon), 'Could be better' (outline --text-gray with thought icon). Selected state fills with --secondary-purple background and white text",
+        "issue_flow": "If 'Could be better' selected: slides open a category selector (6 rounded chips), optional text area (max 280 chars), and a toggle: 'Surface to host' / 'Private log only'. The toggle defaults to 'Surface to host' with explanatory text: 'We will share this gently, without your exact words.'",
+        "confirmation": "After any response: a warm purple checkmark with 'Noted. We are here if you need anything.' in 14px DM Sans --text-gray"
+      },
+      "interaction_spec": {
+        "trigger": "Appears automatically in Stays Manager every 7 days, starting Day 7 of the stay",
+        "response_time": "Under 10 seconds for 'Great' or 'Fine' response. Under 60 seconds for 'Could be better' with issue category",
+        "dismissal": "Can be dismissed without responding. Dismissed check-ins do not reappear but are logged as 'no response'",
+        "notification": "Push notification: 'Week 3 check-in: How is your stay with Alex going?' -- one sentence, warm tone, no urgency",
+        "host_notification": "If guest selects 'Could be better' and 'Surface to host': host receives 'Your guest flagged some items that might need attention in [category]. Tap to review.' -- diplomatic, not alarming",
+        "mobile": "Full-width card, response buttons stack vertically on screens under 360px"
+      },
+      "copy_spec": {
+        "card_header": "Week 3 of 8",
+        "question": "How is your week going?",
+        "option_great": "Great",
+        "option_fine": "Fine",
+        "option_better": "Could be better",
+        "confirmation_great": "Glad to hear it! Your stay is going well.",
+        "confirmation_fine": "Noted. We are here if you need anything.",
+        "confirmation_issue": "Thank you for letting us know. We will handle this with care.",
+        "host_notification": "Your guest flagged a few items that might need attention.",
+        "issue_categories": ["Space condition", "Host communication", "Amenities", "Noise levels", "Shared areas", "Other"],
+        "surface_toggle_label": "Share with host",
+        "surface_toggle_note": "We will share this gently, without your exact words."
+      },
+      "html_css": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Weekly Stay Pulse - Split Lease</title><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap\" rel=\"stylesheet\"><style>:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--text-dark:#1a1a1a;--text-gray:#6b7280;--text-purple:rgb(82,31,147);--bg-white:#ffffff;--bg-light:#f9fafb;--bg-off-white:rgb(252,250,255);--border-color:#e5e7eb;--shadow-purple-sm:0 2px 4px rgba(49,19,93,0.2);--rounded-lg:8px;--rounded-xl:12px;--rounded-pill:20px;--rounded-full:50%}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-light);padding:24px;color:var(--text-dark)}.pulse-card{background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-xl);padding:20px 24px;max-width:480px;margin:0 auto}.week-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.week-label{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--secondary-purple)}.week-count{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--text-gray)}.progress-bar{width:100%;height:4px;background:var(--bg-off-white);border-radius:2px;margin-bottom:20px;overflow:hidden}.progress-fill{height:100%;background:var(--accent-purple);border-radius:2px;transition:width 0.5s ease}.question{font-size:18px;font-weight:600;color:var(--primary-purple);margin-bottom:16px}.response-row{display:flex;gap:10px;margin-bottom:16px}.response-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border:2px solid var(--border-color);border-radius:var(--rounded-pill);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:var(--text-gray);cursor:pointer;background:var(--bg-white);transition:all 0.2s ease}.response-btn:hover{border-color:var(--secondary-purple);color:var(--secondary-purple)}.response-btn.selected{background:var(--secondary-purple);border-color:var(--secondary-purple);color:#fff}.response-btn .icon{font-size:16px}.issue-panel{display:none;border-top:1px solid var(--border-color);padding-top:16px;margin-top:8px}.issue-panel.open{display:block}.issue-label{font-size:13px;font-weight:600;color:var(--primary-purple);margin-bottom:10px}.category-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.chip{padding:6px 14px;border:1px solid var(--border-color);border-radius:var(--rounded-pill);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-gray);cursor:pointer;background:var(--bg-white);transition:all 0.15s ease}.chip:hover{border-color:var(--accent-purple);color:var(--text-purple)}.chip.selected{background:var(--bg-off-white);border-color:var(--secondary-purple);color:var(--text-purple)}.note-area{width:100%;min-height:60px;padding:10px 12px;border:1px solid var(--border-color);border-radius:var(--rounded-lg);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-dark);resize:vertical;margin-bottom:12px}.note-area:focus{outline:none;border-color:var(--secondary-purple)}.note-area::placeholder{color:#9ca3af}.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-off-white);border-radius:var(--rounded-lg);margin-bottom:12px}.toggle-label{font-size:13px;font-weight:500;color:var(--text-dark)}.toggle-note{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--text-gray);margin-top:2px}.toggle-switch{width:40px;height:22px;background:var(--accent-purple);border-radius:11px;position:relative;cursor:pointer}.toggle-switch::after{content:'';position:absolute;top:2px;left:20px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left 0.2s ease}.toggle-switch.off{background:var(--border-color)}.toggle-switch.off::after{left:2px}.submit-btn{width:100%;padding:12px;background:var(--secondary-purple);color:#fff;border:none;border-radius:var(--rounded-pill);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s ease}.submit-btn:hover{background:var(--accent-purple)}.confirmation{display:none;text-align:center;padding:20px 0 8px}.confirmation.show{display:block}.confirm-icon{width:48px;height:48px;background:var(--bg-off-white);border-radius:var(--rounded-full);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--secondary-purple);font-size:24px}.confirm-text{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-gray)}</style></head><body><div class=\"pulse-card\"><div class=\"week-header\"><span class=\"week-label\">Week 3 of 8</span><span class=\"week-count\">Day 19</span></div><div class=\"progress-bar\"><div class=\"progress-fill\" style=\"width:37.5%\"></div></div><div class=\"question\">How is your week going?</div><div class=\"response-row\"><button class=\"response-btn\" onclick=\"selectResponse(this,'great')\"><span class=\"icon\">&#128522;</span> Great</button><button class=\"response-btn\" onclick=\"selectResponse(this,'fine')\"><span class=\"icon\">&#128528;</span> Fine</button><button class=\"response-btn\" onclick=\"selectResponse(this,'better')\"><span class=\"icon\">&#129300;</span> Could be better</button></div><div class=\"issue-panel\" id=\"issuePanel\"><div class=\"issue-label\">What could be better?</div><div class=\"category-chips\"><span class=\"chip\" onclick=\"this.classList.toggle('selected')\">Space condition</span><span class=\"chip\" onclick=\"this.classList.toggle('selected')\">Host communication</span><span class=\"chip\" onclick=\"this.classList.toggle('selected')\">Amenities</span><span class=\"chip\" onclick=\"this.classList.toggle('selected')\">Noise levels</span><span class=\"chip\" onclick=\"this.classList.toggle('selected')\">Shared areas</span><span class=\"chip\" onclick=\"this.classList.toggle('selected')\">Other</span></div><textarea class=\"note-area\" placeholder=\"Optional: add a note (max 280 characters)\" maxlength=\"280\"></textarea><div class=\"toggle-row\"><div><div class=\"toggle-label\">Share with host</div><div class=\"toggle-note\">We will share this gently, without your exact words.</div></div><div class=\"toggle-switch\" onclick=\"this.classList.toggle('off')\"></div></div><button class=\"submit-btn\" onclick=\"document.getElementById('issuePanel').style.display='none';document.querySelector('.confirmation').classList.add('show');document.querySelector('.response-row').style.display='none'\">Submit</button></div><div class=\"confirmation\"><div class=\"confirm-icon\">&#10003;</div><div class=\"confirm-text\">Thank you for letting us know. We will handle this with care.</div></div></div><script>function selectResponse(btn,type){document.querySelectorAll('.response-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');if(type==='better'){document.getElementById('issuePanel').classList.add('open')}else{document.getElementById('issuePanel').classList.remove('open');document.querySelector('.confirmation').classList.add('show');document.querySelector('.response-row').style.display='none';document.querySelector('.question').style.display='none'}}</script></body></html>",
+      "before_after": {
+        "before_platform": "Airbnb",
+        "before_description": "After check-in, Airbnb sends a generic 'How's your trip?' around Day 3 and a review prompt after checkout. For the remaining 53 days of an 8-week stay, the platform is completely absent. If issues arise mid-stay, the guest's only options are: (1) message the host and hope for a response, (2) endure in silence, or (3) contact Airbnb's resolution center -- a nuclear option that feels like filing a formal complaint against someone you live with.",
+        "after_description": "Split Lease sends a warm, one-question Weekly Pulse check-in every 7 days: 'How is your week going?' with three responses (Great, Fine, Could be better). 'Could be better' opens a structured, private issue-surfacing flow with category selection and a diplomatic surface-to-host toggle. The platform acts as an intermediary, sharing concerns gently rather than escalating them into confrontations.",
+        "what_changes_for_user": "The guest always has a low-stakes way to signal that something is off, without choosing between silence and nuclear escalation. The platform demonstrates that it cares about the stay experience every week, not just at the transactional endpoints. For hosts, issues are surfaced diplomatically as 'items that might need attention' rather than formal complaints."
+      },
+      "implements_principles": ["guest-works-003", "guest-feels-004", "works-002", "feels-004"],
+      "effort": "medium"
+    },
+    {
+      "id": "elem-004",
+      "name": "Returning Guest Welcome-Back Card",
+      "category": "retention_component",
+      "opportunity_id": "opp-004",
+      "source_disappointments": ["disappoint-005", "disappoint-003"],
+      "journey_phases": ["active_lease", "retention"],
+      "priority": "high",
+      "problem_it_solves": "A traveling nurse completes a wonderful 13-week stay. She knows she will return in 6 months. On Airbnb, there is no rebook button, no preferred-guest status, no relationship memory. She must search for the listing again, message the host through the same generic text box, and go through the full booking flow as a stranger. The platform has zero memory of the relationship. Worse, if she tries to arrange the rebooking directly with the host, Airbnb's terms prohibit it. This is the Amnesiac Platform: the strongest-validated disappointment in the entire corpus, confirmed by 5 independent host transcripts.",
+      "why_this_is_a_signature": "Split Lease remembers. After a great stay, the host-guest relationship persists: easy rebooking, maintained communication, returning-guest recognition. This creates a compounding moat that Airbnb cannot build because relationship continuity threatens fee intermediation. Every successful stay deepens the bond and increases switching costs organically. The Returning Guest Welcome-Back Card is the visible artifact of this philosophy -- it says 'we know you, we remember your stay, and coming back is easier than starting over.'",
+      "description": "A card that appears at the top of the host's dashboard when a previous guest's profile matches an upcoming availability window, and at the top of the guest's Stays Manager when a previously-stayed listing has availability. For the host: 'Sarah is back in Portland in March. Your guest room is available. Invite her back?' For the guest: 'Alex's room in Williamsburg is available for your March dates. Rebook in one tap?' The card shows the relationship summary: dates of previous stay, stay duration, and any mutual ratings. The rebook flow skips the full proposal cycle -- dates are pre-filled, terms are carried from the previous stay, and the host receives a 'returning guest' notification that fast-tracks acceptance.",
+      "visual_spec": {
+        "card_container": "Full-width card with subtle --gradient-purple-primary left accent bar (4px), --bg-white background, 12px border-radius, 20px padding, --shadow-purple-sm",
+        "guest_avatar": "48px circular avatar with a small purple 'returning' badge overlay (clockwise arrow icon)",
+        "relationship_summary": "Inline: 'Stayed 13 weeks, Sep-Dec 2025' in 13px DM Sans --text-gray",
+        "headline": "'Sarah is back in Portland' or 'Alex's room is available' in 18px Inter semibold --primary-purple",
+        "availability_match": "'Your room is open Mar 3 - May 25' in 14px DM Sans --text-dark",
+        "cta_button": "'Invite Back' (host) or 'Rebook' (guest) -- pill button, --secondary-purple background, white text, 14px Inter semibold",
+        "secondary_action": "'Not this time' link in 12px --text-gray below the CTA"
+      },
+      "interaction_spec": {
+        "trigger": "Appears when the platform detects an availability-schedule overlap between a previous host-guest pair. Triggered by guest updating travel dates or host updating calendar availability",
+        "host_flow": "Tap 'Invite Back' -> sends a notification to the guest with pre-filled dates and previous-stay terms -> guest accepts or proposes modifications -> streamlined 2-step acceptance (no full proposal cycle)",
+        "guest_flow": "Tap 'Rebook' -> dates pre-filled from guest's schedule, terms carried from previous stay -> host receives 'Returning guest request' with fast-track acceptance badge",
+        "dismiss": "'Not this time' removes the card for this availability window. Does not affect future matches",
+        "notification": "Host push: 'Sarah, your guest from September, is looking for a room in March. Invite her back?' Guest push: 'Alex's room in Williamsburg is available for your March trip. Rebook?'"
+      },
+      "copy_spec": {
+        "host_headline": "Sarah is back in Portland",
+        "host_subline": "Stayed 13 weeks, Sep - Dec 2025",
+        "host_availability": "Your guest room is open Mar 3 - May 25",
+        "host_cta": "Invite Back",
+        "guest_headline": "Alex's room is available",
+        "guest_subline": "You stayed 13 weeks last fall",
+        "guest_availability": "Available for your Mar 3 - May 25 dates",
+        "guest_cta": "Rebook",
+        "dismiss": "Not this time",
+        "returning_badge": "Returning Guest"
+      },
+      "html_css": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Returning Guest Welcome-Back Card - Split Lease</title><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap\" rel=\"stylesheet\"><style>:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--text-dark:#1a1a1a;--text-gray:#6b7280;--bg-white:#ffffff;--bg-light:#f9fafb;--bg-off-white:rgb(252,250,255);--border-color:#e5e7eb;--shadow-purple-sm:0 2px 4px rgba(49,19,93,0.2);--rounded-lg:8px;--rounded-xl:12px;--rounded-pill:20px;--rounded-full:50%}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-light);padding:24px;color:var(--text-dark)}.demo-label{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--secondary-purple);margin-bottom:12px}.welcome-card{background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-xl);padding:20px 24px;max-width:560px;margin:0 auto 32px;display:flex;gap:16px;align-items:flex-start;position:relative;overflow:hidden;box-shadow:var(--shadow-purple-sm)}.welcome-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(135deg,#31135D 0%,#5a2d8f 100%)}.avatar-wrap{position:relative;flex-shrink:0}.avatar-img{width:48px;height:48px;border-radius:var(--rounded-full);object-fit:cover;border:2px solid var(--bg-off-white)}.returning-badge{position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;background:var(--secondary-purple);border-radius:var(--rounded-full);display:flex;align-items:center;justify-content:center;border:2px solid var(--bg-white)}.returning-badge svg{width:10px;height:10px;color:#fff}.card-content{flex:1;min-width:0}.card-headline{font-size:18px;font-weight:600;color:var(--primary-purple);margin-bottom:4px}.card-subline{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-gray);margin-bottom:8px;display:flex;align-items:center;gap:6px}.stay-badge{background:var(--bg-off-white);color:var(--secondary-purple);font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--rounded-pill)}.card-availability{font-size:14px;color:var(--text-dark);margin-bottom:14px}.card-actions{display:flex;align-items:center;gap:12px}.cta-btn{background:var(--secondary-purple);color:#fff;border:none;padding:10px 24px;border-radius:var(--rounded-pill);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s ease}.cta-btn:hover{background:var(--accent-purple)}.dismiss-link{font-size:12px;color:var(--text-gray);text-decoration:none;cursor:pointer}.dismiss-link:hover{color:var(--secondary-purple)}</style></head><body><div style=\"max-width:560px;margin:0 auto\"><div class=\"demo-label\">Host Dashboard View</div><div class=\"welcome-card\"><div class=\"avatar-wrap\"><img src=\"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=face\" alt=\"Sarah\" class=\"avatar-img\"><div class=\"returning-badge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"><polyline points=\"23 4 23 10 17 10\"/><path d=\"M20.49 15a9 9 0 1 1-2.12-9.36L23 10\"/></svg></div></div><div class=\"card-content\"><div class=\"card-headline\">Sarah is back in Portland</div><div class=\"card-subline\"><span class=\"stay-badge\">Returning Guest</span> Stayed 13 weeks, Sep - Dec 2025</div><div class=\"card-availability\">Your guest room is open Mar 3 - May 25</div><div class=\"card-actions\"><button class=\"cta-btn\">Invite Back</button><a class=\"dismiss-link\">Not this time</a></div></div></div><div class=\"demo-label\">Guest Stays Manager View</div><div class=\"welcome-card\"><div class=\"avatar-wrap\"><img src=\"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=96&h=96&fit=crop&crop=face\" alt=\"Alex\" class=\"avatar-img\"><div class=\"returning-badge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"><polyline points=\"23 4 23 10 17 10\"/><path d=\"M20.49 15a9 9 0 1 1-2.12-9.36L23 10\"/></svg></div></div><div class=\"card-content\"><div class=\"card-headline\">Alex's room is available</div><div class=\"card-subline\"><span class=\"stay-badge\">You stayed 13 weeks</span> Williamsburg, Brooklyn</div><div class=\"card-availability\">Available for your Mar 3 - May 25 dates</div><div class=\"card-actions\"><button class=\"cta-btn\">Rebook</button><a class=\"dismiss-link\">Not this time</a></div></div></div></div></body></html>",
+      "before_after": {
+        "before_platform": "Airbnb",
+        "before_description": "After a 13-week stay, the nurse must search for the listing again, message through the generic text box, and go through the full booking flow as a stranger. No rebook button, no preferred-guest status, no relationship memory. If she tries to arrange directly with the host, Airbnb's terms prohibit off-platform transactions. The platform has zero memory of the relationship and actively discourages its continuation.",
+        "after_description": "Split Lease detects that Sarah's upcoming Portland dates overlap with Alex's availability and surfaces a Welcome-Back Card on both dashboards. The host sees 'Sarah is back in Portland. Invite her back?' The guest sees 'Alex's room is available. Rebook?' One tap initiates a streamlined rebook flow with pre-filled dates and carried-forward terms. No full proposal cycle needed.",
+        "what_changes_for_user": "Returning to a trusted host feels like coming home, not starting over. The relationship is preserved, recognized, and rewarded. Hosts retain guests they trust without inventing off-platform workarounds. The platform's retention model inverts Airbnb's: instead of fighting direct contact, it makes the on-platform relationship so valuable that neither party wants to leave."
+      },
+      "implements_principles": ["communicates-006", "feels-006", "guest-works-004"],
+      "effort": "large"
+    },
+    {
+      "id": "elem-005",
+      "name": "Proposal Ceremony Card",
+      "category": "booking_component",
+      "opportunity_id": "opp-005",
+      "source_disappointments": ["disappoint-001", "disappoint-004"],
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "priority": "medium",
+      "problem_it_solves": "Airbnb's checkout for a 3-month shared housing stay costing $4,000+ is identical to booking a weekend getaway: confirm dates, confirm guests, add payment, click pay. There is no acknowledgment that this is a significant life commitment. No step to review house norms. No mutual consent moment. The entire interaction has the emotional gravity of ordering takeout. This is the $4,000 Tax Form Checkout: the peak emotional moment of the booking journey is treated as a transactional form submission.",
+      "why_this_is_a_signature": "Split Lease treats booking as the beginning of a cohabitation relationship, not a commercial transaction. The Proposal Ceremony Card elevates the booking moment from a credit card form to a bilateral agreement that acknowledges the magnitude of what both parties are committing to. Airbnb cannot add deliberation friction to its checkout without degrading conversion for the vacation segment that generates the overwhelming majority of its revenue.",
+      "description": "A full-page card that appears when the guest finalizes their proposal and when the host accepts. It summarizes the commitment in human terms: who is staying, where, for how long, what the shared living arrangement includes, and what both parties have agreed to. The card uses ceremonial visual design -- centered layout, generous whitespace, a subtle gradient header -- to signal that this is a milestone, not a form submission. Both the guest's and host's names and photos appear side by side, framing the booking as a mutual agreement between two people. A 'Your Agreement' section lists the key terms in plain language. The CTA reads 'Confirm Agreement' rather than 'Book Now' or 'Pay.'",
+      "visual_spec": {
+        "layout": "Centered single-column, max-width 520px, generous vertical padding (40px top, 32px sides)",
+        "header": "Subtle --gradient-purple-primary background fading to white, containing the section title 'Your Shared Living Agreement' in 24px Inter bold white, transitioning to --primary-purple",
+        "people_section": "Two circular avatars (64px) side by side with a small connecting line or handshake icon between them. Guest name left, host name right, both in 16px Inter semibold --primary-purple",
+        "terms_section": "Clean list with icons: calendar icon + 'Mar 3 - May 25, 2026 (12 weeks)', home icon + 'Private room, shared bath, Williamsburg', dollar icon + '$1,800/month total', clipboard icon + '3 house norms agreed'. Each in 14px DM Sans --text-dark",
+        "norms_preview": "Expandable section showing the top 3 house norms the guest reviewed: 'Quiet after 10pm', 'Shared kitchen cleaned daily', 'Guests notify 24hrs ahead'. Styled as subtle pills",
+        "cta_button": "Full-width, 48px height, --secondary-purple background, 'Confirm Agreement' in 16px Inter bold white, --rounded-pill",
+        "trust_footer": "'This is a mutual agreement. Both you and Alex have reviewed these terms.' in 12px DM Sans --text-gray, centered below CTA"
+      },
+      "interaction_spec": {
+        "guest_side": "Appears after the guest has selected dates, reviewed pricing, and reviewed house norms. This is the final step before the proposal is sent to the host.",
+        "host_side": "Appears when the host is ready to accept the proposal. Shows the same bilateral view: host's terms + guest's profile + mutual agreement summary.",
+        "animation": "Card fades in with a subtle scale-up (0.97 to 1.0) over 300ms, creating a moment of arrival rather than a jarring page load",
+        "confirmation": "After tapping 'Confirm Agreement', a brief celebration moment: the card transitions to a confirmation state with a purple checkmark and 'Agreement confirmed. Your stay begins Mar 3.' The transition takes 400ms",
+        "back_action": "'Review terms' link above the CTA allows the guest to go back and modify before confirming"
+      },
+      "copy_spec": {
+        "header_title": "Your Shared Living Agreement",
+        "dates_line": "Mar 3 - May 25, 2026 (12 weeks)",
+        "space_line": "Private room, shared bath in Williamsburg, Brooklyn",
+        "cost_line": "$1,800/month total",
+        "norms_line": "3 house norms reviewed and agreed",
+        "norms_examples": ["Quiet after 10pm", "Shared kitchen cleaned daily", "Guests notify 24hrs ahead for visitors"],
+        "cta_text": "Confirm Agreement",
+        "trust_footer": "This is a mutual agreement. Both you and Alex have reviewed these terms.",
+        "confirmation_text": "Agreement confirmed. Your stay begins Mar 3.",
+        "back_link": "Review terms"
+      },
+      "html_css": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Proposal Ceremony Card - Split Lease</title><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap\" rel=\"stylesheet\"><style>:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--text-dark:#1a1a1a;--text-gray:#6b7280;--text-purple:rgb(82,31,147);--bg-white:#ffffff;--bg-light:#f9fafb;--bg-off-white:rgb(252,250,255);--border-color:#e5e7eb;--shadow-purple-md:0 4px 8px rgba(49,19,93,0.15);--rounded-lg:8px;--rounded-xl:12px;--rounded-pill:20px;--rounded-full:50%}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-light);padding:24px;color:var(--text-dark);display:flex;justify-content:center}.ceremony-card{max-width:520px;width:100%;background:var(--bg-white);border-radius:var(--rounded-xl);overflow:hidden;box-shadow:var(--shadow-purple-md)}.ceremony-header{background:linear-gradient(135deg,#31135D 0%,#5a2d8f 60%,#ffffff 100%);padding:40px 32px 32px;text-align:center}.ceremony-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.7);margin-bottom:8px}.ceremony-headline{font-size:24px;font-weight:700;color:#ffffff}.people-section{display:flex;align-items:center;justify-content:center;gap:20px;padding:28px 32px;border-bottom:1px solid var(--border-color)}.person{text-align:center}.person-avatar{width:64px;height:64px;border-radius:var(--rounded-full);object-fit:cover;border:3px solid var(--bg-off-white);margin-bottom:6px}.person-name{font-size:14px;font-weight:600;color:var(--primary-purple)}.person-role{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--text-gray)}.connector{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--accent-purple)}.connector svg{width:24px;height:24px}.connector-text{font-family:'DM Sans',sans-serif;font-size:10px;color:var(--text-gray);text-transform:uppercase;letter-spacing:0.05em}.terms-section{padding:24px 32px}.terms-title{font-size:14px;font-weight:600;color:var(--primary-purple);margin-bottom:16px}.term-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}.term-icon{width:32px;height:32px;background:var(--bg-off-white);border-radius:var(--rounded-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--secondary-purple)}.term-icon svg{width:16px;height:16px}.term-text{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-dark);line-height:1.4}.norms-section{margin-top:8px;padding:12px 16px;background:var(--bg-off-white);border-radius:var(--rounded-lg)}.norms-title{font-size:12px;font-weight:600;color:var(--secondary-purple);margin-bottom:8px}.norm-pill{display:inline-block;padding:4px 10px;background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-pill);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-dark);margin:0 6px 6px 0}.ceremony-footer{padding:24px 32px 32px;text-align:center}.back-link{display:block;font-size:13px;color:var(--secondary-purple);text-decoration:none;margin-bottom:16px;cursor:pointer}.back-link:hover{color:var(--accent-purple)}.confirm-btn{width:100%;padding:14px;background:var(--secondary-purple);color:#fff;border:none;border-radius:var(--rounded-pill);font-family:'Inter',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:background 0.2s ease;min-height:48px}.confirm-btn:hover{background:var(--accent-purple)}.trust-footer{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-gray);margin-top:14px;line-height:1.4}</style></head><body><div class=\"ceremony-card\"><div class=\"ceremony-header\"><div class=\"ceremony-title\">Split Lease</div><div class=\"ceremony-headline\">Your Shared Living Agreement</div></div><div class=\"people-section\"><div class=\"person\"><img src=\"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&h=128&fit=crop&crop=face\" alt=\"Sarah\" class=\"person-avatar\"><div class=\"person-name\">Sarah M.</div><div class=\"person-role\">Guest</div></div><div class=\"connector\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path d=\"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M23 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/></svg><div class=\"connector-text\">Mutual</div></div><div class=\"person\"><img src=\"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=128&h=128&fit=crop&crop=face\" alt=\"Alex\" class=\"person-avatar\"><div class=\"person-name\">Alex R.</div><div class=\"person-role\">Host</div></div></div><div class=\"terms-section\"><div class=\"terms-title\">Agreement Terms</div><div class=\"term-row\"><div class=\"term-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"/><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"/><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"/></svg></div><div class=\"term-text\">Mar 3 - May 25, 2026 (12 weeks)</div></div><div class=\"term-row\"><div class=\"term-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><polyline points=\"9 22 9 12 15 12 15 22\"/></svg></div><div class=\"term-text\">Private room, shared bath in Williamsburg, Brooklyn</div></div><div class=\"term-row\"><div class=\"term-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"23\"/><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"/></svg></div><div class=\"term-text\">$1,800/month total &mdash; no additional fees</div></div><div class=\"norms-section\"><div class=\"norms-title\">House Norms Reviewed</div><span class=\"norm-pill\">Quiet after 10pm</span><span class=\"norm-pill\">Shared kitchen cleaned daily</span><span class=\"norm-pill\">24hr notice for visitors</span></div></div><div class=\"ceremony-footer\"><a class=\"back-link\">&larr; Review terms</a><button class=\"confirm-btn\">Confirm Agreement</button><div class=\"trust-footer\">This is a mutual agreement. Both you and Alex have reviewed these terms.</div></div></div></body></html>",
+      "before_after": {
+        "before_platform": "Airbnb",
+        "before_description": "The checkout for a $4,370 three-month stay is a single form: confirm dates, confirm guests, add payment method, click pay. The total cost appears as a line item at the bottom, identical in visual weight to a $180 weekend booking. No house norms review, no mutual consent moment, no acknowledgment that the guest is about to move into a stranger's home for 3 months.",
+        "after_description": "Split Lease presents a Proposal Ceremony Card: a centered, ceremonial layout showing both the guest's and host's photos side by side as mutual parties to an agreement. Terms are listed in plain language (dates, space, cost, house norms). The CTA reads 'Confirm Agreement' not 'Pay Now.' The card feels like signing a shared commitment, not swiping a credit card.",
+        "what_changes_for_user": "The booking moment matches the psychological gravity of the commitment. Both parties see each other as equal participants in a mutual agreement, not as buyer and seller in a transaction. The house norms are reviewed and agreed upon before the commitment, preventing the post-booking discovery of incompatible living expectations."
+      },
+      "implements_principles": ["communicates-005", "behaves-003", "guest-communicates-005"],
+      "effort": "medium"
+    },
+    {
+      "id": "elem-006",
+      "name": "Arrival Welcome Kit",
+      "category": "active_stay_component",
+      "opportunity_id": "opp-002",
+      "source_disappointments": ["disappoint-010", "disappoint-003"],
+      "journey_phases": ["move_in", "active_lease"],
+      "priority": "medium",
+      "problem_it_solves": "A guest arrives at a shared room after a cross-country flight for a 10-week work contract. They find the lockbox, get the key, enter the apartment. The host left a note with the wifi password. That is the entirety of Airbnb's arrival experience. No welcome, no neighborhood orientation, no 'here is what your first 48 hours might look like,' no acknowledgment that this person just made a major life transition. This is the Arrival Void: the moment of maximum psychological vulnerability receives zero product investment.",
+      "why_this_is_a_signature": "Split Lease turns the arrival into a milestone. The Welcome Kit is a personalized in-app experience that appears on Day 1, transforming the lockbox-and-wifi-password arrival into a structured onboarding moment. No platform in the category acknowledges that arriving at a shared living space in a new city is a significant life event. The surprise is the thoughtfulness.",
+      "description": "A full-screen in-app card sequence that appears when the guest checks in on Day 1 of their stay. Card 1: 'Welcome to your Brooklyn home' with the host's photo and a personal greeting message. Card 2: 'Your first 48 hours' -- a simple checklist: wifi password, nearest grocery store, best coffee shop, nearest transit, host's preferred way to communicate. Card 3: 'Meet your host' -- a reminder of the host's daily routine and communication style (pulled from the Host Identity Card data). Card 4: 'Your stay at a glance' -- a miniature timeline of the stay with the first Weekly Pulse check-in highlighted at Day 7. The sequence is swipe-through, taking under 60 seconds, and all content is saved to the Stays Manager for later reference.",
+      "visual_spec": {
+        "layout": "Full-width card stack, swipe-through horizontally on mobile, paginated on desktop, max-width 480px",
+        "card_1_welcome": "Large host photo (120px avatar) centered, 'Welcome to your Brooklyn home' in 24px Inter bold --primary-purple, host's personal greeting in 14px DM Sans --text-dark below. Subtle --bg-off-white background",
+        "card_2_first48": "Checklist with Feather icons: wifi, map-pin, coffee, navigation, message-circle. Each item is a single line in 14px DM Sans --text-dark with the value in --secondary-purple. Items have checkable circles that the guest can mark as 'got it'",
+        "card_3_meet_host": "Compact version of Host Identity Card: lifestyle tags + daily routine summary. Styled as a reminder, not a repeat of the listing page",
+        "card_4_timeline": "Horizontal timeline showing stay weeks (W1-W10), with Day 1 marked as 'Today' in --secondary-purple and Day 7 marked as 'First check-in.' Active week highlighted with --accent-purple pip",
+        "pagination": "Dot indicators at bottom, active dot in --secondary-purple, inactive in --border-color",
+        "progress": "'1 of 4' indicator in top-right corner, 11px DM Sans --text-gray"
+      },
+      "interaction_spec": {
+        "trigger": "Appears automatically when the guest opens the app on check-in day (Day 1). Can also be triggered manually from the Stays Manager",
+        "navigation": "Swipe left/right on mobile, click arrows on desktop, or tap dots",
+        "dismissal": "'Skip' link in top-right corner. Dismissed content saves to Stays Manager",
+        "checklist_interaction": "On Card 2, tapping a checklist item marks it as 'done' with a purple checkmark animation. Progress persists across app sessions",
+        "duration": "Under 60 seconds to swipe through all 4 cards. Each card is readable in under 15 seconds",
+        "persistence": "All Welcome Kit content accessible from a 'Welcome Kit' section in the Stays Manager for the duration of the stay"
+      },
+      "copy_spec": {
+        "card_1_title": "Welcome to your Brooklyn home",
+        "card_1_greeting": "Hey Sarah! I'm glad you're here. Make yourself at home. The kitchen is all yours -- just keep an eye on the coffee grounds, I make a lot of coffee. - Alex",
+        "card_2_title": "Your first 48 hours",
+        "card_2_wifi": "Wifi: BrooklynNest_5G / password: sunrise2026",
+        "card_2_grocery": "Nearest grocery: Trader Joe's, 0.3 mi",
+        "card_2_coffee": "Best coffee: Devocion, 0.2 mi",
+        "card_2_transit": "Nearest subway: Bedford Ave (L train), 4 min walk",
+        "card_2_comm": "Alex prefers texting for quick questions",
+        "card_3_title": "Living with Alex",
+        "card_4_title": "Your stay at a glance",
+        "card_4_today": "Today: Move in",
+        "card_4_day7": "Day 7: First check-in"
+      },
+      "html_css": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Arrival Welcome Kit - Split Lease</title><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap\" rel=\"stylesheet\"><style>:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--text-dark:#1a1a1a;--text-gray:#6b7280;--text-purple:rgb(82,31,147);--bg-white:#ffffff;--bg-light:#f9fafb;--bg-off-white:rgb(252,250,255);--border-color:#e5e7eb;--shadow-purple-sm:0 2px 4px rgba(49,19,93,0.2);--shadow-purple-md:0 4px 8px rgba(49,19,93,0.15);--rounded-lg:8px;--rounded-xl:12px;--rounded-pill:20px;--rounded-full:50%}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-light);padding:24px;color:var(--text-dark)}.kit-container{max-width:480px;margin:0 auto;position:relative}.kit-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.kit-progress{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--text-gray)}.skip-link{font-size:12px;color:var(--text-gray);text-decoration:none;cursor:pointer}.skip-link:hover{color:var(--secondary-purple)}.cards-wrapper{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:16px;padding-bottom:16px;scrollbar-width:none;-ms-overflow-style:none}.cards-wrapper::-webkit-scrollbar{display:none}.kit-card{min-width:100%;scroll-snap-align:start;background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-xl);overflow:hidden;box-shadow:var(--shadow-purple-sm)}.card-inner{padding:28px 24px}.welcome-card-inner{text-align:center;padding:40px 24px}.welcome-avatar{width:120px;height:120px;border-radius:var(--rounded-full);object-fit:cover;border:4px solid var(--bg-off-white);margin-bottom:16px}.welcome-title{font-size:24px;font-weight:700;color:var(--primary-purple);margin-bottom:12px}.welcome-greeting{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-dark);line-height:1.6;background:var(--bg-off-white);padding:16px;border-radius:var(--rounded-lg);text-align:left;font-style:italic}.card-title{font-size:18px;font-weight:600;color:var(--primary-purple);margin-bottom:16px}.checklist{list-style:none}.checklist-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--bg-light)}.checklist-item:last-child{border-bottom:none}.check-circle{width:24px;height:24px;border:2px solid var(--border-color);border-radius:var(--rounded-full);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s ease}.check-circle.checked{background:var(--secondary-purple);border-color:var(--secondary-purple);color:#fff}.check-circle svg{width:14px;height:14px;opacity:0}.check-circle.checked svg{opacity:1}.item-icon{color:var(--secondary-purple);flex-shrink:0;margin-top:2px}.item-content{flex:1}.item-label{font-size:12px;font-weight:600;color:var(--text-gray);text-transform:uppercase;letter-spacing:0.03em}.item-value{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-dark);margin-top:2px}.item-value strong{color:var(--secondary-purple);font-weight:600}.timeline-section{padding:8px 0}.timeline-bar{display:flex;align-items:center;gap:4px;margin-bottom:16px;overflow-x:auto}.week-pip{width:32px;height:32px;border-radius:var(--rounded-full);background:var(--bg-off-white);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:var(--text-gray);flex-shrink:0}.week-pip.active{background:var(--secondary-purple);color:#fff}.week-pip.highlight{background:var(--accent-purple);color:#fff}.timeline-legend{display:flex;flex-direction:column;gap:10px}.legend-item{display:flex;align-items:center;gap:10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-dark)}.legend-dot{width:10px;height:10px;border-radius:var(--rounded-full);flex-shrink:0}.legend-dot.today{background:var(--secondary-purple)}.legend-dot.checkin{background:var(--accent-purple)}.dots{display:flex;justify-content:center;gap:8px;margin-top:16px}.dot{width:8px;height:8px;border-radius:var(--rounded-full);background:var(--border-color);cursor:pointer}.dot.active{background:var(--secondary-purple)}</style></head><body><div class=\"kit-container\"><div class=\"kit-header\"><span class=\"kit-progress\">1 of 4</span><a class=\"skip-link\">Skip</a></div><div class=\"cards-wrapper\"><div class=\"kit-card\"><div class=\"welcome-card-inner\"><img src=\"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&h=240&fit=crop&crop=face\" alt=\"Alex\" class=\"welcome-avatar\"><div class=\"welcome-title\">Welcome to your Brooklyn home</div><div class=\"welcome-greeting\">\"Hey Sarah! I'm glad you're here. Make yourself at home. The kitchen is all yours -- just keep an eye on the coffee grounds, I make a lot of coffee.\" - Alex</div></div></div><div class=\"kit-card\"><div class=\"card-inner\"><div class=\"card-title\">Your first 48 hours</div><ul class=\"checklist\"><li class=\"checklist-item\"><div class=\"check-circle\" onclick=\"this.classList.toggle('checked')\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"><polyline points=\"20 6 9 17 4 12\"/></svg></div><div class=\"item-content\"><div class=\"item-label\">Wifi</div><div class=\"item-value\"><strong>BrooklynNest_5G</strong> / sunrise2026</div></div></li><li class=\"checklist-item\"><div class=\"check-circle\" onclick=\"this.classList.toggle('checked')\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"><polyline points=\"20 6 9 17 4 12\"/></svg></div><div class=\"item-content\"><div class=\"item-label\">Grocery</div><div class=\"item-value\">Trader Joe's, <strong>0.3 mi</strong></div></div></li><li class=\"checklist-item\"><div class=\"check-circle\" onclick=\"this.classList.toggle('checked')\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"><polyline points=\"20 6 9 17 4 12\"/></svg></div><div class=\"item-content\"><div class=\"item-label\">Coffee</div><div class=\"item-value\">Devocion, <strong>0.2 mi</strong></div></div></li><li class=\"checklist-item\"><div class=\"check-circle\" onclick=\"this.classList.toggle('checked')\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"><polyline points=\"20 6 9 17 4 12\"/></svg></div><div class=\"item-content\"><div class=\"item-label\">Transit</div><div class=\"item-value\">Bedford Ave (L train), <strong>4 min walk</strong></div></div></li><li class=\"checklist-item\"><div class=\"check-circle\" onclick=\"this.classList.toggle('checked')\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"><polyline points=\"20 6 9 17 4 12\"/></svg></div><div class=\"item-content\"><div class=\"item-label\">Communication</div><div class=\"item-value\">Alex prefers <strong>texting</strong> for quick questions</div></div></li></ul></div></div><div class=\"kit-card\"><div class=\"card-inner\"><div class=\"card-title\">Living with Alex</div><div style=\"display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px\"><span style=\"background:var(--bg-off-white);color:var(--text-purple);font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px\">Early riser</span><span style=\"background:var(--bg-off-white);color:var(--text-purple);font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px\">Works from home</span><span style=\"background:var(--bg-off-white);color:var(--text-purple);font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px\">Cat in the house</span></div><div style=\"background:var(--bg-light);border-radius:8px;padding:14px\"><div style=\"font-size:13px;margin-bottom:8px\"><strong style=\"color:var(--secondary-purple)\">Morning:</strong> Up by 6:30am. Coffee ready by 7. Kitchen free after 8.</div><div style=\"font-size:13px;margin-bottom:8px\"><strong style=\"color:var(--secondary-purple)\">Afternoon:</strong> Works from living room desk. Shared space is quiet.</div><div style=\"font-size:13px;margin-bottom:8px\"><strong style=\"color:var(--secondary-purple)\">Evening:</strong> Home by 6pm. Dinner around 7. Living room shared until 10.</div><div style=\"font-size:13px\"><strong style=\"color:var(--secondary-purple)\">Night:</strong> Quiet hours after 10pm.</div></div></div></div><div class=\"kit-card\"><div class=\"card-inner\"><div class=\"card-title\">Your stay at a glance</div><div class=\"timeline-section\"><div class=\"timeline-bar\"><div class=\"week-pip active\">W1</div><div class=\"week-pip\">W2</div><div class=\"week-pip\">W3</div><div class=\"week-pip\">W4</div><div class=\"week-pip\">W5</div><div class=\"week-pip\">W6</div><div class=\"week-pip\">W7</div><div class=\"week-pip\">W8</div><div class=\"week-pip\">W9</div><div class=\"week-pip\">W10</div></div><div class=\"timeline-legend\"><div class=\"legend-item\"><div class=\"legend-dot today\"></div><span><strong>Today</strong> -- Move in day</span></div><div class=\"legend-item\"><div class=\"legend-dot checkin\"></div><span><strong>Day 7</strong> -- First weekly check-in</span></div><div class=\"legend-item\"><div class=\"legend-dot\" style=\"background:var(--text-gray)\"></div><span><strong>Day 84</strong> -- Check out</span></div></div></div></div></div></div><div class=\"dots\"><div class=\"dot active\"></div><div class=\"dot\"></div><div class=\"dot\"></div><div class=\"dot\"></div></div></div></body></html>",
+      "before_after": {
+        "before_platform": "Airbnb",
+        "before_description": "The guest finds a lockbox, gets a key, enters the apartment. The host left a note with the wifi password. The app shows a confirmation that check-in occurred and a link to the house manual (if the host created one). No personalized welcome, no neighborhood onboarding, no acknowledgment of the life transition. The platform's involvement in the arrival is a lockbox code.",
+        "after_description": "Split Lease presents a 4-card Welcome Kit on Day 1: (1) a personal greeting from the host with their photo, (2) a 'First 48 hours' checklist with wifi, grocery, coffee, transit, and communication preferences, (3) a 'Living with Alex' reminder of daily routines and lifestyle tags, and (4) a stay timeline showing when the first check-in happens. All content is checkable and saved to the Stays Manager.",
+        "what_changes_for_user": "Arrival at a new shared living space feels like being welcomed by someone who thought about your experience, not like checking into a self-service kiosk. The guest has everything they need for their first 48 hours in one place. The host's communication preferences are front and center, preventing the awkward 'should I text or knock?' uncertainty."
+      },
+      "implements_principles": ["guest-works-003", "guest-feels-006", "feels-008"],
+      "effort": "medium"
+    }
+  ]
+}</script>
+
+  <header class="report-header">
+    <h1>UI Element Library</h1>
+    <div class="lens-label">Airbnb x Innovator's Dilemma (Ch 1-4) -- 6 Elements</div>
+    <div class="report-meta">
+      <span>Run 2026-02-13_2111</span>
+      <span>Reverse Benchmark</span>
+      <span>Split Lease Design Stack</span>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-filter="all">All (6)</button>
+    </div>
+    <div class="element-grid" id="element-grid"></div>
+  </main>
+
+  <footer style="text-align:center;padding:32px;color:var(--text-light-gray);font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">
+    SplitLease Reverse Benchmark Pipeline v1.0 -- Element Library
+  </footer>
+
+  <script>
+    function loadJSON(id){try{return JSON.parse(document.getElementById(id)?.textContent||'{}');}catch(e){console.error('JSON parse error for',id,e);return {};}}
+    function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+
+    const L4=loadJSON('data-layer-4');
+    const elements=L4.elements||[];
+
+    // Build category filters
+    const categories=new Set();
+    elements.forEach(el=>{if(el.category)categories.add(el.category);});
+    const filterBar=document.getElementById('filter-bar');
+    categories.forEach(cat=>{
+      const count=elements.filter(e=>e.category===cat).length;
+      const btn=document.createElement('button');
+      btn.className='filter-btn';
+      btn.dataset.filter=cat;
+      btn.textContent=cat.replace(/_/g,' ')+' ('+count+')';
+      filterBar.appendChild(btn);
+    });
+
+    // Priority filters
+    ['critical','high','medium'].forEach(p=>{
+      const count=elements.filter(e=>e.priority===p).length;
+      if(count>0){
+        const btn=document.createElement('button');
+        btn.className='filter-btn';
+        btn.dataset.filter='priority-'+p;
+        btn.textContent=p+' priority ('+count+')';
+        filterBar.appendChild(btn);
+      }
+    });
+
+    // Filter logic
+    filterBar.addEventListener('click',(e)=>{
+      const btn=e.target.closest('.filter-btn');
+      if(!btn)return;
+      filterBar.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter=btn.dataset.filter;
+      document.querySelectorAll('.elem-card').forEach(card=>{
+        if(filter==='all'){card.style.display='';}
+        else if(filter.startsWith('priority-')){
+          card.style.display=card.dataset.priority===filter.replace('priority-','')?'':'none';
+        }else{
+          card.style.display=card.dataset.category===filter?'':'none';
+        }
+      });
+    });
+
+    // Render elements
+    const grid=document.getElementById('element-grid');
+    elements.forEach(el=>{
+      const ba=el.before_after||{};
+      const beforeText=ba.before||ba.before_description||'';
+      const afterText=ba.after||ba.after_description||'';
+      const beforeLabel=ba.before_platform?'Before ('+esc(ba.before_platform)+')':'Before';
+      const catClass='cat-'+(el.category||'').replace(/\s/g,'_');
+
+      let html='<div class="elem-card" data-category="'+esc(el.category||'')+'" data-priority="'+esc(el.priority||'medium')+'">';
+
+      // Top section: name, badges, description
+      html+='<div class="elem-card-top">';
+      html+='<div class="elem-card-header"><h3>'+esc(el.name)+'</h3><div class="badge-row"><span class="type-badge '+catClass+'">'+esc((el.category||'').replace(/_/g,' '))+'</span><span class="priority-badge priority-'+(el.priority||'medium')+'">'+esc(el.priority||'medium')+'</span></div></div>';
+      html+='<div class="phase-tags">'+(el.journey_phases||[]).map(p=>'<span class="phase-tag">'+esc(p.replace(/_/g,' '))+'</span>').join('')+'</div>';
+      html+='<div class="elem-desc"><p style="margin-bottom:8px;"><strong>Problem it solves:</strong> '+esc(el.problem_it_solves)+'</p>';
+      html+='<p style="margin-bottom:8px;"><strong>Why this is a signature:</strong> '+esc(el.why_this_is_a_signature)+'</p>';
+      html+='<p>'+esc(el.description)+'</p></div>';
+      html+='</div>';
+
+      // Live preview
+      if(el.html_css){
+        const blob='data:text/html;charset=utf-8,'+encodeURIComponent(el.html_css);
+        html+='<div style="padding:20px 28px 0;"><div class="section-label">Live Preview</div></div>';
+        html+='<div style="padding:0 28px 20px;"><iframe src="'+blob+'" sandbox="allow-scripts" loading="lazy" class="preview-frame" style="border:1px solid var(--border-color);border-radius:var(--radius-md);"></iframe></div>';
+      }
+
+      // Before / After
+      if(beforeText||afterText){
+        html+='<div class="before-after">';
+        html+='<div class="ba-box before"><label>'+beforeLabel+'</label>'+esc(beforeText)+'</div>';
+        html+='<div class="ba-box after"><label>After (Split Lease)</label>'+esc(afterText)+'</div>';
+        html+='</div>';
+      }
+
+      // What changes for user
+      if(ba.what_changes_for_user){
+        html+='<div class="user-change"><div class="user-change-box"><div class="user-change-label">What Changes For The User</div>'+esc(ba.what_changes_for_user)+'</div></div>';
+      }
+
+      // Meta row
+      html+='<div class="elem-meta">';
+      html+='<div class="meta-item"><span class="meta-label">ID:</span> '+esc(el.id)+'</div>';
+      html+='<div class="meta-item"><span class="meta-label">Opportunity:</span> '+esc(el.opportunity_id)+'</div>';
+      html+='<div class="meta-item"><span class="meta-label">Effort:</span> '+esc(el.effort)+'</div>';
+      if(el.implements_principles?.length){html+='<div class="meta-item"><span class="meta-label">Principles:</span> '+esc(el.implements_principles.join(', '))+'</div>';}
+      html+='</div>';
+
+      html+='</div>';
+
+      grid.insertAdjacentHTML('beforeend',html);
+    });
+  </script>
+</body>
+</html>

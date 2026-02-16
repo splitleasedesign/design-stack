@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library of Elements — Zillow × Innovator's Dilemma (Ch 5-7)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--text-dark:#1a1a1a;--text-gray:#6b7280;--text-light-gray:#9ca3af;--text-description:#374151;--bg-white:#ffffff;--bg-light:#f9fafb;--bg-off-white:rgb(252,250,255);--bg-light-gray:#f3f4f6;--border-color:#e5e7eb;--border-light:#f3f4f6;--shadow-sm:0 1px 3px rgba(0,0,0,0.05);--shadow-md:0 2px 8px rgba(0,0,0,0.08);--shadow-purple-sm:0 2px 4px rgba(49,19,93,0.2);--signal-warn:#C4841D;--signal-warn-bg:#FDF4E3;--signal-danger:#C53030;--signal-danger-bg:#FDE8E8;--signal-info:#2563EB;--signal-info-bg:#EFF6FF;--signal-success:#4B47CE;--signal-success-bg:#E6F5EE;--radius-sm:6px;--radius-md:8px;--radius-lg:12px;--ease-out:cubic-bezier(0.16,1,0.3,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;color:var(--text-dark);background:var(--bg-light);line-height:1.6}
+.report-header{background:linear-gradient(135deg,#31135D 0%,rgba(109,49,194,0.9) 100%);color:white;padding:40px 48px 36px}
+.report-header h1{font-family:'Inter',sans-serif;font-size:32px;font-weight:700;margin-bottom:6px;letter-spacing:-0.01em}
+.report-header .lens-label{font-size:15px;opacity:0.8;margin-bottom:14px}
+.report-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:12px;font-family:'Inter',sans-serif;font-weight:500;opacity:0.75}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:9999px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif}
+.badge-complete{background:rgba(255,255,255,0.2);color:white}
+.main-content{max-width:1200px;margin:0 auto;padding:32px 48px}
+.section-title{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--primary-purple);margin-bottom:20px}
+.toc{background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:24px 28px;margin-bottom:32px;box-shadow:var(--shadow-sm)}
+.toc h3{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:var(--primary-purple);margin-bottom:12px}
+.toc-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-light);cursor:pointer;transition:all 150ms}
+.toc-item:last-child{border-bottom:none}
+.toc-item:hover{color:var(--secondary-purple)}
+.toc-item .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--secondary-purple);color:white;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;flex-shrink:0}
+.toc-item .name{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--primary-purple);flex:1}
+.toc-item .cat{padding:2px 10px;border-radius:9999px;font-size:11px;font-family:'Inter',sans-serif;font-weight:600;background:rgba(109,49,194,0.08);color:var(--secondary-purple)}
+.toc-item .pri{padding:2px 10px;border-radius:9999px;font-size:11px;font-family:'Inter',sans-serif;font-weight:600}
+.pri-1,.pri-2,.pri-3{background:var(--signal-danger-bg);color:var(--signal-danger)}
+.pri-4,.pri-5{background:var(--signal-warn-bg);color:var(--signal-warn)}
+.pri-6,.pri-7{background:var(--bg-light-gray);color:var(--text-gray)}
+.el-card{background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:32px;margin-bottom:28px;box-shadow:var(--shadow-sm);scroll-margin-top:20px}
+.el-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border-light);flex-wrap:wrap}
+.el-card-header h3{font-family:'Inter',sans-serif;font-size:20px;font-weight:700;color:var(--primary-purple);flex:1;min-width:200px}
+.type-badge{padding:3px 10px;border-radius:9999px;font-size:11px;font-family:'Inter',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;background:rgba(109,49,194,0.08);color:var(--secondary-purple)}
+.priority-badge{padding:3px 10px;border-radius:9999px;font-size:11px;font-family:'Inter',sans-serif;font-weight:600}
+.phase-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.phase-tag{padding:2px 8px;border-radius:var(--radius-sm);font-size:11px;font-family:'Inter',sans-serif;font-weight:600;background:rgba(109,49,194,0.08);color:var(--secondary-purple)}
+.severity-pill{padding:2px 10px;border-radius:9999px;font-size:11px;font-family:'Inter',sans-serif;font-weight:600;background:var(--bg-off-white);color:var(--text-gray);border:1px solid var(--border-color)}
+.section-subtitle{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-gray);margin-bottom:12px;margin-top:20px}
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.before-after .before,.before-after .after{padding:14px 16px;border-radius:var(--radius-md);font-size:13px;line-height:1.6}
+.before-after .before{background:var(--signal-danger-bg);border-left:3px solid var(--signal-danger)}
+.before-after .after{background:var(--signal-success-bg);border-left:3px solid var(--signal-success)}
+.before-after label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-gray);margin-bottom:4px;font-family:'Inter',sans-serif}
+@media(max-width:700px){.before-after{grid-template-columns:1fr}.main-content{padding:20px 16px}.report-header{padding:28px 16px}.el-card{padding:20px 16px}}
+@media print{body{background:white}.el-card{page-break-inside:avoid;box-shadow:none;border:1px solid #ddd}iframe{display:none}.report-header{background:#31135D!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style>
+</head>
+<body>
+  <script id="data-layer-4" type="application/json">{
+  "lens": {
+    "competitor": "Zillow",
+    "book": "The Innovator's Dilemma — Ch 5-7",
+    "analysis_angle": "Zillow's size and organizational structure make it structurally unable to serve mid-term shared housing. Zero Zillow mentions in 68 transcripts.",
+    "element_thesis": "Each element below encodes a structural disability of Zillow into a buildable UI component. These are not features Zillow chose not to build — they are features Zillow's resource allocation processes (Ch 5), growth requirements (Ch 6), and planning methods (Ch 7) will rationally, correctly kill. Every element traces to a validated disappointment, a ranked opportunity, and a Christensen chapter that explains why the incumbent cannot respond."
+  },
+  "elements": [
+    {
+      "id": "elem-001",
+      "name": "Week-Pattern Search Filter with Day-of-Week Selector, Duration Slider, and Schedule-Flexibility Toggle",
+      "category": "search",
+      "opportunity_id": "opp-001",
+      "source_disappointments": ["disappoint-002", "disappoint-009"],
+      "journey_phases": ["guest_discovery", "guest_search"],
+      "priority": 1,
+      "problem_it_solves": "No housing platform in any category lets users search by schedule. A management consultant who works Tuesday-Thursday in Chicago must manually evaluate 4,200 Zillow results that all assume 7-day occupancy. The search engine is blind to time. This element makes time the primary search dimension — the thing you enter first, before location, before price.",
+      "why_this_is_a_signature": "When a traveling nurse enters 'Monday-Friday, 13 weeks, Nashville' and gets results from hosts who specifically offer that arrangement, the moment of recognition — 'this platform sees me' — is the signature. No platform in real estate, hospitality, or coworking has ever treated schedule as a first-class search dimension. This is the beer sommelier: excellence in a dimension the entire category treats as irrelevant.",
+      "description": "A search filter component that places schedule above all other search dimensions. Features: (1) A row of 7 day-of-week toggle buttons (M T W T F S S) using Split Lease's signature day badges, where selected days light up in purple. (2) A duration slider from 4 weeks to 52 weeks with labeled tick marks. (3) A 'Schedule Flexibility' toggle with three states: Exact (these days only), Flexible (+/- 1 day), and Approximate (show similar patterns). The flexibility toggle addresses the Schedule Uncertainty Paradox (new-003) — users who don't know their exact schedule yet. The entire filter is positioned ABOVE the location and price filters, signaling that schedule is the most important thing about your housing need.",
+      "visual_spec": {
+        "layout": "Horizontal strip, full-width, positioned at the top of the search panel above location/price filters",
+        "day_badges": "7 circular badges, 40px diameter, 8px gap between each. Inactive: bg-light-gray (#f3f4f6), text-light-gray (#9ca3af). Active: chat-purple (rgb(75, 71, 206)), white text. Hover: bg-off-white with purple-tinted border.",
+        "duration_slider": "Range input, min 4, max 52, step 1. Track: 4px tall, bg-light-gray. Fill: secondary-purple gradient. Thumb: 20px circle, white with purple-sm shadow.",
+        "flexibility_toggle": "Three-option segmented control. Inactive segment: bg-light-gray, text-gray. Active segment: secondary-purple background, white text. Border-radius: rounded-pill (20px).",
+        "hierarchy_signal": "The day selector row is visually dominant (largest elements, highest contrast). Duration is secondary. Flexibility is tertiary. This visual hierarchy communicates: your schedule matters most.",
+        "container": "Background: white. Border: 1px border-color. Border-radius: rounded-xl (12px). Padding: 24px. Shadow: shadow-purple-sm on hover."
+      },
+      "interaction_spec": {
+        "day_toggle": "Tap/click to toggle day on/off. Immediate visual feedback with 0.1s transition. Minimum 2 days required to search.",
+        "duration_slider": "Drag or tap to set duration. Real-time label update showing 'X weeks (Month Day - Month Day)' based on today's date.",
+        "flexibility_toggle": "Tap to switch between Exact, Flexible, Approximate. Tooltip on each explains the behavior.",
+        "search_trigger": "Results update in real-time as user modifies the schedule filter (debounced 300ms). No separate 'Search' button needed for schedule changes.",
+        "empty_state": "If no days are selected, show prompt: 'Select your days to find schedule-matched housing'",
+        "keyboard": "Tab between day badges, Enter/Space to toggle. Arrow keys navigate duration slider."
+      },
+      "copy_spec": {
+        "section_label": "Your Schedule",
+        "day_labels": ["M", "T", "W", "T", "F", "S", "S"],
+        "duration_label": "Duration",
+        "duration_value_template": "{n} weeks (Mar 10 - Jun 2)",
+        "flexibility_label": "Schedule Flexibility",
+        "flexibility_options": ["Exact days", "Flexible (+/- 1 day)", "Approximate pattern"],
+        "helper_text": "We'll match you with hosts who have your days available",
+        "empty_state": "Select your days to find schedule-matched housing"
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Split Lease — Week-Pattern Search Filter</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap\" rel=\"stylesheet\">\n<style>\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --chat-purple: rgb(75, 71, 206);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-light-gray: #9ca3af;\n  --bg-white: #ffffff;\n  --bg-light: #f9fafb;\n  --bg-light-gray: #f3f4f6;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);\n  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --font-dm: 'DM Sans', sans-serif;\n}\n\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { font-family: var(--font-inter); background: var(--bg-light); padding: 40px 20px; display: flex; justify-content: center; }\n\n.search-filter {\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: 12px;\n  padding: 24px;\n  max-width: 560px;\n  width: 100%;\n  transition: box-shadow 0.2s ease;\n}\n.search-filter:hover {\n  box-shadow: var(--shadow-purple-sm);\n}\n\n.filter-section {\n  margin-bottom: 20px;\n}\n.filter-section:last-child {\n  margin-bottom: 0;\n}\n\n.section-label {\n  font-family: var(--font-inter);\n  font-size: 11px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.05em;\n  color: var(--text-gray);\n  margin-bottom: 10px;\n}\n\n.section-title {\n  font-family: var(--font-inter);\n  font-size: 18px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  margin-bottom: 16px;\n}\n\n/* Day Badges */\n.day-row {\n  display: flex;\n  gap: 8px;\n  justify-content: center;\n}\n.day-badge {\n  width: 40px;\n  height: 40px;\n  border-radius: 50%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-family: var(--font-inter);\n  font-size: 13px;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.1s ease;\n  border: 2px solid transparent;\n  user-select: none;\n}\n.day-badge.inactive {\n  background: var(--bg-light-gray);\n  color: var(--text-light-gray);\n}\n.day-badge.inactive:hover {\n  background: var(--bg-off-white);\n  border-color: var(--accent-purple);\n  color: var(--secondary-purple);\n}\n.day-badge.active {\n  background: var(--chat-purple);\n  color: #fff;\n  box-shadow: 0 2px 8px rgba(75, 71, 206, 0.35);\n}\n\n/* Duration Slider */\n.duration-row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n.duration-slider {\n  flex: 1;\n  -webkit-appearance: none;\n  appearance: none;\n  height: 4px;\n  border-radius: 2px;\n  background: linear-gradient(to right, var(--secondary-purple) 34.6%, var(--bg-light-gray) 34.6%);\n  outline: none;\n}\n.duration-slider::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: #fff;\n  border: 2px solid var(--secondary-purple);\n  box-shadow: 0 2px 4px rgba(49, 19, 93, 0.2);\n  cursor: pointer;\n}\n.duration-value {\n  font-family: var(--font-dm);\n  font-size: 14px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  white-space: nowrap;\n  min-width: 130px;\n  text-align: right;\n}\n\n/* Flexibility Toggle */\n.flex-toggle {\n  display: flex;\n  background: var(--bg-light-gray);\n  border-radius: 20px;\n  padding: 3px;\n  gap: 2px;\n}\n.flex-option {\n  flex: 1;\n  padding: 8px 12px;\n  text-align: center;\n  font-family: var(--font-inter);\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--text-gray);\n  border-radius: 18px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  user-select: none;\n}\n.flex-option:hover {\n  color: var(--secondary-purple);\n}\n.flex-option.active {\n  background: var(--secondary-purple);\n  color: #fff;\n  box-shadow: 0 1px 3px rgba(109, 49, 194, 0.3);\n}\n\n.helper-text {\n  font-family: var(--font-dm);\n  font-size: 13px;\n  color: var(--text-light-gray);\n  text-align: center;\n  margin-top: 16px;\n}\n</style>\n</head>\n<body>\n<div class=\"search-filter\">\n  <div class=\"section-title\">Your Schedule</div>\n\n  <div class=\"filter-section\">\n    <div class=\"section-label\">Days of the Week</div>\n    <div class=\"day-row\">\n      <div class=\"day-badge active\" onclick=\"this.classList.toggle('active');this.classList.toggle('inactive')\">M</div>\n      <div class=\"day-badge active\" onclick=\"this.classList.toggle('active');this.classList.toggle('inactive')\">T</div>\n      <div class=\"day-badge active\" onclick=\"this.classList.toggle('active');this.classList.toggle('inactive')\">W</div>\n      <div class=\"day-badge active\" onclick=\"this.classList.toggle('active');this.classList.toggle('inactive')\">T</div>\n      <div class=\"day-badge inactive\" onclick=\"this.classList.toggle('active');this.classList.toggle('inactive')\">F</div>\n      <div class=\"day-badge inactive\" onclick=\"this.classList.toggle('active');this.classList.toggle('inactive')\">S</div>\n      <div class=\"day-badge inactive\" onclick=\"this.classList.toggle('active');this.classList.toggle('inactive')\">S</div>\n    </div>\n  </div>\n\n  <div class=\"filter-section\">\n    <div class=\"section-label\">Duration</div>\n    <div class=\"duration-row\">\n      <input type=\"range\" class=\"duration-slider\" min=\"4\" max=\"52\" value=\"16\" oninput=\"document.querySelector('.duration-value').textContent=this.value+' weeks (Mar 10 \\u2013 Jun 30)'\">\n      <span class=\"duration-value\">16 weeks (Mar 10 \\u2013 Jun 30)</span>\n    </div>\n  </div>\n\n  <div class=\"filter-section\">\n    <div class=\"section-label\">Schedule Flexibility</div>\n    <div class=\"flex-toggle\">\n      <div class=\"flex-option\" onclick=\"document.querySelectorAll('.flex-option').forEach(e=>e.classList.remove('active'));this.classList.add('active')\">Exact days</div>\n      <div class=\"flex-option active\" onclick=\"document.querySelectorAll('.flex-option').forEach(e=>e.classList.remove('active'));this.classList.add('active')\">Flexible (\\u00b11 day)</div>\n      <div class=\"flex-option\" onclick=\"document.querySelectorAll('.flex-option').forEach(e=>e.classList.remove('active'));this.classList.add('active')\">Approximate</div>\n    </div>\n  </div>\n\n  <div class=\"helper-text\">We\\u2019ll match you with hosts who have your days available</div>\n</div>\n</body>\n</html>",
+      "before_after": {
+        "before": {
+          "platform": "Zillow",
+          "experience": "User enters 'Chicago, IL' and gets 4,200 results. Every result assumes 7-day, 52-week occupancy. No filter for 'Tuesday-Thursday for 16 weeks.' User must manually evaluate each listing and individually contact landlords to ask about non-standard arrangements. The search vocabulary cannot express the user's need.",
+          "emotion": "Invisible. The platform doesn't see you. Your need is treated as an edge case in your own life."
+        },
+        "after": {
+          "platform": "Split Lease",
+          "experience": "User selects M-T-W-T on day badges, slides duration to 16 weeks, sets flexibility to 'Flexible.' Results instantly filter to hosts who offer Tuesday-Thursday availability for 16 weeks, with similar patterns included. The search sees the user's schedule as its primary organizing dimension.",
+          "emotion": "Recognized. 'This platform understands that my life doesn't fit into standard categories.' The moment of being seen is the signature."
+        }
+      },
+      "implements_principles": [
+        "Schedule as primary search dimension (opp-001 thesis)",
+        "Accommodate schedule uncertainty (new-003: Schedule Uncertainty Paradox)",
+        "System 1 legibility: day badges are instant-read visual patterns",
+        "Christensen Ch 7: feature discovered through market operation, not research"
+      ],
+      "effort": "large"
+    },
+    {
+      "id": "elem-002",
+      "name": "Ghost Roommate Trust Profile Card with Verification Stack, Compatibility Signals, and Living-Style Indicators",
+      "category": "trust",
+      "opportunity_id": "opp-002",
+      "source_disappointments": ["disappoint-001", "disappoint-005"],
+      "journey_phases": ["guest_listing_evaluation", "host_evaluation", "guest_proposal_creation"],
+      "priority": 2,
+      "problem_it_solves": "When Frederick considers sharing a bedroom with someone she'll never physically overlap with, she has zero information about who that person is. Zillow shows 42 photos of granite countertops but nothing about the human. Hemeden demands to meet guests to 'make sure they're not crazy.' Dimitri demands a driver's license. Every trust mechanism is currently human-mediated because no platform provides native trust infrastructure for ghost roommates.",
+      "why_this_is_a_signature": "No platform in real estate, hospitality, or any adjacent category has built trust infrastructure for people who share intimate space with someone they may never physically overlap with. The Ghost Roommate Trust Barrier (new-004) is a trust problem without precedent. This card makes the invisible person visible — showing who you'll share space with, how they've been verified, and what their living patterns look like.",
+      "description": "A profile card that appears on listing detail pages and within the proposal flow, showing the other party's trust credentials in a layered stack. Layer 1 (instant, System 1): Verified photo, first name, and a one-line identity tag ('Travel nurse from Atlanta, 3 arrangements completed'). Layer 2 (2-second scan): Verification badges — ID verified, background checked, payment pre-authorized — using Split Lease's purple badge system. Layer 3 (on-demand, System 2): Living-style indicators — schedule pattern (the days they typically stay), cleanliness rating from past hosts, communication response time, and a brief lifestyle note ('Early riser, works remotely, quiet evenings'). The card is mutual — both host and guest see each other's version, reinforcing the bilateral trust architecture.",
+      "visual_spec": {
+        "layout": "Card, 320px wide, vertical stack. Photo at top (80px circle), name and tag below, badges in a row, living-style details in expandable section.",
+        "photo_area": "80px circle avatar with 3px purple border (secondary-purple) indicating verified status. Unverified would show gray border.",
+        "name_tag": "Name: Inter 18px bold, primary-purple. Tag: DM Sans 14px normal, text-gray. Single line, truncated with ellipsis if needed.",
+        "badge_row": "Horizontal row of 3-4 badges. Each badge: 28px icon + label. Icon: purple circle with white checkmark. Label: Inter 11px semibold, text-gray. Badges: 'ID Verified', 'Background Checked', 'Payment Secured'.",
+        "living_style": "Expandable section below badges. Collapsed: 'View living style' link in secondary-purple. Expanded: 4 rows showing schedule pattern (day badges), cleanliness score (purple bar), response time ('< 2 hours avg'), lifestyle note (italic DM Sans).",
+        "container": "Background: white. Border: 1px border-color. Border-radius: rounded-xl (12px). Padding: 20px. Shadow: shadow-sm, shadow-purple-sm on hover.",
+        "mutual_indicator": "Small label at top-right: 'They see your profile too' in text-light-gray, 11px. This reinforces bilateral transparency."
+      },
+      "interaction_spec": {
+        "expand_living_style": "Tap 'View living style' to expand. Smooth 0.3s slide-down animation. Collapse on second tap.",
+        "photo_tap": "Tapping the photo opens a larger version with verification timestamp ('ID verified Feb 2, 2026').",
+        "badge_tooltip": "Hovering/tapping a badge shows what it means: 'ID Verified: Government ID matched to profile photo by Split Lease team.'",
+        "mutual_signal": "The 'They see your profile too' label subtly pulses once on first view to draw attention to the bilateral nature."
+      },
+      "copy_spec": {
+        "identity_tag_template": "{role} from {city}, {n} arrangements completed",
+        "example_identity_tag": "Travel nurse from Atlanta, 3 arrangements completed",
+        "badges": ["ID Verified", "Background Checked", "Payment Secured"],
+        "expand_cta": "View living style",
+        "schedule_label": "Their typical schedule",
+        "cleanliness_label": "Cleanliness",
+        "response_label": "Response time",
+        "lifestyle_label": "Lifestyle",
+        "mutual_label": "They see your profile too",
+        "example_lifestyle_note": "Early riser, works remotely, quiet evenings"
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Split Lease — Ghost Roommate Trust Profile</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap\" rel=\"stylesheet\">\n<style>\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --chat-purple: rgb(75, 71, 206);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-light-gray: #9ca3af;\n  --bg-white: #ffffff;\n  --bg-light: #f9fafb;\n  --bg-light-gray: #f3f4f6;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --font-dm: 'DM Sans', sans-serif;\n}\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { font-family: var(--font-inter); background: var(--bg-light); padding: 40px 20px; display: flex; justify-content: center; }\n\n.trust-card {\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: 12px;\n  padding: 24px 20px;\n  max-width: 320px;\n  width: 100%;\n  box-shadow: var(--shadow-sm);\n  transition: box-shadow 0.2s ease;\n  position: relative;\n}\n.trust-card:hover { box-shadow: var(--shadow-purple-sm); }\n\n.mutual-label {\n  position: absolute;\n  top: 12px;\n  right: 16px;\n  font-size: 11px;\n  color: var(--text-light-gray);\n  font-weight: 500;\n}\n\n.avatar-section {\n  text-align: center;\n  margin-bottom: 16px;\n}\n.avatar {\n  width: 80px;\n  height: 80px;\n  border-radius: 50%;\n  border: 3px solid var(--secondary-purple);\n  background: linear-gradient(135deg, #e8dff5, #d4c5f0);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  margin: 0 auto 12px;\n  font-size: 28px;\n  color: var(--secondary-purple);\n  font-weight: 700;\n}\n.person-name {\n  font-size: 18px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  margin-bottom: 4px;\n}\n.person-tag {\n  font-family: var(--font-dm);\n  font-size: 14px;\n  color: var(--text-gray);\n}\n\n.badge-row {\n  display: flex;\n  justify-content: center;\n  gap: 12px;\n  margin: 16px 0;\n  flex-wrap: wrap;\n}\n.badge {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 4px 10px;\n  background: var(--bg-off-white);\n  border-radius: 20px;\n  border: 1px solid rgba(109, 49, 194, 0.15);\n}\n.badge-icon {\n  width: 16px;\n  height: 16px;\n  border-radius: 50%;\n  background: var(--secondary-purple);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  color: white;\n  font-size: 9px;\n  font-weight: 700;\n}\n.badge-label {\n  font-size: 11px;\n  font-weight: 600;\n  color: var(--text-gray);\n}\n\n.divider {\n  height: 1px;\n  background: var(--border-color);\n  margin: 16px 0;\n}\n\n.expand-trigger {\n  display: block;\n  text-align: center;\n  font-size: 13px;\n  font-weight: 500;\n  color: var(--secondary-purple);\n  cursor: pointer;\n  padding: 4px;\n  transition: color 0.1s ease;\n}\n.expand-trigger:hover { color: var(--accent-purple); }\n\n.living-style {\n  margin-top: 12px;\n}\n.style-row {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 8px 0;\n  border-bottom: 1px solid var(--bg-light-gray);\n}\n.style-row:last-child { border-bottom: none; }\n.style-label {\n  font-size: 12px;\n  color: var(--text-gray);\n  font-weight: 500;\n}\n.style-value {\n  font-family: var(--font-dm);\n  font-size: 13px;\n  color: var(--text-dark);\n  font-weight: 500;\n}\n\n.mini-days {\n  display: flex;\n  gap: 4px;\n}\n.mini-day {\n  width: 22px;\n  height: 22px;\n  border-radius: 50%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 10px;\n  font-weight: 600;\n}\n.mini-day.on {\n  background: var(--chat-purple);\n  color: #fff;\n}\n.mini-day.off {\n  background: var(--bg-light-gray);\n  color: var(--text-light-gray);\n}\n\n.clean-bar-bg {\n  width: 60px;\n  height: 6px;\n  background: var(--bg-light-gray);\n  border-radius: 3px;\n  overflow: hidden;\n  display: inline-block;\n  vertical-align: middle;\n  margin-right: 6px;\n}\n.clean-bar-fill {\n  height: 100%;\n  background: var(--secondary-purple);\n  border-radius: 3px;\n  width: 92%;\n}\n\n.lifestyle-note {\n  font-family: var(--font-dm);\n  font-style: italic;\n  font-size: 13px;\n  color: var(--text-gray);\n  text-align: center;\n  margin-top: 8px;\n  padding: 8px 12px;\n  background: var(--bg-off-white);\n  border-radius: 8px;\n}\n</style>\n</head>\n<body>\n<div class=\"trust-card\">\n  <span class=\"mutual-label\">They see your profile too</span>\n  <div class=\"avatar-section\">\n    <div class=\"avatar\">MJ</div>\n    <div class=\"person-name\">Maria Johnson</div>\n    <div class=\"person-tag\">Travel nurse from Atlanta, 3 arrangements completed</div>\n  </div>\n\n  <div class=\"badge-row\">\n    <div class=\"badge\"><div class=\"badge-icon\">\\u2713</div><span class=\"badge-label\">ID Verified</span></div>\n    <div class=\"badge\"><div class=\"badge-icon\">\\u2713</div><span class=\"badge-label\">Background Checked</span></div>\n    <div class=\"badge\"><div class=\"badge-icon\">\\u2713</div><span class=\"badge-label\">Payment Secured</span></div>\n  </div>\n\n  <div class=\"divider\"></div>\n\n  <div class=\"expand-trigger\" onclick=\"let s=document.querySelector('.living-style');s.style.display=s.style.display==='none'?'block':'none';this.textContent=s.style.display==='none'?'View living style':'Hide living style'\">View living style</div>\n\n  <div class=\"living-style\" style=\"display:none\">\n    <div class=\"style-row\">\n      <span class=\"style-label\">Their typical schedule</span>\n      <div class=\"mini-days\">\n        <span class=\"mini-day on\">M</span>\n        <span class=\"mini-day on\">T</span>\n        <span class=\"mini-day on\">W</span>\n        <span class=\"mini-day on\">T</span>\n        <span class=\"mini-day off\">F</span>\n        <span class=\"mini-day off\">S</span>\n        <span class=\"mini-day off\">S</span>\n      </div>\n    </div>\n    <div class=\"style-row\">\n      <span class=\"style-label\">Cleanliness</span>\n      <span class=\"style-value\"><span class=\"clean-bar-bg\"><span class=\"clean-bar-fill\"></span></span>4.8</span>\n    </div>\n    <div class=\"style-row\">\n      <span class=\"style-label\">Response time</span>\n      <span class=\"style-value\">< 2 hours avg</span>\n    </div>\n    <div class=\"lifestyle-note\">Early riser, works remotely, quiet evenings</div>\n  </div>\n</div>\n</body>\n</html>",
+      "before_after": {
+        "before": {
+          "platform": "Zillow",
+          "experience": "User sees 42 professional photos of the apartment. Zero information about the landlord, the neighbors, or anyone she might share space with. She must conduct her own background investigation — googling, Reddit-searching, asking friends. The listing presents the apartment as a product spec sheet with no human presence.",
+          "emotion": "Exposed and blind. Sending $2,000 to a stranger on a profile photo."
+        },
+        "after": {
+          "platform": "Split Lease",
+          "experience": "User sees Maria's verified photo, 3 completed arrangements, ID-verified badge, cleanliness rating from past hosts, and typical schedule pattern. She sees the lifestyle note: 'Early riser, works remotely, quiet evenings.' She knows Maria stays Monday-Thursday. She knows the trust is mutual — Maria sees her profile too.",
+          "emotion": "Safe. 'I can see who this person is. The platform has done the vetting. And she can see me too — we're equals in this.'"
+        }
+      },
+      "implements_principles": [
+        "Ghost Roommate Trust Barrier resolution (new-004)",
+        "System 1 Trust Gate: verification badges readable in < 2 seconds (works-001)",
+        "Trust Credential Stack: process before promise (communicates-003)",
+        "Bilateral transparency: mutual profiles reinforce co-equal relationship (opp-003)"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "elem-003",
+      "name": "Bilateral Proposal Builder with Structured Term Negotiation, Price Translation, and Min-Max Guardrails",
+      "category": "negotiation",
+      "opportunity_id": "opp-003",
+      "source_disappointments": ["disappoint-003", "disappoint-007"],
+      "journey_phases": ["guest_proposal_creation", "host_proposal_mgmt", "negotiation"],
+      "priority": 3,
+      "problem_it_solves": "Every housing platform uses a one-directional power dynamic: landlord sets terms, tenant applies, landlord accepts or rejects. Steven Mariscal translated between monthly and nightly rates during a phone call. Tamycka's agent offered to 'help you negotiate as best as you can.' Every negotiation is human-mediated because no platform provides the tool. This element encodes what agents do on phone calls into a structured digital interface.",
+      "why_this_is_a_signature": "The concept of a bilateral, structured housing negotiation — where both parties have equal standing and clear tools — doesn't exist anywhere. For shared housing, where every arrangement is custom by definition, this negotiation interface IS the product. Two strangers crafting an arrangement that neither could have specified alone, with the platform doing the translation work.",
+      "description": "A two-panel proposal interface. Left panel: the guest's proposal (selected days, duration, proposed nightly rate, house rules acknowledgment). Right panel: the host's current terms (listed rate, available days, minimum stay, house rules). Between them: a 'meeting zone' that shows where the two proposals overlap and where they differ. Differences are highlighted with a suggested midpoint. Price is shown in both nightly and monthly formats simultaneously (solving Steven's translation problem). The host can accept, counter-propose (modifying specific fields), or decline with a structured reason. Guardrails prevent unreasonable proposals: the host sets a min-max price range, and the guest's proposal must fall within it or include a message explaining why.",
+      "visual_spec": {
+        "layout": "Side-by-side panels on desktop (each 280px min), stacked on mobile. 'Meeting zone' as a colored overlay between panels on desktop, or a summary section between stacked cards on mobile.",
+        "guest_panel": "Background: bg-off-white. Border-left: 3px solid secondary-purple. Header: 'Your Proposal' in Inter 14px semibold, secondary-purple.",
+        "host_panel": "Background: bg-white. Border-left: 3px solid primary-purple. Header: 'Host Terms' in Inter 14px semibold, primary-purple.",
+        "meeting_zone": "Background: linear-gradient(to right, rgba(109,49,194,0.05), rgba(49,19,93,0.05)). Overlapping terms shown with green-purple checkmark. Differing terms shown with accent-purple highlight and suggested midpoint.",
+        "price_display": "Dual format always visible: '$85/night' primary (Inter 20px bold), '$1,190/month for your pattern' secondary (DM Sans 14px, text-gray). Both update in real-time as terms change.",
+        "guardrail_indicator": "If guest's proposed price is within host's range: subtle green-purple border. If outside: amber border with tooltip 'Outside host's range — include a note explaining your offer.'"
+      },
+      "interaction_spec": {
+        "guest_edits": "Guest can modify: days, duration, nightly rate (within guardrails), start date. Each field has inline edit with immediate price recalculation.",
+        "host_response": "Host sees three buttons: 'Accept Proposal' (primary CTA, secondary-purple), 'Suggest Changes' (outline button), 'Decline' (text link, muted). 'Suggest Changes' opens inline editors on specific fields — host modifies only what they want to change.",
+        "real_time_translation": "As guest changes nightly rate, monthly equivalent updates instantly. As guest changes days-per-week, the monthly cost updates. Price is never ambiguous.",
+        "guardrail_flow": "If proposal is outside host's range, a message field becomes required. The guest writes a brief note explaining the offer. This preserves negotiation dignity while preventing spam.",
+        "counter_notification": "When host counters, guest receives a notification showing exactly which terms changed, with old and new values highlighted."
+      },
+      "copy_spec": {
+        "guest_header": "Your Proposal",
+        "host_header": "Host's Terms",
+        "days_label": "Days per week",
+        "duration_label": "Duration",
+        "rate_label": "Nightly rate",
+        "monthly_label": "Monthly total for your pattern",
+        "start_label": "Start date",
+        "accept_button": "Accept Proposal",
+        "counter_button": "Suggest Changes",
+        "decline_button": "Decline",
+        "guardrail_message": "Your offer is outside the host's preferred range. Add a note to explain.",
+        "overlap_label": "You agree on:",
+        "difference_label": "To discuss:",
+        "midpoint_suggestion": "Suggested midpoint: ${midpoint}/night"
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Split Lease — Bilateral Proposal Builder</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap\" rel=\"stylesheet\">\n<style>\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --chat-purple: rgb(75, 71, 206);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-light-gray: #9ca3af;\n  --bg-white: #ffffff;\n  --bg-light: #f9fafb;\n  --bg-light-gray: #f3f4f6;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);\n  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --font-dm: 'DM Sans', sans-serif;\n}\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { font-family: var(--font-inter); background: var(--bg-light); padding: 32px 16px; display: flex; justify-content: center; }\n\n.proposal-builder {\n  max-width: 640px;\n  width: 100%;\n}\n\n.builder-title {\n  font-size: 20px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  text-align: center;\n  margin-bottom: 24px;\n}\n\n.panels {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 16px;\n  margin-bottom: 20px;\n}\n\n.panel {\n  background: var(--bg-white);\n  border-radius: 12px;\n  padding: 20px;\n  border: 1px solid var(--border-color);\n}\n.panel-guest {\n  background: var(--bg-off-white);\n  border-left: 3px solid var(--secondary-purple);\n}\n.panel-host {\n  border-left: 3px solid var(--primary-purple);\n}\n\n.panel-header {\n  font-size: 12px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.05em;\n  margin-bottom: 16px;\n}\n.panel-guest .panel-header { color: var(--secondary-purple); }\n.panel-host .panel-header { color: var(--primary-purple); }\n\n.term-row {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 10px 0;\n  border-bottom: 1px solid var(--bg-light-gray);\n}\n.term-row:last-child { border-bottom: none; }\n\n.term-label {\n  font-size: 12px;\n  color: var(--text-gray);\n  font-weight: 500;\n}\n.term-value {\n  font-family: var(--font-dm);\n  font-size: 14px;\n  font-weight: 600;\n  color: var(--text-dark);\n}\n.term-value.editable {\n  color: var(--secondary-purple);\n  cursor: pointer;\n  border-bottom: 1px dashed var(--accent-purple);\n}\n\n.price-primary {\n  font-family: var(--font-inter);\n  font-size: 22px;\n  font-weight: 700;\n  color: var(--primary-purple);\n}\n.price-secondary {\n  font-family: var(--font-dm);\n  font-size: 13px;\n  color: var(--text-gray);\n  margin-top: 2px;\n}\n\n.meeting-zone {\n  background: linear-gradient(135deg, rgba(109,49,194,0.04), rgba(49,19,93,0.06));\n  border-radius: 12px;\n  padding: 16px 20px;\n  margin-bottom: 20px;\n  border: 1px solid rgba(109, 49, 194, 0.12);\n}\n.zone-header {\n  font-size: 12px;\n  font-weight: 600;\n  color: var(--secondary-purple);\n  text-transform: uppercase;\n  letter-spacing: 0.05em;\n  margin-bottom: 10px;\n}\n.zone-item {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 6px 0;\n  font-size: 13px;\n  color: var(--text-dark);\n}\n.zone-icon-match {\n  width: 18px;\n  height: 18px;\n  border-radius: 50%;\n  background: var(--secondary-purple);\n  color: #fff;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 10px;\n  font-weight: 700;\n}\n.zone-icon-diff {\n  width: 18px;\n  height: 18px;\n  border-radius: 50%;\n  background: var(--accent-purple);\n  color: #fff;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 10px;\n  font-weight: 700;\n}\n.midpoint {\n  font-family: var(--font-dm);\n  font-size: 12px;\n  color: var(--accent-purple);\n  margin-left: 26px;\n  font-style: italic;\n}\n\n.actions {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.btn-accept {\n  background: var(--secondary-purple);\n  color: #fff;\n  border: none;\n  padding: 12px 28px;\n  border-radius: 20px;\n  font-family: var(--font-inter);\n  font-size: 14px;\n  font-weight: 600;\n  cursor: pointer;\n  transition: background 0.15s ease;\n}\n.btn-accept:hover { background: var(--accent-purple); }\n.btn-counter {\n  background: transparent;\n  color: var(--secondary-purple);\n  border: 2px solid var(--secondary-purple);\n  padding: 12px 28px;\n  border-radius: 20px;\n  font-family: var(--font-inter);\n  font-size: 14px;\n  font-weight: 600;\n  cursor: pointer;\n  transition: all 0.15s ease;\n}\n.btn-counter:hover { background: var(--bg-off-white); }\n.btn-decline {\n  background: none;\n  border: none;\n  color: var(--text-light-gray);\n  font-size: 13px;\n  cursor: pointer;\n  padding: 12px 16px;\n}\n.btn-decline:hover { color: var(--text-gray); }\n\n.mini-days { display: flex; gap: 3px; }\n.mini-day {\n  width: 20px; height: 20px; border-radius: 50%;\n  display: flex; align-items: center; justify-content: center;\n  font-size: 9px; font-weight: 600;\n}\n.mini-day.on { background: var(--chat-purple); color: #fff; }\n.mini-day.off { background: var(--bg-light-gray); color: var(--text-light-gray); }\n\n@media (max-width: 600px) {\n  .panels { grid-template-columns: 1fr; }\n}\n</style>\n</head>\n<body>\n<div class=\"proposal-builder\">\n  <div class=\"builder-title\">Craft Your Arrangement</div>\n\n  <div class=\"panels\">\n    <div class=\"panel panel-guest\">\n      <div class=\"panel-header\">Your Proposal</div>\n      <div class=\"term-row\">\n        <span class=\"term-label\">Days</span>\n        <div class=\"mini-days\">\n          <span class=\"mini-day on\">M</span><span class=\"mini-day on\">T</span><span class=\"mini-day on\">W</span><span class=\"mini-day on\">T</span><span class=\"mini-day off\">F</span><span class=\"mini-day off\">S</span><span class=\"mini-day off\">S</span>\n        </div>\n      </div>\n      <div class=\"term-row\">\n        <span class=\"term-label\">Duration</span>\n        <span class=\"term-value editable\">16 weeks</span>\n      </div>\n      <div class=\"term-row\">\n        <span class=\"term-label\">Nightly rate</span>\n        <span class=\"term-value editable\">$75/night</span>\n      </div>\n      <div class=\"term-row\">\n        <span class=\"term-label\">Start date</span>\n        <span class=\"term-value editable\">Mar 10, 2026</span>\n      </div>\n      <div style=\"margin-top:12px; padding-top:12px; border-top:1px solid #e5e7eb\">\n        <div class=\"price-primary\">$1,200/mo</div>\n        <div class=\"price-secondary\">$75 \\u00d7 4 nights \\u00d7 4 weeks</div>\n      </div>\n    </div>\n\n    <div class=\"panel panel-host\">\n      <div class=\"panel-header\">Host\\u2019s Terms</div>\n      <div class=\"term-row\">\n        <span class=\"term-label\">Available days</span>\n        <div class=\"mini-days\">\n          <span class=\"mini-day on\">M</span><span class=\"mini-day on\">T</span><span class=\"mini-day on\">W</span><span class=\"mini-day on\">T</span><span class=\"mini-day on\">F</span><span class=\"mini-day off\">S</span><span class=\"mini-day off\">S</span>\n        </div>\n      </div>\n      <div class=\"term-row\">\n        <span class=\"term-label\">Min stay</span>\n        <span class=\"term-value\">8 weeks</span>\n      </div>\n      <div class=\"term-row\">\n        <span class=\"term-label\">Listed rate</span>\n        <span class=\"term-value\">$85/night</span>\n      </div>\n      <div class=\"term-row\">\n        <span class=\"term-label\">Earliest start</span>\n        <span class=\"term-value\">Mar 1, 2026</span>\n      </div>\n      <div style=\"margin-top:12px; padding-top:12px; border-top:1px solid #e5e7eb\">\n        <div class=\"price-primary\">$1,360/mo</div>\n        <div class=\"price-secondary\">$85 \\u00d7 4 nights \\u00d7 4 weeks</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"meeting-zone\">\n    <div class=\"zone-header\">Arrangement Summary</div>\n    <div class=\"zone-item\"><div class=\"zone-icon-match\">\\u2713</div> Schedule: Mon\\u2013Thu (you both agree)</div>\n    <div class=\"zone-item\"><div class=\"zone-icon-match\">\\u2713</div> Duration: 16 weeks (within minimum)</div>\n    <div class=\"zone-item\"><div class=\"zone-icon-match\">\\u2713</div> Start date: Mar 10 (available)</div>\n    <div class=\"zone-item\"><div class=\"zone-icon-diff\">\\u2194</div> Rate: You proposed $75 \\u2014 Host asks $85</div>\n    <div class=\"midpoint\">Suggested midpoint: $80/night ($1,280/mo)</div>\n  </div>\n\n  <div class=\"actions\">\n    <button class=\"btn-accept\">Accept Proposal</button>\n    <button class=\"btn-counter\">Suggest Changes</button>\n    <button class=\"btn-decline\">Decline</button>\n  </div>\n</div>\n</body>\n</html>",
+      "before_after": {
+        "before": {
+          "platform": "Zillow",
+          "experience": "User clicks 'Apply' and gets redirected to a third-party portal. She enters SSN, employment history, pays a $50 fee. Then: nothing. No status tracker, no negotiation, no back-and-forth. The application is a one-way submission into a void. If she wants different terms, she must find the landlord's phone number and call.",
+          "emotion": "Powerless. A supplicant requesting permission to rent, with no voice in the terms."
+        },
+        "after": {
+          "platform": "Split Lease",
+          "experience": "User sees her proposal side-by-side with the host's terms. She can see where they agree (schedule, duration) and where they differ (rate). The platform suggests a midpoint. She can adjust her offer or submit as-is. The host can accept, counter specific terms, or decline with a reason. Both parties shape the arrangement together.",
+          "emotion": "Empowered. 'We're crafting this arrangement as equals. I have a voice in where I live.'"
+        }
+      },
+      "implements_principles": [
+        "Bilateral negotiation replaces one-directional application (opp-003 thesis)",
+        "Real-time price translation: nightly and monthly always visible (Steven Mariscal's phone call encoded)",
+        "Guardrails prevent unreasonable proposals without removing agency (Chantel's min-max insight)",
+        "Structured fields prevent negotiation-as-unstructured-messaging anti-pattern",
+        "Christensen Ch 5: Process-as-disability — Zillow's one-directional flow cannot become bilateral"
+      ],
+      "effort": "large"
+    },
+    {
+      "id": "elem-004",
+      "name": "Three-Tap Date Swap Card with Financial Impact Preview and Host Auto-Notification",
+      "category": "stay_management",
+      "opportunity_id": "opp-004",
+      "source_disappointments": ["disappoint-006", "disappoint-010"],
+      "journey_phases": ["guest_active_lease", "host_active_lease"],
+      "priority": 4,
+      "problem_it_solves": "Nneka (host) said 'that's the frustrating part — I had to go through you guys' about rescheduling dates. Vince (guest) asked 'is there a times when I could just do one night a week, like if after six months my schedule changes.' Every date change currently requires going through Split Lease's team manually. This element makes date changes as easy as rescheduling a calendar meeting — three taps, instant confirmation.",
+      "why_this_is_a_signature": "Every platform defines its product as the transaction: finding, booking, signing. What happens after is not their problem. Split Lease flips this. The platform's core product is the living rhythm. When a guest swaps Thursday for Tuesday with three taps, the host is notified instantly, and the price adjusts — that choreographed moment is the signature. Nobody else owns the 80% of housing that happens after the lease.",
+      "description": "A compact card that appears in the Stays Manager, showing the current week's scheduled nights. Each night is a tappable element. To swap a night: (1) Tap the night you want to remove (it highlights in red-fade). (2) Tap the day you want to add (it highlights in purple-glow). (3) Confirm with a single 'Swap' button. Below the swap, a financial impact line shows the price difference (if any) between the removed and added night. The host receives an instant notification with the swap details and can approve or flag within the same interface.",
+      "visual_spec": {
+        "layout": "Card, full-width within the Stays Manager. 7-day row at top, action area below, financial impact at bottom.",
+        "day_row": "7 day columns, each showing day abbreviation + date. Scheduled nights: chat-purple background, white text. Available nights: bg-light-gray, text-gray. Unavailable: hatched pattern, muted.",
+        "removal_state": "Tapped-to-remove night: background fades from purple to a soft red-purple (rgba(200,50,80,0.15)), with strikethrough animation on the day label.",
+        "addition_state": "Tapped-to-add night: background glows from gray to purple (secondary-purple with 0.15 opacity), with a '+' icon appearing.",
+        "confirm_button": "'Swap Thu → Tue' button centered below the row. Secondary-purple background, white text, rounded-pill. Disabled until both remove and add are selected.",
+        "financial_line": "Below button: 'No price change' or '+$10 (Tuesday is peak rate)' in DM Sans 13px. Green-purple for no change, amber for increase, secondary-purple for decrease.",
+        "container": "Background: white. Border-radius: 12px. Border: 1px border-color. Padding: 16px. Shadow: shadow-sm."
+      },
+      "interaction_spec": {
+        "tap_to_remove": "First tap on a scheduled night marks it for removal. Visual: purple fades to red-tinted. Second tap deselects.",
+        "tap_to_add": "Tap on an available (non-scheduled) night marks it for addition. Visual: gray glows to purple-tinted. Only one add allowed per swap.",
+        "confirm": "Tap 'Swap' button. Shows a 1-second confirmation animation (checkmark pulse). Host is notified instantly.",
+        "undo": "For 10 seconds after confirmation, an 'Undo' link appears. After 10 seconds, the swap is final.",
+        "host_notification": "Host sees: 'Maria swapped Thu Mar 19 → Tue Mar 17. No price change.' with Approve/Flag buttons.",
+        "keyboard": "Tab between days, Enter to select, Space to confirm swap."
+      },
+      "copy_spec": {
+        "card_title": "This Week",
+        "swap_button_template": "Swap {remove_day} → {add_day}",
+        "no_price_change": "No price change",
+        "price_increase_template": "+${amount} ({add_day} is peak rate)",
+        "price_decrease_template": "-${amount} (you save on {add_day})",
+        "host_notification_template": "{guest_name} swapped {remove_day} {remove_date} → {add_day} {add_date}. {price_impact}.",
+        "undo_link": "Undo swap",
+        "confirm_message": "Swap confirmed"
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Split Lease — Date Swap Card</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap\" rel=\"stylesheet\">\n<style>\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --chat-purple: rgb(75, 71, 206);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-light-gray: #9ca3af;\n  --bg-white: #ffffff;\n  --bg-light: #f9fafb;\n  --bg-light-gray: #f3f4f6;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);\n  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --font-dm: 'DM Sans', sans-serif;\n}\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { font-family: var(--font-inter); background: var(--bg-light); padding: 40px 16px; display: flex; justify-content: center; }\n\n.date-swap-card {\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: 12px;\n  padding: 20px;\n  max-width: 480px;\n  width: 100%;\n  box-shadow: var(--shadow-sm);\n}\n\n.card-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 16px;\n}\n.card-title {\n  font-size: 16px;\n  font-weight: 700;\n  color: var(--primary-purple);\n}\n.card-week {\n  font-family: var(--font-dm);\n  font-size: 13px;\n  color: var(--text-gray);\n}\n\n.week-row {\n  display: grid;\n  grid-template-columns: repeat(7, 1fr);\n  gap: 6px;\n  margin-bottom: 16px;\n}\n\n.day-cell {\n  text-align: center;\n  padding: 10px 4px;\n  border-radius: 8px;\n  cursor: pointer;\n  transition: all 0.15s ease;\n  user-select: none;\n}\n.day-cell .day-abbr {\n  font-size: 11px;\n  font-weight: 600;\n  text-transform: uppercase;\n  margin-bottom: 4px;\n}\n.day-cell .day-date {\n  font-family: var(--font-dm);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n.day-cell.scheduled {\n  background: var(--chat-purple);\n  color: #fff;\n}\n.day-cell.scheduled:hover {\n  background: rgb(65, 61, 190);\n}\n.day-cell.available {\n  background: var(--bg-light-gray);\n  color: var(--text-gray);\n}\n.day-cell.available:hover {\n  background: var(--bg-off-white);\n  border: 1px solid var(--accent-purple);\n  color: var(--secondary-purple);\n}\n.day-cell.removing {\n  background: rgba(200, 50, 80, 0.12);\n  color: rgb(180, 50, 70);\n  text-decoration: line-through;\n}\n.day-cell.adding {\n  background: rgba(109, 49, 194, 0.12);\n  color: var(--secondary-purple);\n  border: 2px solid var(--secondary-purple);\n}\n.day-cell.unavailable {\n  background: repeating-linear-gradient(45deg, var(--bg-light-gray), var(--bg-light-gray) 3px, #e9e9e9 3px, #e9e9e9 6px);\n  color: var(--text-light-gray);\n  cursor: not-allowed;\n}\n\n.swap-area {\n  text-align: center;\n  padding: 12px 0;\n}\n\n.swap-btn {\n  background: var(--secondary-purple);\n  color: #fff;\n  border: none;\n  padding: 10px 24px;\n  border-radius: 20px;\n  font-family: var(--font-inter);\n  font-size: 14px;\n  font-weight: 600;\n  cursor: pointer;\n  transition: background 0.15s ease;\n}\n.swap-btn:hover { background: var(--accent-purple); }\n.swap-btn:disabled {\n  background: var(--bg-light-gray);\n  color: var(--text-light-gray);\n  cursor: not-allowed;\n}\n\n.price-impact {\n  font-family: var(--font-dm);\n  font-size: 13px;\n  color: var(--chat-purple);\n  margin-top: 8px;\n}\n\n.host-notify {\n  margin-top: 16px;\n  padding: 12px;\n  background: var(--bg-off-white);\n  border-radius: 8px;\n  font-size: 13px;\n  color: var(--text-gray);\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.notify-icon {\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: var(--secondary-purple);\n  color: #fff;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 10px;\n  flex-shrink: 0;\n}\n</style>\n</head>\n<body>\n<div class=\"date-swap-card\">\n  <div class=\"card-header\">\n    <span class=\"card-title\">This Week</span>\n    <span class=\"card-week\">Mar 17 \\u2013 23, 2026</span>\n  </div>\n\n  <div class=\"week-row\">\n    <div class=\"day-cell scheduled\">\n      <div class=\"day-abbr\">Mon</div>\n      <div class=\"day-date\">17</div>\n    </div>\n    <div class=\"day-cell adding\">\n      <div class=\"day-abbr\">Tue</div>\n      <div class=\"day-date\">18</div>\n    </div>\n    <div class=\"day-cell scheduled\">\n      <div class=\"day-abbr\">Wed</div>\n      <div class=\"day-date\">19</div>\n    </div>\n    <div class=\"day-cell removing\">\n      <div class=\"day-abbr\">Thu</div>\n      <div class=\"day-date\">20</div>\n    </div>\n    <div class=\"day-cell available\">\n      <div class=\"day-abbr\">Fri</div>\n      <div class=\"day-date\">21</div>\n    </div>\n    <div class=\"day-cell unavailable\">\n      <div class=\"day-abbr\">Sat</div>\n      <div class=\"day-date\">22</div>\n    </div>\n    <div class=\"day-cell unavailable\">\n      <div class=\"day-abbr\">Sun</div>\n      <div class=\"day-date\">23</div>\n    </div>\n  </div>\n\n  <div class=\"swap-area\">\n    <button class=\"swap-btn\">Swap Thu \\u2192 Tue</button>\n    <div class=\"price-impact\">No price change</div>\n  </div>\n\n  <div class=\"host-notify\">\n    <div class=\"notify-icon\">\\u2192</div>\n    <span>Your host will be notified instantly and can approve or flag</span>\n  </div>\n</div>\n</body>\n</html>",
+      "before_after": {
+        "before": {
+          "platform": "Zillow / any competitor",
+          "experience": "After signing a lease, the platform disappears completely. Zero post-lease tools exist. If Vince's schedule changes after 6 months, he must call his landlord's personal cell, negotiate verbally, and hope they agree. No record, no structure, no price adjustment calculation. Nneka must go through Split Lease's team manually for every date change — 'that's the frustrating part.'",
+          "emotion": "Abandoned. The platform cared about you as a lead, not as a person living somewhere."
+        },
+        "after": {
+          "platform": "Split Lease",
+          "experience": "Guest taps Thursday (removing it), taps Tuesday (adding it), and confirms with 'Swap Thu -> Tue.' The financial impact shows instantly: 'No price change.' The host gets a notification with approve/flag options. Three taps, instant resolution. The platform manages the living rhythm, not just the search.",
+          "emotion": "Choreographed. 'The platform handles the rhythm so I don't have to. It's like having a personal coordinator.'"
+        }
+      },
+      "implements_principles": [
+        "Date changes as core product, not exceptions (opp-004 anti-pattern #3)",
+        "Self-service at conversational speed (works-003: match phone call speed)",
+        "Financial legibility at moment of choice (guest-works-002)",
+        "Three-tap flow (guest-behaves-002)",
+        "Christensen Ch 7: operational learning — which swaps are common, what pricing adjustments work"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "elem-005",
+      "name": "Cleaning Handoff Checklist with Photo Verification, Turnover Timeline, and Shared-Space Status Dashboard",
+      "category": "stay_management",
+      "opportunity_id": "opp-004",
+      "source_disappointments": ["disappoint-006"],
+      "journey_phases": ["guest_active_lease", "host_active_lease"],
+      "priority": 5,
+      "problem_it_solves": "Frederick nearly abandoned shared housing entirely because the cleaning burden seemed 'like I'm moving every single week.' Chantel built a physical inventory book — 'a detailed inventory list' — because no platform manages turnover. The Cleaning Coordination Anxiety (new-002) is severe enough to kill deals for the entire category. This element digitizes Chantel's book and resolves Frederick's anxiety.",
+      "why_this_is_a_signature": "No platform in any category manages the turnover between ghost roommates. This is the operational detail that can kill the entire shared housing concept if left unresolved. When the cleaning handoff is visible, structured, and verified — when Frederick can see that the space was cleaned and inventoried before her Monday arrival — the anxiety evaporates. This is the invisible infrastructure that makes shared housing feel choreographed, not chaotic.",
+      "description": "A checklist card visible to both host and guest in the Stays Manager. Shows: (1) A turnover timeline — when the previous guest departs, when cleaning happens, when the arriving guest can enter. (2) A checklist of cleaning tasks with photo upload slots (kitchen, bathroom, bedroom, common areas). The departing guest uploads departure photos. The cleaner or host uploads cleaning-completed photos. The arriving guest sees both. (3) A shared-space status indicator: 'Ready for your arrival' (green-purple) when all checklist items are verified, or 'In preparation' (amber) when cleaning is in progress. The element creates accountability without creating confrontation.",
+      "visual_spec": {
+        "layout": "Vertical card, full-width in Stays Manager. Timeline at top, checklist in middle, status badge at bottom.",
+        "timeline": "Horizontal timeline with 3 nodes: 'Maria departs 6pm Thu' -> 'Cleaning 7-9pm Thu' -> 'You arrive Fri 8am'. Nodes: purple circles connected by a line. Past nodes filled, future nodes outlined.",
+        "checklist": "4 rows, each with: area name, checkbox, photo thumbnail (40px square, rounded-lg). Unchecked: gray checkbox. Checked: purple checkmark. Photo slot: dashed border when empty, image thumbnail when uploaded.",
+        "status_badge": "Full-width bar at bottom. Ready: bg secondary-purple with 0.1 opacity, secondary-purple text, checkmark icon. In preparation: amber-tinted bg, amber text, clock icon.",
+        "container": "Background: white. Border-radius: 12px. Border: 1px border-color. Padding: 20px. Shadow: shadow-sm."
+      },
+      "interaction_spec": {
+        "photo_upload": "Tap photo slot to upload from camera or gallery. Max 5MB per photo. Thumbnail appears immediately.",
+        "checklist_complete": "Host/cleaner taps each checkbox as areas are cleaned. When all 4 are checked and photos uploaded, status automatically changes to 'Ready for your arrival.'",
+        "guest_view": "Guest sees departure photos + cleaning photos side by side. Can tap any photo to view full-size.",
+        "notification": "Guest receives push notification when status changes to 'Ready for your arrival.'",
+        "dispute_path": "If arriving guest finds an issue, a 'Report Issue' button opens a structured form (area, description, photo) that notifies the host and Split Lease simultaneously."
+      },
+      "copy_spec": {
+        "card_title": "Turnover Status",
+        "timeline_depart": "{name} departs {time} {day}",
+        "timeline_clean": "Cleaning {start}-{end} {day}",
+        "timeline_arrive": "You arrive {day} {time}",
+        "checklist_areas": ["Kitchen", "Bathroom", "Bedroom", "Common areas"],
+        "photo_placeholder": "Add photo",
+        "status_ready": "Ready for your arrival",
+        "status_preparing": "In preparation",
+        "report_issue": "Report an issue"
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Split Lease — Cleaning Handoff Checklist</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap\" rel=\"stylesheet\">\n<style>\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --chat-purple: rgb(75, 71, 206);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-light-gray: #9ca3af;\n  --bg-white: #ffffff;\n  --bg-light: #f9fafb;\n  --bg-light-gray: #f3f4f6;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);\n  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --font-dm: 'DM Sans', sans-serif;\n}\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { font-family: var(--font-inter); background: var(--bg-light); padding: 40px 16px; display: flex; justify-content: center; }\n\n.handoff-card {\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: 12px;\n  padding: 20px;\n  max-width: 440px;\n  width: 100%;\n  box-shadow: var(--shadow-sm);\n}\n\n.card-title {\n  font-size: 16px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  margin-bottom: 16px;\n}\n\n/* Timeline */\n.timeline {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 20px;\n  position: relative;\n  padding: 0 8px;\n}\n.timeline::before {\n  content: '';\n  position: absolute;\n  top: 14px;\n  left: 28px;\n  right: 28px;\n  height: 2px;\n  background: var(--border-color);\n}\n.timeline-node {\n  text-align: center;\n  position: relative;\n  z-index: 1;\n  flex: 1;\n}\n.node-dot {\n  width: 28px;\n  height: 28px;\n  border-radius: 50%;\n  margin: 0 auto 6px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 12px;\n  font-weight: 700;\n  color: #fff;\n}\n.node-dot.done {\n  background: var(--secondary-purple);\n}\n.node-dot.active {\n  background: var(--accent-purple);\n  box-shadow: 0 0 0 4px rgba(140, 104, 238, 0.2);\n}\n.node-dot.pending {\n  background: var(--bg-white);\n  border: 2px solid var(--border-color);\n  color: var(--text-light-gray);\n}\n.node-label {\n  font-size: 11px;\n  font-weight: 500;\n  color: var(--text-gray);\n  line-height: 1.3;\n}\n.node-time {\n  font-family: var(--font-dm);\n  font-size: 11px;\n  color: var(--text-light-gray);\n}\n\n/* Checklist */\n.checklist {\n  margin-bottom: 16px;\n}\n.check-row {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 0;\n  border-bottom: 1px solid var(--bg-light-gray);\n}\n.check-row:last-child { border-bottom: none; }\n\n.checkbox {\n  width: 22px;\n  height: 22px;\n  border-radius: 6px;\n  border: 2px solid var(--border-color);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 12px;\n  cursor: pointer;\n  transition: all 0.1s ease;\n  flex-shrink: 0;\n}\n.checkbox.checked {\n  background: var(--secondary-purple);\n  border-color: var(--secondary-purple);\n  color: #fff;\n}\n\n.check-area {\n  flex: 1;\n  font-size: 14px;\n  font-weight: 500;\n  color: var(--text-dark);\n}\n\n.photo-slot {\n  width: 40px;\n  height: 40px;\n  border-radius: 8px;\n  border: 2px dashed var(--border-color);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 16px;\n  color: var(--text-light-gray);\n  cursor: pointer;\n  transition: border-color 0.1s ease;\n  flex-shrink: 0;\n}\n.photo-slot:hover {\n  border-color: var(--accent-purple);\n  color: var(--secondary-purple);\n}\n.photo-slot.has-photo {\n  border: none;\n  background: linear-gradient(135deg, #e8dff5, #d4c5f0);\n  color: var(--secondary-purple);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n/* Status */\n.status-bar {\n  padding: 12px 16px;\n  border-radius: 8px;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  font-size: 14px;\n  font-weight: 600;\n}\n.status-bar.ready {\n  background: rgba(109, 49, 194, 0.08);\n  color: var(--secondary-purple);\n}\n.status-bar.preparing {\n  background: rgba(200, 150, 50, 0.08);\n  color: #96750a;\n}\n.status-icon {\n  font-size: 16px;\n}\n</style>\n</head>\n<body>\n<div class=\"handoff-card\">\n  <div class=\"card-title\">Turnover Status</div>\n\n  <div class=\"timeline\">\n    <div class=\"timeline-node\">\n      <div class=\"node-dot done\">\\u2713</div>\n      <div class=\"node-label\">Maria departs</div>\n      <div class=\"node-time\">6pm Thu</div>\n    </div>\n    <div class=\"timeline-node\">\n      <div class=\"node-dot active\">\\u2026</div>\n      <div class=\"node-label\">Cleaning</div>\n      <div class=\"node-time\">7\\u20139pm Thu</div>\n    </div>\n    <div class=\"timeline-node\">\n      <div class=\"node-dot pending\">3</div>\n      <div class=\"node-label\">You arrive</div>\n      <div class=\"node-time\">Fri 8am</div>\n    </div>\n  </div>\n\n  <div class=\"checklist\">\n    <div class=\"check-row\">\n      <div class=\"checkbox checked\">\\u2713</div>\n      <span class=\"check-area\">Kitchen</span>\n      <div class=\"photo-slot has-photo\">\\u2713</div>\n    </div>\n    <div class=\"check-row\">\n      <div class=\"checkbox checked\">\\u2713</div>\n      <span class=\"check-area\">Bathroom</span>\n      <div class=\"photo-slot has-photo\">\\u2713</div>\n    </div>\n    <div class=\"check-row\">\n      <div class=\"checkbox\"></div>\n      <span class=\"check-area\">Bedroom</span>\n      <div class=\"photo-slot\">+</div>\n    </div>\n    <div class=\"check-row\">\n      <div class=\"checkbox\"></div>\n      <span class=\"check-area\">Common areas</span>\n      <div class=\"photo-slot\">+</div>\n    </div>\n  </div>\n\n  <div class=\"status-bar preparing\">\n    <span class=\"status-icon\">\\u23f3</span>\n    <span>In preparation \\u2014 2 of 4 areas verified</span>\n  </div>\n</div>\n</body>\n</html>",
+      "before_after": {
+        "before": {
+          "platform": "Any competitor / no platform",
+          "experience": "Frederick worries: 'if I have to make sure everything is clean and worry about my things, it would be like I'm moving every single week.' Chantel maintains a physical book with detailed inventory lists, doing manual checks after every guest. No platform manages the turnover between stays. The cleaning burden is entirely human-mediated with zero structure or verification.",
+          "emotion": "Anxious. 'How do I know the space will be clean when I arrive? Will I have to clean for the next person every time I leave?'"
+        },
+        "after": {
+          "platform": "Split Lease",
+          "experience": "Guest opens the Stays Manager and sees the turnover timeline: Maria departed at 6pm, cleaning is happening 7-9pm, the space will be ready by 8am Friday. Kitchen and bathroom are already verified with photos. She'll get a notification when all areas are confirmed. The anxiety dissolves into a structured, visible process.",
+          "emotion": "Confident. 'The platform handles the turnover. I just show up and the space is ready.'"
+        }
+      },
+      "implements_principles": [
+        "Cleaning coordination resolves the deal-killing anxiety (new-002)",
+        "Close the loop: scheduled, completed, verified, visible (opp-004 anti-pattern #2)",
+        "Host-side stay management (fills element library gap)",
+        "Chantel's manual inventory book, digitized",
+        "Christensen Ch 7: operational learning discovers which cleaning signals matter"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "elem-006",
+      "name": "Multi-Arrangement Reputation Card with Dimensional Scores, Longitudinal Timeline, and Compatibility Preview",
+      "category": "reputation",
+      "opportunity_id": "opp-005",
+      "source_disappointments": ["disappoint-008", "disappoint-010"],
+      "journey_phases": ["guest_listing_evaluation", "host_evaluation", "retention"],
+      "priority": 6,
+      "problem_it_solves": "A traveling nurse who has successfully completed four 13-week shared-housing arrangements arrives at her fifth search with nothing. No reputation. No history. Cristina has been doing Airbnb 'for such a long time' and doesn't remember details. Chantel prefers 'single repeat traveler over multiple guests' but has no mechanism for reputation-based retention. This element makes every completed arrangement a permanent asset that follows you.",
+      "why_this_is_a_signature": "No platform in real estate or hospitality shows an accumulated housing identity across multiple arrangements. The traveling nurse carries her Nashville, Chicago, and Denver reputation into her Philadelphia search. A host sees '4 arrangements completed, 98% schedule reliability, verified by 3 hosts' and feels safe accepting her without a phone call. Each arrangement makes the next one easier — that accumulation dynamic is both the surprise and the moat.",
+      "description": "A reputation card displayed on user profiles, showing: (1) A headline stat: '4 arrangements completed across 3 cities.' (2) Three dimensional scores (0-5 scale, shown as purple-fill bars): Schedule Reliability, Space Respect, Communication. These are aggregated from reviews captured at weeks 4, 8, and completion of each arrangement. (3) A longitudinal timeline: small cards for each completed arrangement showing city, duration, dates, and a one-line host quote. (4) A compatibility preview: when viewed by a potential match, the card highlights dimensions most relevant to their listing (e.g., if the host values quiet, the card surfaces the 'quiet evenings' mentions from past reviews).",
+      "visual_spec": {
+        "layout": "Card, 360px wide. Headline stat at top, dimensional bars below, timeline as horizontal scroll of mini-cards, compatibility preview as a highlighted badge at bottom.",
+        "headline": "Inter 16px bold, primary-purple. '4 arrangements completed across 3 cities' with the number in 28px bold.",
+        "score_bars": "3 rows. Each: label (Inter 12px, text-gray), bar (100px wide, 6px tall, bg-light-gray track, secondary-purple fill), score (DM Sans 14px bold, primary-purple). Schedule Reliability: 4.9. Space Respect: 4.7. Communication: 5.0.",
+        "timeline": "Horizontal scroll of mini-cards (120px wide each). Each: city name (Inter 13px bold), dates (DM Sans 11px, text-gray), one-line host quote in italic.",
+        "compatibility_badge": "Purple-tinted badge at bottom: 'Strong match for your listing' with relevant dimension highlighted. Only appears when viewed by a potential host/guest.",
+        "container": "Background: white. Border: 1px border-color. Border-radius: 12px. Padding: 20px. Shadow: shadow-sm."
+      },
+      "interaction_spec": {
+        "scroll_timeline": "Horizontal swipe/scroll through arrangement history. Snaps to cards.",
+        "tap_arrangement": "Tapping a mini-card expands it to show full details: host/guest photo, duration, dimensional scores for that specific arrangement, and full review text.",
+        "compatibility_tap": "Tapping the compatibility badge shows which review quotes triggered the match signal.",
+        "filter_by_dimension": "User can tap a dimension bar to filter timeline to only show reviews mentioning that dimension."
+      },
+      "copy_spec": {
+        "headline_template": "{n} arrangements completed across {m} cities",
+        "dimensions": ["Schedule Reliability", "Space Respect", "Communication"],
+        "timeline_quote_examples": ["'Always on time, respectful of shared spaces' — Host, Nashville", "'Quiet, clean, great communicator' — Host, Chicago"],
+        "compatibility_label": "Strong match for your listing",
+        "empty_state": "Complete your first arrangement to start building your housing reputation"
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Split Lease — Reputation Card</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap\" rel=\"stylesheet\">\n<style>\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --chat-purple: rgb(75, 71, 206);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-light-gray: #9ca3af;\n  --bg-white: #ffffff;\n  --bg-light: #f9fafb;\n  --bg-light-gray: #f3f4f6;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --font-dm: 'DM Sans', sans-serif;\n}\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { font-family: var(--font-inter); background: var(--bg-light); padding: 40px 16px; display: flex; justify-content: center; }\n\n.reputation-card {\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: 12px;\n  padding: 24px 20px;\n  max-width: 360px;\n  width: 100%;\n  box-shadow: var(--shadow-sm);\n}\n\n.headline {\n  text-align: center;\n  margin-bottom: 20px;\n}\n.headline-number {\n  font-size: 32px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  line-height: 1;\n}\n.headline-text {\n  font-size: 14px;\n  color: var(--text-gray);\n  margin-top: 4px;\n}\n.headline-sub {\n  font-family: var(--font-dm);\n  font-size: 13px;\n  color: var(--text-light-gray);\n  margin-top: 2px;\n}\n\n.dimensions {\n  margin-bottom: 20px;\n}\n.dim-row {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 8px 0;\n}\n.dim-label {\n  font-size: 12px;\n  font-weight: 500;\n  color: var(--text-gray);\n  width: 130px;\n  flex-shrink: 0;\n}\n.dim-bar-bg {\n  flex: 1;\n  height: 6px;\n  background: var(--bg-light-gray);\n  border-radius: 3px;\n  overflow: hidden;\n}\n.dim-bar-fill {\n  height: 100%;\n  border-radius: 3px;\n  background: var(--secondary-purple);\n}\n.dim-score {\n  font-family: var(--font-dm);\n  font-size: 14px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  width: 28px;\n  text-align: right;\n}\n\n.divider {\n  height: 1px;\n  background: var(--border-color);\n  margin: 4px 0 16px;\n}\n\n.timeline-label {\n  font-size: 11px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.05em;\n  color: var(--text-gray);\n  margin-bottom: 10px;\n}\n\n.timeline-scroll {\n  display: flex;\n  gap: 10px;\n  overflow-x: auto;\n  padding-bottom: 8px;\n  scroll-snap-type: x mandatory;\n}\n.timeline-scroll::-webkit-scrollbar { height: 4px; }\n.timeline-scroll::-webkit-scrollbar-track { background: var(--bg-light-gray); border-radius: 2px; }\n.timeline-scroll::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 2px; }\n\n.arr-card {\n  min-width: 140px;\n  background: var(--bg-off-white);\n  border-radius: 8px;\n  padding: 12px;\n  border: 1px solid rgba(109, 49, 194, 0.1);\n  scroll-snap-align: start;\n  flex-shrink: 0;\n}\n.arr-city {\n  font-size: 13px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  margin-bottom: 4px;\n}\n.arr-dates {\n  font-family: var(--font-dm);\n  font-size: 11px;\n  color: var(--text-light-gray);\n  margin-bottom: 6px;\n}\n.arr-quote {\n  font-family: var(--font-dm);\n  font-size: 12px;\n  font-style: italic;\n  color: var(--text-gray);\n  line-height: 1.4;\n}\n\n.compat-badge {\n  margin-top: 16px;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 14px;\n  background: rgba(109, 49, 194, 0.06);\n  border-radius: 8px;\n  border: 1px solid rgba(109, 49, 194, 0.12);\n}\n.compat-icon {\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: var(--secondary-purple);\n  color: #fff;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 10px;\n  font-weight: 700;\n  flex-shrink: 0;\n}\n.compat-text {\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--secondary-purple);\n}\n</style>\n</head>\n<body>\n<div class=\"reputation-card\">\n  <div class=\"headline\">\n    <div class=\"headline-number\">4</div>\n    <div class=\"headline-text\">arrangements completed</div>\n    <div class=\"headline-sub\">across Nashville, Chicago, Denver</div>\n  </div>\n\n  <div class=\"dimensions\">\n    <div class=\"dim-row\">\n      <span class=\"dim-label\">Schedule Reliability</span>\n      <div class=\"dim-bar-bg\"><div class=\"dim-bar-fill\" style=\"width:98%\"></div></div>\n      <span class=\"dim-score\">4.9</span>\n    </div>\n    <div class=\"dim-row\">\n      <span class=\"dim-label\">Space Respect</span>\n      <div class=\"dim-bar-bg\"><div class=\"dim-bar-fill\" style=\"width:94%\"></div></div>\n      <span class=\"dim-score\">4.7</span>\n    </div>\n    <div class=\"dim-row\">\n      <span class=\"dim-label\">Communication</span>\n      <div class=\"dim-bar-bg\"><div class=\"dim-bar-fill\" style=\"width:100%\"></div></div>\n      <span class=\"dim-score\">5.0</span>\n    </div>\n  </div>\n\n  <div class=\"divider\"></div>\n\n  <div class=\"timeline-label\">Arrangement History</div>\n  <div class=\"timeline-scroll\">\n    <div class=\"arr-card\">\n      <div class=\"arr-city\">Nashville</div>\n      <div class=\"arr-dates\">Oct \\u2013 Jan 2026</div>\n      <div class=\"arr-quote\">\\u201cAlways on time, respectful of shared spaces\\u201d</div>\n    </div>\n    <div class=\"arr-card\">\n      <div class=\"arr-city\">Chicago</div>\n      <div class=\"arr-dates\">Jun \\u2013 Sep 2025</div>\n      <div class=\"arr-quote\">\\u201cQuiet, clean, great communicator\\u201d</div>\n    </div>\n    <div class=\"arr-card\">\n      <div class=\"arr-city\">Denver</div>\n      <div class=\"arr-dates\">Feb \\u2013 May 2025</div>\n      <div class=\"arr-quote\">\\u201cPerfect ghost roommate \\u2014 we never overlapped but the space was always spotless\\u201d</div>\n    </div>\n    <div class=\"arr-card\">\n      <div class=\"arr-city\">Austin</div>\n      <div class=\"arr-dates\">Oct \\u2013 Jan 2025</div>\n      <div class=\"arr-quote\">\\u201cWould host again in a heartbeat\\u201d</div>\n    </div>\n  </div>\n\n  <div class=\"compat-badge\">\n    <div class=\"compat-icon\">\\u2713</div>\n    <span class=\"compat-text\">Strong match for your listing</span>\n  </div>\n</div>\n</body>\n</html>",
+      "before_after": {
+        "before": {
+          "platform": "Zillow / any competitor",
+          "experience": "The traveling nurse completes her Nashville assignment. No platform remembers her. She starts her Denver search from zero — re-entering criteria, re-evaluating listings, re-conducting trust research. Her 13 weeks of perfect hosting record evaporates. She's a stranger again. Cristina can't remember deposit details from years of Airbnb hosting.",
+          "emotion": "Erased. 'Every 13 weeks I start over. Nothing I've built carries forward.'"
+        },
+        "after": {
+          "platform": "Split Lease",
+          "experience": "The nurse opens Split Lease for her Philadelphia search. Her profile shows 4 completed arrangements across Nashville, Chicago, Denver, and Austin. Schedule Reliability: 4.9. Space Respect: 4.7. Communication: 5.0. Host quotes confirm she's trustworthy. A Philadelphia host sees this and accepts her proposal without a phone call — her reputation precedes her.",
+          "emotion": "Valued. 'Everything I've built carries forward. Each arrangement makes the next one easier. This platform knows me.'"
+        }
+      },
+      "implements_principles": [
+        "Accumulated reputation as retention mechanism (opp-005 thesis)",
+        "Multi-dimensional reviews, not star ratings (opp-005 anti-pattern #1)",
+        "Longitudinal data across arrangements, not per-stay snapshots",
+        "Compatibility preview surfaces relevant signals for each potential match",
+        "Christensen Ch 7: review dimensions discovered through operation, not designed from first principles"
+      ],
+      "effort": "large"
+    },
+    {
+      "id": "elem-007",
+      "name": "Situation-Based Discovery Prompt: 'Tell Us Your Situation' Entry Flow Replacing Buy/Rent/Sell Navigation",
+      "category": "discovery",
+      "opportunity_id": "opp-001",
+      "source_disappointments": ["disappoint-009"],
+      "journey_phases": ["guest_discovery", "host_discovery"],
+      "priority": 7,
+      "problem_it_solves": "A traveling nurse visits Zillow and sees Buy, Rent, Sell, Home Loans. She doesn't fit any box. No platform has built a discovery experience that names and serves the mid-term, flexible, shared-housing need. The four-tab navigation tells her: 'People like you, with needs like yours, are not who we built this for.' This element replaces category-based navigation with situation-based navigation.",
+      "why_this_is_a_signature": "When a housing platform's homepage says 'Tell us your situation' instead of 'Buy / Rent / Sell,' it redefines what a housing platform is. It acknowledges that people's lives are more complex than four boxes. The moment a user sees 'I'm working in a new city for a few months' and thinks 'That's me' — that moment of recognition is the signature. Nobody expects a housing platform to understand the complexity of their life.",
+      "description": "A homepage entry component that replaces traditional Buy/Rent/Sell tabs with situation-based prompts. Three or four clickable cards, each with an illustration, a headline, and a one-line description: (1) 'I need a place for a few months' — for traveling professionals, temporary relocators. (2) 'I have space on certain days' — for hosts with spare rooms on weeknights or weekends. (3) 'I need somewhere 2-4 days a week' — for hybrid workers, split-week commuters. (4) 'I want to share my home part-time' — for hosts exploring shared arrangements. Each card leads to a tailored onboarding flow that captures schedule, duration, and preferences before showing a single listing.",
+      "visual_spec": {
+        "layout": "Centered on homepage, max-width 640px. Cards arranged in a 2x2 grid on desktop, single column on mobile.",
+        "cards": "Each card: 290px wide, bg-white, border-radius 12px, border 1px border-color, padding 20px. Hover: shadow-purple-sm, border-color shifts to accent-purple with 0.3 opacity.",
+        "illustration": "48px icon area at top of each card. Purple-tinted abstract illustration (schedule icon, house icon, calendar icon, sharing icon). Using secondary-purple at 0.15 opacity for background circle.",
+        "headline": "Inter 16px semibold, primary-purple.",
+        "description": "DM Sans 14px normal, text-gray. One line max.",
+        "prompt_header": "Above the grid: 'Tell us your situation' in Inter 28px bold, primary-purple. Below: 'We'll match you with the right options' in DM Sans 16px, text-gray."
+      },
+      "interaction_spec": {
+        "card_hover": "Subtle lift: shadow-purple-sm, border-color shifts to purple-tinted.",
+        "card_tap": "Navigates to a tailored onboarding flow. Each path captures different information: the guest path asks schedule first, the host path asks availability first.",
+        "animation": "Cards fade in sequentially (0.1s delay between each) on page load.",
+        "responsive": "On mobile, cards stack vertically with full-width."
+      },
+      "copy_spec": {
+        "header": "Tell us your situation",
+        "subheader": "We'll match you with the right options",
+        "card_1_headline": "I need a place for a few months",
+        "card_1_description": "Traveling for work, relocating temporarily, or trying a new city",
+        "card_2_headline": "I have space on certain days",
+        "card_2_description": "Your spare room is empty on weeknights or weekends",
+        "card_3_headline": "I need somewhere 2-4 days a week",
+        "card_3_description": "Hybrid work, split-week commute, or part-time in a new city",
+        "card_4_headline": "I want to share my home part-time",
+        "card_4_description": "Earn income from your space while keeping it when you need it"
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Split Lease — Tell Us Your Situation</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap\" rel=\"stylesheet\">\n<style>\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-light-gray: #9ca3af;\n  --bg-white: #ffffff;\n  --bg-light: #f9fafb;\n  --bg-light-gray: #f3f4f6;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --font-dm: 'DM Sans', sans-serif;\n}\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { font-family: var(--font-inter); background: var(--bg-light); padding: 60px 20px; display: flex; justify-content: center; }\n\n.discovery-prompt {\n  text-align: center;\n  max-width: 640px;\n  width: 100%;\n}\n\n.prompt-header {\n  font-size: 28px;\n  font-weight: 700;\n  color: var(--primary-purple);\n  margin-bottom: 8px;\n  line-height: 1.2;\n}\n.prompt-subheader {\n  font-family: var(--font-dm);\n  font-size: 16px;\n  color: var(--text-gray);\n  margin-bottom: 32px;\n}\n\n.cards-grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 16px;\n}\n\n.situation-card {\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: 12px;\n  padding: 24px 20px;\n  text-align: left;\n  cursor: pointer;\n  transition: all 0.2s ease;\n}\n.situation-card:hover {\n  box-shadow: var(--shadow-purple-sm);\n  border-color: rgba(140, 104, 238, 0.3);\n  transform: translateY(-2px);\n}\n\n.card-icon {\n  width: 48px;\n  height: 48px;\n  border-radius: 12px;\n  background: rgba(109, 49, 194, 0.08);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 22px;\n  margin-bottom: 14px;\n}\n\n.card-headline {\n  font-size: 16px;\n  font-weight: 600;\n  color: var(--primary-purple);\n  margin-bottom: 6px;\n  line-height: 1.3;\n}\n.card-desc {\n  font-family: var(--font-dm);\n  font-size: 14px;\n  color: var(--text-gray);\n  line-height: 1.4;\n}\n\n.card-arrow {\n  display: flex;\n  justify-content: flex-end;\n  margin-top: 12px;\n  color: var(--accent-purple);\n  font-size: 18px;\n  opacity: 0;\n  transition: opacity 0.2s ease;\n}\n.situation-card:hover .card-arrow {\n  opacity: 1;\n}\n\n@media (max-width: 600px) {\n  .cards-grid { grid-template-columns: 1fr; }\n  .prompt-header { font-size: 24px; }\n}\n</style>\n</head>\n<body>\n<div class=\"discovery-prompt\">\n  <div class=\"prompt-header\">Tell us your situation</div>\n  <div class=\"prompt-subheader\">We\\u2019ll match you with the right options</div>\n\n  <div class=\"cards-grid\">\n    <div class=\"situation-card\">\n      <div class=\"card-icon\">\\ud83c\\udfe0</div>\n      <div class=\"card-headline\">I need a place for a few months</div>\n      <div class=\"card-desc\">Traveling for work, relocating temporarily, or trying a new city</div>\n      <div class=\"card-arrow\">\\u2192</div>\n    </div>\n\n    <div class=\"situation-card\">\n      <div class=\"card-icon\">\\ud83d\\udcc5</div>\n      <div class=\"card-headline\">I have space on certain days</div>\n      <div class=\"card-desc\">Your spare room is empty on weeknights or weekends</div>\n      <div class=\"card-arrow\">\\u2192</div>\n    </div>\n\n    <div class=\"situation-card\">\n      <div class=\"card-icon\">\\ud83d\\ude8a</div>\n      <div class=\"card-headline\">I need somewhere 2\\u20134 days a week</div>\n      <div class=\"card-desc\">Hybrid work, split-week commute, or part-time in a new city</div>\n      <div class=\"card-arrow\">\\u2192</div>\n    </div>\n\n    <div class=\"situation-card\">\n      <div class=\"card-icon\">\\ud83e\\udd1d</div>\n      <div class=\"card-headline\">I want to share my home part-time</div>\n      <div class=\"card-desc\">Earn income from your space while keeping it when you need it</div>\n      <div class=\"card-arrow\">\\u2192</div>\n    </div>\n  </div>\n</div>\n</body>\n</html>",
+      "before_after": {
+        "before": {
+          "platform": "Zillow",
+          "experience": "User sees four tabs: Buy, Rent, Sell, Home Loans. She doesn't fit any box. She clicks 'Rent' and gets a search that assumes 12-month leases. There is no 'mid-term stay' option, no 'shared housing' category, no 'I'm here temporarily' path. She leaves and fragments across Airbnb, Furnished Finder, and Craigslist.",
+          "emotion": "Invisible. 'Maybe I'm overthinking this. Maybe my housing need is weird.'"
+        },
+        "after": {
+          "platform": "Split Lease",
+          "experience": "User sees 'Tell us your situation' with four cards that describe her life: 'I need somewhere 2-4 days a week — Hybrid work, split-week commute, or part-time in a new city.' She taps the card and enters a tailored flow that asks about her schedule before anything else. The platform understood her before she searched.",
+          "emotion": "Seen. 'This platform understands that my life doesn't fit into standard categories. I belong here.'"
+        }
+      },
+      "implements_principles": [
+        "Names the unnamed need (disappoint-009: Discovery Assumption)",
+        "Situation-based navigation replaces category-based navigation",
+        "Empathy before functionality: the platform acknowledges life complexity",
+        "Christensen Ch 7: the discovery UX cannot be designed from market research — it must be discovered through operation",
+        "Christensen Ch 5: Zillow's 4-tab navigation mirrors its resource allocation (Buy/Rent/Sell/Loans = revenue streams)"
+      ],
+      "effort": "small"
+    }
+  ]
+}
+</script>
+  <header class="report-header">
+    <h1>Library of Elements</h1>
+    <div class="lens-label">Zillow &times; Innovator&rsquo;s Dilemma (Ch 5-7: Managing Disruptive Technological Change)</div>
+    <div class="report-meta">
+      <span>February 13, 2026</span>
+      <span>Run: 2026-02-13_2112</span>
+      <span>7 UI Elements</span>
+      <span class="badge badge-complete">COMPLETE</span>
+    </div>
+  </header>
+  <main class="main-content">
+    <div id="toc-container"></div>
+    <div id="elements-container"></div>
+  </main>
+  <footer style="text-align:center;padding:32px;color:var(--text-light-gray);font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">
+    SplitLease Reverse Benchmark Pipeline v1.0
+  </footer>
+  <script>
+    function esc(s){if(!s)return'';if(typeof s!=='string')s=String(s);var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+    var data;try{data=JSON.parse(document.getElementById('data-layer-4').textContent);}catch(e){data={};}
+    var elements=data.elements||[];
+
+    /* Table of Contents */
+    var tocHtml='<div class="toc"><h3>Elements ('+elements.length+')</h3>';
+    elements.forEach(function(el,i){
+      var priClass='pri-'+el.priority;
+      tocHtml+='<div class="toc-item" onclick="document.getElementById(\'el-'+el.id+'\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">';
+      tocHtml+='<span class="num">'+(i+1)+'</span>';
+      tocHtml+='<span class="name">'+esc(el.name)+'</span>';
+      tocHtml+='<span class="cat">'+esc(el.category)+'</span>';
+      tocHtml+='<span class="pri '+priClass+'">P'+el.priority+'</span>';
+      tocHtml+='</div>';
+    });
+    tocHtml+='</div>';
+    document.getElementById('toc-container').innerHTML=tocHtml;
+
+    /* Element Cards */
+    var html='';
+    elements.forEach(function(el){
+      html+='<div class="el-card" id="el-'+esc(el.id)+'">';
+      html+='<div class="el-card-header"><h3>'+esc(el.name)+'</h3>';
+      html+='<span class="type-badge">'+esc(el.category)+'</span>';
+      var priClass='pri-'+el.priority;
+      html+='<span class="priority-badge '+priClass+'">P'+esc(el.priority)+'</span>';
+      html+='</div>';
+
+      /* Phase tags */
+      if(el.journey_phases&&el.journey_phases.length){
+        html+='<div class="phase-tags">'+el.journey_phases.map(function(p){return '<span class="phase-tag">'+esc(p.replace(/_/g,' '))+'</span>';}).join('')+'</div>';
+      }
+
+      /* Source disappointments */
+      if(el.source_disappointments&&el.source_disappointments.length){
+        html+='<div class="phase-tags">'+el.source_disappointments.map(function(d){return '<span class="severity-pill">'+esc(d)+'</span>';}).join('')+'</div>';
+      }
+
+      /* Problem + Description */
+      html+='<div class="section-subtitle">Problem It Solves</div>';
+      html+='<p style="font-size:14px;color:var(--text-description);line-height:1.7;margin-bottom:16px;">'+esc(el.problem_it_solves)+'</p>';
+
+      html+='<div class="section-subtitle">Why This Is a Signature</div>';
+      html+='<p style="font-size:14px;color:var(--text-description);line-height:1.7;margin-bottom:16px;">'+esc(el.why_this_is_a_signature)+'</p>';
+
+      html+='<div class="section-subtitle">Description</div>';
+      html+='<p style="font-size:14px;color:var(--text-description);line-height:1.7;margin-bottom:16px;">'+esc(el.description)+'</p>';
+
+      /* Live preview */
+      if(el.html_css){
+        html+='<div class="section-subtitle">Live Preview</div>';
+        var blob='data:text/html;charset=utf-8,'+encodeURIComponent(el.html_css);
+        html+='<iframe src="'+blob+'" sandbox="allow-scripts" loading="lazy" style="width:100%;min-height:480px;border:1px solid var(--border-color);border-radius:var(--radius-lg);background:var(--bg-light);margin-bottom:16px;"></iframe>';
+      }
+
+      /* Before / After */
+      if(el.before_after){
+        var ba=el.before_after;
+        html+='<div class="section-subtitle">Before / After</div>';
+        html+='<div class="before-after">';
+        html+='<div class="before"><label>Before ('+esc(ba.before.platform)+')</label>';
+        html+='<p style="margin-bottom:6px;">'+esc(ba.before.experience)+'</p>';
+        html+='<p style="font-size:12px;color:var(--signal-danger);font-style:italic;">'+esc(ba.before.emotion)+'</p></div>';
+        html+='<div class="after"><label>After ('+esc(ba.after.platform)+')</label>';
+        html+='<p style="margin-bottom:6px;">'+esc(ba.after.experience)+'</p>';
+        html+='<p style="font-size:12px;color:var(--signal-success);font-style:italic;">'+esc(ba.after.emotion)+'</p></div>';
+        html+='</div>';
+      }
+
+      /* Implements principles */
+      if(el.implements_principles&&el.implements_principles.length){
+        html+='<div class="section-subtitle">Implements Principles</div>';
+        html+='<div class="phase-tags">'+el.implements_principles.map(function(p){return '<span class="phase-tag">'+esc(p)+'</span>';}).join('')+'</div>';
+      }
+
+      /* Effort */
+      if(el.effort){
+        html+='<span class="severity-pill" style="margin-top:12px;display:inline-flex;">Effort: '+esc(el.effort)+'</span>';
+      }
+
+      html+='</div>';
+    });
+    document.getElementById('elements-container').innerHTML=html;
+  </script>
+</body>
+</html>
