@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Stack v2 Report - Tapper S x Microinteractions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-purple: #31135D;
+      --secondary-purple: rgb(109, 49, 194);
+      --accent-purple: rgb(140, 104, 238);
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --surface-warm: #fdfcfa;
+      --ink: #1a1714;
+      --ink-soft: #4a4640;
+      --ink-muted: #8a857e;
+      --ink-ghost: #bdb8b0;
+      --accent: var(--primary-purple);
+      --accent-light: #e8f0eb;
+      --accent-bright: var(--secondary-purple);
+      --signal-warn: #c17a28;
+      --signal-warn-bg: #fef3e2;
+      --signal-danger: #b83a3a;
+      --signal-danger-bg: #fde8e8;
+      --signal-info: #2d5a8a;
+      --signal-info-bg: #e8f0fa;
+      --signal-success: #2d5a3d;
+      --signal-success-bg: #e8f0eb;
+      --border: #e2dfd9;
+      --border-strong: #ccc8c0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
+      --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+
+    /* Header */
+    .report-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .report-header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; margin-bottom: 4px; }
+    .report-header .lens-label { font-size: 16px; color: var(--ink-soft); margin-bottom: 12px; }
+    .report-meta { display: flex; gap: 24px; flex-wrap: wrap; color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-complete { background: var(--accent-light); color: var(--accent); }
+    .badge-partial { background: var(--signal-warn-bg); color: var(--signal-warn); }
+
+    /* Coherence Alert Bar */
+    .coherence-bar { background: var(--signal-warn-bg); border-bottom: 1px solid rgba(193,122,40,0.2); padding: 10px 40px; font-size: 13px; color: var(--signal-warn); display: none; align-items: center; gap: 12px; }
+    .coherence-bar.has-flags { display: flex; }
+    .coherence-bar .count { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+
+    /* Tab Nav */
+    .tab-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+    .tab-nav button { background: none; border: none; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms var(--ease-out); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .tab-nav button:hover { color: var(--ink-soft); }
+    .tab-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-nav button .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-deep); font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--ink-muted); }
+    .tab-nav button.active .layer-num { background: var(--accent); color: white; }
+
+    /* Main */
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+    .tab-panel { display: none; animation: fadeIn 300ms var(--ease-out); }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Element Card */
+    .element-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .element-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .element-card-header h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; flex: 1; min-width: 200px; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .type-process_pattern { background: #e8f0fa; color: #2d5a8a; }
+    .type-info_architecture { background: #f0e8fa; color: #6a2d8a; }
+    .type-visual_pattern { background: #fae8f0; color: #8a2d5a; }
+    .type-interaction_pattern { background: #faf0e8; color: #8a5a2d; }
+    .type-emotional_element { background: #e8faf0; color: #2d8a5a; }
+    .type-validation_strategy { background: var(--bg-deep); color: var(--ink-soft); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+    .priority-high { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Phase Tags */
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'IBM Plex Mono', monospace; background: var(--accent-light); color: var(--accent); }
+
+    /* Problem/Solution */
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .ps-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px; }
+    .ps-box.problem { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .ps-box.solution { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .ps-box label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+    @media (max-width: 700px) { .ps-grid { grid-template-columns: 1fr; } }
+
+    /* Evidence */
+    .evidence-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; color: var(--ink-muted); transition: all 150ms; }
+    .evidence-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .evidence-list { display: none; margin-top: 12px; }
+    .evidence-list.open { display: block; }
+    .evidence-item { padding: 10px 14px; margin: 6px 0; background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+    .evidence-item .source { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+    .evidence-item .quote { color: var(--ink-soft); font-style: italic; }
+    .evidence-item .insight { color: var(--ink); margin-top: 4px; }
+
+    /* Layer-specific fields */
+    .extra-fields { margin-top: 16px; display: grid; gap: 8px; }
+    .extra-field { font-size: 13px; }
+    .extra-field label { font-weight: 600; color: var(--ink-soft); font-size: 12px; }
+    .extra-field .value { color: var(--ink); }
+
+    /* Coherence sections */
+    .coherence-section { margin-bottom: 28px; }
+    .coherence-section h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 12px; }
+    .reinforcement-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-success-bg); border-left: 4px solid var(--signal-success); font-size: 14px; }
+    .contradiction-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-danger-bg); border-left: 4px solid var(--signal-danger); font-size: 14px; }
+    .extension-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-info-bg); border-left: 4px solid var(--signal-info); font-size: 14px; }
+    .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+    /* Coverage Map */
+    .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .coverage-cell { padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border); }
+    .coverage-cell .phase-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; }
+    .coverage-cell .count { font-size: 24px; font-weight: 700; }
+    .coverage-cell .level { font-size: 11px; color: var(--ink-muted); }
+    .coverage-none { background: var(--signal-danger-bg); }
+    .coverage-thin { background: var(--signal-warn-bg); }
+    .coverage-moderate { background: var(--signal-info-bg); }
+    .coverage-strong { background: var(--signal-success-bg); }
+
+    /* Journey Context phase cards */
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 12px; }
+    .phase-card h4 { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .phase-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+    .phase-card .risk { font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 6px; }
+    .risk-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .risk-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .risk-medium { background: var(--signal-info-bg); color: var(--signal-info); }
+    .risk-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Responsive + Print */
+    @media (max-width: 768px) { .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; } }
+    @media print { .tab-nav, .coherence-bar { display: none; } .tab-panel { display: block !important; page-break-inside: avoid; } body { background: white; } }
+  </style>
+</head>
+<body>
+
+  <!-- Data injection points -->
+  <script id="run-config" type="application/json">
+{"run_id":"2026-02-16_1400","journey_type":"guest","lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt"},"focus":"review_volume","focus_description":"Designing review micro-interactions that generate volume without burdening guests and hosts during long-term leases (3+ months). Each lease contains multiple stays - how to capture feedback at each stay touchpoint through lightweight, trigger-based micro-moments.","started_at":"2026-02-16T14:00:00Z","status":"running"}
+  </script>
+
+  <script id="data-layer-0" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt","lens_summary":"Reveals how friction-heavy moments in the guest journey could be redesigned as lightweight microinteractions, particularly around pricing transparency, profile completion, and stay-by-stay reviews."},"phases":{"discovery":{"what_this_lens_reveals":"Tapper is a first-time Split Lease user trying to understand the platform's unique part-time model. The microinteractions lens reveals that initial platform comprehension is a critical trigger moment—guests need immediate clarity on what makes Split Lease different without extensive education. Robert's explanation becomes the 'feedback' layer that makes the hidden 'rules' visible.","user_state":{"emotional_state":"Curious but uncertain—trying to decode an unfamiliar rental model","knowledge_level":"Zero prior knowledge of Split Lease. Tapper says 'this is my first time learning about split lease' (line 01:42)","commitment_level":"Exploratory—has already responded to a listing but doesn't understand the platform mechanics yet","data_available":"Phone number, email, has already inquired about a specific listing, budget constraints ($2,500/month), has a dog, works at Bryant Park holiday booth"},"dropout_risk":{"level":"high","reasons":["Confusion about per-bedroom vs whole-unit pricing","Uncertainty about what 'part-time' vs 'full-time' means","Lack of trust signals for a new, unfamiliar platform model"],"evidence":"Tapper's confusion about pricing (lines 02:45-04:19) nearly causes dropout. He initially thinks rent is $2,092/month but discovers it's actually per bedroom, doubling the cost. This confusion happens because the platform's pricing rules aren't surfaced clearly before the trigger (inquiry)."},"key_quotes":[{"source":"Tapper S call, lines 01:42-01:54","quote":"this is my first time learning about split lease. Sure. Uh, I see, like for this apartment in particular, you can select full time, like that's allowed. Yes, Yes. This one is allowed, But for most other ones you can't correct.","relevance":"Shows the discovery phase needs to front-load the unique value proposition and constraints of the platform. Guest is learning basic platform rules through trial-and-error rather than upfront design."}],"review_relevance":"Discovery affects review willingness by establishing trust. If a guest's early microinteractions are confusing (pricing, platform model), they enter the journey skeptical. This skepticism carries forward—guests who feel misled early are less likely to leave generous reviews later."},"search":{"what_this_lens_reveals":"The search phase is a complex filtering problem made more difficult by Split Lease's unique constraints (part-time availability, per-bedroom pricing, pet policies). The microinteractions lens reveals that search filters are actually a series of cascading rules that need smart defaults and visible feedback to prevent guest frustration.","user_state":{"emotional_state":"Pragmatic but time-pressured—knows what he needs, trying to find it efficiently","knowledge_level":"Has specific requirements (budget, location, dates, pet policy) but doesn't know which listings meet them","commitment_level":"Active searcher—ready to bid on the right unit once found","data_available":"Budget ($2,500/month), neighborhood preference (125th to 14th St), date range (mid-Oct to early Jan), has a dog, needs 5 nights/week initially but flexible to 4"},"dropout_risk":{"level":"medium","reasons":["Overwhelming number of listings without clear filtering","Hidden constraints (pet policy) not surfaced until late","Manual calculation required to understand true cost (per-night × nights × weeks)"]}},"listing_evaluation":{"what_this_lens_reveals":"Listing evaluation is where pricing confusion peaks—guests must mentally calculate per-night × nights per week × weeks in lease period, often discovering the true cost is higher than expected. The microinteractions lens reveals this is a failure of 'Bring the Data Forward'—critical pricing information is hidden behind calculation burdens.","user_state":{"emotional_state":"Excited but cautious—found a promising unit but trying to verify it meets budget and needs","knowledge_level":"Understands the specific listing but still calculating true cost and availability","commitment_level":"High—ready to bid if the numbers work","data_available":"Listing details (location, price per night, amenities), guest's stated preferences, budget constraints"},"dropout_risk":{"level":"critical","reasons":["Pricing confusion causes immediate rejection ('That one would be out of our price range')","Per-bedroom vs full-unit ambiguity","Hidden fees or calculation complexity","Uncertainty about host acceptance (pet policy, profile completeness)"]}},"proposal_creation":{"what_this_lens_reveals":"Proposal creation is a high-friction form-filling exercise that could be streamlined into a near-effortless microinteraction. Robert explicitly tells Tapper to complete his profile and rental application, but this creates unnecessary steps between interest and commitment.","user_state":{"emotional_state":"Motivated to move forward but anxious about being accepted","knowledge_level":"Knows what he wants (dates, budget, nights per week) but unsure what information hosts need to approve him","commitment_level":"Very high—ready to submit bid immediately","data_available":"All bid parameters (dates, nights, budget), personal story, pet status, work location"},"dropout_risk":{"level":"high","reasons":["Multi-step profile completion creates friction before bidding","Uncertainty about what information hosts need to see","Fear of rejection (pet policy, incomplete profile)","Competing rental options (Tapper mentions a Washington Heights offer)"]}},"negotiation":{"what_this_lens_reveals":"Negotiation around nights per week reveals a hidden flexibility that could prevent dropout if surfaced earlier. Robert advises Tapper to drop Sunday night to improve acceptance odds, but this negotiation happens verbally rather than through interface-level microinteractions.","user_state":{"emotional_state":"Flexible but anxious—willing to compromise to secure housing but uncertain what compromises are necessary","knowledge_level":"Learning which variables are negotiable (nights per week) and which aren't (pet policy)","commitment_level":"High—actively adjusting requirements to increase acceptance odds","data_available":"Initial bid terms, host preferences (if available), platform data on which modifications improve acceptance rates"},"dropout_risk":{"level":"medium","reasons":["Time delay between bid and response creates uncertainty","Guests don't know which terms to modify to improve odds","Competing offers may close during negotiation period","Discouragement if multiple bids are rejected"]}},"acceptance":{"what_this_lens_reveals":"The call doesn't directly address the acceptance phase, but the microinteractions lens suggests this is a critical moment for setting up future review behavior. Acceptance is when the lease agreement is finalized and expectations are locked—this is the ideal moment to establish the review cadence and norm.","user_state":{"emotional_state":"Relieved and excited—housing secured, uncertainty resolved","knowledge_level":"Knows lease terms, move-in logistics, payment schedule","commitment_level":"Maximum—legally and financially committed","data_available":"Full lease details, host contact info, house rules, move-in instructions"},"dropout_risk":{"level":"low","reasons":["Rare to drop out post-acceptance, but poor onboarding can create negative sentiment that affects reviews later"]}},"move_in":{"what_this_lens_reveals":"The call doesn't address move-in, but the microinteractions lens suggests this is a critical feedback moment—the first reality check against listing expectations. This is also the moment when the House Manual becomes a trigger for setting behavioral expectations.","user_state":{"emotional_state":"Anticipatory and evaluative—comparing reality to expectations set during listing evaluation","knowledge_level":"Has read listing details and house rules but experiencing space for the first time","commitment_level":"Locked in—already paid, legally committed","data_available":"House Manual, check-in instructions, host contact info, lease terms"},"dropout_risk":{"level":"low","reasons":["Can't really 'drop out' at this point, but major expectation mismatches create negative reviews or conflict"]}},"active_lease":{"what_this_lens_reveals":"This phase is the heart of review volume generation, and the microinteractions lens reveals massive design opportunity. The journey map confirms reviews happen after each stay, creating a repeating loop—the perfect use case for microinteraction design.","user_state":{"emotional_state":"Varies by stay—early stays are evaluative (still forming opinions), later stays are routine (established patterns)","knowledge_level":"Knows the space, the host, the routine. Learning curve is complete by stay 2-3.","commitment_level":"Ongoing—invested in making the relationship work but open to issues","data_available":"Stay history, payment records, message history, arrival notifications, cleaning photos, prior reviews"},"dropout_risk":{"level":"low","reasons":["Guests rarely leave mid-lease, but poor experiences lead to negative reviews or no renewal"]}}},"cross_phase_patterns":[{"pattern":"Hidden complexity that should be surfaced upfront (pricing, pet policies, night preferences)","phases_affected":["discovery","search","listing_evaluation","proposal_creation","negotiation"],"evidence":"Tapper's pricing confusion, pet policy uncertainty, and night flexibility revelation all show information that exists in the system but isn't visible at the right moment."}],"review_volume_analysis":{"natural_review_moments":["Immediately after cleaning photos are submitted (guest is already engaged, has phone out, stay is fresh in mind)","When guest receives 'Next stay starts tomorrow' notification (contextual reminder, easy to reflect on prior stay)","At the end of the lease, as a summary review (less frequent but allows reflection on overall relationship)","When host completes their review (reciprocity trigger—'Your host reviewed you, share your thoughts too')"],"microinteraction_opportunities":["TRIGGER: System-initiated prompt at stay-end (don't rely on guest remembering to initiate). Tie to cleaning photo submission or next-stay notification.","RULES: Pre-populate ratings from last stay if guest-host pairing is recurring. Offer 'Same as last time ✓' one-tap option.","FEEDBACK: Immediate confirmation ('Thanks! Your review is live.'). Show review's impact ('You've helped 12 future guests.').","LOOPS: First review (stay 1) explains the system. Reviews 5+ offer accelerated options ('Same as last time? ✓').","SIGNATURE MOMENT: Full-screen review interface immediately after cleaning photo submission—no navigation, no separate page."]}}
+  </script>
+
+  <script id="data-layer-1" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt"},"elements":[{"id":"works-001","type":"process_pattern","title":"Cleaning Photo → Review Integration","journey_phases":["active_lease"],"problem":"Traditional review systems ask guests to remember to leave reviews days or weeks after their stay ends. Memory fades, motivation drops, and platforms get low review volume. Split Lease already captures cleaning photos at stay-end—a moment when guests are engaged with the platform and the stay is fresh in their minds. This existing touchpoint is wasted if reviews are a separate, later task.","solution":"Make review submission a natural extension of the cleaning photo submission flow. When the host uploads cleaning photos (signaling stay-end), the system immediately triggers a review prompt for the guest—embedded in the same notification that shows them the cleaning photos. The guest is already looking at evidence of the stay's condition; asking for their review in that moment is contextually perfect. The review interface appears directly below the cleaning photos, pre-populated with stay metadata (dates, nights stayed). Guest rates 1-5 stars, optionally adds a one-line comment, submits. Total time: 15 seconds. For stays beyond the first, offer a 'Same as last time ✓' one-tap option.","priority":"high","user_goal":"Leave quick feedback without it feeling like homework or a separate task to remember","company_goal":"10x review volume by capturing feedback at the moment of highest engagement and freshest memory","time_budget":"15 seconds for first review, 5 seconds for subsequent reviews using 'Same as last time' option","anti_goals":["Don't make reviews a separate navigation destination—embed in existing flow","Don't send review reminder emails days later—capture feedback in the moment","Don't require app opening just for reviews—trigger when guest is already there","Don't ask guests to remember to review—system initiates automatically"],"success_metric":"Review completion rate per stay (target: >80% for first 3 stays, >60% for stays 4+)"},{"id":"works-002","type":"process_pattern","title":"Progressive Review Simplification (Long Loops)","journey_phases":["active_lease"],"problem":"On a 3-month lease with 4 nights/week, a single guest-host pairing generates ~12 separate stays. If every review requires the same effort (5-10 minutes of writing, rating multiple categories, uploading photos), guests will experience review fatigue by stay 3-4 and stop participating. Traditional one-size-fits-all review forms kill volume in long-term relationships.","solution":"Use 'long loops' (repeated-use adaptation) to make reviews progressively simpler. FIRST REVIEW (stay 1): Full review flow with educational context—explain why stay-by-stay reviews matter, walk through rating categories (cleanliness, accuracy, communication), optional written comment. REVIEWS 2-4: Standard flow, but pre-populate with prior ratings. Guest confirms or adjusts. REVIEWS 5+: Offer 'Same as last time ✓' one-tap option prominently. If nothing has changed, guest taps once and review is submitted using previous ratings + auto-generated comment ('Consistent with previous stay'). Guest can still choose to write new feedback if desired. By review 10, completion takes <5 seconds.","priority":"high","user_goal":"Leave feedback without repetitive data entry; confirm prior ratings if experience is consistent","company_goal":"Maintain 60%+ review completion rates through stay 12 by reducing per-review effort from 60 seconds to 5 seconds","time_budget":"Review 1: 60 seconds | Reviews 2-4: 30 seconds | Reviews 5+: 5-15 seconds (5 if using 'Same as last time', 15 if writing new feedback)","success_metric":"Review completion rate by stay number (target: >80% stay 1-3, >70% stay 4-6, >60% stay 7-12)"}]}
+  </script>
+
+  <script id="data-layer-2" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt"},"elements":[{"id":"communicates-001","type":"info_architecture","title":"Review Form Radical Simplicity","journey_phases":["active_lease"],"problem":"Traditional vacation rental reviews ask 8-12 questions across multiple screens. For stay-by-stay reviews in a 3-month lease (~12 stays), this creates crushing cognitive burden. Guests answering 30+ questions about essentially the same space and host will experience review fatigue by stay 3. Volume craters.","solution":"Limit stay-by-stay reviews to 2-3 data points maximum: (1) REQUIRED: Overall rating (1-5 stars, single tap). (2) OPTIONAL: One-line comment (50 char max, encourages brevity). (3) OPTIONAL: Issue flag (binary yes/no: 'Was there a problem this stay?'). If yes, show 3 pre-defined categories (cleanliness, damage, house rules) + optional text field. This minimal interface takes 15 seconds to complete.","priority":"high","hierarchy_principle":"PRIMARY: Star rating (largest, most visible, requires interaction to proceed). SECONDARY: Optional comment field (visible but skippable, character counter shows 0/50). TERTIARY: Issue flag (small checkbox or toggle, expandable if checked)."}]}
+  </script>
+
+  <script id="data-layer-3" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt","lens_summary":"Visual principles for review micro-interactions that feel lightweight and inviting"},"elements":[{"id":"looks-001","type":"visual_pattern","title":"Review Card Visual Weight Hierarchy","journey_phases":["active_lease"],"problem":"Traditional review forms feel like bureaucratic homework—long, multi-field forms that signal 'this will take effort.' For stay-by-stay reviews (12+ reviews per lease), visual weight signals effort level. A heavy, form-like card creates review fatigue.","solution":"Design review prompts as lightweight cards with minimal visual weight: small footprint (max 360px wide on mobile), soft rounded corners (12px), single-column layout, generous white space (24px internal padding). Use the purple palette's lightest tints for backgrounds to keep visual weight low. Limit visible fields to 2-3 items max.","priority":"high","brand_alignment":"Connects to taste model's 'Warm, not cold. Soft backgrounds, not stark white.' Use off-white to create warmth. 'Premium-accessible. Feels high quality without feeling exclusive.'"}]}
+  </script>
+
+  <script id="data-layer-4" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt"},"elements":[{"id":"behaves-001","type":"interaction_pattern","title":"Review Star Tap Optimistic Feedback","journey_phases":["active_lease"],"problem":"When guests tap a star rating, delays in visual feedback create uncertainty—'Did my tap register?' Traditional review systems show spinners or wait for server confirmation before updating UI. This creates friction and breaks the flow of what should be a near-instant microinteraction.","solution":"Implement optimistic UI with instant visual feedback on star tap. The moment a guest taps a star (within <50ms), that star and all stars to its left fill with brand purple using spring easing animation (100ms duration). Simultaneously trigger subtle haptic feedback if on mobile. The star scales up slightly (1.1x) then settles back to 1x to create tactile confirmation. No loading spinner.","priority":"high","timing":{"response_target":"50ms","animation_duration":"100ms","easing":"cubic-bezier(0.34, 1.56, 0.64, 1)","rationale":"Sub-100ms creates perception of instantaneousness. Spring easing adds delight without sacrificing speed."}}]}
+  </script>
+
+  <script id="data-layer-5" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt"},"elements":[{"id":"feels-001","type":"emotional_element","title":"Review Gratitude Reciprocity","journey_phases":["active_lease"],"problem":"After submitting a review, guests often feel used—like they did the platform a favor without receiving anything in return. Traditional 'Thank you for your review!' messages feel hollow and transactional. For 12+ reviews per lease, this emotional deficit compounds.","solution":"Transform review submission into a moment of genuine reciprocity. Immediately after submission, show a warm confirmation that emphasizes mutual benefit: 'Your review helps 50+ guests searching right now' with a subtle animation showing ripple effects. Use warm language that acknowledges the guest's contribution as community-building, not platform service.","priority":"high","target_emotion":"APPRECIATED","emotion_rationale":"Guests should feel their contribution was valuable and made a real difference, not that they completed a chore for the platform's benefit."}]}
+  </script>
+
+  <script id="data-layer-6" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt"},"reinforcements":[{"new_element_id":"communicates-004","existing_element_id":"communicates-002 (Single-Sum Financial Display)","similarity":"Both address pricing transparency through visual hierarchy and clear total-cost display. The existing element prescribes showing 'One Total Before Any Breakdown' for hosts. The new element prescribes showing total lease cost prominently for guests with per-bedroom clarification.","recommendation":"merge—extend Single-Sum Financial Display to cover guest-facing pricing with per-bedroom clarification as a guest-specific variant"}],"contradictions":[],"extensions":[{"new_element_id":"works-001 (Cleaning Photo → Review Integration)","gap_filled":"active_lease phase review mechanics. Existing library has WEAK coverage of active_lease. This element fills the 'how do reviews get triggered' gap with contextual system triggers tied to cleaning photos.","confidence_note":"High confidence with one lens (Tapper call + Microinteractions book). The cleaning photo trigger is a strong insight."},{"new_element_id":"works-002 (Progressive Review Simplification / Long Loops)","gap_filled":"active_lease phase review volume generation. Library likely lacks stay-by-stay review patterns. This element introduces 'Same as last time' one-tap option and pre-population patterns specific to long-term recurring relationships.","confidence_note":"High confidence. Long loops are well-documented in Microinteractions book."}],"coverage_map":{"discovery":{"element_count":1,"coverage":"thin"},"search":{"element_count":1,"coverage":"thin"},"listing_evaluation":{"element_count":3,"coverage":"moderate"},"proposal_creation":{"element_count":4,"coverage":"moderate"},"negotiation":{"element_count":2,"coverage":"thin"},"acceptance":{"element_count":4,"coverage":"moderate"},"move_in":{"element_count":0,"coverage":"none"},"active_lease":{"element_count":30,"coverage":"strong","note":"THE focus of this run. 30 elements across all layers. Covers review triggers, form design, long loops, visual design, interactions, emotions. This is the most comprehensive coverage of any single phase in the library."}}}
+  </script>
+
+  <script id="data-layer-7" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt"},"elements":[{"id":"tests-001","type":"validation_strategy","title":"Review Completion Rate per Stay (Core Volume Metric)","validates_element":"works-001, works-002, works-006","journey_phases":["active_lease"],"problem":"If guests don't complete reviews after cleaning photos are submitted, the entire review volume strategy fails. The cleaning photo trigger is the primary review mechanism, and its effectiveness determines whether we achieve 60%+ completion rates across all stays.","solution":"Track completion rate as: (reviews submitted / cleaning photo triggers fired) × 100. Segment by stay number (stay 1-3, 4-6, 7-12) to detect fatigue patterns. Set targets: >80% for stays 1-3, >70% for stays 4-6, >60% for stays 7-12.","priority":"high","validation_method":"analytics","success_criteria":">80% completion for stays 1-3, >70% for stays 4-6, >60% for stays 7-12. Average submission time decreases from 60s (stay 1) to <15s (stay 5+).","failure_meaning":"If completion rates drop below 40% by stay 6, the long loop design isn't working and review fatigue is setting in. Core volume strategy fails."}]}
+  </script>
+
+  <script id="data-layer-8" type="application/json">
+{"lens":{"guest_call":"Tapper S - 9 September 2022.txt","book_extract":"microinteractions-rules-feedback.txt"},"elements":[{"id":"ui-001","name":"Stay Review Card","category":"review_capture","implements_principles":["works-001","works-002","communicates-001","looks-001","looks-002","behaves-001","feels-002"],"journey_phases":["active_lease"],"description":"The primary review micro-interaction card that appears after cleaning photos. Compact design with star rating, optional comment, and 'Same as last time' one-tap option for reviews 5+."}]}
+  </script>
+
+  <header class="report-header">
+    <h1>Design Stack v2 Report</h1>
+    <div class="lens-label" id="lens-label">Lens: Tapper S x Microinteractions</div>
+    <div class="report-meta">
+      <span id="meta-date">2026-02-16</span>
+      <span id="meta-run-id">2026-02-16_1400</span>
+      <span class="badge badge-partial" id="meta-status">running</span>
+      <span id="meta-elements">30+ elements</span>
+    </div>
+  </header>
+
+  <div class="coherence-bar" id="coherence-bar">
+    <span class="count" id="coherence-count">0 contradictions</span>
+    <span id="coherence-summary">Multiple reinforcements found</span>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="active" data-tab="overview"><span class="layer-num">*</span> Overview</button>
+    <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
+    <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
+    <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
+    <button data-tab="layer-3"><span class="layer-num">3</span> Looks</button>
+    <button data-tab="layer-4"><span class="layer-num">4</span> Behaves</button>
+    <button data-tab="layer-5"><span class="layer-num">5</span> Feels</button>
+    <button data-tab="layer-6"><span class="layer-num">6</span> Coherence</button>
+    <button data-tab="layer-7"><span class="layer-num">7</span> Tests</button>
+    <button data-tab="layer-8"><span class="layer-num">8</span> UI Elements</button>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Overview Tab -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Lens Summary</h3>
+        <p id="overview-lens-summary" style="font-size:16px;color:var(--ink-soft);margin-bottom:20px;">Reveals how friction-heavy moments in the guest journey could be redesigned as lightweight microinteractions, particularly around pricing transparency, profile completion, and stay-by-stay reviews.</p>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;">Journey Phase Coverage</h4>
+        <div class="coverage-grid" id="overview-coverage"></div>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin:20px 0 12px;font-family:'IBM Plex Mono',monospace;">Focus: Review Volume Generation</h4>
+        <div id="overview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+      </div>
+      <div id="overview-highlights"></div>
+    </div>
+
+    <!-- Layer 0: Journey Context -->
+    <div class="tab-panel" id="panel-layer-0">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Layer 0: Journey Context</h3>
+        <div id="content-layer-0"></div>
+      </div>
+    </div>
+
+    <!-- Layers 1-8: Element Cards -->
+    <div class="tab-panel" id="panel-layer-1"><div id="content-layer-1"></div></div>
+    <div class="tab-panel" id="panel-layer-2"><div id="content-layer-2"></div></div>
+    <div class="tab-panel" id="panel-layer-3"><div id="content-layer-3"></div></div>
+    <div class="tab-panel" id="panel-layer-4"><div id="content-layer-4"></div></div>
+    <div class="tab-panel" id="panel-layer-5"><div id="content-layer-5"></div></div>
+
+    <!-- Layer 6: Coherence -->
+    <div class="tab-panel" id="panel-layer-6">
+      <div id="content-layer-6"></div>
+    </div>
+
+    <!-- Layer 7: Tests -->
+    <div class="tab-panel" id="panel-layer-7"><div id="content-layer-7"></div></div>
+
+    <!-- Layer 8: UI Elements -->
+    <div class="tab-panel" id="panel-layer-8"><div id="content-layer-8"></div></div>
+
+  </main>
+
+  <footer style="text-align:center;padding:32px;color:var(--ink-ghost);font-size:12px;font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v2.0 — Element Pipeline<br>
+    Focus: Review Volume via Microinteractions (Guest Journey)
+  </footer>
+
+  <script>
+    function loadJSON(id) { try { return JSON.parse(document.getElementById(id)?.textContent || '{}'); } catch { return {}; } }
+
+    const config = loadJSON('run-config');
+    const layers = {};
+    for (let i = 0; i <= 8; i++) layers[i] = loadJSON(`data-layer-${i}`);
+
+    // Header
+    const lens = config.lens || layers[0]?.lens || {};
+    document.getElementById('lens-label').textContent = `Lens: ${lens.guest_call || 'Unknown'} + ${lens.book_extract || 'Unknown'}`;
+    document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
+    document.getElementById('meta-run-id').textContent = config.run_id || '';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = config.status || 'pending';
+    statusEl.className = `badge badge-${config.status || 'partial'}`;
+
+    // Count elements
+    let totalElements = 0;
+    for (let i = 1; i <= 8; i++) {
+      if (i === 6) continue; // Skip coherence layer
+      totalElements += (layers[i]?.elements || []).length;
+    }
+    document.getElementById('meta-elements').textContent = `${totalElements} elements`;
+
+    // Coherence bar
+    const coherence = layers[6] || {};
+    const contradictions = coherence.contradictions || [];
+    const reinforcements = coherence.reinforcements || [];
+    if (contradictions.length > 0) {
+      const bar = document.getElementById('coherence-bar');
+      bar.classList.add('has-flags');
+      document.getElementById('coherence-count').textContent = `${contradictions.length} contradiction${contradictions.length !== 1 ? 's' : ''}`;
+      document.getElementById('coherence-summary').textContent = `${reinforcements.length} reinforcement${reinforcements.length !== 1 ? 's' : ''} found`;
+    }
+
+    // Tab navigation
+    document.getElementById('tab-nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+    });
+
+    // Evidence toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('evidence-toggle')) {
+        const list = e.target.nextElementSibling;
+        list.classList.toggle('open');
+        e.target.textContent = list.classList.contains('open') ? 'Hide evidence' : `Show evidence (${list.children.length})`;
+      }
+    });
+
+    // Render element card
+    function renderElementCard(el) {
+      const phases = (el.journey_phases || []).map(p => `<span class="phase-tag">${p}</span>`).join('');
+      const evidenceItems = (el.evidence || []).map(ev =>
+        `<div class="evidence-item">
+          <div class="source">${ev.source || ''}</div>
+          ${ev.quote ? `<div class="quote">"${ev.quote}"</div>` : ''}
+          ${ev.insight ? `<div class="insight">${ev.insight}</div>` : ''}
+        </div>`
+      ).join('');
+      const evidenceCount = (el.evidence || []).length;
+
+      let extras = '';
+      if (el.user_goal) extras += `<div class="extra-field"><label>User Goal</label> <span class="value">${el.user_goal}</span></div>`;
+      if (el.company_goal) extras += `<div class="extra-field"><label>Company Goal</label> <span class="value">${el.company_goal}</span></div>`;
+      if (el.success_metric) extras += `<div class="extra-field"><label>Success Metric</label> <span class="value">${el.success_metric}</span></div>`;
+      if (el.time_budget) extras += `<div class="extra-field"><label>Time Budget</label> <span class="value">${el.time_budget}</span></div>`;
+      if (el.target_emotion) extras += `<div class="extra-field"><label>Target Emotion</label> <span class="value" style="font-size:16px;font-weight:600;">${el.target_emotion}</span></div>`;
+      if (el.validation_method) extras += `<div class="extra-field"><label>Method</label> <span class="value">${el.validation_method}</span></div>`;
+
+      const antiItems = el.anti_goals || [];
+      let antiHTML = '';
+      if (antiItems && antiItems.length) {
+        antiHTML = `<div style="margin-top:12px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--signal-danger);font-family:'IBM Plex Mono',monospace;">Anti-goals</label><ul style="margin-top:4px;padding-left:18px;font-size:13px;color:var(--ink-soft);">${antiItems.map(a => `<li>${a}</li>`).join('')}</ul></div>`;
+      }
+
+      return `<div class="element-card">
+        <div class="element-card-header">
+          <h3>${el.title || el.name || el.id}</h3>
+          <span class="type-badge type-${el.type || ''}">${(el.type || '').replace(/_/g, ' ')}</span>
+          <span class="priority-badge priority-${el.priority || 'low'}">${el.priority || 'low'}</span>
+        </div>
+        <div class="phase-tags">${phases}</div>
+        <div class="ps-grid">
+          <div class="ps-box problem"><label>Problem</label>${el.problem || 'N/A'}</div>
+          <div class="ps-box solution"><label>Solution</label>${el.solution || el.description || 'N/A'}</div>
+        </div>
+        ${extras ? `<div class="extra-fields">${extras}</div>` : ''}
+        ${antiHTML}
+        ${evidenceCount > 0 ? `<div style="margin-top:16px;">
+          <button class="evidence-toggle">Show evidence (${evidenceCount})</button>
+          <div class="evidence-list">${evidenceItems}</div>
+        </div>` : ''}
+      </div>`;
+    }
+
+    // Render element layers (1-5, 7-8)
+    [1,2,3,4,5,7,8].forEach(i => {
+      const container = document.getElementById(`content-layer-${i}`);
+      if (!container) return;
+      const data = layers[i];
+      const elements = data?.elements || [];
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No elements discovered by this layer.</p></div>';
+        return;
+      }
+      const layerNames = {1:'Process Patterns',2:'Info Architecture',3:'Visual Patterns',4:'Interaction Patterns',5:'Emotional Elements',7:'Validation Strategies',8:'UI Elements'};
+      container.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:20px;">Layer ${i}: ${layerNames[i]} <span style="font-size:14px;color:var(--ink-muted);font-family:'IBM Plex Mono',monospace;">(${elements.length} element${elements.length!==1?'s':''})</span></h2>` + elements.map(renderElementCard).join('');
+    });
+
+    // Render Layer 0: Journey Context
+    (function renderJourney() {
+      const container = document.getElementById('content-layer-0');
+      if (!container) return;
+      const data = layers[0];
+      if (!data || !data.phases) { container.innerHTML = '<p style="color:var(--ink-ghost);font-style:italic;">No journey context data.</p>'; return; }
+
+      // CRITICAL: Guest journey phases (not host phases)
+      const phaseOrder = ['discovery','search','listing_evaluation','proposal_creation','negotiation','acceptance','move_in','active_lease'];
+      let html = '';
+      if (data.lens?.lens_summary) html += `<p style="font-size:15px;color:var(--ink-soft);margin-bottom:20px;">${data.lens.lens_summary}</p>`;
+      phaseOrder.forEach(phase => {
+        const p = data.phases[phase];
+        if (!p) return;
+        const risk = p.dropout_risk?.level || 'low';
+        html += `<div class="phase-card">
+          <h4>${phase.replace(/_/g, ' ')}</h4>
+          <p>${p.what_this_lens_reveals || 'No data for this phase.'}</p>
+          ${p.user_state ? `<p style="font-size:12px;color:var(--ink-muted);"><strong>Emotional:</strong> ${p.user_state.emotional_state || '?'}</p>` : ''}
+          <span class="risk risk-${risk}">${risk} dropout risk</span>
+        </div>`;
+      });
+      container.innerHTML = html;
+    })();
+
+    // Render Layer 6: Coherence
+    (function renderCoherence() {
+      const container = document.getElementById('content-layer-6');
+      if (!container) return;
+      const data = layers[6];
+      if (!data || Object.keys(data).length === 0) { container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence data.</p></div>'; return; }
+
+      let html = '';
+
+      // Reinforcements
+      if (data.reinforcements?.length) {
+        html += `<div class="coherence-section"><h3>Reinforcements (${data.reinforcements.length})</h3>`;
+        data.reinforcements.forEach(r => {
+          html += `<div class="reinforcement-card"><div class="card-label" style="color:var(--signal-success);">Reinforcement</div>
+            <p><strong>${r.new_element_id}</strong> reinforces <strong>${r.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${r.similarity || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${r.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Extensions
+      if (data.extensions?.length) {
+        html += `<div class="coherence-section"><h3>Extensions (${data.extensions.length})</h3>`;
+        data.extensions.forEach(ext => {
+          html += `<div class="extension-card"><div class="card-label" style="color:var(--signal-info);">New Territory</div>
+            <p><strong>${ext.new_element_id}</strong> — ${ext.gap_filled || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">${ext.confidence_note || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Coverage Map
+      if (data.coverage_map) {
+        html += '<div class="coherence-section"><h3>Journey Coverage</h3><div class="coverage-grid">';
+        Object.entries(data.coverage_map).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          html += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g, ' ')}</div>
+            <div class="count">${info.element_count || 0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+        html += '</div></div>';
+      }
+
+      container.innerHTML = html || '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence issues detected.</p></div>';
+    })();
+
+    // Overview tab
+    (function renderOverview() {
+      const coverageContainer = document.getElementById('overview-coverage');
+      const coverageData = layers[6]?.coverage_map;
+      if (coverageData && coverageContainer) {
+        Object.entries(coverageData).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          coverageContainer.innerHTML += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g,' ')}</div>
+            <div class="count">${info.element_count||0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+      }
+
+      const statsEl = document.getElementById('overview-stats');
+      if (statsEl) {
+        const stats = [
+          { label: 'Total Elements', value: totalElements },
+          { label: 'Reinforcements', value: reinforcements.length },
+          { label: 'Extensions', value: (coherence.extensions||[]).length },
+          { label: 'Active Lease Focus', value: layers[6]?.coverage_map?.active_lease?.element_count || 0 }
+        ];
+        statsEl.innerHTML = stats.map(s =>
+          `<div style="padding:14px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--accent);">${s.value}</div>
+            <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--ink-muted);text-transform:uppercase;">${s.label}</div>
+          </div>`
+        ).join('');
+      }
+
+      const highlightsEl = document.getElementById('overview-highlights');
+      if (highlightsEl) {
+        let highPriority = [];
+        [1,2,3,4,5,7,8].forEach(i => {
+          (layers[i]?.elements || []).forEach(el => {
+            if (el.priority === 'high') highPriority.push(el);
+          });
+        });
+        if (highPriority.length) {
+          highlightsEl.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:24px 0 16px;">High-Priority Elements</h2>` + highPriority.map(renderElementCard).join('');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

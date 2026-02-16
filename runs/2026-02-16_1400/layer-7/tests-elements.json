@@ -1,0 +1,362 @@
+{
+  "lens": {
+    "guest_call": "Tapper S - 9 September 2022.txt",
+    "book_extract": "microinteractions-rules-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Review Completion Rate per Stay (Core Volume Metric)",
+      "validates_element": "works-001, works-002, works-006",
+      "journey_phases": ["active_lease"],
+      "problem": "If guests don't complete reviews after cleaning photos are submitted, the entire review volume strategy fails. The cleaning photo trigger is the primary review mechanism, and its effectiveness determines whether we achieve 60%+ completion rates across all stays.",
+      "solution": "Track completion rate as: (reviews submitted / cleaning photo triggers fired) × 100. Segment by stay number (stay 1-3, 4-6, 7-12) to detect fatigue patterns. Set targets: >80% for stays 1-3, >70% for stays 4-6, >60% for stays 7-12. Monitor trigger-to-submission time (should decrease from ~60s in stay 1 to ~10s by stay 5+ if 'Same as last time' is working). If rates drop below targets, investigate: Is trigger timing wrong? Is form too complex? Is 'Same as last time' option not prominent enough?",
+      "evidence": [
+        {
+          "source": "Layer 1 works-001",
+          "type": "data",
+          "quote": "Success metric: Review completion rate per stay (target: >80% for first 3 stays, >60% for stays 4+)",
+          "insight": "Completion rate is the primary success metric for the cleaning photo trigger strategy. This validation tests whether the contextual trigger actually drives volume."
+        },
+        {
+          "source": "Layer 1 works-002",
+          "type": "data",
+          "quote": "Success metric: Review completion rate by stay number (target: >80% stay 1-3, >70% stay 4-6, >60% stay 7-12)",
+          "insight": "Long loops should maintain completion rates above 60% even at stay 12. If rates drop below this, progressive simplification isn't working."
+        },
+        {
+          "source": "Journey context, active_lease phase",
+          "type": "data",
+          "quote": "Reviews per stay (not per lease): A 3-month, 4-nights/week lease = ~12 stays = 12 review opportunities from ONE guest-host pairing. Current platforms only get 1 review per pairing. This is a 12x multiplier IF the review microinteraction is frictionless enough.",
+          "insight": "The 12x volume multiplier depends entirely on maintaining high completion rates across all 12 stays. This test validates the core business value of the stay-by-stay model."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track review completion rate per stay across all guest-host pairings. Measure: (1) Overall completion rate by stay number, (2) Trigger-to-submission time by stay number, (3) Completion rate by review method (manual vs 'Same as last time'), (4) Drop-off points (where guests abandon mid-review).",
+      "success_criteria": ">80% completion for stays 1-3, >70% for stays 4-6, >60% for stays 7-12. Average submission time decreases from 60s (stay 1) to <15s (stay 5+). 'Same as last time' adoption >50% by stay 5.",
+      "failure_meaning": "If completion rates drop below 40% by stay 6, the long loop design isn't working and review fatigue is setting in. If submission times don't decrease, pre-population and 'Same as last time' aren't being used or aren't effective. Core volume strategy fails.",
+      "implementation_hint": "Use event tracking: 'cleaning_photo_viewed' → 'review_card_appeared' → 'review_started' → 'review_submitted'. Segment by guest_id, stay_number, and submission_method. Create dashboard showing completion funnel and time-to-submit distribution by stay number."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Review Time Decay (Long Loop Effectiveness)",
+      "validates_element": "works-002, communicates-003",
+      "journey_phases": ["active_lease"],
+      "problem": "If review submission time doesn't decrease dramatically from stay 1 to stay 5+, the progressive simplification via pre-population and 'Same as last time' isn't working. Guests will experience fatigue and abandon if every review requires the same effort.",
+      "solution": "Measure median time from review card appearance to submission, segmented by stay number. Expect ~60 seconds for stay 1 (reading prompts, making decisions), declining to ~30 seconds by stay 3 (familiar with interface), and ~5-10 seconds by stay 5+ (using 'Same as last time'). If time doesn't decrease, investigate: Is pre-population not working? Is 'Same as last time' button not visible? Are guests choosing to write new comments even when experience is consistent?",
+      "evidence": [
+        {
+          "source": "Layer 1 works-002",
+          "type": "data",
+          "quote": "Time budget: Review 1: 60 seconds | Reviews 2-4: 30 seconds | Reviews 5+: 5-15 seconds (5 if using 'Same as last time', 15 if writing new feedback)",
+          "insight": "Time-to-submit is a direct measure of long loop effectiveness. The 12x decrease from 60s to 5s by stay 10 proves the design creates habit formation and reduces burden."
+        },
+        {
+          "source": "Microinteractions extract",
+          "type": "book",
+          "quote": "Long loops change the interaction based on repeated use. First time vs tenth time should be dramatically different in effort required.",
+          "insight": "If effort (time) doesn't decrease dramatically, long loops aren't working. This test validates the core microinteractions principle applied to reviews."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track time-to-submit from review card appearance to final submission, segmented by stay number and submission method. Calculate median and distribution (to catch outliers). Compare time-to-submit for 'Same as last time' vs manual rating.",
+      "success_criteria": "Median time-to-submit: Stay 1 = 50-70s, Stay 3 = 25-35s, Stay 5+ = 5-15s. 'Same as last time' submissions consistently <10s. At least 50% of reviews by stay 5+ use 'Same as last time'.",
+      "failure_meaning": "If time doesn't decrease, long loops are failing. Guests aren't using simplified options or they're not effective. If 'Same as last time' takes >15s, the interface is too complex. Review fatigue will set in and completion rates will drop.",
+      "implementation_hint": "Use high-precision timestamps: review_card_shown, same_as_last_time_tapped, stars_selected, comment_entered, review_submitted. Calculate deltas. Create time-series visualization showing time-to-submit by stay number. Alert if median exceeds targets."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "'Same as Last Time' Adoption and Accuracy",
+      "validates_element": "works-002, communicates-003, looks-006, behaves-002",
+      "journey_phases": ["active_lease"],
+      "problem": "The 'Same as last time' one-tap option is critical for maintaining volume through stay 12+. If guests don't use it (low adoption) or if it submits inaccurate reviews (pre-populated data is wrong), the feature fails. Low adoption means the button isn't visible or guests don't trust it. Inaccurate data means reviews don't reflect actual experience.",
+      "solution": "Track adoption rate: (reviews submitted via 'Same as last time' / total reviews submitted for stays 5+) × 100. Target >50% by stay 5. Also track 'Same as last time' taps followed by edits before submission—if >30%, pre-populated data is wrong or guests' experiences are changing frequently. Survey guests who edit after tapping: 'Why did you change your review?' Options: Experience changed, Pre-filled rating was wrong, Wanted to add detail.",
+      "evidence": [
+        {
+          "source": "Layer 1 works-002",
+          "type": "data",
+          "quote": "REVIEWS 5+: Offer 'Same as last time ✓' one-tap option prominently. If nothing has changed, guest taps once and review is submitted using previous ratings + auto-generated comment.",
+          "insight": "One-tap submission is the volume multiplier for recurring stays. Adoption rate directly predicts whether guests will continue reviewing through stay 12."
+        },
+        {
+          "source": "Layer 2 communicates-003",
+          "type": "data",
+          "quote": "Pre-population transforms the review from an active writing task to a passive confirmation task. This cognitive shift—from generation to recognition—reduces effort by ~80%.",
+          "insight": "If adoption is low, the cognitive shift isn't happening. Guests don't trust pre-populated data or the button isn't prominent enough."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track 'Same as last time' button taps, submissions via this method, and edit-before-submit rate. Segment by stay number. Survey guests who tap button but then edit ratings: why did they change? Was pre-filled data wrong or did experience change?",
+      "success_criteria": "Adoption >50% by stay 5, >60% by stay 8. Edit-before-submit rate <30%. Guest survey shows >70% say 'Experience was consistent' when using one-tap. <10% say 'Pre-filled rating was wrong'.",
+      "failure_meaning": "Low adoption (<40%) means button isn't visible, guests don't trust it, or experiences are changing too much. High edit rate (>40%) means pre-populated data is inaccurate or context has changed. Feature fails to reduce burden.",
+      "implementation_hint": "Event tracking: same_as_last_time_button_shown, same_as_last_time_tapped, stars_edited_after_tap, comment_edited_after_tap, review_submitted_method: 'same_as_last_time'. In-app microsurvey after edit: 'You tapped Same as last time but made changes. Why?' [Multiple choice]"
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Review Prompt Trigger Timing Effectiveness",
+      "validates_element": "works-001, behaves-003, behaves-004",
+      "journey_phases": ["active_lease"],
+      "problem": "The 500ms delay after cleaning photo view is an estimate. Too short = guest hasn't finished viewing photos, prompt feels premature. Too long = guest has moved on, prompt feels like interruption. Wrong timing kills completion rates. Also, fallback triggers (4hr push, 24hr app open, 48hr banner) may trigger too frequently or too rarely.",
+      "solution": "A/B test trigger delays: 250ms, 500ms, 1000ms, 2000ms. Measure completion rate and user sentiment (via optional dismiss feedback: 'Why not now?' → 'Still viewing photos', 'Busy', 'Don't want to review'). Optimal delay has highest completion + lowest 'Still viewing photos' dismissals. For fallback triggers, measure completion rate by trigger type: primary (cleaning photos), fallback 1 (4hr push), fallback 2 (24hr app open), fallback 3 (48hr banner). If fallback triggers have <20% completion, they're ineffective.",
+      "evidence": [
+        {
+          "source": "Layer 4 behaves-003",
+          "type": "data",
+          "quote": "Timing: Wait 500ms after last photo interaction (zoom, swipe, dismiss) to avoid premature trigger. Then animate review card sliding up from bottom edge.",
+          "insight": "500ms is a design hypothesis. This test validates whether it's the right timing to balance 'not too soon' with 'not too late'."
+        },
+        {
+          "source": "Layer 4 behaves-004",
+          "type": "data",
+          "quote": "Tiered trigger logic: primary (cleaning photos), fallback 1 (4hr push), fallback 2 (24hr app open), fallback 3 (48hr banner). Never trigger more than once per 4-hour window to avoid nagging.",
+          "insight": "Multiple trigger types mean we can measure which is most effective. If fallbacks have very low completion, we're relying too heavily on primary trigger."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test trigger delay (4 cohorts: 250ms, 500ms, 1000ms, 2000ms). Measure completion rate, time-to-submit, and dismiss reasons. For fallback triggers, track completion rate by trigger type. Survey guests who use fallback triggers: 'Why didn't you review right after viewing photos?'",
+      "success_criteria": "Primary trigger (cleaning photos) completion >70%. Optimal delay has <10% 'Still viewing photos' dismissals and >75% completion. Fallback triggers collectively capture >50% of guests who missed primary. Total completion (primary + fallbacks) >80%.",
+      "failure_meaning": "If primary trigger completion <60%, timing is wrong or trigger mechanism is flawed. If fallback completion <20%, they're not worth the complexity. If total completion <70%, we need better triggers or review experience is fundamentally broken.",
+      "implementation_hint": "Use feature flags to assign guests to delay cohorts. Track: cleaning_photo_last_interaction_timestamp, review_card_shown_timestamp, review_started_timestamp, review_dismissed_with_reason. For fallbacks, track trigger_type: 'push_4hr', 'app_open_24hr', 'banner_48hr'."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Review Fatigue Detection (Completion Rate Decay)",
+      "validates_element": "works-002, feels-002",
+      "journey_phases": ["active_lease"],
+      "problem": "If review completion rate drops below 40% after stay 6, guests are experiencing review fatigue despite progressive simplification. This means the long loop design isn't working and we're asking too much. The 12x volume multiplier disappears if guests stop reviewing halfway through the lease.",
+      "solution": "Monitor completion rate trajectory by stay number. If rate drops >15% between consecutive stay groups (e.g., 75% stays 1-3 → 55% stays 4-6 → 35% stays 7-9), trigger fatigue alert. Investigate: Are guests using 'Same as last time' (<50% adoption = problem)? Is snooze rate increasing (>40% snooze after stay 6 = fatigue)? Survey fatigued guests: 'You've stopped reviewing. Why?' Options: Takes too long, Same questions every time, Forgot, Experience is the same every time.",
+      "evidence": [
+        {
+          "source": "Journey context, active_lease phase",
+          "type": "data",
+          "quote": "Review Fatigue — analytics: does review completion rate drop below 40% after stay 6? If so, the long loop design isn't working.",
+          "insight": "40% completion at stay 6 is the red line. Below this, we've lost the volume battle. This test detects fatigue early so we can intervene."
+        },
+        {
+          "source": "Layer 5 feels-002",
+          "type": "data",
+          "quote": "Target emotion: EFFORTLESS. As reviews become routine, they should feel automatic and light, not repetitive and burdensome.",
+          "insight": "If completion drops, the emotional experience has shifted from effortless to burdensome. The design is failing to maintain lightness."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track completion rate by stay number for all guest-host pairings. Calculate 3-stay moving average. Alert if completion drops below 40% at any point. Segment by 'Same as last time' usage, snooze rate, and review length (character count). Survey guests with <40% completion after stay 6.",
+      "success_criteria": "Completion rate stays >60% through stay 12. Decline is gradual (<10% per 3-stay group). Fatigued guests (completion <40%) are <15% of cohort. Survey shows fatigue is due to 'Experience is the same' (good reason) not 'Takes too long' (bad reason).",
+      "failure_meaning": "If >30% of guests drop below 40% completion by stay 6, review fatigue is systemic. Long loops aren't working. If decline is sharp (>20% drop in single stay group), something broke (UI bug, trigger failure, snooze logic error). Volume strategy fails.",
+      "implementation_hint": "Create cohort: all guests with ≥6 stays. Calculate completion rate trajectory: stays 1-3, 4-6, 7-9, 10-12. Segment by same_as_last_time_usage (yes/no), snooze_count, avg_review_length. Dashboard shows completion rate by stay number with 60% threshold line. Auto-trigger survey for guests who drop below 40%."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Emotional Impact of Reviews (Perceived Ease vs Chore)",
+      "validates_element": "feels-001, feels-002, feels-003",
+      "journey_phases": ["active_lease"],
+      "problem": "Quantitative metrics (completion rate, time-to-submit) don't capture emotional experience. Guests might complete reviews because they feel obligated, not because reviews feel effortless or rewarding. If reviews feel like chores, long-term loyalty and platform satisfaction suffer even if short-term volume is maintained.",
+      "solution": "Usability testing with 10-15 guests who have completed 4+ reviews. Screen-record review sessions (stay 5+) while guests think aloud. Ask: 'How do you feel about leaving reviews?' 'Is reviewing easy or hard?' 'Do you feel your reviews matter?' Post-session survey: Rate agreement (1-5 scale) with statements: 'Reviews feel quick and easy', 'Reviews feel like a chore', 'I know my reviews help other guests', 'The one-tap option saves me time'. Target: >4.0 on positive statements, <2.0 on negative.",
+      "evidence": [
+        {
+          "source": "Journey context, active_lease phase",
+          "type": "data",
+          "quote": "Emotional Impact — usability test: do guests describe reviews as 'easy' or 'a chore'?",
+          "insight": "This is a direct emotional test. Language guests use reveals whether the design achieves its emotional goals (effortless, appreciated) or fails (burdensome, obligatory)."
+        },
+        {
+          "source": "Layer 5 feels-002",
+          "type": "data",
+          "quote": "The emotion shifts from 'obligation' to 'habit' to 'automatic.' By stay 8 of 12, reviews must NOT feel like a chore.",
+          "insight": "If guests say 'chore' in usability tests, the emotional arc is broken. Progressive simplification isn't creating lightness."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 10-15 guests with 4+ stays. Screen-record review sessions at stay 5+. Conduct think-aloud protocol. Post-session survey with Likert scale (1-5) on emotional statements. Analyze language used: 'easy', 'quick', 'simple' (good) vs 'annoying', 'tedious', 'chore' (bad).",
+      "success_criteria": ">80% of guests use positive language (easy, quick, simple). Average rating >4.0 on 'Reviews feel quick and easy', >3.5 on 'I know my reviews help', <2.0 on 'Reviews feel like a chore'. Guests explicitly mention 'Same as last time' as time-saver.",
+      "failure_meaning": "If >50% use negative language or rate 'feels like a chore' >3.0, emotional design fails. Guests are completing reviews out of obligation or social pressure, not because the experience is effortless. Long-term retention risk.",
+      "implementation_hint": "Recruit from cohort with 4-8 stays (mid-lease, multiple reviews completed). Use remote testing tool (UserTesting, Lookback) for screen recording. Include both high-completers (>80% completion) and low-completers (40-60%) to understand difference. Analyze transcripts for emotional keywords."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Pricing Comprehension Speed (5-Second Test)",
+      "validates_element": "communicates-004, looks-005, feels-005",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "Tapper's pricing confusion (per-bedroom vs full-unit, 2x cost surprise) caused near-dropout. If guests can't calculate total cost within 5 seconds, pricing clarity design fails. Cognitive burden means guests either misunderstand and experience negative surprise later, or abandon because they can't quickly assess affordability.",
+      "solution": "5-second usability test with listing mockups showing pricing hierarchy. Show listing for 5 seconds, hide it, ask: 'What is the total cost for this lease?' 'Is it within a $2,500/month budget?' 'Is the price per-bedroom or whole-unit?' Correct answers within 5 seconds = pricing is clear. Test variants: (1) Total cost in 36px purple, (2) Per-night rate dominant, (3) Per-bedroom pricing with/without warning badge. Measure accuracy and confidence ('How sure are you? 1-5').",
+      "evidence": [
+        {
+          "source": "Tapper S call, lines 02:45-04:46",
+          "type": "guest_call",
+          "quote": "so 74, 73 per night, that is per, and it is two bedroom... Oh, okay. That one would be out of our price range.",
+          "insight": "Tapper couldn't calculate total cost and experienced 2x surprise. This test prevents that by validating guests can calculate total cost in 5 seconds from visual scan."
+        },
+        {
+          "source": "Layer 2 communicates-004",
+          "type": "data",
+          "quote": "Cognitive load constraint: Guest should answer 'Can I afford this?' in <5 seconds of scanning. One large number (total cost) achieves this.",
+          "insight": "5 seconds is the design target. This test directly validates whether the typographic hierarchy achieves the goal."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 20-30 guests (mix of current users and non-users). Show listing mockup for 5 seconds, hide, ask total cost and budget fit questions. Test 3 variants: (A) Total cost 36px, (B) Per-night dominant, (C) Total cost + per-bedroom warning badge. Measure accuracy, response time, confidence.",
+      "success_criteria": "Variant A (total cost dominant): >80% answer total cost correctly, >70% answer budget fit correctly, >90% identify per-bedroom vs whole-unit correctly. Average response time <5s. Confidence >4.0/5.",
+      "failure_meaning": "If accuracy <70% or response time >8s, pricing hierarchy isn't working. Guests can't quickly assess affordability. Dropdown risk remains high. If per-bedroom identification <80%, warning badge or hierarchy isn't clear.",
+      "implementation_hint": "Use UserTesting or similar for remote 5-second tests. Create listing mockups in Figma with different pricing hierarchies. Randomize variant order. Track: time_to_answer, accuracy, confidence_rating. Analyze by variant. Also track self-reported confusion: 'Was anything unclear?'"
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "End-to-End Review Volume (4x Multiplier)",
+      "validates_element": "works-001, works-002, works-003, works-004, works-005, works-006",
+      "journey_phases": ["active_lease"],
+      "problem": "The stay-by-stay review system's business value is 4x more reviews per guest-host pairing vs traditional one-review-per-lease. This is a journey-level outcome, not a single element outcome. If we don't achieve 4x (ideally 10-12x for a 12-stay lease), the entire review strategy fails despite individual elements working.",
+      "solution": "Track reviews per guest-host pairing, segmented by: (1) Total stays in lease, (2) Actual reviews submitted, (3) Reviews per pairing ratio (reviews / stays). Compare to control group (traditional post-lease review). Target: 4x minimum, 8x ideal for 12-stay leases. For 3-month lease with 12 stays: expect 8-10 reviews (accounting for 60-70% completion rate later in lease). If ratio drops below 4x, identify bottlenecks: Low completion rate (tests-001)? High fatigue (tests-005)? Trigger failures (tests-004)?",
+      "evidence": [
+        {
+          "source": "Journey context, active_lease phase",
+          "type": "data",
+          "quote": "End-to-End Review Volume — does the full system generate 4x more reviews per guest-host pairing than traditional one-review-per-lease?",
+          "insight": "This is the ultimate validation of the review system's business value. All individual elements must work together to achieve 4x minimum."
+        },
+        {
+          "source": "Journey context, review_volume_analysis",
+          "type": "data",
+          "quote": "Reviews per stay (not per lease): A 3-month, 4-nights/week lease = ~12 stays = 12 review opportunities. Current platforms only get 1 review per pairing. This is a 12x multiplier IF the review microinteraction is frictionless enough.",
+          "insight": "The 12x multiplier is the ideal. 4x is the minimum viable outcome to justify the design investment. This test measures actual ROI."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track all guest-host pairings with completed leases. Calculate: (1) Total stays per lease, (2) Total reviews submitted, (3) Reviews-per-pairing ratio. Compare to control group (post-lease review only) or industry benchmark (Airbnb: ~50% review rate per booking). Segment by lease length (1 month, 3 months, 6 months).",
+      "success_criteria": "Average 8-10 reviews per 12-stay lease (70-80% per-stay completion). Reviews-per-pairing ratio >4x vs post-lease review. For 3-month leases: median 8 reviews, mean 7-9 reviews. <20% of pairings have zero reviews.",
+      "failure_meaning": "If ratio <4x, stay-by-stay model doesn't justify added complexity. If <3 reviews per 12-stay lease, system is fundamentally broken (25% completion). If >30% pairings have zero reviews, trigger or onboarding is failing.",
+      "implementation_hint": "Data warehouse query: SELECT guest_id, host_id, lease_start, lease_end, COUNT(stays) AS total_stays, COUNT(reviews) AS total_reviews, (COUNT(reviews) / COUNT(stays)) AS completion_rate FROM stays JOIN reviews ON stay_id. Create dashboard showing distribution of reviews-per-pairing, segmented by lease length."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Star Rating Interaction Responsiveness (<100ms)",
+      "validates_element": "behaves-001, looks-002",
+      "journey_phases": ["active_lease"],
+      "problem": "If star rating tap doesn't feel instant (<100ms), guests perceive lag and uncertainty ('Did my tap register?'). For 12+ reviews per lease, any friction compounds into abandonment. The Microinteractions book specifies <100ms for perceived instantaneousness. This is a performance and UX test.",
+      "solution": "Automated performance testing: measure time from tap event to star fill animation start. Target <50ms (buffer below 100ms). Test on various devices (low-end Android, iPhone, tablet). Also A/B test animation duration: 100ms, 200ms, 300ms. Measure abandonment rate and optional feedback ('Stars felt slow/laggy'). Optimal: <50ms response + 100-200ms animation.",
+      "evidence": [
+        {
+          "source": "Layer 4 behaves-001",
+          "type": "data",
+          "quote": "Timing: response_target: 50ms, animation_duration: 100ms, easing: cubic-bezier(0.34, 1.56, 0.64, 1). Sub-100ms creates perception of instantaneousness.",
+          "insight": "50ms response + 100ms animation = 150ms total, well below 200ms threshold for perceived instant feedback. This test validates performance meets design spec."
+        },
+        {
+          "source": "Microinteractions extract, Feedback chapter",
+          "type": "book",
+          "quote": "Feedback should feel immediate—user actions should trigger responses within 100ms to feel instant.",
+          "insight": "100ms is the threshold for perceived instantaneousness. Above this, users notice lag and perceive the product as slow or broken."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Automated UI testing (Selenium, Detox) to measure tap-to-animation timing on various devices. Also manual testing with high-speed camera to verify timing. A/B test animation durations with real users, measure abandonment and perceived responsiveness survey.",
+      "success_criteria": "95% of taps respond in <50ms. Animation completes in 100-150ms. Total tap-to-settled <200ms. User survey: >90% rate responsiveness 4-5/5 ('Stars felt instant'). Abandonment rate <2% (excluding intentional dismissals).",
+      "failure_meaning": "If response >100ms, performance is unacceptable. Users will perceive lag and may doubt their tap registered, leading to double-taps or abandonment. If animation >300ms, it feels sluggish. If survey rating <3.5/5, perceived performance is poor.",
+      "implementation_hint": "Use React Native or native performance profiling to measure event-to-render time. High-speed video (240fps) to verify actual timing matches instrumentation. A/B test via feature flag: animation_duration_ms. Survey after 3+ reviews: 'How responsive did star rating feel?' 1-5 scale."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Snooze Behavior Adoption and Timing Preferences",
+      "validates_element": "behaves-006",
+      "journey_phases": ["active_lease"],
+      "problem": "If guests dismiss reviews without snoozing (no timing preference selected), they're unlikely to return to review. If snooze timing is wrong (guests select 'Tonight' but don't review then), the feature isn't matching user intent. Snooze is a volume recovery mechanism—if it doesn't work, we lose guests who weren't ready to review immediately.",
+      "solution": "Track: (1) Dismiss with snooze selection rate (vs dismiss without snooze), (2) Snooze timing selected ('1 hour', 'Tonight', 'Tomorrow'), (3) Review completion rate after snooze (vs guests who didn't snooze). Target: >60% of dismissals include snooze selection. >40% of snoozed reviews complete after re-trigger. If completion after snooze <30%, snooze timing is wrong or guests are dismissing to avoid forever.",
+      "evidence": [
+        {
+          "source": "Layer 4 behaves-006",
+          "type": "data",
+          "quote": "Multi-level snooze options with adaptive learning: 'In 1 hour', 'Tonight (6pm)', 'Tomorrow'. Default highlighted based on time of day. Guest has control over timing.",
+          "insight": "Snooze gives guests control, reducing annoyance. But if guests don't use snooze or don't complete after re-trigger, the feature is wasted complexity."
+        },
+        {
+          "source": "Journey context, active_lease phase",
+          "type": "data",
+          "quote": "Friction reducers: Allow skip/defer ('Remind me later') without guilt or repeated nagging.",
+          "insight": "Snooze is the defer mechanism. Adoption rate measures whether guests feel they have control and respect for their timing."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track: review_dismissed (with/without snooze), snooze_timing_selected, review_re_triggered_at_snooze_time, review_completed_after_snooze. Segment by time_of_day (morning/afternoon/evening) to see if defaults are smart. Survey guests who snooze but don't complete: 'Why didn't you review after snooze reminder?'",
+      "success_criteria": ">60% of dismissals include snooze selection. 'Tonight' is most popular option (>40% of snoozes). >40% of snoozed reviews complete after re-trigger. <20% of guests snooze 3+ times without completing (serial snoozers).",
+      "failure_meaning": "If snooze adoption <40%, guests don't see the options or don't trust the system will re-trigger. If completion after snooze <25%, snooze timing doesn't match guest availability or they're using snooze as permanent dismiss.",
+      "implementation_hint": "Event tracking: review_dismissed, snooze_selected: ['1_hour', 'tonight', 'tomorrow', 'skip'], snooze_trigger_fired, review_completed_from_snooze. Dashboard shows snooze adoption funnel: dismissed → snoozed → re-triggered → completed. Cohort analysis by time_of_day_dismissed."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Pricing Transparency Trust Impact (Discovery → Evaluation)",
+      "validates_element": "feels-005, communicates-004",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Pricing confusion in discovery/evaluation creates distrust that carries through entire journey, reducing review participation later. If guests feel misled about pricing, they're less likely to reciprocate with reviews. This is a cross-phase trust measurement.",
+      "solution": "Survey guests post-acceptance (after lease signing): 'Did you ever feel confused about pricing?' (yes/no). If yes: 'When?' (Discovery, Search, Evaluation, Proposal). Also: 'Do you trust Split Lease's pricing transparency?' (1-5 scale). Correlate trust rating with review completion rate in active_lease. Hypothesis: guests with trust rating >4.0 have >70% review completion; guests with <3.0 have <50% completion. Pricing transparency builds trust that enables reciprocity.",
+      "evidence": [
+        {
+          "source": "Journey context, listing_evaluation phase",
+          "type": "data",
+          "quote": "This phase directly shapes review sentiment. If a guest feels misled about pricing during evaluation but proceeds anyway, they arrive at the listing with negative bias... Misled guests write harsh reviews or no reviews.",
+          "insight": "Pricing transparency is a trust gate that affects ALL downstream engagement, including reviews. This test measures the cross-phase trust impact."
+        },
+        {
+          "source": "Layer 5 feels-005",
+          "type": "data",
+          "quote": "Trust is the emotional currency of reciprocity. Guests who trust the platform are more willing to contribute (reviews) because they believe in the system. Distrust kills reciprocity.",
+          "insight": "Trust created in discovery/evaluation phases pays off in active_lease review participation. This test quantifies the trust→reciprocity link."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Post-acceptance survey (email or in-app after lease signing): 'Did you ever feel confused about pricing?' + 'When?' + 'Do you trust Split Lease's pricing transparency?' (1-5). Link survey responses to guest_id. In active_lease, correlate trust_rating with review_completion_rate. Segment: high trust (4-5), medium trust (3-4), low trust (1-2).",
+      "success_criteria": "<20% report pricing confusion. Of those confused, >70% say it was resolved by listing evaluation. Trust rating: mean >4.0. High-trust guests have 65-75% review completion. Medium-trust: 50-60%. Low-trust: <40%. Clear correlation between trust and reciprocity.",
+      "failure_meaning": "If >40% report pricing confusion or confusion persists to proposal, pricing design fails. If trust rating <3.5, distrust is systemic. If no correlation between trust and review completion, trust doesn't drive reciprocity (other factors dominate).",
+      "implementation_hint": "Post-acceptance survey via Typeform or in-app modal. Response rate target: >40%. Store: guest_id, pricing_confused (bool), confusion_phase (text), trust_rating (1-5). In data warehouse, JOIN guests ON guest_id with reviews to calculate review_completion_rate. Scatter plot: trust_rating (x) vs completion_rate (y)."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Reciprocity Trigger Effectiveness (Host Reviews Guest → Guest Reviews Host)",
+      "validates_element": "works-003",
+      "journey_phases": ["active_lease"],
+      "problem": "The reciprocity trigger (host reviews guest → guest notified to review host) is a secondary review capture mechanism. If conversion rate from notification to review completion <30%, the feature isn't worth maintaining. Also, if guests who use reciprocity trigger are slower to review (>48 hours), it's not an effective prompt.",
+      "solution": "Track: (1) Host reviews submitted, (2) Reciprocity notifications sent to guests, (3) Guest reviews completed within 48 hours of notification, (4) Conversion rate (guest reviews / notifications). Target >50% conversion within 48 hours. Compare to guests who reviewed without reciprocity trigger. If reciprocity-triggered reviews have lower ratings (more negative), the prompt may bias guests negatively ('The host reviewed me, now I have to be honest about problems').",
+      "evidence": [
+        {
+          "source": "Layer 1 works-003",
+          "type": "data",
+          "quote": "Success metric: Conversion rate from 'host reviewed guest' to 'guest completes review' (target: >50% within 48 hours)",
+          "insight": "Reciprocity is a proven behavioral trigger, but this specific implementation needs validation. 50% conversion is the success threshold."
+        },
+        {
+          "source": "Journey context, review_volume_analysis",
+          "type": "data",
+          "quote": "Reciprocity trigger: When host reviews guest, guest gets notification. Social norm of reciprocity increases participation.",
+          "insight": "Reciprocity is a volume multiplier for guests who missed the primary trigger. But if conversion is low, the added complexity isn't justified."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track: host_review_submitted → reciprocity_notification_sent → notification_opened → guest_review_started → guest_review_submitted. Calculate conversion rate and time-to-review. Compare to baseline (reviews without reciprocity trigger). Also compare average rating: reciprocity-triggered vs non-reciprocity-triggered.",
+      "success_criteria": ">50% of notified guests complete review within 48 hours. Time-to-review from notification: median <12 hours. Average rating difference <0.3 stars (reciprocity doesn't bias negatively). Reciprocity trigger captures >20% of guests who missed primary trigger.",
+      "failure_meaning": "If conversion <30%, reciprocity trigger is weak and not worth the complexity. If time-to-review >72 hours, notification doesn't create urgency. If ratings are >0.5 stars lower, trigger biases guests negatively ('I have to be honest now').",
+      "implementation_hint": "Event tracking: host_review_submitted → reciprocity_notification_sent (with notification_id) → notification_opened → guest_review_completed (with source: 'reciprocity'). Calculate conversion funnel. Cohort analysis: reciprocity-triggered reviews vs primary-trigger reviews. Compare: time-to-review, average_rating, completion_rate."
+    }
+  ]
+}
