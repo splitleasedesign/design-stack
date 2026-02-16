@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Process Orchestrator — Exploded View</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a12;
+    color: #e0dfe6;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 60px 24px 20px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, #7c3aed, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 15px;
+    color: #8b8a97;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 24px 40px;
+    flex-wrap: wrap;
+  }
+  .ctrl-btn {
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid #2d2b3d;
+    background: #16141f;
+    color: #a09fb0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .ctrl-btn:hover, .ctrl-btn.active {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    color: #fff;
+  }
+
+  /* ── Canvas area ── */
+  .canvas {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+  }
+
+  /* ── Exploded tiers ── */
+  .tier {
+    position: relative;
+    margin-bottom: 0;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s;
+  }
+  .tier.collapsed { transform: translateY(0); }
+
+  .tier-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #5b5a6d;
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    position: relative;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: default;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Card variants */
+  .card--user {
+    background: linear-gradient(135deg, #1a1830 0%, #1e1a35 100%);
+    border: 1px solid #2d2860;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.08);
+  }
+  .card--registry {
+    background: linear-gradient(135deg, #141320 0%, #1a1630 100%);
+    border: 1px solid #2a2550;
+    box-shadow: 0 4px 24px rgba(109, 49, 194, 0.1);
+  }
+  .card--orchestrator {
+    background: linear-gradient(135deg, #1c1035 0%, #25103f 100%);
+    border: 1.5px solid #7c3aed;
+    box-shadow: 0 8px 32px rgba(124, 58, 237, 0.2);
+  }
+  .card--layer {
+    background: #13121d;
+    border: 1px solid #25233a;
+  }
+  .card--layer.active-layer {
+    border-color: #7c3aed;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+  }
+  .card--post {
+    background: linear-gradient(135deg, #0f1520 0%, #101828 100%);
+    border: 1px solid #1e3050;
+  }
+  .card--output {
+    background: linear-gradient(135deg, #0d1a15 0%, #0f2018 100%);
+    border: 1px solid #1a4030;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .icon {
+    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: #8b8a97;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+  }
+
+  /* ── Process selector row ── */
+  .process-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .process-card {
+    border-radius: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .process-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+  .process-card.selected::before { opacity: 1; }
+
+  .process-card--ds {
+    background: #1a1535;
+    border: 1px solid #2d2560;
+  }
+  .process-card--ds.selected { border-color: #7c3aed; background: #201845; }
+  .process-card--ds::before { background: #7c3aed; }
+
+  .process-card--rb {
+    background: #1a1520;
+    border: 1px solid #352535;
+  }
+  .process-card--rb.selected { border-color: #e879a0; background: #251828; }
+  .process-card--rb::before { background: #e879a0; }
+
+  .process-card--te {
+    background: #151a1a;
+    border: 1px solid #253535;
+  }
+  .process-card--te.selected { border-color: #34d399; background: #182520; }
+  .process-card--te::before { background: #34d399; }
+
+  .process-card .p-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .process-card .p-layers {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #6b6a7d;
+  }
+  .process-card .p-status {
+    font-size: 11px;
+    margin-top: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    font-weight: 500;
+  }
+  .p-status.live { background: rgba(124,58,237,0.15); color: #a78bfa; }
+  .p-status.stub { background: rgba(107,114,128,0.15); color: #9ca3af; }
+
+  /* ── Layer pipeline ── */
+  .pipeline {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    align-items: center;
+  }
+  .layer-chip {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    background: #1a1830;
+    border: 1px solid #2a2850;
+    color: #8b8a97;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .layer-chip.done {
+    background: rgba(124, 58, 237, 0.12);
+    border-color: #7c3aed;
+    color: #c4b5fd;
+  }
+  .layer-chip.running {
+    background: rgba(124, 58, 237, 0.25);
+    border-color: #a78bfa;
+    color: #fff;
+    animation: pulse-chip 1.5s infinite;
+  }
+  @keyframes pulse-chip {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
+    50% { box-shadow: 0 0 12px 2px rgba(124, 58, 237, 0.3); }
+  }
+  .layer-arrow {
+    color: #3a3855;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* ── Connector lines ── */
+  .connector {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+    position: relative;
+  }
+  .connector .line {
+    width: 2px;
+    height: 32px;
+    background: linear-gradient(to bottom, #2d2b5a, #7c3aed40);
+    border-radius: 2px;
+    position: relative;
+  }
+  .connector .line::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    border-left: 2px solid #7c3aed60;
+    border-bottom: 2px solid #7c3aed60;
+    transform: translateX(-50%) rotate(-45deg);
+  }
+  .connector.wide .line {
+    height: 48px;
+  }
+  .connector .label {
+    position: absolute;
+    left: calc(50% + 16px);
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #5b5a6d;
+    white-space: nowrap;
+  }
+
+  /* ── Data flow annotation ── */
+  .flow-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    margin-right: 6px;
+    margin-top: 6px;
+  }
+  .flow-tag--read { background: rgba(96, 165, 250, 0.1); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.2); }
+  .flow-tag--write { background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.2); }
+  .flow-tag--exec { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+
+  /* ── Shared sources grid ── */
+  .sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .source-pill {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #13121d;
+    border: 1px solid #25233a;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #8b8a97;
+    text-align: center;
+  }
+
+  /* ── Post-processing steps ── */
+  .post-steps {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .post-step {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s;
+  }
+  .post-step--report { background: rgba(96, 165, 250, 0.08); border: 1px solid rgba(96, 165, 250, 0.2); color: #93bbfd; }
+  .post-step--merge { background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.2); color: #fcd34d; }
+  .post-step--manifest { background: rgba(52, 211, 153, 0.08); border: 1px solid rgba(52, 211, 153, 0.2); color: #6ee7b7; }
+  .post-step--rebuild { background: rgba(167, 139, 250, 0.08); border: 1px solid rgba(167, 139, 250, 0.2); color: #c4b5fd; }
+  .post-step--slack { background: rgba(232, 121, 160, 0.08); border: 1px solid rgba(232, 121, 160, 0.2); color: #f0a0be; }
+
+  /* ── Output files ── */
+  .output-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .output-file {
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: rgba(52, 211, 153, 0.04);
+    border: 1px solid rgba(52, 211, 153, 0.15);
+  }
+  .output-file .of-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #6ee7b7;
+    margin-bottom: 4px;
+  }
+  .output-file .of-desc {
+    font-size: 11px;
+    color: #5b6d60;
+  }
+
+  /* ── Explode animation ── */
+  .exploded .tier:nth-child(1) { transform: translateY(-20px); }
+  .exploded .tier:nth-child(3) { transform: translateY(0px); }
+  .exploded .tier:nth-child(5) { transform: translateY(10px); }
+  .exploded .tier:nth-child(7) { transform: translateY(20px); }
+  .exploded .tier:nth-child(9) { transform: translateY(30px); }
+  .exploded .tier:nth-child(11) { transform: translateY(40px); }
+  .exploded .tier:nth-child(13) { transform: translateY(50px); }
+
+  /* ── Subagent detail card ── */
+  .subagent-detail {
+    background: #100e1a;
+    border: 1px solid #2a2850;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 14px;
+  }
+  .subagent-detail h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #c4b5fd;
+    margin-bottom: 10px;
+  }
+  .prompt-structure {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    color: #6b6a7d;
+  }
+  .prompt-structure .ps-section {
+    color: #a78bfa;
+  }
+  .prompt-structure .ps-dynamic {
+    color: #fbbf24;
+    font-style: italic;
+  }
+  .prompt-structure .ps-comment {
+    color: #3d3c50;
+  }
+
+  /* ── Tooltip ── */
+  .info-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid #7c3aed40;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #7c3aed;
+    cursor: help;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .info-dot:hover .tooltip {
+    opacity: 1;
+    transform: translateX(0) translateY(-50%);
+    pointer-events: auto;
+  }
+  .tooltip {
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    transform: translateX(-4px) translateY(-50%);
+    background: #1e1c30;
+    border: 1px solid #3a3860;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #c0bfd0;
+    width: 260px;
+    line-height: 1.5;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    z-index: 10;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .process-row { grid-template-columns: 1fr; }
+    .output-grid { grid-template-columns: 1fr; }
+    .sources-grid { grid-template-columns: repeat(2, 1fr); }
+    .header h1 { font-size: 24px; }
+  }
+
+  /* ── Before/After comparison ── */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .comparison-side {
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .comparison-side h4 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+  }
+  .comparison-side.before {
+    background: rgba(239, 68, 68, 0.04);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+  }
+  .comparison-side.before h4 { color: #f87171; }
+  .comparison-side.after {
+    background: rgba(52, 211, 153, 0.04);
+    border: 1px solid rgba(52, 211, 153, 0.15);
+  }
+  .comparison-side.after h4 { color: #34d399; }
+  .comparison-side code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #8b8a97;
+    display: block;
+    white-space: pre-wrap;
+  }
+  .comparison-side .red { color: #f87171; }
+  .comparison-side .green { color: #34d399; }
+  .comparison-side .purple { color: #a78bfa; }
+  .comparison-side .yellow { color: #fbbf24; }
+  .comparison-side .dim { color: #3d3c50; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Multi-Process Orchestrator</h1>
+  <p>Exploded view: how a user request flows through the generic pipeline architecture</p>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn active" onclick="setView('exploded')">Exploded View</button>
+  <button class="ctrl-btn" onclick="setView('collapsed')">Collapsed</button>
+  <button class="ctrl-btn" onclick="toggleAnimate()">Animate Flow</button>
+</div>
+
+<div class="canvas exploded" id="canvas">
+
+  <!-- ════ TIER 1: USER REQUEST ════ -->
+  <div class="tier" id="tier-user">
+    <div class="tier-label">01 &mdash; User Request</div>
+    <div class="card card--user">
+      <div class="card-title">
+        <span class="icon" style="background:rgba(124,58,237,0.12);">&#x1F464;</span>
+        User says: <span style="color:#c4b5fd; font-style:italic; font-weight:400;">"Run a design-stack guest pipeline"</span>
+      </div>
+      <div class="card-desc" style="margin-top:8px;">
+        The orchestrator parses: <strong style="color:#a78bfa;">process_type</strong> = design-stack,
+        <strong style="color:#a78bfa;">journey_type</strong> = guest.
+        If no lens is specified, it suggests the next unused call + book combination.
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">
+    <div class="line"></div>
+    <span class="label">determines process_type</span>
+  </div>
+
+  <!-- ════ TIER 2: PROCESS REGISTRY ════ -->
+  <div class="tier" id="tier-registry">
+    <div class="tier-label">02 &mdash; Process Registry</div>
+    <div class="card card--registry">
+      <div class="card-title">
+        <span class="icon" style="background:rgba(109,49,194,0.12);">&#x1F4C1;</span>
+        <code style="font-family:'JetBrains Mono'; font-size:14px;">processes/</code> directory
+        <span class="info-dot">?
+          <span class="tooltip">Each process type is a self-contained folder with a process.json definition and its agent prompts. The orchestrator never needs code changes to support a new process &mdash; just add a folder.</span>
+        </span>
+      </div>
+      <div class="card-desc">The orchestrator reads <code style="color:#a78bfa;">processes/{process_type}/process.json</code> to learn what to do.</div>
+
+      <div class="process-row" id="processRow">
+        <div class="process-card process-card--ds selected" onclick="selectProcess('ds')">
+          <div class="p-name" style="color:#c4b5fd;">design-stack</div>
+          <div class="p-layers">9 layers &middot; 8 agents</div>
+          <div class="p-status live">Live &mdash; 5 runs</div>
+        </div>
+        <div class="process-card process-card--rb" onclick="selectProcess('rb')">
+          <div class="p-name" style="color:#f0a0be;">reverse-benchmark</div>
+          <div class="p-layers">6 layers &middot; 6 agents</div>
+          <div class="p-status stub">Stub</div>
+        </div>
+        <div class="process-card process-card--te" onclick="selectProcess('te')">
+          <div class="p-name" style="color:#6ee7b7;">transcript-extraction</div>
+          <div class="p-layers">5 layers &middot; 5 agents</div>
+          <div class="p-status stub">Stub</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">
+    <div class="line"></div>
+    <span class="label">reads process.json</span>
+  </div>
+
+  <!-- ════ TIER 3: PROCESS.JSON ════ -->
+  <div class="tier" id="tier-json">
+    <div class="tier-label">03 &mdash; Process Definition (process.json)</div>
+    <div class="card card--registry" style="border-color:#3d2b70;">
+      <div class="card-title">
+        <span class="icon" style="background:rgba(251,191,36,0.1);">&#x1F4CB;</span>
+        <span id="jsonTitle">process.json &mdash; design-stack</span>
+      </div>
+      <div class="card-desc" id="jsonDesc">
+        Defines <strong>everything</strong> the orchestrator needs: layer order, agent file paths, source dependencies,
+        dedup rules, post-processing steps, and model selection.
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
+        <div>
+          <div style="font-size:11px; color:#5b5a6d; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Lens Inputs</div>
+          <div id="lensInputs">
+            <span class="flow-tag flow-tag--read">call_file</span>
+            <span class="flow-tag flow-tag--read">book_extract</span>
+          </div>
+          <div style="font-size:11px; color:#5b5a6d; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:12px 0 8px;">Dedup Key</div>
+          <div id="dedupKey" style="font-family:'JetBrains Mono'; font-size:11px; color:#fbbf24;">
+            [journey_type, call_file, book_extract]
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:#5b5a6d; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Shared Sources</div>
+          <div class="sources-grid" id="sharedSources">
+            <div class="source-pill">journey_map</div>
+            <div class="source-pill">journey_types</div>
+            <div class="source-pill">taste_model</div>
+            <div class="source-pill">lens_guide</div>
+            <div class="source-pill">element_library</div>
+            <div class="source-pill">tokens</div>
+            <div class="source-pill">style_guide</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector wide">
+    <div class="line" style="height:48px;"></div>
+    <span class="label">configures layers[], sources, model</span>
+  </div>
+
+  <!-- ════ TIER 4: ORCHESTRATOR ════ -->
+  <div class="tier" id="tier-orchestrator">
+    <div class="tier-label">04 &mdash; Orchestrator (Generic Runner)</div>
+    <div class="card card--orchestrator">
+      <div class="card-title">
+        <span class="icon" style="background:rgba(124,58,237,0.2);">&#x2699;&#xFE0F;</span>
+        agents/orchestrator.md <span style="font-size:12px; font-weight:400; color:#7c6aad;">v3.0</span>
+      </div>
+      <div class="card-desc">
+        Reads process.json &rarr; creates run directory &rarr; checks manifest for dedup &rarr;
+        iterates through <code style="color:#a78bfa;">layers[]</code> sequentially &rarr; runs post-processing.
+        <br><strong style="color:#c4b5fd;">Same orchestrator for every process type.</strong> Zero code changes to add a new pipeline.
+      </div>
+
+      <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
+        <span class="flow-tag flow-tag--read">Read process.json</span>
+        <span class="flow-tag flow-tag--read">Read manifest (dedup)</span>
+        <span class="flow-tag flow-tag--write">Write run-config.json</span>
+        <span class="flow-tag flow-tag--exec">mkdir layer-{N}</span>
+        <span class="flow-tag flow-tag--exec">claude -p (per layer)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector wide">
+    <div class="line" style="height:48px;"></div>
+    <span class="label">for each layer in layers[]</span>
+  </div>
+
+  <!-- ════ TIER 5: LAYER PIPELINE ════ -->
+  <div class="tier" id="tier-layers">
+    <div class="tier-label">05 &mdash; Layer Pipeline (sequential execution)</div>
+    <div class="card card--layer">
+      <div class="card-title">
+        <span class="icon" style="background:rgba(124,58,237,0.1);">&#x1F4E6;</span>
+        <span id="layerPipelineTitle">9 Layers &mdash; design-stack</span>
+      </div>
+      <div class="card-desc">Each layer runs as a separate <code style="color:#fbbf24;">claude -p</code> subprocess. The orchestrator builds the prompt from process.json config, writes it to <code>layer-N/prompt.md</code>, and pipes it to Claude.</div>
+
+      <div class="pipeline" id="layerChips">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="subagent-detail">
+        <h4>How the orchestrator builds each layer prompt:</h4>
+        <div class="prompt-structure">
+          <span class="ps-section">## Journey Context</span> <span class="ps-comment">&larr; if journey_context_block: true</span><br>
+          <span class="ps-dynamic">&nbsp;&nbsp;{from journey-types.json: phases, role, descriptions}</span><br><br>
+          <span class="ps-section">## Agent Instructions</span><br>
+          <span class="ps-dynamic">&nbsp;&nbsp;{paste processes/{type}/agents/{layer.agent}}</span><br><br>
+          <span class="ps-section">## Source Materials</span><br>
+          <span class="ps-dynamic">&nbsp;&nbsp;{resolve layer.sources[] via shared_sources map}</span><br><br>
+          <span class="ps-section">## Previous Layer Outputs</span><br>
+          <span class="ps-dynamic">&nbsp;&nbsp;{read JSON from layers in depends_on[]}</span><br><br>
+          <span class="ps-section">## Output Instructions</span><br>
+          <span class="ps-dynamic">&nbsp;&nbsp;Save to: runs/{RUN_ID}/layer-{N}/{layer.output}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector wide">
+    <div class="line" style="height:48px;"></div>
+    <span class="label">all layers complete &rarr; post_processing[]</span>
+  </div>
+
+  <!-- ════ TIER 6: POST-PROCESSING ════ -->
+  <div class="tier" id="tier-post">
+    <div class="tier-label">06 &mdash; Post-Processing</div>
+    <div class="card card--post">
+      <div class="card-title">
+        <span class="icon" style="background:rgba(96,165,250,0.1);">&#x1F527;</span>
+        Post-Processing Pipeline
+      </div>
+      <div class="card-desc">Steps listed in <code style="color:#a78bfa;">process.json &rarr; post_processing[]</code>, executed in order.</div>
+
+      <div class="post-steps">
+        <div class="post-step post-step--report">&#x1F4C4; generate_report</div>
+        <div class="post-step post-step--report">&#x1F3A8; generate_run_library</div>
+        <div class="post-step post-step--merge">&#x1F500; merge_elements</div>
+        <div class="post-step post-step--manifest">&#x1F4DD; update_manifest</div>
+        <div class="post-step post-step--rebuild">&#x1F504; rebuild_library</div>
+        <div class="post-step post-step--slack">&#x1F4E8; slack_notification</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">
+    <div class="line"></div>
+    <span class="label">writes output files</span>
+  </div>
+
+  <!-- ════ TIER 7: OUTPUTS ════ -->
+  <div class="tier" id="tier-outputs">
+    <div class="tier-label">07 &mdash; Outputs</div>
+    <div class="card card--output">
+      <div class="card-title">
+        <span class="icon" style="background:rgba(52,211,153,0.1);">&#x2705;</span>
+        Run Complete
+      </div>
+
+      <div class="output-grid">
+        <div class="output-file">
+          <div class="of-name">runs/{RUN_ID}/report/</div>
+          <div class="of-desc">HTML report + per-run library</div>
+        </div>
+        <div class="output-file">
+          <div class="of-name">runs/manifest.json</div>
+          <div class="of-desc">Updated with process_type field</div>
+        </div>
+        <div class="output-file">
+          <div class="of-name">library/elements.json</div>
+          <div class="of-desc">Merged new elements</div>
+        </div>
+        <div class="output-file">
+          <div class="of-name">library/library-data.js</div>
+          <div class="of-desc">Rebuilt for library.html</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ BEFORE / AFTER ════ -->
+  <div class="tier" style="margin-top:48px;">
+    <div class="tier-label">Before &amp; After &mdash; Adding a New Process Type</div>
+    <div class="comparison">
+      <div class="comparison-side before">
+        <h4>Before (v2.1 &mdash; hardcoded)</h4>
+        <code><span class="dim">// orchestrator.md</span>
+<span class="red">| 0 | 0-journey-context.md | journey-context.json |</span>
+<span class="red">| 1 | 1-works.md           | works-elements.json  |</span>
+<span class="red">| 2 | 2-communicates.md    | communicates...      |</span>
+<span class="red">| 3 | 3-looks.md           | looks-elements...    |</span>
+<span class="dim">  ... 9 layers hardcoded in markdown table</span>
+<span class="dim">  ... file paths hardcoded</span>
+<span class="dim">  ... post-processing hardcoded</span>
+
+<span class="red">Adding a new pipeline = rewrite orchestrator.md</span></code>
+      </div>
+      <div class="comparison-side after">
+        <h4>After (v3.0 &mdash; registry)</h4>
+        <code><span class="dim">// To add "reverse-benchmark":</span>
+
+<span class="green">mkdir processes/reverse-benchmark/</span>
+<span class="green">create process.json        </span> <span class="dim">// define layers</span>
+<span class="green">create agents/*.md         </span> <span class="dim">// write prompts</span>
+
+<span class="dim">// That's it. The orchestrator reads it:</span>
+<span class="purple">orchestrator reads</span> <span class="yellow">process.json</span>
+<span class="purple">  &rarr; knows layers, sources, model</span>
+<span class="purple">  &rarr; runs the pipeline</span>
+<span class="purple">  &rarr; manifest gets process_type field</span>
+
+<span class="green">Zero changes to orchestrator.md</span></code>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Process data for switching views ──
+  const processes = {
+    ds: {
+      name: 'design-stack',
+      title: 'process.json — design-stack',
+      desc: 'Defines <strong>everything</strong> the orchestrator needs: layer order, agent file paths, source dependencies, dedup rules, post-processing steps, and model selection.',
+      layers: [
+        { id: 0, name: 'journey-context' },
+        { id: 1, name: 'works' },
+        { id: 2, name: 'communicates' },
+        { id: 3, name: 'looks' },
+        { id: 4, name: 'behaves' },
+        { id: 5, name: 'feels' },
+        { id: 6, name: 'coherence' },
+        { id: 7, name: 'tests' },
+        { id: 8, name: 'element-factory', inline: true }
+      ],
+      lensInputs: '<span class="flow-tag flow-tag--read">call_file</span><span class="flow-tag flow-tag--read">book_extract</span>',
+      dedupKey: '[journey_type, call_file, book_extract]',
+      sources: ['journey_map', 'journey_types', 'taste_model', 'lens_guide', 'element_library', 'tokens', 'style_guide']
+    },
+    rb: {
+      name: 'reverse-benchmark',
+      title: 'process.json — reverse-benchmark',
+      desc: 'Analyze competitor UX to find overlooked disappointment gaps. Based on Rory Sutherland\'s 11 Madison Park principle: don\'t copy competitors, find what they\'ve <em>completely ignored</em>.',
+      layers: [
+        { id: 0, name: 'competitor-mapping' },
+        { id: 1, name: 'disappointment-mining' },
+        { id: 2, name: 'transcript-crossref' },
+        { id: 3, name: 'opportunity-id' },
+        { id: 4, name: 'element-spec' },
+        { id: 5, name: 'coherence' }
+      ],
+      lensInputs: '<span class="flow-tag flow-tag--read">competitor</span><span class="flow-tag flow-tag--read">review_source</span>',
+      dedupKey: '[competitor, review_source]',
+      sources: ['journey_map', 'element_library', 'tokens', 'style_guide']
+    },
+    te: {
+      name: 'transcript-extraction',
+      title: 'process.json — transcript-extraction',
+      desc: 'Mine transcripts from behavioral scientists, UX thinkers, and product strategists. Extract actionable ideas, map to Split Lease journey, produce UI element specs.',
+      layers: [
+        { id: 0, name: 'ingest' },
+        { id: 1, name: 'extract-ideas' },
+        { id: 2, name: 'journey-mapping' },
+        { id: 3, name: 'library-check' },
+        { id: 4, name: 'element-spec' }
+      ],
+      lensInputs: '<span class="flow-tag flow-tag--read">transcript_file</span>',
+      dedupKey: '[transcript_file]',
+      sources: ['journey_map', 'journey_types', 'element_library', 'tokens', 'style_guide']
+    }
+  };
+
+  let currentProcess = 'ds';
+  let animating = false;
+  let animTimer = null;
+
+  function selectProcess(key) {
+    currentProcess = key;
+    const p = processes[key];
+
+    // Update process cards
+    document.querySelectorAll('.process-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector('.process-card--' + key).classList.add('selected');
+
+    // Update JSON section
+    document.getElementById('jsonTitle').innerHTML = p.title;
+    document.getElementById('jsonDesc').innerHTML = p.desc;
+    document.getElementById('lensInputs').innerHTML = p.lensInputs;
+    document.getElementById('dedupKey').textContent = p.dedupKey;
+
+    // Update shared sources
+    const sg = document.getElementById('sharedSources');
+    sg.innerHTML = p.sources.map(s => '<div class="source-pill">' + s + '</div>').join('');
+
+    // Update layer chips
+    document.getElementById('layerPipelineTitle').textContent = p.layers.length + ' Layers — ' + p.name;
+    renderChips(p.layers);
+  }
+
+  function renderChips(layers, activeIdx) {
+    const container = document.getElementById('layerChips');
+    container.innerHTML = layers.map((l, i) => {
+      let cls = 'layer-chip';
+      if (activeIdx !== undefined) {
+        if (i < activeIdx) cls += ' done';
+        else if (i === activeIdx) cls += ' running';
+      }
+      const suffix = l.inline ? ' (inline)' : '';
+      const arrow = i < layers.length - 1 ? '<span class="layer-arrow">&rarr;</span>' : '';
+      return '<span class="' + cls + '">' + l.id + ': ' + l.name + suffix + '</span>' + arrow;
+    }).join('');
+  }
+
+  function setView(mode) {
+    const canvas = document.getElementById('canvas');
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+    if (mode === 'exploded') {
+      canvas.classList.add('exploded');
+      event.target.classList.add('active');
+    } else {
+      canvas.classList.remove('exploded');
+      event.target.classList.add('active');
+    }
+  }
+
+  function toggleAnimate() {
+    if (animating) {
+      clearInterval(animTimer);
+      animating = false;
+      renderChips(processes[currentProcess].layers);
+      document.querySelectorAll('.ctrl-btn')[2].classList.remove('active');
+      return;
+    }
+    animating = true;
+    document.querySelectorAll('.ctrl-btn')[2].classList.add('active');
+    let idx = 0;
+    const layers = processes[currentProcess].layers;
+    renderChips(layers, 0);
+    animTimer = setInterval(() => {
+      idx++;
+      if (idx >= layers.length) {
+        renderChips(layers, layers.length); // all done
+        clearInterval(animTimer);
+        animating = false;
+        document.querySelectorAll('.ctrl-btn')[2].classList.remove('active');
+        return;
+      }
+      renderChips(layers, idx);
+    }, 1200);
+  }
+
+  // Initial render
+  renderChips(processes.ds.layers);
+</script>
+
+</body>
+</html>

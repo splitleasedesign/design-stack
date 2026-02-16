@@ -1,0 +1,70 @@
+{
+  "process_type": "transcript-extraction",
+  "version": "0.1",
+  "description": "Mine transcripts from behavioral scientists, UX thinkers, and product strategists for actionable ideas. Map each idea to the Split Lease journey and produce concrete UI element specifications.",
+  "lens": {
+    "required_inputs": [
+      { "key": "transcript_file", "description": "Transcript or talk filename", "path_template": "Agents-data-source/Rory Sutherland Ideas/{transcript_file}" }
+    ],
+    "dedup_key": ["transcript_file"]
+  },
+  "layers": [
+    {
+      "id": 0,
+      "name": "ingest",
+      "agent": "0-ingest.md",
+      "output": "transcript-parsed.json",
+      "sources": ["lens_files"],
+      "depends_on": []
+    },
+    {
+      "id": 1,
+      "name": "extract-ideas",
+      "agent": "1-extract-ideas.md",
+      "output": "ideas-extracted.json",
+      "sources": ["lens_files"],
+      "depends_on": [0]
+    },
+    {
+      "id": 2,
+      "name": "journey-mapping",
+      "agent": "2-journey-mapping.md",
+      "output": "ideas-mapped.json",
+      "sources": ["journey_map", "journey_types"],
+      "depends_on": [0, 1]
+    },
+    {
+      "id": 3,
+      "name": "library-check",
+      "agent": "3-library-check.md",
+      "output": "library-delta.json",
+      "sources": ["element_library"],
+      "depends_on": [0, 1, 2]
+    },
+    {
+      "id": 4,
+      "name": "element-specification",
+      "agent": "4-element-specification.md",
+      "output": "ui-elements.json",
+      "sources": ["style_guide", "tokens", "element_library"],
+      "depends_on": [0, 1, 2, 3]
+    }
+  ],
+  "shared_sources": {
+    "journey_map": "Agents-data-source/split-lease-journey-map.md",
+    "journey_types": "inputs/journey-types.json",
+    "element_library": "library/elements.json",
+    "tokens": "library/tokens.json",
+    "style_guide": "Agents-data-source/Style-guide.md"
+  },
+  "post_processing": [
+    "generate_report",
+    "merge_elements",
+    "update_manifest",
+    "rebuild_library",
+    "slack_notification"
+  ],
+  "report_template": "templates/report-template.html",
+  "journey_context_block": false,
+  "model": "claude-opus-4-6"
+}

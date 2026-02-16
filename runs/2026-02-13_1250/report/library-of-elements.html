@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library of Elements — Reverse Benchmark: Airbnb x Cialdini</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-purple: #31135D;
+      --secondary-purple: rgb(109, 49, 194);
+      --accent-purple: rgb(140, 104, 238);
+      --text-dark: #1a1520;
+      --text-gray: #6b7280;
+      --text-description: #374151;
+      --bg-white: #ffffff;
+      --bg-off-white: rgb(252, 250, 255);
+      --bg-page: #f8f7fc;
+      --border-color: #e2ddf0;
+      --border-strong: #c9c0dd;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(49,19,93,0.06);
+      --shadow-md: 0 4px 12px rgba(49,19,93,0.1);
+      --shadow-lg: 0 8px 24px rgba(49,19,93,0.15);
+      --shadow-purple: 0 4px 16px rgba(109,49,194,0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; color: var(--text-dark); background: var(--bg-page); line-height: 1.6; }
+
+    /* Header */
+    .lib-header {
+      background: linear-gradient(135deg, #31135D 0%, rgba(109,49,194,0.92) 100%);
+      padding: 40px 40px 32px;
+      color: white;
+    }
+    .lib-header h1 { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+    .lib-header p { font-size: 15px; opacity: 0.8; margin-bottom: 8px; }
+    .lib-header .back-link { color: rgba(255,255,255,0.7); font-size: 13px; text-decoration: none; font-family: 'IBM Plex Mono', monospace; }
+    .lib-header .back-link:hover { color: white; }
+
+    /* Filter Bar */
+    .filter-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 40px;
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .filter-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 4px;
+    }
+    .filter-chip {
+      display: inline-flex; align-items: center;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px; font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-white);
+      color: var(--text-gray);
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .filter-chip:hover {
+      border-color: var(--accent-purple);
+      color: var(--secondary-purple);
+      transform: translateY(-1px);
+    }
+    .filter-chip.active {
+      background: var(--secondary-purple);
+      color: white;
+      border-color: var(--secondary-purple);
+      font-weight: 600;
+    }
+    .filter-sep {
+      width: 1px; height: 24px;
+      background: var(--border-color);
+      margin: 0 6px;
+    }
+
+    /* Grid */
+    .elements-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 24px;
+    }
+
+    /* Element Card */
+    .element-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+    .element-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+      border-color: var(--accent-purple);
+    }
+    .element-card.expanded {
+      grid-column: 1 / -1;
+      box-shadow: var(--shadow-purple);
+      border-color: var(--secondary-purple);
+    }
+
+    /* Preview */
+    .card-preview {
+      width: 100%;
+      height: 280px;
+      border: none;
+      border-bottom: 1px solid var(--border-color);
+      background: #f9fafb;
+      pointer-events: none;
+    }
+    .element-card.expanded .card-preview {
+      height: 500px;
+      pointer-events: auto;
+    }
+
+    /* Card Body */
+    .card-body { padding: 20px 24px; }
+    .card-body h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; font-weight: 700;
+      color: var(--primary-purple);
+      margin-bottom: 8px;
+    }
+    .card-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .badge-cat {
+      padding: 3px 10px; border-radius: 9999px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase;
+      background: var(--bg-off-white);
+      color: var(--secondary-purple);
+      border: 1px solid rgba(109,49,194,0.15);
+    }
+    .badge-priority {
+      padding: 3px 10px; border-radius: 9999px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 600;
+    }
+    .badge-priority-high { background: #fde8e8; color: #b83a3a; }
+    .badge-priority-medium { background: #fef3e2; color: #c17a28; }
+    .badge-priority-low { background: var(--bg-off-white); color: var(--text-gray); }
+    .badge-effort {
+      padding: 3px 10px; border-radius: 9999px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      background: var(--bg-off-white);
+      color: var(--text-gray);
+    }
+
+    .card-problem {
+      font-size: 14px;
+      color: var(--text-description);
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .card-signature {
+      font-size: 13px;
+      color: var(--text-gray);
+      font-style: italic;
+      padding: 10px 14px;
+      background: rgba(140,104,238,0.05);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--accent-purple);
+      margin-bottom: 12px;
+    }
+
+    /* Expanded Details */
+    .card-expanded-details { display: none; }
+    .element-card.expanded .card-expanded-details { display: block; }
+
+    .ba-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin: 14px 0;
+    }
+    .ba-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 13px; line-height: 1.6; }
+    .ba-box.before { background: #fde8e8; border-left: 3px solid #b83a3a; }
+    .ba-box.after { background: #e8f0eb; border-left: 3px solid #2d5a3d; }
+    .ba-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-gray); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+
+    .spec-section { margin-top: 16px; }
+    .spec-section h4 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      color: var(--secondary-purple);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .copy-do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .copy-list { list-style: none; padding: 0; font-size: 12px; }
+    .copy-list li { padding: 4px 0 4px 16px; position: relative; color: var(--text-description); }
+    .copy-list.do-list li::before { content: ''; position: absolute; left: 0; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: #e8f0eb; border: 2px solid #2d5a3d; }
+    .copy-list.dont-list li::before { content: ''; position: absolute; left: 0; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: #fde8e8; border: 2px solid #b83a3a; }
+
+    .collapse-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 14px;
+      padding: 6px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px; font-weight: 500;
+      color: var(--text-gray);
+      background: var(--bg-white);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .collapse-btn:hover { border-color: var(--secondary-purple); color: var(--secondary-purple); }
+
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-gray);
+      font-size: 15px;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      padding: 0 40px;
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; color: var(--text-gray);
+      margin-top: -8px; margin-bottom: 8px;
+    }
+    .stat-item { display: flex; align-items: center; gap: 6px; }
+    .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .lib-header, .filter-bar, .elements-grid { padding-left: 20px; padding-right: 20px; }
+      .elements-grid { grid-template-columns: 1fr; }
+      .ba-grid, .copy-do-dont { grid-template-columns: 1fr; }
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="lib-header">
+    <a href="index.html" class="back-link">&larr; Back to Report</a>
+    <h1>Library of Elements</h1>
+    <p>6 UI elements from the Airbnb x Cialdini reverse benchmark. Click any card to expand.</p>
+  </header>
+
+  <div class="filter-bar" id="filter-bar">
+    <span class="filter-label">Category</span>
+    <span class="filter-chip active" data-filter="all" data-type="category">All</span>
+    <span class="filter-chip" data-filter="card" data-type="category">Card</span>
+    <span class="filter-chip" data-filter="section" data-type="category">Section</span>
+    <span class="filter-chip" data-filter="form" data-type="category">Form</span>
+    <span class="filter-chip" data-filter="badge" data-type="category">Badge</span>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Priority</span>
+    <span class="filter-chip active" data-filter="all" data-type="priority">All</span>
+    <span class="filter-chip" data-filter="high" data-type="priority">High</span>
+    <span class="filter-chip" data-filter="medium" data-type="priority">Medium</span>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item"><span class="stat-dot" style="background:var(--secondary-purple);"></span> Showing <span id="visible-count">6</span> of 6 elements</div>
+    <div class="stat-item"><span class="stat-dot" style="background:#b83a3a;"></span> 5 high priority</div>
+    <div class="stat-item"><span class="stat-dot" style="background:#c17a28;"></span> 1 medium priority</div>
+  </div>
+
+  <div class="elements-grid" id="elements-grid"></div>
+
+  <footer>
+    SplitLease Reverse Benchmark v1.0 -- Library of Elements -- Run 2026-02-13_1250
+  </footer>
+
+  <script>
+    const elements = [
+      {
+        id: "rb-ui-001",
+        name: "Mutual Pledge Card",
+        category: "card",
+        priority: "high",
+        effort: "medium",
+        problem: "Booking feels like a one-way consumer transaction rather than two people choosing each other, producing weak commitments that lead to cancellations and distrust.",
+        signature: "No platform in the shared-housing category creates a visible moment where both host and guest make active, written pledges to each other.",
+        before: "Airbnb Instant Book: Guest clicks 'Confirm and Pay.' Host gets a notification. Neither person has made a visible, personal commitment to the other.",
+        after: "Split Lease Mutual Pledge: Both host and guest write personal introductions and specific commitments. The arrangement starts as two people who chose each other, with a shared artifact.",
+        copy_do: [
+          "Use warm, personal language -- 'your host Sarah' not 'the host'",
+          "Frame pledges as voluntary acts of care, not contractual obligations",
+          "Echo the specific stay details to make the pledge feel concrete"
+        ],
+        copy_dont: [
+          "Never use legal language -- no 'hereby', 'agree to terms', 'binding'",
+          "Never make the pledge feel like a form -- no required fields or compliance language",
+          "Never display one pledge without acknowledging the other is coming"
+        ]
+      },
+      {
+        id: "rb-ui-002",
+        name: "People-Like-You Review Filter",
+        category: "section",
+        priority: "high",
+        effort: "medium",
+        problem: "Reviews are an undifferentiated mass -- a 4.9 from 200 people tells you nothing about whether people in YOUR situation had a good experience.",
+        signature: "No platform in the category lets you filter reviews by stay type, purpose, or guest profile.",
+        before: "Airbnb listing: 214 reviews in a chronological pile. A solo remote worker sees the same reviews as a family of five.",
+        after: "Split Lease: One tap on 'Remote Workers' and you see 15 remote workers rated this space 4.8, with workspace quality called out in 12 reviews.",
+        copy_do: [
+          "Use natural category names -- 'Remote Workers' not 'Category: Professional/Remote'",
+          "Show honest sample sizes -- '3 reviews from remote workers' not hidden when small",
+          "Frame as the guest's choice -- 'Show me reviews from...' not algorithmic curation"
+        ],
+        copy_dont: [
+          "Never filter by demographics (age, gender, race) -- filter by situation only",
+          "Never hide the aggregate view -- it's the hook, similarity is the closer",
+          "Never manufacture similarity when data is thin"
+        ]
+      },
+      {
+        id: "rb-ui-003",
+        name: "Pre-Arrival Conversation Guide",
+        category: "section",
+        priority: "high",
+        effort: "medium",
+        problem: "The messaging interface is a blank pipe -- neither host nor guest knows what to say, when to say it, or whether communication is even expected.",
+        signature: "No platform treats communication as a designed experience with structured prompts and social proof about what other guests typically ask.",
+        before: "Airbnb after booking: A blank chat window. Most pairs exchange zero messages before arrival. Tammy: 'Airbnb just kind of leaves you to your own devices.'",
+        after: "Split Lease: A guided conversation with 4 natural topics, pre-filled templates, and social proof that 'most guests discuss these before arriving.'",
+        copy_do: [
+          "Frame topics as helpful suggestions -- 'Most guests ask about...' not 'You must discuss...'",
+          "Pre-fill messages with warm, natural language the guest can customize",
+          "Use the host's first name in every CTA -- 'Send to Sarah' not 'Send message'"
+        ],
+        copy_dont: [
+          "Never make the guide feel mandatory -- it should collapse easily",
+          "Never send messages automatically -- the guest must actively choose to send",
+          "Never show more than 4 topics -- constraint prevents overwhelm"
+        ]
+      },
+      {
+        id: "rb-ui-004",
+        name: "Post-Review Forward Commitment Bridge",
+        category: "card",
+        priority: "high",
+        effort: "medium",
+        problem: "The post-review moment -- when the guest has just publicly committed to a positive narrative -- is the peak of consistency pressure, but every platform treats it as a dead end.",
+        signature: "No platform leverages the emotional peak after a positive review to secure a forward commitment.",
+        before: "Airbnb after review: 'Thank you for your review.' Full stop. The emotional peak dissipates into a dead-end screen. Next interaction: a marketing email days later.",
+        after: "Split Lease: Your own words reflected back on a beautiful card. Three natural next steps leverage your peak enthusiasm. A gentle identity line about your journey.",
+        copy_do: [
+          "Quote the guest's own words -- their review IS the most powerful persuasion",
+          "Use the host's first name to maintain the personal relationship frame",
+          "Frame the identity line as narrative ('You've stayed with...') not gamification"
+        ],
+        copy_dont: [
+          "Never show this after a negative review -- only 4+ stars",
+          "Never make the forward commitment feel like a sales pitch",
+          "Never use generic 'Thank you for your feedback' language"
+        ]
+      },
+      {
+        id: "rb-ui-005",
+        name: "Stay Purpose Selector",
+        category: "form",
+        priority: "medium",
+        effort: "medium",
+        problem: "Guests arrive at search as anonymous browsers with unspoken, uncommitted preferences -- the platform never asks who they are or what they need.",
+        signature: "No platform asks you to declare what matters before showing listings.",
+        before: "Airbnb homepage: A search bar. No identity question, no preference declaration. Steven Mariscal does mental math converting $1200/month to nightly rates.",
+        after: "Split Lease: 'What brings you here?' -- one tap. 'What matters most?' -- two taps. Preference bar follows you through search, turning passive browsing into committed seeking.",
+        copy_do: [
+          "Keep purpose options to 3-4 maximum -- too many creates the paralysis we're solving",
+          "Frame as 'help us help you' not 'we need your data'",
+          "Reflect preferences back immediately and prominently"
+        ],
+        copy_dont: [
+          "Never make this a long form or survey -- under 10 seconds total",
+          "Never lock users into selections -- always provide 'Edit' option",
+          "Never show as a blocker -- skippable with 'Browse all spaces' below"
+        ]
+      },
+      {
+        id: "rb-ui-006",
+        name: "Commitment Reassurance Badge",
+        category: "badge",
+        priority: "high",
+        effort: "small",
+        problem: "At the peak commitment moment -- when the guest is about to submit a proposal -- there is zero social proof to reassure them.",
+        signature: "No platform provides social proof at the commitment moment.",
+        before: "Airbnb checkout: A price breakdown, a payment form, and 'Confirm and Pay.' Zero social proof at the peak uncertainty moment.",
+        after: "Split Lease: Between your proposal summary and the submit button, a quiet badge tells you 'Guests rate stays with Sarah 4.9/5 -- 97% of proposals accepted.'",
+        copy_do: [
+          "Use the host's first name to maintain the relationship frame",
+          "Show honest numbers -- '5 past guests' not hidden when small",
+          "Place within the natural visual flow -- not as a sidebar or popup"
+        ],
+        copy_dont: [
+          "Never fabricate or round up stats -- authenticity is the entire point",
+          "Never use exclamation marks or urgency language -- reassurance, not marketing",
+          "Never show if host has fewer than 3 reviews -- minimum sample for credible proof"
+        ]
+      }
+    ];
+
+    // Current filters
+    let activeCategory = 'all';
+    let activePriority = 'all';
+    let expandedId = null;
+
+    function renderGrid() {
+      const grid = document.getElementById('elements-grid');
+      const filtered = elements.filter(el => {
+        const catMatch = activeCategory === 'all' || el.category === activeCategory;
+        const priMatch = activePriority === 'all' || el.priority === activePriority;
+        return catMatch && priMatch;
+      });
+
+      document.getElementById('visible-count').textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-state">No elements match the selected filters.</div>';
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(el => {
+        const isExpanded = expandedId === el.id;
+        html += '<div class="element-card' + (isExpanded ? ' expanded' : '') + '" data-id="' + el.id + '">' +
+          '<iframe class="card-preview" id="preview-' + el.id + '" sandbox="allow-same-origin" loading="lazy"></iframe>' +
+          '<div class="card-body">' +
+            '<div class="card-badges">' +
+              '<span class="badge-cat">' + el.category + '</span>' +
+              '<span class="badge-priority badge-priority-' + el.priority + '">' + el.priority + '</span>' +
+              '<span class="badge-effort">' + el.effort + ' effort</span>' +
+            '</div>' +
+            '<h3>' + el.name + '</h3>' +
+            '<p class="card-problem">' + el.problem + '</p>' +
+            '<div class="card-signature">' + el.signature + '</div>' +
+
+            '<div class="card-expanded-details">' +
+              '<div class="ba-grid">' +
+                '<div class="ba-box before"><span class="ba-label">Before</span>' + el.before + '</div>' +
+                '<div class="ba-box after"><span class="ba-label">After</span>' + el.after + '</div>' +
+              '</div>' +
+              '<div class="spec-section">' +
+                '<h4>Copy Guidelines</h4>' +
+                '<div class="copy-do-dont">' +
+                  '<div><h4 style="color:#2d5a3d;">Do</h4><ul class="copy-list do-list">' + el.copy_do.map(d => '<li>' + d + '</li>').join('') + '</ul></div>' +
+                  '<div><h4 style="color:#b83a3a;">Don\'t</h4><ul class="copy-list dont-list">' + el.copy_dont.map(d => '<li>' + d + '</li>').join('') + '</ul></div>' +
+                '</div>' +
+              '</div>' +
+              '<button class="collapse-btn" data-collapse="' + el.id + '">Collapse</button>' +
+            '</div>' +
+          '</div>' +
+          '</div>';
+      });
+      grid.innerHTML = html;
+
+      // Load iframes
+      loadPreviews(filtered);
+    }
+
+    async function loadPreviews(filteredElements) {
+      try {
+        const resp = await fetch('../layer-4/ui-elements.json');
+        const data = await resp.json();
+        if (data.elements) {
+          data.elements.forEach(el => {
+            const iframe = document.getElementById('preview-' + el.id);
+            if (iframe && el.html_css) {
+              const doc = iframe.contentDocument || iframe.contentWindow.document;
+              doc.open();
+              doc.write(el.html_css);
+              doc.close();
+            }
+          });
+        }
+      } catch(e) {
+        console.log('Could not load JSON for previews');
+      }
+    }
+
+    // Filter click handler
+    document.getElementById('filter-bar').addEventListener('click', (e) => {
+      const chip = e.target.closest('.filter-chip');
+      if (!chip) return;
+      const type = chip.dataset.type;
+      const filter = chip.dataset.filter;
+
+      // Update active state for this filter group
+      document.querySelectorAll('.filter-chip[data-type="' + type + '"]').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      if (type === 'category') activeCategory = filter;
+      if (type === 'priority') activePriority = filter;
+
+      expandedId = null;
+      renderGrid();
+    });
+
+    // Card click to expand
+    document.getElementById('elements-grid').addEventListener('click', (e) => {
+      // Handle collapse button
+      const collapseBtn = e.target.closest('.collapse-btn');
+      if (collapseBtn) {
+        e.stopPropagation();
+        expandedId = null;
+        renderGrid();
+        return;
+      }
+
+      const card = e.target.closest('.element-card');
+      if (!card) return;
+      const id = card.dataset.id;
+
+      if (expandedId === id) {
+        expandedId = null;
+      } else {
+        expandedId = id;
+      }
+      renderGrid();
+
+      // Scroll to expanded card
+      if (expandedId) {
+        setTimeout(() => {
+          const el = document.querySelector('.element-card.expanded');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    });
+
+    // Initial render
+    renderGrid();
+  </script>
+</body>
+</html>

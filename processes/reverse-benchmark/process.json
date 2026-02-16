@@ -1,0 +1,83 @@
+{
+  "process_type": "reverse-benchmark",
+  "version": "1.0",
+  "description": "Analyze a competitor's UX to find overlooked disappointment gaps — what they've completely ignored that Split Lease can own. Based on Rory Sutherland's 11 Madison Park principle: don't copy the #1 restaurant, find what's disappointing about it and make that your signature.",
+  "lens": {
+    "required_inputs": [
+      { "key": "competitor", "description": "Competitor name (e.g. airbnb, spareroom, craigslist, roomi, zillow, facebook-marketplace)", "path_template": null },
+      { "key": "book", "description": "Full book PDF filename", "path_template": "Agents-data-source/Books/Books/{book}" },
+      { "key": "book_chapters", "description": "Which chapters/parts to focus on (e.g. 'Chapters 3-4: Commitment and Social Proof')", "path_template": null }
+    ],
+    "dedup_key": ["competitor", "book", "book_chapters"]
+  },
+  "layers": [
+    {
+      "id": 0,
+      "name": "competitor-mapping",
+      "agent": "0-competitor-mapping.md",
+      "output": "competitor-journey.json",
+      "sources": ["lens_files", "journey_map", "book_guide"],
+      "depends_on": []
+    },
+    {
+      "id": 1,
+      "name": "disappointment-mining",
+      "agent": "1-disappointment-mining.md",
+      "output": "disappointments.json",
+      "sources": ["lens_files", "book_guide"],
+      "depends_on": [0]
+    },
+    {
+      "id": 2,
+      "name": "transcript-crossref",
+      "agent": "2-transcript-crossref.md",
+      "output": "crossref-insights.json",
+      "sources": ["lens_files", "element_library"],
+      "depends_on": [0, 1]
+    },
+    {
+      "id": 3,
+      "name": "opportunity-identification",
+      "agent": "3-opportunity-identification.md",
+      "output": "opportunities.json",
+      "sources": ["lens_files", "element_library"],
+      "depends_on": [0, 1, 2]
+    },
+    {
+      "id": 4,
+      "name": "element-specification",
+      "agent": "4-element-specification.md",
+      "output": "ui-elements.json",
+      "sources": ["style_guide", "tokens", "element_library"],
+      "depends_on": [0, 1, 2, 3]
+    },
+    {
+      "id": 5,
+      "name": "coherence",
+      "agent": "5-coherence.md",
+      "output": "coherence-report.json",
+      "sources": ["element_library", "tokens"],
+      "depends_on": [0, 1, 2, 3, 4]
+    }
+  ],
+  "shared_sources": {
+    "journey_map": "Agents-data-source/split-lease-journey-map.md",
+    "book_guide": "Agents-data-source/Books/Book Guide/Books_Summary.md",
+    "book_guide_psych": "Agents-data-source/Books/Book Guide/Books_Psychology_Anthropology.md",
+    "call_transcripts_host": "Agents-data-source/Customer calls Analysis/02-call-transcripts/host",
+    "call_transcripts_guest": "Agents-data-source/Customer calls Analysis/02-call-transcripts/guest",
+    "element_library": "library/elements.json",
+    "tokens": "library/tokens.json",
+    "style_guide": "Agents-data-source/Style-guide.md"
+  },
+  "post_processing": [
+    "generate_report",
+    "merge_elements",
+    "update_manifest",
+    "rebuild_library",
+    "slack_notification"
+  ],
+  "report_template": "templates/report-template.html",
+  "journey_context_block": false,
+  "model": "claude-opus-4-6"
+}

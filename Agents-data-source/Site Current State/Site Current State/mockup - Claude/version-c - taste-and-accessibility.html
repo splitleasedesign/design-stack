@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Split Lease — NYC Flexible Rentals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ========================================
+       DESIGN SYSTEM & CSS VARIABLES (v3.0 Taste & Accessibility)
+       ======================================== */
+    :root {
+      /* --- PAULA SCHER PROPOSED PALETTE --- */
+      --primary-purple: #31135D;
+      --primary-purple-hover: #1E0D42;
+      --secondary-purple: #6B35C9;
+      --secondary-purple-hover: #5A2AAD;
+      --selected-purple: #7B4DBA;
+      --primary-bg: #F7F2FA;
+
+      /* Warm Accents */
+      --accent-gold: #D4A853;
+      --accent-gold-light: #F5E6C3;
+      --accent-coral: #E85D4C;
+      --accent-coral-hover: #D64C3C;
+
+      /* Status (WCAG AA Compliant) */
+      --status-success: #0D7A4E;
+      --status-success-light: #E6F5EE;
+      --status-success-text: #065F3B;
+      --status-warning: #C4841D;
+      --status-warning-light: #FDF4E3;
+      --status-warning-text: #92620E;
+      --status-error: #C53030;
+      --status-error-light: #FDE8E8;
+      --status-error-text: #9B2C2C;
+      --status-info: #2563EB;
+      --status-info-light: #EFF6FF;
+
+      /* 5 levels of text */
+      --text-primary: #1A1A2E;   /* Headings and key values */
+      --text-secondary: #4A4A5A; /* Descriptions and body */
+      --text-tertiary: #717185;  /* Metadata */
+      --text-quaternary: #9B9BAE;/* Timestamps */
+      --text-quinary: #C4C4D0;   /* Disabled/Placeholder */
+
+      /* Grays */
+      --white: #ffffff;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-500: #6B7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+
+      /* Spacing (8px grid) */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;   /* Tier 1: Element breaks */
+      --spacing-lg: 16px;
+      --spacing-xl: 24px;   /* Tier 2: Group breaks */
+      --spacing-2xl: 32px;
+      --spacing-3xl: 48px;  /* Tier 3: Section breaks */
+      --spacing-hero: 80px; /* Page margins */
+
+      /* Radius Hierarchy */
+      --radius-sm: 6px;  /* Badges, dots */
+      --radius-md: 8px;  /* Buttons, inputs */
+      --radius-lg: 12px; /* Cards, modals */
+      --radius-full: 9999px;
+
+      /* Multi-layer Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 6px 12px rgba(0,0,0,0.05);
+      --shadow-premium: 0 1px 2px rgba(0,0,0,0.06), 0 4px 8px rgba(0,0,0,0.04), 0 12px 24px rgba(0,0,0,0.03);
+
+      /* Typography Tokens */
+      --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-size-base: 17px;
+      --font-size-sm: 15px;
+      --font-size-xs: 13px;
+      --font-size-lg: 18px;
+      --font-size-xl: 22px;
+      --font-size-2xl: 28px;
+      --font-size-3xl: 36px;
+      
+      --line-height-body: 1.6;
+      --line-height-heading: 1.2;
+      --line-height-tight: 1.15;
+
+      /* Accessibility */
+      --min-touch-target: 48px;
+      --focus-ring: 0 0 0 3px rgba(107, 49, 194, 0.5);
+      
+      /* Responsive overrides */
+      --container-padding: clamp(24px, 5vw, 80px);
+    }
+
+    /* ========================================
+       RESET / NORMALIZE
+       ======================================== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: var(--font-inter);
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+      background: var(--gray-50);
+      line-height: var(--line-height-body);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img, svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      outline: none;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-primary);
+      line-height: var(--line-height-heading);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    /* Accessibility: Visible Focus Indicators */
+    :focus-visible {
+      outline: 3px solid var(--secondary-purple);
+      outline-offset: 3px;
+    }
+
+    /* Accessibility: Skip Link */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: var(--spacing-lg);
+      padding: var(--spacing-lg) var(--spacing-xl);
+      background: var(--primary-purple);
+      color: white;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      z-index: 10000;
+    }
+    .skip-link:focus { top: var(--spacing-lg); }
+
+    /* ========================================
+       CONTAINER
+       ======================================== */
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+
+    /* ========================================
+       BUTTONS
+       ======================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      min-height: var(--min-touch-target);
+      padding: var(--spacing-sm) var(--spacing-xl);
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      white-space: nowrap;
+      line-height: 1.4;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--secondary-purple);
+      color: var(--white);
+      border-color: var(--secondary-purple);
+    }
+    .btn-primary:hover {
+      background: var(--secondary-purple-hover);
+      border-color: var(--secondary-purple-hover);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--secondary-purple);
+      border-color: var(--secondary-purple);
+    }
+    .btn-outline:hover {
+      background: var(--primary-bg);
+      border-color: var(--secondary-purple-hover);
+      color: var(--secondary-purple-hover);
+    }
+
+    .btn-success {
+      background: var(--status-success);
+      color: var(--white);
+      border-color: var(--status-success);
+    }
+    .btn-success:hover {
+      background: #065F3B;
+      border-color: #065F3B;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+    .btn-ghost:hover {
+      background: var(--gray-100);
+      color: var(--text-primary);
+    }
+
+    .btn-pill { border-radius: var(--radius-full); }
+
+    /* ========================================
+       CARDS
+       ======================================== */
+    .card {
+      background: var(--white);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      border: 1px solid var(--gray-200);
+    }
+    .card:hover {
+      box-shadow: var(--shadow-premium);
+    }
+
+    /* ========================================
+       BADGES & STATUS PILLS
+       ======================================== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      line-height: 1.4;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-success { background: var(--status-success-light); color: var(--status-success-text); }
+    .badge-warning { background: var(--status-warning-light); color: var(--status-warning-text); }
+    .badge-error { background: var(--status-error-light); color: var(--status-error-text); }
+    .badge-info { background: var(--status-info-light); color: var(--status-info); }
+    .badge-purple { background: var(--primary-bg); color: var(--secondary-purple); }
+
+    /* ========================================
+       HEADER
+       ======================================== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      background: var(--primary-purple);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .header-logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.03em;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .nav-dropdown-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      border-radius: var(--radius-md);
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .nav-dropdown-trigger:hover {
+      color: var(--white);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .header-pill-cta {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary-purple);
+      background: var(--white);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+    }
+    .header-pill-cta:hover {
+      background: var(--gray-50);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transform: translateY(-1px);
+    }
+
+    .header-avatar-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: var(--secondary-purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ========================================
+       HERO
+       ======================================== */
+    .hero {
+      background: var(--white);
+      padding: var(--spacing-3xl) 0 var(--spacing-2xl);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 600px;
+    }
+    .hero h1 {
+      font-size: var(--font-size-3xl);
+      margin-bottom: var(--spacing-lg);
+      color: var(--text-primary);
+    }
+    .hero h1 .highlight { color: var(--secondary-purple); }
+    .hero-subtitle {
+      font-size: var(--font-size-lg);
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin: 0 auto var(--spacing-2xl);
+    }
+
+    /* Weekly Schedule Selector (Signature Element) */
+    .hero-day-picker {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: var(--spacing-2xl);
+    }
+    .hero-day {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--gray-100);
+      color: var(--text-tertiary);
+      border: 2px solid var(--gray-200);
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .hero-day:hover {
+      border-color: var(--secondary-purple);
+      color: var(--secondary-purple);
+      background: var(--primary-bg);
+    }
+    .hero-day.selected {
+      background: var(--secondary-purple);
+      color: var(--white);
+      border-color: var(--secondary-purple);
+      box-shadow: 0 4px 12px rgba(107, 53, 201, 0.3);
+    }
+
+    /* ========================================
+       UTILITIES
+       ======================================== */
+    .text-primary { color: var(--text-primary); }
+    .text-secondary { color: var(--text-secondary); }
+    .text-tertiary { color: var(--text-tertiary); }
+    .text-quaternary { color: var(--text-quaternary); }
+    
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+
+    .mt-3xl { margin-top: var(--spacing-3xl); }
+    .mb-xl { margin-bottom: var(--spacing-xl); }
+    
+    .flex { display: flex; }
+    .align-center { align-items: center; }
+    .gap-md { gap: var(--spacing-md); }
+    .gap-xl { gap: var(--spacing-xl); }
+
+    /* ========================================
+       EXPLORE PAGE
+       ======================================== */
+    .explore-layout {
+      display: flex;
+      height: calc(100vh - 72px);
+    }
+    .explore-left {
+      flex: 1;
+      padding: var(--spacing-xl);
+      overflow-y: auto;
+      background: var(--gray-50);
+    }
+    .explore-right {
+      flex: 0 0 45%;
+      background: var(--gray-200);
+      position: relative;
+    }
+
+    .listing-card {
+      display: flex;
+      margin-bottom: var(--spacing-xl);
+      padding: 0;
+      overflow: hidden;
+    }
+    .listing-card-photo {
+      flex: 0 0 240px;
+      height: 180px;
+      position: relative;
+    }
+    .listing-card-body {
+      flex: 1;
+      padding: var(--spacing-lg) var(--spacing-xl);
+      display: flex;
+      flex-direction: column;
+    }
+    .listing-title {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    .price-tag {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* Map Pins */
+    .map-pin {
+      position: absolute;
+      background: var(--white);
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: var(--shadow-md);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, color 0.2s;
+    }
+    .map-pin:hover {
+      transform: scale(1.1);
+      background: var(--secondary-purple);
+      color: var(--white);
+      z-index: 10;
+    }
+
+    /* ========================================
+       PROPOSALS
+       ======================================== */
+    .proposal-card {
+      margin-bottom: var(--spacing-md);
+      border-radius: var(--radius-lg);
+    }
+    .tracker-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--gray-300);
+      background: var(--white);
+    }
+    .tracker-step.completed .tracker-dot {
+      background: var(--status-success);
+      border-color: var(--status-success);
+    }
+    .tracker-step.current .tracker-dot {
+      background: var(--secondary-purple);
+      border-color: var(--secondary-purple);
+      box-shadow: 0 0 0 4px rgba(107, 53, 201, 0.2);
+    }
+
+    /* ========================================
+       RESPONSIVE
+       ======================================== */
+    @media (max-width: 1024px) {
+      .explore-layout { flex-direction: column; height: auto; }
+      .explore-right { height: 300px; order: -1; }
+    }
+    
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Notification Container -->
+  <div class="sl-notification-container" id="sl-notification-container"></div>
+
+  <!-- HEADER -->
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <div class="header-logo" onclick="navigateTo('page-home')" role="button" aria-label="Split Lease Home">
+        <svg class="header-logo-icon" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="18" cy="18" r="15" stroke="white" stroke-width="2.5" fill="none"/>
+          <line x1="7" y1="18" x2="29" y2="18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="header-logo-text">Split Lease</span>
+      </div>
+
+      <nav class="header-nav" id="desktop-nav" role="navigation" aria-label="Primary Navigation">
+        <div class="nav-dropdown-wrap">
+          <button class="nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false">Stay with Us</button>
+        </div>
+        <div class="nav-dropdown-wrap">
+          <button class="nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false">Host with Us</button>
+        </div>
+      </nav>
+
+      <div class="header-right">
+        <button class="header-pill-cta" onclick="navigateTo('page-explore')">Explore Rentals</button>
+        <div class="header-avatar-wrap">
+          <div class="header-avatar-img" role="img" aria-label="User Profile">
+            <span style="color:white; font-weight:700;">R</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" role="main">
+
+    <!-- HOMEPAGE -->
+    <div class="page active" id="page-home">
+      <section class="hero">
+        <div class="container">
+          <div class="hero-pill badge badge-purple mb-xl">
+            Ongoing Rentals for Repeat Stays
+          </div>
+          <h1>Your NYC Home Base<br><span class="highlight">45% Less Than Airbnb</span></h1>
+          <p class="hero-subtitle">Discover flexible rental options in NYC. Only pay for the nights you need. Same space every visit. Leave your belongings.</p>
+
+          <div class="hero-day-picker" role="group" aria-label="Select stay days">
+            <button class="hero-day" aria-pressed="false">S</button>
+            <button class="hero-day selected" aria-pressed="true">M</button>
+            <button class="hero-day selected" aria-pressed="true">T</button>
+            <button class="hero-day selected" aria-pressed="true">W</button>
+            <button class="hero-day selected" aria-pressed="true">T</button>
+            <button class="hero-day selected" aria-pressed="true">F</button>
+            <button class="hero-day" aria-pressed="false">S</button>
+          </div>
+
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-pill" onclick="navigateTo('page-explore')">Explore Rentals</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="how-it-works mt-3xl">
+        <div class="container">
+          <h2 class="text-center mb-xl">How It Works</h2>
+          <div class="flex gap-xl">
+            <div class="card flex-1">
+              <div class="badge badge-purple mb-md">Step 1</div>
+              <h3 class="mb-md">Find Your Space</h3>
+              <p class="text-secondary">Browse listings for rooms and apartments in NYC. Filter by neighborhood, budget, and the days you need.</p>
+            </div>
+            <div class="card flex-1">
+              <div class="badge badge-purple mb-md">Step 2</div>
+              <h3 class="mb-md">Create a Proposal</h3>
+              <p class="text-secondary">Select the days of the week you want to stay and propose a price. Hosts review and respond within 48 hours.</p>
+            </div>
+            <div class="card flex-1">
+              <div class="badge badge-purple mb-md">Step 3</div>
+              <h3 class="mb-md">Move In</h3>
+              <p class="text-secondary">Once accepted, sign the split lease and move in on your scheduled days. Your belongings stay put.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- EXPLORE PAGE -->
+    <div id="page-explore" class="page">
+      <div class="explore-layout">
+        <div class="explore-left">
+          <div class="mb-xl">
+            <h2 class="mb-md">38 Listings in NYC</h2>
+            <div class="flex gap-md">
+              <button class="badge badge-purple">T / W / T</button>
+              <button class="badge badge-info">$100 - $300</button>
+            </div>
+          </div>
+
+          <div class="listing-cards">
+            <div class="card listing-card" onclick="navigateTo('page-listing-detail')">
+              <div class="listing-card-photo" style="background:#ddd;">
+                <div class="badge badge-purple" style="position:absolute; top:12px; left:12px;">$209/nt</div>
+              </div>
+              <div class="listing-card-body">
+                <div class="text-tertiary font-medium mb-xs">Boerum Hill, Brooklyn</div>
+                <h3 class="listing-title">Cozy Brooklyn Heights Gem</h3>
+                <p class="text-tertiary mb-md">Entire Place &bull; 2 guests &bull; 1 bed</p>
+                <div class="flex align-center gap-md mt-auto">
+                   <button class="btn btn-primary btn-sm">View Details</button>
+                </div>
+              </div>
+            </div>
+            <!-- More cards... -->
+          </div>
+        </div>
+        <div class="explore-right">
+          <div class="map-pin" style="top:30%; left:40%;">$209</div>
+          <div class="map-pin" style="top:50%; left:60%;">$296</div>
+          <div class="map-pin" style="top:20%; left:20%;">$306</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    var currentRole = 'guest';
+
+    function navigateTo(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      var target = document.getElementById(pageId);
+      if (target) target.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    document.querySelectorAll('.hero-day').forEach(btn => {
+      btn.addEventListener('click', function() {
+        var pressed = this.getAttribute('aria-pressed') === 'true';
+        this.setAttribute('aria-pressed', !pressed);
+        this.classList.toggle('selected');
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Init logic
+    });
+  </script>
+</body>
+</html>

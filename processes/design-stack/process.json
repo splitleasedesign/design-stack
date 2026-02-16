@@ -1,0 +1,110 @@
+{
+  "process_type": "design-stack",
+  "version": "2.1",
+  "description": "Analyze a call transcript through a book framework to produce UI element specifications across 6 design lenses.",
+  "lens": {
+    "required_inputs": [
+      { "key": "call_file", "description": "Call transcript filename", "path_template": "Agents-data-source/Customer calls Analysis/02-call-transcripts/{journey_type}/{call_file}" },
+      { "key": "book", "description": "Full book PDF filename", "path_template": "Agents-data-source/Books/Books/{book}" },
+      { "key": "book_chapters", "description": "Which chapters/parts to focus on (e.g. 'Part 1: Two Systems')", "path_template": null }
+    ],
+    "dedup_key": ["journey_type", "call_file", "book", "book_chapters"]
+  },
+  "layers": [
+    {
+      "id": 0,
+      "name": "journey-context",
+      "agent": "0-journey-context.md",
+      "output": "journey-context.json",
+      "sources": ["lens_files", "journey_map", "element_library"],
+      "depends_on": []
+    },
+    {
+      "id": 1,
+      "name": "works",
+      "agent": "1-works.md",
+      "output": "works-elements.json",
+      "sources": ["lens_files", "element_library"],
+      "depends_on": [0]
+    },
+    {
+      "id": 2,
+      "name": "communicates",
+      "agent": "2-communicates.md",
+      "output": "communicates-elements.json",
+      "sources": ["lens_files", "element_library"],
+      "depends_on": [0, 1]
+    },
+    {
+      "id": 3,
+      "name": "looks",
+      "agent": "3-looks.md",
+      "output": "looks-elements.json",
+      "sources": ["lens_files", "tokens", "taste_model", "style_guide", "element_library"],
+      "depends_on": [0, 1, 2]
+    },
+    {
+      "id": 4,
+      "name": "behaves",
+      "agent": "4-behaves.md",
+      "output": "behaves-elements.json",
+      "sources": ["lens_files", "tokens", "element_library"],
+      "depends_on": [0, 1, 2, 3]
+    },
+    {
+      "id": 5,
+      "name": "feels",
+      "agent": "5-feels.md",
+      "output": "feels-elements.json",
+      "sources": ["lens_files", "element_library"],
+      "depends_on": [0, 1, 2, 3, 4]
+    },
+    {
+      "id": 6,
+      "name": "coherence",
+      "agent": "6-coherence.md",
+      "output": "coherence-report.json",
+      "sources": ["element_library", "tokens"],
+      "depends_on": [0, 1, 2, 3, 4, 5]
+    },
+    {
+      "id": 7,
+      "name": "tests",
+      "agent": "7-tests.md",
+      "output": "tests-elements.json",
+      "sources": ["element_library"],
+      "depends_on": [0, 1, 2, 3, 4, 5, 6]
+    },
+    {
+      "id": 8,
+      "name": "element-factory",
+      "agent": null,
+      "output": "ui-elements.json",
+      "sources": ["style_guide", "tokens", "element_library"],
+      "depends_on": [0, 1, 2, 3, 4, 5, 6, 7],
+      "inline": true
+    }
+  ],
+  "shared_sources": {
+    "journey_map": "Agents-data-source/split-lease-journey-map.md",
+    "journey_types": "inputs/journey-types.json",
+    "taste_model": "inputs/taste-model.md",
+    "lens_guide": "inputs/lens-guide.md",
+    "element_library": "library/elements.json",
+    "tokens": "library/tokens.json",
+    "style_guide": "Agents-data-source/Style-guide.md",
+    "book_guide": "Agents-data-source/Books/Book Guide/Books_Summary.md",
+    "book_guide_psych": "Agents-data-source/Books/Book Guide/Books_Psychology_Anthropology.md"
+  },
+  "post_processing": [
+    "generate_report",
+    "generate_run_library",
+    "merge_elements",
+    "update_manifest",
+    "rebuild_library",
+    "slack_notification"
+  ],
+  "report_template": "templates/report-template.html",
+  "journey_context_block": true,
+  "model": "claude-opus-4-6"
+}
