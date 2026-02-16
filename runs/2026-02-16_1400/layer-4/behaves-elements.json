@@ -1,0 +1,340 @@
+{
+  "lens": {
+    "guest_call": "Tapper S - 9 September 2022.txt",
+    "book_extract": "microinteractions-rules-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Review Star Tap Optimistic Feedback",
+      "journey_phases": ["active_lease"],
+      "problem": "When guests tap a star rating, delays in visual feedback create uncertainty—'Did my tap register?' Traditional review systems show spinners or wait for server confirmation before updating UI. This creates friction and breaks the flow of what should be a near-instant microinteraction. For 12+ reviews per lease, any friction compounds into abandonment.",
+      "solution": "Implement optimistic UI with instant visual feedback on star tap. The moment a guest taps a star (within <50ms), that star and all stars to its left fill with brand purple using spring easing animation (100ms duration, cubic-bezier(0.34, 1.56, 0.64, 1)). Simultaneously trigger subtle haptic feedback if on mobile. The star scales up slightly (1.1x) then settles back to 1x to create tactile confirmation. No loading spinner. Rating is saved to local state immediately and synced to server in background. If server sync fails (rare), show subtle error banner and allow retry, but guest's local experience was never blocked.",
+      "evidence": [
+        {
+          "source": "Microinteractions book, Feedback chapter",
+          "type": "book",
+          "quote": "Feedback should feel immediate—user actions should trigger responses within 100ms to feel instant",
+          "insight": "50-100ms is the threshold for perceived instantaneousness. Star ratings must respond within this window or they feel sluggish and uncertain."
+        },
+        {
+          "source": "Layer 3 looks-elements.json, looks-002",
+          "type": "data",
+          "quote": "Tapping a star or emoji should feel instant (< 100ms visual feedback) with a gentle spring animation (300ms settle). This creates delight and confirms the action without feeling sluggish.",
+          "insight": "The visual design specifies spring easing and timing. Interaction layer defines the behavior: tap → instant fill → spring settle → haptic feedback → background sync."
+        },
+        {
+          "source": "tokens.json, easing values",
+          "type": "data",
+          "quote": "spring: cubic-bezier(0.34, 1.56, 0.64, 1)",
+          "insight": "Use the spring easing token for the star fill animation to create satisfying, elastic feedback that feels responsive and delightful."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Stars outlined in light gray (#9ca3af), 40px size, 12px spacing. Unselected, awaiting interaction.",
+        "hover": "Star scales to 1.05x, outline color brightens to medium gray (#6b7280). Cursor: pointer. Signals interactivity.",
+        "active_tap": "Immediate fill with primary purple (#31135D), scale to 1.1x, trigger haptic. All stars to left also fill. <50ms response.",
+        "settling": "Stars settle from 1.1x to 1.0x scale over 100ms using spring easing. Purple fill remains.",
+        "selected": "Stars filled with solid purple, 1.0x scale, static. Rating locked in. Submit button enabled.",
+        "syncing": "No visible loading state—sync happens in background. Local state is source of truth.",
+        "error": "If sync fails: small banner below stars: 'Connection issue—we'll retry' with retry icon. Stars remain filled locally.",
+        "success": "Rating synced successfully. No additional feedback needed—the filled stars ARE the success confirmation."
+      },
+      "transition_principle": "Instant acknowledgment (tap → fill in <50ms) followed by gentle settle (spring animation 100ms). Never block the user on server response. Optimistic UI means guest experience is never waiting—feedback feels instant because it IS instant locally.",
+      "timing": {
+        "response_target": "50ms",
+        "animation_duration": "100ms",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "Sub-100ms creates perception of instantaneousness. Spring easing adds delight without sacrificing speed. Background sync (500-1500ms) is invisible to user."
+      },
+      "journey_state_awareness": "For first review (stay 1), add subtle tooltip on hover: 'Rate your stay 1-5 stars' to educate. For reviews 5+, no tooltip—user knows the pattern. Adapt based on loop count.",
+      "edge_cases": [
+        "User taps multiple stars rapidly: Respect last tap, animate smoothly to final selection",
+        "User taps star then immediately submits: Allow instant submission, sync in background",
+        "Network offline: Show banner 'Offline—review saved, will sync when reconnected'",
+        "User changes rating after tapping: Allow changes, animate smoothly from old to new selection",
+        "Server sync fails 3x: Show persistent banner 'Unable to save—check connection' with retry button"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "'Same as Last Time' One-Tap Confirmation",
+      "journey_phases": ["active_lease"],
+      "problem": "For recurring guest-host stays (12+ reviews per lease), asking guests to re-rate and re-comment every week creates review fatigue. By stay 5+, if experience is consistent, guests think 'I already said this' and abandon. Traditional review systems treat each review as independent, ignoring relationship history. This kills volume in long-term leases.",
+      "solution": "From review 5 onward, pre-populate the review card with prior rating and show a large, prominent 'Same as last time ✓' button (full card width, secondary purple background, pill-shaped, 48px height). Tapping this button submits the review using prior rating + auto-generated comment 'Consistent with previous stay' + current stay metadata. Transition: button shows loading spinner (200ms), then success checkmark animation (green checkmark scales in, 300ms), then card slides down and dismisses (400ms ease-out). Total interaction time: <1 second from tap to completion. If guest prefers to write new feedback, interacting with stars or comment field fades out the button (200ms opacity transition) and switches to standard review flow.",
+      "evidence": [
+        {
+          "source": "Layer 1 works-elements.json, works-002",
+          "type": "data",
+          "quote": "REVIEWS 5+: Offer 'Same as last time ✓' one-tap option prominently. If nothing has changed, guest taps once and review is submitted using previous ratings + auto-generated comment. By review 10, completion takes <5 seconds.",
+          "insight": "This is the volume multiplier for long-term leases. The process pattern defines the rule. Interaction layer defines HOW it behaves: one tap → spinner → checkmark → dismiss."
+        },
+        {
+          "source": "Microinteractions book, Loops chapter",
+          "type": "book",
+          "quote": "Long loops change the interaction based on repeated use. First time vs tenth time should be dramatically different in effort required.",
+          "insight": "The 'Same as last time' button is the behavioral manifestation of long loops. It only appears after loop 5, adapting the interaction based on usage history."
+        },
+        {
+          "source": "Layer 3 looks-elements.json, looks-006",
+          "type": "data",
+          "quote": "For reviews 5+, show a large, pill-shaped button (--rounded-pill: 20px, --secondary-purple background, 100% card width). Tapping this button submits the pre-populated review. If guest taps a star to change rating, button fades out (200ms).",
+          "insight": "Visual design defines appearance. Interaction layer defines the behavior: tap → loading → success animation → dismiss. Button fade-out on alternate interaction."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Button visible, prominent, full-width. Text: 'Same as last time ✓' with checkmark icon. Secondary purple background. No loading state.",
+        "hover": "Button background darkens slightly (10% darker purple), scales to 1.02x. Cursor: pointer. Signals interactivity.",
+        "loading": "Button disabled, loading spinner replaces text (white spinner on purple, 200ms duration). User cannot interact during submission.",
+        "success": "Spinner replaced by green checkmark icon that scales in (0.8x → 1.2x → 1.0x, spring easing, 300ms). Background briefly flashes to green (#3a7a52) then fades to purple.",
+        "error": "If submission fails: Button text changes to 'Try again' with retry icon. Background flashes red (#b83a3a) briefly then returns to purple. Allow retry.",
+        "dismissed": "After success animation, entire review card slides down off screen (400ms ease-out). Shows 'Review submitted' toast notification in its place.",
+        "faded": "If user interacts with stars/comment, button opacity fades to 0 over 200ms. Button is removed from DOM after fade completes. Standard review flow takes over."
+      },
+      "transition_principle": "One tap triggers a satisfying sequence: loading (200ms) → success animation (300ms) → card dismissal (400ms). Total ~900ms. User feels progress without waiting. If guest changes their mind and edits rating, button gracefully fades away, signaling mode switch from 'confirm' to 'customize.'",
+      "timing": {
+        "response_target": "0ms—button tap is instant, loading spinner appears immediately",
+        "loading_duration": "200ms—minimal but visible acknowledgment",
+        "success_animation": "300ms—long enough to be satisfying, not so long it's annoying",
+        "card_dismiss": "400ms—smooth exit",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for card dismissal, cubic-bezier(0.34, 1.56, 0.64, 1) for checkmark scale",
+        "rationale": "Sub-second total interaction creates perception of instant completion while providing clear visual confirmation of success."
+      },
+      "journey_state_awareness": "Button only appears for reviews 5+ for a specific guest-host pairing. System tracks review count per relationship. For first 4 reviews, button is hidden and standard flow is used. For review 5, show subtle inline tooltip: 'New: If your experience is consistent, tap here to submit instantly.'",
+      "edge_cases": [
+        "User taps button then immediately closes app: Review submission continues in background, success notification on next app open",
+        "Network offline when tapped: Show error state 'Offline—review saved, will submit when reconnected'",
+        "User taps button but prior rating data is missing: Fall back to standard review flow, no button shown",
+        "User taps button, sees loading, then taps star: Abort submission, fade button, switch to edit mode",
+        "Submission succeeds but guest didn't see success animation (app backgrounded): Show 'Review submitted' notification on app return"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Cleaning Photo → Review Card Slide-Up Transition",
+      "journey_phases": ["active_lease"],
+      "problem": "Layer 1 establishes that review prompts should appear immediately after cleaning photo submission to capture feedback when engagement is highest. But how does this transition BEHAVE? If the review card appears abruptly or blocks the cleaning photo view, it feels jarring and interrupts the guest's mental flow. Context switching creates friction and increases abandonment.",
+      "solution": "When guest (or host viewing guest's photos) finishes viewing cleaning photos, trigger review card to slide up from bottom of screen as a modal overlay. Timing: Wait 500ms after last photo interaction (zoom, swipe, dismiss) to avoid premature trigger. Then animate review card sliding up from bottom edge: starts at translateY(100%), animates to translateY(0) over 400ms using ease-out easing. Background dims to 50% opacity (rgba(0,0,0,0.5)) simultaneously. Card has rounded top corners (16px), includes small cleaning photo thumbnail at top-left as visual anchor. User can dismiss by swiping down (returns card to bottom, 300ms), tapping X button (top-right), or tapping dimmed background. Dismissal shows 'Remind me later' snooze options.",
+      "evidence": [
+        {
+          "source": "Layer 1 works-elements.json, works-001",
+          "type": "data",
+          "quote": "Make review submission a natural extension of the cleaning photo submission flow. The review interface appears directly below the cleaning photos, pre-populated with stay metadata. The guest is already looking at evidence of the stay's condition; asking for their review in that moment is contextually perfect.",
+          "insight": "Process pattern defines WHEN (after cleaning photos) and WHY (contextual perfection). Interaction layer defines HOW it appears: slide-up modal with 500ms delay to avoid premature interruption."
+        },
+        {
+          "source": "Layer 3 looks-elements.json, looks-004",
+          "type": "data",
+          "quote": "Design the review card to appear IN THE SAME VISUAL CONTEXT as the cleaning photo view—either as a slide-up overlay (from bottom, 300ms animation, ease-out) or inline expansion. Show small thumbnail (60px) of cleaning photo at top-left with text 'How was your stay?' This creates visual continuity.",
+          "insight": "Visual design specifies slide-up overlay. Interaction layer defines trigger logic (500ms delay after last interaction), dismissal gestures (swipe, tap X, tap background), and snooze behavior."
+        },
+        {
+          "source": "tokens.json, easing",
+          "type": "data",
+          "quote": "out: cubic-bezier(0.16, 1, 0.3, 1)",
+          "insight": "Use the 'out' easing for slide-up animation—creates smooth, natural motion that doesn't feel abrupt."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "dormant": "Review card not visible. Guest is viewing cleaning photos. System monitors for trigger conditions (500ms inactivity).",
+        "triggered": "500ms after last cleaning photo interaction, review card begins slide-up animation. Background starts dimming.",
+        "animating_in": "Card slides from translateY(100%) to translateY(0) over 400ms, ease-out easing. Background opacity 0 → 0.5 simultaneously. User cannot interact during animation.",
+        "active": "Card fully visible, positioned at bottom of screen. Background dimmed. User can interact with review form or dismiss gestures. Cleaning photo thumbnail visible at top-left.",
+        "swiping": "User swipes down on card. Card follows finger position in real-time (no lag). If swipe velocity exceeds threshold, trigger dismiss.",
+        "animating_out": "On dismiss: card slides from translateY(0) to translateY(100%) over 300ms, ease-out. Background opacity fades to 0. User returned to cleaning photo view or app home.",
+        "snoozed": "If dismissed: show small toast notification 'We'll remind you later' (3 seconds). Set snooze timer (1 hour default). Card will not re-trigger until timer expires.",
+        "submitted": "If review submitted: card animates out same as dismiss, but shows success toast 'Review submitted—thanks!' No snooze options."
+      },
+      "transition_principle": "Smooth, non-blocking entry that respects user's current context (cleaning photos). The 500ms delay prevents premature interruption ('I'm not done viewing photos yet'). Slide-up motion is natural and familiar (iOS, Android bottom sheets). Swipe-down dismissal gives user control. Visual continuity (cleaning photo thumbnail) connects old context to new task.",
+      "timing": {
+        "trigger_delay": "500ms after last cleaning photo interaction",
+        "slide_in_duration": "400ms",
+        "slide_out_duration": "300ms",
+        "background_dim": "400ms (simultaneous with slide-in)",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "500ms delay allows guest to finish viewing photos without interruption. 400ms slide-in is smooth but not slow. 300ms slide-out (faster exit than entry) feels responsive."
+      },
+      "journey_state_awareness": "First time this trigger fires (stay 1, first review): include subtle educational text 'Quick feedback after each stay helps future guests.' For subsequent reviews: no educational text, just 'How was your stay?' header. System remembers if guest has dismissed review card 3+ times without submitting—after 3 dismissals, increase snooze duration to 4 hours to avoid annoying frequent dismissers.",
+      "edge_cases": [
+        "Guest exits cleaning photo view before 500ms delay: Cancel trigger, card doesn't appear",
+        "Guest dismisses card then returns to cleaning photos: Don't re-trigger immediately, respect snooze timer",
+        "Review card triggered but guest has no network: Card still appears, form works offline, submits when reconnected",
+        "Guest starts filling review then accidentally swipes: Show 'Discard review?' confirmation before dismissing",
+        "Host is viewing guest's cleaning photos (not guest): Don't trigger review card—only trigger for the guest who stayed"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Review Prompt System Trigger Timing Logic",
+      "journey_phases": ["active_lease"],
+      "problem": "WHEN exactly should the review card appear? Immediately after cleaning photos? 1 hour after checkout? Next app open? Wrong timing kills participation—too early (guest still settling in at home), they dismiss. Too late (days later), memory fades. Traditional platforms rely on email reminders days later, which have <10% engagement. Split Lease needs smart, contextual system triggers that catch guests at peak review willingness.",
+      "solution": "Implement tiered system trigger logic with multiple conditions: (1) PRIMARY TRIGGER: 500ms after guest views host's cleaning photos (if guest opens app and views photos). This is highest-engagement moment—70%+ completion target. (2) FALLBACK TRIGGER 1: If guest doesn't view cleaning photos within 4 hours of checkout, send push notification 'See your stay photos & share quick feedback' linking to cleaning photos + review. (3) FALLBACK TRIGGER 2: If no engagement after 24 hours, trigger review card on next app open (any context). (4) FALLBACK TRIGGER 3: If no engagement after 48 hours, show persistent review prompt banner on app home screen (dismissible but returns on each app open). Never trigger during active stay (only after checkout/move-out). Never trigger more than once per 4-hour window to avoid nagging. Track trigger history per guest-stay to avoid duplicate prompts.",
+      "evidence": [
+        {
+          "source": "Journey context, active_lease phase",
+          "type": "data",
+          "quote": "Natural review moments: Immediately after cleaning photos are submitted (guest is already engaged, has phone out, stay is fresh in mind). When guest receives 'Next stay starts tomorrow' notification (contextual reminder). When host completes their review (reciprocity trigger).",
+          "insight": "Multiple natural moments exist. System should try them in order of engagement likelihood: cleaning photos (highest) → next-stay notification (medium) → reciprocity (medium) → time-based fallbacks (lowest)."
+        },
+        {
+          "source": "Microinteractions book, System Triggers chapter",
+          "type": "book",
+          "quote": "System triggers are conditions-based initiation (time, location, state changes) that don't require user action. They should be invisible but predictable—users should understand why the trigger fired.",
+          "insight": "Review prompts should fire based on conditions (checkout complete, cleaning photos viewed, time elapsed), not random timing. Logic should be transparent to guest ('We're asking now because you just viewed photos')."
+        },
+        {
+          "source": "Layer 1 works-elements.json, works-001",
+          "type": "data",
+          "quote": "TRIGGER: System-initiated prompt at stay-end (don't rely on guest remembering to initiate). Tie to cleaning photo submission or next-stay notification—moments when guest is already using the app.",
+          "insight": "Don't rely on guest memory. System must proactively trigger reviews at high-engagement moments. Cleaning photo viewing is the gold standard."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "monitoring": "System watches for trigger conditions: checkout complete, cleaning photos uploaded, guest app activity. No UI visible yet.",
+        "primary_trigger_armed": "Checkout complete + cleaning photos uploaded by host. Waiting for guest to view photos. 500ms delay after view triggers review card.",
+        "fallback_1_armed": "4 hours post-checkout, guest hasn't viewed photos. Send push notification with photo preview + 'Share quick feedback' CTA.",
+        "fallback_2_armed": "24 hours post-checkout, no engagement. Next app open (any screen) triggers review card as modal overlay.",
+        "fallback_3_armed": "48 hours post-checkout, no engagement. Show persistent banner on app home: 'How was your stay at [Property]?' with star rating inline.",
+        "triggered": "One of the trigger conditions met. Review UI appears (card, notification, or banner depending on trigger type).",
+        "snoozed": "Guest dismissed review prompt. Set snooze timer (4 hours for primary, 8 hours for fallbacks). Won't re-trigger during snooze period.",
+        "completed": "Guest submitted review. Disable all future triggers for this stay. Mark stay as 'reviewed' in system."
+      },
+      "transition_principle": "Opportunistic but respectful. Try high-engagement triggers first (cleaning photos), fall back to lower-engagement triggers (time-based) if needed. Never spam—limit to one trigger attempt per 4-hour window. Give guest control via dismissal/snooze. Escalate persistence gradually (modal → notification → banner) but always allow opt-out.",
+      "timing": {
+        "primary_trigger": "500ms after cleaning photo view",
+        "fallback_1": "4 hours post-checkout if no photo view",
+        "fallback_2": "24 hours post-checkout if no engagement",
+        "fallback_3": "48 hours post-checkout, persistent banner",
+        "snooze_duration": "4 hours (primary), 8 hours (fallbacks)",
+        "max_attempts": "Unlimited (banner persists) but no more than 1 trigger per 4-hour window",
+        "rationale": "4-hour window prevents nagging. 24-48 hour delays balance memory freshness with giving guest time to settle post-checkout. Persistent banner (48+ hours) respects that some guests need more time but keeps review top-of-mind."
+      },
+      "journey_state_awareness": "For first review (stay 1): use educational messaging in prompts ('Help future guests by sharing quick feedback'). For reviews 5+: minimal messaging ('How was your stay?'). Track guest's review history—if they consistently review within 4 hours, skip fallback triggers. If they consistently dismiss/snooze, reduce trigger frequency to avoid annoyance.",
+      "edge_cases": [
+        "Host doesn't upload cleaning photos: Skip primary trigger, go straight to fallback 1 (4 hours post-checkout)",
+        "Guest reviews before any trigger fires (manually navigates to review): Cancel all pending triggers for this stay",
+        "Multiple stays end on same day (edge case in weekly leases): Trigger reviews sequentially, not simultaneously. 30-min spacing between triggers.",
+        "Guest has app notifications disabled: Skip push notification trigger, go straight to in-app fallbacks",
+        "Guest uninstalls app: Send review link via email (48 hours post-checkout) as final fallback"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Bid Submission Optimistic Confirmation",
+      "journey_phases": ["proposal_creation"],
+      "problem": "Tapper was told to 'click the bid option' but the interaction path was unclear. Traditional form submissions show loading spinners for 2-5 seconds, blocking users while the server processes. This creates anxiety ('Did it work?') and dropout risk ('This is taking forever, I'll do it later'). For guests submitting multiple bids, this friction compounds—submitting 5 bids means 15+ seconds of watching spinners.",
+      "solution": "Implement optimistic bid submission with instant confirmation. When guest taps 'Submit Bid' button: (1) Button immediately shows checkmark icon + 'Submitted!' text (no spinner, <50ms response). (2) Bid appears in guest's 'My Bids' list instantly with 'Pending Host Response' status. (3) Page animates to confirmation screen showing 'Bid submitted for [Property]' with next steps ('We'll notify you when host responds'). (4) Background: Bid syncs to server. If sync succeeds (99% of cases), no additional feedback needed—guest already saw confirmation. If sync fails, show banner on 'My Bids' page: 'Connection issue—bid will retry' with retry button. Guest experience is never blocked on server response.",
+      "evidence": [
+        {
+          "source": "Tapper call, lines 48-51",
+          "type": "guest_call",
+          "quote": "should I, should I click the bid, um, Option? Yeah. The best way is to click the bid option, complete the bid.",
+          "insight": "Tapper needed explicit guidance to submit bid—the interaction wasn't self-evident. Optimistic UI makes submission feel confident and complete immediately, reducing hesitation."
+        },
+        {
+          "source": "Journey context, proposal_creation phase",
+          "type": "data",
+          "quote": "Dropout risk: high. Competing rental options (Tapper mentions Washington Heights offer). Multi-step profile completion creates friction before bidding. This creates multiple steps and decision points where dropout can occur.",
+          "insight": "High dropout risk means submission must feel instant and confident. Any loading delay increases abandonment. Optimistic UI removes this friction point."
+        },
+        {
+          "source": "Microinteractions book, Feedback chapter",
+          "type": "book",
+          "quote": "The best feedback is no feedback—the action itself IS the confirmation. If the user's action produces an immediate visible result, no additional confirmation is needed.",
+          "insight": "Bid appearing in 'My Bids' list instantly IS the confirmation. Don't show 'Your bid was submitted successfully!' modal—show the bid itself in the list."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Submit Bid button enabled (all required fields complete), primary purple background, white text. Ready to tap.",
+        "loading": "NO LOADING STATE. Button instantly changes to checkmark + 'Submitted!' (white checkmark icon, green background #3a7a52, <50ms response).",
+        "success": "Button shows 'Submitted!' for 500ms, then page animates to confirmation screen (slide left transition, 300ms). Bid appears in 'My Bids' list.",
+        "syncing": "Background sync occurs (500-2000ms). No visible UI—sync is invisible to guest. Bid shows 'Pending Host Response' status in list.",
+        "error": "If sync fails after 3 retries: Banner on 'My Bids' page: 'Connection issue—bid will retry automatically' with manual retry button. Bid remains visible with 'Syncing...' status.",
+        "confirmed": "Server confirms bid received. Bid status changes from 'Pending Host Response' to 'Submitted—Host Notified' in list. No toast/modal—status change is sufficient feedback."
+      },
+      "transition_principle": "Instant gratification. Tap → immediate checkmark → confirmation screen. Total perceived time: <1 second. Background sync is invisible. Guest never waits. If network issues occur, handle gracefully with retry logic but don't block the guest's forward progress.",
+      "timing": {
+        "response_target": "50ms—button state change is instant",
+        "confirmation_display": "500ms—show 'Submitted!' state briefly",
+        "page_transition": "300ms—slide to confirmation screen",
+        "background_sync": "500-2000ms—invisible to guest",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Sub-second perceived completion time. Guest feels the bid submitted instantly because locally it DID submit instantly. Server confirmation is asynchronous detail."
+      },
+      "journey_state_awareness": "For first bid (new guest): confirmation screen includes onboarding tips ('Hosts typically respond within 24 hours. You'll get a notification.'). For subsequent bids: minimal confirmation screen ('Bid submitted'). Track if guest is submitting multiple bids in one session—after 2nd bid, show encouragement: 'You've submitted 2 bids! Submitting multiple bids increases your chances.'",
+      "edge_cases": [
+        "User submits bid then immediately closes app: Sync completes in background, push notification confirms 'Bid submitted for [Property]'",
+        "Network completely offline: Show banner 'Offline—bid saved, will submit when reconnected' but still add to 'My Bids' list locally",
+        "Server rejects bid (duplicate, listing no longer available): Show error banner on 'My Bids' page: 'This listing is no longer available—try another'",
+        "User taps Submit twice rapidly: Debounce—ignore second tap, only submit once",
+        "Sync succeeds but guest never saw confirmation screen (app crashed): Show 'Bid submitted successfully' notification on next app open"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Review Dismissal & Snooze Adaptive Behavior",
+      "journey_phases": ["active_lease"],
+      "problem": "Guest doesn't want to review right now—they just got home, they're tired, they'll do it later. But 'later' never comes if the system doesn't remind them. Traditional platforms either nag constantly (annoying) or give up after one dismissal (low volume). Smart snooze behavior respects guest's timing while maintaining engagement.",
+      "solution": "Multi-level dismissal options with adaptive learning: (1) Guest swipes down review card or taps X: Show inline snooze menu with 3 options: 'In 1 hour', 'Tonight (6pm)', 'Tomorrow'. Default highlighted based on time of day. (2) Guest selects option: Card dismisses smoothly (300ms slide-down), snooze set. (3) At snooze time: Re-trigger review card (primary trigger if via cleaning photos, else push notification). (4) ADAPTIVE: If guest snoozes 3+ times for a single stay, show additional option: 'Skip this review' with explanation 'We won't ask again for this stay.' (5) If guest consistently reviews within 1 hour of first prompt (across multiple stays), pre-select 'In 1 hour' as default snooze. If they consistently choose 'Tomorrow', pre-select that. System learns guest's preferred timing.",
+      "evidence": [
+        {
+          "source": "Journey context, active_lease phase",
+          "type": "data",
+          "quote": "Friction reducers: Allow skip/defer ('Remind me later') without guilt or repeated nagging. Edge cases to handle: Review dismissal & snooze behavior—guest doesn't want to review right now.",
+          "insight": "Snooze is a volume multiplier IF done right. Giving guests control over timing increases completion rates vs forcing immediate action or giving up after one dismissal."
+        },
+        {
+          "source": "Microinteractions book, Loops chapter",
+          "type": "book",
+          "quote": "Long loops change the interaction based on repeated use. The system should learn and adapt to user patterns over time.",
+          "insight": "Snooze timing should adapt to guest's behavior. If they always review in the evening, default to 'Tonight' option. Personalization increases engagement."
+        },
+        {
+          "source": "Layer 2 communicates-elements.json, communicates-002",
+          "type": "data",
+          "quote": "Review prompt structure: 'How was your stay at [Property]? [Date range] • [Number of nights].' Show context immediately to refresh memory before asking for timing preference.",
+          "insight": "Context-rich dismissal menu. Show stay details in snooze menu so guest can decide timing based on memory freshness ('I'll remember tonight, but not tomorrow')."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "dismissing": "Guest swipes down or taps X. Review card pauses at 50% translateY, snooze menu slides up from bottom (200ms, ease-out).",
+        "snooze_menu_visible": "Menu shows 3 time options + 'Skip this review' (if 3+ prior snoozes). Stay metadata visible at top. One option pre-selected based on adaptive logic.",
+        "snooze_selected": "Guest taps option. Selected option highlights (green checkmark), menu slides down (200ms), review card completes dismissal (300ms). Snooze timer set.",
+        "snoozed": "Review card hidden. Timer active. At snooze time, trigger logic re-engages (push notification or in-app card depending on context).",
+        "re_triggered": "Snooze timer expires. Review card appears again (same trigger logic as initial). Show small badge: 'Reminder' at top-right.",
+        "skip_selected": "Guest taps 'Skip this review'. Confirmation: 'Are you sure? You won't be asked again for this stay.' (Yes/No). If Yes: Mark stay as 'review skipped', never re-trigger.",
+        "abandoned": "If guest snoozes 5+ times and never reviews, send final email 7 days post-checkout: 'Last chance to review your stay at [Property].' If still no engagement, mark as abandoned."
+      },
+      "transition_principle": "Respectful persistence. Give guest control over timing via snooze menu. Learn their preferences and pre-select accordingly. Allow opt-out after 3 snoozes to avoid becoming annoying. Final email fallback ensures one last opportunity without in-app nagging.",
+      "timing": {
+        "snooze_menu_slide_in": "200ms",
+        "snooze_menu_slide_out": "200ms",
+        "card_dismissal_completion": "300ms",
+        "snooze_durations": "1 hour, 'Tonight' (6pm same day or next day if past 6pm), 'Tomorrow' (24 hours)",
+        "adaptive_learning_threshold": "3 stays minimum to establish pattern",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Fast transitions (200-300ms) keep interaction snappy. Snooze durations based on realistic guest availability (1 hour = soon, Tonight = end of day, Tomorrow = more time needed)."
+      },
+      "journey_state_awareness": "First dismissal (stay 1): Don't show 'Skip this review' option—guest might not understand it's stay-specific. After 3rd dismissal of ANY review: Show 'Skip this review' option. Track dismissal patterns across all stays—if guest consistently snoozes to 'Tomorrow' across 3+ stays, make that the default. If they consistently 'Skip', reduce trigger frequency to avoid annoyance.",
+      "edge_cases": [
+        "Guest selects 'Tonight' but it's already past 6pm: Auto-adjust to next day 6pm, show tooltip 'Reminder set for tomorrow evening'",
+        "Guest snoozes then reviews manually before snooze time: Cancel snooze timer, mark stay as reviewed",
+        "Guest snoozes then checks out of next stay: Re-prioritize—trigger review for more recent stay first, older stay becomes lower priority",
+        "Guest dismisses then uninstalls app: Cancel snooze, send email reminder instead (48 hours later)",
+        "Guest selects 'Skip' then re-opens review card manually: Allow review, show 'Changed your mind? Thanks for reviewing!' confirmation"
+      ]
+    }
+  ]
+}

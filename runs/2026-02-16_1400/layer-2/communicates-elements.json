@@ -1,0 +1,426 @@
+{
+  "lens": {
+    "guest_call": "Tapper S - 9 September 2022.txt",
+    "book_extract": "microinteractions-rules-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "communicates-001",
+      "type": "info_architecture",
+      "title": "Review Form Radical Simplicity",
+      "journey_phases": ["active_lease"],
+      "problem": "Traditional vacation rental reviews ask 8-12 questions across multiple screens (cleanliness, accuracy, check-in, communication, location, value, amenities, house rules). For stay-by-stay reviews in a 3-month lease (~12 stays), this creates crushing cognitive burden. Guests answering 30+ questions about essentially the same space and host will experience review fatigue by stay 3. Volume craters.",
+      "solution": "Limit stay-by-stay reviews to 2-3 data points maximum: (1) REQUIRED: Overall rating (1-5 stars, single tap). (2) OPTIONAL: One-line comment (50 char max, encourages brevity). (3) OPTIONAL: Issue flag (binary yes/no: 'Was there a problem this stay?'). If yes, show 3 pre-defined categories (cleanliness, damage, house rules) + optional text field. This minimal interface takes 15 seconds to complete. Detailed multi-category reviews can be offered at lease-end as a separate 'final summary review,' but stay-by-stay reviews must be radically simple to maintain 60%+ completion rates across all 12 stays.",
+      "evidence": [
+        {
+          "source": "Microinteractions extract, lines 317-319",
+          "type": "book",
+          "quote": "Microinteractions are 'simple, brief, and should be nearly effortless'",
+          "insight": "This is the foundational principle for stay-by-stay reviews. If a review takes 5 minutes and requires deep thought, it's not a microinteraction—it's a chore. By definition, it must be simple, brief, effortless. 2-3 questions achieves this; 10 questions does not."
+        },
+        {
+          "source": "Microinteractions extract, lines 335-339",
+          "type": "book",
+          "quote": "Rules: 'Limited Options and Smart Defaults'—minimize choice, provide smart defaults. Don't ask 10 questions per review. Ask 2-3 core questions (star rating, one-line comment, issue flag).",
+          "insight": "Every additional question exponentially increases review abandonment. The sweet spot for high-volume reviews is 2-3 questions max—enough to be useful, few enough to be effortless."
+        },
+        {
+          "source": "Layer 1 works-elements.json, works-006, lines 269-311",
+          "type": "data",
+          "quote": "Limit stay-by-stay reviews to 2-3 core questions... This minimal interface takes 15 seconds to complete. More detailed reviews can be offered at lease-end as a separate 'final summary review,' but stay-by-stay reviews must be radically simple to maintain volume.",
+          "insight": "The process pattern from Layer 1 specifies exactly what information should be collected. Layer 2 defines HOW that information should be structured and prioritized."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "PRIMARY: Star rating (largest, most visible, requires interaction to proceed). SECONDARY: Optional comment field (visible but skippable, character counter shows 0/50). TERTIARY: Issue flag (small checkbox or toggle, expandable if checked). Everything else is excluded from stay-by-stay reviews and moved to lease-end summary.",
+      "disclosure_pattern": "Star rating appears immediately below stay metadata. Comment field appears after star selection (progressive disclosure—don't show until rating is locked in). Issue flag appears last, small and unobtrusive. If issue flag is checked, categories expand inline. Never show all categories by default.",
+      "cognitive_load_constraint": "Maximum 3 data points per stay review. Star rating = 1 cognitive unit (simple choice). Comment = 1 unit (optional text generation). Issue flag = 1 unit (binary decision, expandable to 2 if categories shown). Total max load = 3 units. By review 5+, 'Same as last time' reduces load to <1 unit.",
+      "scan_order": [
+        "Stay metadata (dates, nights, room name) — establishes context",
+        "Star rating (1-5) — primary decision",
+        "Optional comment field — secondary, skippable",
+        "Issue flag — tertiary, for problems only"
+      ],
+      "exclude": [
+        "Individual category ratings (cleanliness, accuracy, communication, etc.) — save for lease-end",
+        "Host profile questions (responsiveness, friendliness) — save for lease-end",
+        "Multi-paragraph text areas — stay reviews are quick feedback, not essays",
+        "Photo upload — not required for every stay, available if guest wants to add",
+        "Detailed location/neighborhood ratings — doesn't change stay-to-stay",
+        "Value rating — pricing doesn't change, this is lease-end data"
+      ]
+    },
+    {
+      "id": "communicates-002",
+      "type": "info_architecture",
+      "title": "Review Prompt Contextual Data Embedding",
+      "journey_phases": ["active_lease"],
+      "problem": "When guests receive review prompts days after a stay ends, they must recall: Which stay was that? What dates? How many nights? What room? This memory burden causes review abandonment—especially problematic when a single guest-host pairing generates 12+ stays over 3 months. Traditional review emails say 'Review your recent stay' with a generic link, forcing guests to reconstruct context before they can even begin rating.",
+      "solution": "Embed stay-identifying metadata INSIDE the review notification and prompt, not as separate information the guest must look up. Notification structure: 'How was your stay at [Property Name, Room Type]? [Date range] • [Number of nights] • Stay #[X] of [Total].' Show this context immediately in the notification (push, email, in-app) and repeat it at the top of the review form. Include visual reminders: thumbnail photo of the space, host profile photo. Apply Microinteractions principle 'Bring the Data Forward'—show information about the internal state before the user even engages.",
+      "evidence": [
+        {
+          "source": "Microinteractions extract, lines 87-89 and 452-454",
+          "type": "book",
+          "quote": "Bring the Data Forward: The trigger itself can reflect the data contained inside the microinteraction. Ask yourself, what can I show about the internal state of the microinteraction before it is even engaged?",
+          "insight": "The review notification IS the trigger. It should show stay metadata before the guest even opens the review form. This reduces cognitive burden and increases completion rates by eliminating the 'which stay was that?' confusion."
+        },
+        {
+          "source": "Layer 1 works-elements.json, works-004, lines 164-210",
+          "type": "data",
+          "quote": "Pre-populate every review with stay metadata the system already knows. Review header shows: 'Your stay: [Room name], [Date range], [Number of nights], Check-in: [Time from arrival notification].' Guest sees this context immediately, which 1) refreshes their memory, 2) reduces blank-page syndrome, 3) saves them from having to manually enter dates.",
+          "insight": "The process pattern specifies WHAT data to show. Layer 2 defines WHERE and WHEN to show it: in the notification itself, not just the form. Context precedes action."
+        },
+        {
+          "source": "Journey context, active_lease phase, lines 306-314",
+          "type": "data",
+          "quote": "At the end of each stay, both Host and Guest are prompted to review the experience... Stay lifecycle: Each stay within a lease has its own cycle—arrival notification, active stay, cleaning photos, review. This repeats for every stay in the lease.",
+          "insight": "Each stay is part of a repeating cycle. Guests need to distinguish stay #3 from stay #8. Metadata in the notification header prevents confusion and increases review accuracy."
+        },
+        {
+          "source": "Tapper S call, lines 09:41-10:05",
+          "type": "guest_call",
+          "quote": "And that's why I am asking because, uh, at this point of time, uh, when I take your $2,500 and divided by four weeks and divided by five nights, that is 1 25 per night. I'm just giving you the calculations I'm doing in my mind very quickly.",
+          "insight": "Tapper manually calculates what the system should show. The same principle applies to reviews—guests shouldn't reconstruct stay context manually. The system has this data and must display it upfront."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "PRIMARY: Stay-identifying metadata (property name, dates, nights). SECONDARY: Visual identifiers (property photo thumbnail, host photo). TERTIARY: Stay sequence context ('Stay #3 of 12'). This hierarchy applies to both the notification and the review form header.",
+      "disclosure_pattern": "Show metadata immediately in the notification preview (push notification, email subject line, in-app banner). Repeat full metadata at the top of the review form. Don't bury context below the fold or in a separate info panel—it must be visible before any rating interface appears.",
+      "cognitive_load_constraint": "Notification must communicate stay identity in <3 seconds of scanning. Use format: [Property Name] • [Date range] • [Nights]. Maximum ~60 characters for notification preview. On review form, expand to include property photo (150x150px max), host photo (50x50px), stay number in sequence.",
+      "scan_order": [
+        "Property name (largest, bold) — primary identifier",
+        "Date range (e.g., 'Nov 3-7') — temporal context",
+        "Number of nights (e.g., '4 nights') — duration context",
+        "Property thumbnail photo — visual memory trigger",
+        "Stay sequence (e.g., 'Stay 3 of 12') — position in relationship",
+        "Host photo and name — relationship context"
+      ],
+      "exclude": [
+        "Generic text like 'Review your recent stay' — not specific enough",
+        "Property address — too verbose, property name is sufficient",
+        "Total cost paid — not relevant to review quality, creates bias",
+        "Booking ID or reference numbers — internal system data, not useful context",
+        "Full house rules or listing description — too much information, distracts from review task"
+      ]
+    },
+    {
+      "id": "communicates-003",
+      "type": "info_architecture",
+      "title": "Pre-Populated Review Data (Don't Start from Zero)",
+      "journey_phases": ["active_lease"],
+      "problem": "After stay #2, guests are reviewing essentially the same space and host repeatedly. Traditional review systems ask the same questions with blank forms every time, ignoring relationship history. This creates repetitive data entry—'cleanliness: 5 stars' stay after stay—that feels like busywork. By stay 5-6, guests think 'I've said all this before' and stop participating. The blank form creates activation energy that kills volume.",
+      "solution": "From review #2 onward, pre-populate the review form with the guest's previous ratings and comments for that guest-host pairing. Show previous star rating as the default, pre-filled in the star interface. Show previous comment as placeholder text. Prominently offer 'Same as last time ✓' one-tap confirmation button. If guest's experience hasn't changed, they tap once and the review submits using prior data + auto-generated comment ('Consistent with previous stay'). Guest can still adjust any field or write new feedback if desired. Transform the review from an active generation task (blank page) to a passive recognition/confirmation task (verify or adjust). Reduces cognitive load by ~80%.",
+      "evidence": [
+        {
+          "source": "Microinteractions extract, lines 129-131 and 331-334",
+          "type": "book",
+          "quote": "Don't Start from Zero: Rules should be designed to pre-populate with known data. If the guest gave 5 stars last stay and nothing has changed, pre-populate with last stay's ratings. Guest just confirms or adjusts. This is HUGE for volume—removes the blank-page problem.",
+          "insight": "Pre-population is a core microinteraction design principle. The system already knows the guest's prior ratings. Never ask users to re-enter information the system already has—show it and let them confirm or change it."
+        },
+        {
+          "source": "Layer 1 works-elements.json, works-002, lines 60-108",
+          "type": "data",
+          "quote": "Use 'long loops' (repeated-use adaptation) to make reviews progressively simpler. REVIEWS 2-4: Standard flow, but pre-populate with prior ratings. Guest confirms or adjusts. REVIEWS 5+: Offer 'Same as last time ✓' one-tap option prominently.",
+          "insight": "Progressive review simplification across the lease term. Pre-population starts at review 2. By review 5, it becomes a one-tap confirmation. This maintains participation across 12 stays instead of dropping off after the first few."
+        },
+        {
+          "source": "Journey context, active_lease phase, lines 361",
+          "type": "data",
+          "quote": "Pre-population transforms the review from an active writing task to a passive confirmation task. This cognitive shift—from generation to recognition—reduces effort by ~80% and dramatically increases completion rates for recurring relationships.",
+          "insight": "Cognitive load research shows recognition tasks are easier than generation tasks. Pre-population leverages this by showing 'Is this still accurate?' instead of 'What do you think?'"
+        },
+        {
+          "source": "Microinteractions extract, lines 156-160",
+          "type": "book",
+          "quote": "The proposal form should pre-fill dates, nights, budget from the guest's previous search or inquiry. Guest shouldn't re-enter data the system already knows.",
+          "insight": "This principle applies across the entire journey, including reviews. Just as bid forms pre-fill search criteria, review forms must pre-fill prior ratings. Consistency in applying 'Don't Start from Zero' builds user trust."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "PRIMARY: 'Same as last time ✓' button (most prominent option for reviews 5+, large and green). SECONDARY: Pre-filled star rating (visible, with edit affordance indicated by outline or animation on hover/tap). TERTIARY: Pre-filled comment as placeholder text (gray text, disappears when guest starts typing new comment). QUATERNARY: Small 'Clear and start fresh' link (available but de-emphasized).",
+      "disclosure_pattern": "For review #1: Show blank form with educational context ('Your feedback helps future guests'). For reviews #2-4: Show prior rating pre-filled, with subtle visual indicator (e.g., 'You rated 5 stars last time'). For reviews #5+: Lead with 'Same as last time ✓' button above the rating interface. If guest ignores button and interacts with rating/comment fields, button fades to secondary position. Progressive disclosure based on usage history.",
+      "cognitive_load_constraint": "Review #1: 3 cognitive units (rating + optional comment + optional issue). Review #2-4: 2 units (confirm or adjust prior rating + optional new comment). Review #5+: <1 unit (one-tap 'Same as last time' OR 2 units if guest chooses to edit). By pre-populating, we reduce decision-making from 'What do I think?' (high effort) to 'Is this still true?' (low effort).",
+      "scan_order": [
+        "For reviews 5+: 'Same as last time ✓' button first (largest visual element)",
+        "Pre-filled star rating (previous rating visible, stars filled in)",
+        "Pre-filled comment as placeholder text (gray, in comment field)",
+        "Stay metadata (dates, room) — provides context for 'is this still accurate?'",
+        "'Clear and start fresh' link — available but not prominent"
+      ],
+      "exclude": [
+        "Blank forms for returning guest-host pairings — never force guests to start from zero after review #1",
+        "Pre-population from OTHER guest-host pairings — only show this guest's prior ratings for THIS specific host/property",
+        "Pre-population of issue flags — only pre-fill positive data (stars, comments), never assume problems persist",
+        "Automatic submission without guest confirmation — always require one interaction (tap 'Same as last time' or submit button) to confirm consent"
+      ]
+    },
+    {
+      "id": "communicates-004",
+      "type": "info_architecture",
+      "title": "Pricing Information Transparency Hierarchy",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "Tapper's call reveals critical pricing confusion: per-bedroom vs full-unit pricing, fee inclusion ambiguity, manual calculation burden (per-night × nights × weeks). He initially thinks rent is $2,092/month but discovers it's per bedroom, doubling his expected cost. This pricing opacity causes immediate dropout ('That one would be out of our price range'). Guests must mentally calculate true costs while the platform already has all the math.",
+      "solution": "Structure pricing information in scannable tiers that answer guests' progressive questions: (1) PRIMARY (largest, bold): Total lease cost for guest's specific parameters ('$6,000 for your stay' or '$2,000/month'). (2) SECONDARY (medium, breakdown): Per-night rate × nights × weeks ('$75/night × 4 nights × 10 weeks'). (3) TERTIARY (small, expandable): Fee breakdown ('Includes: cleaning $X, service fee $X, no hidden fees'). (4) QUATERNARY (expandable details): Per-bedroom clarification if applicable ('This is a 2BR unit. Pricing shown is for [X bedrooms] based on your search'). Never show only per-night pricing without context. Always calculate and display total cost for the guest's specific dates and nights.",
+      "evidence": [
+        {
+          "source": "Tapper S call, lines 02:32-02:58",
+          "type": "guest_call",
+          "quote": "when it says something like, you know, I'm looking currently at the, the apartment I inquired about, it says four week rent, 2090 $2, if you select full time. Um, what does that include? Does that include the fees for booking? Does that include y'all's fees?",
+          "insight": "Guest is trying to understand total cost but the listing page doesn't clearly show what's included. The pricing number exists but its meaning is ambiguous. This violates 'Bring the Data Forward'—pricing breakdown should be immediately visible, not require Robert's explanation."
+        },
+        {
+          "source": "Tapper S call, lines 03:42-04:19",
+          "type": "guest_call",
+          "quote": "so 74, 73 per night, that is per, and it is two bedroom. I just don't want to, uh, to mislead you, this is per bedroom. ... Oh, okay. Um, are you saying that if we only wanted one bedroom, it doesn't work that way, Is that correct?",
+          "insight": "The per-bedroom pricing model is not visible until Robert clarifies it. This is a massive information architecture failure—the most critical pricing rule (per-bedroom vs whole-unit) is hidden. This causes dropout at the evaluation phase."
+        },
+        {
+          "source": "Journey context: listing_evaluation, lines 116-118",
+          "type": "data",
+          "quote": "Triggers should 'bring the data forward'—show information about the internal state before the user even engages. Listing pages should display total cost breakdown (per-night × nights × weeks + fees) BEFORE the guest clicks to bid, preventing surprise and dropout.",
+          "insight": "The listing evaluation phase analysis explicitly calls out pricing transparency as a dropout risk. Total cost must be calculated by the system and shown upfront, not left for guests to figure out."
+        },
+        {
+          "source": "Microinteractions extract, lines 116-123",
+          "type": "book",
+          "quote": "Feedback: 'Less Is More'—match feedback to importance, don't overwhelm. But pricing is HIGH importance, so this is the exception—more feedback is needed here. Show multiple views: per-night, per-week, total lease cost, comparison to budget.",
+          "insight": "Pricing is the rare case where 'less is more' does NOT apply. Because pricing is a critical decision factor, show it in multiple formats (total, per-month, breakdown) to eliminate ambiguity."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "DOMINANT: Total lease cost in guest's terms ('$6,000 total' or '$2,000/month × 3 months'). This number should be 2-3x larger font than any other pricing info. SECONDARY: Calculation breakdown (per-night × nights × weeks), visible but smaller. TERTIARY: Fee breakdown and inclusions (expandable or small text). SUPPRESSED: Per-night pricing alone—never show this as the primary number without context.",
+      "disclosure_pattern": "Always calculate total cost for the guest's selected dates and nights. Show this first and largest. Below, show the breakdown formula (per-night rate × nights selected × weeks). Offer 'See fee breakdown' expandable section for details (cleaning, service, etc.). For multi-bedroom units, show IMMEDIATELY below total cost: 'This is a [X]BR unit. Price shown is for [Y] bedrooms' with link to 'How is this calculated?' explainer. Progressive disclosure: show critical info (total cost) upfront, details (fee breakdown) on demand.",
+      "cognitive_load_constraint": "Guest should answer 'Can I afford this?' in <5 seconds of scanning. One large number (total cost) achieves this. Calculation breakdown provides verification ('how did they get this number?'). Limit pricing information to 3 tiers max: Total → Breakdown → Details. Never show more than 5 pricing-related numbers on a single screen.",
+      "scan_order": [
+        "Total lease cost (largest, bold, color-highlighted) — primary decision data",
+        "Per-month equivalent if multi-month (e.g., '$2,000/month') — familiar framing",
+        "Calculation breakdown (per-night × nights × weeks) — verification",
+        "Fee inclusions/exclusions (cleaning, service, taxes) — transparency",
+        "Per-bedroom clarification if applicable — prevents surprise",
+        "Budget comparison if guest provided budget (e.g., 'Within your $2,500/month budget ✓') — decision support"
+      ],
+      "exclude": [
+        "Per-night pricing as the dominant number — too abstract for long-term stays",
+        "Per-bedroom pricing without context — causes confusion as Tapper experienced",
+        "Vague labels like 'rent' without specifying what it includes — ambiguity kills trust",
+        "Price ranges (e.g., '$2,000-3,000') when guest has already specified dates — calculate exact cost",
+        "Prices that require manual calculation by guest — system must do the math"
+      ]
+    },
+    {
+      "id": "communicates-005",
+      "type": "info_architecture",
+      "title": "Profile Completeness Progressive Disclosure",
+      "journey_phases": ["proposal_creation"],
+      "problem": "Robert tells Tapper to complete profile, upload photo, write traveler story, fill rental application—all BEFORE bidding. This creates multiple decision points and steps where dropout can occur. Guests don't know which information is required vs optional, which fields increase acceptance odds, or how much information is 'enough.' The burden of figuring out what to fill creates analysis paralysis. Critical information like pet ownership is left to guests to remember rather than being prompted systematically.",
+      "solution": "Structure profile completion as a progressive checklist with explicit priority hierarchy: (1) REQUIRED to bid: Name, contact info, dates, nights, budget (these block proposal submission). (2) STRONGLY RECOMMENDED: Profile photo, one-paragraph traveler story, employment verification (show these with orange warning: 'Hosts are 3x more likely to accept complete profiles'). (3) OPTIONAL: Additional photos, references, detailed preferences (show as 'nice to have,' expandable). Use structured prompts for critical data: 'Do you have pets?' checkbox (not free-form traveler story). Show completion percentage and acceptance likelihood: 'Your profile is 60% complete. Profiles at 80%+ have 2x higher acceptance rates.' This transforms vague 'fill this out' into clear, prioritized action steps.",
+      "evidence": [
+        {
+          "source": "Tapper S call, lines 12:36-13:14",
+          "type": "guest_call",
+          "quote": "also when you log in, there is, uh, uh, ability to do, to fill up your, uh, profile and, uh, uh, rental application, more information you give about yourself, better. Your chances that host will like you because great hosts don't accept just the bid from who knows who they want to know people.",
+          "insight": "Robert positions profile completion as a barrier ('more info = better chances') but provides no specifics. What information matters most? How much is enough? This ambiguity creates cognitive load and dropout. Information architecture must make the hierarchy explicit."
+        },
+        {
+          "source": "Tapper S call, lines 13:43-14:18",
+          "type": "guest_call",
+          "quote": "please make sure that in your travel story puts that you have a dog",
+          "insight": "Critical information (pet ownership) is left to the guest to remember to include in free-form text rather than being prompted systematically. This is a missed trigger opportunity—the system should ask directly 'Do you have pets?' rather than relying on storytelling. Structured prompts prevent omissions."
+        },
+        {
+          "source": "Journey context: proposal_creation phase, lines 148-155",
+          "type": "data",
+          "quote": "Critical information (pet ownership) is left to the guest to remember to include rather than being prompted systematically. This is a missed trigger opportunity—the system should ask directly 'Do you have pets?' rather than relying on free-form storytelling.",
+          "insight": "The journey analysis identifies this as a systematic information architecture failure. Profile fields must be prioritized and structured to capture critical data (pets, dates, budget) through direct prompts, not buried in optional narrative text."
+        },
+        {
+          "source": "Microinteractions extract, lines 335-339",
+          "type": "book",
+          "quote": "Rules: 'Limited Options and Smart Defaults'—minimize choice, provide smart defaults. The system knows which hosts require detailed applications vs simple bids. It should adjust the proposal form accordingly rather than asking every guest to complete maximum information every time.",
+          "insight": "Not all listings require the same information depth. The system should tailor profile requirements based on the specific listing or host's preferences. Show only what's needed for THIS bid, not a generic maximum profile."
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "TIER 1 (REQUIRED, blocking): Name, email, phone, dates, nights, budget — cannot submit bid without these. TIER 2 (STRONGLY RECOMMENDED, non-blocking): Profile photo, 1-paragraph traveler story, pet disclosure, employment type — can submit without but shown as orange warning. TIER 3 (OPTIONAL, expandable): Additional photos, references, detailed preferences — collapsed by default. Visual hierarchy: Tier 1 fields are standard input styling. Tier 2 has orange 'Recommended' badge. Tier 3 is behind 'Add more details' expandable section.",
+      "disclosure_pattern": "Show Tier 1 (required) fields first, grouped together. Once Tier 1 is complete, Tier 2 (recommended) fields appear below with progress indicator: 'Your profile is 40% complete. Add photo and story to reach 80%.' Tier 3 (optional) fields are collapsed under expandable section 'Add more details (optional).' Show acceptance likelihood data: 'Profiles with photo have 2.5x higher acceptance rate' to motivate completion without requiring it. Progressive disclosure based on completion: don't show Tier 2 until Tier 1 is complete.",
+      "cognitive_load_constraint": "Never show more than 5-7 form fields simultaneously (standard short-term memory limit). Tier 1 = 6 fields max. Once complete, show Tier 2 = 3 fields max. Tier 3 hidden until requested. Completion percentage provides single-number summary of overall progress, reducing need to track individual fields. Use structured inputs (checkboxes, dropdowns) instead of free-form text wherever possible to reduce generation burden.",
+      "scan_order": [
+        "Completion percentage and acceptance likelihood (top of form, sticky header) — motivation and context",
+        "Tier 1 REQUIRED fields (name, contact, dates, nights, budget) — blocking fields first",
+        "Tier 2 STRONGLY RECOMMENDED fields with badges (photo, story, pet disclosure) — high-value optional fields",
+        "Data-driven prompts (e.g., 'Profiles with photo: 2.5x higher acceptance') — evidence for why Tier 2 matters",
+        "Tier 3 OPTIONAL expandable section — low-priority details"
+      ],
+      "exclude": [
+        "All fields shown at once — overwhelming, unclear what's required",
+        "Generic 'fill out your profile' without priority hierarchy — creates analysis paralysis",
+        "Critical data (pets, budget) buried in free-form text fields — use structured inputs",
+        "Profile completion as separate page before bid form — integrate into single flow",
+        "Identical profile requirements for all listings — tailor to host preferences when possible",
+        "Completion requirements without explaining WHY (acceptance likelihood data) — motivation unclear"
+      ]
+    },
+    {
+      "id": "communicates-006",
+      "type": "info_architecture",
+      "title": "Review History Dashboard (Guest-Facing)",
+      "journey_phases": ["active_lease"],
+      "problem": "After leaving 5-8 reviews across multiple stays, guests have no way to see their own review history or contribution. Traditional platforms only show reviews guests have RECEIVED, not reviews they've WRITTEN. This eliminates the feedback loop that would create a sense of contribution and community participation. Guests don't know if their reviews are being read, how many they've completed, or their reviewing patterns. This lack of visibility reduces motivation to continue reviewing.",
+      "solution": "Create a guest-facing 'Your Reviews' dashboard showing their complete review history in reverse chronological order. For each review, show: (1) Property name and stay dates, (2) Star rating given, (3) Comment text, (4) Host's public response (if any), (5) 'X guests found this helpful' metric (if platform tracks this), (6) Stay sequence indicator ('Review 3 of 12 for this lease'). Include summary stats at top: 'You've written 8 reviews • 85 guests found them helpful • You're in the top 20% of reviewers.' Create a sense of contribution and progress. Use this dashboard as a feedback loop mechanism—guests see their reviewing habit formation and impact.",
+      "evidence": [
+        {
+          "source": "Microinteractions extract, lines 205-230 (Loops chapter intro)",
+          "type": "book",
+          "quote": "Loops: What happens when the microinteraction is used over time? Long loops change the interaction based on repeated use. The MetroCard example: turn the entire screen into one huge trigger—reduce friction to nothing.",
+          "insight": "Review history creates a long loop—guests see their accumulated contributions over time. This visibility reinforces the reviewing habit and creates a sense of progress. Without this feedback loop, each review feels isolated rather than part of a pattern."
+        },
+        {
+          "source": "Journey context: active_lease phase, lines 419-420",
+          "type": "data",
+          "quote": "Visible impact: Show guests how many people read their reviews or were helped by them. This gamifies participation without being obnoxious.",
+          "insight": "The review volume analysis identifies visible impact as a volume multiplier. Guests need to see their reviews matter—that real people read them and benefited. A review history dashboard makes this impact concrete and visible."
+        },
+        {
+          "source": "Microinteractions extract, lines 341-344",
+          "type": "book",
+          "quote": "Feedback: 'Less Is More'—match feedback to importance. After review submission, show simple confirmation ('Thanks! Your feedback helps the community.'). Show review's impact ('You've helped 12 future guests.').",
+          "insight": "Immediate post-review feedback is one touchpoint, but the dashboard creates ongoing feedback. Guests can return and see cumulative impact: 'Your 8 reviews have helped 85 guests.' This transforms reviews from isolated tasks into visible contributions."
+        },
+        {
+          "source": "Journey context: cross-phase patterns, lines 383-384",
+          "type": "data",
+          "quote": "Long loops and habit formation: Guests who complete multiple stays are forming habits. First-time actions should teach, but repeat actions should be effortless. This is critical for review design: the first review request can explain the system, but by review 10, it should be one tap.",
+          "insight": "The review history dashboard supports habit formation by making the pattern visible. Guests see 'You've reviewed every stay so far—8 out of 8' or 'You're on a 5-review streak.' This creates social pressure and personal motivation to continue the habit."
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "DASHBOARD HEADER (prominent): Summary stats (total reviews written, total helpfulness, percentile ranking). PRIMARY CONTENT: Review list in reverse chronological order, showing most recent first. SECONDARY for each review: Property name, dates, star rating, comment excerpt. TERTIARY (expandable): Full comment, host response, helpfulness metric. Provide filters: 'All reviews' vs 'By property' vs 'By date range.'",
+      "disclosure_pattern": "Show summary stats immediately at top of dashboard (single-number impact metrics). List reviews below in cards, newest first. Each card shows collapsed view by default: property name, date, star rating, first 50 characters of comment. Tap to expand full comment, host response, helpfulness data. Never show all details for all reviews at once—too overwhelming. Progressive disclosure: summary → list → details on demand.",
+      "cognitive_load_constraint": "Dashboard header = 3 key stats max (e.g., '8 reviews written • 85 guests helped • Top 20% reviewer'). Review list shows 10 reviews per page with infinite scroll. Each collapsed review card = 4 data points (property, date, stars, comment preview). Expanded card adds 3 more (full comment, host response, helpfulness). Keep each card scannable in 2-3 seconds.",
+      "scan_order": [
+        "Summary stats (total reviews, impact metrics) — sense of accomplishment",
+        "Most recent review (top of list) — recency and context",
+        "Review cards in chronological order (newest to oldest) — timeline view",
+        "For each card: property name, date, star rating — quick identification",
+        "Comment preview (first 50 chars) — reminder of what was said",
+        "Helpfulness metric if available — external validation"
+      ],
+      "exclude": [
+        "Reviews guest has RECEIVED — this dashboard is about contributions, not feedback received (that's a separate view)",
+        "Draft reviews or incomplete reviews — only show submitted reviews",
+        "Private notes or internal ratings not shared with hosts — only public reviews",
+        "Excessive gamification (badges, points, leaderboards) — keep it simple and informational",
+        "Review edit history — show current published version only",
+        "Other guests' reviews mixed with user's own — this is a personal history view"
+      ]
+    },
+    {
+      "id": "communicates-007",
+      "type": "info_architecture",
+      "title": "Acceptance Phase Review Norm Framing",
+      "journey_phases": ["acceptance"],
+      "problem": "Most platforms treat reviews as optional post-transaction requests. Guests perceive them as favors to the platform, not core service components. This framing kills volume—guests feel no obligation unless experience was extreme (very good or very bad). Split Lease's stay-by-stay review model is unusual. Without explicit norm-setting at lease signing, guests will be confused or annoyed by weekly review requests, perceiving them as spam rather than expected touchpoints.",
+      "solution": "Use the acceptance confirmation (lease signing) to explicitly establish stay-by-stay reviews as an expected, normal part of the lease lifecycle. In lease confirmation email and contract addendum, include section titled 'How Reviews Work': 'After each stay, we'll invite you to share quick feedback (15 seconds). These stay-by-stay reviews help future guests find great spaces and help hosts improve continuously. They're a core part of how Split Lease builds trust.' Include visual preview of the review interface (screenshot or mockup). Frame reviews as mutual expectation: 'You'll review your host, they'll review you.' Show benefit: 'Guests with complete review histories are 40% more likely to have future bids accepted.' Prime guests to expect and accept review requests as normal, recurring service touchpoints.",
+      "evidence": [
+        {
+          "source": "Journey context: acceptance phase, lines 234-241",
+          "type": "data",
+          "quote": "Acceptance is the moment to introduce the 'long loop' of stay-by-stay reviews. Set the expectation NOW that reviews happen after each stay, not just at lease end. Make it feel like a recurring ritual, not a one-time request.",
+          "insight": "Timing matters enormously. Acceptance is when guests are in a positive emotional state (relief, excitement) and open to platform guidance. If reviews are introduced as normal and expected at acceptance, guests won't perceive them as annoying when they arrive weekly."
+        },
+        {
+          "source": "Journey context: acceptance phase, lines 242-249",
+          "type": "data",
+          "quote": "The lease documents or confirmation screen should explicitly state: 'You'll be invited to review each stay—it only takes 30 seconds and helps build trust on the platform.' By framing reviews as an expected, normal part of the lease lifecycle (not an optional favor), the platform increases participation.",
+          "insight": "Framing determines participation rates. If reviews are 'optional favors,' completion rates will be <20%. If they're 'normal parts of the service,' rates can exceed 60%. Acceptance is when you set this frame through explicit communication."
+        },
+        {
+          "source": "Microinteractions extract, lines 337-339",
+          "type": "book",
+          "quote": "Users hate surprises. The iPhone alarm incident happened because the user didn't understand the rule ('alarms still sound when phone is silent'). Similarly, guests will resent review requests if they don't expect them. But if reviews are explained upfront at acceptance, they're expected, not surprising.",
+          "insight": "The Patron X symphony incident is a cautionary tale about hidden rules. Review requests will feel like interruptions if guests don't know they're coming. Explicit norm-setting at acceptance prevents this by making the rule visible and agreed-upon."
+        },
+        {
+          "source": "Tapper S call, lines 12:36-13:06",
+          "type": "guest_call",
+          "quote": "also when you log in, there is, uh, uh, ability to do, to fill up your, uh, profile and, uh, uh, rental application, more information you give about yourself, better. Your chances that host will like you because great hosts don't accept just the bid from who knows who they want to know people.",
+          "insight": "Robert proactively explains platform norms to Tapper ('hosts want to know who you are'). This same educational approach should apply to reviews at acceptance: explain what to expect, why it matters, how it benefits guests. Proactive norm-setting prevents confusion and resistance later."
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "LEASE CONFIRMATION EMAIL: Include 'How Reviews Work' section after payment confirmation but before move-in instructions. HIERARCHY within section: (1) HEADLINE: 'After each stay, we'll ask for quick feedback' (what to expect), (2) BODY: 15-second time estimate, mutual expectation (you review host, they review you), benefit to guest (trust-building, future acceptance rates), (3) VISUAL: Screenshot/preview of review interface, (4) CALL-OUT: 'Your first review will come after your first stay on [DATE]' (specific, concrete).",
+      "disclosure_pattern": "Show review expectations in the lease confirmation email (high visibility, positive timing). Repeat abbreviated version in the House Manual / move-in guide ('Reviews: You'll share quick feedback after each stay'). Do NOT hide in terms of service fine print. Do NOT wait until first review request to explain the system. Front-load the explanation when guest attention is high (post-acceptance excitement) and when norms are most easily established (contract signing).",
+      "cognitive_load_constraint": "Keep explanation to 3-4 sentences max (75-100 words). Use simple language (8th grade reading level). Focus on 3 key points: (1) WHEN reviews happen (after each stay), (2) HOW LONG they take (15 seconds), (3) WHY they matter (helps future guests, builds trust, improves acceptance rates). Include visual (review interface preview) to reduce reading burden. Avoid legalese or terms-of-service language—this is operational explanation, not legal obligation.",
+      "scan_order": [
+        "Section headline: 'How Reviews Work' — clear topic signpost",
+        "Key expectation: 'After each stay, we'll ask for quick feedback' — what to expect",
+        "Time estimate: '15 seconds' — effort required",
+        "Mutual benefit: 'You review your host, they review you' — fairness framing",
+        "Guest benefit: 'Complete review histories improve future acceptance rates' — personal motivation",
+        "Visual preview of review interface — concrete example",
+        "Specific timeline: 'Your first review will come after your first stay on [DATE]' — removes ambiguity"
+      ],
+      "exclude": [
+        "Legal obligation language or penalty threats — frame as community norm, not requirement",
+        "Detailed review guidelines or rules at this stage — keep it high-level, details come with first review",
+        "Host review criteria or rating definitions — too much information at acceptance",
+        "Historical review response rates or platform statistics — not relevant to individual guest",
+        "Multiple review types or options — keep it simple: stay-by-stay reviews, explained once",
+        "Requests to commit to reviewing or opt-in checkboxes — frame as expected norm, not optional participation"
+      ]
+    },
+    {
+      "id": "communicates-008",
+      "type": "info_architecture",
+      "title": "Negotiation Guidance Data Transparency",
+      "journey_phases": ["negotiation"],
+      "problem": "Robert reveals platform knowledge ('Sunday night is hard to book,' 'Mon-Thu is most common') that could prevent bid rejection, but this guidance only reaches guests lucky enough to speak with him. The platform has aggregate data on successful bid patterns—which night combinations have higher acceptance rates, which price ranges work, which profile elements matter—but doesn't surface this information. Guests submit bids blindly, get rejected, feel discouraged, don't know what to adjust. Hidden platform knowledge creates information asymmetry that favors experienced users over first-timers.",
+      "solution": "Structure bid optimization guidance as contextual data disclosure during proposal creation. When guest selects nights (e.g., Sun-Fri), show real-time feedback: 'Bids for Sun-Fri have a 35% acceptance rate. Bids for Mon-Thu have a 68% acceptance rate for similar listings. Consider adjusting to improve your odds.' Use tiered information hierarchy: (1) PRIMARY: Acceptance likelihood for guest's current selections ('Your current bid has a 45% estimated acceptance rate'), (2) SECONDARY: Specific optimization suggestions ('Tip: Dropping Sunday night could increase acceptance to 65%'), (3) TERTIARY (expandable): Aggregate data explanation ('Based on 2,000+ similar bids in this neighborhood'). Make platform knowledge visible and actionable, turning opaque rejection into data-driven iteration.",
+      "evidence": [
+        {
+          "source": "Tapper S call, lines 14:44-15:17",
+          "type": "guest_call",
+          "quote": "are you flexible on the nights? That is a key because not too many people, like from Sunday night, they are happy to do Monday to use the Wednesday, Thursday. That's quite a lot. And most of them using all the using themselves or they just don't want anybody on the weekend",
+          "insight": "Robert reveals platform-level data (most hosts prefer Mon-Thu or Mon-Fri, not Sun-Fri) that guests need to know BEFORE submitting bids. This is system knowledge that should be surfaced as real-time feedback during proposal creation, not post-rejection coaching."
+        },
+        {
+          "source": "Tapper S call, lines 15:17-15:36",
+          "type": "guest_call",
+          "quote": "The Sunday night might be something which you could give, give it up. I would advise your chances of getting something quickly would much improve if you will not use Sunday night in that scenario.",
+          "insight": "This is actionable optimization advice that should be embedded in the interface as real-time feedback. When a guest selects nights, show acceptance likelihood or host preference data: 'Bids including Sunday have 35% acceptance rate vs 68% for Mon-Thu only.' Make the invisible visible."
+        },
+        {
+          "source": "Journey context: negotiation phase, lines 205-207",
+          "type": "data",
+          "quote": "Triggers should 'bring the data forward'—show information about the internal state before the user even engages. Before guests submit a bid, show them data on similar successful bids—which night combinations have higher acceptance rates, which price ranges work, which profile elements matter.",
+          "insight": "The journey analysis identifies this as a 'bring the data forward' opportunity. The platform has aggregate bid data but doesn't expose it. Surfacing this data during proposal creation prevents rejection and improves first-bid success rates."
+        },
+        {
+          "source": "Journey context: cross-phase patterns, lines 387-389",
+          "type": "data",
+          "quote": "The gap between platform design and human agent compensation: Robert provides coaching, filtering, optimization advice, and clarification throughout the call—all work the platform should do but doesn't. This reveals design gaps where microinteractions could replace human intervention, making the platform scalable.",
+          "insight": "Robert's negotiation coaching reveals systematic information architecture gaps. His knowledge should be embedded in the platform through contextual data disclosure. This isn't about replacing humans—it's about making platform knowledge accessible to all users, not just those who get a phone call."
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "PRIMARY (prominent, color-coded): Acceptance likelihood for current bid parameters ('Your bid has a 45% estimated acceptance rate'). Use color coding: <30% red, 30-60% orange, >60% green. SECONDARY (medium, boxed): Specific optimization suggestion ('Tip: Dropping Sunday night could increase to 65%'). TERTIARY (small, expandable): Data explanation link ('How is this calculated? Based on X similar bids').",
+      "disclosure_pattern": "Show acceptance likelihood immediately below night selection interface, updating in real-time as guest adjusts parameters. When likelihood is <50% (yellow/red), automatically show optimization tip box. When >60% (green), show encouragement ('Great! Bids like this are usually accepted within 24 hours'). Link to 'How to improve your bid' expandable section with data-driven suggestions: adjust nights, adjust budget, complete profile. Progressive disclosure: always show likelihood, show tip if low, details on demand.",
+      "cognitive_load_constraint": "Acceptance likelihood = single percentage number (1 cognitive unit, easy to grasp). Optimization tip = 1 specific suggestion at a time (don't show 5 tips at once). Expandable details = bullet list, max 3-4 suggestions. Use color coding (red/orange/green) to enable instant pattern recognition without reading numbers. Total data shown: 1 primary number + 1 tip + optional details = manageable cognitive load.",
+      "scan_order": [
+        "Acceptance likelihood percentage with color coding — instant assessment",
+        "Optimization tip if likelihood <50% — actionable guidance",
+        "Specific suggestion (e.g., 'Drop Sunday night to improve to 65%') — concrete action",
+        "Data source link (e.g., 'Based on 2,000+ similar bids') — credibility and transparency",
+        "Expandable 'How to improve your bid' section — additional suggestions on demand"
+      ],
+      "exclude": [
+        "Raw statistical tables or complex data visualizations — keep it simple",
+        "Acceptance likelihood without context — always show why (night selection, price, etc.)",
+        "Too many simultaneous optimization suggestions — one primary tip at a time",
+        "Guarantees of acceptance — frame as likelihood based on historical data, not promises",
+        "Comparison to other guests' bids — focus on this guest's bid optimization, not competitive framing",
+        "Negative framing ('Your bid will probably be rejected') — frame as improvement opportunity"
+      ]
+    }
+  ]
+}
