@@ -1,0 +1,283 @@
+{
+  "lens": {
+    "host_call": "tammy-call.txt",
+    "book_extract": "kahneman-part2-heuristics-biases.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Anchor-First Pricing Calculator with Real-Time Paired-Tenant Aggregation",
+      "journey_phases": ["discovery", "evaluation", "pricing"],
+      "problem": "When Tammy encounters Split Lease pricing, her System 1 anchors on the first number she sees. If that number is a per-night rate ($85) or a single-tenant monthly total ($2,500), her $5,000/month anchor triggers immediate rejection. The current pricing interaction likely presents rates in a static format, forcing the host to mentally compute paired-tenant totals. This computation never happens because the anchoring rejection occurs before System 2 engages. The interaction must dynamically present the paired-tenant monthly aggregate as the first visible number and update it in real time as the host adjusts parameters.",
+      "solution": "Design an interactive pricing calculator that leads with the aggregate monthly income and responds instantly to host inputs. The host inputs her monthly minimum ($5,000), and the calculator immediately shows how many paired tenants are needed to reach it, with the total updating in real time as parameters change. The interaction flow: (1) Host enters or confirms monthly minimum — this becomes the target anchor displayed prominently. (2) System shows current paired-tenant configuration and projected monthly total. (3) Host can adjust nightly rate, tenant count, and schedule split — each adjustment instantly recalculates and updates the prominent monthly total. (4) When the projected total meets or exceeds the host's minimum, the interaction provides a visual confirmation (color shift, checkmark). The key interaction principle: the monthly total updates within 100ms of any input change, maintaining anchoring continuity.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 02:09",
+          "type": "host_call",
+          "quote": "The math doesn't add up.",
+          "insight": "Tammy has already done static mental math and rejected the result. A dynamic calculator that shows the paired-tenant total in real time would have prevented this premature rejection."
+        },
+        {
+          "source": "tammy-call.txt, 10:16",
+          "type": "host_call",
+          "quote": "That was my hesitation. When you say I have a split, they earn them until they're at 2,500 a month.",
+          "insight": "She anchored on $2,500 because that was the only number presented. A real-time calculator showing the aggregated paired-tenant total would have anchored her on a higher number."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring as Priming",
+          "type": "book",
+          "quote": "System 1 tries its best to construct a world in which the anchor is the true number.",
+          "insight": "The first number displayed becomes the 'true number' in System 1. A dynamically updating monthly total that starts at or near the host's minimum creates a positive anchor from the first interaction."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Uses and Abuses of Anchors",
+          "type": "book",
+          "quote": "Moving first is an advantage in single-issue negotiations... the initial anchor has a powerful effect.",
+          "insight": "The calculator must display the target monthly income (host's minimum) as the initial anchor, then show how the paired-tenant model reaches it. The host sees her own number first, which is the strongest possible anchor."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Calculator displays the host's monthly minimum as the target anchor at the top. Below it, the projected paired-tenant monthly total is shown prominently. A visual indicator shows how close the projection is to the target (progress bar or percentage). Tenant slots and rate inputs are visible and editable.",
+        "loading": "When recalculating after a parameter change, the monthly total number shows a brief pulse animation (opacity 0.7 to 1.0 over 100ms) to indicate the value is updating. No spinner — the calculation is fast enough for optimistic display.",
+        "empty": "Before the host enters a monthly minimum, the calculator prompts: 'What is your monthly income target for this unit?' with a single input field. Once entered, the full calculator activates with the target as the anchor.",
+        "error": "If the paired-tenant configuration cannot mathematically reach the host's minimum, the calculator shows the gap: 'Current projection: $3,920/month. Gap: $1,080/month below your $5,000 target.' with a suggestion: 'Adding a weekend tenant could close this gap.' Error state is informational, not alarming.",
+        "success": "When the projected total meets or exceeds the monthly minimum, the progress indicator fills completely and the monthly total shifts to a success color. A subtle checkmark appears beside the number. The CTA changes to 'Lock this rate and list your unit.'"
+      },
+      "transition_principle": "All transitions between states use the same easing (ease-out, 200ms) to create a sense of controlled, professional response. The monthly total number itself should transition values with a counting animation (not a snap) to make the host perceive the increase as earned, not arbitrary.",
+      "timing": {
+        "response_target": "100ms for any parameter change to reflect in the monthly total. The calculator must feel instantaneous.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) — the tokens.json 'out' easing, which feels decisive and confident",
+        "rationale": "Tammy is a professional host who expects professional-grade tools. Sluggish interactions signal an amateur platform. 100ms is the threshold below which interactions feel instantaneous."
+      },
+      "journey_state_awareness": "During discovery/evaluation, the calculator operates in 'what-if' mode — the host can explore without commitment. During pricing (post-listing-creation), the calculator operates in 'lock-in' mode where the host confirms rates that will be applied to their listing. The interaction adjusts CTA copy accordingly: 'Explore' vs. 'Confirm.'",
+      "edge_cases": [
+        "Host enters a monthly minimum that is mathematically impossible to reach with any tenant configuration — must show this honestly with alternative suggestions (different unit type, seasonal adjustment)",
+        "Host has multiple unit types with different pricing — calculator must handle portfolio-level aggregation, not just single-unit",
+        "Mobile viewport — the calculator must collapse into a single-column layout without losing the prominence of the monthly total anchor",
+        "Host changes parameters repeatedly in rapid succession — debounce calculations at 50ms to prevent visual jitter"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Availability-Countering Guest Profile Progressive Reveal",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "When Tammy opens a proposal, her System 1 fills the information vacuum with the most available (vivid, emotionally charged) guest memories — which are overwhelmingly negative (fraudulent credit cards, local renters causing problems). The current proposal interaction likely presents all information at once or in a transactional order (dates first, guest second), giving the availability heuristic time to activate before trust-building data appears. The interaction must front-load employment and purpose data in a timed sequence that primes 'reliable professional' before the availability heuristic can activate 'risky stranger.'",
+      "solution": "Design a progressive reveal interaction for proposals where trust-building data appears first and in a deliberate sequence that mirrors Tammy's vetting checklist. The interaction flow: (1) First 0-500ms: Guest name and employer appear with a subtle fade-in. This is the strongest trust anchor. (2) 500ms-1000ms: Purpose of stay and origin city appear below the employer. (3) 1000ms-1500ms: Payment verification status appears. (4) After 1500ms: Booking details (dates, duration, pricing) fade in below a divider. The progressive reveal is not just visual — it is a psychological priming sequence. Each piece of trust data primes the next, building an associative network of 'reliable professional' before any transactional data appears.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 15:57",
+          "type": "host_call",
+          "quote": "If they're a nurse and they're going to be working at a particular hospital, I know where they're working, I know what they're doing.",
+          "insight": "Employment data is her primary trust signal. It must be the first thing that appears — not just the first thing in position, but the first thing chronologically in the interaction."
+        },
+        {
+          "source": "tammy-call.txt, 13:31",
+          "type": "host_call",
+          "quote": "Local people... check from their employer... What are they there for?",
+          "insight": "Her vetting sequence is: locality check, employer check, purpose check. The progressive reveal must mirror this exact sequence."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Availability, Emotion, and Risk",
+          "type": "book",
+          "quote": "Personal experiences, pictures, and vivid examples are more available than incidents that happened to others, or mere words, or statistics.",
+          "insight": "Concrete guest details (employer name, hospital name, city) are vivid and specific enough to compete with Tammy's vivid negative memories. Abstract badges ('Verified') are not."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring as Priming",
+          "type": "book",
+          "quote": "A high anchor selectively primed the names of luxury brands (Mercedes, Audi), whereas the low anchor primed brands associated with mass-market cars.",
+          "insight": "Leading with employment data primes 'reliable professional' associations. Leading with booking dates primes 'transactional stranger' associations. The order determines the associative network activated."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Full trust profile visible (employer, purpose, origin, payment status) with booking details below a divider. This is the state after the progressive reveal has completed.",
+        "loading": "While guest data is loading, show a skeleton layout with placeholder lines in the trust profile area. The skeleton should indicate that trust data (not booking data) is what is being loaded — use the employer/purpose/origin layout as the skeleton structure.",
+        "empty": "If the guest has not provided employment data, show 'Employment: Not yet provided' with a note: 'We have asked this guest to provide their employer details.' Do not leave the field blank — an empty field invites the availability heuristic to fill the gap with worst-case assumptions.",
+        "error": "If guest verification fails, show specific failure reason: 'Employer verification: Pending — we are confirming with [Company Name].' Do not show generic 'Unverified' status, which triggers the same negative availability as an empty field.",
+        "success": "When all trust data is verified, show a consolidated trust badge: 'Verified professional: [Role] at [Company], [City].' This single line condenses the trust profile into a scannable confirmation."
+      },
+      "transition_principle": "The progressive reveal uses staggered fade-ins with 200ms intervals. Each element enters from a slight vertical offset (8px) to create a sense of information arriving in order, not all at once. The motion should feel like a card being dealt — deliberate, sequential, confident.",
+      "timing": {
+        "response_target": "Total reveal sequence: 1500ms from proposal open to full trust profile visible. Booking details appear at 2000ms.",
+        "easing": "ease-out for each element's entry (0.3s duration), creating a decelerating motion that feels settled and confident",
+        "rationale": "1500ms is fast enough to not feel slow but slow enough that the host perceives the trust data arriving first. If everything appeared at once, the host's eye would jump to whatever is most visually prominent (possibly the price), bypassing the trust sequence."
+      },
+      "journey_state_awareness": "For first-time proposals (host's first 1-2 proposals on the platform), the progressive reveal is more deliberate (slightly longer intervals) to establish the trust-first reading pattern. After 3+ proposals, the host has learned to look for trust data first, and the reveal can be faster or instant.",
+      "edge_cases": [
+        "Guest has no employer (self-employed, freelancer) — show alternative trust signals: 'Self-employed, [Industry], based in [City]'",
+        "Guest is local (a red flag for Tammy) — show this honestly but with context: 'Based in New York City — Reason for booking: [Purpose].' The purpose of stay can mitigate the local-renter concern",
+        "Multiple proposals arrive simultaneously — batch notification with trust summaries, not individual alerts that fragment attention",
+        "Host is on mobile — the progressive reveal collapses to a single-screen layout with trust data stacked vertically above booking data"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Seasonal Vacancy Matching with Proactive Unit Activation",
+      "journey_phases": ["discovery", "active_lease", "retention"],
+      "problem": "Tammy has predictable vacant periods (January through April) but the platform has no mechanism to proactively activate listings during these windows. The host must manually remember to list units, adjust pricing, and seek tenants. This is a high-friction, high-depletion process that competes with the host's zero-effort alternative: leaving units vacant. Kahneman's concept of insufficient adjustment means that once the host settles into 'vacancy mode' (doing nothing), the effort required to switch to 'listing mode' is perceived as disproportionately large. The platform must initiate the transition from vacancy to listing, not wait for the host to initiate it.",
+      "solution": "Design a proactive seasonal activation interaction that the platform initiates, not the host. In October/November, the platform sends a pre-formatted activation notification: 'Your January-April vacancy window is approaching. Based on last year, we estimate $3,200/month in paired-tenant income for your 2BR units. Activate with one tap.' The interaction: (1) Notification arrives with a specific income projection and a single CTA. (2) One tap activates the listing with the host's previously confirmed settings (pricing, policies, tenant requirements). (3) The platform pre-matches tenants for the vacancy window and presents them as a pipeline: '3 professionals are already looking for January stays in Harlem.' (4) Throughout the vacancy season, the platform sends weekly income updates that compare actual vs. projected, reinforcing the positive anchor.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 09:01",
+          "type": "host_call",
+          "quote": "From after Christmas to March, April, we were pretty much empty... if you want practice on one or try out one, put together something that's profitable for us both.",
+          "insight": "She explicitly identifies her vacancy window and invites Split Lease to act during it. The platform should take her at her word: proactively present booking opportunities for her vacant months."
+        },
+        {
+          "source": "tammy-call.txt, 05:47",
+          "type": "host_call",
+          "quote": "Right around January, obviously I have to kind of take both of the buildings full of November 25th to December 25th. So after that, I know I have vacancies.",
+          "insight": "The seasonal pattern is explicit and predictable. The platform can schedule activation notifications based on this known calendar."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring as Adjustment",
+          "type": "book",
+          "quote": "The adjustment typically ends prematurely, because people stop when they are no longer certain that they should move farther.",
+          "insight": "The default state (vacant units, doing nothing) is the anchor. Without proactive platform intervention, the host will not adjust far enough from 'doing nothing' to 'listing and managing.' The platform must provide the push."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Affect Heuristic",
+          "type": "book",
+          "quote": "People who had received a message extolling the benefits of a technology also changed their beliefs about its risks.",
+          "insight": "A proactive notification with a specific income projection ('$3,200/month for your vacant 2BR') extols the benefits before the host encounters any costs (effort of listing), priming positive affect."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "During the host's identified peak season (Nov-Dec), the dashboard shows a countdown to vacancy season with a teaser: 'January activation in 6 weeks — 4 professionals are already searching for Harlem stays.' This primes the host for activation without demanding action.",
+        "loading": "When activating a listing, show an optimistic activation state immediately: 'Your 2BR is now active for January-April' with a brief sync indicator. The listing goes live optimistically while backend confirmation processes.",
+        "empty": "If no guest pipeline exists for the vacancy window, show: 'No matched guests yet for January — we are actively matching. You will be the first to know.' Do not show an empty pipeline, which triggers the availability of worst-case scenarios (no one wants my unit).",
+        "error": "If activation fails (listing data incomplete, pricing conflict), show the specific blocker: 'Your 2BR listing needs an updated photo to activate. Upload now or use your existing Harlem photos.' Provide a one-step fix, not a redirect to the listing wizard.",
+        "success": "After the first booking during vacancy season, show a prominent income confirmation: 'January income: $3,200 — 64% of your monthly target from a season that earned $0 last year.' This makes the success vivid and available, countering future vacancy-season inaction."
+      },
+      "transition_principle": "Transitions between seasonal states (peak → pre-vacancy → vacancy → active booking) should feel like a natural calendar progression, not a mode switch. Use gradual visual cues (a timeline that fills as time passes) rather than abrupt state changes.",
+      "timing": {
+        "response_target": "One-tap activation: listing goes live within 500ms (optimistic UI). Backend confirmation within 5 seconds.",
+        "easing": "ease-out, 300ms — the seasonal transition should feel unhurried and deliberate, matching the calendar's natural pace",
+        "rationale": "Seasonal activation is not urgent — it is planned. The interaction pace should reflect planning, not emergency. But the single-tap activation itself must feel instant to eliminate friction."
+      },
+      "journey_state_awareness": "For hosts who are new to Split Lease (first vacancy season), the activation includes a guided walkthrough: 'This is your first vacancy season with Split Lease. Here is what happens next.' For returning hosts (second+ season), the activation is a one-tap confirmation of previous settings.",
+      "edge_cases": [
+        "Host's vacancy season changes from year to year — the platform should learn from booking patterns, not hardcode dates",
+        "Host wants to activate some units but not others — portfolio-level activation with per-unit toggle",
+        "Multiple hosts in the same building with different vacancy windows — avoid presenting contradictory availability to guests",
+        "Host cancels activation mid-season because a monthly tenant appears — the platform must handle graceful deactivation without penalizing existing bookings"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Anti-Airbnb Differentiation Through Host-Policy-First Interaction Paradigm",
+      "journey_phases": ["discovery", "evaluation", "onboarding"],
+      "problem": "Tammy's Airbnb availability cascade means the first interaction with Split Lease must immediately signal 'this is not Airbnb.' Currently, platforms typically begin the host interaction with listing creation or marketplace exploration — patterns that feel identical to Airbnb's onboarding. This triggers the 'booking platform = Airbnb = betrayal' associative cascade before the host has any evidence of differentiation. The interaction paradigm itself must be the differentiation signal: if the first thing the platform asks the host to do is set her own policies, the interaction pattern is categorically different from Airbnb (which imposes policies on hosts).",
+      "solution": "Make policy configuration the first interaction after account creation — before listing creation, before pricing, before anything. The interaction: (1) First screen: 'Welcome. Before anything else, set your rules.' Present three policy controls: minimum monthly income, cancellation terms, and guest requirements. (2) Each policy control is a single toggle or input — not a form. Minimum income: a slider or number input. Cancellation: 'You set your terms / Platform default.' Guest requirements: 'Employment verification required / Optional.' (3) After setting policies, show a confirmation: 'Your rules are set. Every proposal you receive will comply with these rules, or we will not send it to you.' (4) Only after policy confirmation does the platform proceed to listing creation. This interaction order communicates: 'You are in control. We work for you.' It is the structural opposite of Airbnb, where the platform sets policies and the host accepts them.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 16:53-19:03",
+          "type": "host_call",
+          "quote": "I really can't stand Airbnb... They take too much control over damages... a lot of landlords are just starting to rent off their own sites.",
+          "insight": "The primary Airbnb grievance is loss of control. The first interaction must return control to the host by letting her set rules before anything else."
+        },
+        {
+          "source": "tammy-call.txt, 19:12",
+          "type": "host_call",
+          "quote": "VRBO... they kind of let you set the policy. They just kind of take a more hands off approach.",
+          "insight": "VRBO's differentiator in Tammy's mind is policy control. Split Lease can signal VRBO-like behavior by making policy setting the first interaction."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Availability Cascades",
+          "type": "book",
+          "quote": "An availability cascade is a self-sustaining chain of events, which may start from media reports of a relatively minor event and lead up to public panic and large-scale government action.",
+          "insight": "The Airbnb availability cascade in Tammy's mind is self-reinforcing. Breaking it requires a categorically different first interaction that cannot be assimilated into the 'Airbnb-type platform' category."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Affect Heuristic",
+          "type": "book",
+          "quote": "Good technologies have few costs in the imaginary world we inhabit, bad technologies have no benefits.",
+          "insight": "The host-policy-first interaction creates immediate positive affect (control, autonomy) that primes the entire platform as 'good technology.' Airbnb's listing-first interaction triggers no such affect because it does not address the host's primary concern."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Policy configuration screen with three controls visible. Each control shows its current setting and a brief explanation of what it means. The screen header: 'Your rules. We enforce them.'",
+        "loading": "After policy submission, show: 'Saving your rules...' with a brief animation (under 500ms). Policies are saved optimistically.",
+        "empty": "Before any policies are set, controls show platform-recommended defaults with clear labels: 'Recommended: Employment verification required.' The host can accept defaults or customize. Defaults reflect VRBO-like host-favorable terms.",
+        "error": "If a policy setting conflicts with platform constraints (e.g., minimum income below platform viability threshold), show: 'We cannot guarantee income below $[minimum]. Would you like to set a higher target?' Honest, not hidden.",
+        "success": "After policies are confirmed: 'Your rules are active. From now on, every guest proposal will meet these standards before reaching you.' This is a commitment statement — the platform has committed to the host's terms."
+      },
+      "transition_principle": "The transition from policy configuration to listing creation should feel like unlocking the next level: policies are the foundation, listing creation builds on them. A visual metaphor of 'foundation → structure' can guide the host's understanding of the sequence.",
+      "timing": {
+        "response_target": "Policy save: under 300ms (optimistic). Transition to listing creation: 500ms after confirmation.",
+        "easing": "ease-out, 200ms — each policy toggle should respond instantly with a decisive settle",
+        "rationale": "Policy setting is a high-stakes moment for the host (she is deciding if this platform respects her). Fast, decisive responses signal that the platform takes her rules seriously."
+      },
+      "journey_state_awareness": "For hosts arriving from an Airbnb background (detectable via referral source or onboarding questions), emphasize the policy-first interaction with additional copy: 'Unlike other platforms, you set the rules here.' For hosts without Airbnb experience, the policy-first interaction still works but with less anti-competitive framing.",
+      "edge_cases": [
+        "Host wants to set different policies for different units — support portfolio-level and unit-level policy overrides",
+        "Host's minimum income is above what the market supports — show market data alongside the input: 'Similar 2BR units in Harlem earn $3,800-$4,500/month with paired tenants'",
+        "Host skips policy configuration — the platform should not allow this; policies are required before proceeding, because they are the differentiator",
+        "Host returns to modify policies after listing is live — changes apply to new proposals but do not retroactively affect existing bookings"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Portfolio-Level Batch Operations for Multi-Property Hosts",
+      "journey_phases": ["listing_creation", "pricing", "active_lease", "retention"],
+      "problem": "Tammy manages 13-14 units. Any interaction that must be repeated per-unit (listing creation, pricing adjustment, policy update) creates a multiplicative burden that scales linearly with portfolio size. The law of small numbers applies to UX design: the platform was likely designed based on a small sample of hosts (possibly single-unit casual hosts), and the resulting per-unit interaction model produces extreme inefficiency for professional hosts. Tammy explicitly says she wants to hand off portfolio details and have the platform do the setup work. The interaction model must support portfolio-level operations, not force per-unit repetition.",
+      "solution": "Design batch operations that allow the host to act on multiple units simultaneously. (1) Listing creation: After creating the first listing, offer 'Apply to similar units' — copy the listing template to other units in the same building with fields that differ (floor, layout) highlighted for quick editing. (2) Pricing: Allow the host to set a portfolio-wide pricing strategy ('All 2BR units at $5,000/month target') and override per-unit only where needed. (3) Policy: Portfolio-wide policies are the default; per-unit overrides are the exception. (4) Seasonal activation: A single 'Activate all units for January-April' button, not 9 individual activation flows. The interaction should support the professional host's mental model: think in portfolios, act on portfolios, drill into individual units only when something needs specific attention.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 03:27",
+          "type": "host_call",
+          "quote": "I have like 13, 14 [units], so these are not [single-property situations].",
+          "insight": "She immediately frames her hosting as portfolio-scale. Every interaction must acknowledge and support this scale."
+        },
+        {
+          "source": "tammy-call.txt, 05:47",
+          "type": "host_call",
+          "quote": "I can give you an envelope that I like, and you've got create the stage.",
+          "insight": "She expects portfolio-level handoff: give you the details once, you create listings for all units. The interaction must support this expectation."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Law of Small Numbers / Gates Foundation",
+          "type": "book",
+          "quote": "The truth is that small schools are not better on average; they are simply more variable.",
+          "insight": "Design decisions based on small samples of hosts (single-unit casual hosts) produce high variability in outcomes for professional hosts. The platform must be designed for the full range, not the average."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring as Adjustment",
+          "type": "book",
+          "quote": "Start from an anchoring number, assess whether it is too high or too low, and gradually adjust your estimate.",
+          "insight": "Time-to-first-listing anchors the host's estimate for total portfolio setup time. If the first listing takes 12 minutes, she anchors on 12 x 9 = 108 minutes. Batch operations reduce this to: first listing (12 min) + 8 duplicates (2 min each) = 28 minutes."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Portfolio dashboard shows all units in a compact grid. Batch action buttons are visible at the top: 'Select All', 'Activate Selected', 'Update Pricing for Selected'. Individual unit cards have checkboxes for selection.",
+        "loading": "When a batch operation is in progress (e.g., activating 9 units), show a progress indicator: '5 of 9 units activated...' with each unit card updating as its operation completes. Optimistic UI: cards show the target state immediately, with a sync indicator for each.",
+        "empty": "When no units are listed, show the portfolio onboarding prompt: 'You have 9 NYC units and Bay Area units. Let us set up your first building — the rest will follow in minutes.' This frames the task as manageable.",
+        "error": "If a batch operation fails for some units but succeeds for others, show a split result: '7 of 9 units activated. 2 units need attention: [Unit 3 — missing photo] [Unit 7 — pricing conflict].' Each failed unit has a one-step fix link.",
+        "success": "After a successful batch operation: 'All 9 units are now [active/updated/priced]. View your portfolio.' The success state shows the portfolio grid with all units in their new state."
+      },
+      "transition_principle": "Batch operations should feel like a single action with distributed results. The animation pattern: one action triggers a cascade of updates that ripple through the portfolio grid, each card updating in sequence (50ms stagger) to create a visual sense of the action propagating.",
+      "timing": {
+        "response_target": "Batch operation initiation: under 200ms to show optimistic state. Individual unit updates: ripple at 50ms stagger. Total completion: under 3 seconds for 9 units.",
+        "easing": "ease-out with 50ms stagger per unit — creates a satisfying cascade effect",
+        "rationale": "Professional hosts expect professional-grade responsiveness. A batch operation that takes 30+ seconds is indistinguishable from a broken system. The staggered ripple makes the 3-second total feel intentional, not slow."
+      },
+      "journey_state_awareness": "For hosts with 1-2 units, batch operations are hidden — they add complexity without value. For hosts with 3+ units, batch operations are prominently available. For hosts with 10+ units (like Tammy), batch operations are the primary interaction mode.",
+      "edge_cases": [
+        "Host has units across multiple cities (Tammy: NYC and Bay Area) — batch operations should support geographic grouping",
+        "Some units in a batch have different configurations — show a diff view: 'These 5 units share settings. These 2 units have overrides.'",
+        "Batch pricing update conflicts with individual unit agreements — warn before applying: '3 units have active bookings at different rates. Update will apply to new bookings only.'",
+        "Host wants to undo a batch operation — provide a 30-second undo window after any batch change"
+      ]
+    }
+  ]
+}

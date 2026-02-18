@@ -1,0 +1,235 @@
+{
+  "lens": {
+    "host_call": "sherene-call.txt",
+    "book_extract": "cialdini-intro-reciprocity.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-0900-001",
+      "type": "interaction_pattern",
+      "title": "Gift-Delivery Timing: Platform Gives Before Host Acts",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "The platform currently asks first and gives later: sign up, then see value. But Cialdini's reciprocity research shows that the gift must precede the request to trigger obligation. Bryant models this perfectly on the call -- he walks Sherene through the ghost roommate scenario, names the guests, offers solutions to concerns she hasn't even raised yet, all before asking her for any commitment. The platform inverts this: it gates all value behind forms and account creation. When Sherene arrives at the platform after Bryant's call, the first interaction is a request (create account), not a gift (here's what we already prepared for you). This violates the temporal sequencing that makes reciprocity work.",
+      "solution": "Every interactive touchpoint must deliver a visible gift before requesting an action. The interaction sequence is: (1) Platform displays personalized gift (pre-filled data from call, earnings estimate, guest profile snippet) with a 300ms ease-out entrance animation. (2) Host processes the gift (minimum 2-second dwell before any call-to-action becomes prominent). (3) Platform reveals the request (form field, confirmation button, next step) with a secondary visual weight. The UI must enforce this temporal sequence: the gift container renders and animates first, the request elements render 2 seconds later or below the fold. If the host scrolls past the gift without processing it, the reciprocity trigger is lost.",
+      "evidence": [
+        {
+          "source": "sherene-call.txt, 00:33-01:45",
+          "type": "host_call",
+          "quote": "Bryant delivers the full ghost roommate scenario -- names, schedules, cleaning protocol, returning guest model -- before asking Sherene any question. Her first voluntary contribution (asking about laundry at 02:03) comes only after receiving substantial value.",
+          "insight": "The temporal gap between gift delivery (00:33) and first host action (02:03) is approximately 90 seconds. The platform needs a proportional dwell time between gift display and action request, scaled to digital attention (2-3 seconds minimum)."
+        },
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Hare Krishna",
+          "type": "book",
+          "quote": "Only after the Krishna member has thus brought the force of the reciprocation rule to bear on the situation is the target asked to provide a contribution.",
+          "insight": "The sequencing is absolute: gift first, then request. The UI must enforce this ordering through temporal delay and visual hierarchy. No action button should be the first interactive element the host encounters."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Gift container is prominently displayed with pre-filled host data (property address, guest names, earnings estimate). Request elements are visible but visually secondary, below the gift container.",
+        "loading": "Gift container shows skeleton loading with a subtle pulse animation in --bg-off-white. The skeleton shape hints at the gift content (dollar sign placeholder for earnings, avatar placeholder for guest profiles). Request elements are hidden during loading -- the host should never see a form before the gift.",
+        "empty": "If no call data exists (host arrived without a prior agent call), the gift container shows a generic but genuine offer: 'Tell us about your space and we will show you what you could earn.' The gift is the promise of personalized value, not a pre-filled result.",
+        "error": "If gift data fails to load (API error), display a warm fallback message: 'We are preparing your personalized details. In the meantime, you can start with the basics below.' This converts the error into a smaller gift (permission to start easily) using rejection-then-retreat.",
+        "success": "After the host completes the requested action, a micro-confirmation appears: a checkmark animation (0.3s ease-out) with text like 'Got it -- here is what unlocks next.' The success state immediately transitions into the next gift, maintaining the cascade."
+      },
+      "transition_principle": "Gifts enter with confident ease-out (decelerating into position, as if offered gently). Requests enter with subtle ease-in-out (smooth and unthreatening). The visual rhythm should feel like a conversation: gift-pause-request-pause-gift, never gift-request-gift-request.",
+      "timing": {
+        "response_target": "Gift container renders within 500ms. Request elements appear 2000ms after gift, or on scroll into view, whichever comes first.",
+        "easing": "ease-out for gifts (arriving confidently), ease-in-out for requests (approaching gently)",
+        "rationale": "Cialdini's reciprocity requires the gift to be received and cognitively processed before the request is made. The 2-second delay between gift display and request display approximates the cognitive processing time needed for the gift to register as a gift, not as background decoration."
+      },
+      "journey_state_awareness": "In onboarding (first platform visit), the gift should be heavily personalized from call data and the delay before requests should be longer (3 seconds) to allow stronger reciprocity anchoring. In listing creation (host is already engaged), gifts can be smaller and the delay shorter (1.5 seconds) because the reciprocity cycle is already established. In proposal management (host is negotiating), gifts should be guest-specific (profile details, schedule fit) and requests should be framed as customizations the host controls.",
+      "edge_cases": [
+        "Host arrives without a prior agent call -- no call data to pre-fill. The gift must be constructed from available signals (IP geolocation for market rates, referral source for context).",
+        "Gift data is stale (call was weeks ago, details may have changed). Pre-filled data should be marked as 'From your conversation with Bryant on [date]' with edit affordance.",
+        "Host has already seen the gift (returning visit). Do not replay the gift animation. Show it as a persistent summary at the top, with the request elements immediately available.",
+        "Multiple gifts available simultaneously. Display only the most relevant gift for the current phase. Queue remaining gifts for subsequent interactions to preserve the cascading effect."
+      ]
+    },
+    {
+      "id": "behaves-0900-002",
+      "type": "interaction_pattern",
+      "title": "Rejection-Then-Retreat State Machine for High-Commitment Gates",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "retention"],
+      "problem": "The platform presents each major action as binary: complete the full listing wizard or abandon, accept the proposal or reject it, renew or leave. Cialdini's rejection-then-retreat research shows that when a large request is followed by a smaller request, compliance with the smaller request nearly triples (from 17% to 50% in the zoo experiment). Sherene demonstrates natural retreat behavior: she neither accepts nor rejects the ghost roommate arrangement. She says 'I'm not adverse' (09:34) and 'I want to talk to my partner' (21:04). Bryant retreats gracefully: 'I'll keep you updated' (17:08). The platform has no equivalent mechanism -- no graceful retreat that preserves engagement.",
+      "solution": "Implement a three-state interaction machine at every high-commitment gate: (1) FULL REQUEST state: present the complete action (6-step listing wizard, full proposal acceptance, year renewal). This is the anchor that makes the retreat feel like a concession. (2) RETREAT state: after detecting hesitation (page idle > 30 seconds, back button hover, tab switch, scroll-to-top without action), transition to a reduced commitment offer with an explicit concession frame: 'That is a lot of steps. How about we start with just the basics?' The retreat must feel like the platform yielding, not like a downgrade. Visual treatment: the full wizard dims slightly and a simpler card slides up from below with fewer fields and a warm, concessive tone. (3) SAVED state: if the host accepts the retreat, their partial progress is saved and the path to full completion remains visible: 'You can finish the rest anytime. We saved everything.' The saved state includes a persistent but non-intrusive progress indicator showing what was completed and what remains.",
+      "evidence": [
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Zoo experiment",
+          "type": "book",
+          "quote": "Three times as many of the students approached in this manner volunteered to serve as zoo chaperons. Before we invited them to serve as unpaid chaperons on the zoo trip, we asked them for an even larger favor.",
+          "insight": "The retreat tripled compliance. The platform's retreat mechanism should aim for similar recovery rates: 30-50% of hosts who decline the full request should accept the retreat offer."
+        },
+        {
+          "source": "sherene-call.txt, 09:34 and 21:04",
+          "type": "host_call",
+          "quote": "Sherene: 'I am going to honestly say that I'm not adverse to this arrangement, but would have to be...' and 'I want to talk to my partner.' Bryant does not push -- he retreats to 'I'll keep you updated.'",
+          "insight": "Bryant's retreat preserves the relationship and the reciprocal obligation. The platform's retreat must similarly preserve engagement (saved progress, ongoing access) while removing the pressure of the full commitment."
+        },
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Satisfaction",
+          "type": "book",
+          "quote": "Those subjects facing the opponent who used the retreating strategy felt most responsible for the final deal. A person who feels responsible for the terms of a contract will be more likely to live up to that contract.",
+          "insight": "Hosts who accept the retreat offer (Quick Start listing) will feel more responsible for completing it than hosts who were only offered the Quick Start from the beginning. The full request must always be shown first to create the contrast."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "FULL REQUEST state: the complete action is presented with clear value proposition. The retreat option is not yet visible -- it appears only after hesitation signals.",
+        "loading": "If the retreat offer requires data preparation (calculating a simplified listing from partial data), show a brief 'Simplifying...' state with a gentle animation, taking no more than 500ms.",
+        "empty": "If the host has provided no data at all when hesitation is detected, the retreat offer is maximally simple: 'Just tell us your address and price -- we will handle the rest.' The retreat from zero should capture the absolute minimum viable data.",
+        "error": "If saving partial progress fails, do not lose the host's data. Cache locally in browser storage and show: 'Your progress is saved on this device. We will sync it when the connection is restored.' No error should feel like punishment for hesitation.",
+        "success": "After the retreat offer is accepted, show warm confirmation: 'Perfect -- your listing basics are saved. We will let you know when your first guest match arrives.' This converts the retreat into a new gift (the promise of a future match), restarting the reciprocity cycle."
+      },
+      "transition_principle": "The transition from FULL REQUEST to RETREAT must feel like a concession, not a downgrade. The full wizard should dim (opacity 0.6 over 300ms) while the retreat card rises from below (translateY with ease-out over 400ms). The visual language is: the platform is stepping back to offer something easier. The transition from RETREAT to SAVED should feel like relief: a gentle fade and checkmark confirmation.",
+      "timing": {
+        "response_target": "Hesitation detection: 30 seconds of inactivity on the full request page. Retreat offer animation: 400ms entrance. The retreat must not appear too quickly (feels pushy) or too slowly (host has already left).",
+        "easing": "ease-out for retreat card entrance (confident arrival). ease-in-out for wizard dimming (smooth, not jarring).",
+        "rationale": "30 seconds of inactivity is long enough to confirm genuine hesitation without triggering for hosts who are simply reading. The 400ms animation duration gives the retreat a deliberate, considered feel -- not a desperate popup."
+      },
+      "journey_state_awareness": "In listing creation, the retreat is a 'Quick Start' with 3 fields instead of 6 steps. In proposal management, the retreat is a 'Counter-suggestion' that modifies one term instead of requiring full acceptance or rejection. In retention, the retreat is a 'Month-to-month extension' instead of a full lease renewal. Each retreat is calibrated to the specific commitment level of the phase.",
+      "edge_cases": [
+        "Host triggers hesitation signal but was actually just distracted (phone call, switched tabs). The retreat offer should be dismissible with 'I was just taking a break -- show me the full version again.'",
+        "Host accepts retreat, then later wants to complete the full version. The transition from SAVED to FULL REQUEST must be seamless, with all previously entered data preserved and the remaining steps clearly indicated.",
+        "Host triggers hesitation on the retreat offer itself (retreat from the retreat). Do not offer a second retreat -- this creates a downward spiral. Instead, offer to save and continue later: 'No rush. We will be here when you are ready.'",
+        "Ghost roommate listing requires additional fields (storage rules, cleaning expectations). The retreat version must capture these in a simplified format (yes/no toggles) rather than omitting them entirely."
+      ]
+    },
+    {
+      "id": "behaves-0900-003",
+      "type": "interaction_pattern",
+      "title": "Reciprocity Ledger: Real-Time State Updates for Three-Party Ghost Roommate Balance",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "The ghost roommate model creates a three-way reciprocity web: Sherene provides the room, Greg provides weekday occupancy and cleaning before Johan, Johan provides weekend occupancy and cleaning before Greg, and the platform provides payment and management. This web has 8+ reciprocity touchpoints per week (check-ins, check-outs, cleaning handoffs, daily payments). If any touchpoint fails silently, the perceived balance collapses. Sherene's anxiety about 'two strangers that change' (09:56) is fundamentally about reciprocity imbalance: what if one party stops giving? The platform currently has no mechanism to make the reciprocity balance visible in real time, so the host operates in uncertainty.",
+      "solution": "Build a real-time reciprocity ledger that updates with each give-receive event in the ghost roommate arrangement. The ledger is a persistent UI component on the active lease dashboard with these interaction behaviors: (1) Each event (check-in, payment, cleaning confirmation) triggers an immediate ledger update with a micro-animation: a new row slides in from the right (200ms ease-out) with a subtle pulse of the status color. (2) Events are grouped by weekly cycles (Mon-Sun) matching the ghost roommate rotation. The current cycle is always expanded; past cycles are collapsed but expandable. (3) Each event row shows: who gave what, when, and the resulting balance state (green checkmark for completed, amber clock for pending, red alert for missed). (4) The overall health indicator at the top updates with each event: a horizontal bar with segments for Payment, Cleaning, and Schedule, each colored by their current status. (5) At week's end, a summary card auto-generates: 'This week: $280 earned, 2/2 cleaning handoffs completed, 0 issues.' This weekly summary is itself a gift from the platform that reinforces the reciprocal cycle.",
+      "evidence": [
+        {
+          "source": "sherene-call.txt, 19:31-19:46",
+          "type": "host_call",
+          "quote": "Bryant: 'We can start with a checklist and make sure that things are being held accountable. Especially at the start, we can start with a checklist.'",
+          "insight": "Bryant's cleaning checklist is a proto-reciprocity ledger. The platform must formalize and extend this: not just cleaning but all reciprocal exchanges made visible, trackable, and confirmable through the UI."
+        },
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Social Sanctions",
+          "type": "book",
+          "quote": "The labels we assign to such a person are loaded with negativity -- moocher, ingrate, welsher. Because there is general distaste for those who take and make no effort to give in return, we will often go to great lengths to avoid being considered one of their number.",
+          "insight": "Making the reciprocity balance visible activates social pressure without confrontation. If Greg can see (through the app) that Johan always completes the cleaning checklist, Greg will feel compelled to do the same. Visibility is the accountability mechanism."
+        },
+        {
+          "source": "sherene-call.txt, 12:58-13:16",
+          "type": "host_call",
+          "quote": "Bryant: 'How we manage the storage is by having pictures and basically records of what's being stored, just to have that peace of mind.'",
+          "insight": "Photo documentation is a specific form of reciprocity ledger entry. The platform must support photo-verified ledger events: storage check-in photos, cleaning completion photos, condition-at-handoff photos. Each photo is both a record and a gift of transparency."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All segments of the health indicator are green. The most recent 3 events are visible in the ledger. Weekly summary is available for the current and past weeks.",
+        "loading": "When a new event is being processed (e.g., payment is being released), the affected segment shows a subtle animated pulse in amber. The ledger row for this event shows 'Processing...' with a spinner. Payment processing should resolve within 500ms visually (optimistic UI) even if backend takes longer.",
+        "empty": "At the start of a new lease, the ledger shows a welcome state: 'Your first week starts Monday. We will track every check-in, payment, and handoff here.' Pre-populate the expected schedule as grayed-out future events so the host can see the rhythm before it begins.",
+        "error": "If an expected event does not occur (cleaning not confirmed, payment delayed), the affected segment turns amber after a grace period (6 hours for cleaning, 24 hours for payment). If unresolved after 24 hours, it turns red with a specific action link: 'Greg's cleaning is overdue. Tap to send a reminder.' The error state is informational, not alarmist.",
+        "success": "Each completed event triggers a micro-celebration: the ledger row shows a green checkmark with a brief scale animation (1.0 to 1.1 to 1.0 over 300ms). Weekly completion triggers a larger confirmation: 'Perfect week -- all exchanges completed on time.' The cumulative success state at retention shows: 'Over 12 weeks: $3,360 earned, 24/24 handoffs completed.'"
+      },
+      "transition_principle": "Ledger updates should feel like a gentle, reassuring pulse -- each new event enters smoothly, confirming that the system is working. Green events should feel effortless (brief, light animations). Amber events should feel attentive (slightly longer animation, drawing the eye). Red events should feel urgent but not panic-inducing (persistent highlight, not flashing).",
+      "timing": {
+        "response_target": "New event appears in ledger within 2 seconds of the triggering action (guest check-in confirmed, payment released, cleaning checklist completed). Weekly summary generates within 1 hour of week's end (Sunday midnight).",
+        "easing": "ease-out for new event entrance. ease-in-out for status color transitions. Linear for the progress bar fill.",
+        "rationale": "Near-real-time updates maintain the sense of active reciprocity. If the host checks the ledger and sees stale data, the illusion of platform-as-active-participant breaks. The 2-second target ensures the ledger feels alive."
+      },
+      "journey_state_awareness": "In the first 2 weeks of an active lease, the ledger should be prominent and detailed (learning phase -- the host needs to see the rhythm establish itself). After week 4, the ledger can be condensed to the health indicator with the full timeline available on tap (habituated phase -- the host trusts the rhythm). At retention time, the ledger transforms into a cumulative report emphasizing total value delivered.",
+      "edge_cases": [
+        "One guest confirms cleaning but the other disputes it. The ledger should show both perspectives and flag for platform mediation, not auto-resolve.",
+        "Payment is delayed due to a system issue, not a guest issue. The ledger should clearly distinguish platform-caused delays from guest-caused delays to preserve guest-host reciprocity.",
+        "Guest cancels a night mid-week (e.g., Greg leaves Tuesday instead of Thursday). The ledger must update the expected schedule in real time and show the impact on that week's summary.",
+        "Thursday handoff day: Greg's check-out and Johan's check-in overlap. The ledger should show both events linked as a single handoff transaction, not two separate events."
+      ]
+    },
+    {
+      "id": "behaves-0900-004",
+      "type": "interaction_pattern",
+      "title": "Thursday Handoff Interaction: Ghost Roommate Transition Protocol",
+      "journey_phases": ["active_lease"],
+      "problem": "The Thursday handoff -- when Greg leaves and Johan arrives -- is the highest-friction interaction point in the ghost roommate model. Two separate events must be coordinated: Greg's check-out (cleaning, storage reset, key return) and Johan's check-in (key retrieval, storage access, room verification). Sherene's anxiety about 'two strangers that change' (09:56) peaks at this moment because it is where the arrangement's complexity becomes tangible. If the handoff goes wrong (Greg doesn't clean, Johan arrives to a dirty room, storage is disorganized), the entire reciprocity web fractures. The platform currently has no specific interaction pattern for managing this recurring weekly transition.",
+      "solution": "Design a structured handoff interaction flow that activates every Thursday (or whatever the configured handoff day is) and guides all three parties through their roles: (1) HANDOFF INITIATED state (Thursday morning): the platform sends a coordinated notification to all three parties. Greg sees: 'Check-out day -- complete your cleaning checklist before 2pm.' Johan sees: 'Check-in today -- your room will be ready after 3pm.' Sherene sees: 'Handoff day -- we are coordinating between Greg and Johan.' (2) GREG'S CHECK-OUT state: Greg completes the cleaning checklist (each item is a toggle with optional photo upload). When he confirms completion, his check-out event appears on the reciprocity ledger. The platform sends a notification to Johan: 'Greg has completed his check-out. Your room is ready.' (3) JOHAN'S CHECK-IN state: Johan retrieves the key (lockbox code provided via the app) and confirms arrival. Her check-in event appears on the ledger. Sherene sees: 'Johan has checked in. Everything is on track.' (4) HANDOFF COMPLETE state: all three events (Greg out, room confirmed, Johan in) are logged, and the health indicator updates. If any step stalls, the platform escalates: first a reminder (30 minutes after expected time), then a notification to Sherene with context.",
+      "evidence": [
+        {
+          "source": "sherene-call.txt, 19:13-19:58",
+          "type": "host_call",
+          "quote": "Bryant describes the Thursday handoff: 'Greg would be leaving Thursday, which would also be the same day Johan would be arriving. Either on that Thursday or maybe Wednesday night, Greg would do cleaning.'",
+          "insight": "Bryant acknowledges the handoff's complexity and proposes a structure (cleaning before departure, checklist for accountability). The platform must formalize this structure into an interactive protocol that all parties follow."
+        },
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Web of Indebtedness",
+          "type": "book",
+          "quote": "A developed system of indebtedness flowing from the rule for reciprocation is a unique property of human culture, allowing for the division of labor, the exchange of diverse forms of goods, and the creation of interdependencies that bind individuals together.",
+          "insight": "The Thursday handoff IS the weekly renewal of the web of indebtedness. Greg's cleaning is his gift to Johan. Johan's respectful use is her gift to Greg. Both gifts to Sherene are their occupancy payments. If the handoff protocol fails, the web unravels. The interaction must make each party's contribution visible to the others."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "No handoff is currently in progress. The next handoff date and time is shown on the dashboard as a small card: 'Next handoff: Thursday, Dec 12 -- Greg out, Johan in.'",
+        "loading": "The handoff flow is loading participant status. Each party's card shows a skeleton state until their current status is confirmed.",
+        "empty": "First handoff of the lease. The platform shows a guided walkthrough: 'This is your first handoff. Here is how it works: Greg checks out, completes cleaning. Johan checks in. We track everything.' This onboarding overlay appears once and is dismissable.",
+        "error": "If a handoff step stalls (Greg hasn't confirmed cleaning by 2pm), the state escalates: amber notification to Greg ('Reminder: cleaning checklist due by 3pm'), then amber notification to Sherene ('Greg's cleaning is running behind -- we are following up'). Red state only after 4+ hours of inaction, with platform mediation offered.",
+        "success": "All handoff steps completed. The reciprocity ledger shows a linked entry: 'Handoff #4 completed -- Greg out (1:45pm), room cleaned, Johan in (3:12pm).' A brief celebration micro-animation plays on the health indicator."
+      },
+      "transition_principle": "The handoff flow progresses through its states sequentially, like a relay race. Each completed step triggers the next. The visual treatment should convey steady forward progress: a horizontal stepper (Greg out -> Room ready -> Johan in) with each step lighting up in sequence. The transition between steps uses a 300ms ease-out slide.",
+      "timing": {
+        "response_target": "Handoff notifications sent at configured time (default: 8am on handoff day). Status updates propagate within 30 seconds of confirmation. Escalation timers: 30 minutes for first reminder, 2 hours for host notification.",
+        "easing": "ease-out for step completion animations. ease-in-out for notification entrances.",
+        "rationale": "The Thursday handoff is a high-anxiety moment for Sherene. Speed of communication directly reduces anxiety. Each confirmation that arrives quickly is a small gift from the platform, reinforcing the reciprocity cycle."
+      },
+      "journey_state_awareness": "In the first 2-3 weeks, the handoff interaction should be detailed and guided, with step-by-step instructions for all parties. After the handoff pattern is established (weeks 4+), the interaction can be streamlined to a simple confirmation flow. If a handoff fails, the system reverts to the detailed mode for the next occurrence.",
+      "edge_cases": [
+        "Greg wants to leave Wednesday night instead of Thursday. The handoff timing must be flexible and adjustable by the departing guest, with automatic notifications updating the arriving guest and host.",
+        "Johan arrives before Greg has left. The platform must handle overlap gracefully: 'Greg is finishing up. Estimated time: 30 minutes. We will notify you when the room is ready.'",
+        "Both guests want to skip the cleaning checklist because they trust each other (as Bryant suggested might happen at 19:31). Allow the host to disable the checklist after a configurable number of successful handoffs, converting from checklist mode to confirmation-only mode.",
+        "Holiday or travel disruption: one guest cancels their week. The handoff protocol must handle 'solo week' scenarios where only one guest occupies and no handoff occurs."
+      ]
+    },
+    {
+      "id": "behaves-0900-005",
+      "type": "interaction_pattern",
+      "title": "Cascading Gift Notification Cadence: One Gift Per Interaction, Never All at Once",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "active_lease"],
+      "problem": "The platform's tendency is to dump all value into a single message or screen: 'Here is everything we offer -- cleaning management, lockbox, daily payment, security deposit, photo documentation, vetting forms, hosted interviews.' This is the informational equivalent of handing someone 9 flowers simultaneously. Cialdini's research shows that multiple small, time-separated favors create stronger obligation than one large gesture, because each favor triggers a separate reciprocity cycle. Bryant demonstrates this perfectly: he offers one solution per concern across 27 minutes. Each individual gift (separate sheets at 03:15, price concession at 04:15, vetting form at 05:40, hosted interviews at 05:55) creates its own obligation. The platform collapses this 27-minute cascade into a single marketing bullet list, destroying the compounding effect.",
+      "solution": "Implement a notification and interaction cadence that delivers one gift per touchpoint, time-separated to prevent habituation and preserve the cascading effect. (1) During evaluation: if the host has received an agent call, the platform sends 3 follow-up gifts over 3 days -- Day 1: guest profile summary, Day 2: earnings estimate, Day 3: link to explore the platform with pre-filled data. Each is a separate message, each requires the host to open and process it before the next arrives. (2) During onboarding: pre-fill one field at a time as the host navigates, with visible acknowledgment for each: 'We already know your property is in Brooklyn' (pause) 'And that your room is available December 3' (pause) 'And that you're looking for $1,200/month.' Each pre-fill is a separate gift moment. (3) During listing creation: after each wizard step, show a benefit that step unlocked: 'Step 2 complete: your listing is now visible to 12 matching guests.' (4) During active lease: daily payment confirmations, weekly summaries, and monthly reports -- each a separate gift, never bundled.",
+      "evidence": [
+        {
+          "source": "sherene-call.txt, full call structure (8+ discrete gifts across 27 minutes)",
+          "type": "host_call",
+          "quote": "Bryant offers: cleaning management (01:14), separate sheets (03:15), price above $1000 (04:15), vetting form (05:40), hosted interviews (05:55), photo documentation (12:58), electronic lockbox (17:08), security deposit (17:42), daily payment (07:21). Each is offered at a different point, in response to a different concern.",
+          "insight": "Nine separate gifts across 27 minutes. The cadence is approximately one gift every 3 minutes. The digital equivalent: one gift per interaction session, one gift per notification, one gift per email. Never bundle."
+        },
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Regan Coke Study and Amway BUG",
+          "type": "book",
+          "quote": "Joe did a small, unsolicited favor... these subjects bought twice as many tickets. The Amway BUG used MULTIPLE small products, not one large product, to create obligation.",
+          "insight": "One small favor doubled compliance. Multiple small favors (the BUG) created 'unbelievable' sales increases. The pattern: distribute gifts across time and touchpoints to maximize the compounding obligation."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The gift queue contains 0+ pending gifts based on the host's journey phase. The next gift is scheduled based on the cadence rules (minimum 4 hours between gifts during active engagement, minimum 24 hours between gifts during evaluation/onboarding).",
+        "loading": "Gift content is being personalized. Show nothing until personalization is complete -- a generic gift violates the reciprocity principle because it does not feel personal.",
+        "empty": "No gifts are currently queued. This is acceptable during steady-state active lease where daily payments serve as the ongoing gift cadence.",
+        "error": "If a scheduled gift fails to deliver (notification error, email bounce), retry once after 1 hour. If retry fails, log the missed gift and adjust the queue to deliver the next gift at its normal time. Do not stack multiple gifts to 'catch up' -- this bundles gifts and destroys the cascade.",
+        "success": "Gift delivered and opened/viewed by the host. Log the gift event, update the reciprocity engagement score, and schedule the next gift in the queue."
+      },
+      "transition_principle": "Each gift notification should arrive as a standalone moment, not as part of a batch. The visual treatment should make each gift feel individually considered: personalized subject line, contextual timing ('Good morning, Sherene'), and a single clear value statement. The transition from one gift to the next should feel like a natural continuation of a conversation, not a marketing drip campaign.",
+      "timing": {
+        "response_target": "Gift delivery at the scheduled time (within 5-minute window). Personalization must be pre-computed so delivery is instant when triggered.",
+        "easing": "Not applicable to notification delivery. For in-app gift displays, use ease-out entrances with 300ms duration.",
+        "rationale": "The cadence must feel natural, not mechanical. Spacing gifts by at least 4 hours during active engagement and 24 hours during evaluation prevents the host from perceiving the pattern as automated marketing. Each gift should feel like Bryant remembered something and reached out."
+      },
+      "journey_state_awareness": "During evaluation (pre-commitment), the cadence is slow (1 gift per day over 3 days) to build obligation gradually without pressure. During onboarding (first platform visit), the cadence is faster (1 gift per wizard step, approximately every 60 seconds) because the host is actively engaged. During active lease, the cadence is daily (payment confirmations) with weekly summaries as bonus gifts.",
+      "edge_cases": [
+        "Host does not open the first gift email. Do not escalate to a second gift -- send a gentle follow-up on the same gift: 'Just checking in -- did you see the guest profiles we sent?'",
+        "Host opens all gifts immediately (binge behavior). Allow it but do not accelerate the queue. The next gift still arrives at its scheduled time to maintain the cadence effect.",
+        "Multiple agents have engaged the host (Bryant and another team member). Gift attribution should be consistent -- all gifts come from the host's primary agent contact to maintain the personal relationship.",
+        "Host explicitly requests all information at once ('Just send me everything'). Provide a comprehensive overview but structure it as a table of contents with expandable sections, preserving the one-at-a-time gift experience within a single document."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "lens": {
+    "host_call": "anthony-call.txt",
+    "book_extract": "wisdomofcrowds-collective-intelligence.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-0932-001",
+      "type": "validation_strategy",
+      "title": "SMS Aggregation Pipeline Signal Capture Rate",
+      "validates_element": "works-0932-001",
+      "journey_phases": ["onboarding", "listing_creation", "active_lease", "retention"],
+      "problem": "If the SMS aggregation pipeline fails to capture signals from passive hosts, the platform's collective intelligence remains biased toward engaged hosts. The pipeline's value depends on passive hosts actually responding to SMS prompts. If response rates are below the threshold, the pipeline adds infrastructure complexity without improving data quality.",
+      "solution": "Track the SMS signal capture rate across all passive-flagged hosts over a 3-month period. Measure: (1) SMS delivery rate (how many messages reach the host's phone), (2) SMS response rate (how many messages receive any reply within 48 hours), (3) Signal quality (how many responses are interpretable as structured data -- YES/NO, 1-5, GOOD/HELP, or photos). Compare platform-wide collective intelligence metrics (pricing accuracy, retention prediction, satisfaction estimates) before and after pipeline deployment.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, 4:58",
+          "type": "host_call",
+          "quote": "This is a cell phone. I could probably texting pictures.",
+          "insight": "Anthony's willingness to text photos is a positive signal for the pipeline. But willingness on a phone call does not guarantee follow-through via SMS. The test must measure actual SMS response behavior, not stated intent."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After deploying the SMS aggregation pipeline, monitor the following metrics for all passive-flagged hosts (engagement level Passive or Silent): (1) SMS delivery rate (target: >95%), (2) SMS response rate within 48 hours (target: >40% for initial photo requests, >60% for binary check-ins), (3) Signal interpretability rate (target: >80% of responses are structured -- YES/NO, photo, rating), (4) Lift in collective intelligence: compare pricing recommendation accuracy and retention prediction accuracy for the host cohort before and after pipeline deployment.",
+      "success_criteria": "The pipeline succeeds if: (a) at least 40% of passive hosts respond to at least one SMS prompt per lease term, (b) the response interpretability rate exceeds 80%, and (c) platform-wide pricing recommendations improve by at least 5% in accuracy (measured by fill rate correlation) after passive host signals are included in the model.",
+      "failure_meaning": "If response rates are below 40%, passive hosts may require even simpler interactions (e.g., push notification with tap-to-confirm instead of SMS reply). If interpretability is below 80%, the SMS templates need redesign -- the prompts are too ambiguous. If collective intelligence does not improve, the passive host signal may be too sparse to affect aggregate models, and the pipeline's value is marginal.",
+      "implementation_hint": "Instrument the SMS gateway with event tracking: sms_sent, sms_delivered, sms_reply_received, sms_reply_parsed. Create a Mixpanel/Amplitude funnel for each SMS interaction type (photo request, check-in, confirmation, retention). Compare cohort metrics for passive-with-pipeline vs. passive-without-pipeline using A/B assignment."
+    },
+    {
+      "id": "tests-0932-002",
+      "type": "validation_strategy",
+      "title": "Pre-Populated Listing Confirmation Completion Rate",
+      "validates_element": "works-0932-002",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If hosts do not confirm the pre-populated listing (or if the pre-populated data is frequently wrong), the data bridge creates more problems than it solves -- incorrect listings, host frustration, and guest-facing quality issues. The test must validate both the data accuracy of the bridge and the host's confirmation behavior.",
+      "solution": "Deploy the pre-populated listing confirmation flow to a cohort of hosts who had agent calls within the prior week. Track: (1) Data accuracy -- how many pre-filled fields are edited vs. confirmed without change, (2) Confirmation rate -- how many hosts confirm the listing within 48 hours, (3) Time to confirmation -- elapsed time from SMS/email notification to confirmation, (4) Photo addition rate -- how many hosts add photos after confirming other fields.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, 0:40-1:47",
+          "type": "host_call",
+          "quote": "All listing data confirmed in 67 seconds during the call.",
+          "insight": "If the agent accurately captured the data, the pre-populated listing should require zero edits for most hosts. A high edit rate would indicate that the agent-to-platform data bridge introduces errors in the transcription or mapping process."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "For each host who receives a pre-populated listing, track: (1) Fields confirmed without edit (target: >85% of fields across all hosts), (2) Fields edited (track which fields are most frequently wrong -- this reveals data bridge accuracy issues), (3) Listing confirmation within 48 hours (target: >70% of hosts confirm), (4) Listing confirmation within 7 days (target: >90% with SMS reminder), (5) Photo addition within 7 days of confirmation (target: >50%), (6) Compare listing completion rate for pre-populated vs. standard wizard hosts.",
+      "success_criteria": "The data bridge succeeds if: (a) >85% of pre-filled fields are confirmed without edit, (b) >70% of hosts confirm within 48 hours, and (c) the listing completion rate for pre-populated hosts is at least 30% higher than for standard wizard hosts in the same cohort.",
+      "failure_meaning": "If field accuracy is below 85%, the agent call data extraction process is lossy -- investigate whether the issue is in call transcription, data mapping, or agent note-taking. If confirmation rate is below 70%, the notification mechanism (SMS link) is not reaching hosts or the confirmation UI is too complex. If photo addition is below 30%, the photo prompt needs redesign.",
+      "implementation_hint": "Add analytics events to the confirmation card: field_confirmed, field_edited(field_name, old_value, new_value), listing_confirmed, photo_uploaded. Create a dashboard showing per-field accuracy rates to identify systematic data bridge errors. A/B test: cohort A gets pre-populated confirmation, cohort B gets standard wizard."
+    },
+    {
+      "id": "tests-0932-003",
+      "type": "validation_strategy",
+      "title": "Independence Preservation Signal Capture Test",
+      "validates_element": "works-0932-003",
+      "journey_phases": ["evaluation", "proposal_mgmt", "retention"],
+      "problem": "If the pre-recommendation signal capture (asking the host a 1-word preference question before the agent recommends) adds friction without yielding useful data, it fails both the host (more burden) and the platform (noise instead of signal). The test must validate that passive hosts will answer even a minimal independence question, and that their answers contain real signal rather than random responses.",
+      "solution": "A/B test the pre-recommendation signal capture for proposal management. Cohort A: agent sends proposal details + recommendation in one message. Cohort B: agent sends proposal details first, asks for 1-word preference (e.g., 'Which matters more: longer lease or higher rate? Reply LONG or HIGH'), then sends recommendation. Compare: (1) Response rate to the preference question, (2) Correlation between host preference and final decision, (3) Host satisfaction with the process.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, 4:02",
+          "type": "host_call",
+          "quote": "So you've got two people, right? Two women. Okay.",
+          "insight": "Anthony's guest evaluation was zero -- he did not express a preference. The test must determine whether a direct, simple preference question would elicit a response that 'Okay' does not."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "For proposal management decisions, randomly assign passive hosts to two cohorts. Cohort A (control): agent sends proposal summary + recommendation in a single SMS. Cohort B (test): agent sends proposal summary, then a separate SMS with a binary preference question (e.g., 'Which matters more: longer lease or higher rate? Reply LONG or HIGH'), then sends recommendation. Measure: (1) Response rate to the preference question in Cohort B (target: >30%), (2) Whether the preference response predicts the final decision (if yes, the signal has value), (3) Whether Cohort B hosts express more satisfaction in end-of-lease check-ins (feeling heard), (4) Whether the additional SMS reduces or increases the proposal acceptance rate.",
+      "success_criteria": "Independence preservation succeeds if: (a) >30% of passive hosts respond to the preference question, (b) the preference response correlates with the final decision at least 60% of the time (indicating real signal), and (c) proposal acceptance rates do not decrease in Cohort B (the extra message does not create abandonment).",
+      "failure_meaning": "If response rate is below 30%, passive hosts will not engage with even a 1-word preference question -- the independence capture must be even simpler (perhaps binary implicit signals like 'opened vs. did not open the proposal SMS'). If correlation is below 60%, the preference question is not capturing real signal -- the question may be too abstract or the options too similar.",
+      "implementation_hint": "Use a randomized experiment framework (Optimizely or feature flag) to assign hosts to cohorts. Track events: preference_sms_sent, preference_response_received, preference_value, proposal_accepted, proposal_rejected. Run for 2 months minimum to accumulate sufficient sample size for passive hosts."
+    },
+    {
+      "id": "tests-0932-004",
+      "type": "validation_strategy",
+      "title": "Crowd Pricing Range Impact on Listing Behavior",
+      "validates_element": "works-0932-004",
+      "journey_phases": ["pricing", "listing_creation"],
+      "problem": "The crowd pricing display could have three outcomes: (1) It helps hosts price more accurately (positive), (2) It has no effect because hosts ignore it (neutral), or (3) It creates information cascades where hosts converge on the crowd average, destroying pricing diversity (negative). The test must distinguish between these outcomes.",
+      "solution": "A/B test the crowd pricing display with careful measurement of pricing diversity. Cohort A (control): standard pricing field with no crowd context. Cohort B (test): pricing field with the crowd range indicator. Measure: (1) Pricing distribution: does the standard deviation of prices decrease (bad -- information cascade) or stay stable (good)? (2) Price adjustment rate: do hosts in Cohort B adjust their initial price more frequently? (3) Fill rate: do listings in Cohort B fill faster? (4) Host confidence: in post-listing surveys, do Cohort B hosts report more confidence in their pricing?",
+      "evidence": [
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Ch 3",
+          "type": "book",
+          "quote": "Too much communication can paradoxically make groups less intelligent.",
+          "insight": "The crowd pricing display IS 'communication' between hosts (mediated through the aggregate). If it reduces pricing diversity, it is making the group less intelligent. The test must specifically monitor for this effect."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Show the crowd range indicator to 50% of new listings (Cohort B) and hide it from 50% (Cohort A, control). Run for 3 months. Track: (1) Mean and standard deviation of prices in each cohort (target: standard deviation does NOT decrease by more than 10% in Cohort B), (2) Price adjustment rate within 24 hours of listing (target: Cohort B adjusts <15% more frequently than Cohort A -- adjustments are fine but should not be excessive), (3) Fill rate comparison (target: Cohort B fills 10%+ faster), (4) Post-listing confidence survey (1-5 scale, target: Cohort B scores 0.3+ higher).",
+      "success_criteria": "The pricing display succeeds if: (a) pricing diversity (standard deviation) does not decrease by more than 10%, (b) fill rates improve by at least 10% in Cohort B, and (c) host confidence scores improve. If diversity drops by more than 15%, the display is creating information cascades and should be redesigned or removed.",
+      "failure_meaning": "If diversity drops significantly, hosts are anchoring on the crowd range and pricing to match rather than pricing independently. The display should be redesigned to show a wider range or to present data less prominently. If fill rates do not improve, the crowd data is not actionable -- hosts see it but do not use it effectively. If confidence does not improve, the display creates anxiety rather than empowerment.",
+      "implementation_hint": "Feature flag the crowd range indicator. Track pricing events: price_entered, price_adjusted(old_value, new_value, time_since_range_shown). Compute cohort-level pricing distribution weekly. Alert if standard deviation drops below 80% of the control cohort's standard deviation."
+    },
+    {
+      "id": "tests-0932-005",
+      "type": "validation_strategy",
+      "title": "Co-Host Mode Listing Completion Validation",
+      "validates_element": "works-0932-005",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "If Co-Host Mode does not significantly improve listing completion for passive hosts, it is adding agent workload without platform benefit. The test must validate that the formalized co-host model outperforms the current informal agent-handles-everything approach.",
+      "solution": "Compare listing completion metrics before and after Co-Host Mode deployment. Pre-deployment: measure listing completion rate, time-to-completion, and listing quality for agent-identified passive hosts under the current informal process. Post-deployment: measure the same metrics for passive hosts activated in Co-Host Mode. Also measure agent efficiency: time spent per listing under informal handling vs. formalized co-host mode.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, KEY BEHAVIORAL OBSERVATIONS",
+          "type": "host_call",
+          "quote": "PERFECT CO-HOST CANDIDATE -- won't self-serve setup.",
+          "insight": "The call notes already identify the need. The test validates that the system-level response (Co-Host Mode) improves on the current workaround (agent does everything manually without system support)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Before/after comparison of passive host listing outcomes. Pre-deployment period (3 months): track all listings created for agent-identified passive hosts. Record: listing completion rate within 7 days, average number of photos, listing quality score (completeness of all fields), agent time per listing (self-reported or estimated from dashboard activity logs). Post-deployment (3 months after Co-Host Mode launch): track the same metrics for Co-Host Mode listings. Compare: (1) Completion rate (target: +25%), (2) Photo count (target: +2 photos average), (3) Agent time per listing (target: -30%), (4) Guest inquiry rate on co-hosted listings vs. non-co-hosted passive listings.",
+      "success_criteria": "Co-Host Mode succeeds if: (a) listing completion rate for passive hosts increases by at least 25%, (b) average photo count increases by at least 2, (c) agent time per listing decreases by at least 30% (due to system-supported workflows replacing ad-hoc processes), and (d) guest inquiry rates on co-hosted listings are at least 80% of the rate for self-serve listings.",
+      "failure_meaning": "If completion rate does not improve, the Co-Host Mode workflow may not be simpler than the informal process -- investigate whether the UI creates friction for agents. If agent time increases, the formalized process has overhead that the informal process did not. If guest inquiry rates are low despite completion, the co-hosted listings may be lower quality than self-serve listings (agents may be less attentive to listing appeal than motivated hosts).",
+      "implementation_hint": "Tag all listings with creation_mode: 'self_serve' | 'co_hosted' | 'informal_agent'. Create a comparison dashboard. Track agent dashboard time per listing using session analytics. Survey agents monthly on Co-Host Mode usability."
+    },
+    {
+      "id": "tests-0932-006",
+      "type": "validation_strategy",
+      "title": "SMS Information Hierarchy Comprehension Test",
+      "validates_element": "communicates-0932-001",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "If the SMS information hierarchy (CATEGORY/fact/action structure) is not understood by passive hosts, messages will be ignored, misinterpreted, or generate confusion. The test must validate that real hosts can extract the key information and the required action from the SMS template within the 5-second scanning window.",
+      "solution": "Conduct a rapid usability test with 10-15 host participants (mix of engaged and passive profiles). Show each participant 5 SMS messages in the new template format. For each message, measure: (1) Time to identify the topic (CATEGORY recognition -- target: <2 seconds), (2) Time to identify the required action (reply instruction -- target: <3 seconds), (3) Accuracy of understanding (can the host correctly state what the message is about and what they should do -- target: >90%).",
+      "evidence": [
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Introduction (Galton's ticket)",
+          "type": "book",
+          "quote": "For sixpence, you could buy a stamped and numbered ticket, where you filled in your name, your address, and your estimate.",
+          "insight": "The ticket's format was instantly understandable: three fields, one purpose. The SMS template must achieve the same instant comprehension. If hosts cannot parse the CATEGORY/fact/action structure in under 5 seconds, the template fails."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 10-15 participants: 5 digitally fluent (under 40, smartphone-native), 5 moderate (40-60, comfortable with SMS), and 3-5 lower-digital-fluency (60+, SMS-capable but not power users, similar to Anthony's profile). Show each participant 5 SMS messages in the template format (one per category: LISTING, PROPOSAL, CHECK-IN, LEASE, PAYMENT). For each: (1) Ask 'What is this message about?' (measure time and accuracy), (2) Ask 'What should you do?' (measure time and accuracy), (3) After all 5, ask 'Which message format was easiest/hardest to understand?' Capture qualitative feedback on the template structure.",
+      "success_criteria": "The SMS template succeeds if: (a) >90% of participants correctly identify the topic within 2 seconds, (b) >90% correctly identify the required action within 3 seconds, (c) the lower-digital-fluency cohort performs within 20% of the digitally fluent cohort on both measures. If the lower-fluency cohort struggles significantly, the template needs simplification.",
+      "failure_meaning": "If topic identification takes longer than 2 seconds, the CATEGORY label may not be prominent enough in SMS rendering (uppercase alone may not be sufficient). If action identification takes longer than 3 seconds, the action line may need a stronger structural separator from the fact line. If the lower-fluency cohort performs poorly, the template may need a verbal prompt to introduce the format: 'We will text you updates. They will look like this: [example].'",
+      "implementation_hint": "Remote usability test via Lookback or UserTesting. Show SMS mockups as phone screenshots (not text on a computer screen) to simulate real context. Use a think-aloud protocol for the lower-fluency cohort. Record time to first verbal response as the comprehension metric."
+    },
+    {
+      "id": "tests-0932-007",
+      "type": "validation_strategy",
+      "title": "Confirmation Card Edit/Confirm Toggle Usability",
+      "validates_element": "behaves-0932-002",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the confirmation card's auto-confirm default confuses hosts (they do not realize they can edit, or they do not realize inaction means confirmation), the pattern creates listing accuracy problems. The test must validate that hosts understand both the default behavior (check = confirmed) and the edit mechanism (tap to change).",
+      "solution": "Moderated usability test with a Figma prototype of the confirmation card. Present participants with a pre-populated listing that has one intentionally incorrect field (e.g., deposit amount is $2,500 instead of $3,000). Measure: (1) Can the host identify the incorrect field? (2) Can the host figure out how to edit it without instruction? (3) Does the host understand that the other fields are already confirmed? (4) Time to complete the full confirm-and-edit flow.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, 0:40-1:47",
+          "type": "host_call",
+          "quote": "Anthony confirms each data point in 1-3 words during the call.",
+          "insight": "The confirmation card mirrors the call's pattern. The test validates that this metaphor translates to a screen interaction -- hosts should be able to 'confirm with a glance' and 'edit with a tap.'"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8-10 host participants. Present a Figma prototype of the confirmation card with 6 pre-filled fields (address, price, deposit, utilities, parking, laundry). One field (deposit) is intentionally incorrect. Tasks: (1) 'This is your listing based on your phone call. Take a look and tell me if everything is correct.' Measure: does the host notice the error? (2) If they notice: 'Go ahead and fix it.' Measure: can they figure out the edit toggle? Time to complete? (3) After fixing: 'Now confirm the whole listing.' Measure: do they find and use the 'Looks Good' button? (4) Post-test interview: 'What would happen if you did not do anything? Would the listing publish as-is?'",
+      "success_criteria": "The confirmation card succeeds if: (a) >70% of hosts notice the intentional error without prompting, (b) >90% can figure out how to edit the field within 15 seconds, (c) >90% successfully use the 'Looks Good' button to confirm, (d) >60% correctly understand the auto-confirm timeout behavior (inaction = confirmation after 48 hours). If error detection is below 70%, the card may need a 'Please review carefully' nudge.",
+      "failure_meaning": "If hosts do not notice the error, the confirmation card's visual design does not adequately invite scrutiny -- the check-circle icons may signal 'already done, do not look at this.' If hosts cannot figure out the edit toggle, the tap-to-edit interaction is not discoverable and needs a visible 'Edit' button instead of a tap gesture. If the auto-confirm timeout is misunderstood, it needs explicit copy: 'These details will be confirmed in 48 hours if no changes are made.'",
+      "implementation_hint": "Figma prototype with a basic interactive toggle (click to reveal edit field). Remote moderated test via Zoom screen share. Record time to first error identification as the key metric. Use the think-aloud protocol to understand the host's scanning pattern."
+    },
+    {
+      "id": "tests-0932-008",
+      "type": "validation_strategy",
+      "title": "Silence Interpretation Framework Check-In Response Rate",
+      "validates_element": "communicates-0932-005",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "If the silence check-in (GOOD/HELP) does not elicit responses from passive hosts, the framework cannot distinguish satisfied silence from disengaged silence, and the investment in check-in infrastructure provides no return. The test must validate the response rate and the predictive value of the check-in responses.",
+      "solution": "Deploy the check-in SMS to all active lease hosts at the first-month milestone. Measure response rate, response timing, and correlation between check-in responses and end-of-lease outcomes (relist rate, satisfaction, escalations).",
+      "evidence": [
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Introduction",
+          "type": "book",
+          "quote": "Each person's guess has two components: information and error. Subtract the error, and you're left with the information.",
+          "insight": "A GOOD/HELP response has a very high information-to-error ratio because the options are binary and unambiguous. But only if the host actually responds. The test validates that the information can be collected."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Send the first-month check-in SMS ('How are things going with your space? Reply GOOD or HELP.') to all hosts with active leases that have passed the 30-day mark. Track: (1) Response rate within 48 hours (target: >40%), (2) Response rate after follow-up nudge at 48 hours (target: cumulative >55%), (3) Response distribution (GOOD vs. HELP vs. other), (4) Correlation between first-month check-in response and end-of-lease relist rate (6 months later). Additionally, compare the retention rate of responsive hosts vs. non-responsive hosts.",
+      "success_criteria": "The check-in framework succeeds if: (a) cumulative response rate exceeds 55% after the follow-up nudge, (b) the HELP response rate correlates with subsequent escalation events (issues, complaints, early terminations), and (c) non-responsive hosts have measurably different retention rates than GOOD-responsive hosts (proving that non-response IS a distinct signal, even if its meaning is ambiguous).",
+      "failure_meaning": "If response rate is below 40% even after follow-up, the check-in timing or phrasing may be wrong. Test variations: different times of day, different phrasing ('All good? Reply Y/N' vs. 'Reply GOOD or HELP'), different milestone timing (2 weeks vs. 1 month). If check-in responses do not correlate with outcomes, the binary signal is too coarse -- consider a 1-5 scale instead.",
+      "implementation_hint": "Implement via the SMS gateway with scheduled sends at 10 AM local time on the 30th day after lease start. Track events: checkin_sent, checkin_delivered, checkin_response(value, time_delta), checkin_nudge_sent, checkin_timeout. Build a predictive model after 6 months of data: does check-in response predict relist?"
+    },
+    {
+      "id": "tests-0932-009",
+      "type": "validation_strategy",
+      "title": "Crowd Range Visual Comprehension Test",
+      "validates_element": "looks-0932-001",
+      "journey_phases": ["pricing"],
+      "problem": "If hosts misinterpret the crowd range indicator -- reading it as a recommendation rather than context, or not understanding what the range represents -- the visual creates confusion rather than empowerment. The test must validate comprehension of the visual pattern across different host profiles.",
+      "solution": "Rapid visual comprehension test: show hosts the crowd range indicator with different price positions (in range, at the edge, outside the range) and assess whether they correctly interpret what the visual communicates.",
+      "evidence": [
+        {
+          "source": "looks-0932-001, visual_hierarchy_rule",
+          "type": "usability",
+          "quote": "The eye should read: price first, position-on-bar second, range numbers third (if at all).",
+          "insight": "The visual hierarchy is designed with a specific reading order. The test validates that real hosts follow this reading order, not an unintended one (e.g., fixating on the range endpoints and missing their own price)."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 10 host participants the crowd range indicator in three scenarios: (1) Host price at $3,000, range $2,600-$3,400 (in the middle), (2) Host price at $3,300, range $2,600-$3,400 (near the high end), (3) Host price at $3,800, range $2,600-$3,400 (outside the range). For each, ask: (a) 'What is your price?' (verifies they see their own price -- target: 100%), (b) 'What does the bar below show?' (verifies they understand it is a range -- target: >80%), (c) 'Based on this, should you change your price?' (verifies they interpret it as context, not recommendation -- target: >70% say 'no' or 'it is up to me').",
+      "success_criteria": "The visual pattern succeeds if: (a) 100% of participants identify their own price, (b) >80% correctly interpret the bar as a price range for similar spaces, (c) >70% understand the display as informational rather than prescriptive (they do not feel they SHOULD change their price based on the visual alone). If >30% interpret the display as a recommendation, the visual or copy needs to be more explicitly neutral.",
+      "failure_meaning": "If participants misread the bar as a recommendation, the visual hierarchy may inadvertently position the range as dominant over the host's price. Redesign: make the host's price larger, the bar thinner, or add copy: 'Your price, your choice.' If participants do not understand the bar at all, the visual metaphor (horizontal range) may be too abstract -- consider a simpler format like text: 'Nearby range: $2,600-$3,400.'",
+      "implementation_hint": "Static mockups in three price-position variants. Remote unmoderated test (UsabilityHub or Maze) for quick, quantitative data on comprehension. Include a forced-choice question: 'This display is: (a) telling me to change my price, (b) showing me what others charge, (c) I am not sure.' Option B is the correct answer."
+    },
+    {
+      "id": "tests-0932-010",
+      "type": "validation_strategy",
+      "title": "Passive Host Emotional Arc Journey-Level Validation",
+      "validates_element": "feels-0932-001 through feels-0932-006 (journey-level)",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Individual emotional elements may each work independently but fail as a coherent arc. The journey-level risk is that the emotional experience feels disjointed: relief at onboarding, then empowerment at pricing, then confidence during the lease, then belonging at retention. If these emotions do not connect into a coherent narrative for the host, the experience feels like a series of disconnected interactions rather than a unified relationship. The test must validate the end-to-end emotional coherence for passive hosts.",
+      "solution": "Longitudinal diary study with 5-8 passive host participants over a full lease cycle (3+ months). At each major touchpoint (listing confirmation, pricing, proposal, lease start, monthly check-in, lease end), ask the host to record a 1-sentence description of how they feel about the platform. Compare recorded emotions against the target emotions for each phase.",
+      "evidence": [
+        {
+          "source": "Layer 6 coherence-report, emotional_arc_check",
+          "type": "data",
+          "quote": "The emotional arc for passive hosts follows: relief -> empowerment -> trust -> belonging.",
+          "insight": "This arc is theoretically coherent, but it has never been experienced by a real user end-to-end. The diary study validates whether the designed arc matches the experienced arc."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 hosts who match the passive profile (low digital fluency, prefer phone/SMS, minimal platform engagement). Enroll them in the SMS-first experience from listing creation through lease completion. At each touchpoint, add one diary prompt via SMS: 'In one word, how do you feel about your Split Lease experience right now?' Track the emotion words over time. At the end of the lease, conduct a 15-minute phone interview (not platform -- these are passive hosts) to understand their overall experience narrative. Compare the self-reported emotion trajectory against the designed arc (relief -> empowerment -> trust -> belonging).",
+      "success_criteria": "The emotional arc succeeds if: (a) >60% of diary entries align with or are synonyms of the target emotions for each phase, (b) no participant reports a strongly negative emotion (frustration, confusion, anger) at any touchpoint, (c) end-of-lease interviews reveal a coherent narrative that can be summarized as 'someone handled everything and it worked out.' If the arc is coherent, the individual emotional elements are validated as a system.",
+      "failure_meaning": "If the arc shows emotion words that contradict the targets (e.g., 'confused' during onboarding instead of 'relieved'), the specific touchpoint needs redesign. If the arc shows no emotional trajectory (all entries are 'fine' or 'okay'), the platform is emotionally invisible rather than emotionally coherent -- it works but does not create any positive feeling. If the end-of-lease interview reveals fragmented narratives ('I do not really remember the experience'), the emotional design is too subtle for passive hosts to notice.",
+      "implementation_hint": "The diary prompt is a single SMS at each touchpoint: 'One word: how do you feel about Split Lease right now?' Collect responses via the same SMS gateway used for check-ins. Code the emotion words into positive/neutral/negative categories. The phone interview uses open-ended questions: 'Tell me about your experience hosting through Split Lease. What stands out?'"
+    },
+    {
+      "id": "tests-0932-011",
+      "type": "validation_strategy",
+      "title": "Respectful Brevity Copy Tone Validation",
+      "validates_element": "feels-0932-003",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "If the 'respectful brevity' tone is perceived as cold, robotic, or impersonal by some hosts, it could damage the relationship even as it serves passive hosts well. The test must validate that the tone works across the engagement spectrum -- not just for passive hosts but also for moderately engaged hosts who might receive the same SMS templates.",
+      "solution": "Tone preference test: show hosts pairs of SMS messages (one in the 'respectful brevity' style, one in a warmer/longer style) and ask which they prefer. Segment results by engagement level to determine whether tone preferences vary across the spectrum.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, entire transcript",
+          "type": "host_call",
+          "quote": "Anthony's 1-3 word responses suggest he would prefer the brief format. But not all hosts are Anthony.",
+          "insight": "The tone is designed for the passive archetype. The test validates that it does not alienate engaged hosts who might prefer more warmth."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Present 20 hosts (10 passive-profile, 10 engaged-profile) with 3 pairs of SMS messages. Each pair conveys the same information in two tones: (A) Respectful brevity: '157 W 80th St: Rent received, $3,000. No issues.' (B) Warm standard: 'Hi Anthony! Your rent for this month has been received -- $3,000 deposited to your account. Everything is looking good! - Bryant'. For each pair, ask: 'Which message do you prefer to receive?' and 'Rate each message on a scale of 1-5 for: (a) clarity, (b) respect for your time, (c) warmth.' Segment results by engagement profile.",
+      "success_criteria": "The tone succeeds if: (a) >70% of passive-profile hosts prefer the brief format, (b) the brief format scores higher on 'respect for your time' across all segments, (c) the brief format does not score below 3.0 on 'warmth' for any segment. If engaged hosts strongly prefer the warm format (>80%), consider using engagement-level-dependent tone: brief for passive, warm for engaged.",
+      "failure_meaning": "If passive hosts do not prefer the brief format, the 'respectful brevity' principle may be a projection of the design team's values onto the host archetype. Passive does not necessarily mean 'prefers brevity.' Some passive hosts may prefer warmth precisely because they feel disconnected. If the brief format scores below 3.0 on warmth for engaged hosts, the platform needs a tone adaptation layer based on engagement level.",
+      "implementation_hint": "Survey-based test via Typeform or Google Forms. Show SMS screenshots side by side. Randomize left/right positioning. Include demographic and engagement-level questions at the start. Use forced ranking ('Which do you prefer?') plus Likert scales (clarity, respect, warmth)."
+    }
+  ]
+}

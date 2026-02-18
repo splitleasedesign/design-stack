@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Stack v2 Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --surface-warm: #fdfcfa;
+      --ink: #1a1714;
+      --ink-soft: #4a4640;
+      --ink-muted: #8a857e;
+      --ink-ghost: #bdb8b0;
+      --accent: #2d5a3d;
+      --accent-light: #e8f0eb;
+      --accent-bright: #3a7a52;
+      --signal-warn: #c17a28;
+      --signal-warn-bg: #fef3e2;
+      --signal-danger: #b83a3a;
+      --signal-danger-bg: #fde8e8;
+      --signal-info: #2d5a8a;
+      --signal-info-bg: #e8f0fa;
+      --signal-success: #2d5a3d;
+      --signal-success-bg: #e8f0eb;
+      --border: #e2dfd9;
+      --border-strong: #ccc8c0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
+      --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+
+    /* Header */
+    .report-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .report-header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; margin-bottom: 4px; }
+    .report-header .lens-label { font-size: 16px; color: var(--ink-soft); margin-bottom: 12px; }
+    .report-meta { display: flex; gap: 24px; flex-wrap: wrap; color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-complete { background: var(--accent-light); color: var(--accent); }
+    .badge-partial { background: var(--signal-warn-bg); color: var(--signal-warn); }
+
+    /* Coherence Alert Bar */
+    .coherence-bar { background: var(--signal-warn-bg); border-bottom: 1px solid rgba(193,122,40,0.2); padding: 10px 40px; font-size: 13px; color: var(--signal-warn); display: none; align-items: center; gap: 12px; }
+    .coherence-bar.has-flags { display: flex; }
+    .coherence-bar .count { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+
+    /* Tab Nav */
+    .tab-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+    .tab-nav button { background: none; border: none; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms var(--ease-out); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .tab-nav button:hover { color: var(--ink-soft); }
+    .tab-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-nav button .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-deep); font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--ink-muted); }
+    .tab-nav button.active .layer-num { background: var(--accent); color: white; }
+
+    /* Main */
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+    .tab-panel { display: none; animation: fadeIn 300ms var(--ease-out); }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Element Card */
+    .element-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .element-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .element-card-header h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; flex: 1; min-width: 200px; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .type-process_pattern { background: #e8f0fa; color: #2d5a8a; }
+    .type-info_architecture { background: #f0e8fa; color: #6a2d8a; }
+    .type-visual_pattern { background: #fae8f0; color: #8a2d5a; }
+    .type-interaction_pattern { background: #faf0e8; color: #8a5a2d; }
+    .type-emotional_element { background: #e8faf0; color: #2d8a5a; }
+    .type-validation_strategy { background: var(--bg-deep); color: var(--ink-soft); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+    .priority-high { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Phase Tags */
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'IBM Plex Mono', monospace; background: var(--accent-light); color: var(--accent); }
+
+    /* Problem/Solution */
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .ps-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px; }
+    .ps-box.problem { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .ps-box.solution { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .ps-box label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+    @media (max-width: 700px) { .ps-grid { grid-template-columns: 1fr; } }
+
+    /* Evidence */
+    .evidence-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; color: var(--ink-muted); transition: all 150ms; }
+    .evidence-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .evidence-list { display: none; margin-top: 12px; }
+    .evidence-list.open { display: block; }
+    .evidence-item { padding: 10px 14px; margin: 6px 0; background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+    .evidence-item .source { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+    .evidence-item .quote { color: var(--ink-soft); font-style: italic; }
+    .evidence-item .insight { color: var(--ink); margin-top: 4px; }
+
+    /* Layer-specific fields */
+    .extra-fields { margin-top: 16px; display: grid; gap: 8px; }
+    .extra-field { font-size: 13px; }
+    .extra-field label { font-weight: 600; color: var(--ink-soft); font-size: 12px; }
+    .extra-field .value { color: var(--ink); }
+
+    /* Coherence sections */
+    .coherence-section { margin-bottom: 28px; }
+    .coherence-section h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 12px; }
+    .reinforcement-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-success-bg); border-left: 4px solid var(--signal-success); font-size: 14px; }
+    .contradiction-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-danger-bg); border-left: 4px solid var(--signal-danger); font-size: 14px; }
+    .extension-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-info-bg); border-left: 4px solid var(--signal-info); font-size: 14px; }
+    .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+    /* Coverage Map */
+    .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .coverage-cell { padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border); }
+    .coverage-cell .phase-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; }
+    .coverage-cell .count { font-size: 24px; font-weight: 700; }
+    .coverage-cell .level { font-size: 11px; color: var(--ink-muted); }
+    .coverage-none { background: var(--signal-danger-bg); }
+    .coverage-thin { background: var(--signal-warn-bg); }
+    .coverage-moderate { background: var(--signal-info-bg); }
+    .coverage-strong { background: var(--signal-success-bg); }
+
+    /* Journey Context phase cards */
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 12px; }
+    .phase-card h4 { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .phase-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+    .phase-card .risk { font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 6px; }
+    .risk-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .risk-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .risk-medium { background: var(--signal-info-bg); color: var(--signal-info); }
+    .risk-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Responsive + Print */
+    @media (max-width: 768px) { .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; } }
+    @media print { .tab-nav, .coherence-bar { display: none; } .tab-panel { display: block !important; page-break-inside: avoid; } body { background: white; } }
+  </style>
+</head>
+<body>
+
+  <!-- Data injection points -->
+  <!-- INJECT:run-config -->
+  <script id="run-config" type="application/json">{
+  "run_id": "2026-02-17_2046",
+  "process_type": "reverse-benchmark",
+  "competitor": "craigslist",
+  "lens": {
+    "competitor": "craigslist",
+    "book_extract": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "status": "in_progress",
+  "started_at": "2026-02-17T20:46:00Z",
+  "stack_dir": "C:/Users/igor/OneDrive/Documents/design-stack",
+  "run_dir": "C:/Users/igor/OneDrive/Documents/design-stack/runs/2026-02-17_2046"
+}</script>
+  <!-- INJECT:layer-0 -->
+  <script id="data-layer-0" type="application/json">{
+  "lens": {
+    "competitor": "Craigslist",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy — Chapters 1-2 (Creation Wins, Category Is the New Strategy)",
+    "lens_summary": "Play Bigger reveals that Craigslist is the accidental category king of informal housing — it defined the problem frame ('I need a room, fast and cheap') without ever purposefully designing the category, leaving the entire magic triangle (product design + company design + category design) undeveloped and ripe for a purposeful category creator to redefine."
+  },
+  "competitor_overview": {
+    "category": "general classifieds marketplace (housing subcategory: rooms/shared)",
+    "primary_strength": "Liquidity and reach — Craigslist has the largest volume of informal room-sharing listings in most US metro areas because it was first to digitize classifieds at scale. The network effect is self-reinforcing: hosts post because guests search there, guests search because hosts post there. Do NOT compete on raw listing volume.",
+    "business_model": "Minimal monetization — Craigslist charges for apartment broker listings in select markets and job postings, but rooms/shared listings are free. This means there is zero economic incentive to improve the room-sharing experience. The product is a by-product of the classifieds platform, not a designed category.",
+    "user_base": "Extremely broad: budget-conscious renters, students, traveling nurses, digital nomads, people between leases, sublettors, and hosts with spare rooms. Users tolerate Craigslist because alternatives either don't exist or require more commitment (Airbnb = nightly pricing, Facebook Marketplace = social graph exposure). The typical Split Lease user persona — hybrid workers needing weeknight housing near an office — is an underserved segment that defaults to Craigslist because no category exists for their specific problem.",
+    "brand_perception": "Functional but sketchy. Users associate Craigslist with getting things done but also with risk: scams, fake listings, unsafe meetups, ghosting. There is no brand warmth, no trust signal, no community feeling. It is the phone book of the internet — useful, but nobody loves it."
+  },
+  "phases": {
+    "discovery": {
+      "what_they_do": "Users discover Craigslist room listings primarily through Google search ('rooms for rent [city]'), direct navigation to craigslist.org, or word-of-mouth ('just check Craigslist'). There is no app store presence, no social media strategy, no content marketing, no SEO-optimized landing pages for room-sharing specifically. Discovery is entirely pull-based — the user must already know they have a housing need and must already know Craigslist exists.",
+      "quality_level": "adequate",
+      "framework_analysis": "Play Bigger's core thesis is that winning companies 'market the problem, not just the solution.' Craigslist does neither. It doesn't help users understand that they have a solvable problem (e.g., 'you commute 3 days a week and could save $800/month by sharing a room near your office instead of commuting'). It doesn't frame the category at all. Users arrive with a pre-formed, vague problem ('I need a place to crash') and Craigslist provides a bulletin board. There is no problem-framing, no category education, no point of view. This is exactly the Jawbone failure pattern: the product exists but the category was never designed.",
+      "what_nobody_in_category_does": "Nobody in the informal room-sharing category defines the PROBLEM for the user. No one says: 'Hybrid workers waste $X/year commuting when they could split a lease near their office for a fraction of the cost.' The entire category waits for users to self-diagnose. A category designer would market the problem — and the company that frames the problem would define the category.",
+      "evidence": [
+        {
+          "source": "Play Bigger Ch 2 — 'winning companies today market the problem, not just the solution'",
+          "type": "book",
+          "observation": "Craigslist has never marketed any problem. It has never published a point of view on housing, commuting, or room-sharing. It is a pure utility with zero category design.",
+          "framework_interpretation": "Play Bigger argues the company that best frames the problem comes to define and take the category. Craigslist's complete absence of problem-framing means the category is unowned — it's a classifieds subcategory, not a designed category. This is the single biggest structural opportunity."
+        },
+        {
+          "source": "Craigslist UX — rooms/shared section",
+          "type": "competitor_ux",
+          "observation": "The rooms/shared section is indistinguishable from any other Craigslist section (jobs, for sale, services). Same blue hyperlinks, same chronological list, same lack of imagery or context. There is no category-specific experience.",
+          "framework_interpretation": "Play Bigger's magic triangle requires product design + company design + category design in sync. Craigslist's room-sharing product is a generic classifieds template, not a purpose-built housing experience. The product does not signal that this is a distinct category."
+        }
+      ]
+    },
+    "search": {
+      "what_they_do": "Users navigate to the 'rooms / shared' subcategory under 'housing' on their city's Craigslist. They see a reverse-chronological list of text-based listings. Filtering options are primitive: price range, bedrooms, dogs/cats allowed, private room/shared room. Users can search by keyword. Results are blue hyperlink titles with price and a few metadata tags. No photos in search results. No map view integrated with results. No saved searches with notifications. No relevance ranking — everything is chronological, meaning the freshest post wins regardless of quality.",
+      "quality_level": "weak",
+      "framework_analysis": "Play Bigger describes how categories succeed when they solve a problem the user 'didn't know they had — or didn't pay attention to because we never thought there was another way.' Craigslist search is so primitive that users don't realize search COULD be better for room-sharing. They've never experienced location-based matching, compatibility filtering, or commute-time search. The Anchoring Effect (Ch 2) means Craigslist's terrible search has anchored the entire category's expectations for what room-finding search looks like.",
+      "what_nobody_in_category_does": "Nobody provides commute-aware search for room-sharing. No platform asks 'where is your office?' and shows rooms within 20 minutes of commute. Nobody matches on lifestyle compatibility (work schedule, quiet hours, cleanliness standards). The search paradigm is geographic + price, never purpose + fit. For the hybrid worker persona, the problem isn't 'find a room in Brooklyn' — it's 'find a room that makes my 3-day office week livable.' Nobody searches that way because nobody has designed the category to think that way.",
+      "evidence": [
+        {
+          "source": "Craigslist rooms/shared search interface",
+          "type": "competitor_ux",
+          "observation": "Search results are plain text links sorted by recency. No photos in results. No map. No relevance algorithm. Filters limited to price, bedrooms, pet policy. No way to filter by lease duration, furnished/unfurnished, or days-of-week availability.",
+          "framework_interpretation": "The Anchoring Effect from Ch 2: 'the first offer put on the table in a negotiation has a powerful impact on any other offer that comes after.' Craigslist's primitive search has anchored the entire category. Any new entrant that builds commute-aware, compatibility-driven search would redefine the anchor."
+        },
+        {
+          "source": "Play Bigger Ch 1 — Jawbone cautionary tale",
+          "type": "book",
+          "observation": "Jawbone invented products but never developed the category, so competitors easily matched features. Craigslist's search is so underdeveloped that even basic improvements (photos in results, map view) would seem revolutionary in this specific subcategory.",
+          "framework_interpretation": "The lesson: product innovation without category design is insufficient. But the inverse is also true — in an undesigned category, even modest product improvements combined with category design can create a king."
+        }
+      ]
+    },
+    "listing_evaluation": {
+      "what_they_do": "Users click into individual listings. They see a block of unformatted text written by the poster, 0-12 photos (often poorly lit, inconsistent quality), a price, and a general location (neighborhood or cross-streets, rarely exact address). There is no structured data (amenities checklist, house rules, availability calendar). There is no host profile, no reviews, no verification badges. The user must parse a wall of text to extract: price, location, availability dates, house rules, roommate expectations. Every listing is formatted differently because there is no template.",
+      "quality_level": "weak",
+      "framework_analysis": "Play Bigger Ch 2 cites Kahneman's cognitive biases: when overwhelmed by choices, people seek shortcuts. Craigslist listing evaluation provides zero shortcuts — no structured data, no trust signals, no comparison tools. Every listing requires full System 2 processing. The Choice Supportive Bias means users who DO find a decent listing through this painful process will believe it's great (because they invested so much effort finding it), but most users never get that far — they abandon. The category is losing users not because rooms are bad but because evaluation is exhausting.",
+      "what_nobody_in_category_does": "Nobody provides structured comparison between room-sharing options. Nobody shows a 'compatibility score' or a 'fit index.' Nobody pre-answers the questions every renter has (Is it safe? Is the host reliable? Will I be comfortable there?) through verified data rather than self-reported text. In the informal room-sharing category, trust is entirely DIY — the user must construct their own trust assessment from zero structured information.",
+      "evidence": [
+        {
+          "source": "Craigslist listing page structure",
+          "type": "competitor_ux",
+          "observation": "Listings are freeform text blocks. No structured amenities, no house rules checklist, no availability calendar, no host profile. Photos are optional and unmoderated. Location shown as map pin on approximate area, not exact address.",
+          "framework_interpretation": "Play Bigger Ch 2 cites the Paradox of Choice: 'Increased choice among goods and services may contribute little or nothing to the kind of freedom that counts.' Craigslist provides maximum choice with minimum structure, creating decision paralysis rather than decision confidence."
+        },
+        {
+          "source": "Play Bigger Ch 2 — cognitive biases and category organizing",
+          "type": "book",
+          "observation": "Categories succeed because they are 'an organizing principle' that reduces cognitive load. Craigslist's rooms/shared section is unorganized — no category structure, no quality hierarchy, no curation.",
+          "framework_interpretation": "The brain needs categories to make decisions. Craigslist provides a firehose of unstructured options. A purpose-designed category would provide the organizing principles (verified, scored, structured) that the brain craves."
+        }
+      ]
+    },
+    "booking_proposal": {
+      "what_they_do": "There is no booking or proposal system. The user clicks 'reply' on the listing, which opens their email client with the poster's anonymized Craigslist relay email address. The user writes a freeform email introducing themselves and expressing interest. There is no template, no structure, no required fields. The host receives the email in their personal inbox mixed with spam and other Craigslist replies. Response rates are notoriously low — many hosts are overwhelmed by volume or have already found someone. There is no way for the guest to know if their message was read, if the listing is still available, or when to expect a response.",
+      "quality_level": "absent",
+      "framework_analysis": "Play Bigger's magic triangle requires product design that matches the category's problem. The 'booking' problem in room-sharing is: 'I want this room, how do I secure it?' Craigslist's answer is: 'Send an email into a void and hope for the best.' This is not a product — it's the absence of a product. The 6-10 Law suggests categories take 6-10 years to solidify; Craigslist has had 25+ years and never built a booking mechanism for rooms because it was never designing a room-sharing category. It was maintaining a classifieds platform.",
+      "what_nobody_in_category_does": "Nobody in the informal room-sharing space provides a structured proposal mechanism where the guest specifies: dates, budget, personal details, and references — and the host receives a formatted, comparable proposal they can accept/counter/decline within the platform. Airbnb does this for short-term stays, but nobody does it for the 1-6 month informal room-share. The entire negotiation happens in email/text, unstructured, untracked, unprotected.",
+      "evidence": [
+        {
+          "source": "Craigslist reply mechanism",
+          "type": "competitor_ux",
+          "observation": "Clicking 'reply' opens an email to an anonymized relay address. No in-platform messaging, no read receipts, no structure, no proposal format. The host sees raw emails with no standardized information.",
+          "framework_interpretation": "Play Bigger: 'These companies don't only invent something to sell us... They introduce the world to a new category of product or service.' Craigslist hasn't introduced any product for the room-sharing transaction itself. The transaction layer is completely absent."
+        },
+        {
+          "source": "Play Bigger Ch 1 — category kings 'develop' the category, not just create it",
+          "type": "book",
+          "observation": "Birdseye didn't just invent frozen food — he developed freezer cars, freezer cases, and convinced DuPont to invent cellophane. He built the ecosystem. Craigslist built the listing but never built the transaction ecosystem: no proposals, no contracts, no payments, no protections.",
+          "framework_interpretation": "Craigslist is Birdseye if Birdseye had stopped after freezing the first fish. The product exists but the category infrastructure was never developed."
+        }
+      ]
+    },
+    "communication": {
+      "what_they_do": "All communication happens off-platform via email, then quickly migrates to personal phone numbers and text messages. Craigslist provides an anonymized email relay as a thin privacy layer, but once parties exchange real contact info (which happens almost immediately), Craigslist has zero visibility or influence over the interaction. There are no message templates, no scheduling tools, no in-app chat, no video call integration for virtual tours.",
+      "quality_level": "absent",
+      "framework_analysis": "Play Bigger describes the flywheel effect (Ch 1): as a category king amasses data and transactions, it gains an unfair advantage. Craigslist's immediate off-platform migration means it collects zero interaction data, builds zero relationship intelligence, and has zero ability to improve matches over time. Every transaction is a dead-end for the platform — the value leaks entirely to email and text. This is the opposite of a flywheel; it's a value sieve.",
+      "what_nobody_in_category_does": "Nobody provides structured host-guest communication for room-sharing that includes: verified identity, conversation history, scheduling integration, and safety features. The communication in this category is indistinguishable from talking to a stranger on the internet in 1999. Nobody has applied any product design to this phase.",
+      "evidence": [
+        {
+          "source": "Craigslist email relay system",
+          "type": "competitor_ux",
+          "observation": "The anonymized email relay is Craigslist's only communication feature. It provides basic privacy but zero functionality: no threading, no search, no file sharing, no scheduling, no identity verification.",
+          "framework_interpretation": "Play Bigger Ch 1: 'the best data' is a flywheel advantage of category kings. Craigslist loses all data at the communication phase — it cannot learn from interactions, cannot improve matching, cannot detect fraud patterns."
+        },
+        {
+          "source": "Play Bigger Ch 2 — category as organizing principle",
+          "type": "book",
+          "observation": "When users can't organize their choices within the platform, they take the decision-making off-platform. Craigslist's lack of communication tools forces the entire evaluation and negotiation process into unstructured email/text.",
+          "framework_interpretation": "The category needs an organizing principle for communication, not just for discovery. Currently the category organizes discovery (barely) and abandons the user for everything after."
+        }
+      ]
+    },
+    "active_stay": {
+      "what_they_do": "Craigslist has absolutely no involvement in the active stay. Once a room-share arrangement is made (entirely off-platform), the platform's role is over. There is no payment processing, no lease management, no date change tools, no dispute resolution, no check-in/check-out flow, no house manual, no communication channel. The host and guest are on their own. Payments are typically cash, Venmo, or Zelle with no platform intermediation.",
+      "quality_level": "absent",
+      "framework_analysis": "Play Bigger's 6-10 Law says categories take 6-10 years to solidify, and the king emerges when vendor count drops and value rises. Craigslist has existed for 25+ years without ever entering the active-stay phase. This is not a failure to iterate — it's evidence that Craigslist was never designing a room-sharing category. It was designing (accidentally) a classifieds category. The room-sharing use case is a by-product, not a product. This means the entire active-stay phase is greenfield for a category designer.",
+      "what_nobody_in_category_does": "Nobody provides ongoing stay management for informal room-shares: payment tracking, date flexibility, stay-by-stay reviews, house manuals, cleaning verification, or dispute resolution. Airbnb does some of this for short-term stays but with a nightly-hotel model that doesn't fit the recurring weekly pattern of hybrid workers. The active-stay phase for room-sharing is an entirely undesigned category.",
+      "evidence": [
+        {
+          "source": "Craigslist platform scope",
+          "type": "competitor_ux",
+          "observation": "Craigslist's product ends at the listing. There is no post-listing, no post-contact, no post-move-in functionality whatsoever. The platform has the same involvement in your room-share as a telephone pole has in the flyer stapled to it.",
+          "framework_interpretation": "Play Bigger Ch 1: Birdseye 'realized he had to design and build the category itself, because before Birdseye, there was no ecosystem.' Craigslist is the pre-Birdseye frozen fish — the product exists but the ecosystem doesn't."
+        },
+        {
+          "source": "Play Bigger Ch 1 — flywheel of benefits",
+          "type": "book",
+          "observation": "Category kings build flywheels: more transactions = better data = better product = more transactions. Craigslist's complete absence from the active-stay phase means zero flywheel potential for room-sharing.",
+          "framework_interpretation": "A purpose-built room-sharing category that spans discovery through active-stay would build a data flywheel that is structurally impossible on Craigslist. This is an asymmetric advantage that cannot be competed with by adding features to classifieds."
+        }
+      ]
+    },
+    "post_stay": {
+      "what_they_do": "Nothing. There is no review system, no feedback mechanism, no stay-completion acknowledgment, no security deposit return process. When a room-share ends, both parties go back to their lives. If the host wants a new guest, they post a new listing. There is no reputation accumulation, no track record, no incentive for good behavior during the stay.",
+      "quality_level": "absent",
+      "framework_analysis": "Play Bigger Ch 2 discusses the Groupthink Bias: 'when people are threatened they seek safety in numbers.' In room-sharing, trust is the existential problem — you're sharing your home with a stranger. Reviews and reputation are how categories create 'safety in numbers.' Craigslist's total absence of reviews means every new room-share starts from zero trust, every time. This is the structural reason why Craigslist feels 'sketchy' — it's not the design (though that's bad too), it's the complete absence of accumulated trust signals.",
+      "what_nobody_in_category_does": "Nobody accumulates reputation data for informal room-sharing participants. Airbnb has reviews but for short-term stays (1-3 nights), not for the qualitatively different experience of living with someone for weeks or months. Nobody has designed a review system that captures what actually matters in a room-share: reliability, cleanliness habits, noise levels, communication quality, rule adherence over time. The post-stay phase is not just absent — it's conceptually undefined for this category.",
+      "evidence": [
+        {
+          "source": "Craigslist platform features",
+          "type": "competitor_ux",
+          "observation": "Zero review functionality for rooms/shared. No user profiles. No transaction history. No reputation score. A host who has successfully hosted 50 guests looks identical to a first-timer or a scammer.",
+          "framework_interpretation": "Play Bigger Ch 2: Choice Supportive Bias means 'once you've committed to a product, you're likely to feel certain it is the best.' Without reviews, there's no mechanism for commitment — every transaction is an independent, unconnected event. No loyalty, no lock-in, no flywheel."
+        }
+      ]
+    },
+    "retention": {
+      "what_they_do": "Nothing deliberate. Users return to Craigslist out of habit and lack of alternatives, not because the platform re-engages them. There are no saved preferences, no recommended listings, no email campaigns, no loyalty mechanics. The only retention mechanism is brand awareness: when you need a room, you think of Craigslist because you've always thought of Craigslist. This is the Anchoring Effect operating at the category level — Craigslist anchored 'room search' in our brains 20 years ago and inertia keeps it there.",
+      "quality_level": "weak",
+      "framework_analysis": "Play Bigger Ch 2: 'Once people have chosen a king, they will always tend to believe the king is better, even if it's not. This reality explains why companies with superior technology can still lose category wars.' This is Craigslist's moat — not product quality, but cognitive anchoring. Users believe Craigslist is where you find rooms because they've always believed it. Breaking this requires not a better product but a different category. You don't beat the king by being better; you beat it by being different. You redefine the problem.",
+      "what_nobody_in_category_does": "Nobody converts one-time room searches into ongoing housing relationships. Nobody says: 'You searched for a weeknight room in Manhattan — here's your ongoing dashboard of options that updates as your schedule changes.' The category treats every search as a one-off transaction rather than an ongoing need. For hybrid workers, room-sharing is a recurring, evolving need — but nobody has designed for that.",
+      "evidence": [
+        {
+          "source": "Play Bigger Ch 2 — Anchoring Effect and category kings",
+          "type": "book",
+          "observation": "Craigslist's only retention advantage is cognitive anchoring — it was first to define 'online room search' and that association persists despite 25 years of zero product improvement.",
+          "framework_interpretation": "Play Bigger: 'it's almost always futile to try to unseat a category king that's not screwing up.' But Craigslist is NOT a category king of room-sharing — it's a category king of classifieds that happens to have a rooms section. Split Lease doesn't need to unseat Craigslist as classifieds king. It needs to create a NEW category that pulls room-sharing users out of classifieds entirely."
+        },
+        {
+          "source": "Play Bigger Ch 1 — 'different wins, not better'",
+          "type": "book",
+          "observation": "Elvis didn't disrupt jazz by making better jazz. He created rock and roll. 'Rock was different, not better, than jazz.' Facebook wasn't the first social network. Netflix started as DVDs-by-mail, different from Blockbuster.",
+          "framework_interpretation": "A better Craigslist (more photos, better search) would still be classifieds. The opportunity is to create a DIFFERENT category — managed room-sharing for hybrid workers — that makes Craigslist's approach seem as outdated as hailing a cab seemed after Uber."
+        }
+      ]
+    }
+  },
+  "split_lease_phase_mapping": {
+    "discovery": "Host: discovery + evaluation. Guest: discovery",
+    "search": "Guest: search + listing_evaluation",
+    "listing_evaluation": "Guest: listing_evaluation + proposal_creation",
+    "booking_proposal": "Host: proposal_mgmt. Guest: proposal_creation + negotiation",
+    "communication": "Host: proposal_mgmt + active_lease. Guest: negotiation + acceptance + active_lease",
+    "active_stay": "Host: active_lease. Guest: move_in + active_lease",
+    "post_stay": "Host: retention. Guest: active_lease (end-of-stay reviews within the lease)",
+    "retention": "Host: retention. Guest: active_lease (ongoing engagement through recurring stays)"
+  },
+  "category_blind_spots": [
+    {
+      "blind_spot": "The entire informal room-sharing category has no category designer — nobody has defined the PROBLEM that room-sharing solves for hybrid workers",
+      "why_nobody_tries": "Craigslist doesn't need to (it's a classifieds platform, rooms are a by-product). Airbnb won't (its category is travel/short-term stays, not recurring room-sharing). Facebook Marketplace won't (it's a general marketplace). Nobody has an economic incentive to define this specific problem because nobody has built a business model around it yet.",
+      "framework_insight": "Play Bigger Ch 2: 'A company that best frames a problem is the company that often comes to define and take the category.' The hybrid worker room-sharing problem has NEVER been framed. The first company to say 'commuting hybrid workers waste $X/year when they could split a lease for $Y/month' will own the problem frame and define the category.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "No trust infrastructure exists for medium-term room-sharing (1 week to 6 months) — the gap between Airbnb's overnight reviews and traditional lease credit checks",
+      "why_nobody_tries": "Building trust infrastructure requires staying in the transaction lifecycle (identity verification, payment processing, reviews, dispute resolution). Craigslist exits at listing. Airbnb's trust model is designed for 1-3 night stays with post-checkout reviews, not 13+ weekly stays within a single lease. Traditional rental trust (credit checks, references) is too heavy for informal arrangements.",
+      "framework_insight": "Play Bigger Ch 1: Birdseye 'realized he had to design and build the category itself, because before Birdseye, there was no ecosystem.' The trust ecosystem for medium-term room-sharing doesn't exist. Building it (stay-by-stay micro-reviews, verified profiles, payment guarantees) would be the equivalent of Birdseye designing freezer cars — creating the category infrastructure, not just the product.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Nobody has built a room-sharing platform that spans the full lifecycle from discovery through active-stay management",
+      "why_nobody_tries": "Full-lifecycle platforms are expensive and complex to build. Craigslist optimizes for listing volume (low cost). Airbnb optimizes for booking transactions (high margin per booking). A full-lifecycle platform for informal room-sharing has lower per-transaction value than Airbnb and higher product complexity than Craigslist. The economics don't work for companies designed around other categories.",
+      "framework_insight": "Play Bigger Ch 1: The flywheel — 'As the leader amasses data, the data becomes an unfair advantage — a gap that the followers can't hope to close.' A full-lifecycle room-sharing platform would accumulate data across discovery, matching, negotiation, active stays, payments, and reviews. This flywheel is structurally impossible for Craigslist (exits at listing) or Airbnb (wrong category model). The data advantage compounds with every stay cycle.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "The category has no recurring engagement model — every housing search is treated as a one-time transaction, even for users whose need is inherently recurring",
+      "why_nobody_tries": "Classifieds platforms are designed for one-off transactions (find thing, contact seller, done). Room-sharing was squeezed into the classifieds model because that's the only digital category that existed for it. Nobody has questioned whether the transactional model is right for a use case that's fundamentally relational and recurring.",
+      "framework_insight": "Play Bigger Ch 2: 'Sometimes, booming new categories don't disrupt anything at all.' A managed room-sharing category doesn't need to kill Craigslist. It needs to pull out the subset of users whose needs are recurring (hybrid workers, traveling professionals) and give them a purpose-built category. Craigslist continues to serve one-off transactions. The new category serves ongoing relationships.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Nobody applies the magic triangle (product + company + category design) to room-sharing — there are products but no designed category",
+      "why_nobody_tries": "Room-sharing is seen as a subcategory of housing, not a category in its own right. The mental model is: housing > rentals > room-share. Nobody has argued that room-sharing for hybrid workers is a distinct category with distinct needs, distinct economics, and a distinct problem frame.",
+      "framework_insight": "Play Bigger Ch 2: 'We depict the strategy as a triangle, with each side of equal importance: product design, company design, and category design.' Split Lease has the opportunity to execute all three: a purpose-built product (Stays Manager, proposals, date-change tools), a purpose-built company (category point of view on hybrid work and housing), and a purpose-built category ('managed room-sharing' or 'split-lease housing'). This is the magic triangle applied to a space where nobody has applied any side of it.",
+      "signature_potential": "high"
+    }
+  ],
+  "sources_consulted": [
+    "playbigger-category-design.txt (Part 1: Chapters 1-2)",
+    "split-lease-journey-map.md",
+    "library/elements.json (first 200 lines — schema and first 3 elements)",
+    "Training knowledge of Craigslist rooms/shared UX (2024-2025)"
+  ]
+}</script>
+  <!-- INJECT:layer-1 -->
+  <script id="data-layer-1" type="application/json">{
+  "lens": {
+    "competitor": "Craigslist",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy — Chapters 1-2 (Creation Wins, Category Is the New Strategy)"
+  },
+  "disappointment_summary": "Craigslist's room-sharing experience is a masterclass in accidental adequacy. It didn't set out to create a room-sharing category — it set out to digitize classifieds, and rooms happened to be one of the things people listed. The result is a platform where every phase beyond the initial listing is either mediocre or completely absent. The 'coffee' at this restaurant isn't just unremarkable — the restaurant doesn't serve coffee at all for half the meal. Discovery works through sheer inertia (everyone knows Craigslist). Search barely works. Listing evaluation demands heroic effort from the user. Booking, communication, active-stay, post-stay, and retention are entirely absent as product phases. The deepest disappointment pattern is structural: Craigslist treats room-sharing as a posting-and-forgetting transaction when it is actually a relationship that unfolds over weeks or months. Through Play Bigger's lens, this is what happens when a platform accidentally inherits a category without ever designing it — every phase beyond the core classifieds function is abandoned because the business was never built to serve this use case.",
+  "disappointments": [
+    {
+      "id": "disappoint-001",
+      "title": "The Wall of Blue Links",
+      "competitor_phase": "search",
+      "type": "mediocre_default",
+      "what_happens_now": "A user searching for 'rooms / shared' on Craigslist sees a reverse-chronological list of blue hyperlink titles with price tags. No photos in results. No map integration in the list view. No relevance ranking. No compatibility indicators. Every listing looks identical in the list — a 900 sq ft private room with an en-suite bathroom listed by a verified professional host looks the same as a couch in a shared living room posted by someone with no description. The user must click into each listing individually to evaluate it, then click back, then click the next one. To compare three options, the user opens three tabs and manually switches between them.",
+      "why_its_not_a_bug": "The search technically works — you see listings, you can filter by price, you can search by keyword. It returns results. Nobody files a support ticket because 'Craigslist search works the way Craigslist has always worked.' The expectation is calibrated to the platform's 1995-era interface.",
+      "why_it_matters_psychologically": "Play Bigger Ch 2 cites Kahneman's cognitive biases and the Anchoring Effect: the first interface a user encounters for a category anchors their expectations. Craigslist anchored 'room search' as 'scan a list of links.' This means users don't KNOW that room search could involve commute-time mapping, photo-rich cards, or compatibility scoring. The disappointment is invisible because the anchor is so low. But Play Bigger also shows that when a category king redefines the anchor (like Uber redefining 'get a ride'), the old way instantly feels intolerable. Excellence in search wouldn't just delight — it would make Craigslist's list feel broken.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "high",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist rooms/shared search results page",
+          "type": "competitor_ux",
+          "observation": "Search results are plain-text blue hyperlinks with price, neighborhood tag, and posting date. No thumbnails, no amenity tags, no host info, no ratings. Identical visual treatment for all listings regardless of quality.",
+          "framework_interpretation": "Play Bigger Ch 2: categories work as 'an organizing principle' for overwhelmed brains. Craigslist search provides no organizing principle — no quality signals, no hierarchy, no structure. The user's brain has to do all the organizing work."
+        },
+        {
+          "source": "Play Bigger Ch 2 — Paradox of Choice",
+          "type": "book",
+          "observation": "Schwartz's Paradox of Choice cited in Ch 2: 'Increased choice among goods and services may contribute little or nothing to the kind of freedom that counts.' Craigslist maximizes choice (hundreds of listings) while minimizing information per choice (title + price only).",
+          "framework_interpretation": "Maximum choice with minimum structure creates decision paralysis, not decision confidence. Users don't find the best room — they settle for the first acceptable one they happen to click on."
+        }
+      ],
+      "the_coffee_test": "Yes — if a room-sharing platform showed photo-rich cards with commute times, compatibility scores, and instant availability, users would wonder how they ever tolerated scanning blue links."
+    },
+    {
+      "id": "disappoint-002",
+      "title": "The Freeform Wall of Text Listing",
+      "competitor_phase": "listing_evaluation",
+      "type": "invisible_labor",
+      "what_happens_now": "When a user clicks into a room listing, they see a block of unformatted text written in the poster's own style. Some are one sentence ('Room available $800/mo, email me'). Some are multi-paragraph essays with life stories. Information is scattered: price might be in the title or the 3rd paragraph or the reply instructions. Availability dates might be mentioned or not. House rules might be detailed or absent. The user must actively parse, extract, and mentally organize: What's the actual price? When is it available? What's included? What are the rules? Who is this person? Is this safe? This parsing labor is repeated for every single listing the user evaluates.",
+      "why_its_not_a_bug": "The listing 'works' — there's text, maybe photos, a price. The poster wrote what they wanted to write. It's a classifieds ad, and classifieds have always been freeform. Nobody expects structured data on Craigslist because that's not what Craigslist is.",
+      "why_it_matters_psychologically": "Play Bigger Ch 2 describes how categories reduce cognitive load: 'For potential customers, categories become an organizing principle.' Craigslist listings provide zero organizing principle — every listing is structured differently, so the user can't develop efficient scanning patterns. Each listing demands fresh System 2 processing. The invisible labor compounds: evaluating 10 Craigslist listings is 10x the cognitive effort of evaluating 10 structured listings because there's no template to accelerate processing.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "high",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist room listings (any major city)",
+          "type": "competitor_ux",
+          "observation": "No two listings follow the same format. Price placement varies. Amenity descriptions vary. Some have 12 photos, some have none. No structured fields for move-in date, lease duration, furnished status, or house rules. User must extract all critical information from freeform text.",
+          "framework_interpretation": "Play Bigger's category design thesis: categories succeed by simplifying decisions. Unstructured listings make decisions harder, not simpler. The user does the platform's job of data structuring in their own head."
+        }
+      ],
+      "the_coffee_test": "Absolutely — structured room cards with standardized amenities, verified photos, availability calendars, and compatibility indicators would eliminate hours of parsing labor that users currently accept as normal."
+    },
+    {
+      "id": "disappoint-003",
+      "title": "The Email Into the Void",
+      "competitor_phase": "booking_proposal",
+      "type": "abandoned_phase",
+      "what_happens_now": "After evaluating a listing and deciding to express interest, the user clicks 'reply.' Their email client opens with a pre-filled anonymized Craigslist relay address. The user writes a freeform email — there's no template, no suggested structure, no guidance on what to include. They hit send. Then: nothing. No read receipt. No 'your message was delivered' confirmation. No expected response time. No fallback if the host doesn't reply. The user has no idea if their email was received, read, or lost to spam. Many hosts receive 20-50 replies and respond to 2-3. The other 47 people never know why they were ghosted.",
+      "why_its_not_a_bug": "Email was sent. The platform facilitated contact. That's all classifieds have ever done — connect buyer and seller. Everything after that is 'your problem.' Nobody expects Craigslist to manage the conversation.",
+      "why_it_matters_psychologically": "Play Bigger Ch 1 describes how Birdseye 'realized he had to design and build the category itself, because before Birdseye, there was no ecosystem that would get frozen food from a factory to consumers.' The booking phase is the ecosystem gap. The product (listing) exists, but the category infrastructure (proposal, negotiation, confirmation) doesn't. Users experience this as ghosting, uncertainty, and wasted effort. Through Play Bigger's lens, this is the most obvious evidence that Craigslist never designed a room-sharing category — it just digitized the bulletin board and stopped.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "high",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist reply mechanism",
+          "type": "competitor_ux",
+          "observation": "Reply opens email client. No in-platform messaging. No delivery confirmation. No response tracking. No host response rate metric. No structure for what to include in the initial message.",
+          "framework_interpretation": "Play Bigger Ch 1: category kings 'develop' the category, building the ecosystem around the product. Craigslist stopped at the listing (the frozen fish) and never built the ecosystem (the freezer car, the freezer case, the cellophane)."
+        },
+        {
+          "source": "Play Bigger Ch 2 — Groupthink Bias and safety in numbers",
+          "type": "book",
+          "observation": "Ch 2: 'when people are threatened they seek safety in numbers.' Sending an email to a stranger about living in their home is a high-stakes, threatening moment. There is zero safety — no platform protection, no identity verification, no visible track record of the host.",
+          "framework_interpretation": "The absence of any booking infrastructure means every room inquiry is an act of solo courage. A category that provided structure (proposals, host profiles, response guarantees) would transform this from a threatening solo act into a safe, guided process."
+        }
+      ],
+      "the_coffee_test": "Absolutely — a structured proposal system with delivery confirmation, host response rates, and formatted guest profiles would feel transformative in a category where 'email a stranger and pray' is the norm."
+    },
+    {
+      "id": "disappoint-004",
+      "title": "Zero Identity, Zero History, Zero Trust",
+      "competitor_phase": "listing_evaluation",
+      "type": "trust_vacuum",
+      "what_happens_now": "Craigslist provides no identity verification for room posters. There is no user profile, no photo, no name (unless voluntarily included in the listing text), no reviews, no transaction history, no verification badges, no background check, no reference system. The user must decide whether to contact a stranger — and potentially share their home with them — based solely on freeform text and optional photos. The user has no way to distinguish a legitimate host from a scammer, a responsible person from a negligent one, or an experienced host from a first-timer.",
+      "why_its_not_a_bug": "Craigslist is an anonymous platform by design — anonymity is a feature, not a bug, in the classifieds model. You don't need to know a seller's identity to buy a used couch. But room-sharing isn't buying a couch — it's sharing a living space with a stranger for weeks or months. The anonymity 'feature' of classifieds becomes a trust vacuum in room-sharing.",
+      "why_it_matters_psychologically": "Play Bigger Ch 2 cites Groupthink Bias: 'In the pack we feel less vulnerable, less likely to get eaten when the critter cannot see us because we blend in with the crowd. The group is our haven, our shield.' Craigslist room-sharing has no pack. There are no reviews telling you '47 previous guests had a great experience.' There's no crowd to feel safe in. Every room inquiry is a solo venture into unknown territory. The brain's threat-detection system fires because there are zero safety signals.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "high",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist user profiles (or lack thereof)",
+          "type": "competitor_ux",
+          "observation": "No user profiles exist. No verification. No reviews. No reputation score. No identity confirmation. The only information about a host is what they chose to write in their listing text.",
+          "framework_interpretation": "Play Bigger Ch 2: 'Once a company wins a position as category king, a flywheel of benefits opens a gap.' Trust data is the ultimate flywheel — each verified interaction makes the next one safer and easier. Craigslist has zero trust data after 25+ years because it never stayed in the interaction beyond the listing."
+        }
+      ],
+      "the_coffee_test": "Yes — verified host profiles with stay-by-stay reviews, response rates, and a track record would fundamentally change the psychology of room-sharing from 'gambling on a stranger' to 'choosing a vetted host.'"
+    },
+    {
+      "id": "disappoint-005",
+      "title": "The Post-Contact Abandonment",
+      "competitor_phase": "communication",
+      "type": "abandoned_phase",
+      "what_happens_now": "Once host and guest connect via Craigslist's email relay, they quickly exchange personal email addresses or phone numbers and move off-platform. Craigslist has no involvement from this point forward. There is no in-platform messaging, no scheduling tool for viewings, no video call integration for virtual tours, no document sharing for lease agreements, no identity verification before meeting in person. The entire relationship — negotiation, viewing, agreement, move-in — happens in personal email and text with zero platform support.",
+      "why_its_not_a_bug": "Craigslist did its job: it connected the parties. Classifieds have always been about connection, not relationship management. Once buyer meets seller, the platform steps aside. Nobody expects Craigslist to manage the post-contact relationship.",
+      "why_it_matters_psychologically": "Play Bigger Ch 1 describes the flywheel: 'All those transactions on Amazon give the company valuable insights about its customers, inventory, prices — everything... As the leader amasses data, the data becomes an unfair advantage.' Craigslist's post-contact abandonment means it amasses zero data about what happens after the listing. It cannot learn: which hosts are responsive? Which listings convert to actual room-shares? Which neighborhoods have the happiest outcomes? The platform is structurally incapable of improving because it has no signal from the most important part of the user journey.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist post-reply experience",
+          "type": "competitor_ux",
+          "observation": "After the initial email exchange, all communication migrates to personal channels. No platform messaging. No conversation history. No viewing scheduler. No identity verification before in-person meeting.",
+          "framework_interpretation": "Play Bigger: the category king flywheel depends on staying in the transaction lifecycle. Craigslist's complete exit at communication means it can never build a flywheel for room-sharing. This is a structural impossibility, not a product gap to be patched."
+        }
+      ],
+      "the_coffee_test": "Yes — in-platform messaging with identity verification, scheduling integration, and conversation context would transform a moment of anxiety (exchanging personal info with a stranger) into a moment of confidence."
+    },
+    {
+      "id": "disappoint-006",
+      "title": "The Groundhog Day Problem — No Memory Across Searches",
+      "competitor_phase": "retention",
+      "type": "mediocre_default",
+      "what_happens_now": "Every time a user returns to Craigslist for a room search, they start from zero. No saved searches. No favorite listings. No search history. No 'rooms like ones you viewed.' No notification when new listings match their criteria. A hybrid worker who needs a weeknight room every few months must re-enter their search criteria, re-scan listings (many of which they've already seen and rejected), and re-do the entire evaluation process. The platform has no memory of the user.",
+      "why_its_not_a_bug": "Craigslist works without accounts for most functions. Anonymity and simplicity are features. Saved searches would require user accounts, which adds friction. The platform philosophy is: come, search, find, leave. It's not designed for recurring users with evolving needs.",
+      "why_it_matters_psychologically": "Play Bigger Ch 2 on the Choice Supportive Bias: 'once you've committed to a product or service in a new category, you're likely to feel certain that it is the best.' Craigslist has no commitment mechanism — every visit is transactional, not relational. Users can't develop the bias that 'Craigslist knows me' because it demonstrably doesn't know them. For recurring users (the exact persona Split Lease targets), this lack of memory means Craigslist offers diminishing returns: the 5th search is just as painful as the 1st, while a platform with memory would make the 5th search dramatically easier.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "some_users",
+        "impact": "medium",
+        "visibility": "only_power_users_notice"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist search functionality",
+          "type": "competitor_ux",
+          "observation": "No user accounts for search. No saved searches. No favorites. No search history. No email alerts for new matching listings. Every search session starts from scratch.",
+          "framework_interpretation": "Play Bigger: category kings build flywheels where 'the best data becomes an unfair advantage.' Craigslist's lack of user memory means it accumulates zero preference data. A platform that remembers search patterns, preferred neighborhoods, budget ranges, and past hosts could deliver increasingly personalized results — a flywheel advantage impossible on Craigslist."
+        }
+      ],
+      "the_coffee_test": "Yes — a room-sharing platform that remembers your commute location, budget, schedule, and past experiences, and proactively surfaces new options when they appear, would make returning to Craigslist's blank-slate search feel like using a phone book in the age of contacts apps."
+    },
+    {
+      "id": "disappoint-007",
+      "title": "The Ghost Lease — No Platform During the Actual Stay",
+      "competitor_phase": "active_stay",
+      "type": "abandoned_phase",
+      "what_happens_now": "After finding a room on Craigslist and arranging it off-platform, the user lives in that room for weeks or months with zero platform involvement. No payment tracking. No date management. No dispute resolution. No safety net. If a host changes terms mid-stay, the guest has no recourse. If a guest damages the room, the host has no documentation. Payments are Venmo/cash with no receipts. There is no house manual, no check-in process, no cleaning verification. The 'product' that Craigslist provided (a listing) has no relationship to the experience it generated.",
+      "why_its_not_a_bug": "Craigslist is a classifieds platform. It connects people who want to buy/sell/rent. Managing the ongoing relationship is outside its scope, just as a newspaper classifieds section wouldn't help you move in or mediate a dispute with your new roommate.",
+      "why_it_matters_psychologically": "Play Bigger Ch 1 on Birdseye: he 'developed freezer cars for railroads... developed freezer cases for grocers and convinced them that frozen food would increase sales. He even convinced DuPont to invent cellophane.' Birdseye didn't just freeze fish — he built every piece of the ecosystem needed to get the product to consumers. Craigslist froze the fish (listing) but built nothing else. The active stay is where the actual value of room-sharing is created and experienced, yet it's completely unsupported. This is like a restaurant that takes reservations but has no tables.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "high",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist platform scope",
+          "type": "competitor_ux",
+          "observation": "Craigslist provides zero tools for the active stay period: no payments, no scheduling, no communication, no reviews, no dispute resolution, no documentation, no house manuals.",
+          "framework_interpretation": "Play Bigger Ch 1: Jawbone 'came up with cool innovations that created a brand-new product category. Not many start-ups ever do that. But three times, Jawbone failed to develop and dominate the category it created.' Craigslist is the Jawbone of housing — it created the digital room-finding moment but never developed the room-sharing category."
+        }
+      ],
+      "the_coffee_test": "Yes — a platform that supports the entire stay (payments, date changes, cleaning photos, reviews, house manual, dispute resolution) would redefine what 'room-sharing' means. It would make Craigslist seem like it was never actually in the room-sharing business — because it wasn't."
+    },
+    {
+      "id": "disappoint-008",
+      "title": "The Scam Tax — Trust Labor Imposed on Every User",
+      "competitor_phase": "listing_evaluation",
+      "type": "invisible_labor",
+      "what_happens_now": "Every Craigslist room-search user must allocate significant mental energy to scam detection. They learn (through experience or word-of-mouth) to watch for red flags: listings that seem too good to be true, requests for deposits before viewing, inability to schedule a viewing, stock photos, suspiciously low prices for the neighborhood. This scam-detection labor is unpaid, untrained, and falls entirely on the user. The platform provides a small 'avoid scams' FAQ and a flagging mechanism, but no proactive scam prevention, no listing verification, no identity confirmation.",
+      "why_its_not_a_bug": "Craigslist has a community flagging system and posts safety guidelines. Scams exist everywhere online. Users are expected to exercise common sense. The platform isn't broken — it just requires user vigilance, which is seen as normal for an open marketplace.",
+      "why_it_matters_psychologically": "Play Bigger Ch 2: 'when people are threatened they seek safety in numbers... The group is our haven, our shield.' Craigslist provides no group, no shield. Every user is individually responsible for their own safety assessment. This 'scam tax' is a cognitive overhead that reduces the user's available mental resources for actual decision-making (which listing is best for me?). The brain can't optimize for both threat-detection AND preference-matching simultaneously. The result: users make worse housing choices because too much of their cognitive budget goes to safety assessment instead of quality assessment.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "medium",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist safety mechanisms",
+          "type": "competitor_ux",
+          "observation": "Craigslist provides a text-based 'avoiding scams' page and community flagging. No proactive verification. No identity checks. No listing validation. No phone number verification. No address confirmation.",
+          "framework_interpretation": "The invisible labor of scam detection is a tax on every transaction in the category. A platform that eliminates this tax through verification and trust infrastructure would free up cognitive resources for actual housing decisions — a category-defining shift."
+        }
+      ],
+      "the_coffee_test": "Yes — a platform where every listing is verified, every host has a profile with reviews, and every transaction is protected would eliminate an entire category of cognitive labor that users currently treat as the cost of doing business."
+    },
+    {
+      "id": "disappoint-009",
+      "title": "The Category Confusion — Room-Sharing Buried in General Classifieds",
+      "competitor_phase": "discovery",
+      "type": "broken_promise",
+      "what_happens_now": "A user looking for a weeknight room-share near their office arrives at Craigslist's housing section and must navigate a taxonomy designed for general rentals: apts/housing, rooms/shared, sublets/temporary, housing swap. These categories don't map to the user's actual need. 'Rooms/shared' includes everything from a couch in a living room to a luxury private suite. 'Sublets/temporary' might have room-shares or might have full apartments. The user's real category — 'recurring weeknight housing near my office' — doesn't exist as a navigation option because nobody has designed it as a category.",
+      "why_its_not_a_bug": "Craigslist's taxonomy works for the general housing market. Most users can find a relevant section. The navigation is consistent with how classifieds have always been organized — by property type, not by use case or lifestyle need.",
+      "why_it_matters_psychologically": "Play Bigger Ch 2: 'categories become an organizing principle... The public comes to understand the problem that's been defined, and then demands a product or service that solves it.' Craigslist's organizing principle is property type (room, apartment, sublet). Split Lease's organizing principle should be use case (hybrid worker weeknight housing). These are fundamentally different category frames. The user who thinks 'I need a place to crash Monday through Wednesday near my office' cannot find that thought reflected in Craigslist's navigation. The problem hasn't been defined, so the solution hasn't been organized.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist housing section taxonomy",
+          "type": "competitor_ux",
+          "observation": "Housing categories: apts/housing, rooms/shared, sublets/temporary, housing swap, housing wanted, office/commercial, parking/storage, real estate for sale, rooms wanted, vacation rentals. No category for 'recurring partial-week housing' or 'flexible room-sharing.'",
+          "framework_interpretation": "Play Bigger: 'A company that best frames a problem is the company that often comes to define and take the category.' Craigslist's taxonomy frames the problem as 'what kind of property do you want?' The category-designing frame is 'what kind of life arrangement do you need?' This reframe is the category design opportunity."
+        }
+      ],
+      "the_coffee_test": "Yes — a platform organized around 'I work in Manhattan 3 days a week and need a room near my office for those nights' would feel like it was built for the user, not adapted from a general-purpose tool."
+    },
+    {
+      "id": "disappoint-010",
+      "title": "The Silent Listing — Hosts Post and Pray",
+      "competitor_phase": "discovery",
+      "type": "mediocre_default",
+      "what_happens_now": "A host with a spare room writes a listing, posts it on Craigslist, and waits. There is no listing optimization guidance ('your title gets 3x more views if you include the neighborhood name'). No pricing intelligence ('similar rooms in your area list for $X-Y'). No demand data ('15 people searched for rooms in your neighborhood this week'). No photo quality guidance. No suggested listing duration. The host has zero insight into how their listing performs: no view count, no save count, no reply-to-view ratio. They post and pray. If they get no replies, they have no idea if the price is wrong, the photos are bad, or the listing is buried.",
+      "why_its_not_a_bug": "Craigslist is a bulletin board, not a marketing platform. Hosts post for free and take what they get. The platform provides equal access — every listing gets the same treatment. No optimization tools means no gaming the system, which aligns with Craigslist's egalitarian philosophy.",
+      "why_it_matters_psychologically": "Play Bigger Ch 2 on the magic triangle: 'product design is the purposeful building of a product and experience that solves the problem the market needs solved.' For hosts, the problem isn't just 'post a room' — it's 'find a good guest for my room.' Craigslist solves the posting problem but not the finding problem. The host has no feedback loop, no iteration capability, no data to improve. This is anti-flywheel: each posting teaches the host nothing about how to make the next posting better.",
+      "who_feels_it": "host",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "Craigslist listing management tools",
+          "type": "competitor_ux",
+          "observation": "No analytics dashboard. No view counts. No reply metrics. No pricing suggestions. No photo quality indicators. No listing optimization guidance. No A/B testing of listing titles.",
+          "framework_interpretation": "Play Bigger: the flywheel depends on data accumulation and learning. Craigslist provides hosts with zero data about their listings' performance, making it impossible for either the host or the platform to learn and improve. Each listing is an isolated event with no feedback loop."
+        }
+      ],
+      "the_coffee_test": "Yes — a host dashboard showing views, inquiries, suggested pricing, and listing optimization tips would transform the host experience from 'throw it out there and hope' to an informed, data-driven process."
+    }
+  ],
+  "disappointment_clusters": [
+    {
+      "cluster_name": "The Undesigned Category — No Product Beyond the Listing",
+      "disappointment_ids": [
+        "disappoint-003",
+        "disappoint-005",
+        "disappoint-007"
+      ],
+      "pattern": "Three major journey phases — booking, communication, and active stay — have ZERO product investment from Craigslist. These aren't mediocre; they're absent. This is the clearest evidence that Craigslist never designed a room-sharing category — it designed a classifieds platform and room-sharing happened to use it. The entire post-listing user journey is unowned territory.",
+      "signature_potential": "Split Lease's full-lifecycle platform (proposals, negotiation, stays manager, date changes, reviews) is not a feature advantage — it's a CATEGORY advantage. It's the difference between a listing platform and a managed room-sharing platform. Through Play Bigger's lens, this cluster represents the category design opportunity: build the infrastructure Craigslist never built, and you define the category."
+    },
+    {
+      "cluster_name": "The Trust Desert — No Identity, No Reputation, No Safety",
+      "disappointment_ids": [
+        "disappoint-004",
+        "disappoint-008",
+        "disappoint-003"
+      ],
+      "pattern": "Across listing evaluation, scam detection, and booking, users bear 100% of the trust-building burden. No profiles, no reviews, no verification, no platform protection. Every interaction requires the user to independently assess: is this real? Is this person safe? Is this worth the risk? The cognitive cost of this self-directed trust assessment is enormous and falls disproportionately on the most vulnerable users (those new to room-sharing, in a new city, or in urgent housing need).",
+      "signature_potential": "A trust-first room-sharing platform (verified hosts, stay-by-stay reviews, payment protection, dispute resolution) would be the equivalent of Uber's rating system applied to informal housing. This is the Groupthink Bias opportunity from Play Bigger Ch 2: create the 'pack' that makes users feel safe. The first platform to do this becomes the trust anchor for the entire category."
+    },
+    {
+      "cluster_name": "The Cognitive Overload Tax — Users Do the Platform's Work",
+      "disappointment_ids": [
+        "disappoint-001",
+        "disappoint-002",
+        "disappoint-006",
+        "disappoint-008"
+      ],
+      "pattern": "Search, listing evaluation, repeat searches, and scam detection all impose invisible cognitive labor on users. The platform provides raw information (listings) but no intelligence (structured data, relevance ranking, memory, verification). Users must parse unstructured text, compare listings manually, remember their search criteria across sessions, and detect scams independently. This cognitive labor is the 'tax' of using an undesigned category — and users pay it because they don't know it could be different.",
+      "signature_potential": "Structured listings, intelligent search, user memory, and trust verification would eliminate the cognitive tax. Through Play Bigger's Anchoring Effect: once users experience a category where the platform does the cognitive work, they can never go back to doing it themselves. This is how Uber made hailing cabs feel 'dumb.'"
+    },
+    {
+      "cluster_name": "The Missing Problem Frame — Nobody Defines What Room-Sharing Is For",
+      "disappointment_ids": [
+        "disappoint-009",
+        "disappoint-010"
+      ],
+      "pattern": "Both discovery-phase disappointments share a root cause: nobody has defined the PROBLEM that room-sharing solves for hybrid workers. Craigslist's taxonomy organizes by property type, not by user need. Hosts post without context about who they're posting for. The category has no point of view, no problem frame, no 'you have a commute problem and here's the solution' narrative.",
+      "signature_potential": "This is the Play Bigger thesis distilled: 'winning companies today market the problem, not just the solution.' The first company to define 'the hybrid worker commute problem' as a solvable category — and position room-sharing as the solution — will own the problem frame. This is pure category design, not product improvement."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-2 -->
+  <script id="data-layer-2" type="application/json">{
+  "lens": {
+    "competitor": "Craigslist",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy — Chapters 1-2 (Creation Wins, Category Is the New Strategy)"
+  },
+  "crossref_summary": "The transcript evidence overwhelmingly validates that Craigslist is not a theoretical competitor but the actual discovery channel for Split Lease itself. At least 18 of the 68 transcripts contain direct Craigslist references — Split Lease agents literally introduce themselves as 'from Craigslist' when calling hosts and guests, and hosts found Split Lease's postings on Craigslist. The most striking finding: Tag (host) opens his call with 'I don't know if this guy is legit or what it is' after seeing repeated Craigslist postings, perfectly validating the trust vacuum disappointment. Robbie (host) discovers his Craigslist listing was removed mid-conversation, exposing the platform's unreliability. Steve Zhang's origin story reveals that Split Lease itself was born from a Craigslist experiment — 1,200 scraped Airbnb listings posted across 60 cities, with responses like 'my commute is f*****g terrible and I would love to stay at your space.' The transcripts confirm that Craigslist's disappointments are not analytical observations — they are the lived reality of Split Lease's founding and its current user acquisition funnel.",
+  "validated_disappointments": [
+    {
+      "disappointment_id": "disappoint-004",
+      "disappointment_title": "Zero Identity, Zero History, Zero Trust",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I keep seeing your postings and I'm just like, I don't know if this guy is legit or what it is.",
+          "context": "Tag opens the call expressing deep skepticism about Bryant's repeated Craigslist postings. He cannot distinguish a legitimate business from a scam based on Craigslist alone.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "And I also will send you my LinkedIn profile so you could see me there as well.",
+          "context": "Bryant must offer his personal LinkedIn as a trust substitute because Craigslist provides zero identity verification. The platform forces users to build trust through off-platform workarounds.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "Customer call Tom.txt",
+          "speaker": "guest",
+          "quote": "He's the one who's really good with logistics in terms of like schedules. Um, so if you got a call from Bryant, that is also, that is completely legit and also me Bryant.",
+          "context": "The agent has to preemptively reassure the guest that a follow-up call from Bryant is 'completely legit' and provides a 'secret password' (mentioning her name) — because Craigslist provides no mechanism for verified handoffs between contacts.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "cristina-call.txt",
+          "speaker": "host",
+          "quote": "all guests staying with us and staying in booking through split lease, go through our vetting process and their will get verified, employment, woes, verify as income or get proof of income. We will get landlord references, a credit check, verification of ID.",
+          "context": "Bryant explicitly enumerates the full vetting process (employment, income, references, credit check, ID verification) because Craigslist provides none of this. The agent must verbally reconstruct the entire trust infrastructure that Craigslist lacks.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "ZEIN-call.txt",
+          "speaker": "host",
+          "quote": "I'm not looking at the website, I've just looking at the Craig list.",
+          "context": "Zein has only seen the Craigslist ad and has made no effort to visit the Split Lease website. The Craigslist listing alone — with zero identity verification — is the entire basis for the host's decision to engage.",
+          "match_type": "direct_competitor_mention"
+        }
+      ],
+      "user_language": "Hosts say 'I don't know if this guy is legit' and need LinkedIn profiles as proof. Guests need 'secret passwords' to know a callback is real. The language is about legitimacy, not features.",
+      "framework_reinforcement": "Play Bigger Ch 2's Groupthink Bias — 'when people are threatened they seek safety in numbers' — is validated powerfully. Tag has zero 'pack' to feel safe in. He must individually assess legitimacy from a Craigslist ad. Bryant's workaround (offering LinkedIn) is a manual, one-to-one trust construction that doesn't scale. A platform with verified profiles, reviews, and institutional trust signals would replace this manual process entirely."
+    },
+    {
+      "disappointment_id": "disappoint-003",
+      "disappointment_title": "The Email Into the Void",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "robbie-call.txt",
+          "speaker": "host",
+          "quote": "I noticed that the Craigslist link, uh, looked like it had been removed or is no longer active. Uh, would you happen to have another place where I could see, uh, the listing or another link?",
+          "context": "Robbie's Craigslist listing was removed between the time it was posted and the follow-up call. The platform provides no notification that a listing is gone — conversations initiated from dead links hit a wall.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "robbie-call.txt",
+          "speaker": "host",
+          "quote": "I saw the pictures earlier on the Craigslist link. Um, but like I said, I'm not able to see that anymore.",
+          "context": "The Craigslist listing — including photos that were the only visual evidence of the property — has vanished. There is no backup, no archive, no persistent state. The 'void' is literal: content disappears.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "nakoley-renville-call.txt",
+          "speaker": "host",
+          "quote": "Maybe you had another name or it went through the Craig list, uh, email, so I cannot recognize",
+          "context": "Nakoley cannot match the caller to any previous correspondence because the Craigslist anonymized email relay strips identity. She cannot tell who contacted her or when.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "stephanie-call.txt",
+          "speaker": "host",
+          "quote": "I'm looking at it right now and I see your phone, but there's no email address scheme it's as a Craigslist.",
+          "context": "Stephanie wants to send a direct email but can only see the anonymized Craigslist relay address. The platform forces all communication through a system that strips contact identity.",
+          "match_type": "direct_competitor_mention"
+        }
+      ],
+      "user_language": "Hosts say 'I can't see' the listing, 'I cannot recognize' who emailed, 'there's no email address — it's a Craigslist.' The language is about disappearance, confusion, and broken links.",
+      "framework_reinforcement": "Play Bigger Ch 1's Birdseye principle — building the ecosystem, not just the product — is validated here. Craigslist's 'ecosystem' (the listing, the relay email, the photos) is ephemeral and fragile. Listings vanish. Emails are anonymized. Photos disappear. There is no persistent state, no transaction memory, no reliable infrastructure. Birdseye built freezer cars; Craigslist didn't even build a shelf."
+    },
+    {
+      "disappointment_id": "disappoint-005",
+      "disappointment_title": "The Post-Contact Abandonment",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "joie-coelho-call.txt",
+          "speaker": "host",
+          "quote": "Not the one that was on Craigslist. They don't email.",
+          "context": "Joie distinguishes between her real email and the Craigslist relay address, indicating she knows the Craigslist email system is unreliable and doesn't function as real email.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "joie-coelho-call.txt",
+          "speaker": "host",
+          "quote": "Robert from Craigslist. Wait a minute. Robert, I just got the email too.",
+          "context": "Joie is confused about who 'Robert from Craigslist' is and is trying to reconcile multiple communication channels (Craigslist relay, direct email, phone) in real-time during the call.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "robbie-call.txt",
+          "speaker": "host",
+          "quote": "we are receiving so many, uh, people getting these profits I've been trying to call you then.",
+          "context": "Robbie is overwhelmed by the volume of Craigslist inquiries ('so many people') and has been unable to reach the agent. The off-platform communication creates a chaotic funnel where hosts are drowning in unstructured replies.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "anthony-call.txt",
+          "speaker": "host",
+          "quote": "this is a cell phone. I could probably texting pictures... you can feel free to text me, text me, or email either.",
+          "context": "Anthony immediately establishes text messaging as the primary communication channel, bypassing Craigslist entirely. The platform's communication tools are so inadequate that users default to personal phones within the first contact.",
+          "match_type": "workaround"
+        }
+      ],
+      "user_language": "Hosts say 'they don't email' about Craigslist relay, 'text me or email either' as the immediate fallback. Communication migrates off-platform within seconds of first contact.",
+      "framework_reinforcement": "Play Bigger's flywheel requires staying in the transaction to accumulate data. Every transcript confirms Craigslist loses the interaction immediately — within the first minute of contact, communication migrates to personal phone, text, or direct email. The flywheel is not just broken; it was never constructed."
+    },
+    {
+      "disappointment_id": "disappoint-009",
+      "disappointment_title": "The Category Confusion — Room-Sharing Buried in General Classifieds",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "Steve Zhang Customer Call.txt",
+          "speaker": "guest",
+          "quote": "I decided to run like a test where I scraped a bunch of Airbnb listings and I, in, in, uh, 60 cities, it was 1200 listings in 60 cities and I just put them up on Craigslist and I said, Hey, I'm a consultant living in so-and-so. Does anyone want to stay at my space?",
+          "context": "Split Lease's founder describes the origin experiment: posting Airbnb listings on Craigslist because no category existed for medium-term room-sharing. Craigslist was the only available channel, even though it was structurally wrong for the use case.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "Steve Zhang Customer Call.txt",
+          "speaker": "guest",
+          "quote": "the responses were like, yeah, my commute is f*****g terrible and I would love to stay at your space. And I've had the same commute for the last 10 years.",
+          "context": "Users responding to Craigslist posts immediately describe the commute problem — a problem Craigslist has no category for. The demand was hidden in general classifieds because no platform had defined the category.",
+          "match_type": "unmet_expectation"
+        },
+        {
+          "transcript": "Tyler Wood 24 November 2021.txt",
+          "speaker": "guest",
+          "quote": "on Craigslist summer, you know, I just clicked search for Chelsea.",
+          "context": "Tyler found Split Lease through a Craigslist search for a specific neighborhood. His actual need (weeknight art gallery project housing) has no category on Craigslist — he searches by location because that's all the platform supports.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "joie-james-call.txt",
+          "speaker": "host",
+          "quote": "Robert's email was on Craigslist and I didn't even know at the time that this was through split fleece. And of course at first we were talking about something else he had listed there.",
+          "context": "Joie James didn't realize the Craigslist listing was from Split Lease. The category confusion is so severe that hosts can't distinguish between a platform company and an individual poster. Craigslist provides no category signals for managed room-sharing.",
+          "match_type": "direct_competitor_mention"
+        }
+      ],
+      "user_language": "Users say 'I just clicked search for Chelsea' (searching by location because no category exists), 'I didn't even know this was through Split Lease' (can't tell a platform from a person). The language reveals users navigating without a category frame.",
+      "framework_reinforcement": "Play Bigger's central thesis — 'a company that best frames a problem is the company that often comes to define and take the category' — is validated by the origin story itself. Split Lease was literally born from posting in the wrong category on Craigslist because the right category didn't exist. Steve Zhang's experiment is the empirical proof that the category is unframed: demand exists, but users have no way to express it because no platform has defined the problem."
+    },
+    {
+      "disappointment_id": "disappoint-008",
+      "disappointment_title": "The Scam Tax — Trust Labor Imposed on Every User",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I don't know if this guy is legit or what it is.",
+          "context": "Tag's opening statement. He has seen Bryant's Craigslist postings repeatedly and his default assumption is potential fraud. The entire call starts from a position of suspicion rather than interest.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "And especially with Craigslist, although my current tenant upstairs...",
+          "context": "Tag trails off mid-sentence referencing Craigslist, implying a known association between the platform and unreliability or risk. The 'especially with Craigslist' phrasing reveals the platform's reputation as a trust-deficient environment.",
+          "match_type": "emotional_moment"
+        },
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I've done Airbnb in the past, but they're just a headache to deal with.",
+          "context": "Tag has used Airbnb (which has trust infrastructure) but found it a 'headache' — now he's back on Craigslist (which has no trust infrastructure) because neither platform serves his actual use case. He's stuck between inadequate trust (Craigslist) and inadequate flexibility (Airbnb).",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "Customer call Tom.txt",
+          "speaker": "guest",
+          "quote": "if you got a call from Bryant, that is also, that is completely legit and also me Bryant. Uh, but he will mentioned my name is that that'll be the secret password to know that you're not getting some random calling.",
+          "context": "The agent creates a manual 'authentication system' — a verbal secret password — because Craigslist provides no way to verify that a follow-up call is from the same organization. This is human-built trust infrastructure filling a platform vacuum.",
+          "match_type": "workaround"
+        }
+      ],
+      "user_language": "Hosts say 'I don't know if this guy is legit,' agents say 'this is completely legit' and create 'secret passwords.' The scam tax language is about legitimacy verification performed manually because the platform provides none.",
+      "framework_reinforcement": "Play Bigger Ch 2: 'when people are threatened they seek safety in numbers.' Tag's opening posture is threat-detection mode. His System 1 has flagged the Craigslist interaction as potentially dangerous. Bryant must spend the first 90 seconds of the call disarming this threat response — time and energy that could have been spent on the actual transaction. A platform that eliminates the scam tax would reclaim that cognitive and emotional energy for productive matching."
+    },
+    {
+      "disappointment_id": "disappoint-007",
+      "disappointment_title": "The Ghost Lease — No Platform During the Actual Stay",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "robbie-call.txt",
+          "speaker": "host",
+          "quote": "how did you want to make the payment?... this have to be confirmed immediately. You feel the contract phone to, to hold any property for you out loss.",
+          "context": "Robbie demands immediate payment confirmation because Craigslist provides no payment infrastructure. His insistence on 'immediately' reflects experience with ghosting and non-payment in the Craigslist ecosystem.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "dana-call.txt",
+          "speaker": "host",
+          "quote": "since the pandemic I've had other people, not, I have never, ever, ever had a problem with the travelers. They're clean. They they're responsible. There's no questions asked they're there to get all these tenants I've just had, I've been nightmares.",
+          "context": "Dana contrasts 'travelers' (positive stay experiences) with 'tenants' who were 'nightmares' — revealing that stay quality is entirely dependent on the individual with no platform support for standards, rules, or dispute resolution.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "Hosts say 'confirmed immediately' (fear of non-payment), 'nightmares' (bad stay experiences with no platform recourse). The language reveals anxiety about unsupported stays.",
+      "framework_reinforcement": "Play Bigger's Birdseye ecosystem principle: frozen food needed freezer cars, freezer cases, and cellophane. Room-sharing needs payment processing, dispute resolution, and stay management. The transcripts show hosts manually constructing these ecosystem components (demanding immediate payment, sharing horror stories) because no platform provides them."
+    },
+    {
+      "disappointment_id": "disappoint-010",
+      "disappointment_title": "The Silent Listing — Hosts Post and Pray",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "robbie-call.txt",
+          "speaker": "host",
+          "quote": "we are receiving so many, uh, people getting these profits I've been trying to call you then.",
+          "context": "Robbie is overwhelmed by volume but has no way to prioritize or filter inquiries. Craigslist provides no analytics, no response management, no way to assess which inquiry is worth responding to.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "nakoley-renville-call.txt",
+          "speaker": "host",
+          "quote": "my husband, he's the one that created the, um, the, the ad so you wouldn't see my name On.",
+          "context": "The listing was created by the husband but the wife is managing responses — there's no shared access, no co-hosting tools, no way for multiple household members to manage a single listing. The 'post and pray' model assumes one person does everything.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "Hosts say 'so many people' (overwhelmed by unstructured inquiries), 'he created the ad' (no collaborative listing management). The language reveals hosts drowning in unmanaged demand.",
+      "framework_reinforcement": "Play Bigger's flywheel: 'as the leader amasses data, the data becomes an unfair advantage.' Hosts on Craigslist amass zero data — no view counts, no inquiry quality metrics, no conversion tracking. Each listing is a blind experiment that teaches nothing."
+    },
+    {
+      "disappointment_id": "disappoint-001",
+      "disappointment_title": "The Wall of Blue Links",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "Tyler Wood 24 November 2021.txt",
+          "speaker": "guest",
+          "quote": "on Craigslist summer, you know, I just clicked search for Chelsea. And then I saw that I saw that, uh, posting",
+          "context": "Tyler's search strategy on Craigslist: search for a neighborhood name, then click through results. No photos in results, no compatibility indicators, no commute information. He found one posting by chance in a wall of links.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "andreas-call.txt",
+          "speaker": "host",
+          "quote": "I do look at it through a rent hub or, or I'm on a Craigslist is where I found the Washington Heights apartment.",
+          "context": "Andreas uses multiple platforms (RentHub and Craigslist) simultaneously because no single platform provides adequate search. Users hedge across platforms because each one is insufficient alone.",
+          "match_type": "direct_competitor_mention"
+        }
+      ],
+      "user_language": "Users say 'I just clicked search for Chelsea' (primitive keyword search), 'I'm on Craigslist' alongside other platforms (hedging due to inadequacy). The language reveals users manually compensating for weak search.",
+      "framework_reinforcement": "Play Bigger Ch 2: the Anchoring Effect means Craigslist's primitive search has set the anchor for what room-finding search looks like. Tyler's acceptance of 'click search for Chelsea' as a viable strategy shows how low the bar is. A commute-aware, photo-rich, compatibility-driven search would redefine the anchor."
+    },
+    {
+      "disappointment_id": "disappoint-006",
+      "disappointment_title": "The Groundhog Day Problem — No Memory Across Searches",
+      "validation_strength": "weak",
+      "transcript_evidence": [
+        {
+          "transcript": "joie-james-call.txt",
+          "speaker": "host",
+          "quote": "I only saw her a couple photos. Um, I looked at him briefly because of when I originally contacted, well, first of all, Robert's email was on Craigslist and I didn't even know at the time that this was through split fleece.",
+          "context": "Joie James's experience reveals the fragmented nature of Craigslist interactions — she contacted about one listing, was redirected to another, and can barely keep track of what she saw. Every interaction is disconnected.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "Users say 'I didn't even know' and 'I only saw briefly' — revealing that Craigslist interactions are so disconnected that users lose context between contacts.",
+      "framework_reinforcement": "Play Bigger's flywheel depends on accumulated learning. Craigslist's lack of user memory means every search is a fresh start. The transcript evidence is weaker here because most calls focus on first contact, but the fragmentation pattern is visible."
+    },
+    {
+      "disappointment_id": "disappoint-002",
+      "disappointment_title": "The Freeform Wall of Text Listing",
+      "validation_strength": "weak",
+      "transcript_evidence": [
+        {
+          "transcript": "ZEIN-call.txt",
+          "speaker": "host",
+          "quote": "I see on uh, uh, Craig list it says Z per, Is that your legal name or is it",
+          "context": "Bryant is trying to extract the host's legal name from a Craigslist listing where it was partially disclosed in freeform text. The unstructured listing format means even basic identity information must be manually parsed and verified.",
+          "match_type": "direct_competitor_mention"
+        }
+      ],
+      "user_language": "Agents say 'it says [partial name]' — having to parse unstructured text to extract basic data that should be in structured fields.",
+      "framework_reinforcement": "Play Bigger Ch 2: categories provide organizing principles. Craigslist listings have no organizing principle — every piece of information must be manually extracted from freeform text."
+    }
+  ],
+  "new_discoveries": [
+    {
+      "id": "discovery-001",
+      "title": "Craigslist as Split Lease's Actual Acquisition Channel — The Bootstrap Paradox",
+      "type": "broken_promise",
+      "transcript_evidence": [
+        {
+          "transcript": "Customer call Tom.txt",
+          "speaker": "guest",
+          "quote": "Hey Tom. This is lane from Craigslist.",
+          "context": "Split Lease agent introduces herself as 'from Craigslist' — the company literally acquires users through the very platform whose inadequacies it exists to solve."
+        },
+        {
+          "transcript": "jason-call.txt",
+          "speaker": "host",
+          "quote": "Hey, this is Jason. This is Brian from Craigslist.",
+          "context": "Another agent introducing as 'from Craigslist' — this is the systematic pattern, not an exception."
+        },
+        {
+          "transcript": "Walaa customer call.txt",
+          "speaker": "guest",
+          "quote": "I'm Brian. I'm from Craigslist.",
+          "context": "Third instance of agent identifying as 'from Craigslist' — confirming this is the standard introduction."
+        },
+        {
+          "transcript": "Taline  Bryant.txt",
+          "speaker": "guest",
+          "quote": "Hi, this is Brian from Craigslist.",
+          "context": "Fourth instance confirming the pattern across multiple guests."
+        },
+        {
+          "transcript": "Stephen Petronio - 1 June 2022.txt",
+          "speaker": "guest",
+          "quote": "Hi, Stephanie, this is Robert from Craigslist",
+          "context": "Fifth instance — multiple agents, both guest and host calls, all originating from Craigslist."
+        }
+      ],
+      "relates_to_competitor": "Split Lease's current user acquisition strategy is to post on Craigslist and call respondents. This means Craigslist IS the discovery phase for both hosts and guests. The entire Split Lease funnel begins inside the very platform whose category failure Split Lease was built to solve. This creates a bootstrap paradox: the company that should be defining a new category is instead operating within the competitor's uncategorized space.",
+      "framework_analysis": "Play Bigger Ch 2: 'winning companies today market the problem, not just the solution.' Split Lease is currently marketing the solution (room listings) on Craigslist — the exact opposite of category design. The opportunity: transition from Craigslist-as-acquisition-channel to category-as-acquisition-channel. Define the hybrid worker commute problem so loudly that users seek out Split Lease directly rather than discovering it accidentally through Craigslist posts."
+    },
+    {
+      "id": "discovery-002",
+      "title": "The Airbnb Refugee Pattern — Hosts Fleeing One Category With No Designed Alternative",
+      "type": "missing_delight",
+      "transcript_evidence": [
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I've done Airbnb in the past, but they're just a headache to deal with.",
+          "context": "Tag explicitly rejects Airbnb as a 'headache' but has no alternative platform — he's back on Craigslist by default."
+        },
+        {
+          "transcript": "Steve Zhang Customer Call.txt",
+          "speaker": "guest",
+          "quote": "Airbnb at that time, um, decided that they were going to compromise what the government's sort of across the board and sell out their hosts. So they finally like gave their hosts, the host data to the governments... basically Airbnb prices went way up.",
+          "context": "Steve Zhang describes Airbnb's regulatory capitulation causing host exodus and price increases — creating displaced supply with nowhere to go."
+        },
+        {
+          "transcript": "chantel-call.txt",
+          "speaker": "host",
+          "quote": "they're not allowing Airbnb or short-term for less than 20, 29 days because it was causing problems in communities and neighborhoods, parties, et cetera.",
+          "context": "Chantel describes regulatory restrictions on Airbnb short-term rentals, forcing hosts toward longer-term models for which no designed platform exists."
+        }
+      ],
+      "relates_to_competitor": "Craigslist is the default fallback for Airbnb refugees — hosts who have been pushed out of short-term rentals by regulations or frustration. These hosts arrive on Craigslist with Airbnb-level expectations (structured listings, reviews, payment processing) and find none of it. The category gap is particularly painful for this segment because they've experienced what a designed platform looks like.",
+      "framework_analysis": "Play Bigger Ch 1: 'Sometimes, booming new categories don't disrupt anything at all.' A managed medium-term room-sharing category wouldn't kill Airbnb — it would serve Airbnb refugees who need a new category. These are users who already understand platform-mediated housing but have been ejected from the only designed category that exists. They are the most category-ready user base."
+    },
+    {
+      "id": "discovery-003",
+      "title": "The Commute Problem as Unframed Category Demand",
+      "type": "invisible_labor",
+      "transcript_evidence": [
+        {
+          "transcript": "Steve Zhang Customer Call.txt",
+          "speaker": "guest",
+          "quote": "the responses were like, yeah, my commute is f*****g terrible and I would love to stay at your space. And I've had the same commute for the last 10 years.",
+          "context": "The founder's Craigslist experiment surfaced raw commute pain: people have endured terrible commutes for a decade with no alternative because no category frames the problem."
+        },
+        {
+          "transcript": "Steve Zhang Customer Call.txt",
+          "speaker": "guest",
+          "quote": "a lot of the customer discovery said that the people who want to rent these places are the people who would otherwise, um, either be using their cars or staying in hotels.",
+          "context": "Users currently 'solve' the commute problem through cars or hotels — expensive, inefficient workarounds that nobody categorizes as housing alternatives."
+        },
+        {
+          "transcript": "Copy of Call with Tom C guest.txt",
+          "speaker": "guest",
+          "quote": "I'm also trying to, you know, kind of see if that makes sense because it could be that I want to stay in the, I think kind of like super commute.",
+          "context": "Tom C is actively deliberating between a 'super commute' and a split lease — the exact decision point where category framing would be decisive."
+        }
+      ],
+      "relates_to_competitor": "Craigslist cannot surface commute-motivated searches because its taxonomy has no concept of 'commute problem.' The search is location-based and property-type-based, not problem-based. Users who arrive on Craigslist driven by commute pain must translate their actual need ('reduce my commute cost') into Craigslist's language ('find a room in [city]'). The translation loses the problem frame entirely.",
+      "framework_analysis": "Play Bigger Ch 2: 'winning companies today market the problem, not just the solution.' The commute problem is the category's defining problem, and it has never been framed by any platform. Users have lived with it for 10+ years (per Steve Zhang's evidence). The first platform to say 'your commute is a solvable problem — here's how' would define the category and become king."
+    }
+  ],
+  "library_connections": [
+    {
+      "disappointment_id": "disappoint-004",
+      "existing_element_id": "works-004",
+      "connection": "works-004 ('Bridge Human Trust to Digital Trust Through Continuity Priming') directly addresses the trust vacuum identified in disappoint-004. The element prescribes using the agent's name and photo on the platform, referencing the call on first login, and designing the digital experience to echo the human interaction. This is exactly the trust infrastructure Craigslist lacks.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-004",
+      "existing_element_id": "works-001",
+      "connection": "works-001 ('System 1 Trust Gate at Every Phase Transition') addresses the trust assessment at each new context. Tag's skeptical opening ('I don't know if this guy is legit') is a System 1 threat response that this element is designed to preempt through visual consistency and continuity signals.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-003",
+      "existing_element_id": "works-003",
+      "connection": "works-003 ('Match Platform Cognitive Speed to Phone Call Speed') addresses the efficiency gap. Craigslist's email-into-the-void forces users through slow, unstructured communication. The element prescribes matching conversational speed, which would replace the void with responsive, structured interaction.",
+      "gap_or_reinforcement": "partial"
+    },
+    {
+      "disappointment_id": "disappoint-009",
+      "existing_element_id": "works-002",
+      "connection": "works-002 ('Design for the Depleted User') addresses cognitive overload from multi-step processes. The category confusion (disappoint-009) creates additional cognitive load because users must first figure out WHERE to look before they can look. The depleted user principle applies but doesn't specifically address category-level confusion.",
+      "gap_or_reinforcement": "gap"
+    }
+  ],
+  "transcripts_scanned": {
+    "host_count": 48,
+    "guest_count": 20,
+    "transcripts_with_matches": [
+      "andreas-call.txt",
+      "tag-call .txt",
+      "robbie-call.txt",
+      "ZEIN-call.txt",
+      "nakoley-renville-call.txt",
+      "jason-call.txt",
+      "paul-call.txt",
+      "keah-call.txt",
+      "gregory-stanford-call.txt",
+      "stephanie-call.txt",
+      "joie-coelho-call.txt",
+      "joie-james-call.txt",
+      "ken-chang-call.txt",
+      "cristina-call.txt",
+      "dana-call.txt",
+      "anthony-call.txt",
+      "chantel-call.txt",
+      "Customer call Tom.txt",
+      "Steve Zhang Customer Call.txt",
+      "Tyler Wood 24 November 2021.txt",
+      "Taline  Bryant.txt",
+      "Walaa customer call.txt",
+      "Stephen Petronio - 1 June 2022.txt",
+      "Copy of Call with Tom C guest.txt"
+    ],
+    "transcripts_without_matches": [
+      "david-call.txt",
+      "deedra-call.txt",
+      "diane-kaufhold-call.txt",
+      "dimitri-call.txt",
+      "drew-call.txt",
+      "gale-grant-call.txt",
+      "hemeden-call.txt",
+      "herbert-call.txt",
+      "jessica-filomeno-call.txt",
+      "john-call.txt",
+      "jonathan-kim-call.txt",
+      "june-call.txt",
+      "kelly-call.txt",
+      "kent-call.txt",
+      "kris-call.txt",
+      "lilly-call.txt",
+      "louise-call.txt",
+      "luci-chambers-call.txt",
+      "mahesh-call.txt",
+      "malvern-call.txt",
+      "michael-spear-call.txt",
+      "nneka-call.txt",
+      "patricia-call-1.txt",
+      "patricia-call-2.txt",
+      "rami-call.txt",
+      "ramsey-call.txt",
+      "scott-white-call.txt",
+      "sherene-call.txt",
+      "shirley-call.txt",
+      "tammy-call.txt",
+      "toni-call.txt",
+      "Customer call- Vince.txt",
+      "Frederick_s Customer Call with Vale.txt",
+      "nneka-call.txt",
+      "Shomit Ghosh - 8 April 2022.txt",
+      "Sophie Charvet - 18 April 2022.txt",
+      "Steven Mariscal - 21 April 2022.txt",
+      "Susan  Bryant customer call.txt",
+      "Tamycka initial phone call.txt",
+      "Tapper S - 9 September 2022.txt",
+      "Theodore Matthews.txt",
+      "William Romano.txt",
+      "Zella Myers - 1 July 2022.txt",
+      "zella-myers-call.txt"
+    ]
+  }
+}</script>
+  <!-- INJECT:layer-3 -->
+  <script id="data-layer-3" type="application/json">{
+  "lens": {
+    "competitor": "craigslist",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "opportunity_thesis": "Craigslist is the incumbent channel, but not the category king of this problem. The evidence shows users already feel the unframed pain (terrible recurring commutes, trust anxiety, and post-contact chaos), while Play Bigger says the company that frames the problem and builds the ecosystem wins the category. Split Lease's highest-value move is to stop competing inside classifieds UX and instead define and dominate a new category: managed, trust-backed, recurring room-sharing for hybrid workers.",
+  "opportunities": [
+    {
+      "id": "opp-001",
+      "title": "Commute Cost Category Frame",
+      "based_on_disappointments": [
+        "disappoint-009",
+        "disappoint-001"
+      ],
+      "split_lease_phases": [
+        "discovery",
+        "search",
+        "evaluation"
+      ],
+      "the_signature": "Make discovery start with the commute problem, not a room search. Split Lease becomes the first housing platform that quantifies hybrid-work commute pain up front (time + cash + energy), then reframes room-sharing as a recurring commute solution rather than a property hunt. The signature moment is users saying, 'I came for a room and discovered I had a solvable financial/lifestyle problem.'",
+      "why_competitors_wont_copy": "Craigslist's core model is horizontal classifieds and cannot credibly pivot to a strong category POV without breaking its neutral, generic structure. Airbnb is optimized for short-stay travel economics, not recurring partial-week commuting patterns, so this framing would conflict with its current category identity and monetization logic.",
+      "behavioral_framework_case": "Play Bigger Ch 2 states that the company that best frames the problem often defines and takes the category, and that winning companies market the problem, not just the solution. The Anchoring Effect implies that whoever sets the initial frame ('commute problem') controls how all alternatives are judged afterward.",
+      "user_evidence": "Steve Zhang transcript: demand response was 'my commute is f*****g terrible and I would love to stay at your space... same commute for 10 years.' Tyler Wood transcript: 'I just clicked search for Chelsea' shows users forced into location-only search because no category frame exists for recurring commute relief.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "straightforward",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not reduce this to ad copy; the problem frame must be the actual front door experience.",
+        "Do not bury the frame behind account creation; problem education must happen before signup.",
+        "Do not present this as generic affordability messaging; it must stay specific to recurring commute pain."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "works-004",
+          "works-003"
+        ],
+        "gap_assessment": "Partial overlap. Existing elements cover trust continuity and interaction speed after contact, but they do not define a pre-contact category-level problem frame. This opportunity is largely net-new at the category-design layer."
+      }
+    },
+    {
+      "id": "opp-002",
+      "title": "Trust Ledger Across the Full Match Cycle",
+      "based_on_disappointments": [
+        "disappoint-004",
+        "disappoint-008",
+        "disappoint-003"
+      ],
+      "split_lease_phases": [
+        "listing_evaluation",
+        "proposal_creation",
+        "negotiation",
+        "acceptance",
+        "active_lease"
+      ],
+      "the_signature": "Build an accumulating trust ledger that starts before first contact and compounds through the stay: verified identity and income signals, response reliability, payment reliability, and stay-period behavior signals. Instead of a single static badge or one-time review, users see a living trust narrative over time. The signature is replacing 'is this legit?' with measurable, portable trust continuity at each step.",
+      "why_competitors_wont_copy": "Craigslist exits after listing/reply and lacks the transactional presence needed to generate trust-event data, so it cannot cheaply create a compounding ledger. Copying this would require deep product, policy, and operational changes that conflict with its low-intervention classifieds model.",
+      "behavioral_framework_case": "Play Bigger Ch 2's Groupthink Bias and safety-in-numbers dynamic explain why trust visibility changes behavior. Ch 1's ecosystem lesson (Birdseye built the missing infrastructure) applies directly: trust in this category is not a feature, it is category infrastructure.",
+      "user_evidence": "Tag call: 'I don't know if this guy is legit or what it is.' Customer call Tom: agents use a 'secret password' to prove callback legitimacy. Cristina call: agent manually explains verification stack (employment, income, references, credit, ID), proving users require this infrastructure and Craigslist does not provide it.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not collapse trust into a binary 'verified' checkmark.",
+        "Do not make verification a one-time gate; trust must update through interaction history.",
+        "Do not over-index on punitive controls that raise friction without adding user-visible safety clarity."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "works-001",
+          "works-004",
+          "guest-feels-001",
+          "guest-feels-002"
+        ],
+        "gap_assessment": "Strong reinforcement on trust transitions and continuity, but incomplete on a cross-phase, compounding trust ledger model. Existing library supports pieces; this opportunity integrates them into a category-defining system."
+      }
+    },
+    {
+      "id": "opp-003",
+      "title": "Structured Proposal and Response Protocol",
+      "based_on_disappointments": [
+        "disappoint-003",
+        "disappoint-005",
+        "disappoint-002"
+      ],
+      "split_lease_phases": [
+        "proposal_creation",
+        "proposal_mgmt",
+        "negotiation",
+        "acceptance"
+      ],
+      "the_signature": "Replace freeform email chaos with a structured proposal protocol: every inquiry arrives in comparable format (dates, weekly pattern, budget, identity proof level, move constraints), hosts respond with clear state transitions (accept, counter, decline, waitlist), and both sides retain persistent context. The signature is turning the current black box ('email into void') into a reliable negotiation instrument.",
+      "why_competitors_wont_copy": "Craigslist's value proposition is minimal mediation; introducing structured negotiation would require identity-state, workflow-state, and inbox-state primitives absent from its architecture and brand stance. Competitors built for one-off listings also avoid this because structured protocol increases product and support complexity.",
+      "behavioral_framework_case": "Play Bigger Ch 2 highlights category need for organizing principles and reduced cognitive overload. Structured protocol converts unbounded choice and ambiguity into governed decisions, which changes perceived category quality more than adding isolated UI improvements.",
+      "user_evidence": "Robbie call: listing link and photos disappeared, breaking continuity mid-conversation. Nakoley call: 'went through Craigslist email, so I cannot recognize' identifies identity/context loss. Stephanie call: only relay email visible, no dependable direct communication thread.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "natural_fit"
+      },
+      "anti_patterns": [
+        "Do not mimic generic chat; the core value is structured comparability and state clarity.",
+        "Do not force long forms before intent is established; protocol should be progressive.",
+        "Do not hide response expectations; explicit timing and status visibility are mandatory."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "works-003",
+          "works-002",
+          "communicates-002"
+        ],
+        "gap_assessment": "Partial overlap on cognitive speed and reduced mental load, but no complete host-guest proposal protocol exists in library as a single system. This is a meaningful gap with reusable downstream design implications."
+      }
+    },
+    {
+      "id": "opp-004",
+      "title": "Active-Stay Operating Layer",
+      "based_on_disappointments": [
+        "disappoint-007",
+        "disappoint-006",
+        "disappoint-005"
+      ],
+      "split_lease_phases": [
+        "move_in",
+        "active_lease",
+        "retention"
+      ],
+      "the_signature": "Own the part Craigslist abandons: the actual stay. Deliver a shared operating layer for recurring stays (schedule changes, payment state, issue handling, trust updates, and end-of-stay memory) so each cycle gets easier, not reset to zero. The signature is visible continuity: users feel the platform remembers and manages the relationship over time.",
+      "why_competitors_wont_copy": "Craigslist cannot capture active-stay data because communication leaves the platform immediately. Building this layer would force deep operational responsibility (payments, disputes, policy adjudication) that its lightweight classifieds model avoids by design.",
+      "behavioral_framework_case": "Play Bigger Ch 1's flywheel argument is direct: leaders compound data and widen advantage. An active-stay layer generates the unique behavioral and reliability data that powers compounding matching quality, trust, and retention in this category.",
+      "user_evidence": "Robbie call: urgency around immediate payment confirmation signals absence of infrastructure. Dana call: 'nightmares' with tenants highlights unsupported stays. Multiple calls show immediate migration to personal texting, proving no system-level memory or management once contact starts.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "moderate",
+        "framework_support": "strong",
+        "feasibility": "ambitious",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not ship this as disconnected utilities; it must function as one operating layer.",
+        "Do not center only host controls; shared visibility for both sides is required.",
+        "Do not treat retention as email reminders; retention comes from operational memory and reduced repeat effort."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "guest-works-001",
+          "guest-works-002",
+          "guest-works-003",
+          "guest-works-004",
+          "works-002"
+        ],
+        "gap_assessment": "Strong overlap around guest workflow and cognitive load patterns, but the host-guest integrated active-stay operating model remains only partially defined. High leverage for unifying existing pieces into a flywheel-capable layer."
+      }
+    }
+  ],
+  "opportunity_ranking": [
+    {
+      "id": "opp-001",
+      "rank": 1,
+      "reason": "It defines the category boundary. Without owning the commute problem frame, all downstream work reads as incremental classifieds improvement instead of new-category leadership."
+    },
+    {
+      "id": "opp-002",
+      "rank": 2,
+      "reason": "Trust is the dominant adoption blocker validated directly in transcripts. Solving trust structurally unlocks conversion across every subsequent phase."
+    },
+    {
+      "id": "opp-003",
+      "rank": 3,
+      "reason": "It removes the highest-friction operational break ('email into void') and creates predictable conversion mechanics that competitors structurally avoid."
+    },
+    {
+      "id": "opp-004",
+      "rank": 4,
+      "reason": "It is the strongest long-term moat and flywheel, but it depends on winning framing and trust first; otherwise activation and adoption stay constrained."
+    }
+  ],
+  "strategic_narrative": "These opportunities form a deliberate category-creation sequence, not a feature backlog. First, Split Lease reframes demand around a neglected problem (recurring commute burden) so users enter with a new mental model. Second, it replaces Craigslist's trust vacuum with a compounding trust system that makes participation feel institutionally safe rather than personally risky.\n\nWith framing and trust in place, Split Lease can standardize the transaction core through structured proposals and response states, removing ambiguity and lost context from the highest-friction moment. Finally, it captures the active-stay phase where value and data actually compound, creating the flywheel Craigslist cannot access.\n\nIf executed together, Split Lease stops being 'Craigslist plus nicer UX' and becomes the category king candidate for managed recurring room-sharing: the company that defined the problem, built the missing ecosystem, and accumulated the behavioral data advantage that makes the category self-reinforcing."
+}</script>
+  <!-- INJECT:layer-4 -->
+  <script id="data-layer-4" type="application/json">{
+  "lens": {
+    "competitor": "craigslist",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "elements": [
+    {
+      "id": "rb-ui-101",
+      "name": "Commute Impact Snapshot Hero",
+      "category": "section",
+      "opportunity_id": "opp-001",
+      "source_disappointments": [
+        "disappoint-009",
+        "disappoint-001"
+      ],
+      "journey_phases": [
+        "discovery",
+        "search",
+        "evaluation"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It reframes discovery from generic room browsing to a quantified commute-cost problem users can immediately recognize and act on.",
+      "why_this_is_a_signature": "Craigslist starts with listings; Split Lease starts with the economic pain of hybrid commuting and then routes users into room-sharing as the category answer.",
+      "description": "This hero section calculates and visualizes a user's current weekly commute burden versus a nearby split-lease option. It presents savings in dollars, hours, and stress in one glance, then recommends matching neighborhoods and days-of-week patterns. The component acts as a category-creation front door by making users say, 'This is my problem.'",
+      "visual_spec": {
+        "layout": "Two-column grid (insight panel + action panel) in a 960px max-width container; collapses to one column on mobile.",
+        "background": "Gradient surface using bg-off-white to white with subtle radial purple glow.",
+        "border": "1px solid var(--border-color) with inner highlight line in rgba(140,104,238,0.3).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 28px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "24px",
+          "gap": "16px"
+        },
+        "color_usage": "Primary purple anchors trust and category framing; secondary purple drives key numbers and actions; accent purple highlights deltas and opportunity tags."
+      },
+      "interaction_spec": {
+        "default_state": "User sees commute baseline, split-lease scenario, and a primary CTA to view matched rooms near office days.",
+        "hover": "Savings tiles lift by 2px with purple shadow and stronger accent ring.",
+        "click": "CTA opens filtered inventory for selected office area and weekday pattern.",
+        "animation": "Load-in uses 300ms fade-up; number counters animate over 700ms ease-out.",
+        "responsive": "Cards stack vertically; CTA spans full width; metric tiles switch from 3 columns to 1 column under 600px."
+      },
+      "copy_spec": {
+        "primary_text": "Your 3-day office commute is costing $1,184/month",
+        "secondary_text": "Switch to a Split Lease near Flatiron for Mon-Wed and cut 37 commuting hours this month.",
+        "micro_copy": "Buttons: 'Show rooms near 23rd St', 'Adjust my office days'. Helper: 'Based on 12 round trips from Jersey City + current transit costs.'",
+        "do": [
+          "Use concrete money-and-time numbers before talking about listings.",
+          "Speak in recurring weekly patterns (Mon-Wed, Tue-Thu), not one-time trips.",
+          "Keep the frame on solved pain, not generic affordability."
+        ],
+        "dont": [
+          "Do not open with property inventory counts.",
+          "Do not use vague claims like 'save big'.",
+          "Do not force signup before showing the first savings estimate."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Commute Impact Snapshot Hero</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --primary-purple-hover: #251047;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-description: #374151;\n  --text-gray: #6b7280;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n  --shadow-purple-lg: 0 6px 20px rgba(109, 49, 194, 0.35);\n}\n* { box-sizing: border-box; margin: 0; padding: 0; }\nbody {\n  font-family: 'DM Sans', sans-serif;\n  background: radial-gradient(circle at 20% 0%, rgba(140,104,238,0.12), transparent 35%), var(--bg-off-white);\n  color: var(--text-dark);\n  padding: 24px;\n}\n.hero {\n  max-width: 960px;\n  margin: 0 auto;\n  display: grid;\n  grid-template-columns: 1.2fr 1fr;\n  gap: 16px;\n  background: linear-gradient(180deg, var(--bg-off-white) 0%, var(--bg-white) 60%);\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-xl);\n  padding: 24px;\n  box-shadow: var(--shadow-purple-md);\n}\n.kicker {\n  display: inline-flex;\n  background: rgba(109,49,194,0.12);\n  color: var(--secondary-purple);\n  border-radius: var(--rounded-pill);\n  padding: 6px 10px;\n  font: 600 12px 'Inter', sans-serif;\n  margin-bottom: 10px;\n}\nh1 {\n  font: 700 28px/1.2 'Inter', sans-serif;\n  color: var(--primary-purple);\n  margin-bottom: 10px;\n}\n.sub {\n  font: 400 14px/1.5 'DM Sans', sans-serif;\n  color: var(--text-description);\n  margin-bottom: 16px;\n}\n.metrics {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 10px;\n}\n.metric {\n  background: var(--bg-white);\n  border: 1px solid rgba(109,49,194,0.2);\n  border-radius: var(--rounded-lg);\n  padding: 12px;\n  transition: 0.2s ease;\n}\n.metric:hover { transform: translateY(-2px); box-shadow: var(--shadow-purple-sm); }\n.metric .label { font: 600 11px 'Inter', sans-serif; color: var(--text-gray); margin-bottom: 4px; }\n.metric .value { font: 700 18px 'Inter', sans-serif; color: var(--secondary-purple); }\n.panel {\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-xl);\n  padding: 16px;\n  box-shadow: var(--shadow-purple-sm);\n}\n.panel h2 { font: 700 18px 'Inter', sans-serif; color: var(--primary-purple); margin-bottom: 10px; }\n.row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-description); margin-bottom: 8px; }\n.delta { color: var(--secondary-purple); font-weight: 600; }\n.cta {\n  margin-top: 12px;\n  width: 100%;\n  min-height: 48px;\n  border: none;\n  border-radius: var(--rounded-pill);\n  background: linear-gradient(135deg, var(--secondary-purple), var(--accent-purple));\n  color: #fff;\n  font: 600 14px 'Inter', sans-serif;\n  cursor: pointer;\n  box-shadow: var(--shadow-purple-lg);\n  transition: 0.2s ease;\n}\n.cta:hover { background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple)); }\n@media (max-width: 600px) {\n  .hero { grid-template-columns: 1fr; padding: 16px; }\n  .metrics { grid-template-columns: 1fr; }\n}\n</style>\n</head>\n<body>\n  <section class='hero'>\n    <div>\n      <span class='kicker'>Category Frame: Commute Cost</span>\n      <h1>Your 3-day office commute is costing $1,184/month</h1>\n      <p class='sub'>If you stayed near your Flatiron office Monday-Wednesday, you could cut 37 hours of monthly travel and save an estimated $436.</p>\n      <div class='metrics'>\n        <div class='metric'><div class='label'>Current Monthly Cost</div><div class='value'>$1,184</div></div>\n        <div class='metric'><div class='label'>Split Lease Estimate</div><div class='value'>$748</div></div>\n        <div class='metric'><div class='label'>Time Recovered</div><div class='value'>37 hrs</div></div>\n      </div>\n    </div>\n    <aside class='panel'>\n      <h2>Your best-fit setup</h2>\n      <div class='row'><span>Office Days</span><strong>Mon-Wed</strong></div>\n      <div class='row'><span>Target Area</span><strong>Flatiron / Gramercy</strong></div>\n      <div class='row'><span>Commute Reduction</span><strong class='delta'>-62%</strong></div>\n      <div class='row'><span>Suggested Budget</span><strong>$700-$900 / month</strong></div>\n      <button class='cta'>Show rooms near 23rd St</button>\n    </aside>\n  </section>\n</body>\n</html>",
+      "before_after": {
+        "before": "Craigslist discovery starts in property-type buckets and blue links, so users must translate commute pain into manual neighborhood searching.",
+        "after": "Split Lease starts with quantified commute burden and then routes users into schedule-matched inventory as the direct solution."
+      },
+      "implements_principles": [
+        "opp-001",
+        "disappoint-009",
+        "disappoint-001"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "rb-ui-102",
+      "name": "Progressive Trust Ledger Card",
+      "category": "card",
+      "opportunity_id": "opp-002",
+      "source_disappointments": [
+        "disappoint-004",
+        "disappoint-008",
+        "disappoint-003"
+      ],
+      "journey_phases": [
+        "listing_evaluation",
+        "proposal_creation",
+        "negotiation",
+        "acceptance",
+        "active_lease"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It replaces binary, guesswork trust with an accumulating, legible trust history that updates from pre-contact through active stay.",
+      "why_this_is_a_signature": "Competitors offer anonymity or static badges; this element shows trust as a live timeline of verified events and reliability behavior.",
+      "description": "This card appears on listing and proposal surfaces to show both host and guest trust progression. It combines identity verification, response reliability, payment consistency, and stay behavior milestones in one compact ledger view. Users can inspect evidence and timestamps instead of relying on gut feel.",
+      "visual_spec": {
+        "layout": "Vertical card with header, score strip, and four timeline nodes using left-rail progression.",
+        "background": "White card with subtle purple top gradient.",
+        "border": "1px solid var(--border-color) with 2px top border in var(--secondary-purple).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 16px, 700, var(--primary-purple)",
+          "body": "DM Sans, 13px, 400, var(--text-description)",
+          "accent": "Inter, 11px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "12px"
+        },
+        "color_usage": "Secondary purple marks verified nodes; accent purple marks in-progress nodes; muted gray marks upcoming trust events."
+      },
+      "interaction_spec": {
+        "default_state": "Shows trust level summary and current node status with visible evidence count.",
+        "hover": "Node rows raise contrast and show inline source details.",
+        "click": "Clicking a node opens a mini detail drawer with verification method and date.",
+        "animation": "Timeline nodes animate in staggered 80ms intervals; active node pulse loops every 3s.",
+        "responsive": "On mobile, trust score and nodes stack with full-width tappable rows (48px min height)."
+      },
+      "copy_spec": {
+        "primary_text": "Split Lease Trust Ledger",
+        "secondary_text": "Trust built across 5 verified events, not one profile badge.",
+        "micro_copy": "Nodes: 'ID + income verified', 'Responds in 2.1h average', 'Payment reliability 100%', '2 completed stays with no disputes'.",
+        "do": [
+          "Show evidence source and recency for every trust claim.",
+          "Use plain language for what each verification means in practice.",
+          "Keep trust progression visible in both listing and proposal contexts."
+        ],
+        "dont": [
+          "Do not collapse trust to a single checkmark.",
+          "Do not show private raw financial details.",
+          "Do not hide unresolved trust steps."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Progressive Trust Ledger Card</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-description: #374151;\n  --text-gray: #6b7280;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n}\n* { box-sizing: border-box; margin: 0; padding: 0; }\nbody {\n  font-family: 'DM Sans', sans-serif;\n  background: var(--bg-off-white);\n  padding: 24px;\n  display: flex;\n  justify-content: center;\n}\n.card {\n  width: 100%;\n  max-width: 430px;\n  background: linear-gradient(180deg, rgba(140,104,238,0.08), #fff 22%);\n  border: 1px solid var(--border-color);\n  border-top: 2px solid var(--secondary-purple);\n  border-radius: var(--rounded-xl);\n  padding: 20px;\n  box-shadow: var(--shadow-purple-md);\n}\n.title { font: 700 16px 'Inter', sans-serif; color: var(--primary-purple); }\n.sub { margin-top: 4px; font-size: 13px; color: var(--text-gray); }\n.score {\n  margin-top: 12px;\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 12px;\n  border-radius: var(--rounded-pill);\n  background: rgba(109,49,194,0.12);\n  color: var(--secondary-purple);\n  font: 600 12px 'Inter', sans-serif;\n}\n.timeline {\n  margin-top: 14px;\n  border-left: 2px solid rgba(109,49,194,0.25);\n  padding-left: 12px;\n  display: grid;\n  gap: 10px;\n}\n.node {\n  background: #fff;\n  border: 1px solid rgba(109,49,194,0.2);\n  border-radius: 8px;\n  padding: 10px;\n  min-height: 48px;\n  transition: 0.2s ease;\n}\n.node:hover { box-shadow: var(--shadow-purple-sm); transform: translateX(1px); }\n.node .head { font: 600 12px 'Inter', sans-serif; color: var(--primary-purple); margin-bottom: 2px; }\n.node .meta { font-size: 12px; color: var(--text-description); }\n.node.pending { border-style: dashed; opacity: 0.9; }\n.pulse { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-purple); margin-right: 6px; animation: beat 3s infinite; }\n@keyframes beat { 0%,100%{transform:scale(1);} 50%{transform:scale(1.35);} }\n@media (max-width: 600px) { .card { padding: 16px; } }\n</style>\n</head>\n<body>\n  <article class='card'>\n    <h2 class='title'>Split Lease Trust Ledger</h2>\n    <p class='sub'>Trust built across verified events, not anonymous posts.</p>\n    <div class='score'><span class='pulse'></span>Ledger Strength: 4 / 5 events complete</div>\n    <div class='timeline'>\n      <div class='node'>\n        <div class='head'>ID + income verified</div>\n        <div class='meta'>Verified Feb 14 via Plaid + document check</div>\n      </div>\n      <div class='node'>\n        <div class='head'>Response reliability</div>\n        <div class='meta'>Average first response 2.1h across 18 inquiries</div>\n      </div>\n      <div class='node'>\n        <div class='head'>Payment reliability</div>\n        <div class='meta'>4/4 on-time weekly payments in current cycle</div>\n      </div>\n      <div class='node pending'>\n        <div class='head'>Post-stay behavior review</div>\n        <div class='meta'>Unlocks after first completed lease cycle</div>\n      </div>\n    </div>\n  </article>\n</body>\n</html>",
+      "before_after": {
+        "before": "Craigslist gives users no identity history, no reliability data, and no cumulative trust signal beyond freeform text.",
+        "after": "Split Lease surfaces a live trust ledger with timestamped verification and behavior events that compound across the match cycle."
+      },
+      "implements_principles": [
+        "opp-002",
+        "disappoint-004",
+        "disappoint-008",
+        "disappoint-003"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "rb-ui-103",
+      "name": "Structured Proposal Composer",
+      "category": "form",
+      "opportunity_id": "opp-003",
+      "source_disappointments": [
+        "disappoint-003",
+        "disappoint-005",
+        "disappoint-002"
+      ],
+      "journey_phases": [
+        "proposal_creation",
+        "proposal_mgmt",
+        "negotiation",
+        "acceptance"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It replaces the unstructured email void with a comparable proposal format and explicit response states for both sides.",
+      "why_this_is_a_signature": "Instead of chat-like freeform messaging, this creates a negotiation protocol with structured fields, delivery certainty, and next-state clarity.",
+      "description": "This form is the first message and negotiation instrument in one component. Guests submit dates, weekly pattern, budget, profile confidence, and constraints in a host-friendly summary block. Hosts then respond using clear states (accept, counter, decline, waitlist) with expected timing visible to both parties.",
+      "visual_spec": {
+        "layout": "Single-column proposal form with grouped blocks and sticky summary/action footer.",
+        "background": "White form card on off-white surface with light purple section dividers.",
+        "border": "1px solid var(--border-color) with focus ring in rgba(109,49,194,0.18).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 18px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "14px"
+        },
+        "color_usage": "Secondary purple indicates completion and active fields; accent purple marks counter-offer hints; neutral grays hold supporting metadata."
+      },
+      "interaction_spec": {
+        "default_state": "Core fields visible with prefill from profile and disabled submit until required fields are complete.",
+        "hover": "Field groups get subtle purple border lift; state chips brighten.",
+        "click": "Selecting dates/pattern updates summary in real time; submit transitions to Delivered state with timestamp.",
+        "animation": "Field completion check appears with 150ms fade; submit success uses 220ms scale-in chip.",
+        "responsive": "Mobile uses full-width controls and fixed bottom action bar with 48px minimum tap targets."
+      },
+      "copy_spec": {
+        "primary_text": "Send a structured proposal to Priya",
+        "secondary_text": "Hosts respond faster when dates, schedule, and budget are clear up front.",
+        "micro_copy": "States: 'Delivered', 'Host reviewing', 'Counter received', 'Accepted'. Buttons: 'Send proposal', 'Save draft', 'Counter terms'.",
+        "do": [
+          "Pre-fill known identity and work schedule details.",
+          "Show host response expectation before submit.",
+          "Use explicit state language after submit."
+        ],
+        "dont": [
+          "Do not drop users into an empty text box.",
+          "Do not hide delivery or read status.",
+          "Do not require long-form writing to submit first intent."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Structured Proposal Composer</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-description: #374151;\n  --text-gray: #6b7280;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n}\n* { box-sizing: border-box; margin: 0; padding: 0; }\nbody {\n  font-family: 'DM Sans', sans-serif;\n  background: var(--bg-off-white);\n  padding: 24px;\n  display: flex;\n  justify-content: center;\n}\n.form-card {\n  width: 100%;\n  max-width: 560px;\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-xl);\n  box-shadow: var(--shadow-purple-md);\n  overflow: hidden;\n}\n.header {\n  padding: 18px 20px;\n  background: linear-gradient(180deg, rgba(140,104,238,0.12), transparent);\n  border-bottom: 1px solid var(--border-color);\n}\n.header h2 { font: 700 18px 'Inter', sans-serif; color: var(--primary-purple); margin-bottom: 4px; }\n.header p { font-size: 13px; color: var(--text-gray); }\n.body { padding: 20px; display: grid; gap: 12px; }\n.group {\n  border: 1px solid rgba(109,49,194,0.2);\n  border-radius: var(--rounded-lg);\n  padding: 12px;\n}\n.label { font: 600 12px 'Inter', sans-serif; color: var(--secondary-purple); margin-bottom: 8px; }\n.row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }\ninput, select {\n  width: 100%;\n  min-height: 48px;\n  border: 1px solid var(--border-color);\n  border-radius: 8px;\n  padding: 10px;\n  font-family: 'DM Sans', sans-serif;\n}\ninput:focus, select:focus { outline: none; border-color: var(--secondary-purple); box-shadow: 0 0 0 3px rgba(109,49,194,0.15); }\n.states { display: flex; gap: 8px; flex-wrap: wrap; }\n.chip {\n  border: 1px solid rgba(109,49,194,0.35);\n  color: var(--secondary-purple);\n  background: rgba(109,49,194,0.08);\n  border-radius: var(--rounded-pill);\n  padding: 6px 10px;\n  font: 600 11px 'Inter', sans-serif;\n}\n.footer {\n  padding: 14px 20px;\n  border-top: 1px solid var(--border-color);\n  display: flex;\n  gap: 10px;\n  justify-content: flex-end;\n}\n.btn {\n  min-height: 48px;\n  border-radius: var(--rounded-pill);\n  border: 1px solid var(--border-color);\n  padding: 0 14px;\n  font: 600 13px 'Inter', sans-serif;\n  cursor: pointer;\n}\n.btn.primary {\n  border: none;\n  color: #fff;\n  background: linear-gradient(135deg, var(--secondary-purple), var(--accent-purple));\n  box-shadow: var(--shadow-purple-sm);\n}\n@media (max-width: 600px) {\n  .row { grid-template-columns: 1fr; }\n  .footer { position: sticky; bottom: 0; background: #fff; }\n  .btn { flex: 1; }\n}\n</style>\n</head>\n<body>\n  <section class='form-card'>\n    <header class='header'>\n      <h2>Send a structured proposal to Priya</h2>\n      <p>Priya usually responds within 6 hours on weekdays.</p>\n    </header>\n    <div class='body'>\n      <div class='group'>\n        <div class='label'>Stay Pattern</div>\n        <div class='row'>\n          <select><option>Mon-Wed nights</option></select>\n          <select><option>8 weeks</option></select>\n        </div>\n      </div>\n      <div class='group'>\n        <div class='label'>Dates + Budget</div>\n        <div class='row'>\n          <input value='Start: Mar 4, 2026' />\n          <input value='Budget: $880 / month' />\n        </div>\n      </div>\n      <div class='group'>\n        <div class='label'>Context for Host</div>\n        <input value='Hybrid product lead, in office Tue-Thu, non-smoker, quiet evenings.' />\n      </div>\n      <div class='group'>\n        <div class='label'>Proposal Status Protocol</div>\n        <div class='states'>\n          <span class='chip'>Delivered</span>\n          <span class='chip'>Host Reviewing</span>\n          <span class='chip'>Counter</span>\n          <span class='chip'>Accepted</span>\n        </div>\n      </div>\n    </div>\n    <footer class='footer'>\n      <button class='btn'>Save draft</button>\n      <button class='btn primary'>Send proposal</button>\n    </footer>\n  </section>\n</body>\n</html>",
+      "before_after": {
+        "before": "Craigslist sends users to anonymous relay email with no structured content, no delivery certainty, and no visible negotiation state.",
+        "after": "Split Lease captures proposals in a normalized format and tracks them through explicit lifecycle states both sides can see."
+      },
+      "implements_principles": [
+        "opp-003",
+        "disappoint-003",
+        "disappoint-005",
+        "disappoint-002"
+      ],
+      "effort": "large"
+    },
+    {
+      "id": "rb-ui-104",
+      "name": "Active Stay Operations Board",
+      "category": "section",
+      "opportunity_id": "opp-004",
+      "source_disappointments": [
+        "disappoint-007",
+        "disappoint-006",
+        "disappoint-005"
+      ],
+      "journey_phases": [
+        "move_in",
+        "active_lease",
+        "retention"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It prevents the post-contact drop-off by giving hosts and guests one shared operating layer for payments, date changes, issues, and continuity memory.",
+      "why_this_is_a_signature": "Competitors abandon the relationship at listing/contact; this board makes the actual stay a managed, data-generating phase with compounding convenience.",
+      "description": "This board sits in Stays Manager and coordinates all active-lease operations in a single timeline surface. It includes current week plan, payment state, issue queue, and next-cycle date controls with role ownership labels. The board keeps both parties aligned and preserves memory for faster repeat cycles.",
+      "visual_spec": {
+        "layout": "Three-column desktop board (timeline, operations, memory) that collapses to stacked cards on mobile.",
+        "background": "Off-white page with white cards and purple-highlighted active row.",
+        "border": "Cards use 1px var(--border-color); active row uses 2px left border in var(--secondary-purple).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 20px, 700, var(--primary-purple)",
+          "body": "DM Sans, 13px, 400, var(--text-description)",
+          "accent": "Inter, 11px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "12px"
+        },
+        "color_usage": "Primary purple frames board hierarchy; secondary purple signals actionable status; accent purple marks upcoming cycle changes."
+      },
+      "interaction_spec": {
+        "default_state": "Current cycle row is active with next actions and owner labels (Host / Guest / Split Lease).",
+        "hover": "Rows highlight with subtle purple background and show quick actions.",
+        "click": "Users can confirm payment, request date swap, or open issue thread inline.",
+        "animation": "Timeline entries slide in from bottom over 250ms; status chips animate color transition over 150ms.",
+        "responsive": "Columns stack; quick actions move to sticky bottom action strip with 48px controls."
+      },
+      "copy_spec": {
+        "primary_text": "Your active stay, managed week by week",
+        "secondary_text": "No off-platform guesswork: payments, schedule changes, and issue handling stay in one shared board.",
+        "micro_copy": "Actions: 'Confirm this week's payment', 'Swap Wed for Thu', 'Report issue', 'View move-out checklist'.",
+        "do": [
+          "Label who acts next for every operational item.",
+          "Keep week-level memory visible so repeat cycles get easier.",
+          "Show concrete timestamps and status history."
+        ],
+        "dont": [
+          "Do not split operations across separate tools and inboxes.",
+          "Do not hide unresolved items behind generic notifications.",
+          "Do not reset users to zero context each week."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Active Stay Operations Board</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-description: #374151;\n  --text-gray: #6b7280;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n}\n* { box-sizing: border-box; margin: 0; padding: 0; }\nbody {\n  font-family: 'DM Sans', sans-serif;\n  background: var(--bg-off-white);\n  padding: 24px;\n}\n.wrap { max-width: 980px; margin: 0 auto; }\nh1 { font: 700 20px 'Inter', sans-serif; color: var(--primary-purple); margin-bottom: 8px; }\n.sub { color: var(--text-gray); font-size: 13px; margin-bottom: 14px; }\n.board {\n  display: grid;\n  grid-template-columns: 1.2fr 1fr 1fr;\n  gap: 12px;\n}\n.card {\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-xl);\n  padding: 14px;\n  box-shadow: var(--shadow-purple-sm);\n}\n.card h2 { font: 700 14px 'Inter', sans-serif; color: var(--primary-purple); margin-bottom: 10px; }\n.item {\n  border: 1px solid rgba(109,49,194,0.18);\n  border-left: 2px solid var(--secondary-purple);\n  border-radius: 8px;\n  padding: 10px;\n  margin-bottom: 8px;\n  min-height: 48px;\n}\n.item .line { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; color: var(--text-description); }\n.chip {\n  display: inline-flex;\n  padding: 5px 8px;\n  border-radius: var(--rounded-pill);\n  background: rgba(109,49,194,0.12);\n  color: var(--secondary-purple);\n  font: 600 11px 'Inter', sans-serif;\n}\n.actions { display: grid; gap: 8px; }\nbutton {\n  min-height: 48px;\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-pill);\n  background: #fff;\n  color: var(--primary-purple);\n  font: 600 12px 'Inter', sans-serif;\n  cursor: pointer;\n}\nbutton.primary {\n  border: none;\n  color: #fff;\n  background: linear-gradient(135deg, var(--secondary-purple), var(--accent-purple));\n  box-shadow: var(--shadow-purple-md);\n}\n@media (max-width: 600px) {\n  .board { grid-template-columns: 1fr; }\n}\n</style>\n</head>\n<body>\n  <div class='wrap'>\n    <h1>Your active stay, managed week by week</h1>\n    <p class='sub'>Brooklyn Heights Split Lease · Host: Alina · Guest: Marcus · Cycle 3 of 8</p>\n    <section class='board'>\n      <article class='card'>\n        <h2>Timeline</h2>\n        <div class='item'>\n          <div class='line'><strong>Week 3 plan confirmed</strong><span class='chip'>Complete</span></div>\n          <div class='line'><span>Mon-Wed stay</span><span>Updated 9:12 AM</span></div>\n        </div>\n        <div class='item'>\n          <div class='line'><strong>Date swap requested</strong><span class='chip'>Host turn</span></div>\n          <div class='line'><span>Swap Wed for Thu</span><span>Due in 5h</span></div>\n        </div>\n      </article>\n      <article class='card'>\n        <h2>Operations</h2>\n        <div class='item'>\n          <div class='line'><span>Weekly payment</span><strong>$220 posted</strong></div>\n          <div class='line'><span>Status</span><span class='chip'>Confirmed</span></div>\n        </div>\n        <div class='item'>\n          <div class='line'><span>Issue queue</span><strong>1 open item</strong></div>\n          <div class='line'><span>Bathroom heater check</span><span>Assigned to host</span></div>\n        </div>\n      </article>\n      <article class='card'>\n        <h2>Quick actions</h2>\n        <div class='actions'>\n          <button class='primary'>Confirm this week's payment</button>\n          <button>Approve date swap</button>\n          <button>Report issue</button>\n          <button>View move-out checklist</button>\n        </div>\n      </article>\n    </section>\n  </div>\n</body>\n</html>",
+      "before_after": {
+        "before": "Craigslist exits after contact, so payment, scheduling, and issue handling fragment into texts, email threads, and memory.",
+        "after": "Split Lease keeps active-stay operations in one shared board with owner-labeled tasks, status history, and recurring-cycle memory."
+      },
+      "implements_principles": [
+        "opp-004",
+        "disappoint-007",
+        "disappoint-006",
+        "disappoint-005"
+      ],
+      "effort": "large"
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-5 -->
+  <script id="data-layer-5" type="application/json">{}</script>
+  <!-- INJECT:layer-6 -->
+  <script id="data-layer-6" type="application/json">{
+  "lens": {
+    "competitor": "Craigslist",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy — Chapters 1-2 (Creation Wins, Category Is the New Strategy)"
+  },
+  "reinforcements": [
+    {
+      "new_element_id": "rb-ui-102",
+      "existing_element_id": "works-001",
+      "existing_element_source": "design-stack",
+      "similarity": "Both treat trust as a phase-transition requirement rather than a cosmetic badge, with explicit signals that prevent System 1 threat responses.",
+      "combined_evidence": "Inside-out calls show trust drop-off at transitions (design-stack), while outside-in Craigslist transcripts show users explicitly asking 'is this legit?' and needing manual proof. Together they validate trust signaling as a cross-process prerequisite.",
+      "recommendation": "merge",
+      "confidence_boost": "The same trust failure appears in direct user journey data and competitor-friction data, reducing risk of overfitting to one context."
+    },
+    {
+      "new_element_id": "rb-ui-102",
+      "existing_element_id": "works-004",
+      "existing_element_source": "design-stack",
+      "similarity": "Both focus on continuity-primed trust from first contact into platform actions, now extended into an accumulating trust ledger.",
+      "combined_evidence": "Design-stack showed the human-to-digital trust handoff problem; reverse-benchmark adds repeated evidence that Craigslist forces off-platform trust workarounds (LinkedIn, verbal passwords).",
+      "recommendation": "keep_both",
+      "confidence_boost": "The reinforcement confirms continuity trust is not just onboarding UX polish; it is category infrastructure for conversion."
+    },
+    {
+      "new_element_id": "rb-ui-103",
+      "existing_element_id": "works-003",
+      "existing_element_source": "design-stack",
+      "similarity": "Both optimize for conversational-speed workflows and reduce cognitive drag versus fragmented forms and async ambiguity.",
+      "combined_evidence": "Design-stack evidence set the speed benchmark (call-like interaction pace). Reverse-benchmark evidence shows Craigslist relay email creates identity loss, dead links, and state confusion, validating the need for explicit proposal states.",
+      "recommendation": "merge",
+      "confidence_boost": "Speed and structure now have evidence from both successful human interactions and competitor failure modes."
+    },
+    {
+      "new_element_id": "rb-ui-104",
+      "existing_element_id": "guest-works-003",
+      "existing_element_source": "design-stack",
+      "similarity": "Both center the Stays Manager/active lease layer as the operational memory surface that prevents weekly reset-to-zero behavior.",
+      "combined_evidence": "Design-stack guest evidence emphasized depleted weekly usage patterns and context continuity; reverse-benchmark shows Craigslist abandonment after contact and no active-stay tooling.",
+      "recommendation": "keep_both",
+      "confidence_boost": "Cross-process alignment indicates active-stay operations are a durable moat candidate, not a feature add-on."
+    }
+  ],
+  "contradictions": [],
+  "extensions": [
+    {
+      "new_element_id": "rb-ui-101",
+      "gap_filled": "Category-level discovery framing: commute-cost problem articulation before inventory browsing.",
+      "confidence_note": "Moderate confidence; transcript support is strong for pain existence, but UI-response impact is inferred from competitor analysis and framework logic.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-ui-103",
+      "gap_filled": "End-to-end proposal protocol with explicit state transitions (delivered/reviewing/counter/accepted) rather than generic chat.",
+      "confidence_note": "Moderate confidence; direct competitor pain is strong, but detailed protocol effectiveness should be validated in product flow tests.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-ui-104",
+      "gap_filled": "Unified host-guest active-stay operating board spanning payment, schedule change, issue handling, and recurring memory.",
+      "confidence_note": "Moderate-to-high confidence on problem severity, moderate on implementation shape due operational complexity.",
+      "needs_design_stack_validation": "yes"
+    }
+  ],
+  "cross_process_insights": [
+    {
+      "insight": "Trust is the dominant cross-process bottleneck: users need legitimacy proof before they evaluate fit.",
+      "elements_involved": [
+        "works-001",
+        "works-004",
+        "rb-ui-102"
+      ],
+      "implication": "Prioritize trust instrumentation and continuity cues ahead of deeper funnel optimization."
+    },
+    {
+      "insight": "Interaction speed and structure must co-exist; speed alone without state clarity recreates Craigslist-style confusion.",
+      "elements_involved": [
+        "works-003",
+        "works-002",
+        "rb-ui-103"
+      ],
+      "implication": "Design proposal flows as fast, progressive, and stateful protocols, not freeform messaging."
+    },
+    {
+      "insight": "The highest strategic delta is lifecycle ownership after contact, where classifieds platforms structurally exit.",
+      "elements_involved": [
+        "guest-works-003",
+        "guest-works-004",
+        "rb-ui-104"
+      ],
+      "implication": "Treat active-lease operations as core product and data flywheel foundation, not post-booking support."
+    }
+  ],
+  "token_compliance": {
+    "new_tokens_flagged": [
+      "--primary-purple",
+      "--primary-purple-hover",
+      "--secondary-purple",
+      "--accent-purple",
+      "--bg-white",
+      "--bg-off-white",
+      "--text-dark",
+      "--text-description",
+      "--text-gray",
+      "--border-color",
+      "--rounded-lg",
+      "--rounded-xl",
+      "--rounded-pill",
+      "--shadow-purple-sm",
+      "--shadow-purple-md",
+      "--shadow-purple-lg",
+      "Inter",
+      "DM Sans",
+      "rgb(109, 49, 194)",
+      "rgb(140, 104, 238)"
+    ],
+    "recommendation": "Replace with existing design-system tokens from tokens.json (color palette, typography, radius, shadows) or formally propose a new semantic token set before implementation; do not ship ad-hoc purple token namespaces."
+  },
+  "coverage_map": {
+    "discovery": {
+      "element_count": 22,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "evaluation": {
+      "element_count": 24,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "onboarding": {
+      "element_count": 40,
+      "coverage": "strong",
+      "source": "design-stack"
+    },
+    "listing_creation": {
+      "element_count": 54,
+      "coverage": "strong",
+      "source": "design-stack"
+    },
+    "pricing": {
+      "element_count": 30,
+      "coverage": "strong",
+      "source": "design-stack"
+    },
+    "proposal_mgmt": {
+      "element_count": 59,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "active_lease": {
+      "element_count": 68,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "retention": {
+      "element_count": 14,
+      "coverage": "moderate",
+      "source": "both"
+    }
+  },
+  "next_run_recommendations": [
+    {
+      "process_type": "design-stack",
+      "recommendation": "Run a focused validation on commute-problem-first discovery and measure whether users self-identify with the category frame before seeing listings.",
+      "reason": "rb-ui-101 is high strategic leverage but currently under-validated by inside-out interaction evidence."
+    },
+    {
+      "process_type": "design-stack",
+      "recommendation": "Run proposal-flow tests comparing structured protocol states versus freeform messaging for reply speed, acceptance rate, and trust perception.",
+      "reason": "rb-ui-103 has strong competitor-failure evidence and needs direct Split Lease behavioral confirmation."
+    },
+    {
+      "process_type": "reverse-benchmark",
+      "recommendation": "Benchmark a platform with stronger trust/identity mechanics (not classifieds) to stress-test the trust-ledger and active-stay operating-layer differentiation.",
+      "reason": "Current competitor is a low baseline on lifecycle support; next benchmark should validate moat durability against stronger transaction platforms."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-7 -->
+  <script id="data-layer-7" type="application/json">{}</script>
+
+  <header class="report-header">
+    <h1>Design Stack v2 Report</h1>
+    <div class="lens-label" id="lens-label"></div>
+    <div class="report-meta">
+      <span id="meta-date"></span>
+      <span id="meta-run-id"></span>
+      <span class="badge" id="meta-status"></span>
+      <span id="meta-elements"></span>
+    </div>
+  </header>
+
+  <div class="coherence-bar" id="coherence-bar">
+    <span class="count" id="coherence-count"></span>
+    <span id="coherence-summary"></span>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="active" data-tab="overview"><span class="layer-num">*</span> Overview</button>
+    <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
+    <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
+    <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
+    <button data-tab="layer-3"><span class="layer-num">3</span> Looks</button>
+    <button data-tab="layer-4"><span class="layer-num">4</span> Behaves</button>
+    <button data-tab="layer-5"><span class="layer-num">5</span> Feels</button>
+    <button data-tab="layer-6"><span class="layer-num">6</span> Coherence</button>
+    <button data-tab="layer-7"><span class="layer-num">7</span> Tests</button>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Overview Tab -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Lens Summary</h3>
+        <p id="overview-lens-summary" style="font-size:16px;color:var(--ink-soft);margin-bottom:20px;"></p>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;">Journey Phase Coverage</h4>
+        <div class="coverage-grid" id="overview-coverage"></div>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin:20px 0 12px;font-family:'IBM Plex Mono',monospace;">Run Statistics</h4>
+        <div id="overview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+      </div>
+      <div id="overview-highlights"></div>
+    </div>
+
+    <!-- Layer 0: Journey Context -->
+    <div class="tab-panel" id="panel-layer-0">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Layer 0: Journey Context</h3>
+        <div id="content-layer-0"></div>
+      </div>
+    </div>
+
+    <!-- Layers 1-5: Element Cards -->
+    <div class="tab-panel" id="panel-layer-1"><div id="content-layer-1"></div></div>
+    <div class="tab-panel" id="panel-layer-2"><div id="content-layer-2"></div></div>
+    <div class="tab-panel" id="panel-layer-3"><div id="content-layer-3"></div></div>
+    <div class="tab-panel" id="panel-layer-4"><div id="content-layer-4"></div></div>
+    <div class="tab-panel" id="panel-layer-5"><div id="content-layer-5"></div></div>
+
+    <!-- Layer 6: Coherence -->
+    <div class="tab-panel" id="panel-layer-6">
+      <div id="content-layer-6"></div>
+    </div>
+
+    <!-- Layer 7: Tests -->
+    <div class="tab-panel" id="panel-layer-7"><div id="content-layer-7"></div></div>
+
+  </main>
+
+  <footer style="text-align:center;padding:32px;color:var(--ink-ghost);font-size:12px;font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v2.0 — Element Pipeline
+  </footer>
+
+  <script>
+    function loadJSON(id) { try { return JSON.parse(document.getElementById(id)?.textContent || '{}'); } catch { return {}; } }
+
+    const config = loadJSON('run-config');
+    const layers = {};
+    for (let i = 0; i <= 7; i++) layers[i] = loadJSON(`data-layer-${i}`);
+
+    // Header
+    const lens = config.lens || layers[0]?.lens || {};
+    document.getElementById('lens-label').textContent = `Lens: ${lens.host_call || '?'} + ${lens.book_extract || '?'}`;
+    document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
+    document.getElementById('meta-run-id').textContent = config.run_id || '';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = config.status || 'pending';
+    statusEl.className = `badge badge-${config.status || 'partial'}`;
+
+    // Count elements
+    let totalElements = 0;
+    for (let i = 1; i <= 5; i++) totalElements += (layers[i]?.elements || []).length;
+    totalElements += (layers[7]?.elements || []).length;
+    document.getElementById('meta-elements').textContent = `${totalElements} elements`;
+
+    // Coherence bar
+    const coherence = layers[6] || {};
+    const contradictions = coherence.contradictions || [];
+    const reinforcements = coherence.reinforcements || [];
+    if (contradictions.length > 0) {
+      const bar = document.getElementById('coherence-bar');
+      bar.classList.add('has-flags');
+      document.getElementById('coherence-count').textContent = `${contradictions.length} contradiction${contradictions.length !== 1 ? 's' : ''}`;
+      document.getElementById('coherence-summary').textContent = `${reinforcements.length} reinforcement${reinforcements.length !== 1 ? 's' : ''} found`;
+    }
+
+    // Tab navigation
+    document.getElementById('tab-nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+    });
+
+    // Evidence toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('evidence-toggle')) {
+        const list = e.target.nextElementSibling;
+        list.classList.toggle('open');
+        e.target.textContent = list.classList.contains('open') ? 'Hide evidence' : `Show evidence (${list.children.length})`;
+      }
+    });
+
+    // Render element card
+    function renderElementCard(el) {
+      const phases = (el.journey_phases || []).map(p => `<span class="phase-tag">${p}</span>`).join('');
+      const evidenceItems = (el.evidence || []).map(ev =>
+        `<div class="evidence-item">
+          <div class="source">${ev.source || ''}</div>
+          ${ev.quote ? `<div class="quote">"${ev.quote}"</div>` : ''}
+          ${ev.insight ? `<div class="insight">${ev.insight}</div>` : ''}
+        </div>`
+      ).join('');
+      const evidenceCount = (el.evidence || []).length;
+
+      let extras = '';
+      // Layer-specific fields
+      if (el.user_goal) extras += `<div class="extra-field"><label>User Goal</label> <span class="value">${el.user_goal}</span></div>`;
+      if (el.company_goal) extras += `<div class="extra-field"><label>Company Goal</label> <span class="value">${el.company_goal}</span></div>`;
+      if (el.success_metric) extras += `<div class="extra-field"><label>Success Metric</label> <span class="value">${el.success_metric}</span></div>`;
+      if (el.time_budget) extras += `<div class="extra-field"><label>Time Budget</label> <span class="value">${el.time_budget}</span></div>`;
+      if (el.hierarchy_principle) extras += `<div class="extra-field"><label>Hierarchy</label> <span class="value">${el.hierarchy_principle}</span></div>`;
+      if (el.disclosure_pattern) extras += `<div class="extra-field"><label>Disclosure</label> <span class="value">${el.disclosure_pattern}</span></div>`;
+      if (el.cognitive_load_constraint) extras += `<div class="extra-field"><label>Cognitive Load</label> <span class="value">${el.cognitive_load_constraint}</span></div>`;
+      if (el.brand_alignment) extras += `<div class="extra-field"><label>Brand Alignment</label> <span class="value">${el.brand_alignment}</span></div>`;
+      if (el.visual_hierarchy_rule) extras += `<div class="extra-field"><label>Visual Hierarchy</label> <span class="value">${el.visual_hierarchy_rule}</span></div>`;
+      if (el.transition_principle) extras += `<div class="extra-field"><label>Transitions</label> <span class="value">${el.transition_principle}</span></div>`;
+      if (el.journey_state_awareness) extras += `<div class="extra-field"><label>Journey Awareness</label> <span class="value">${el.journey_state_awareness}</span></div>`;
+      if (el.target_emotion) extras += `<div class="extra-field"><label>Target Emotion</label> <span class="value" style="font-size:16px;font-weight:600;">${el.target_emotion}</span></div>`;
+      if (el.emotion_rationale) extras += `<div class="extra-field"><label>Why</label> <span class="value">${el.emotion_rationale}</span></div>`;
+      if (el.validation_method) extras += `<div class="extra-field"><label>Method</label> <span class="value">${el.validation_method}</span></div>`;
+      if (el.success_criteria) extras += `<div class="extra-field"><label>Success Criteria</label> <span class="value">${el.success_criteria}</span></div>`;
+      if (el.failure_meaning) extras += `<div class="extra-field"><label>Failure Means</label> <span class="value">${el.failure_meaning}</span></div>`;
+      if (el.test_description) extras += `<div class="extra-field"><label>Test</label> <span class="value">${el.test_description}</span></div>`;
+
+      // Copy guidelines
+      if (el.copy_guidelines) {
+        const cg = el.copy_guidelines;
+        extras += `<div class="extra-field" style="margin-top:8px;"><label>Copy Voice</label> <span class="value">${cg.voice || ''}</span></div>`;
+        if (cg.example_good) extras += `<div class="extra-field"><label>Good Example</label> <span class="value" style="color:var(--signal-success);">"${cg.example_good}"</span></div>`;
+        if (cg.example_bad) extras += `<div class="extra-field"><label>Bad Example</label> <span class="value" style="color:var(--signal-danger);text-decoration:line-through;">"${cg.example_bad}"</span></div>`;
+      }
+
+      // Anti-goals / anti-patterns
+      const antiItems = el.anti_goals || (el.anti_patterns || []).map(a => typeof a === 'string' ? a : a.pattern);
+      let antiHTML = '';
+      if (antiItems && antiItems.length) {
+        antiHTML = `<div style="margin-top:12px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--signal-danger);font-family:'IBM Plex Mono',monospace;">Anti-goals</label><ul style="margin-top:4px;padding-left:18px;font-size:13px;color:var(--ink-soft);">${antiItems.map(a => `<li>${a}</li>`).join('')}</ul></div>`;
+      }
+
+      return `<div class="element-card">
+        <div class="element-card-header">
+          <h3>${el.title || el.id}</h3>
+          <span class="type-badge type-${el.type || ''}">${(el.type || '').replace(/_/g, ' ')}</span>
+          <span class="priority-badge priority-${el.priority || 'low'}">${el.priority || 'low'}</span>
+        </div>
+        <div class="phase-tags">${phases}</div>
+        <div class="ps-grid">
+          <div class="ps-box problem"><label>Problem</label>${el.problem || 'N/A'}</div>
+          <div class="ps-box solution"><label>Solution</label>${el.solution || 'N/A'}</div>
+        </div>
+        ${extras ? `<div class="extra-fields">${extras}</div>` : ''}
+        ${antiHTML}
+        ${evidenceCount > 0 ? `<div style="margin-top:16px;">
+          <button class="evidence-toggle">Show evidence (${evidenceCount})</button>
+          <div class="evidence-list">${evidenceItems}</div>
+        </div>` : ''}
+      </div>`;
+    }
+
+    // Render element layers (1-5, 7)
+    [1,2,3,4,5,7].forEach(i => {
+      const container = document.getElementById(`content-layer-${i}`);
+      if (!container) return;
+      const data = layers[i];
+      const elements = data?.elements || [];
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No elements discovered by this layer.</p></div>';
+        return;
+      }
+      const layerNames = {1:'Process Patterns',2:'Info Architecture',3:'Visual Patterns',4:'Interaction Patterns',5:'Emotional Elements',7:'Validation Strategies'};
+      container.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:20px;">Layer ${i}: ${layerNames[i]} <span style="font-size:14px;color:var(--ink-muted);font-family:'IBM Plex Mono',monospace;">(${elements.length} element${elements.length!==1?'s':''})</span></h2>` + elements.map(renderElementCard).join('');
+    });
+
+    // Render Layer 0: Journey Context
+    (function renderJourney() {
+      const container = document.getElementById('content-layer-0');
+      if (!container) return;
+      const data = layers[0];
+      if (!data || !data.phases) { container.innerHTML = '<p style="color:var(--ink-ghost);font-style:italic;">No journey context data.</p>'; return; }
+
+      const phaseOrder = ['discovery','evaluation','onboarding','listing_creation','pricing','proposal_mgmt','active_lease','retention'];
+      let html = '';
+      if (data.lens?.lens_summary) html += `<p style="font-size:15px;color:var(--ink-soft);margin-bottom:20px;">${data.lens.lens_summary}</p>`;
+      phaseOrder.forEach(phase => {
+        const p = data.phases[phase];
+        if (!p) return;
+        const risk = p.dropout_risk?.level || 'low';
+        html += `<div class="phase-card">
+          <h4>${phase.replace(/_/g, ' ')}</h4>
+          <p>${p.what_this_lens_reveals || 'No data for this phase.'}</p>
+          ${p.user_state ? `<p style="font-size:12px;color:var(--ink-muted);"><strong>Emotional:</strong> ${p.user_state.emotional_state || '?'} | <strong>Knowledge:</strong> ${p.user_state.knowledge_level || '?'} | <strong>Commitment:</strong> ${p.user_state.commitment_level || '?'}</p>` : ''}
+          <span class="risk risk-${risk}">${risk} dropout risk</span>
+        </div>`;
+      });
+      if (data.cross_phase_patterns?.length) {
+        html += '<h4 style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;color:var(--accent);margin:20px 0 10px;text-transform:uppercase;">Cross-Phase Patterns</h4>';
+        data.cross_phase_patterns.forEach(cp => {
+          html += `<div class="phase-card"><p><strong>${cp.pattern}</strong></p><p style="font-size:12px;color:var(--ink-muted);">Affects: ${(cp.phases_affected||[]).join(', ')} | ${cp.evidence || ''}</p></div>`;
+        });
+      }
+      container.innerHTML = html;
+    })();
+
+    // Render Layer 6: Coherence
+    (function renderCoherence() {
+      const container = document.getElementById('content-layer-6');
+      if (!container) return;
+      const data = layers[6];
+      if (!data || Object.keys(data).length === 0) { container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence data.</p></div>'; return; }
+
+      let html = '';
+
+      // Reinforcements
+      if (data.reinforcements?.length) {
+        html += `<div class="coherence-section"><h3>Reinforcements (${data.reinforcements.length})</h3>`;
+        data.reinforcements.forEach(r => {
+          html += `<div class="reinforcement-card"><div class="card-label" style="color:var(--signal-success);">Reinforcement</div>
+            <p><strong>${r.new_element_id}</strong> reinforces <strong>${r.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${r.similarity || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${r.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Contradictions
+      if (data.contradictions?.length) {
+        html += `<div class="coherence-section"><h3>Contradictions (${data.contradictions.length})</h3>`;
+        data.contradictions.forEach(c => {
+          html += `<div class="contradiction-card"><div class="card-label" style="color:var(--signal-danger);">${c.severity || 'warning'}</div>
+            <p><strong>${c.new_element_id}</strong> conflicts with <strong>${c.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${c.conflict || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${c.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Extensions
+      if (data.extensions?.length) {
+        html += `<div class="coherence-section"><h3>Extensions (${data.extensions.length})</h3>`;
+        data.extensions.forEach(ext => {
+          html += `<div class="extension-card"><div class="card-label" style="color:var(--signal-info);">New Territory</div>
+            <p><strong>${ext.new_element_id}</strong> — ${ext.gap_filled || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">${ext.confidence_note || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Coverage Map
+      if (data.coverage_map) {
+        html += '<div class="coherence-section"><h3>Journey Coverage</h3><div class="coverage-grid">';
+        Object.entries(data.coverage_map).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          html += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g, ' ')}</div>
+            <div class="count">${info.element_count || 0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Emotional Arc
+      if (data.emotional_arc_check) {
+        const arc = data.emotional_arc_check;
+        html += `<div class="coherence-section"><h3>Emotional Arc</h3>`;
+        if (arc.journey_emotion_map?.length) {
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">';
+          arc.journey_emotion_map.forEach(em => {
+            html += `<div style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;text-align:center;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-muted);text-transform:uppercase;">${em.phase}</div>
+              <div style="font-weight:600;color:var(--accent);margin-top:2px;">${(em.target_emotions||[]).join(', ')}</div>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        if (arc.arc_assessment) html += `<p style="font-size:14px;color:var(--ink-soft);">${arc.arc_assessment}</p>`;
+        html += '</div>';
+      }
+
+      container.innerHTML = html || '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence issues detected.</p></div>';
+    })();
+
+    // Overview tab
+    (function renderOverview() {
+      // Coverage
+      const coverageContainer = document.getElementById('overview-coverage');
+      const coverageData = layers[6]?.coverage_map;
+      if (coverageData && coverageContainer) {
+        Object.entries(coverageData).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          coverageContainer.innerHTML += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g,' ')}</div>
+            <div class="count">${info.element_count||0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+      }
+
+      // Lens summary
+      const summaryEl = document.getElementById('overview-lens-summary');
+      if (summaryEl) summaryEl.textContent = layers[0]?.lens?.lens_summary || 'No lens summary available.';
+
+      // Stats
+      const statsEl = document.getElementById('overview-stats');
+      if (statsEl) {
+        const stats = [
+          { label: 'Elements', value: totalElements },
+          { label: 'Reinforcements', value: reinforcements.length },
+          { label: 'Contradictions', value: contradictions.length },
+          { label: 'Extensions', value: (coherence.extensions||[]).length }
+        ];
+        statsEl.innerHTML = stats.map(s =>
+          `<div style="padding:14px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--accent);">${s.value}</div>
+            <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--ink-muted);text-transform:uppercase;">${s.label}</div>
+          </div>`
+        ).join('');
+      }
+
+      // High-priority highlights
+      const highlightsEl = document.getElementById('overview-highlights');
+      if (highlightsEl) {
+        let highPriority = [];
+        [1,2,3,4,5,7].forEach(i => {
+          (layers[i]?.elements || []).forEach(el => {
+            if (el.priority === 'high') highPriority.push(el);
+          });
+        });
+        if (highPriority.length) {
+          highlightsEl.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:24px 0 16px;">High-Priority Elements</h2>` + highPriority.map(renderElementCard).join('');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

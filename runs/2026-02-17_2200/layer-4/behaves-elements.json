@@ -1,0 +1,319 @@
+{
+  "run_id": "2026-02-17_2200",
+  "layer": 4,
+  "agent": "Interaction Engineer",
+  "element_type": "behaves",
+  "lens": {
+    "guest_call": "Steve Zhang Customer Call.txt",
+    "book_extract": "kahneman-part4-choices-prospect-theory.txt"
+  },
+  "journey_type": "guest",
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Reference Point Capture and Live Comparison Interaction",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Steve Zhang arrives with Sonder at $90/night as his explicit reference point. Kahneman's Prospect Theory shows all evaluations are coded as gains or losses relative to the reference, not as absolute values. The platform currently has no mechanism to capture the guest's reference point or surface comparisons against it. The guest's System 1 runs an imprecise, error-prone comparison that systematically favors the known alternative because Sonder's value is immediately legible (one number, everything included) while Split Lease's value requires System 2 computation. Without an interactive comparison, the guest leaves because the structural advantage (medium-term, no tourist tax, leave belongings) is never surfaced against their anchor.",
+      "solution": "Implement a two-phase interaction: (1) During first search or onboarding, present a lightweight capture prompt: 'What do you currently pay for accommodation?' with quick-select options (Sonder, Airbnb, Hotels, Friend's place, Nothing) and a dollar input. This takes under 10 seconds. (2) Once captured, every listing card and listing detail page shows a live comparison module that updates in real time as the guest adjusts their stay pattern (nights per week, duration). The comparison shows the monthly delta as a gain: 'Save $120/month vs. Sonder.' The interaction is persistent -- changing nights per week on a listing immediately recalculates and animates the savings number, creating a visceral connection between configuration choices and financial outcomes. The comparison module is not a static label; it is a live calculator that responds to the guest's inputs.",
+      "evidence": [
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:33:33",
+          "detail": "Steve: 'I also say to Sonder quite a bit... in Boston, I can get it down to like 90 a month.' This is his explicit reference point. Without capturing it, the platform cannot frame its value as a gain."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Endowment Effect / Reference Points",
+          "detail": "Kahneman: 'The omission of the reference point from the indifference map is a surprising case of theory-induced blindness.' The platform currently omits the reference point from its listing display."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Vivid Outcomes",
+          "detail": "Kahneman: 'A rich and vivid representation of the outcome reduces the role of probability in the evaluation of an uncertain prospect.' A live, responsive comparison is more vivid than a static savings claim."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:09:08-0:10:09",
+          "detail": "Igor explains the resegmentation math through direct comparison in conversation. The platform must replicate this conversational comparison as an interactive element."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Comparison module shows the guest's saved reference (e.g., 'Sonder at $90/night') alongside the current listing's monthly cost for the guest's default stay pattern (3 nights/week). The savings number is displayed in the gain-green color (#0D9488) with a subtle pulse animation on first render.",
+        "loading": "While recalculating after the guest changes nights-per-week or duration, the savings number shows a brief skeleton shimmer (200ms) before snapping to the new value. No spinner -- the calculation is fast enough to feel instant.",
+        "empty": "If the guest has not yet provided a reference point, the module shows a soft prompt: 'What do you currently pay? Compare instantly.' with a single input field. The module occupies minimal space until populated.",
+        "error": "If the comparison cannot be calculated (e.g., the listing has no available dates matching the guest's pattern), show: 'Adjust your dates to see savings.' No red, no warning -- neutral purple text.",
+        "success": "After the guest captures their reference, the module transitions from the capture prompt to the live comparison with a smooth expand animation (300ms, ease-out). The savings number counts up from $0 to the actual amount, creating a rewarding micro-moment."
+      },
+      "transition_principle": "Every state change in the comparison module should feel like a natural continuation, not a page reload. The savings number animates between values using a counting animation (number ticks up/down). The module never disappears or jumps -- it morphs between states using CSS transitions.",
+      "timing": {
+        "response_target": "Comparison recalculation: under 100ms. The guest should perceive the savings update as instantaneous when they change their stay pattern.",
+        "easing": "ease-out for expansion animations, ease-in-out for number transitions",
+        "rationale": "Kahneman's certainty effect: the comparison must feel certain and immediate. Any delay between input change and savings update creates a moment of uncertainty where the guest's System 1 might question the number."
+      },
+      "journey_state_awareness": "The module adapts its framing based on the guest's journey position. In search: shows savings on listing cards as a badge. In listing_evaluation: shows full comparison with monthly breakdown. In proposal_creation: shows the comparison as the first element above the form, reinforcing the gain frame before the guest commits.",
+      "edge_cases": [
+        "Guest's reference is free (staying with friends): show the Split Lease cost as an absolute with the non-financial gains emphasized instead ('Your own space for $960/month -- leave your belongings, full kitchen, same space every visit').",
+        "Guest's reference is more expensive (hotel at $170/night): the savings number is very large. Cap the visual emphasis to avoid appearing too-good-to-be-true. Show the exact number but in standard weight, not bold.",
+        "Guest changes their reference point mid-session: allow re-capture via a small edit icon on the comparison module. The new reference propagates to all listing comparisons immediately.",
+        "Listing price is higher than the reference: do not hide the module. Show the delta as a cost difference with the non-financial advantages emphasized: '$30/month more than Sonder, but you keep your belongings and get a full kitchen.'"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Plan Your Stay Interactive Configurator for Endowment Acceleration",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "Kahneman's endowment effect research shows that mental ownership begins before physical possession -- the moment a guest imagines themselves in a space and configures their ideal stay, they begin to 'own' the arrangement. The current listing page shows photos and a price but does not help the guest project themselves into the space. The proposal form collects terms but does not reinforce the imagined future. This misses the critical psychological mechanism: if the platform can accelerate mental ownership before the commitment point (proposal submission), the endowment effect makes non-submission feel like a loss (losing the space they already mentally inhabit). Steve is especially susceptible because he is housing-unstable -- his desire for a space is acute.",
+      "solution": "Add a 'Plan Your Stay' interactive configurator on the listing detail page. The guest selects their nights-per-week (toggle chips: M/Tu/W/Th/F/Sa/Su), their target start date (date picker), and their desired duration (slider: 4-16 weeks). As they configure, a 'Your Space' preview card builds in real time: a cropped listing photo with the guest's configured dates overlaid as a mini-calendar, the personalized monthly cost, and the gain vs. their reference. The configurator lives between the photo gallery and the proposal button. When the guest has configured their stay, the 'Submit Proposal' button transforms from generic to personalized: 'Propose Your 3-Night Stay Starting Mar 1.' The transition from browsing to configuring to proposing is seamless -- the configurator IS the proposal form's first half, pre-filling the actual proposal when the guest clicks through.",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Endowment Effect (Sellers vs Choosers)",
+          "detail": "Kahneman: 'The gap between Sellers and Choosers is remarkable... The only difference is in the emotion of the moment.' Before configuring, the guest is a Chooser (browsing options). After configuring, they become a Seller (protecting their arrangement)."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:15:41",
+          "detail": "Steve: 'For that six months I missed the house. Like I have to have them here.' Steve has demonstrated intense place-attachment. The configurator triggers this attachment mechanism digitally."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Endowment Effect",
+          "detail": "Kahneman: 'The average selling price was about double the average buying price.' Once the guest has configured 'their' stay, abandoning it feels like selling at a loss."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:16:05",
+          "detail": "Steve: 'Every time you have to set it up, your ROI is like a couple of days.' The configurator must be fast (under 30 seconds) to avoid triggering Steve's ROI sensitivity about setup costs."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The configurator shows the listing's available days pre-highlighted on day chips, a suggested start date (next available), and a default duration (8 weeks). The 'Your Space' preview card shows the listing photo with a soft gradient overlay and the text 'Configure your stay to see your monthly cost.' The preview feels inviting but incomplete -- it wants to be filled in.",
+        "loading": "When the guest changes a configuration input, the preview card updates with a brief cross-fade (150ms). Price recalculation happens inline without any loading state -- the numbers simply transition.",
+        "empty": "If the listing has no available dates matching the guest's initial defaults, show: 'This space is available starting [earliest date]. Adjust your dates to plan your stay.' The configurator pre-fills the earliest available date.",
+        "error": "If the guest selects dates that conflict with the host's schedule, the conflicting day chips shake gently (subtle CSS animation, 200ms) and a tooltip appears: 'The host is not available Wednesdays. Try Tuesday instead.' The tooltip disappears after 3 seconds.",
+        "success": "When the guest has a valid configuration, the preview card transitions to a 'Your Space' card with full visual treatment: listing photo, guest's dates on a mini-calendar, monthly cost in large type, savings vs. reference, and a checkmark. The Submit Proposal button activates with a gradient fill animation."
+      },
+      "transition_principle": "The configurator uses progressive reveal -- it starts compact (day chips + start date) and expands as the guest engages. Each input reveals the next relevant input. The guest never sees all options at once. The progression creates a sense of building toward something, mirroring the psychological progression from browsing to ownership.",
+      "timing": {
+        "response_target": "Every configuration change updates the preview in under 100ms. The day chip selection is instant (no network call). The price update uses a 200ms counting animation. The 'Your Space' card transition takes 300ms with ease-out.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for card transitions (snappy, confident), ease-in-out for number animations",
+        "rationale": "Speed is essential for endowment acceleration. Every millisecond of delay between the guest's configuration choice and the visible result is a moment where they are NOT mentally owning the space. The interaction must feel like arranging furniture in a room you already occupy."
+      },
+      "journey_state_awareness": "In listing_evaluation, the configurator is optional and inviting. In proposal_creation, the configurator becomes the primary interface -- the 'Your Space' card is the header of the proposal form, and all configured values pre-fill the proposal fields. The guest experiences zero duplication between configuring and proposing.",
+      "edge_cases": [
+        "Guest visits the listing multiple times: persist their last configuration in localStorage so they see 'their' arrangement immediately on return, reinforcing the endowment effect.",
+        "Guest changes their mind about days: allow drag-to-swap on day chips (touch-friendly). Swapping a day updates the preview instantly.",
+        "Listing becomes unavailable for the guest's configured dates: show a gentle notification: 'Your Mar 1 start date is no longer available. The next opening is Mar 8.' Do NOT clear the configuration -- adjust minimally to preserve as much of 'their' arrangement as possible.",
+        "Guest is on mobile: the configurator collapses to a vertical layout with the day chips as a scrollable horizontal row and the preview card as a sticky bottom sheet."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Certainty Cascade at Proposal Submission and Post-Commitment",
+      "journey_phases": ["proposal_creation", "acceptance", "move_in"],
+      "problem": "Kahneman's certainty effect demonstrates that moving from 95% to 100% certainty has disproportionate psychological impact. At the proposal submission moment, the guest faces maximum uncertainty: Will the host respond? How long? What if they counter? What happens to my payment? Each unanswered question is a certainty gap that the guest's System 1 fills with worst-case scenarios. Steve has been burned by uncertain commitments (expected office return that never happened, 0:06:27). He will not commit resources to an uncertain outcome when Sonder offers a certain one. The current platform offers no certainty signals at the moment of commitment.",
+      "solution": "Implement a Certainty Cascade -- a sequence of immediate micro-certainty deliveries that fire in rapid succession after the guest submits a proposal. The cascade: (1) Instant visual confirmation: the Submit button transforms into a checkmark with the text 'Proposal Sent' (0ms delay). (2) At 500ms: a 'What Happens Next' card slides up from below, showing 3-4 specific timeline steps with estimated times. (3) At 1000ms: a 'Your Protection' summary appears below: 'No charge until host accepts. Full refund if host declines.' (4) At 1500ms: the certainty timeline (from looks-003) renders with the first step already completed ('Proposal sent' with checkmark). Each micro-delivery is a certainty injection that moves the guest from 0% certainty (just submitted, anything could happen) to approximately 80% certainty (I know what happens next, I am protected, there is a timeline) within 2 seconds. The remaining 20% uncertainty (will the host accept?) is honestly acknowledged: 'Hosts typically respond within 12 hours.'",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Certainty Effect",
+          "detail": "Kahneman: 'An improvement from 95% to 100% is another qualitative change that has a large impact -- the certainty effect.' Each micro-delivery in the cascade is a step toward that qualitative change."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Fourfold Pattern",
+          "detail": "Kahneman: 'Overweighting of small probabilities increases the attractiveness of both gambles and insurance policies.' The 'Your Protection' summary functions as free insurance that eliminates the overweighted risk of loss."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:06:27",
+          "detail": "Steve: 'I came back because I thought I have to go back to January, but that's not going to happen.' He has been burned by uncertain commitments. The Certainty Cascade directly addresses his sensitization."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:17:25",
+          "detail": "Igor names the core tension: 'schedule certainty in a sense of schedule uncertainty.' The Certainty Cascade converts post-submission uncertainty into a structured, visible timeline."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Before submission, the proposal form shows the 'Submit Proposal' button with the certainty timeline preview: 'After you submit: Host typically responds within 12 hours. No charge until accepted.' This pre-delivers certainty before the commitment moment.",
+        "loading": "The Submit button shows a brief progress indicator (purple gradient fill from left to right, 300ms) before transforming into the checkmark. This is not a spinner -- it is a completion animation that feels like progress, not waiting.",
+        "empty": "N/A -- this interaction only fires after submission.",
+        "error": "If submission fails (network error), the button reverts to 'Submit Proposal' with a subtle shake and a message: 'Could not send your proposal. Your configuration is saved -- try again.' No data is lost. The guest's mental ownership of the configuration is preserved.",
+        "success": "The full Certainty Cascade fires: checkmark (0ms), What Happens Next card (500ms), Protection summary (1000ms), Timeline render (1500ms). Each element enters with a slide-up and fade-in animation. The overall effect is a controlled, reassuring sequence that says 'everything is handled.'"
+      },
+      "transition_principle": "The cascade is choreographed -- each element enters in sequence, not simultaneously. Simultaneous entry would overwhelm. Sequential entry creates a narrative: 'Your proposal is sent. Here is what happens next. Here is how you are protected. Here is your timeline.' The narrative structure mirrors how a helpful human would explain the process.",
+      "timing": {
+        "response_target": "Button confirmation: 0ms (instant). What Happens Next card: 500ms. Protection summary: 1000ms. Timeline: 1500ms. Total cascade duration: 2000ms. The guest should feel fully informed within 2 seconds of submission.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for slide-up entrances (snappy, confident). ease-out for fade-ins.",
+        "rationale": "The 2-second total duration is calibrated to System 1's processing speed. Kahneman shows that System 1 forms impressions in under 2 seconds. If the certainty information arrives within that window, it becomes part of the post-submission impression rather than a separate experience."
+      },
+      "journey_state_awareness": "The cascade adapts to the journey context. After proposal submission: full cascade with timeline. After acceptance: the cascade updates the existing timeline (new step completes with animation). After move-in: the cascade transforms into a 'Welcome to Your Space' moment with the savings dashboard preview.",
+      "edge_cases": [
+        "Guest submits and immediately navigates away: the cascade fires on next visit to the Leases page, ensuring they see the certainty information even if they missed it post-submission.",
+        "Host responds before the guest sees the cascade: skip the timeline and go directly to the response display, with the certainty information already resolved ('Your host accepted within 2 hours').",
+        "Multiple proposals active: each proposal gets its own timeline instance on the Leases page, clearly labeled with the listing name and dates.",
+        "Guest is on slow connection: the cascade elements are pre-rendered in the DOM but hidden. The animation is triggered client-side after submission confirmation, requiring no additional network calls."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Preserved-First Counter-Offer Interaction with Gain-Framed Acceptance",
+      "journey_phases": ["negotiation"],
+      "problem": "When a host counters, the guest's proposal has become their reference point. Any deviation is coded as a loss. Kahneman: 'The concessions you make to me are my gains, but they are your losses; they cause you much more pain than they give me pleasure.' If the counter-offer display highlights what changed (red text, strikethrough, diff view), the loss signal fires before System 2 can contextualize the counter as reasonable. Steve's analytical nature will amplify this: he will immediately calculate the financial impact of the loss before considering whether the counter is actually a good outcome. The interaction must neutralize loss aversion by presenting preserved terms first and framing changes as reduced commitment.",
+      "solution": "Design a two-card counter-offer interaction where the preserved terms card is visually dominant (70% of viewport) and interactive (each preserved term has a green checkmark that was NOT there before, creating a micro-reward as the guest scans). The adjusted term card appears below with a left purple border (not red), and the change is framed as a smaller commitment: 'Duration adjusted to 10 weeks -- your total commitment is reduced by $1,440.' The Accept button uses certainty-effect language: 'Accept and Secure Your Space.' On hover, it shows a tooltip: 'Accepting locks in your rate and dates immediately.' The counter-counter option is a subdued text link, not a button -- creating visual asymmetry that makes acceptance the easy path. The interaction includes a 'negotiation progress' indicator at the top: a simple bar showing 'Round 1 of negotiation -- 4 of 5 terms agreed.' This frames the negotiation as nearly complete.",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Defending the Status Quo",
+          "detail": "Kahneman: 'Loss aversion creates an asymmetry that makes agreements difficult to reach... Negotiations over a shrinking pie are especially difficult.' The interaction must present the negotiation as an expanding pie (moving toward agreement)."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Bad Events / Negativity Dominance",
+          "detail": "Kahneman: 'Bad emotions... are quicker to form and more resistant to disconfirmation than good ones.' If the first visual signal is negative, the bad impression forms in under 200ms and resists correction."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:17:25",
+          "detail": "Igor on schedule certainty. The counter-offer display must maximize the certainty signal (4 terms agreed) and minimize the uncertainty signal (1 term adjusted)."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Certainty Effect",
+          "detail": "The 'Accept and Secure' button converts the negotiation from 'almost agreed' to 'agreed' -- the certainty effect applied to negotiation closure."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The counter-offer page loads with the preserved terms card already expanded and the checkmarks animating in sequence (100ms stagger per term). The adjusted term card loads 300ms after the preserved card, ensuring the guest processes agreement before disagreement.",
+        "loading": "While the counter-offer data loads, show a skeleton of the preserved terms card (suggesting a positive shape) rather than a generic spinner. The guest's first impression of the loading state should be 'something is agreed.'",
+        "empty": "N/A -- counter-offers always have content.",
+        "error": "If the counter-offer cannot be loaded, show: 'The host has responded to your proposal. We are loading the details.' with a retry button. Never show an error state that could be misread as rejection.",
+        "success": "After the guest accepts, the preserved and adjusted cards merge into a single 'Your Lease Agreement' card with all terms showing checkmarks. A celebratory micro-animation (a brief purple confetti burst, 500ms) marks the certainty moment. The Certainty Timeline immediately appears below."
+      },
+      "transition_principle": "The counter-offer interaction is designed as a reveal sequence: preserved terms first (positive anchoring), then adjustment (minimal loss), then action (certainty capture). The sequence cannot be reordered. The Accept button does not appear until after the guest has had time to process both zones (approximately 2 seconds after page load).",
+      "timing": {
+        "response_target": "Counter-offer page load: under 1 second. Preserved terms animation: 100ms stagger per term (total 400-500ms for 4-5 terms). Adjusted term card entrance: 300ms after preserved terms complete. Accept button appearance: 2 seconds after page load.",
+        "easing": "ease-out for card entrances, ease-in-out for checkmark animations, cubic-bezier(0.34, 1.56, 0.64, 1) for the Accept button entrance (slight overshoot for attention)",
+        "rationale": "The 2-second delay before the Accept button appears is intentional: it forces the guest to read the preserved terms before they can act. This prevents impulsive rejection based on the adjusted term alone."
+      },
+      "journey_state_awareness": "If this is the first counter-offer, the negotiation progress bar shows 'Round 1.' If this is a counter-counter-response, it shows 'Round 2 -- almost there!' The framing emphasizes convergence, not repetition.",
+      "edge_cases": [
+        "Host changed multiple terms: bundle them into a single narrative in the adjusted card. 'The host adjusted your duration and start date.' Show both changes together with a combined reframe: 'This shifts your stay by 1 week and reduces your total by $X.'",
+        "Counter-offer makes the listing more expensive: frame the change as an upgrade rather than a price increase. 'The host has offered you additional nights at the same weekly rate.'",
+        "Guest has been negotiating for multiple rounds: show a subtle urgency signal: 'This is the host's latest offer. Accepting secures your space immediately.'",
+        "Guest rejects the counter: ask 'What would you like to propose instead?' with smart midpoint suggestions that are pre-calculated to be acceptable to both parties."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Loss-State Accelerated Funnel for Housing-Unstable Guests",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "Kahneman's fourfold pattern shows that people currently experiencing losses are risk-seeking -- they are willing to try novel, uncertain options. Steve is a textbook loss-state guest: no lease, storing belongings with friends, house-sitting, suitcase living. This creates a time-limited acquisition window: Steve is receptive NOW but once he settles into any arrangement (even suboptimal), the endowment effect locks him in. The current platform treats all guests identically -- the same leisurely flow regardless of urgency. A loss-state guest browsing at 11pm on a Tuesday is treated the same as someone casually exploring from a comfortable apartment.",
+      "solution": "During onboarding, present a situation-assessment interaction: 'What best describes you right now?' with four options styled as cards: 'I have a stable lease and want a satellite space' (green-house icon), 'I am between places and need something soon' (clock icon), 'I am using hotels or Sonder' (building icon), 'I am staying with friends or family' (people icon). Guests who select loss-state options (between places, friends/family) enter an accelerated funnel that: (1) Immediately shows available listings in their target area with move-in dates within 2 weeks, sorted by earliest availability. (2) Replaces nightly rates with monthly costs and pre-calculates comparison to common alternatives. (3) Collapses the search-evaluate-propose flow into a single page: listings with inline 'Plan Your Stay' configurators and one-click proposal submission. (4) Frames everything as loss-reduction: 'Stop paying for hotels. Your space in Cambridge: $960/month, move in March 1.' The urgency matches the guest's psychological state without creating false scarcity.",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Fourfold Pattern",
+          "detail": "Kahneman: 'Many unfortunate human situations unfold in the top right cell. This is where people who face very bad options take desperate gambles.' Steve is in a loss state for housing, making him more receptive to trying Split Lease."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:14:10-0:16:33",
+          "detail": "Steve describes his loss state: consolidated belongings, house-sitting, suitcase at girlfriend's small place. Every detail is a loss. He is the ideal loss-state acquisition target."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Endowment Effect (the poor)",
+          "detail": "Kahneman: 'People who are poor think like traders... their problem is that all their choices are between losses.' Steve is housing-poor: all his options are suboptimal."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:16:05",
+          "detail": "Steve: 'Every time you have to set it up, your ROI is like a couple of days.' He thinks in ROI terms. The accelerated funnel must show the ROI of a stable Split Lease vs. ongoing loss of temporary arrangements."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The situation-assessment cards are displayed as a 2x2 grid (desktop) or vertical stack (mobile). Each card has an icon, a one-line description, and a subtle border. No card is pre-selected -- the guest chooses their situation.",
+        "loading": "After selection, the funnel reconfigures with a smooth transition: the assessment cards collapse upward (300ms) and the filtered listing results slide in from below (400ms). A brief 'Finding spaces available now...' message bridges the transition.",
+        "empty": "If no listings match the guest's target area within 2 weeks, show: 'No spaces available in Cambridge for immediate move-in. The next available space opens March 15.' with a 'Notify Me' button that captures the guest during their loss-state window.",
+        "error": "If the guest's location cannot be determined, show the standard search interface with a gentle prompt: 'Where do you need a space?' No funnel divergence occurs without clear input.",
+        "success": "Loss-state guests who submit a proposal see an enhanced Certainty Cascade that includes: 'Your proposal is the only one for this space right now' (if true) or 'The host typically responds within X hours' (always true). The certainty messaging is amplified for loss-state guests because their anxiety is higher."
+      },
+      "transition_principle": "The accelerated funnel removes steps, it does not add them. Every interaction that is standard in the normal flow but unnecessary for a loss-state guest is eliminated. The principle is compression without information loss: the guest sees everything they need to decide, but the flow is a single scrollable page rather than a multi-page wizard.",
+      "timing": {
+        "response_target": "Situation assessment to filtered listings: under 2 seconds. Proposal submission from listing card: under 30 seconds (including Plan Your Stay configuration). Total time from landing to submitted proposal: under 5 minutes.",
+        "easing": "ease-out for all transitions. Speed communicates urgency alignment.",
+        "rationale": "Loss-state guests have a limited window. Every minute increases the risk that they solve their problem through another channel (texting a friend, booking Sonder). The 5-minute target matches their urgency."
+      },
+      "journey_state_awareness": "The accelerated funnel is not a permanent mode -- it is a session-level adaptation. If the guest returns later (after the loss-state window may have closed), they see the standard flow with an option to re-enter the accelerated funnel. The platform does not permanently label guests as 'loss-state.'",
+      "edge_cases": [
+        "Guest selects 'stable lease' but is actually loss-state (denial or misunderstanding): the standard flow includes subtle prompts ('Need a space soon? See available-now listings') that allow re-entry into the accelerated funnel.",
+        "Guest selects loss-state but then browses leisurely: the accelerated funnel elements remain available but do not prevent the guest from exploring normally. It is an overlay, not a cage.",
+        "Guest is loss-state but highly analytical (like Steve): the accelerated funnel still shows the full comparison data and reference-point module. Speed does not mean reduced information -- it means reduced navigation.",
+        "No listings in the guest's price range: show the next-cheapest option with a transparent explanation: 'The most affordable space in Cambridge is $1,100/month. This is $100 more than Sonder but includes a full kitchen and storage for your belongings.'"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Active Lease Savings Reinforcement Loop",
+      "journey_phases": ["active_lease"],
+      "problem": "During the active lease, the guest's reference point shifts to their initial experience. Kahneman's negativity dominance shows that one bad event (payment surprise, unresponsive host, date-change friction) erases the positive effect of multiple good experiences (5:1 Gottman ratio). The platform currently has no mechanism to continuously reinforce the positive frame during the lease. Without ongoing positive reinforcement, the guest's savings are forgotten, and any single negative event can flip their overall assessment from positive to negative. Steve tracks ROI continuously (0:16:05) and is sensitized to operational friction from Sonder (0:35:39).",
+      "solution": "Build a Savings Reinforcement Loop into the active lease dashboard. On each weekly visit to the Leases page, the Savings Hero card (from looks-004) updates with a micro-interaction: the savings number counts up from last week's total to this week's total (a counting animation showing the new savings accruing). Below the number, a context line updates weekly: 'This week you saved $120 vs. hotels. Your total savings: $720.' The loop is closed with a milestone system: at $500 saved, $1,000 saved, $2,000 saved, etc., a brief celebratory moment appears: a badge on the savings card that says '$1,000 Saved' with the Split Lease logo. These milestones are designed to be screenshot-worthy for social sharing. The loop also includes a proactive loss-prevention pulse: if the host's response time degrades or a payment is upcoming, a subtle alert appears in the dashboard BEFORE the guest discovers the issue, framing the platform as proactively protective rather than reactive.",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Bad Events / Negativity Dominance",
+          "detail": "Kahneman cites Gottman: 'A stable relationship requires that good interactions outnumber bad interactions by at least 5 to 1.' The savings reinforcement loop creates a persistent positive interaction on every visit."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:16:05",
+          "detail": "Steve: 'Every time you have to set it up, your ROI is like a couple of days.' Steve thinks in ROI. The savings counter speaks his language."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Loss Aversion in the Law",
+          "detail": "Kahneman: 'Employers who violate rules of fairness are punished by reduced productivity, and merchants who follow unfair pricing policies can expect to lose sales.' Payment surprises violate fairness expectations. Proactive alerts prevent this."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:35:39",
+          "detail": "Steve on Sonder: 'Their text conversations are, if you don't respond within like 30 seconds... It's super annoying.' The proactive loss-prevention pulse addresses this by intercepting issues before they become friction."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The Savings Hero card shows the current total with the weekly delta. The upcoming events strip shows the next 3 stays. The loss-prevention pulse is invisible (no issues detected).",
+        "loading": "On initial page load, the savings number renders instantly from cached data, then updates with a brief shimmer if new data is available. The guest never sees a blank savings card.",
+        "empty": "For the first visit (no savings yet), the card shows: 'Your savings start with your first stay. Your first night saves $X vs. [reference].' This sets the expectation and maintains the gain frame from day one.",
+        "error": "If savings data cannot be calculated (missing reference point or incomplete stay data), show: 'Your stay history is updating. Check back after your next stay for your savings total.' No broken UI -- the card is always present with at least a static message.",
+        "success": "On milestone achievement, the savings card briefly expands (200ms) to reveal the milestone badge with a subtle purple glow animation. The badge persists until the next visit, creating a 'new achievement' feeling on each milestone."
+      },
+      "transition_principle": "The savings loop is designed to feel like checking a portfolio or a fitness tracker -- a brief, rewarding check-in that reinforces a positive trend. The counting animation on the savings number creates anticipation (watching it go up) and satisfaction (seeing the final number). The loss-prevention pulse is the opposite: it should be invisible when things are fine and only appear as a helpful, early warning -- never as an alarm.",
+      "timing": {
+        "response_target": "Savings card render: under 500ms. Weekly savings count-up animation: 1 second. Milestone badge animation: 500ms. Loss-prevention pulse appearance: instant when triggered, fades in gently over 300ms.",
+        "easing": "ease-in-out for counting animations (builds anticipation), ease-out for card transitions, linear for the pulse opacity fade",
+        "rationale": "The counting animation's 1-second duration is calibrated to create a brief moment of attention without demanding sustained focus. The guest glances at the number, watches it count up, feels good, and moves on. This is the minimum effective reinforcement dose."
+      },
+      "journey_state_awareness": "Early in the lease (weeks 1-3): emphasize projected savings ('On track to save $2,400 by lease end'). Mid-lease (weeks 4-7): emphasize actual savings and the running trend. Late lease (weeks 8+): emphasize the loss of leaving: 'Renewing preserves your $960/month rate and your $1,440 in savings.' The framing shifts from gain-projection to loss-prevention as the lease end approaches.",
+      "edge_cases": [
+        "Guest's reference alternative became cheaper (Sonder dropped their rate): update the comparison honestly. If the savings gap narrowed, emphasize the non-financial advantages (leave belongings, same space) rather than hiding the narrowed gap.",
+        "Guest had a negative experience (host was slow to respond): the proactive pulse should have already flagged this. If it was not flagged, the savings card should NOT try to compensate -- acknowledge the issue in the host status panel, not the savings card.",
+        "Guest is on a very short lease (4 weeks): savings milestones are adjusted to smaller increments ($100, $250, $500) to create achievable milestone moments.",
+        "Guest never set a reference point: use the average hotel rate for the guest's city as a default reference, with a note: 'Compared to average hotel rates in Boston ($170/night). Set your own comparison to see personalized savings.'"
+      ]
+    }
+  ]
+}

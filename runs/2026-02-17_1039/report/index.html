@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Stack v2 Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --surface-warm: #fdfcfa;
+      --ink: #1a1714;
+      --ink-soft: #4a4640;
+      --ink-muted: #8a857e;
+      --ink-ghost: #bdb8b0;
+      --accent: #2d5a3d;
+      --accent-light: #e8f0eb;
+      --accent-bright: #3a7a52;
+      --signal-warn: #c17a28;
+      --signal-warn-bg: #fef3e2;
+      --signal-danger: #b83a3a;
+      --signal-danger-bg: #fde8e8;
+      --signal-info: #2d5a8a;
+      --signal-info-bg: #e8f0fa;
+      --signal-success: #2d5a3d;
+      --signal-success-bg: #e8f0eb;
+      --border: #e2dfd9;
+      --border-strong: #ccc8c0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
+      --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+
+    /* Header */
+    .report-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .report-header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; margin-bottom: 4px; }
+    .report-header .lens-label { font-size: 16px; color: var(--ink-soft); margin-bottom: 12px; }
+    .report-meta { display: flex; gap: 24px; flex-wrap: wrap; color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-complete { background: var(--accent-light); color: var(--accent); }
+    .badge-partial { background: var(--signal-warn-bg); color: var(--signal-warn); }
+
+    /* Coherence Alert Bar */
+    .coherence-bar { background: var(--signal-warn-bg); border-bottom: 1px solid rgba(193,122,40,0.2); padding: 10px 40px; font-size: 13px; color: var(--signal-warn); display: none; align-items: center; gap: 12px; }
+    .coherence-bar.has-flags { display: flex; }
+    .coherence-bar .count { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+
+    /* Tab Nav */
+    .tab-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+    .tab-nav button { background: none; border: none; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms var(--ease-out); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .tab-nav button:hover { color: var(--ink-soft); }
+    .tab-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-nav button .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-deep); font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--ink-muted); }
+    .tab-nav button.active .layer-num { background: var(--accent); color: white; }
+
+    /* Main */
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+    .tab-panel { display: none; animation: fadeIn 300ms var(--ease-out); }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Element Card */
+    .element-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .element-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .element-card-header h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; flex: 1; min-width: 200px; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .type-process_pattern { background: #e8f0fa; color: #2d5a8a; }
+    .type-info_architecture { background: #f0e8fa; color: #6a2d8a; }
+    .type-visual_pattern { background: #fae8f0; color: #8a2d5a; }
+    .type-interaction_pattern { background: #faf0e8; color: #8a5a2d; }
+    .type-emotional_element { background: #e8faf0; color: #2d8a5a; }
+    .type-validation_strategy { background: var(--bg-deep); color: var(--ink-soft); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+    .priority-high { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Phase Tags */
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'IBM Plex Mono', monospace; background: var(--accent-light); color: var(--accent); }
+
+    /* Problem/Solution */
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .ps-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px; }
+    .ps-box.problem { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .ps-box.solution { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .ps-box label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+    @media (max-width: 700px) { .ps-grid { grid-template-columns: 1fr; } }
+
+    /* Evidence */
+    .evidence-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; color: var(--ink-muted); transition: all 150ms; }
+    .evidence-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .evidence-list { display: none; margin-top: 12px; }
+    .evidence-list.open { display: block; }
+    .evidence-item { padding: 10px 14px; margin: 6px 0; background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+    .evidence-item .source { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+    .evidence-item .quote { color: var(--ink-soft); font-style: italic; }
+    .evidence-item .insight { color: var(--ink); margin-top: 4px; }
+
+    /* Layer-specific fields */
+    .extra-fields { margin-top: 16px; display: grid; gap: 8px; }
+    .extra-field { font-size: 13px; }
+    .extra-field label { font-weight: 600; color: var(--ink-soft); font-size: 12px; }
+    .extra-field .value { color: var(--ink); }
+
+    /* Coherence sections */
+    .coherence-section { margin-bottom: 28px; }
+    .coherence-section h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 12px; }
+    .reinforcement-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-success-bg); border-left: 4px solid var(--signal-success); font-size: 14px; }
+    .contradiction-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-danger-bg); border-left: 4px solid var(--signal-danger); font-size: 14px; }
+    .extension-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-info-bg); border-left: 4px solid var(--signal-info); font-size: 14px; }
+    .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+    /* Coverage Map */
+    .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .coverage-cell { padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border); }
+    .coverage-cell .phase-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; }
+    .coverage-cell .count { font-size: 24px; font-weight: 700; }
+    .coverage-cell .level { font-size: 11px; color: var(--ink-muted); }
+    .coverage-none { background: var(--signal-danger-bg); }
+    .coverage-thin { background: var(--signal-warn-bg); }
+    .coverage-moderate { background: var(--signal-info-bg); }
+    .coverage-strong { background: var(--signal-success-bg); }
+
+    /* Journey Context phase cards */
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 12px; }
+    .phase-card h4 { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .phase-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+    .phase-card .risk { font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 6px; }
+    .risk-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .risk-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .risk-medium { background: var(--signal-info-bg); color: var(--signal-info); }
+    .risk-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Responsive + Print */
+    @media (max-width: 768px) { .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; } }
+    @media print { .tab-nav, .coherence-bar { display: none; } .tab-panel { display: block !important; page-break-inside: avoid; } body { background: white; } }
+  </style>
+</head>
+<body>
+
+  <!-- Data injection points -->
+  <!-- INJECT:run-config -->
+  <script id="run-config" type="application/json">{
+  "run_id": "2026-02-17_1039",
+  "process_type": "reverse-benchmark",
+  "competitor": "roomi",
+  "lens": {
+    "competitor": "roomi",
+    "book_extract": "coldstart-network-effects.txt",
+    "book_chapters": "Part 1: The Cold Start Problem and Atomic Networks"
+  },
+  "status": "running",
+  "started_at": "2026-02-17T15:39:15Z",
+  "stack_dir": "C:/Users/igor/OneDrive/Documents/design-stack",
+  "run_dir": "C:/Users/igor/OneDrive/Documents/design-stack/runs/2026-02-17_1039"
+}</script>
+  <!-- INJECT:layer-0 -->
+  <script id="data-layer-0" type="application/json">{
+  "lens": {
+    "competitor": "roomi",
+    "book": "coldstart-network-effects.txt",
+    "book_chapters": "Part 1: The Cold Start Problem and Atomic Networks.",
+    "lens_summary": "Roomi performs best where it can form dense hyperlocal roommate micro-markets, but value drops when trust, timing, and commitment mechanics fail to reach a local tipping point."
+  },
+  "competitor_overview": {
+    "category": "roommate matching",
+    "primary_strength": "Fast, mobile-first matching between people seeking rooms and people listing rooms in major cities",
+    "business_model": "Freemium marketplace with paid boosts/premium visibility and messaging-related monetization, which biases UX toward liquidity and response speed",
+    "user_base": "Students, young professionals, and relocators who need roommates or rooms quickly in urban markets",
+    "brand_perception": "Convenient and active in large metros, but mixed trust perception due to scams/ghosting and variable listing quality"
+  },
+  "phases": {
+    "discovery": {
+      "what_they_do": "Roomi is discovered through app stores, social search, and word-of-mouth in high-churn city rental markets; value proposition emphasizes finding a room or roommate quickly.",
+      "quality_level": "good",
+      "framework_analysis": "This is Roomi's atomic-network entry point: discovery works when enough users in one city/price band are active simultaneously, helping local clusters cross the cold-start threshold.",
+      "what_nobody_in_category_does": "Almost no roommate platforms create neighborhood-by-neighborhood launch playbooks with visible local liquidity signals before signup.",
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I: tipping point/Allee threshold)",
+          "type": "book",
+          "observation": "Networks fail below a minimum density and accelerate after crossing a tipping point.",
+          "framework_interpretation": "Discovery messaging should prove local density, not just global user counts; without local density proof, acquisition churn stays high."
+        },
+        {
+          "source": "Roomi competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Brand promise is speed and availability in major cities rather than deep trust differentiation at first touch.",
+          "framework_interpretation": "Roomi optimizes for entering many local atomic networks where immediacy can create first-session utility."
+        }
+      ]
+    },
+    "search": {
+      "what_they_do": "Users filter by city, budget, move-in timing, and room/profile attributes, then browse cards/lists of rooms or potential roommates.",
+      "quality_level": "good",
+      "framework_analysis": "Search benefits directly from network size and side-balance: more active listers and seekers increase match probability and produce a stronger perceived network effect.",
+      "what_nobody_in_category_does": "The category rarely shows real-time market depth by submarket (for example, expected response rates by neighborhood plus move-in window).",
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I: network value rises with relevant participants)",
+          "type": "book",
+          "observation": "A network's practical value increases when the right people are present and interaction is possible.",
+          "framework_interpretation": "Search quality depends less on raw listing count and more on relevance density inside each local atomic network."
+        },
+        {
+          "source": "Roomi competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Core search is broad and fast but still exposes uneven quality and stale listings in thinner submarkets.",
+          "framework_interpretation": "Cold-start pockets persist within cities, indicating some atomic networks never fully tip."
+        }
+      ]
+    },
+    "listing_evaluation": {
+      "what_they_do": "Users review photos, bio details, preferences, and profile/listing metadata to judge fit before contacting.",
+      "quality_level": "adequate",
+      "framework_analysis": "Roomi reaches liquidity faster than trust depth; this creates anti-network pressure where more supply can also mean more uncertainty, forcing users to do extra screening work.",
+      "what_nobody_in_category_does": "Few players make trust density visible (for example, confidence scores combining verification depth, response consistency, and historical reliability).",
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I: overcrowding/carrying capacity concept)",
+          "type": "book",
+          "observation": "As networks scale, relevance and quality can degrade without filtering and anti-spam mechanisms.",
+          "framework_interpretation": "Listing evaluation becomes cognitively heavy when ranking and trust signals do not scale with network growth."
+        },
+        {
+          "source": "public_review pattern on roommate platforms",
+          "type": "public_review",
+          "observation": "Users frequently report inconsistent listing quality and concern about scams or ghosting.",
+          "framework_interpretation": "Weak trust primitives reduce effective network value even when nominal liquidity is high."
+        }
+      ]
+    },
+    "booking_proposal": {
+      "what_they_do": "Roomi generally supports connection and intent signaling, but final negotiation/commitment often moves off-platform or remains lightly structured compared with full transaction marketplaces.",
+      "quality_level": "weak",
+      "framework_analysis": "This is where Roomi's atomic network often breaks: it can generate matches but does not always convert them into high-confidence, on-platform commitments that reinforce defensibility.",
+      "what_nobody_in_category_does": "The category largely avoids standardized roommate-offer workflows with explicit terms, milestone confirmation, and mutual pre-commitment checks.",
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I: product + network duality)",
+          "type": "book",
+          "observation": "A strong networked product needs both user connections and robust product mechanics around those connections.",
+          "framework_interpretation": "If commitment mechanics are weak, network interactions leak off-platform and feedback loops weaken."
+        },
+        {
+          "source": "Roomi competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Conversation is supported, but formalized offer-to-agreement flow is not the category's strongest layer.",
+          "framework_interpretation": "Conversion from match to signed living arrangement is a fragile point in the network lifecycle."
+        }
+      ]
+    },
+    "communication": {
+      "what_they_do": "In-app messaging enables introductions, screening, and logistics; response speed is a major success driver.",
+      "quality_level": "good",
+      "framework_analysis": "Messaging is Roomi's magic-moment engine: once both sides exchange timely, relevant messages, local network value becomes immediately tangible and retention improves.",
+      "what_nobody_in_category_does": "Few roommate products orchestrate structured conversation prompts that reduce ghosting and accelerate trust formation in the first 48 hours.",
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I: engagement increases when network interactions are active)",
+          "type": "book",
+          "observation": "Users stay when other users are active and interactions are meaningful.",
+          "framework_interpretation": "Fast bilateral messaging is the behavioral trigger that confirms network utility."
+        },
+        {
+          "source": "industry_pattern",
+          "type": "industry_pattern",
+          "observation": "Response latency strongly predicts conversion in two-sided matching products.",
+          "framework_interpretation": "Communication quality can compensate for moderate search imperfections and push an atomic network past tipping."
+        }
+      ]
+    },
+    "active_stay": {
+      "what_they_do": "Roomi has limited or no core workflow for co-living operations once people move in; ongoing stay management is mostly off-platform.",
+      "quality_level": "absent",
+      "framework_analysis": "The network loop ends too early: Roomi captures pre-match interactions but not the high-value in-stay behavior that could deepen trust data and future matching quality.",
+      "what_nobody_in_category_does": "Most roommate platforms do not turn active co-living into a productized network layer with shared routines, issue resolution, and behavior signals.",
+      "evidence": [
+        {
+          "source": "Roomi competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Primary product surface is discovery/matching rather than post-move relationship management.",
+          "framework_interpretation": "Without post-match participation, the network cannot compound through richer interaction data."
+        }
+      ]
+    },
+    "post_stay": {
+      "what_they_do": "Post-tenancy feedback and portable reputation are limited compared with what is needed for strong repeat trust loops.",
+      "quality_level": "absent",
+      "framework_analysis": "Missing post-stay reputation loops weaken network defensibility because each new search feels partially reset instead of benefiting from accumulated trust capital.",
+      "what_nobody_in_category_does": "The category rarely builds durable, standardized roommate reputation graphs that transfer across cities and life stages.",
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I: maintaining network quality requires mechanisms beyond raw growth)",
+          "type": "book",
+          "observation": "Unchecked growth can degrade usefulness unless quality controls and relevance systems improve carrying capacity.",
+          "framework_interpretation": "Post-stay reputation is a quality-control mechanism that increases carrying capacity for trust-sensitive marketplaces."
+        }
+      ]
+    },
+    "retention": {
+      "what_they_do": "Retention is episodic and event-driven; users return during life transitions (new city, lease turnover, roommate change) rather than as a daily habit.",
+      "quality_level": "adequate",
+      "framework_analysis": "Roomi's retention follows network-cycle bursts: strong during urgent housing windows, weak between events, making each return vulnerable to mini cold starts in narrower segments.",
+      "what_nobody_in_category_does": "The category underinvests in long-term identity and relationship layers that keep users warm between housing events.",
+      "evidence": [
+        {
+          "source": "industry_pattern",
+          "type": "industry_pattern",
+          "observation": "Roommate search products show cyclical usage tied to lease and relocation timing.",
+          "framework_interpretation": "Without persistent value between moves, network effects are periodic instead of continuously compounding."
+        },
+        {
+          "source": "coldstart-network-effects.txt (Part I: collapse risk when networks dip below activity thresholds)",
+          "type": "book",
+          "observation": "Networks can unwind when active participation falls below critical density.",
+          "framework_interpretation": "Retention strategy must preserve minimum local activity to avoid repeated cold-start dynamics."
+        }
+      ]
+    }
+  },
+  "split_lease_phase_mapping": {
+    "discovery": "Split Lease Phase 1 (Host Creates a Listing) and Phase 2 (Guest Creates a Proposal)",
+    "search": "Split Lease Phase 2 (Guest Creates a Proposal)",
+    "listing_evaluation": "Split Lease Phase 2 (Guest reviews listing details before proposal)",
+    "booking_proposal": "Split Lease Phase 2 (Submit Proposal), Phase 3 (Host Counter), and Phase 4 (Guest Accepts Terms)",
+    "communication": "Split Lease Phase 3-5 (Negotiation notifications and active lease messaging)",
+    "active_stay": "Split Lease Phase 5 (Leases, Stay Management, Date Change Tool, House Manual)",
+    "post_stay": "Split Lease Phase 5 (Stay Review and post-stay feedback loop)",
+    "retention": "Split Lease cross-phase re-engagement via Listings, Proposals, Leases, and repeat stays"
+  },
+  "category_blind_spots": [
+    {
+      "blind_spot": "Trust infrastructure is shallow at the exact moment users need to commit to living together",
+      "why_nobody_tries": "Hard to standardize across jurisdictions and expensive to moderate, while monetization is easier from lead generation than commitment assurance",
+      "framework_insight": "Cold Start and atomic-network logic imply that weak trust at commitment prevents local networks from tipping into durable repeat loops",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Post-match and post-stay behavior data is not captured as a reusable reputation asset",
+      "why_nobody_tries": "Most products define success as match creation, not co-living outcomes, so they stop investing after chat handoff",
+      "framework_insight": "Without downstream interaction data, the network cannot increase carrying capacity or defend against anti-network effects like scams and ghosting",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Local liquidity is marketed as global scale instead of precise neighborhood-time-window density",
+      "why_nobody_tries": "Global growth narratives are simpler for acquisition and fundraising than exposing thin pockets transparently",
+      "framework_insight": "Atomic networks win only when users can see enough relevant participants in their exact context; otherwise the perceived network effect is overstated",
+      "signature_potential": "medium"
+    }
+  ],
+  "sources_consulted": [
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/runs/2026-02-17_1039/run-config.json",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/processes/reverse-benchmark/agents/0-competitor-mapping.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/split-lease-journey-map.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/Books/Book Guide/Books_Summary.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/Books/Books/extracts/coldstart-network-effects.txt"
+  ]
+}</script>
+  <!-- INJECT:layer-1 -->
+  <script id="data-layer-1" type="application/json">{
+  "lens": {
+    "competitor": "roomi",
+    "book": "coldstart-network-effects.txt",
+    "book_chapters": "Part 1: The Cold Start Problem and Atomic Networks."
+  },
+  "disappointment_summary": "Roomi usually works well enough to produce intros, but its experience is consistently mediocre at the moments where network effects should feel strongest: proving hyperlocal liquidity before signup, reducing trust friction before commitment, and compounding quality after move-in. The product delivers activity, not confidence, so users repeatedly do manual screening and off-platform coordination; this keeps many city-neighborhood-time-window atomic networks in a fragile state where they can match people once, but fail to build durable, self-reinforcing trust loops.",
+  "disappointments": [
+    {
+      "id": "disappoint-001",
+      "title": "City-Wide Promise, Block-Level Thinness",
+      "competitor_phase": "discovery",
+      "type": "broken_promise",
+      "what_happens_now": "The app is positioned as fast roommate matching in a big city, but new users are not shown pre-signup neighborhood-level depth (for their budget and move-in window), so they discover thin pockets only after onboarding and swiping.",
+      "why_its_not_a_bug": "Search still returns profiles and listings, so the core function appears to work even when local relevance density is low.",
+      "why_it_matters_psychologically": "Users interpret low early match quality as market weakness and disengage before reaching a first success; this is classic cold-start perception failure where confidence drops before the atomic network can tip.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "high",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I, Cold Start theory and local network density)",
+          "type": "book",
+          "observation": "Networked products only feel useful when enough relevant participants are present in the same network slice.",
+          "framework_interpretation": "Without visible proof of local density, users assume they are below threshold and exit early."
+        },
+        {
+          "source": "Roomi competitor UX observation from Layer 0 discovery",
+          "type": "competitor_ux",
+          "observation": "Discovery emphasizes speed and major-city activity rather than precise submarket liquidity.",
+          "framework_interpretation": "Top-of-funnel promise overstates utility for thin neighborhood-time segments."
+        }
+      ],
+      "the_coffee_test": "Yes: if users saw real neighborhood-time liquidity before signup, it would feel unexpectedly premium in a category where vague scale claims are normal."
+    },
+    {
+      "id": "disappoint-002",
+      "title": "Filters Without Matchability Forecast",
+      "competitor_phase": "search",
+      "type": "invisible_labor",
+      "what_happens_now": "Users apply budget, location, and timing filters, then manually infer whether results are actually contactable and likely to respond; there is no clear forecast of response probability or active depth by filter combination.",
+      "why_its_not_a_bug": "Filtering and browsing function correctly, so nothing technically fails.",
+      "why_it_matters_psychologically": "People spend cognitive effort testing combinations and second-guessing whether poor results mean bad filters or weak supply, creating decision fatigue that lowers session persistence.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "medium",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I, value depends on the right people being present)",
+          "type": "book",
+          "observation": "Network value comes from relevant participants, not gross participant count.",
+          "framework_interpretation": "Search UX should expose relevance density and expected interaction, not only list volume."
+        },
+        {
+          "source": "Roomi competitor UX observation from Layer 0 search",
+          "type": "competitor_ux",
+          "observation": "Search is fast and broad but quality and freshness vary by submarket.",
+          "framework_interpretation": "Users absorb volatility as personal effort instead of product guidance."
+        }
+      ],
+      "the_coffee_test": "Yes: a simple 'likely to match in 48h' signal would surprise users because roommate search tools usually make them do this math manually."
+    },
+    {
+      "id": "disappoint-003",
+      "title": "Trust Stops at Surface-Level Profiles",
+      "competitor_phase": "listing_evaluation",
+      "type": "trust_vacuum",
+      "what_happens_now": "During listing/profile review, users mostly compare photos, bios, and sparse metadata, but cannot quickly assess reliability depth (verification quality, consistency, past follow-through, ghosting risk).",
+      "why_its_not_a_bug": "Profiles are viewable and contact can proceed, so the workflow is complete from a functional standpoint.",
+      "why_it_matters_psychologically": "At high-stakes co-living decisions, ambiguity triggers risk aversion; users over-index on weak proxies and either delay outreach or move conversations off-platform for confidence checks.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "high",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I, product+network duality)",
+          "type": "book",
+          "observation": "Strong networked outcomes require robust product mechanics around connections, not just more connections.",
+          "framework_interpretation": "Trust scaffolding is part of product quality that unlocks network value."
+        },
+        {
+          "source": "Public review pattern on roommate platforms",
+          "type": "public_review",
+          "observation": "Users frequently report scam concern and inconsistent listing quality.",
+          "framework_interpretation": "Weak trust signals lower effective liquidity by making many nominal options feel unusable."
+        }
+      ],
+      "the_coffee_test": "Yes: deeper trust density signals at evaluation time would feel unusually reassuring in a category where users expect to self-audit strangers."
+    },
+    {
+      "id": "disappoint-004",
+      "title": "Match Created, Commitment Unstructured",
+      "competitor_phase": "booking_proposal",
+      "type": "abandoned_phase",
+      "what_happens_now": "After initial mutual interest, users rely on ad hoc chat to negotiate terms (dates, deposits, house rules, responsibilities), and final commitment often shifts off-platform with no standardized offer-to-agreement flow.",
+      "why_its_not_a_bug": "People can still exchange messages and make deals, so the platform appears to fulfill its matching role.",
+      "why_it_matters_psychologically": "The highest-anxiety moment lacks structure, so users fear misunderstanding and opportunism; this weakens conversion and prevents repeatable trust loops that strengthen atomic networks.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "high",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Atomic Networks chapter, product mechanics around interactions)",
+          "type": "book",
+          "observation": "Network growth is durable when interactions are converted into reliable, repeatable outcomes.",
+          "framework_interpretation": "Unstructured commitment leaks value off-platform and reduces defensibility."
+        },
+        {
+          "source": "Roomi competitor UX observation from Layer 0 booking_proposal",
+          "type": "competitor_ux",
+          "observation": "Conversation is supported, but formalized offer and acceptance mechanics are weak.",
+          "framework_interpretation": "Conversion quality varies user-by-user instead of being productized."
+        }
+      ],
+      "the_coffee_test": "Yes: a structured roommate agreement flow would feel unexpectedly excellent because users currently expect to improvise a high-risk negotiation."
+    },
+    {
+      "id": "disappoint-005",
+      "title": "Ghosting Is Normalized by Generic Messaging",
+      "competitor_phase": "communication",
+      "type": "mediocre_default",
+      "what_happens_now": "In-app chat works as a basic thread, but there are few built-in prompts, milestones, or response expectations to keep first conversations progressing during the critical first 24-48 hours.",
+      "why_its_not_a_bug": "Messages send and deliver; users can communicate if they choose to.",
+      "why_it_matters_psychologically": "Silence is interpreted as rejection or risk, which reduces willingness to invest in additional outreach and stalls the 'magic moment' where bilateral activity confirms network value.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "medium",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I, engagement depends on active interactions)",
+          "type": "book",
+          "observation": "Networks retain users when interactions are timely and meaningful.",
+          "framework_interpretation": "Messaging quality is not just utility; it is the trigger for perceived network utility."
+        },
+        {
+          "source": "Industry pattern in two-sided matching",
+          "type": "industry_pattern",
+          "observation": "Response latency strongly predicts conversion to real-world outcomes.",
+          "framework_interpretation": "Default chat without orchestration tolerates avoidable ghosting."
+        }
+      ],
+      "the_coffee_test": "Yes: guided first-contact messaging that measurably cuts ghosting would delight because users have learned to expect dead-air as normal."
+    },
+    {
+      "id": "disappoint-006",
+      "title": "Move-In Becomes Off-Platform Amnesia",
+      "competitor_phase": "active_stay",
+      "type": "abandoned_phase",
+      "what_happens_now": "Once people move in, Roomi contributes little to shared-living operations (rules alignment, issue logging, routine coordination), so high-value co-living interactions happen elsewhere and are not captured.",
+      "why_its_not_a_bug": "The product was positioned primarily for matching, and users can manage living arrangements through other channels.",
+      "why_it_matters_psychologically": "Users feel the platform 'left' at the moment real trust is tested, which lowers emotional attachment and removes the opportunity to convert lived behavior into reusable confidence signals.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "some_users",
+        "impact": "medium",
+        "visibility": "only_power_users_notice"
+      },
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I, network quality must be sustained with product mechanisms)",
+          "type": "book",
+          "observation": "A network does not compound if quality systems do not evolve with usage.",
+          "framework_interpretation": "Ignoring the in-stay phase prevents quality compounding from real behavior."
+        },
+        {
+          "source": "Roomi competitor UX observation from Layer 0 active_stay",
+          "type": "competitor_ux",
+          "observation": "Core surface focuses on pre-match and matching, not post-move operations.",
+          "framework_interpretation": "Lifecycle value is truncated before trust data can mature."
+        }
+      ],
+      "the_coffee_test": "Yes: even lightweight co-living tools would feel surprising because users currently expect total handoff after matching."
+    },
+    {
+      "id": "disappoint-007",
+      "title": "No Portable Reputation After the Stay",
+      "competitor_phase": "post_stay",
+      "type": "missing_delight",
+      "what_happens_now": "After a roommate arrangement ends, users have limited structured ways to leave nuanced, portable reputation that improves future matching confidence across neighborhoods or cities.",
+      "why_its_not_a_bug": "Users can still return and search again; lack of post-stay depth does not break immediate flows.",
+      "why_it_matters_psychologically": "People feel prior good behavior is not rewarded, so each new search carries near-first-time uncertainty; this reduces trust carryover and suppresses network compounding.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "some_users",
+        "impact": "high",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I, maintaining network quality and carrying capacity)",
+          "type": "book",
+          "observation": "As networks scale, quality controls are required to avoid degradation.",
+          "framework_interpretation": "Post-stay reputation is a core quality-control mechanism for trust-sensitive markets."
+        },
+        {
+          "source": "Roomi competitor UX observation from Layer 0 post_stay",
+          "type": "competitor_ux",
+          "observation": "Post-tenancy feedback and reusable trust loops are limited.",
+          "framework_interpretation": "The network repeatedly resets trust instead of accumulating it."
+        }
+      ],
+      "the_coffee_test": "Yes: a respected, portable roommate reputation would feel like a step-change in confidence where users currently expect zero long-term credit."
+    },
+    {
+      "id": "disappoint-008",
+      "title": "Returners Re-Enter a Lukewarm Network",
+      "competitor_phase": "retention",
+      "type": "mediocre_default",
+      "what_happens_now": "Users typically return only during lease transitions, and the product offers limited between-event value, so they come back cold and must rebuild context, trust, and outreach behavior each cycle.",
+      "why_its_not_a_bug": "Event-driven usage is normal in housing; the app still supports periodic searches.",
+      "why_it_matters_psychologically": "Repeated re-onboarding creates learned friction, making users less likely to deepen identity or invite others; local network activity can dip below tipping thresholds between seasonal spikes.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt (Part I, collapse risk below activity thresholds)",
+          "type": "book",
+          "observation": "Networks can unwind when active participation falls below critical density.",
+          "framework_interpretation": "Episodic engagement without warm-state mechanisms recreates mini cold starts."
+        },
+        {
+          "source": "Industry pattern in roommate search cycles",
+          "type": "industry_pattern",
+          "observation": "Usage spikes around relocations and lease turnover, then drops sharply.",
+          "framework_interpretation": "Periodic demand without continuity features limits compounding network effects."
+        }
+      ],
+      "the_coffee_test": "Yes: making off-season participation valuable would surprise users because they expect roommate platforms to be disposable between moves."
+    }
+  ],
+  "disappointment_clusters": [
+    {
+      "cluster_name": "Local Liquidity Is Opaque",
+      "disappointment_ids": [
+        "disappoint-001",
+        "disappoint-002",
+        "disappoint-008"
+      ],
+      "pattern": "Roomi communicates global activity but not submarket matchability, so users repeatedly infer whether their atomic network is actually above threshold.",
+      "signature_potential": "Build explicit neighborhood-time liquidity and response-forecast primitives that make local network health legible before and during search."
+    },
+    {
+      "cluster_name": "Trust Breaks at Commitment Moments",
+      "disappointment_ids": [
+        "disappoint-003",
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "pattern": "The product supports contact but under-structures trust formation when money, timing, and co-living risk become concrete.",
+      "signature_potential": "Own the trust-critical path with structured negotiation, response choreography, and confidence signals that convert matches into reliable agreements."
+    },
+    {
+      "cluster_name": "No Compounding After Match",
+      "disappointment_ids": [
+        "disappoint-006",
+        "disappoint-007"
+      ],
+      "pattern": "Post-match and post-stay behavior is mostly uncaptured, so the network cannot accumulate durable reputation capital.",
+      "signature_potential": "Extend into active-stay and post-stay loops to transform one-off matches into a defensible trust graph."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-2 -->
+  <script id="data-layer-2" type="application/json">{
+  "lens": {
+    "competitor": "roomi",
+    "book": "coldstart-network-effects.txt",
+    "book_chapters": "Part 1: The Cold Start Problem and Atomic Networks."
+  },
+  "crossref_summary": "The transcript evidence supports that Roomi-like disappointments are real category behaviors, not just analyst hypotheses. Across both host and guest calls, people repeatedly ask for legitimacy proof, manual vetting, and direct contact before committing; they also describe pricing/search opacity and workflow leakage into text/email. This matches the Cold Start lens: when trust, clarity, and coordination are weak at local decision moments, users do extra manual work and network value fails to compound.",
+  "validated_disappointments": [
+    {
+      "disappointment_id": "disappoint-003",
+      "disappointment_title": "Trust Stops at Surface-Level Profiles",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I keep seeing your postings and I'm just like, I don't know if this guy is legit or what it is.",
+          "context": "Host opens the call from a skepticism posture and questions legitimacy before discussing fit.",
+          "match_type": "emotional_moment"
+        },
+        {
+          "transcript": "patricia-call-2.txt",
+          "speaker": "host",
+          "quote": "And, you know, I'm just a little very, cause there are so many scams around and I've already been scammed twice.",
+          "context": "Host explicitly reports prior scam exposure, raising trust barriers before transaction details.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "Susan  Bryant customer call.txt",
+          "speaker": "guest",
+          "quote": "I have to go and see the space and just to make sure that everything is legit.",
+          "context": "Guest-side decision maker requires trust verification before travel and booking commitment.",
+          "match_type": "unmet_expectation"
+        },
+        {
+          "transcript": "Susan  Bryant customer call.txt",
+          "speaker": "guest",
+          "quote": "do you do background check?",
+          "context": "User asks for explicit trust infrastructure rather than relying on listing/profile surface.",
+          "match_type": "unmet_expectation"
+        }
+      ],
+      "user_language": "Users say \"legit,\" \"scams,\" and \"background check\"; they do not assume trust from profile/listing alone.",
+      "framework_reinforcement": "This strengthens the Layer 1 claim that raw liquidity is not enough in trust-sensitive matching. Under Cold Start dynamics, weak trust signals reduce effective network density because many nominal matches feel unusable."
+    },
+    {
+      "disappointment_id": "disappoint-004",
+      "disappointment_title": "Match Created, Commitment Unstructured",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "guest",
+          "quote": "Has that just been like through texts? Yeah. Um, so he was texting me and saying, Hey, you know, I can't make a fist for another day.",
+          "context": "Rescheduling and commitment changes happen through ad hoc texting instead of a structured in-product flow.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "Steven Mariscal - 21 April 2022.txt",
+          "speaker": "guest",
+          "quote": "the best working is texting me because, uh, I get a lot of emails and sometimes it takes me a little bit to answer to all the miles, but I have answer texts immediately.",
+          "context": "Agent explicitly steers coordination to text due to channel friction, signaling process leakage off structured rails.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "stephanie-call.txt",
+          "speaker": "host",
+          "quote": "Do we have the opportunity to speak to them or interview them before we several, a week before?",
+          "context": "Host requests manual interview as a pre-commitment safeguard, indicating commitment mechanics are not self-sufficient.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "Users describe doing it \"through texts\" and asking to \"interview them\" before agreement.",
+      "framework_reinforcement": "This confirms that matching alone does not produce durable outcomes. In Atomic Network terms, value leaks when commitment steps are manual, fragmented, and person-dependent."
+    },
+    {
+      "disappointment_id": "disappoint-002",
+      "disappointment_title": "Filters Without Matchability Forecast",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "Copy of Call with Tom C guest.txt",
+          "speaker": "guest",
+          "quote": "I just wish that sometimes it was a bit more time-to-time price.",
+          "context": "User cannot confidently interpret pricing while searching, increasing cognitive effort and uncertainty.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "Copy of Call with Tom C guest.txt",
+          "speaker": "guest",
+          "quote": "I think the main issue I had was that I'm not sure how the content is.",
+          "context": "User signals low confidence in search output quality and relevance during evaluation.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "Tapper S - 9 September 2022.txt",
+          "speaker": "guest",
+          "quote": "there are too many listings for me to remember.",
+          "context": "User and agent rely on manual screenshot exchange because discovery confidence is low.",
+          "match_type": "workaround"
+        }
+      ],
+      "user_language": "People say pricing is not clear and that there are too many listings to track reliably.",
+      "framework_reinforcement": "Cold Start framing says the right local participants matter more than raw inventory. These calls show users still doing manual inference about viability, which depresses perceived network utility."
+    },
+    {
+      "disappointment_id": "disappoint-005",
+      "disappointment_title": "Ghosting Is Normalized by Generic Messaging",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "guest",
+          "quote": "And then also have the ability to message with Brad.",
+          "context": "Participant asks for structured messaging capability tied to scheduling decisions.",
+          "match_type": "unmet_expectation"
+        },
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "guest",
+          "quote": "we'll be working on, uh, basically just having a way to notify you.",
+          "context": "Need for notification reliability is explicit because current communication timing is fragile.",
+          "match_type": "unmet_expectation"
+        }
+      ],
+      "user_language": "Users ask for \"ability to message\" and reliable request notifications rather than informal back-and-forth.",
+      "framework_reinforcement": "This supports the Layer 1 messaging thesis: interaction speed and consistency are core to network value realization, not secondary UX polish."
+    }
+  ],
+  "new_discoveries": [
+    {
+      "id": "discovery-001",
+      "title": "Pre-Commitment Authenticity Check Becomes Mandatory User Labor",
+      "type": "invisible_labor",
+      "transcript_evidence": [
+        {
+          "transcript": "Susan  Bryant customer call.txt",
+          "speaker": "guest",
+          "quote": "I have to go and see the space and just to make sure that everything is legit.",
+          "context": "User requires an extra verification step before booking."
+        },
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "And I also will send you my LinkedIn profile so you could see me there as well.",
+          "context": "Trust must be bootstrapped manually through off-platform identity proof."
+        }
+      ],
+      "relates_to_competitor": "Roomi operates in the same trust-sensitive roommate category; when platform-native trust is insufficient, users add manual authenticity checks before commitment.",
+      "framework_analysis": "In Cold Start terms, this is anti-network friction: every extra verification step lowers conversion velocity and can keep local networks below tipping density."
+    },
+    {
+      "id": "discovery-002",
+      "title": "Search + Pricing Ambiguity Pushes Users Into Assisted, Manual Discovery",
+      "type": "broken_promise",
+      "transcript_evidence": [
+        {
+          "transcript": "Copy of Call with Tom C guest.txt",
+          "speaker": "guest",
+          "quote": "I just wish that sometimes it was a bit more time-to-time price.",
+          "context": "User expects transparent pricing while browsing but cannot confidently read it."
+        },
+        {
+          "transcript": "Copy of Call with Tom C guest.txt",
+          "speaker": "guest",
+          "quote": "I think the main issue I had was that I'm not sure how the content is.",
+          "context": "User reports weak confidence in search result reliability."
+        },
+        {
+          "transcript": "Tapper S - 9 September 2022.txt",
+          "speaker": "guest",
+          "quote": "there are too many listings for me to remember.",
+          "context": "Decision process shifts to screenshots, agent memory, and manual follow-up."
+        }
+      ],
+      "relates_to_competitor": "For Roomi, this implies that fast browsing alone is insufficient if users still cannot forecast matchability and true cost from the interface.",
+      "framework_analysis": "Atomic networks win when users quickly find relevant participants and can act. Ambiguity forces extra steps, reducing interaction throughput and slowing local network compounding."
+    }
+  ],
+  "library_connections": [
+    {
+      "disappointment_id": "disappoint-003",
+      "existing_element_id": "works-004",
+      "connection": "works-004 addresses the trust handoff by explicitly bridging human trust to digital trust, which maps to repeated user requests for legitimacy proof.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-004",
+      "existing_element_id": "works-003",
+      "connection": "works-003 focuses on matching conversational speed in-platform; this directly targets the current workaround of handling reschedules and negotiations in text/email.",
+      "gap_or_reinforcement": "partial"
+    },
+    {
+      "disappointment_id": "disappoint-002",
+      "existing_element_id": "works-006",
+      "connection": "works-006 translates user mental models into platform models, reducing manual interpretation burden in search/pricing decisions.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "discovery-002",
+      "existing_element_id": "communicates-002",
+      "connection": "communicates-002 proposes single-sum financial clarity; transcript evidence shows users explicitly struggling with pricing transparency during discovery.",
+      "gap_or_reinforcement": "partial"
+    }
+  ],
+  "transcripts_scanned": {
+    "host_count": 3,
+    "guest_count": 5,
+    "transcripts_with_matches": [
+      "tag-call .txt",
+      "patricia-call-2.txt",
+      "stephanie-call.txt",
+      "nneka-call.txt",
+      "Copy of Call with Tom C guest.txt",
+      "Susan  Bryant customer call.txt",
+      "Steven Mariscal - 21 April 2022.txt",
+      "Tapper S - 9 September 2022.txt"
+    ],
+    "transcripts_without_matches": []
+  }
+}</script>
+  <!-- INJECT:layer-3 -->
+  <script id="data-layer-3" type="application/json">{
+  "lens": {
+    "competitor": "roomi",
+    "book": "coldstart-network-effects.txt",
+    "book_chapters": "Part 1: The Cold Start Problem and Atomic Networks."
+  },
+  "opportunity_thesis": "The biggest strategic opening is to make trust and commitment velocity visible at the exact local moments where roommate marketplaces usually fail. Roomi proves demand for fast introductions, but the category still leaves users to manually verify legitimacy, predict matchability, negotiate terms, and rebuild trust every cycle. Under Cold Start dynamics, these gaps keep atomic networks below tipping point even when top-line supply looks healthy. Split Lease can win by turning hidden trust labor into productized infrastructure that increases local conversion quality and compounds into a defensible reputation network over time.",
+  "opportunities": [
+    {
+      "id": "opp-001",
+      "title": "Legitimacy Graph Before First Message",
+      "based_on_disappointments": [
+        "disappoint-003",
+        "disappoint-001"
+      ],
+      "split_lease_phases": [
+        "discovery",
+        "search",
+        "listing_evaluation"
+      ],
+      "the_signature": "Split Lease makes legitimacy a first-class network primitive, not a profile afterthought: every listing and person carries a visible trust-density card that combines identity depth, behavior reliability, and verification recency before contact starts. Users can see confidence in context (this neighborhood, this date window, this budget band), so the first decision is no longer 'is this real?' but 'is this a fit?' That creates a coffee-test moment because users expect to self-audit strangers, not receive pre-commitment legitimacy intelligence.",
+      "why_competitors_wont_copy": "Lead-gen marketplaces optimize for listing volume and message volume, not expensive trust operations that may reduce apparent inventory and short-term monetization. Adopting this deeply would force competitors to trade growth optics for quality controls, add moderation cost centers, and redesign ranking economics tied to boosts/premium visibility.",
+      "behavioral_framework_case": "Part 1 of Cold Start shows network value depends on relevant, trusted participants crossing local thresholds; weak trust lowers effective density even when nominal supply is high. By removing authenticity ambiguity at first touch, Split Lease raises the proportion of 'usable' nodes in each atomic network and improves the probability of a tipping event.",
+      "user_evidence": "Hosts and guests repeatedly asked for legitimacy proof: 'I don't know if this guy is legit,' 'there are so many scams around,' and 'do you do background check?' Users also said they must physically verify spaces to confirm legitimacy before committing.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not turn this into a vanity badge wall; the signature is predictive trust quality, not more icons.",
+        "Do not hide low-confidence signals to protect conversion optics; transparency is the product advantage."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "works-004",
+          "works-001"
+        ],
+        "gap_assessment": "Partially addressed. The library covers human-to-digital trust continuity and transition safety, but not a market-wide, pre-message legitimacy graph visible at search/evaluation time."
+      }
+    },
+    {
+      "id": "opp-002",
+      "title": "Atomic Liquidity Map and Matchability Forecast",
+      "based_on_disappointments": [
+        "disappoint-001",
+        "disappoint-002",
+        "disappoint-008"
+      ],
+      "split_lease_phases": [
+        "discovery",
+        "search"
+      ],
+      "the_signature": "Split Lease exposes real neighborhood-time-window liquidity before and during search, with a plain forecast of likely responses and expected time-to-match for each filter state. Instead of pretending global scale equals local success, the product tells users exactly where they are above or below threshold and suggests adjacent moves that improve outcomes. This feels radically honest in a category that markets city-wide activity but hides block-level thinness.",
+      "why_competitors_wont_copy": "Most competitors are acquisition-driven and depend on broad activity narratives; transparent submarket thinness can hurt top-of-funnel conversion and paid boost demand. Implementing truthful matchability also requires reliable freshness telemetry and willingness to reveal where the network is weak.",
+      "behavioral_framework_case": "Cold Start emphasizes that atomic networks tip only when enough relevant participants are active in the same slice. Forecasting local viability reduces uncertainty costs, prevents premature abandonment, and channels users toward interaction-dense zones where network effects can actually manifest.",
+      "user_evidence": "Users reported uncertainty about search quality and pricing context ('I'm not sure how the content is,' 'too many listings for me to remember') and the need to manually infer viability. This maps directly to hidden local-density risk.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "most_competitors",
+        "user_validation": "moderate",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "natural_fit"
+      },
+      "anti_patterns": [
+        "Do not ship generic inventory counters; the signature is actionable local matchability, not bigger numbers.",
+        "Do not present confidence scores without behavioral explanation; users must understand what improves forecast quality."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "works-006",
+          "communicates-002"
+        ],
+        "gap_assessment": "Reinforced but not solved. Existing elements reduce interpretation burden and pricing confusion, yet do not provide explicit pre-signup local-liquidity and response forecasting."
+      }
+    },
+    {
+      "id": "opp-003",
+      "title": "Commitment Rail From Chat to Agreement",
+      "based_on_disappointments": [
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "split_lease_phases": [
+        "proposal_creation",
+        "negotiation",
+        "acceptance",
+        "proposal_mgmt"
+      ],
+      "the_signature": "Split Lease turns the most fragile phase into a structured, high-clarity rail: terms are co-authored inside the conversation, milestones are explicit, and both sides see a live commitment state from first interest to accepted agreement. The platform keeps conversational speed while eliminating off-platform leakage and ambiguity around dates, deposits, expectations, and next actions. Users experience this as 'finally, someone made the scary part legible.'",
+      "why_competitors_wont_copy": "Competitors are optimized for introductions; owning commitment requires legal/ops depth, policy handling, and product accountability for failed agreements. It also shifts the business from lead-gen volume toward outcome quality, which can conflict with current monetization and organizational incentives.",
+      "behavioral_framework_case": "Part 1 frames durable networks as product + network duality: connections alone are insufficient without robust mechanics that convert interaction into reliable outcomes. A commitment rail increases conversion consistency and reinforces network defensibility by keeping high-value interactions on-platform.",
+      "user_evidence": "Transcripts show real workflows leaking into text ('Has that just been through texts? Yeah'), requests for pre-commit interviews, and explicit needs for better notification reliability. Users are signaling that chat alone is not enough for high-risk agreement moments.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "moderate",
+        "framework_support": "strong",
+        "feasibility": "ambitious",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not bloat this into a rigid legal wizard; the signature is structured clarity at conversational speed.",
+        "Do not push users off-platform for final steps; leakage destroys the reinforcing loop."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "works-003",
+          "works-006"
+        ],
+        "gap_assessment": "Partially addressed. Library principles on conversational speed and model translation support execution, but a full end-to-end commitment operating rail remains a clear gap."
+      }
+    },
+    {
+      "id": "opp-004",
+      "title": "Post-Stay Reputation That Actually Carries Forward",
+      "based_on_disappointments": [
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "split_lease_phases": [
+        "move_in",
+        "active_lease",
+        "retention"
+      ],
+      "the_signature": "Split Lease captures lightweight co-living reliability signals during and after stays, then converts them into portable reputation that meaningfully improves future matching confidence. Good behavior earns durable trust capital across neighborhoods and future cycles, so returning users do not restart from zero. The signature is compounding trust memory in a category that treats each match as disposable.",
+      "why_competitors_wont_copy": "Most roommate products stop at match creation and avoid post-stay accountability due to moderation overhead, dispute complexity, and delayed monetization payback. Building portable reputation requires lifecycle ownership and cross-cycle data integrity that many marketplaces are not set up to maintain.",
+      "behavioral_framework_case": "Cold Start warns that unchecked growth degrades quality and that networks can unwind below activity thresholds. Post-stay reputation increases carrying capacity by filtering bad actors and preserving trust between cycles, which stabilizes atomic networks against repeated mini cold starts.",
+      "user_evidence": "Layer 1/2 evidence shows users fear scams, rely on manual checks, and experience trust reset on each search cycle. The absence of reusable trust history is a hidden but high-impact pain in return behavior.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "ambitious",
+        "alignment": "natural_fit"
+      },
+      "anti_patterns": [
+        "Do not reduce reputation to simplistic star ratings; the signature is contextual, behavior-linked trust carryover.",
+        "Do not collect post-stay data without user benefit in the next search; compounding value must be visible."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "works-005"
+        ],
+        "gap_assessment": "Mostly unsolved. Existing elements encourage engagement and advisor contribution, but do not define a durable post-stay trust graph that compounds across cycles."
+      }
+    }
+  ],
+  "opportunity_ranking": [
+    {
+      "id": "opp-001",
+      "rank": 1,
+      "reason": "Highest leverage on immediate conversion and trust-sensitive abandonment; strongest direct transcript validation and strongest Cold Start fit because it increases effective local network density before users churn."
+    },
+    {
+      "id": "opp-003",
+      "rank": 2,
+      "reason": "Owns the category's weakest, highest-anxiety moment where value currently leaks off-platform; difficult to copy due to operating-model implications and creates strong defensibility if executed well."
+    },
+    {
+      "id": "opp-002",
+      "rank": 3,
+      "reason": "Transforms discovery/search from optimism theater into actionable local certainty, improving early confidence and routing users toward tip-ready atomic networks."
+    },
+    {
+      "id": "opp-004",
+      "rank": 4,
+      "reason": "Critical long-term moat through trust compounding and retention stability, but slower payback and higher implementation complexity than pre-commitment opportunities."
+    }
+  ],
+  "strategic_narrative": "Roomi demonstrates that fast introductions are no longer enough to win roommate marketplaces; the next category leader will own confidence, not just activity. Split Lease can become the platform that makes local network health and participant legitimacy visible before users invest emotional effort, so the first session feels credible instead of speculative. That is the front edge of the strategy: reduce hidden trust labor and increase the share of interactions that users treat as genuinely usable.\n\nThe middle of the strategy is commitment quality. If Split Lease structures negotiation and acceptance so outcomes remain in-platform and auditable, it converts fragile conversations into reliable agreements. This is where atomic networks either tip or stall: better commitment mechanics raise conversion consistency and create data that competitors who only monetize introductions never capture.\n\nThe back edge is compounding trust over time. By extending into active-lease and post-stay reputation loops, Split Lease turns one-off matches into cumulative trust capital that travels with users across neighborhoods and cycles. If these three layers work together, Split Lease is no longer a roommate listing app; it becomes the trust infrastructure for recurring co-living decisions."
+}</script>
+  <!-- INJECT:layer-4 -->
+  <script id="data-layer-4" type="application/json">{
+  "lens": {
+    "competitor": "roomi",
+    "book": "coldstart-network-effects.txt",
+    "book_chapters": "Part 1: The Cold Start Problem and Atomic Networks."
+  },
+  "elements": [
+    {
+      "id": "rb-ui-001",
+      "name": "Neighborhood Liquidity Proof Card",
+      "category": "card",
+      "opportunity_id": "opp-001",
+      "source_disappointments": [
+        "disappoint-001",
+        "disappoint-002",
+        "disappoint-008"
+      ],
+      "journey_phases": [
+        "discovery",
+        "search",
+        "retention"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It removes guesswork by showing block-level matchability and response likelihood before users spend time onboarding and filtering.",
+      "why_this_is_a_signature": "Roommate platforms claim city scale; this card proves atomic-network health at the exact neighborhood, budget, and move-in window users care about.",
+      "description": "This card appears pre-signup and in search filters to display live local depth: active hosts, verified listings, median first reply time, and 48-hour match probability. It updates instantly as users change budget, move-in date, and neighborhood. The component turns local liquidity from a hidden risk into a visible confidence signal.",
+      "visual_spec": {
+        "layout": "Single 420px card with header, 4-metric grid, and recommendation strip; metrics are two-column on desktop and one-column on mobile.",
+        "background": "var(--bg-white) over a subtle purple radial wash from var(--bg-off-white).",
+        "border": "1px solid var(--border-color) with top accent bar in var(--secondary-purple).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 20px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "24px",
+          "gap": "16px"
+        },
+        "color_usage": "Primary purple anchors trust and titles; secondary purple highlights actionable market signals; accent purple marks warning thresholds without using off-brand colors."
+      },
+      "interaction_spec": {
+        "default_state": "Shows selected area, budget, move-in month, and current local market depth summary.",
+        "hover": "Metric tiles lift 2px with purple shadow and stronger border contrast.",
+        "click": "Clicking 'Show best-fit listings' opens search pre-filtered to neighborhoods with >=60% 48-hour matchability.",
+        "animation": "300ms fade-up on load and 220ms number transition with ease-out when filters change.",
+        "responsive": "Under 600px, card is full width, metric grid stacks to one column, and CTA becomes full-width 48px touch target."
+      },
+      "copy_spec": {
+        "primary_text": "Chelsea + $1,650 + Mar 1 move-in has strong local depth",
+        "secondary_text": "29 verified hosts active this week, median first reply 2.4h, estimated 48-hour matchability: 72%.",
+        "micro_copy": "Buttons: 'Show best-fit listings', 'Compare nearby blocks'. Helper: 'Updated 6 minutes ago from active host behavior.'",
+        "do": [
+          "Lead with local confidence language tied to neighborhood and timeframe.",
+          "Show one clear forecast metric users can act on immediately.",
+          "Use concrete numbers and refresh timestamps."
+        ],
+        "dont": [
+          "Do not show city-wide totals as a substitute for local depth.",
+          "Do not use vague quality labels without numeric evidence.",
+          "Do not hide low-liquidity conditions."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Neighborhood Liquidity Proof Card</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --primary-purple-hover: #251047;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-description: #374151;\n  --text-gray: #6b7280;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n  --transition-base: 0.2s;\n}\n* { box-sizing: border-box; }\nbody {\n  margin: 0;\n  padding: 24px;\n  background: radial-gradient(circle at 10% 0%, rgba(140, 104, 238, 0.16), transparent 42%), var(--bg-off-white);\n  font-family: 'DM Sans', sans-serif;\n  color: var(--text-dark);\n}\n.card {\n  max-width: 420px;\n  margin: 0 auto;\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-top: 2px solid var(--secondary-purple);\n  border-radius: var(--rounded-xl);\n  padding: 24px;\n  box-shadow: var(--shadow-purple-md);\n  animation: rise .3s ease-out;\n}\n.kicker {\n  display: inline-block;\n  padding: 6px 10px;\n  border-radius: var(--rounded-pill);\n  background: rgba(109, 49, 194, 0.12);\n  color: var(--secondary-purple);\n  font: 600 12px 'Inter', sans-serif;\n}\nh1 {\n  margin: 12px 0 8px;\n  font: 700 20px/1.2 'Inter', sans-serif;\n  color: var(--primary-purple);\n}\n.sub { margin: 0 0 16px; color: var(--text-description); font-size: 14px; line-height: 1.5; }\n.grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 12px;\n}\n.metric {\n  border: 1px solid rgba(109, 49, 194, 0.18);\n  border-radius: var(--rounded-lg);\n  padding: 12px;\n  transition: transform var(--transition-base) ease, box-shadow var(--transition-base) ease;\n}\n.metric:hover { transform: translateY(-2px); box-shadow: var(--shadow-purple-sm); }\n.label { color: var(--text-gray); font-size: 12px; margin-bottom: 6px; }\n.value { color: var(--primary-purple); font: 700 18px/1.2 'Inter', sans-serif; }\n.rec {\n  margin-top: 16px;\n  border-radius: var(--rounded-lg);\n  background: rgba(140, 104, 238, 0.12);\n  color: var(--primary-purple);\n  padding: 12px;\n  font-size: 13px;\n}\nbutton {\n  width: 100%;\n  min-height: 48px;\n  margin-top: 14px;\n  border: none;\n  border-radius: var(--rounded-pill);\n  background: var(--secondary-purple);\n  color: #fff;\n  font: 600 14px 'Inter', sans-serif;\n  cursor: pointer;\n  transition: background .1s ease;\n}\nbutton:hover { background: var(--accent-purple); }\nbutton:focus-visible { outline: 2px solid var(--secondary-purple); outline-offset: 2px; }\n@keyframes rise { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }\n@media (max-width: 600px) {\n  body { padding: 16px; }\n  .card { padding: 16px; }\n  .grid { grid-template-columns: 1fr; }\n}\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }\n}\n</style>\n</head>\n<body>\n  <article class='card'>\n    <span class='kicker'>Local Liquidity Proof</span>\n    <h1>Chelsea + $1,650 + Mar 1 move-in has strong depth</h1>\n    <p class='sub'>29 verified hosts active this week, median first reply 2.4h, estimated 48-hour matchability: 72%.</p>\n    <section class='grid'>\n      <div class='metric'><div class='label'>Verified hosts</div><div class='value'>29</div></div>\n      <div class='metric'><div class='label'>Fresh listings (7d)</div><div class='value'>41</div></div>\n      <div class='metric'><div class='label'>Median first reply</div><div class='value'>2.4h</div></div>\n      <div class='metric'><div class='label'>48h matchability</div><div class='value'>72%</div></div>\n    </section>\n    <div class='rec'>Best nearby fallback: Flatiron (+6% matchability, +$90/month budget).</div>\n    <button type='button'>Show best-fit listings</button>\n  </article>\n</body>\n</html>",
+      "before_after": {
+        "before": "Roomi-style discovery promises city activity but does not prove neighborhood-time-window viability before effort is spent.",
+        "after": "Split Lease shows local atomic-network health in one card so users immediately know whether to engage, adjust filters, or switch neighborhoods."
+      },
+      "implements_principles": [
+        "opp-001",
+        "disappoint-001",
+        "disappoint-002",
+        "disappoint-008",
+        "works-006"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "rb-ui-002",
+      "name": "Guided Commitment Terms Modal",
+      "category": "modal",
+      "opportunity_id": "opp-002",
+      "source_disappointments": [
+        "disappoint-003",
+        "disappoint-004"
+      ],
+      "journey_phases": [
+        "listing_evaluation",
+        "booking_proposal",
+        "communication"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It structures the highest-anxiety commitment moment so users do not leak negotiations into risky, ambiguous off-platform threads.",
+      "why_this_is_a_signature": "Competitors stop at chat; this modal converts mutual interest into clear terms, shared checkpoints, and explicit acceptance states.",
+      "description": "This modal opens from chat when both sides click 'Ready to discuss terms.' It guides users through move-in date, monthly amount, house rules, and deposit expectations using structured fields plus confidence chips. Each step confirms what is agreed, what is pending, and who acts next, producing a clear offer object rather than fragmented messages.",
+      "visual_spec": {
+        "layout": "Centered 400px modal with step rail, form body, and persistent action footer.",
+        "background": "White modal on dark overlay; step rail uses subtle purple tint.",
+        "border": "1px solid var(--border-color) with 2px active step indicator in var(--secondary-purple).",
+        "border_radius": "16px",
+        "typography": {
+          "heading": "Inter, 18px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "24px",
+          "gap": "16px"
+        },
+        "color_usage": "Primary purple carries trust framing and section headers; secondary purple marks agreed terms and active controls; accent purple highlights pending decisions."
+      },
+      "interaction_spec": {
+        "default_state": "Step 1 loads with prefilled values from listing and profile, plus visible agreement progress.",
+        "hover": "Chips and list rows gain purple border emphasis and shadow.",
+        "click": "Continue validates required fields, updates shared term summary, and advances to the next step; final click sends a structured offer.",
+        "animation": "Modal enters with 280ms fade and 280ms translateY transition; step transitions use 180ms crossfade.",
+        "responsive": "On mobile, modal docks bottom with 24px top radius and full-width 48px action buttons."
+      },
+      "copy_spec": {
+        "primary_text": "Draft your roommate terms together",
+        "secondary_text": "Lock the important details here before you exchange keys.",
+        "micro_copy": "Step labels: 'Move-in date', 'Money terms', 'Home expectations', 'Final review'. Buttons: 'Save and continue', 'Send structured offer'.",
+        "do": [
+          "Use plain language for risk-heavy details like deposits and quiet hours.",
+          "Confirm what is agreed after every step.",
+          "Keep next action ownership explicit."
+        ],
+        "dont": [
+          "Do not leave critical terms buried in freeform chat.",
+          "Do not allow ambiguous labels like 'flexible' without bounds.",
+          "Do not hide pending terms at submit time."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Guided Commitment Terms Modal</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-description: #374151;\n  --text-gray: #6b7280;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --overlay-dark: rgba(0, 0, 0, 0.55);\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-2xl: 16px;\n  --rounded-pill: 20px;\n  --shadow-purple-lg: 0 6px 20px rgba(109, 49, 194, 0.35);\n}\n* { box-sizing: border-box; }\nbody {\n  margin: 0;\n  font-family: 'DM Sans', sans-serif;\n  background: linear-gradient(135deg, rgba(49, 19, 93, 0.1), rgba(109, 49, 194, 0.08));\n  min-height: 100vh;\n}\n.overlay {\n  min-height: 100vh;\n  background: var(--overlay-dark);\n  display: grid;\n  place-items: center;\n  padding: 16px;\n}\n.modal {\n  width: 100%;\n  max-width: 400px;\n  border-radius: var(--rounded-2xl);\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  box-shadow: var(--shadow-purple-lg);\n  overflow: hidden;\n  animation: enter .28s ease-out;\n}\n.header {\n  padding: 16px 24px;\n  background: linear-gradient(180deg, rgba(140, 104, 238, 0.12), transparent);\n  border-bottom: 1px solid var(--border-color);\n}\n.title { margin: 0; font: 700 18px 'Inter', sans-serif; color: var(--primary-purple); }\n.subtitle { margin: 6px 0 0; font-size: 13px; color: var(--text-gray); }\n.steps {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n  gap: 8px;\n  padding: 12px 24px;\n  background: var(--bg-off-white);\n  border-bottom: 1px solid var(--border-color);\n}\n.step {\n  text-align: center;\n  border-radius: var(--rounded-pill);\n  padding: 6px;\n  font: 600 11px 'Inter', sans-serif;\n  color: var(--text-gray);\n  border: 1px solid transparent;\n}\n.step.active { color: var(--secondary-purple); border-color: rgba(109, 49, 194, 0.35); background: #fff; }\n.body { padding: 16px 24px; display: grid; gap: 12px; }\nlabel { font: 600 12px 'Inter', sans-serif; color: var(--primary-purple); }\ninput, select {\n  width: 100%;\n  min-height: 48px;\n  margin-top: 6px;\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-lg);\n  padding: 10px 12px;\n  font: 400 14px 'DM Sans', sans-serif;\n}\n.chips { display: flex; gap: 8px; flex-wrap: wrap; }\n.chip {\n  border-radius: var(--rounded-pill);\n  padding: 8px 10px;\n  background: rgba(109, 49, 194, 0.12);\n  color: var(--secondary-purple);\n  font: 600 12px 'Inter', sans-serif;\n}\n.summary {\n  border: 1px solid rgba(109, 49, 194, 0.25);\n  border-radius: var(--rounded-lg);\n  padding: 10px;\n  font-size: 13px;\n  color: var(--text-description);\n}\n.footer {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 8px;\n  padding: 16px 24px 24px;\n}\nbutton {\n  min-height: 48px;\n  border: none;\n  border-radius: var(--rounded-pill);\n  font: 600 14px 'Inter', sans-serif;\n  cursor: pointer;\n}\nbutton.secondary { background: rgba(109, 49, 194, 0.12); color: var(--secondary-purple); }\nbutton.primary { background: var(--secondary-purple); color: #fff; }\nbutton.primary:hover { background: var(--accent-purple); }\n@keyframes enter { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }\n@media (max-width: 600px) {\n  .overlay { align-items: end; }\n  .modal { border-radius: 24px 24px 0 0; max-width: 100%; }\n  .footer { grid-template-columns: 1fr; }\n}\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }\n}\n</style>\n</head>\n<body>\n  <div class='overlay'>\n    <section class='modal'>\n      <header class='header'>\n        <h1 class='title'>Draft your roommate terms together</h1>\n        <p class='subtitle'>Lock the important details here before you exchange keys.</p>\n      </header>\n      <nav class='steps'>\n        <div class='step active'>Date</div><div class='step'>Money</div><div class='step'>Home</div><div class='step'>Review</div>\n      </nav>\n      <div class='body'>\n        <label>Move-in date<input type='date' value='2026-03-01' /></label>\n        <label>Monthly amount<select><option>$1,650 per month</option><option>$1,700 per month</option></select></label>\n        <div>\n          <label>Shared expectations</label>\n          <div class='chips'><span class='chip'>Quiet after 11pm</span><span class='chip'>No indoor smoking</span><span class='chip'>Kitchen reset nightly</span></div>\n        </div>\n        <div class='summary'>Agreed so far: Move-in Mar 1, $1,650/month, deposit equals one month. Next action: confirm guest schedule (Mon-Thu stay pattern).</div>\n      </div>\n      <footer class='footer'>\n        <button class='secondary' type='button'>Save and continue</button>\n        <button class='primary' type='button'>Send structured offer</button>\n      </footer>\n    </section>\n  </div>\n</body>\n</html>",
+      "before_after": {
+        "before": "Roomi-like flows rely on ad hoc messaging where critical terms are scattered, ambiguous, and often moved off-platform.",
+        "after": "Split Lease guides users through a structured commitment modal that captures terms, agreement status, and next actions in one object."
+      },
+      "implements_principles": [
+        "opp-002",
+        "disappoint-003",
+        "disappoint-004",
+        "works-003",
+        "works-004"
+      ],
+      "effort": "large"
+    },
+    {
+      "id": "rb-ui-003",
+      "name": "48-Hour Conversation Sprint Panel",
+      "category": "section",
+      "opportunity_id": "opp-003",
+      "source_disappointments": [
+        "disappoint-005",
+        "disappoint-004"
+      ],
+      "journey_phases": [
+        "communication",
+        "booking_proposal"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It reduces ghosting by orchestrating the first 48 hours of conversation with prompts, deadlines, and visible response commitments.",
+      "why_this_is_a_signature": "Instead of generic chat threads, it treats early messaging as a conversion-critical protocol with measurable progress and accountability.",
+      "description": "The panel sits above chat when a new match is created and runs a short guided sequence: intro, schedule fit, terms check, and propose next step. It displays each side's response SLA and completion state, nudging both users toward a decision. This creates fast bilateral activity that helps local atomic networks actually tip.",
+      "visual_spec": {
+        "layout": "Horizontal timeline section with four 48px minimum action chips and a right-side response meter; collapses vertically on mobile.",
+        "background": "White card with top-to-bottom purple gradient tint and off-white page backdrop.",
+        "border": "1px solid var(--border-color) and active stage ring in var(--secondary-purple).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 16px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 11px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "12px"
+        },
+        "color_usage": "Secondary purple indicates completed stages and primary CTAs; accent purple marks pending stages and reminder states."
+      },
+      "interaction_spec": {
+        "default_state": "Shows stage 1 active with suggested prompt text and countdown to expected next response.",
+        "hover": "Stage chips brighten and show helper micro-copy in tooltip line.",
+        "click": "Clicking a stage injects prewritten prompt into chat composer and logs stage completion when sent.",
+        "animation": "Stage completion animates check badge over 160ms; countdown ticks in 1s intervals without disruptive motion.",
+        "responsive": "On mobile, stages stack with full-width chips and fixed bottom 'Send next prompt' action."
+      },
+      "copy_spec": {
+        "primary_text": "First 48 hours: keep this match moving",
+        "secondary_text": "Complete these 4 prompts to cut ghosting and reach a clear yes/no outcome quickly.",
+        "micro_copy": "Stages: 'Introduce yourself', 'Confirm weekly schedule', 'Align on money terms', 'Propose viewing call'. Buttons: 'Send next prompt', 'Set reply reminder'.",
+        "do": [
+          "Use direct, time-bounded wording that encourages a concrete reply.",
+          "Keep prompts short and role-specific.",
+          "Make status visible to both sides."
+        ],
+        "dont": [
+          "Do not default to open-ended small talk prompts.",
+          "Do not hide missed response expectations.",
+          "Do not force users to write first messages from scratch."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>48-Hour Conversation Sprint Panel</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-description: #374151;\n  --text-gray: #6b7280;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n}\n* { box-sizing: border-box; }\nbody {\n  margin: 0;\n  padding: 24px;\n  font-family: 'DM Sans', sans-serif;\n  background: radial-gradient(circle at 80% 0%, rgba(140, 104, 238, 0.14), transparent 36%), var(--bg-off-white);\n}\n.panel {\n  max-width: 860px;\n  margin: 0 auto;\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-xl);\n  background: linear-gradient(180deg, rgba(140, 104, 238, 0.08), #fff 30%);\n  padding: 20px;\n}\nh1 { margin: 0; color: var(--primary-purple); font: 700 16px 'Inter', sans-serif; }\n.sub { margin: 6px 0 14px; color: var(--text-description); font-size: 14px; }\n.row {\n  display: grid;\n  grid-template-columns: 1fr auto;\n  gap: 12px;\n  align-items: start;\n}\n.stages {\n  display: grid;\n  grid-template-columns: repeat(4, minmax(120px, 1fr));\n  gap: 8px;\n}\n.stage {\n  min-height: 48px;\n  border: 1px solid rgba(109, 49, 194, 0.25);\n  border-radius: var(--rounded-pill);\n  background: #fff;\n  color: var(--secondary-purple);\n  font: 600 12px 'Inter', sans-serif;\n  padding: 10px;\n  text-align: center;\n}\n.stage.active { background: rgba(109, 49, 194, 0.12); }\n.stage.done { background: var(--secondary-purple); color: #fff; }\n.meter {\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-lg);\n  background: #fff;\n  padding: 10px;\n  min-width: 190px;\n  box-shadow: var(--shadow-purple-sm);\n}\n.meter .label { font: 600 11px 'Inter', sans-serif; color: var(--text-gray); }\n.meter .value { margin-top: 6px; color: var(--primary-purple); font: 700 18px 'Inter', sans-serif; }\n.actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }\nbutton {\n  min-height: 48px;\n  border: none;\n  border-radius: var(--rounded-pill);\n  padding: 0 16px;\n  font: 600 13px 'Inter', sans-serif;\n  cursor: pointer;\n}\nbutton.primary { background: var(--secondary-purple); color: #fff; }\nbutton.secondary { background: rgba(109, 49, 194, 0.12); color: var(--secondary-purple); }\nbutton.primary:hover { background: var(--accent-purple); }\n@media (max-width: 600px) {\n  body { padding: 16px; }\n  .row { grid-template-columns: 1fr; }\n  .stages { grid-template-columns: 1fr; }\n  .actions button { width: 100%; }\n}\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }\n}\n</style>\n</head>\n<body>\n  <section class='panel'>\n    <h1>First 48 hours: keep this match moving</h1>\n    <p class='sub'>Complete these 4 prompts to cut ghosting and reach a clear yes/no outcome quickly.</p>\n    <div class='row'>\n      <div class='stages'>\n        <div class='stage done'>Introduce yourself</div>\n        <div class='stage active'>Confirm weekly schedule</div>\n        <div class='stage'>Align on money terms</div>\n        <div class='stage'>Propose viewing call</div>\n      </div>\n      <aside class='meter'>\n        <div class='label'>Expected next reply</div>\n        <div class='value'>2h 12m</div>\n      </aside>\n    </div>\n    <div class='actions'>\n      <button class='primary' type='button'>Send next prompt</button>\n      <button class='secondary' type='button'>Set reply reminder</button>\n    </div>\n  </section>\n</body>\n</html>",
+      "before_after": {
+        "before": "Roomi-like communication is generic chat where silence and latency are normal, so promising matches stall.",
+        "after": "Split Lease adds a 48-hour guided sprint that drives concrete exchanges, tracks response timing, and accelerates decision outcomes."
+      },
+      "implements_principles": [
+        "opp-003",
+        "disappoint-005",
+        "disappoint-004",
+        "works-003"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "rb-ui-004",
+      "name": "Portable Roommate Reputation Passport",
+      "category": "card",
+      "opportunity_id": "opp-004",
+      "source_disappointments": [
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "journey_phases": [
+        "active_stay",
+        "post_stay",
+        "retention"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It captures in-stay and post-stay behavior as reusable trust capital, so each new search does not reset to near-zero confidence.",
+      "why_this_is_a_signature": "Competitors end at the match; this passport compounds verified co-living behavior into a portable reputation graph across future moves.",
+      "description": "This card summarizes outcome-based credibility after each completed stay: payment reliability, communication consistency, house-rule adherence, and mutual review quality. It is visible in future search and proposal contexts with evidence timestamps and role-balanced feedback. The element turns one-off matches into a cumulative trust asset that improves conversion over time.",
+      "visual_spec": {
+        "layout": "Stacked card with score header, four evidence rows, and city portability footer.",
+        "background": "White card with subtle gradient strip from var(--primary-purple) to transparent.",
+        "border": "1px solid var(--border-color) with emphasized footer divider in rgba(109,49,194,0.25).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 16px, 700, var(--primary-purple)",
+          "body": "DM Sans, 13px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "12px"
+        },
+        "color_usage": "Primary purple provides identity and continuity; secondary purple marks verified evidence; accent purple highlights portability across neighborhoods and cities."
+      },
+      "interaction_spec": {
+        "default_state": "Shows total trust score and latest verified stay evidence items.",
+        "hover": "Evidence rows reveal source detail text and verification date.",
+        "click": "Clicking 'Use in next proposal' attaches passport summary to a new proposal automatically.",
+        "animation": "Evidence rows stagger in 70ms increments on load; score ring animates to final value over 600ms.",
+        "responsive": "On mobile, rows remain single column with 48px minimum action button and condensed footer text."
+      },
+      "copy_spec": {
+        "primary_text": "Your Roommate Reputation Passport",
+        "secondary_text": "Built from 3 completed stays in NYC and Boston, verified by both hosts and guests.",
+        "micro_copy": "Rows: 'Payment reliability: 100% on-time', 'Response consistency: median 1.9h', 'House-rule adherence: 98%', 'Mutual review completion: 3/3'. Button: 'Use in next proposal'.",
+        "do": [
+          "Base claims on verifiable stay outcomes.",
+          "Show recency and source for each trust signal.",
+          "Keep language neutral and behavior-based."
+        ],
+        "dont": [
+          "Do not rely on unverified self-descriptions.",
+          "Do not hide mixed feedback signals.",
+          "Do not reset score visibility between cities."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Portable Roommate Reputation Passport</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-description: #374151;\n  --text-gray: #6b7280;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n}\n* { box-sizing: border-box; }\nbody {\n  margin: 0;\n  padding: 24px;\n  font-family: 'DM Sans', sans-serif;\n  background: var(--bg-off-white);\n}\n.card {\n  max-width: 460px;\n  margin: 0 auto;\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-xl);\n  box-shadow: var(--shadow-purple-md);\n  overflow: hidden;\n}\n.top {\n  padding: 18px 20px 14px;\n  background: linear-gradient(180deg, rgba(49, 19, 93, 0.1), transparent);\n}\nh1 { margin: 0; font: 700 16px 'Inter', sans-serif; color: var(--primary-purple); }\n.sub { margin: 6px 0 0; font-size: 13px; color: var(--text-description); }\n.score {\n  margin-top: 10px;\n  display: inline-block;\n  padding: 7px 12px;\n  border-radius: var(--rounded-pill);\n  background: rgba(109, 49, 194, 0.12);\n  color: var(--secondary-purple);\n  font: 600 12px 'Inter', sans-serif;\n}\n.rows { padding: 12px 20px; display: grid; gap: 8px; }\n.row {\n  border: 1px solid rgba(109, 49, 194, 0.2);\n  border-radius: var(--rounded-lg);\n  padding: 10px;\n  min-height: 48px;\n}\n.row .k { color: var(--text-gray); font-size: 12px; }\n.row .v { margin-top: 4px; color: var(--primary-purple); font: 600 13px 'Inter', sans-serif; }\n.footer {\n  border-top: 1px solid rgba(109, 49, 194, 0.25);\n  padding: 14px 20px 20px;\n}\n.city { color: var(--text-description); font-size: 13px; margin-bottom: 10px; }\nbutton {\n  width: 100%;\n  min-height: 48px;\n  border: none;\n  border-radius: var(--rounded-pill);\n  background: var(--secondary-purple);\n  color: #fff;\n  font: 600 14px 'Inter', sans-serif;\n  cursor: pointer;\n}\nbutton:hover { background: var(--accent-purple); }\n@media (max-width: 600px) {\n  body { padding: 16px; }\n}\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }\n}\n</style>\n</head>\n<body>\n  <article class='card'>\n    <header class='top'>\n      <h1>Your Roommate Reputation Passport</h1>\n      <p class='sub'>Built from 3 completed stays in NYC and Boston, verified by both hosts and guests.</p>\n      <span class='score'>Trust score: 92 / 100</span>\n    </header>\n    <section class='rows'>\n      <div class='row'><div class='k'>Payment reliability</div><div class='v'>100% on-time across 3 stays</div></div>\n      <div class='row'><div class='k'>Response consistency</div><div class='v'>Median reply 1.9h in active stay chats</div></div>\n      <div class='row'><div class='k'>House-rule adherence</div><div class='v'>98% checklist completion, zero unresolved issues</div></div>\n      <div class='row'><div class='k'>Mutual review completion</div><div class='v'>3/3 host-guest reviews submitted within 72h</div></div>\n    </section>\n    <footer class='footer'>\n      <div class='city'>Portable across: Manhattan, Brooklyn, Boston Back Bay</div>\n      <button type='button'>Use in next proposal</button>\n    </footer>\n  </article>\n</body>\n</html>",
+      "before_after": {
+        "before": "Roomi-style flows capture little post-stay evidence, so trust resets each cycle and repeat users re-enter cold.",
+        "after": "Split Lease creates a portable reputation passport from real co-living outcomes that improves confidence and conversion in every future match."
+      },
+      "implements_principles": [
+        "opp-004",
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008",
+        "works-004"
+      ],
+      "effort": "large"
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-5 -->
+  <script id="data-layer-5" type="application/json">{}</script>
+  <!-- INJECT:layer-6 -->
+  <script id="data-layer-6" type="application/json">{
+  "lens": {
+    "competitor": "roomi",
+    "book": "coldstart-network-effects.txt",
+    "book_chapters": "Part 1: The Cold Start Problem and Atomic Networks."
+  },
+  "reinforcements": [
+    {
+      "new_element_id": "rb-ui-001",
+      "existing_element_id": "works-006",
+      "existing_element_source": "design-stack",
+      "similarity": "Both reduce user-side translation labor by converting ambiguous market signals into immediately usable decisions.",
+      "combined_evidence": "Inside-out evidence shows users fail when forced to translate platform formats (works-006). Outside-in evidence shows Roomi users manually infer local viability and churn when liquidity is opaque (disappoint-001/002, opp-002). Together, they support explicit matchability translation as a core pattern.",
+      "recommendation": "keep_both",
+      "confidence_boost": "The same cognitive-friction mechanism appears in direct user cognition data and competitor failure analysis, indicating a durable cross-context need."
+    },
+    {
+      "new_element_id": "rb-ui-001",
+      "existing_element_id": "communicates-002",
+      "existing_element_source": "design-stack",
+      "similarity": "Both prioritize legible, decision-ready financial and viability summaries before detailed breakdowns.",
+      "combined_evidence": "Design-stack calls validate single-sum comprehension as the fastest trust-preserving financial format. Reverse-benchmark transcripts add uncertainty around pricing/search clarity and local depth. Combined, they justify a first-screen summary model for both money and liquidity.",
+      "recommendation": "merge",
+      "confidence_boost": "Independent host-call and competitor-user language converge on the same requirement: one clear headline metric before complexity."
+    },
+    {
+      "new_element_id": "rb-ui-002",
+      "existing_element_id": "works-003",
+      "existing_element_source": "design-stack",
+      "similarity": "Both preserve conversational speed while structuring high-stakes decisions.",
+      "combined_evidence": "works-003 shows the platform must match the speed of human conversation to avoid abandonment. Reverse-benchmark evidence shows commitment steps leaking to text and ad hoc interviews (disappoint-004, crossref on off-platform texting). Together they support an in-thread structured terms rail.",
+      "recommendation": "keep_both",
+      "confidence_boost": "The speed requirement is now validated against two benchmarks: trusted calls and real competitor workaround behavior."
+    },
+    {
+      "new_element_id": "rb-ui-002",
+      "existing_element_id": "works-004",
+      "existing_element_source": "design-stack",
+      "similarity": "Both make trust continuity explicit at the point where users otherwise re-open legitimacy checks.",
+      "combined_evidence": "works-004 shows trust transfer fails when digital surfaces do not carry human continuity. Reverse-benchmark calls repeatedly ask for legitimacy proof and background checks before commitment. Combined evidence favors explicit trust scaffolding embedded in negotiation mechanics.",
+      "recommendation": "keep_both",
+      "confidence_boost": "The trust gap is corroborated by both first-party host psychology and competitor-side fraud/legitimacy anxiety language."
+    },
+    {
+      "new_element_id": "rb-ui-003",
+      "existing_element_id": "communicates-005",
+      "existing_element_source": "design-stack",
+      "similarity": "Both convert proposal handling from open-ended construction into guided, low-latency confirmation flow.",
+      "combined_evidence": "communicates-005 establishes pre-packaged proposal confirmation as the low-effort default. Reverse-benchmark evidence identifies ghosting and response latency as conversion killers in first 48 hours (disappoint-005). Combined, they support protocolized prompt/milestone choreography in proposal messaging.",
+      "recommendation": "merge",
+      "confidence_boost": "Both process lenses independently identify the same conversion bottleneck: unstructured early negotiation."
+    }
+  ],
+  "contradictions": [],
+  "extensions": [
+    {
+      "new_element_id": "rb-ui-004",
+      "gap_filled": "Adds post-stay portable roommate reputation as a persistent trust-memory layer across cycles and cities.",
+      "confidence_note": "Moderate confidence: strategically coherent and strongly supported by competitor trust-reset patterns, but still lighter on direct in-product behavioral evidence than design-stack call-grounded elements.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-ui-001",
+      "gap_filled": "Extends pre-signup discovery with neighborhood-time atomic liquidity proof and response forecasting.",
+      "confidence_note": "Moderate confidence: strong Cold Start fit and repeated outside-in complaints about opacity, with limited direct inside-out measurement of pre-signup drop causes.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-ui-003",
+      "gap_filled": "Introduces explicit 48-hour bilateral response SLAs as a first-class interaction protocol.",
+      "confidence_note": "Medium-high confidence: transcript crossrefs repeatedly cite timing fragility and off-platform nudging, though exact SLA thresholds need empirical tuning.",
+      "needs_design_stack_validation": "yes"
+    }
+  ],
+  "cross_process_insights": [
+    {
+      "insight": "Trust is not a badge problem; it is a conversion-timing problem that peaks before and during commitment.",
+      "elements_involved": [
+        "works-004",
+        "communicates-003",
+        "rb-ui-002",
+        "rb-ui-003"
+      ],
+      "implication": "Prioritize trust mechanisms that are embedded in flow state and timing (verification + guided terms + response protocol), not standalone profile decoration."
+    },
+    {
+      "insight": "Users consistently need one primary decision number/signal before they can process details.",
+      "elements_involved": [
+        "communicates-002",
+        "works-006",
+        "rb-ui-001"
+      ],
+      "implication": "Adopt a universal information hierarchy rule: headline viability/cost metric first, conversion and breakdown second, deep detail on demand."
+    },
+    {
+      "insight": "Network effects in this category fail mainly through lifecycle truncation, not acquisition scarcity alone.",
+      "elements_involved": [
+        "works-005",
+        "rb-ui-004"
+      ],
+      "implication": "To compound defensibility, design must capture active-stay and post-stay behavior as reusable trust capital rather than ending at match creation."
+    }
+  ],
+  "token_compliance": {
+    "new_tokens_flagged": [
+      "--primary-purple",
+      "--secondary-purple",
+      "--accent-purple",
+      "--bg-off-white",
+      "--text-description",
+      "--rounded-xl",
+      "--shadow-purple-md",
+      "Inter",
+      "DM Sans"
+    ],
+    "recommendation": "replace with existing"
+  },
+  "coverage_map": {
+    "discovery": {
+      "element_count": 21,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "evaluation": {
+      "element_count": 54,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "onboarding": {
+      "element_count": 41,
+      "coverage": "strong",
+      "source": "design-stack"
+    },
+    "listing_creation": {
+      "element_count": 54,
+      "coverage": "strong",
+      "source": "design-stack"
+    },
+    "pricing": {
+      "element_count": 32,
+      "coverage": "strong",
+      "source": "design-stack"
+    },
+    "proposal_mgmt": {
+      "element_count": 90,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "active_lease": {
+      "element_count": 70,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "retention": {
+      "element_count": 16,
+      "coverage": "moderate",
+      "source": "both"
+    }
+  },
+  "next_run_recommendations": [
+    {
+      "process_type": "design-stack",
+      "recommendation": "Run a guest-side lifecycle study focused on post-stay behavior capture and what users would accept as fair, portable roommate reputation evidence.",
+      "reason": "rb-ui-004 is the highest-moat extension but currently depends more on outside-in inference than direct inside-out behavioral proof."
+    },
+    {
+      "process_type": "reverse-benchmark",
+      "recommendation": "Benchmark competitors with explicit commitment rails (terms capture, response SLAs, in-flow acceptance) to identify operational patterns Split Lease can adopt faster.",
+      "reason": "Cross-process agreement is strongest at commitment and communication bottlenecks, where implementation details now matter more than problem validation."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-7 -->
+  <script id="data-layer-7" type="application/json">{}</script>
+
+  <header class="report-header">
+    <h1>Design Stack v2 Report</h1>
+    <div class="lens-label" id="lens-label"></div>
+    <div class="report-meta">
+      <span id="meta-date"></span>
+      <span id="meta-run-id"></span>
+      <span class="badge" id="meta-status"></span>
+      <span id="meta-elements"></span>
+    </div>
+  </header>
+
+  <div class="coherence-bar" id="coherence-bar">
+    <span class="count" id="coherence-count"></span>
+    <span id="coherence-summary"></span>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="active" data-tab="overview"><span class="layer-num">*</span> Overview</button>
+    <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
+    <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
+    <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
+    <button data-tab="layer-3"><span class="layer-num">3</span> Looks</button>
+    <button data-tab="layer-4"><span class="layer-num">4</span> Behaves</button>
+    <button data-tab="layer-5"><span class="layer-num">5</span> Feels</button>
+    <button data-tab="layer-6"><span class="layer-num">6</span> Coherence</button>
+    <button data-tab="layer-7"><span class="layer-num">7</span> Tests</button>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Overview Tab -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Lens Summary</h3>
+        <p id="overview-lens-summary" style="font-size:16px;color:var(--ink-soft);margin-bottom:20px;"></p>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;">Journey Phase Coverage</h4>
+        <div class="coverage-grid" id="overview-coverage"></div>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin:20px 0 12px;font-family:'IBM Plex Mono',monospace;">Run Statistics</h4>
+        <div id="overview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+      </div>
+      <div id="overview-highlights"></div>
+    </div>
+
+    <!-- Layer 0: Journey Context -->
+    <div class="tab-panel" id="panel-layer-0">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Layer 0: Journey Context</h3>
+        <div id="content-layer-0"></div>
+      </div>
+    </div>
+
+    <!-- Layers 1-5: Element Cards -->
+    <div class="tab-panel" id="panel-layer-1"><div id="content-layer-1"></div></div>
+    <div class="tab-panel" id="panel-layer-2"><div id="content-layer-2"></div></div>
+    <div class="tab-panel" id="panel-layer-3"><div id="content-layer-3"></div></div>
+    <div class="tab-panel" id="panel-layer-4"><div id="content-layer-4"></div></div>
+    <div class="tab-panel" id="panel-layer-5"><div id="content-layer-5"></div></div>
+
+    <!-- Layer 6: Coherence -->
+    <div class="tab-panel" id="panel-layer-6">
+      <div id="content-layer-6"></div>
+    </div>
+
+    <!-- Layer 7: Tests -->
+    <div class="tab-panel" id="panel-layer-7"><div id="content-layer-7"></div></div>
+
+  </main>
+
+  <footer style="text-align:center;padding:32px;color:var(--ink-ghost);font-size:12px;font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v2.0 — Element Pipeline
+  </footer>
+
+  <script>
+    function loadJSON(id) { try { return JSON.parse(document.getElementById(id)?.textContent || '{}'); } catch { return {}; } }
+
+    const config = loadJSON('run-config');
+    const layers = {};
+    for (let i = 0; i <= 7; i++) layers[i] = loadJSON(`data-layer-${i}`);
+
+    // Header
+    const lens = config.lens || layers[0]?.lens || {};
+    document.getElementById('lens-label').textContent = `Lens: ${lens.host_call || '?'} + ${lens.book_extract || '?'}`;
+    document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
+    document.getElementById('meta-run-id').textContent = config.run_id || '';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = config.status || 'pending';
+    statusEl.className = `badge badge-${config.status || 'partial'}`;
+
+    // Count elements
+    let totalElements = 0;
+    for (let i = 1; i <= 5; i++) totalElements += (layers[i]?.elements || []).length;
+    totalElements += (layers[7]?.elements || []).length;
+    document.getElementById('meta-elements').textContent = `${totalElements} elements`;
+
+    // Coherence bar
+    const coherence = layers[6] || {};
+    const contradictions = coherence.contradictions || [];
+    const reinforcements = coherence.reinforcements || [];
+    if (contradictions.length > 0) {
+      const bar = document.getElementById('coherence-bar');
+      bar.classList.add('has-flags');
+      document.getElementById('coherence-count').textContent = `${contradictions.length} contradiction${contradictions.length !== 1 ? 's' : ''}`;
+      document.getElementById('coherence-summary').textContent = `${reinforcements.length} reinforcement${reinforcements.length !== 1 ? 's' : ''} found`;
+    }
+
+    // Tab navigation
+    document.getElementById('tab-nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+    });
+
+    // Evidence toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('evidence-toggle')) {
+        const list = e.target.nextElementSibling;
+        list.classList.toggle('open');
+        e.target.textContent = list.classList.contains('open') ? 'Hide evidence' : `Show evidence (${list.children.length})`;
+      }
+    });
+
+    // Render element card
+    function renderElementCard(el) {
+      const phases = (el.journey_phases || []).map(p => `<span class="phase-tag">${p}</span>`).join('');
+      const evidenceItems = (el.evidence || []).map(ev =>
+        `<div class="evidence-item">
+          <div class="source">${ev.source || ''}</div>
+          ${ev.quote ? `<div class="quote">"${ev.quote}"</div>` : ''}
+          ${ev.insight ? `<div class="insight">${ev.insight}</div>` : ''}
+        </div>`
+      ).join('');
+      const evidenceCount = (el.evidence || []).length;
+
+      let extras = '';
+      // Layer-specific fields
+      if (el.user_goal) extras += `<div class="extra-field"><label>User Goal</label> <span class="value">${el.user_goal}</span></div>`;
+      if (el.company_goal) extras += `<div class="extra-field"><label>Company Goal</label> <span class="value">${el.company_goal}</span></div>`;
+      if (el.success_metric) extras += `<div class="extra-field"><label>Success Metric</label> <span class="value">${el.success_metric}</span></div>`;
+      if (el.time_budget) extras += `<div class="extra-field"><label>Time Budget</label> <span class="value">${el.time_budget}</span></div>`;
+      if (el.hierarchy_principle) extras += `<div class="extra-field"><label>Hierarchy</label> <span class="value">${el.hierarchy_principle}</span></div>`;
+      if (el.disclosure_pattern) extras += `<div class="extra-field"><label>Disclosure</label> <span class="value">${el.disclosure_pattern}</span></div>`;
+      if (el.cognitive_load_constraint) extras += `<div class="extra-field"><label>Cognitive Load</label> <span class="value">${el.cognitive_load_constraint}</span></div>`;
+      if (el.brand_alignment) extras += `<div class="extra-field"><label>Brand Alignment</label> <span class="value">${el.brand_alignment}</span></div>`;
+      if (el.visual_hierarchy_rule) extras += `<div class="extra-field"><label>Visual Hierarchy</label> <span class="value">${el.visual_hierarchy_rule}</span></div>`;
+      if (el.transition_principle) extras += `<div class="extra-field"><label>Transitions</label> <span class="value">${el.transition_principle}</span></div>`;
+      if (el.journey_state_awareness) extras += `<div class="extra-field"><label>Journey Awareness</label> <span class="value">${el.journey_state_awareness}</span></div>`;
+      if (el.target_emotion) extras += `<div class="extra-field"><label>Target Emotion</label> <span class="value" style="font-size:16px;font-weight:600;">${el.target_emotion}</span></div>`;
+      if (el.emotion_rationale) extras += `<div class="extra-field"><label>Why</label> <span class="value">${el.emotion_rationale}</span></div>`;
+      if (el.validation_method) extras += `<div class="extra-field"><label>Method</label> <span class="value">${el.validation_method}</span></div>`;
+      if (el.success_criteria) extras += `<div class="extra-field"><label>Success Criteria</label> <span class="value">${el.success_criteria}</span></div>`;
+      if (el.failure_meaning) extras += `<div class="extra-field"><label>Failure Means</label> <span class="value">${el.failure_meaning}</span></div>`;
+      if (el.test_description) extras += `<div class="extra-field"><label>Test</label> <span class="value">${el.test_description}</span></div>`;
+
+      // Copy guidelines
+      if (el.copy_guidelines) {
+        const cg = el.copy_guidelines;
+        extras += `<div class="extra-field" style="margin-top:8px;"><label>Copy Voice</label> <span class="value">${cg.voice || ''}</span></div>`;
+        if (cg.example_good) extras += `<div class="extra-field"><label>Good Example</label> <span class="value" style="color:var(--signal-success);">"${cg.example_good}"</span></div>`;
+        if (cg.example_bad) extras += `<div class="extra-field"><label>Bad Example</label> <span class="value" style="color:var(--signal-danger);text-decoration:line-through;">"${cg.example_bad}"</span></div>`;
+      }
+
+      // Anti-goals / anti-patterns
+      const antiItems = el.anti_goals || (el.anti_patterns || []).map(a => typeof a === 'string' ? a : a.pattern);
+      let antiHTML = '';
+      if (antiItems && antiItems.length) {
+        antiHTML = `<div style="margin-top:12px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--signal-danger);font-family:'IBM Plex Mono',monospace;">Anti-goals</label><ul style="margin-top:4px;padding-left:18px;font-size:13px;color:var(--ink-soft);">${antiItems.map(a => `<li>${a}</li>`).join('')}</ul></div>`;
+      }
+
+      return `<div class="element-card">
+        <div class="element-card-header">
+          <h3>${el.title || el.id}</h3>
+          <span class="type-badge type-${el.type || ''}">${(el.type || '').replace(/_/g, ' ')}</span>
+          <span class="priority-badge priority-${el.priority || 'low'}">${el.priority || 'low'}</span>
+        </div>
+        <div class="phase-tags">${phases}</div>
+        <div class="ps-grid">
+          <div class="ps-box problem"><label>Problem</label>${el.problem || 'N/A'}</div>
+          <div class="ps-box solution"><label>Solution</label>${el.solution || 'N/A'}</div>
+        </div>
+        ${extras ? `<div class="extra-fields">${extras}</div>` : ''}
+        ${antiHTML}
+        ${evidenceCount > 0 ? `<div style="margin-top:16px;">
+          <button class="evidence-toggle">Show evidence (${evidenceCount})</button>
+          <div class="evidence-list">${evidenceItems}</div>
+        </div>` : ''}
+      </div>`;
+    }
+
+    // Render element layers (1-5, 7)
+    [1,2,3,4,5,7].forEach(i => {
+      const container = document.getElementById(`content-layer-${i}`);
+      if (!container) return;
+      const data = layers[i];
+      const elements = data?.elements || [];
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No elements discovered by this layer.</p></div>';
+        return;
+      }
+      const layerNames = {1:'Process Patterns',2:'Info Architecture',3:'Visual Patterns',4:'Interaction Patterns',5:'Emotional Elements',7:'Validation Strategies'};
+      container.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:20px;">Layer ${i}: ${layerNames[i]} <span style="font-size:14px;color:var(--ink-muted);font-family:'IBM Plex Mono',monospace;">(${elements.length} element${elements.length!==1?'s':''})</span></h2>` + elements.map(renderElementCard).join('');
+    });
+
+    // Render Layer 0: Journey Context
+    (function renderJourney() {
+      const container = document.getElementById('content-layer-0');
+      if (!container) return;
+      const data = layers[0];
+      if (!data || !data.phases) { container.innerHTML = '<p style="color:var(--ink-ghost);font-style:italic;">No journey context data.</p>'; return; }
+
+      const phaseOrder = ['discovery','evaluation','onboarding','listing_creation','pricing','proposal_mgmt','active_lease','retention'];
+      let html = '';
+      if (data.lens?.lens_summary) html += `<p style="font-size:15px;color:var(--ink-soft);margin-bottom:20px;">${data.lens.lens_summary}</p>`;
+      phaseOrder.forEach(phase => {
+        const p = data.phases[phase];
+        if (!p) return;
+        const risk = p.dropout_risk?.level || 'low';
+        html += `<div class="phase-card">
+          <h4>${phase.replace(/_/g, ' ')}</h4>
+          <p>${p.what_this_lens_reveals || 'No data for this phase.'}</p>
+          ${p.user_state ? `<p style="font-size:12px;color:var(--ink-muted);"><strong>Emotional:</strong> ${p.user_state.emotional_state || '?'} | <strong>Knowledge:</strong> ${p.user_state.knowledge_level || '?'} | <strong>Commitment:</strong> ${p.user_state.commitment_level || '?'}</p>` : ''}
+          <span class="risk risk-${risk}">${risk} dropout risk</span>
+        </div>`;
+      });
+      if (data.cross_phase_patterns?.length) {
+        html += '<h4 style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;color:var(--accent);margin:20px 0 10px;text-transform:uppercase;">Cross-Phase Patterns</h4>';
+        data.cross_phase_patterns.forEach(cp => {
+          html += `<div class="phase-card"><p><strong>${cp.pattern}</strong></p><p style="font-size:12px;color:var(--ink-muted);">Affects: ${(cp.phases_affected||[]).join(', ')} | ${cp.evidence || ''}</p></div>`;
+        });
+      }
+      container.innerHTML = html;
+    })();
+
+    // Render Layer 6: Coherence
+    (function renderCoherence() {
+      const container = document.getElementById('content-layer-6');
+      if (!container) return;
+      const data = layers[6];
+      if (!data || Object.keys(data).length === 0) { container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence data.</p></div>'; return; }
+
+      let html = '';
+
+      // Reinforcements
+      if (data.reinforcements?.length) {
+        html += `<div class="coherence-section"><h3>Reinforcements (${data.reinforcements.length})</h3>`;
+        data.reinforcements.forEach(r => {
+          html += `<div class="reinforcement-card"><div class="card-label" style="color:var(--signal-success);">Reinforcement</div>
+            <p><strong>${r.new_element_id}</strong> reinforces <strong>${r.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${r.similarity || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${r.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Contradictions
+      if (data.contradictions?.length) {
+        html += `<div class="coherence-section"><h3>Contradictions (${data.contradictions.length})</h3>`;
+        data.contradictions.forEach(c => {
+          html += `<div class="contradiction-card"><div class="card-label" style="color:var(--signal-danger);">${c.severity || 'warning'}</div>
+            <p><strong>${c.new_element_id}</strong> conflicts with <strong>${c.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${c.conflict || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${c.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Extensions
+      if (data.extensions?.length) {
+        html += `<div class="coherence-section"><h3>Extensions (${data.extensions.length})</h3>`;
+        data.extensions.forEach(ext => {
+          html += `<div class="extension-card"><div class="card-label" style="color:var(--signal-info);">New Territory</div>
+            <p><strong>${ext.new_element_id}</strong> — ${ext.gap_filled || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">${ext.confidence_note || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Coverage Map
+      if (data.coverage_map) {
+        html += '<div class="coherence-section"><h3>Journey Coverage</h3><div class="coverage-grid">';
+        Object.entries(data.coverage_map).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          html += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g, ' ')}</div>
+            <div class="count">${info.element_count || 0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Emotional Arc
+      if (data.emotional_arc_check) {
+        const arc = data.emotional_arc_check;
+        html += `<div class="coherence-section"><h3>Emotional Arc</h3>`;
+        if (arc.journey_emotion_map?.length) {
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">';
+          arc.journey_emotion_map.forEach(em => {
+            html += `<div style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;text-align:center;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-muted);text-transform:uppercase;">${em.phase}</div>
+              <div style="font-weight:600;color:var(--accent);margin-top:2px;">${(em.target_emotions||[]).join(', ')}</div>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        if (arc.arc_assessment) html += `<p style="font-size:14px;color:var(--ink-soft);">${arc.arc_assessment}</p>`;
+        html += '</div>';
+      }
+
+      container.innerHTML = html || '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence issues detected.</p></div>';
+    })();
+
+    // Overview tab
+    (function renderOverview() {
+      // Coverage
+      const coverageContainer = document.getElementById('overview-coverage');
+      const coverageData = layers[6]?.coverage_map;
+      if (coverageData && coverageContainer) {
+        Object.entries(coverageData).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          coverageContainer.innerHTML += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g,' ')}</div>
+            <div class="count">${info.element_count||0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+      }
+
+      // Lens summary
+      const summaryEl = document.getElementById('overview-lens-summary');
+      if (summaryEl) summaryEl.textContent = layers[0]?.lens?.lens_summary || 'No lens summary available.';
+
+      // Stats
+      const statsEl = document.getElementById('overview-stats');
+      if (statsEl) {
+        const stats = [
+          { label: 'Elements', value: totalElements },
+          { label: 'Reinforcements', value: reinforcements.length },
+          { label: 'Contradictions', value: contradictions.length },
+          { label: 'Extensions', value: (coherence.extensions||[]).length }
+        ];
+        statsEl.innerHTML = stats.map(s =>
+          `<div style="padding:14px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--accent);">${s.value}</div>
+            <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--ink-muted);text-transform:uppercase;">${s.label}</div>
+          </div>`
+        ).join('');
+      }
+
+      // High-priority highlights
+      const highlightsEl = document.getElementById('overview-highlights');
+      if (highlightsEl) {
+        let highPriority = [];
+        [1,2,3,4,5,7].forEach(i => {
+          (layers[i]?.elements || []).forEach(el => {
+            if (el.priority === 'high') highPriority.push(el);
+          });
+        });
+        if (highPriority.length) {
+          highlightsEl.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:24px 0 16px;">High-Priority Elements</h2>` + highPriority.map(renderElementCard).join('');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

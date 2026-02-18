@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Stack v2 Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --surface-warm: #fdfcfa;
+      --ink: #1a1714;
+      --ink-soft: #4a4640;
+      --ink-muted: #8a857e;
+      --ink-ghost: #bdb8b0;
+      --accent: #2d5a3d;
+      --accent-light: #e8f0eb;
+      --accent-bright: #3a7a52;
+      --signal-warn: #c17a28;
+      --signal-warn-bg: #fef3e2;
+      --signal-danger: #b83a3a;
+      --signal-danger-bg: #fde8e8;
+      --signal-info: #2d5a8a;
+      --signal-info-bg: #e8f0fa;
+      --signal-success: #2d5a3d;
+      --signal-success-bg: #e8f0eb;
+      --border: #e2dfd9;
+      --border-strong: #ccc8c0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
+      --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+
+    /* Header */
+    .report-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .report-header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; margin-bottom: 4px; }
+    .report-header .lens-label { font-size: 16px; color: var(--ink-soft); margin-bottom: 12px; }
+    .report-meta { display: flex; gap: 24px; flex-wrap: wrap; color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-complete { background: var(--accent-light); color: var(--accent); }
+    .badge-partial { background: var(--signal-warn-bg); color: var(--signal-warn); }
+
+    /* Coherence Alert Bar */
+    .coherence-bar { background: var(--signal-warn-bg); border-bottom: 1px solid rgba(193,122,40,0.2); padding: 10px 40px; font-size: 13px; color: var(--signal-warn); display: none; align-items: center; gap: 12px; }
+    .coherence-bar.has-flags { display: flex; }
+    .coherence-bar .count { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+
+    /* Tab Nav */
+    .tab-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+    .tab-nav button { background: none; border: none; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms var(--ease-out); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .tab-nav button:hover { color: var(--ink-soft); }
+    .tab-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-nav button .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-deep); font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--ink-muted); }
+    .tab-nav button.active .layer-num { background: var(--accent); color: white; }
+
+    /* Main */
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+    .tab-panel { display: none; animation: fadeIn 300ms var(--ease-out); }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Element Card */
+    .element-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .element-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .element-card-header h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; flex: 1; min-width: 200px; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .type-process_pattern { background: #e8f0fa; color: #2d5a8a; }
+    .type-info_architecture { background: #f0e8fa; color: #6a2d8a; }
+    .type-visual_pattern { background: #fae8f0; color: #8a2d5a; }
+    .type-interaction_pattern { background: #faf0e8; color: #8a5a2d; }
+    .type-emotional_element { background: #e8faf0; color: #2d8a5a; }
+    .type-validation_strategy { background: var(--bg-deep); color: var(--ink-soft); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+    .priority-high { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Phase Tags */
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'IBM Plex Mono', monospace; background: var(--accent-light); color: var(--accent); }
+
+    /* Problem/Solution */
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .ps-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px; }
+    .ps-box.problem { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .ps-box.solution { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .ps-box label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+    @media (max-width: 700px) { .ps-grid { grid-template-columns: 1fr; } }
+
+    /* Evidence */
+    .evidence-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; color: var(--ink-muted); transition: all 150ms; }
+    .evidence-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .evidence-list { display: none; margin-top: 12px; }
+    .evidence-list.open { display: block; }
+    .evidence-item { padding: 10px 14px; margin: 6px 0; background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+    .evidence-item .source { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+    .evidence-item .quote { color: var(--ink-soft); font-style: italic; }
+    .evidence-item .insight { color: var(--ink); margin-top: 4px; }
+
+    /* Layer-specific fields */
+    .extra-fields { margin-top: 16px; display: grid; gap: 8px; }
+    .extra-field { font-size: 13px; }
+    .extra-field label { font-weight: 600; color: var(--ink-soft); font-size: 12px; }
+    .extra-field .value { color: var(--ink); }
+
+    /* Coherence sections */
+    .coherence-section { margin-bottom: 28px; }
+    .coherence-section h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 12px; }
+    .reinforcement-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-success-bg); border-left: 4px solid var(--signal-success); font-size: 14px; }
+    .contradiction-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-danger-bg); border-left: 4px solid var(--signal-danger); font-size: 14px; }
+    .extension-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-info-bg); border-left: 4px solid var(--signal-info); font-size: 14px; }
+    .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+    /* Coverage Map */
+    .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .coverage-cell { padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border); }
+    .coverage-cell .phase-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; }
+    .coverage-cell .count { font-size: 24px; font-weight: 700; }
+    .coverage-cell .level { font-size: 11px; color: var(--ink-muted); }
+    .coverage-none { background: var(--signal-danger-bg); }
+    .coverage-thin { background: var(--signal-warn-bg); }
+    .coverage-moderate { background: var(--signal-info-bg); }
+    .coverage-strong { background: var(--signal-success-bg); }
+
+    /* Journey Context phase cards */
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 12px; }
+    .phase-card h4 { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .phase-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+    .phase-card .risk { font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 6px; }
+    .risk-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .risk-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .risk-medium { background: var(--signal-info-bg); color: var(--signal-info); }
+    .risk-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Responsive + Print */
+    @media (max-width: 768px) { .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; } }
+    @media print { .tab-nav, .coherence-bar { display: none; } .tab-panel { display: block !important; page-break-inside: avoid; } body { background: white; } }
+  </style>
+</head>
+<body>
+
+  <!-- Data injection points -->
+  <!-- INJECT:run-config -->
+  <script id="run-config" type="application/json">{
+  "run_id": "2026-02-17_1620",
+  "process_type": "reverse-benchmark",
+  "competitor": "roomster",
+  "lens": {
+    "competitor": "roomster",
+    "book_extract": "nudge-choice-architecture.txt",
+    "book_chapters": "Introduction + Chapters 1-3: Choice Architecture, Defaults, and Framing"
+  },
+  "status": "running",
+  "started_at": "2026-02-17T21:20:46Z",
+  "stack_dir": "C:/Users/igor/OneDrive/Documents/design-stack",
+  "run_dir": "C:/Users/igor/OneDrive/Documents/design-stack/runs/2026-02-17_1620"
+}</script>
+  <!-- INJECT:layer-0 -->
+  <script id="data-layer-0" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "nudge-choice-architecture.txt",
+    "book_chapters": "Introduction + Chapters 1-3: Choice Architecture, Defaults, and Framing",
+    "lens_summary": "Roomster uses strong salience and anchor nudges to drive fast inquiry and paid conversion, but leaves high-stakes trust and risk decisions under-architected where defaults, framing, and social-proof design could reduce user error."
+  },
+  "competitor_overview": {
+    "category": "roommate matching",
+    "primary_strength": "High listing liquidity and fast top-of-funnel roommate/room discovery across many cities.",
+    "business_model": "Subscription-driven access to full communication and premium visibility, which prioritizes lead volume and conversion nudges.",
+    "user_base": "Students, young professionals, recent movers, and budget-constrained renters seeking rooms/roommates quickly.",
+    "brand_perception": "Useful for reach and speed, but mixed trust perception due to scam anxiety, uneven listing quality, and paywall friction."
+  },
+  "phases": {
+    "discovery": {
+      "what_they_do": "Roomster captures demand via SEO/app-store visibility, affordability framing, and broad city-level roommate inventory positioning.",
+      "quality_level": "good",
+      "framework_analysis": "Consistent with Nudge Introduction, Roomster acts as a choice architect by controlling first exposure order and salience; users anchor on \"fast room found\" framing before evaluating downside risk.",
+      "what_nobody_in_category_does": "Category-wide, platforms rarely default users into a trust-first onboarding frame (identity quality, fraud literacy, realistic match odds) before lead-generation actions.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Introduction (cafeteria and no-neutral-design argument)",
+          "type": "book",
+          "observation": "Design order and salience predictably shift behavior even without removing options.",
+          "framework_interpretation": "Discovery page hierarchy is itself a nudge; first-framed goals become default mental anchors for later decisions."
+        },
+        {
+          "source": "Competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Roomster emphasizes broad supply and fast matching value propositions at acquisition touchpoints.",
+          "framework_interpretation": "High-salience upside framing increases click-through but can delay careful risk assessment."
+        }
+      ]
+    },
+    "search": {
+      "what_they_do": "Users browse/filter by location, budget, and room/roommate attributes, typically seeing ranked results with preview cards and selective profile data.",
+      "quality_level": "good",
+      "framework_analysis": "Chapter 1 heuristics apply: ranking and visible price cues become anchors; limited context and recency cues can trigger availability bias, so users over-weight vivid listings rather than base-rate fit.",
+      "what_nobody_in_category_does": "Most roommate marketplaces do not provide probability-calibrated defaults (fit likelihood, fraud likelihood, response likelihood) to counter heuristic errors during search.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 1 (anchoring and availability)",
+          "type": "book",
+          "observation": "People rely on anchors and salient examples when estimating value and risk.",
+          "framework_interpretation": "Top-ranked cards and headline prices steer perceived quality before deeper verification."
+        },
+        {
+          "source": "Industry pattern",
+          "type": "industry_pattern",
+          "observation": "Roommate platforms typically optimize ranking for engagement/lead generation, not user error minimization.",
+          "framework_interpretation": "Engagement ranking can amplify salience bias unless corrected by trust- and fit-oriented defaults."
+        }
+      ]
+    },
+    "listing_evaluation": {
+      "what_they_do": "Users assess photos, short bios, pricing, neighborhood claims, and lifestyle details with variable verification depth across listings/profiles.",
+      "quality_level": "adequate",
+      "framework_analysis": "Representativeness from Chapter 1 dominates here: users infer trust from profile polish and similarity cues, risking conjunction-like errors (\"looks legit\" + \"friendly\" interpreted as \"safe\"). Loss aversion then delays rejection until late.",
+      "what_nobody_in_category_does": "The category rarely reframes evaluation around structured disconfirming checks (identity evidence, payment safety, schedule consistency) as defaults before contact.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 1 (representativeness, loss aversion, status quo bias)",
+          "type": "book",
+          "observation": "Similarity cues can mislead probability judgments; inertia and loss aversion preserve current leaning.",
+          "framework_interpretation": "Users stick with initially favored listings despite weak objective signals."
+        },
+        {
+          "source": "Public review pattern",
+          "type": "public_review",
+          "observation": "Users frequently report uncertainty about listing legitimacy and profile authenticity in roommate marketplaces.",
+          "framework_interpretation": "Without trust-check defaults, people substitute vividness for evidence."
+        }
+      ]
+    },
+    "booking_proposal": {
+      "what_they_do": "Roomster does not provide a full native booking/contract/proposal workflow; the platform primarily funnels users into direct contact and off-platform negotiation.",
+      "quality_level": "absent",
+      "framework_analysis": "From Introduction and default logic, absence of a guided default path forces high-friction active choosing in a high-stakes step, increasing omission errors and vulnerability to manipulative framing off-platform.",
+      "what_nobody_in_category_does": "Most roommate platforms avoid standardized commitment architecture (milestone proposals, payment-safe defaults, mutual expectation framing) because liability and conversion tradeoffs discourage it.",
+      "evidence": [
+        {
+          "source": "Competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Core Roomster flow transitions from discovery to messaging rather than in-product offer/acceptance contracts.",
+          "framework_interpretation": "Critical decision quality is outsourced to unstructured chat, where heuristics dominate."
+        },
+        {
+          "source": "nudge-choice-architecture.txt - Introduction (active choosing is itself architecture)",
+          "type": "book",
+          "observation": "Forcing active choosing in complex contexts can reduce decision quality.",
+          "framework_interpretation": "No proposal default means users shoulder full cognitive burden at the riskiest moment."
+        }
+      ]
+    },
+    "communication": {
+      "what_they_do": "Messaging is central; users exchange availability, terms, and personal fit details, with monetization often tied to messaging access depth.",
+      "quality_level": "good",
+      "framework_analysis": "Chapter 2-3 lens: users under self-control pressure (speed, scarcity, social pressure) and follow herd-like cues from response behavior; paywall and urgency framing can create present-biased choices over safer deliberation.",
+      "what_nobody_in_category_does": "Category norm is chat-first conversion, not safety-first conversational defaults (structured prompts, scam-friction checkpoints, expectation templates).",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 2 (resisting temptation)",
+          "type": "book",
+          "observation": "People under temptation prioritize immediate reward over long-term welfare.",
+          "framework_interpretation": "Fast-reply and urgency dynamics can nudge premature trust and commitment."
+        },
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 3 (following the herd)",
+          "type": "book",
+          "observation": "Social signals strongly shape behavior when uncertainty is high.",
+          "framework_interpretation": "Users infer legitimacy from conversational momentum rather than verified facts."
+        }
+      ]
+    },
+    "active_stay": {
+      "what_they_do": "Roomster has minimal native active-stay management; once roommates agree, logistics and conflict handling are mostly external.",
+      "quality_level": "absent",
+      "framework_analysis": "Choice architecture effectively ends pre-move; without ongoing defaults, users cannot rely on structured nudges for conflict prevention, expectation alignment, or periodic check-ins.",
+      "what_nobody_in_category_does": "Roommate category generally ignores in-tenancy behavioral scaffolding (routine check-in defaults, norm reminders, repair/escalation scripts) despite repeated conflict risk.",
+      "evidence": [
+        {
+          "source": "Competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Product focus is match initiation rather than tenancy lifecycle management.",
+          "framework_interpretation": "Platform incentives center on acquisition, leaving downstream behavior unmanaged."
+        },
+        {
+          "source": "nudge-choice-architecture.txt - Introduction (everything matters in design)",
+          "type": "book",
+          "observation": "Small contextual structures influence outcomes even after initial decisions.",
+          "framework_interpretation": "No post-match architecture means avoidable coordination failures are likely."
+        }
+      ]
+    },
+    "post_stay": {
+      "what_they_do": "There is limited formal post-stay closure compared with short-stay marketplaces; outcomes are indirectly reflected through profile updates or future listing behavior.",
+      "quality_level": "weak",
+      "framework_analysis": "Availability bias can over-weight recent positive/negative anecdotes without structured reflection defaults; missing post-experience framing limits learning loops and safer future choices.",
+      "what_nobody_in_category_does": "The category underinvests in post-outcome debrief architecture (structured incident capture, expectation gap reflection, safety lessons) that could improve future matching decisions.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 1 (availability)",
+          "type": "book",
+          "observation": "Recent vivid events disproportionately shape later risk judgments.",
+          "framework_interpretation": "Without structured post-stay capture, users rely on noisy memory rather than calibrated evidence."
+        },
+        {
+          "source": "Industry pattern",
+          "type": "industry_pattern",
+          "observation": "Roommate platforms tend to have thinner end-of-relationship review norms than travel platforms.",
+          "framework_interpretation": "Weak feedback architecture reduces collective learning and trust calibration."
+        }
+      ]
+    },
+    "retention": {
+      "what_they_do": "Retention is driven by repeat search need, subscription renewal, and periodic reactivation when housing circumstances change.",
+      "quality_level": "adequate",
+      "framework_analysis": "Status quo bias and default renewal logic can sustain subscriptions, while framing emphasizes continued access to opportunities; however, perceived mismatch between conversion nudges and trust outcomes harms long-term loyalty.",
+      "what_nobody_in_category_does": "Category-wide, retention is rarely built on \"better decisions over time\" nudges (quality-of-match feedback, calibrated expectations, safer-choice habit loops) versus pure inventory reminders.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 1 (status quo bias/default effects)",
+          "type": "book",
+          "observation": "People often stick with defaults and current settings even when not optimal.",
+          "framework_interpretation": "Subscription and reactivation patterns can be shaped by inertia more than true satisfaction."
+        },
+        {
+          "source": "Public review pattern",
+          "type": "public_review",
+          "observation": "Users often value reach but question trust and pricing fairness over time.",
+          "framework_interpretation": "When nudges feel conversion-heavy, reactance and churn increase."
+        }
+      ]
+    }
+  },
+  "split_lease_phase_mapping": {
+    "discovery": "Split Lease Phase 1 entry (Homepage + Authentication) and Phase 2 listing access entry",
+    "search": "Split Lease Phase 2 (Guest reviews listing detail, duration/day options, pricing context)",
+    "listing_evaluation": "Split Lease Phase 2 (Guest evaluates photos, rules, features, and terms before proposal)",
+    "booking_proposal": "Split Lease Phases 2-4 (Create Proposal, Host Counter, Guest Acceptance) plus Phase 5 document generation",
+    "communication": "Split Lease Phases 3-5 (notifications, proposal edits, ongoing host-guest messaging)",
+    "active_stay": "Split Lease Phase 5 (Leases, Stays Manager, Date Change Tool, House Manual use)",
+    "post_stay": "Split Lease Phase 5 (stay-level reviews and documented end-of-stay artifacts)",
+    "retention": "Split Lease Phase 5 onward (repeat stays, lease history, payment history, future negotiations)"
+  },
+  "category_blind_spots": [
+    {
+      "blind_spot": "Trust-calibrated defaults before first contact (identity confidence, payment-safety guardrails, scam-probability framing).",
+      "why_nobody_tries": "Friction can reduce lead volume and near-term monetization; platforms optimize for liquidity and message starts.",
+      "framework_insight": "Nudge Introduction and Chapter 1 imply no neutral design; absent defaults leave users exposed to availability and representativeness errors.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Structured anti-heuristic comparison layer during listing evaluation (base-rate prompts, disconfirming evidence checklist).",
+      "why_nobody_tries": "Requires extra UX complexity and potentially lowers conversion speed in a competitive acquisition market.",
+      "framework_insight": "Chapter 1 shows anchors and stereotypes systematically distort judgment; explicit reframing can improve choices without banning options.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Commitment architecture for negotiation quality (standardized terms, staged commitments, reversible checkpoints).",
+      "why_nobody_tries": "Increases product scope and legal/operational responsibilities beyond matchmaking economics.",
+      "framework_insight": "Introduction and Chapter 2 suggest humans need help in high-stakes, low-feedback decisions where present bias and temptation are strong.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Post-outcome learning loops that convert experiences into safer future defaults.",
+      "why_nobody_tries": "Benefits are delayed and diffuse, while marketplaces prioritize immediate matching throughput.",
+      "framework_insight": "Chapter 1 availability effects mean unstructured memory misguides future risk choices; structured recall can recalibrate behavior.",
+      "signature_potential": "medium"
+    }
+  ],
+  "sources_consulted": [
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/runs/2026-02-17_1620/run-config.json",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/processes/reverse-benchmark/agents/0-competitor-mapping.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/split-lease-journey-map.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/Books/Book Guide/Books_Summary.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/Books/Books/extracts/nudge-choice-architecture.txt"
+  ]
+}</script>
+  <!-- INJECT:layer-1 -->
+  <script id="data-layer-1" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "nudge-choice-architecture.txt",
+    "book_chapters": "Introduction + Chapters 1-3: Choice Architecture, Defaults, and Framing"
+  },
+  "disappointment_summary": "Roomster is optimized for getting users into motion quickly, but it leaves the highest-risk decisions under-structured: users are pushed into search and chat with strong speed framing, weak trust defaults, and little guidance for comparison, commitment, or post-outcome learning. Nothing is technically broken, yet repeated small design choices let heuristics, urgency, and social proof substitute for calibrated judgment.",
+  "disappointments": [
+    {
+      "id": "disappoint-001",
+      "title": "Speed-First Discovery Frame Crowds Out Risk Framing",
+      "competitor_phase": "discovery",
+      "type": "broken_promise",
+      "what_happens_now": "First-touch messaging emphasizes fast matching and broad inventory, so users enter with a 'find something now' mindset before they see any structured guidance on scam patterns, verification depth, or realistic match odds.",
+      "why_its_not_a_bug": "The acquisition flow performs its job by driving clicks and signups, so there is no obvious functional failure to report.",
+      "why_it_matters_psychologically": "Introduction framing effects mean early salience sets the reference point for later decisions; once speed is mentally anchored, users underweight low-frequency but high-cost risks.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "high",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Introduction (cafeteria, no neutral design)",
+          "type": "book",
+          "observation": "Order and salience predictably steer choices even when options stay open.",
+          "framework_interpretation": "Top-of-funnel framing acts as a nudge that preloads users toward speed over caution."
+        },
+        {
+          "source": "Layer 0 discovery observation",
+          "type": "competitor_ux",
+          "observation": "Roomster acquisition touchpoints foreground fast room/roommate discovery and inventory scale.",
+          "framework_interpretation": "The platform's first impression sets a conversion anchor rather than a trust anchor."
+        }
+      ],
+      "the_coffee_test": "This is mediocre coffee because users accept 'that is just how roommate apps are'; a trust-first discovery default would feel surprisingly premium."
+    },
+    {
+      "id": "disappoint-002",
+      "title": "Ranking Without Probability Cues",
+      "competitor_phase": "search",
+      "type": "invisible_labor",
+      "what_happens_now": "Users scroll ranked cards with headline rent and limited context, then manually open profiles to infer response likelihood, compatibility odds, and legitimacy from sparse clues.",
+      "why_its_not_a_bug": "Search returns results and filters function, so the system appears to work as expected.",
+      "why_it_matters_psychologically": "Chapter 1 shows anchoring and availability biases dominate when probabilities are missing; users mistake what is most visible for what is most likely to succeed safely.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "high",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 1 (anchoring, availability)",
+          "type": "book",
+          "observation": "People rely on salient anchors and vivid examples when estimating value and risk.",
+          "framework_interpretation": "Top-ranked cards become de facto recommendations in the absence of calibrated signals."
+        },
+        {
+          "source": "Layer 0 search observation",
+          "type": "competitor_ux",
+          "observation": "Roomster search is optimized for browsing and lead generation, not explicit fit/trust probability defaults.",
+          "framework_interpretation": "Users must do extra cognitive work the interface could scaffold."
+        }
+      ],
+      "the_coffee_test": "This is mediocre coffee because everyone accepts tab-hopping comparison as normal, but guided probability cues would meaningfully delight."
+    },
+    {
+      "id": "disappoint-003",
+      "title": "Polished Profiles Masquerade as Safety Signals",
+      "competitor_phase": "listing_evaluation",
+      "type": "trust_vacuum",
+      "what_happens_now": "During profile evaluation, users infer trust from photo quality, writing tone, and lifestyle similarity, while hard disconfirming checks are not surfaced as a default sequence before contacting.",
+      "why_its_not_a_bug": "Profiles display correctly and users can message, so the experience passes as functional.",
+      "why_it_matters_psychologically": "Chapter 1 representativeness bias causes people to confuse 'looks legitimate' with 'is low risk'; without structured checks, stereotype-based inference fills the gap.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "high",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 1 (representativeness, status quo bias)",
+          "type": "book",
+          "observation": "Similarity cues and inertia can lock people into poor judgments.",
+          "framework_interpretation": "Once a profile 'feels right,' users underinvest in verification."
+        },
+        {
+          "source": "Layer 0 listing_evaluation observation",
+          "type": "competitor_ux",
+          "observation": "Evaluation relies on variable profile depth and user-led diligence rather than structured trust prompts.",
+          "framework_interpretation": "Critical safety work is offloaded to user intuition."
+        }
+      ],
+      "the_coffee_test": "This is mediocre coffee because people tolerate vibe-based screening; a default disconfirming checklist would feel unexpectedly protective."
+    },
+    {
+      "id": "disappoint-004",
+      "title": "No Structured Commitment Step Before Going Off-Platform",
+      "competitor_phase": "booking_proposal",
+      "type": "abandoned_phase",
+      "what_happens_now": "After initial match interest, users move into free-form negotiation without native proposal milestones, standardized terms, or reversible commitment checkpoints.",
+      "why_its_not_a_bug": "The product intentionally stops at matching and messaging, so absence of a contract flow is seen as scope rather than defect.",
+      "why_it_matters_psychologically": "The Introduction notes active choosing is itself architecture; forcing high-stakes active choosing in complex contexts increases omission errors and susceptibility to manipulative framing.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "high",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Introduction (active choosing, inevitability of architecture)",
+          "type": "book",
+          "observation": "People do not always want forced active choice when options are numerous and consequences unclear.",
+          "framework_interpretation": "Unguided negotiation amplifies errors at the exact point stakes escalate."
+        },
+        {
+          "source": "Layer 0 booking_proposal observation",
+          "type": "competitor_ux",
+          "observation": "Roomster funnels users to direct contact instead of in-product offer/acceptance workflow.",
+          "framework_interpretation": "The riskiest phase lacks safety defaults and quality control."
+        }
+      ],
+      "the_coffee_test": "This is mediocre coffee because users expect to handle terms themselves; a guided commitment path would feel notably better than category norms."
+    },
+    {
+      "id": "disappoint-005",
+      "title": "Chat Momentum Becomes a False Legitimacy Signal",
+      "competitor_phase": "communication",
+      "type": "mediocre_default",
+      "what_happens_now": "Messaging is a generic back-and-forth where fast replies and conversational warmth are implicitly treated as quality signals, with no built-in prompts for verification artifacts or expectation alignment.",
+      "why_its_not_a_bug": "Messages send and users connect, so the core feature works and conversion remains high.",
+      "why_it_matters_psychologically": "Chapter 2 present bias and Chapter 3 herd effects make immediate social feedback feel safer than it is; users over-trust responsiveness over evidence.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 2 (resisting temptation)",
+          "type": "book",
+          "observation": "People overweight immediate rewards under self-control pressure.",
+          "framework_interpretation": "Quick social reinforcement drives premature commitment behavior."
+        },
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 3 (following the herd)",
+          "type": "book",
+          "observation": "In uncertainty, social cues heavily influence choices.",
+          "framework_interpretation": "Conversation momentum functions as weak social proof in place of hard trust signals."
+        }
+      ],
+      "the_coffee_test": "This is mediocre coffee because plain chat is expected, but safety-structured conversation defaults would feel unusually thoughtful."
+    },
+    {
+      "id": "disappoint-006",
+      "title": "Silence After Match Agreement",
+      "competitor_phase": "active_stay",
+      "type": "abandoned_phase",
+      "what_happens_now": "Once roommates decide to proceed, coordination for chores, boundaries, utilities, and conflict handling happens outside the platform with no periodic check-in or norm-setting defaults.",
+      "why_its_not_a_bug": "Roomster is positioned as a matching product, so post-match support is not an explicit promise users expect to be fulfilled.",
+      "why_it_matters_psychologically": "The Introduction's 'everything matters' principle implies missing small structures creates preventable friction; without defaults, status quo drift lets unresolved issues compound.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "some_users",
+        "impact": "medium",
+        "visibility": "only_power_users_notice"
+      },
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Introduction (everything matters)",
+          "type": "book",
+          "observation": "Small contextual design decisions can produce large behavioral effects.",
+          "framework_interpretation": "No post-match scaffolding means predictable coordination failures are left unmanaged."
+        },
+        {
+          "source": "Layer 0 active_stay observation",
+          "type": "competitor_ux",
+          "observation": "The platform provides minimal native tenancy lifecycle support after matching.",
+          "framework_interpretation": "Behavioral architecture stops before the outcome is lived."
+        }
+      ],
+      "the_coffee_test": "This is mediocre coffee because users do not expect help after matching, so even lightweight stay guidance would feel surprisingly valuable."
+    },
+    {
+      "id": "disappoint-007",
+      "title": "No Structured Debrief to Recalibrate Future Choices",
+      "competitor_phase": "post_stay",
+      "type": "missing_delight",
+      "what_happens_now": "After outcomes are known, users are not guided through a concise reflection on what signals were reliable, what red flags were missed, and what to change next search cycle.",
+      "why_its_not_a_bug": "Users can leave and return later without obstruction, so there is no visible defect in core flow completion.",
+      "why_it_matters_psychologically": "Chapter 1 availability bias causes recent vivid incidents to dominate memory; without structured recall, learning is noisy and overreactive.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "some_users",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 1 (availability)",
+          "type": "book",
+          "observation": "People overweight memorable events and underweight base rates in later judgments.",
+          "framework_interpretation": "Absent debrief defaults, users carry forward distorted lessons."
+        },
+        {
+          "source": "Layer 0 post_stay observation",
+          "type": "industry_pattern",
+          "observation": "Roommate platforms generally have thin closure and review rituals compared with travel marketplaces.",
+          "framework_interpretation": "Weak feedback architecture reduces collective and individual calibration."
+        }
+      ],
+      "the_coffee_test": "This is mediocre coffee because nobody expects a learning loop, so a short post-stay recalibration would feel unexpectedly smart."
+    },
+    {
+      "id": "disappoint-008",
+      "title": "Renewal Inertia Over Decision-Quality Retention",
+      "competitor_phase": "retention",
+      "type": "mediocre_default",
+      "what_happens_now": "Ongoing engagement depends on recurring search need and subscription continuity, while retention messaging focuses on access and volume rather than whether users are making safer, higher-quality choices over time.",
+      "why_its_not_a_bug": "Renewals and reactivations happen, so business metrics may look acceptable despite shallow user learning.",
+      "why_it_matters_psychologically": "Chapter 1 status quo bias means users stick with defaults; if defaults optimize continuation instead of better judgment, long-run trust deteriorates even when short-run activity persists.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt - Chapter 1 (status quo bias, default effects)",
+          "type": "book",
+          "observation": "People disproportionately remain with current settings and default paths.",
+          "framework_interpretation": "Retention can be sustained by inertia even when perceived decision quality is not improving."
+        },
+        {
+          "source": "Layer 0 retention observation",
+          "type": "public_review",
+          "observation": "Users often appreciate reach but question trust and pricing fairness over longer use horizons.",
+          "framework_interpretation": "Conversion-centered nudges can produce cumulative reactance and loyalty decay."
+        }
+      ],
+      "the_coffee_test": "This is mediocre coffee because recurring access is treated as enough; retention built on better decisions would pleasantly break expectations."
+    }
+  ],
+  "disappointment_clusters": [
+    {
+      "cluster_name": "Trust Is Implied, Not Engineered",
+      "disappointment_ids": [
+        "disappoint-001",
+        "disappoint-003",
+        "disappoint-005"
+      ],
+      "pattern": "Roomster creates strong behavioral momentum but weak explicit trust scaffolding, so users rely on vibe, speed, and social cues instead of evidence.",
+      "signature_potential": "A trust-first architecture with disconfirming defaults could become a category-defining differentiator for Split Lease."
+    },
+    {
+      "cluster_name": "High-Stakes Decisions Lack Guided Defaults",
+      "disappointment_ids": [
+        "disappoint-002",
+        "disappoint-004"
+      ],
+      "pattern": "Search and commitment moments require user-built decision systems rather than platform-provided choice architecture.",
+      "signature_potential": "Probability-aware comparison and staged commitment workflows could convert invisible labor into visible product value."
+    },
+    {
+      "cluster_name": "No Behavioral Support After Initial Match",
+      "disappointment_ids": [
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "pattern": "Product investment drops after match initiation, so users lose support for coordination, reflection, and improved future decisions.",
+      "signature_potential": "A full lifecycle guidance layer could compound trust and decision quality, turning retention into an outcome of better choices, not inertia."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-2 -->
+  <script id="data-layer-2" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "nudge-choice-architecture.txt",
+    "book_chapters": "Introduction + Chapters 1-3: Choice Architecture, Defaults, and Framing"
+  },
+  "crossref_summary": "The transcript corpus strongly validates that the Roomster-style disappointments are real, not theoretical: users repeatedly describe trust anxiety, process ambiguity, and manual workarounds in their own words. Across host and guest calls, people default to fast heuristics (reply speed, vibe, first impression), ask basic process questions late in the journey (because architecture is missing earlier), and create off-platform systems (texts, notes, inventory books) to manage risk and coordination. The evidence especially reinforces Layer 1's claims about weak trust defaults, unstructured commitment moments, and missing post-match guidance, while showing one additional category pattern: discovery via Craigslist creates an immediate legitimacy tax before platform value can even be evaluated.",
+  "validated_disappointments": [
+    {
+      "disappointment_id": "disappoint-001",
+      "disappointment_title": "Speed-First Discovery Frame Crowds Out Risk Framing",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I keep seeing your postings and I'm just like, I don't know if this guy is legit or what it is.",
+          "context": "Host reacts to discovery touchpoint with immediate legitimacy anxiety before discussing fit or value.",
+          "match_type": "emotional_moment"
+        },
+        {
+          "transcript": "Customer call- Vince.txt",
+          "speaker": "guest",
+          "quote": "I've never done something like this. How does this work",
+          "context": "Guest enters as a first-time user and lacks risk/calibration scaffolding at first contact.",
+          "match_type": "unmet_expectation"
+        },
+        {
+          "transcript": "Susan  Bryant customer call.txt",
+          "speaker": "guest",
+          "quote": "I have to go and see the space and just to make sure that everything is legit. You know how sometimes people give you all kind of run around",
+          "context": "Guest describes fraud-avoidance behavior as a prerequisite to proceeding.",
+          "match_type": "emotional_moment"
+        }
+      ],
+      "user_language": "Users say 'I don't know if this guy is legit', 'I've never done something like this', and 'make sure that everything is legit'.",
+      "framework_reinforcement": "Yes. It directly reinforces the Introduction framing claim: the first salient cue sets the mental anchor, and here the anchor is legitimacy risk, not informed evaluation."
+    },
+    {
+      "disappointment_id": "disappoint-002",
+      "disappointment_title": "Ranking Without Probability Cues",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "Copy of Call with Tom C guest.txt",
+          "speaker": "guest",
+          "quote": "I just wish that sometimes it was a bit more time-to-time price.",
+          "context": "Guest cannot map displayed prices to a predictable decision framework.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "Copy of Call with Tom C guest.txt",
+          "speaker": "guest",
+          "quote": "the search engine right now is broken",
+          "context": "Guest is forced to rely on manual agent help instead of trustworthy ranking/search outputs.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "Tapper S - 9 September 2022.txt",
+          "speaker": "guest",
+          "quote": "what does that include? Does that include the fees for booking? Does that include y'all's fees?",
+          "context": "Guest cannot infer true likelihood/cost quality from listing card numbers alone.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "Users ask 'what does that include?' and describe search/pricing as unclear rather than saying the algorithm is wrong.",
+      "framework_reinforcement": "Yes. Chapter 1 anchoring/availability is reinforced: users over-weight what is visible while missing base-rate cues about true fit and true cost."
+    },
+    {
+      "disappointment_id": "disappoint-003",
+      "disappointment_title": "Polished Profiles Masquerade as Safety Signals",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "Susan  Bryant customer call.txt",
+          "speaker": "guest",
+          "quote": "I do have to see the room before she puts her tickets.",
+          "context": "Guest does not treat listing polish as sufficient evidence of safety.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "paul-call.txt",
+          "speaker": "host",
+          "quote": "Could it be sketchy? It could be a scam",
+          "context": "Host explicitly labels the trust problem and requests direct verification steps.",
+          "match_type": "direct_competitor_mention"
+        },
+        {
+          "transcript": "William Romano.txt",
+          "speaker": "guest",
+          "quote": "Doesn't sound too good to me, to you sharing it with someone else ... I don't want to use somebody else's sheets",
+          "context": "Guest rejects abstract assurances and focuses on concrete lived-risk signals.",
+          "match_type": "emotional_moment"
+        }
+      ],
+      "user_language": "Users ask for proof in concrete terms: 'see the room', 'could be a scam', 'I don't want to use somebody else's sheets'.",
+      "framework_reinforcement": "Yes. It strengthens Chapter 1 representativeness analysis: users distrust surface polish and seek disconfirming evidence when stakes feel high."
+    },
+    {
+      "disappointment_id": "disappoint-004",
+      "disappointment_title": "No Structured Commitment Step Before Going Off-Platform",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "Tamycka initial phone call.txt",
+          "speaker": "guest",
+          "quote": "how does that process work? Like, do I send money? And then there's a lockbox and then I have a security code, like, is that how it works?",
+          "context": "Guest asks for end-to-end commitment mechanics that are not self-evident in-product.",
+          "match_type": "unmet_expectation"
+        },
+        {
+          "transcript": "Theodore Matthews.txt",
+          "speaker": "guest",
+          "quote": "at one point we'll actually get to see the apartment before I signed the lease.",
+          "context": "Guest is uncertain about ordering, reversibility, and commitment checkpoints.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "Customer call- Vince.txt",
+          "speaker": "guest",
+          "quote": "How does this work",
+          "context": "Guest needs verbal reconstruction of the commitment flow.",
+          "match_type": "workaround"
+        }
+      ],
+      "user_language": "Users repeatedly ask process-chain questions: 'do I send money?', 'lockbox?', 'before I signed the lease'.",
+      "framework_reinforcement": "Yes. It directly supports the Introduction claim that forced active choosing in complex, high-stakes contexts increases error and dependence on ad-hoc guidance."
+    },
+    {
+      "disappointment_id": "disappoint-005",
+      "disappointment_title": "Chat Momentum Becomes a False Legitimacy Signal",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "host",
+          "quote": "he was texting me and saying, Hey, you know, I can't make a fist for another day.",
+          "context": "Coordination quality defaults to direct message momentum rather than structured verification.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "host",
+          "quote": "That's the frustrating part ... I had to go through you guys",
+          "context": "Host reports friction created by unstructured conversation pathways.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "chantel-call.txt",
+          "speaker": "host",
+          "quote": "you guys would try, like you did with me getting in touch via text, phone or email",
+          "context": "Fast multi-channel response becomes the implicit trust proxy in absence of guided message structure.",
+          "match_type": "unmet_expectation"
+        }
+      ],
+      "user_language": "Users describe 'texting', 'frustrating', and needing quick contact rather than describing a clear, reliable communication system.",
+      "framework_reinforcement": "Yes. It reinforces Chapter 2/3 dynamics: immediate social feedback and response speed become low-quality substitutes for safer evidence-based checks."
+    },
+    {
+      "disappointment_id": "disappoint-006",
+      "disappointment_title": "Silence After Match Agreement",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "chantel-call.txt",
+          "speaker": "host",
+          "quote": "for me every time somebody leaves my place, I'm now doing inventory and I'm doing cleaning.",
+          "context": "Host describes ongoing stay operations being handled manually outside product support.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "chantel-call.txt",
+          "speaker": "host",
+          "quote": "it's not realistic for my time for me to like, mid-week go run, make sure apartment gets turned over",
+          "context": "Host reveals operational breakdown after initial agreement due to missing lifecycle scaffolding.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "host",
+          "quote": "we've been working on this rescheduling tool",
+          "context": "Need for tool retrofit indicates existing post-match support gap.",
+          "match_type": "unmet_expectation"
+        }
+      ],
+      "user_language": "Users talk about 'inventory', 'cleaning', and 'rescheduling' as tasks they must manually coordinate.",
+      "framework_reinforcement": "Yes. It supports the Introduction 'everything matters' point: missing small structures after agreement create repeated coordination failures."
+    },
+    {
+      "disappointment_id": "disappoint-007",
+      "disappointment_title": "No Structured Debrief to Recalibrate Future Choices",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "cristina-call.txt",
+          "speaker": "host",
+          "quote": "I don't have also a memoir because I have such a hectic job for me.",
+          "context": "Host explicitly describes lacking a structured memory/review system after stays.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "cristina-call.txt",
+          "speaker": "host",
+          "quote": "I've been doing Airbnb for such a long time and I don't remember things.",
+          "context": "Long-run decision quality suffers because outcomes are not captured in reusable form.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "Users say 'I don't remember things' and ask for external memory support implicitly.",
+      "framework_reinforcement": "Yes. It reinforces Chapter 1 availability/memory distortion: without debrief structure, users rely on noisy recall instead of calibrated learning."
+    },
+    {
+      "disappointment_id": "disappoint-008",
+      "disappointment_title": "Renewal Inertia Over Decision-Quality Retention",
+      "validation_strength": "weak",
+      "transcript_evidence": [
+        {
+          "transcript": "cristina-call.txt",
+          "speaker": "host",
+          "quote": "I've been doing this for a while",
+          "context": "Host stayed in existing marketplace patterns despite persistent friction and confusion.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "chantel-call.txt",
+          "speaker": "host",
+          "quote": "I actually took my place off of Airbnb",
+          "context": "Retention shift appears triggered by external pressure (regulation), not improved decision-quality loop.",
+          "match_type": "direct_competitor_mention"
+        }
+      ],
+      "user_language": "Users describe long use despite pain, then abrupt exit when forced by outside constraints.",
+      "framework_reinforcement": "Partial. It hints at status-quo inertia from Chapter 1, but transcripts do not yet show rich direct language about retention defaults themselves."
+    }
+  ],
+  "new_discoveries": [
+    {
+      "id": "discovery-001",
+      "title": "Craigslist Discovery Creates a Legitimacy Tax Before Product Evaluation",
+      "type": "trust_vacuum",
+      "transcript_evidence": [
+        {
+          "transcript": "andreas-call.txt",
+          "speaker": "host",
+          "quote": "I'm on a Craigslist is where I found the Washington Heights apartment.",
+          "context": "Host discovery starts in a channel associated with variable trust quality."
+        },
+        {
+          "transcript": "Tyler Wood 24 November 2021.txt",
+          "speaker": "guest",
+          "quote": "on Craigslist summer, you know, I just clicked search for Chelsea.",
+          "context": "Guest enters via classifieds behavior and carries that heuristic into evaluation."
+        },
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I don't know if this guy is legit or what it is.",
+          "context": "Trust deficit appears before any feature-level interaction, purely from acquisition context."
+        }
+      ],
+      "relates_to_competitor": "Roomster and adjacent roommate marketplaces are judged through the same trust-fragile classified-listing mental model; this explains why speed framing converts quickly but trust conversion remains brittle.",
+      "framework_analysis": "Introduction + Chapter 1: first-frame salience and representativeness drive early judgments. If discovery context looks scam-prone, users anchor on defense, not exploration."
+    },
+    {
+      "id": "discovery-002",
+      "title": "Cleaning and Turnover Labor Is a Primary Adoption Constraint for Shared-Schedule Housing",
+      "type": "invisible_labor",
+      "transcript_evidence": [
+        {
+          "transcript": "Frederick_s Customer Call with Vale.txt",
+          "speaker": "guest",
+          "quote": "I would feel like I'm moving every single week",
+          "context": "Guest sees recurring reset work as a major hidden burden."
+        },
+        {
+          "transcript": "chantel-call.txt",
+          "speaker": "host",
+          "quote": "I have kind of like a book ... detailed inventory",
+          "context": "Host built personal operational tooling to compensate for product absence."
+        },
+        {
+          "transcript": "William Romano.txt",
+          "speaker": "guest",
+          "quote": "I don't want to use somebody else's sheets",
+          "context": "Hygiene uncertainty is a concrete blocker, not a minor preference."
+        }
+      ],
+      "relates_to_competitor": "This amplifies Roomster's lifecycle blind spot: match-level success is insufficient if ongoing turnover norms are left unstructured.",
+      "framework_analysis": "Introduction ('everything matters') and Chapter 2 (present bias) imply users avoid systems that impose recurring hidden chores unless defaults reduce the ongoing burden."
+    }
+  ],
+  "library_connections": [
+    {
+      "disappointment_id": "disappoint-001",
+      "existing_element_id": "works-004",
+      "connection": "Bridge Human Trust to Digital Trust Through Continuity Priming directly addresses first-touch legitimacy anxiety by making the platform feel like a continuation of known human context.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-002",
+      "existing_element_id": "communicates-002",
+      "connection": "Single-Sum Financial Display reduces search/evaluation ambiguity by replacing scattered pricing cues with one interpretable total before breakdown.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-003",
+      "existing_element_id": "communicates-003",
+      "connection": "Sequence Trust Claims as Mechanism -> Evidence -> Guarantee aligns with user demand for verifiable proof rather than profile polish.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-004",
+      "existing_element_id": "communicates-005",
+      "connection": "Pre-Packaged Proposal architecture turns an unstructured commitment jump into a guided confirm/adjust flow.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-005",
+      "existing_element_id": "guest-works-004",
+      "connection": "Eliminate Off-Platform Communication addresses the text-message workaround that currently substitutes for structured in-product communication.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-006",
+      "existing_element_id": "guest-works-003",
+      "connection": "Stays Manager as System 1 Weekly Dashboard directly targets post-match operational silence by centralizing recurring coordination tasks.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-007",
+      "existing_element_id": "guest-communicates-007",
+      "connection": "Batched Review Prompts at Reflection Points supports the missing debrief loop by making memory capture and recalibration routine.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-008",
+      "existing_element_id": "guest-behaves-001",
+      "connection": "Weekly return patterns improve continuity but only partially address retention-quality framing; explicit better-decision-over-time feedback is still thin.",
+      "gap_or_reinforcement": "partial"
+    },
+    {
+      "disappointment_id": "discovery-002",
+      "existing_element_id": "works-002",
+      "connection": "Design for the Depleted User supports reducing repeated turnover burden through defaults, save/resume, and lower per-step cognitive load.",
+      "gap_or_reinforcement": "partial"
+    }
+  ],
+  "transcripts_scanned": {
+    "host_count": 48,
+    "guest_count": 20,
+    "transcripts_with_matches": [
+      "andreas-call.txt",
+      "chantel-call.txt",
+      "cristina-call.txt",
+      "nneka-call.txt",
+      "paul-call.txt",
+      "tag-call .txt",
+      "Copy of Call with Tom C guest.txt",
+      "Customer call Tom.txt",
+      "Customer call- Vince.txt",
+      "Frederick_s Customer Call with Vale.txt",
+      "Susan  Bryant customer call.txt",
+      "Tamycka initial phone call.txt",
+      "Tapper S - 9 September 2022.txt",
+      "Theodore Matthews.txt",
+      "Tyler Wood 24 November 2021.txt",
+      "William Romano.txt"
+    ],
+    "transcripts_without_matches": [
+      "anthony-call.txt",
+      "dana-call.txt",
+      "david-call.txt",
+      "deedra-call.txt",
+      "diane-kaufhold-call.txt",
+      "dimitri-call.txt",
+      "drew-call.txt",
+      "gale-grant-call.txt",
+      "gregory-stanford-call.txt",
+      "hemeden-call.txt",
+      "herbert-call.txt",
+      "jason-call.txt",
+      "jessica-filomeno-call.txt",
+      "john-call.txt",
+      "joie-coelho-call.txt",
+      "joie-james-call.txt",
+      "jonathan-kim-call.txt",
+      "june-call.txt",
+      "keah-call.txt",
+      "kelly-call.txt",
+      "ken-chang-call.txt",
+      "kent-call.txt",
+      "kris-call.txt",
+      "lilly-call.txt",
+      "louise-call.txt",
+      "luci-chambers-call.txt",
+      "mahesh-call.txt",
+      "malvern-call.txt",
+      "michael-spear-call.txt",
+      "nakoley-renville-call.txt",
+      "patricia-call-1.txt",
+      "patricia-call-2.txt",
+      "rami-call.txt",
+      "ramsey-call.txt",
+      "robbie-call.txt",
+      "scott-white-call.txt",
+      "sherene-call.txt",
+      "shirley-call.txt",
+      "stephanie-call.txt",
+      "tammy-call.txt",
+      "toni-call.txt",
+      "ZEIN-call.txt",
+      "Shomit Ghosh - 8 April 2022.txt",
+      "Sophie Charvet - 18 April 2022.txt",
+      "Stephen Petronio - 1 June 2022.txt",
+      "Steve Zhang Customer Call.txt",
+      "Steven Mariscal - 21 April 2022.txt",
+      "Taline  Bryant.txt",
+      "Walaa customer call.txt",
+      "Zella Myers - 1 July 2022.txt",
+      "nneka-call.txt",
+      "zella-myers-call.txt"
+    ]
+  }
+}</script>
+  <!-- INJECT:layer-3 -->
+  <script id="data-layer-3" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "nudge-choice-architecture.txt",
+    "book_chapters": "Introduction + Chapters 1-3: Choice Architecture, Defaults, and Framing"
+  },
+  "opportunity_thesis": "Roomster demonstrates a category pattern: marketplaces optimize for fast message starts, then abandon users at the exact moments where behavioral errors are most expensive. The strategic opening for Split Lease is to become the trust-and-decision-quality platform for shared housing by designing defaults that front-load legitimacy, make risk and fit comparable during search, structure commitment before money moves, and preserve learning after each stay. This is a signature opportunity because users already expect speed from everyone; they do not expect a platform that reliably helps them make safer choices under uncertainty.",
+  "opportunities": [
+    {
+      "id": "opp-001",
+      "title": "Trust-First Entry With a Legitimacy Ladder",
+      "based_on_disappointments": [
+        "disappoint-001",
+        "disappoint-003"
+      ],
+      "split_lease_phases": [
+        "discovery",
+        "search",
+        "listing_evaluation"
+      ],
+      "the_signature": "Before users can message, Split Lease presents a simple legitimacy ladder for each listing and profile: what is claimed, what is verified, what is guaranteed, and what remains unknown. The surprise is not a generic verified badge but a transparent trust narrative that makes disconfirming checks effortless. Users feel the platform is helping them avoid mistakes, not just helping them move faster.",
+      "why_competitors_wont_copy": "Roomster-like businesses monetize lead volume and conversion momentum; explicit trust friction and uncertainty disclosure can reduce short-term message starts. Delivering this well also requires ongoing verification operations and clearer accountability boundaries that most lead-gen marketplaces avoid.",
+      "behavioral_framework_case": "The Introduction's 'no neutral design' principle means first-touch framing becomes the default mental anchor. Chapter 1 shows representativeness and availability biases dominate when users lack probability-calibrated evidence. A legitimacy ladder changes the default from vibe-based inference to evidence-based evaluation without removing user choice.",
+      "user_evidence": "Users repeatedly voice legitimacy anxiety at first contact: 'I don't know if this guy is legit,' 'I've never done something like this. How does this work,' and 'I have to go and see the space ... to make sure that everything is legit.'",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not reduce this to a binary checkmark; the signature is transparent trust progression and explicit unknowns.",
+        "Do not place trust proof behind paywalls or deep clicks; trust framing must be visible before first message.",
+        "Do not optimize copy for urgency over clarity; speed language should never hide risk-relevant information."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "works-004",
+          "communicates-003",
+          "works-001"
+        ],
+        "gap_assessment": "Strong reinforcement. The library covers trust continuity and evidence-first trust claims, but it does not yet define a full pre-message legitimacy ladder that standardizes claim/evidence/guarantee/unknown across discovery and search."
+      }
+    },
+    {
+      "id": "opp-002",
+      "title": "Probability-Aware Search Defaults",
+      "based_on_disappointments": [
+        "disappoint-002"
+      ],
+      "split_lease_phases": [
+        "search",
+        "listing_evaluation"
+      ],
+      "the_signature": "Split Lease makes ranking interpretable by default: each result includes calibrated likelihood cues for response, fit, and trust confidence, plus total-cost framing before breakdown. Instead of users guessing from headline rent and card position, the interface clarifies what is likely to work and why. The signature moment is users saying the platform helped them compare safely, not just browse faster.",
+      "why_competitors_wont_copy": "Most roommate marketplaces optimize ranking for engagement and monetized visibility boosts. Probability-calibrated defaults require exposing uncertainty and potentially demoting high-engagement but low-quality outcomes, which conflicts with existing ranking economics.",
+      "behavioral_framework_case": "Chapter 1 documents anchoring and availability errors under uncertainty. When ranking and headline prices are the most salient cues, users overweight what is visible. Choice architecture that surfaces probability and total-cost framing counters these predictable judgment errors while preserving freedom to choose any listing.",
+      "user_evidence": "Users ask basic interpretability questions that ranked cards do not answer: 'what does that include?' and describe search as unclear ('the search engine right now is broken', 'I wish it was a bit more time-to-time price').",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "most_competitors",
+        "user_validation": "moderate",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "natural_fit"
+      },
+      "anti_patterns": [
+        "Do not add black-box scores without explanation; users need visible drivers of probability cues.",
+        "Do not flood cards with metrics; prioritize the few cues that reduce decision error.",
+        "Do not separate total price from fee context; the first number must match user mental math."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "communicates-002",
+          "works-006",
+          "works-002"
+        ],
+        "gap_assessment": "Partial overlap. Existing elements improve financial legibility and model translation, but there is still a gap in probability-aware ranking defaults that combine fit, response, and trust likelihood at search time."
+      }
+    },
+    {
+      "id": "opp-003",
+      "title": "Guided Commitment Rail Before Money Moves",
+      "based_on_disappointments": [
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "split_lease_phases": [
+        "proposal_creation",
+        "negotiation",
+        "acceptance"
+      ],
+      "the_signature": "Split Lease replaces free-form negotiation with a staged commitment rail: structured terms, reversible checkpoints, explicit next-step states, and verification prompts at the exact points users usually improvise in chat. The experience feels conversational, but each stage reduces ambiguity and manipulation risk. Users experience the platform as a decision-quality guide, not just a messaging pipe.",
+      "why_competitors_wont_copy": "Roomster-style products are designed to hand off after message initiation. Building a commitment rail requires product, legal, and support ownership of high-stakes moments, increasing operational burden and liability exposure that lead-gen models are structurally incentivized to avoid.",
+      "behavioral_framework_case": "The Introduction argues that forced active choosing in complex contexts can degrade outcomes. Chapter 2 adds that present bias under pressure favors immediate social rewards over safer long-term choices. A staged default path with reversible checkpoints protects users from premature commitment without blocking legitimate deals.",
+      "user_evidence": "Users repeatedly ask for process mechanics now handled ad hoc: 'do I send money? ... lockbox ... security code?', 'at one point we'll actually get to see the apartment before I signed the lease,' and generic 'How does this work' requests during commitment moments.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not turn this into a rigid legal wizard; the signature is guided clarity at conversational speed.",
+        "Do not hide state transitions; both sides must always know current stage and next required action.",
+        "Do not let critical terms drift into off-platform chat; that breaks traceability and trust."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "communicates-005",
+          "guest-works-004",
+          "works-003"
+        ],
+        "gap_assessment": "Reinforced but incomplete. The library has proposal and communication building blocks, yet a full reversible commitment rail with explicit stage defaults and risk checkpoints is not fully unified."
+      }
+    },
+    {
+      "id": "opp-004",
+      "title": "Outcome Memory Loop for Better Next Decisions",
+      "based_on_disappointments": [
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "split_lease_phases": [
+        "active_lease",
+        "retention"
+      ],
+      "the_signature": "After agreement, Split Lease keeps helping: lightweight active-lease check-ins and batched post-stay debriefs that convert lived outcomes into better defaults for the next cycle. Instead of restarting from memory and anecdotes, users carry forward structured lessons and reliability history. The signature is compounding decision quality over time, not churn-resistant inertia.",
+      "why_competitors_wont_copy": "Category incumbents are optimized for top-of-funnel matching and have weak incentives to invest in delayed-payoff learning loops. Post-match support adds operational overhead while benefits accrue gradually through trust and retention quality, not immediate lead volume.",
+      "behavioral_framework_case": "Chapter 1 availability bias predicts that vivid recent events distort future judgment. The Introduction's 'everything matters' framing implies small post-outcome structures can shift future behavior materially. Structured memory defaults reduce noisy recall and create higher-quality repeat decisions.",
+      "user_evidence": "Users describe unmanaged post-match labor and memory failure: 'I'm now doing inventory and cleaning,' 'it's not realistic for my time,' and 'I don't remember things' after many stays.",
+      "opportunity_score": {
+        "signature_potential": "medium",
+        "category_gap": "entire_category",
+        "user_validation": "moderate",
+        "framework_support": "strong",
+        "feasibility": "straightforward",
+        "alignment": "natural_fit"
+      },
+      "anti_patterns": [
+        "Do not make post-stay reflection a long survey; keep it brief, timed, and decision-relevant.",
+        "Do not collect lifecycle data without returning user-visible value in the next search/proposal cycle.",
+        "Do not frame retention as reminders-only; the core promise is better choices, not more notifications."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "guest-works-003",
+          "guest-communicates-007",
+          "guest-behaves-001"
+        ],
+        "gap_assessment": "Strong reinforcement. Existing elements address active-stay dashboard behavior and reflection prompts, but the explicit 'decision quality over time' loop that ties debrief outputs to future defaults remains only partially defined."
+      }
+    }
+  ],
+  "opportunity_ranking": [
+    {
+      "id": "opp-001",
+      "rank": 1,
+      "reason": "It attacks the earliest and most universal blocker (legitimacy anxiety) with the strongest transcript language, and it sets a trust anchor that improves every downstream phase."
+    },
+    {
+      "id": "opp-003",
+      "rank": 2,
+      "reason": "It fixes the highest-stakes failure mode where users currently improvise money and commitment decisions in unstructured chat, and competitors are structurally disincentivized to own this phase."
+    },
+    {
+      "id": "opp-002",
+      "rank": 3,
+      "reason": "It reduces high-frequency comparison errors during search and can materially improve match quality, but depends on trust framing and commitment architecture to realize full impact."
+    },
+    {
+      "id": "opp-004",
+      "rank": 4,
+      "reason": "It is a long-term compounding moat through better repeat decisions, but near-term conversion impact is lower than trust-first entry and commitment rail improvements."
+    }
+  ],
+  "strategic_narrative": "These opportunities form one behavioral strategy: re-architect defaults around decision quality rather than message volume. Split Lease first wins the opening frame (trust before speed), then improves choice quality in search (probability-aware comparison), then stabilizes the highest-risk point (guided commitment before money moves). This sequence directly counters the heuristic traps validated in transcripts and predicted by the Nudge chapters.\n\nThe second strategic move is compounding. Most competitors stop architecting behavior after first contact; Split Lease can continue through active lease and post-stay reflection so users build reusable judgment, not just one-off outcomes. That creates a brand promise competitors struggle to imitate: people choose Split Lease because it helps them make safer, clearer housing decisions repeatedly.\n\nIf executed together, Split Lease does not look like another roommate marketplace with nicer UI. It becomes the category's decision-quality infrastructure: a platform where trust is explicit, commitments are legible, and each cycle makes the next choice better."
+}</script>
+  <!-- INJECT:layer-4 -->
+  <script id="data-layer-4" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "nudge-choice-architecture.txt",
+    "book_chapters": "Introduction + Chapters 1-3: Choice Architecture, Defaults, and Framing"
+  },
+  "elements": [
+    {
+      "id": "rb-roomster-ui-001",
+      "name": "Legitimacy Ladder Pre-Message Panel",
+      "category": "section",
+      "opportunity_id": "opp-001",
+      "source_disappointments": [
+        "disappoint-001",
+        "disappoint-003"
+      ],
+      "journey_phases": [
+        "discovery",
+        "search",
+        "listing_evaluation"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It prevents users from entering message flow with pure speed framing by making trust evidence, guarantees, and unknowns visible before first contact.",
+      "why_this_is_a_signature": "Roomster and peers rush users to chat; this element makes transparency itself the default, including explicit unknowns that most marketplaces hide.",
+      "description": "This panel appears above listing actions and enforces a trust-first reading order: claim, evidence, guarantee, unknown. Users can still message quickly, but they see risk context first and get a structured disconfirming checklist. The component converts vibe-based trust into evidence-based trust without removing choice.",
+      "visual_spec": {
+        "layout": "Two-column surface in a 960px container: left trust ladder rails and right action stack; collapses to single column under 768px.",
+        "background": "var(--bg-white) on top of a subtle var(--bg-off-white) radial wash.",
+        "border": "1px solid var(--border-color) with top accent strip in var(--secondary-purple).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 20px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "24px",
+          "gap": "16px"
+        },
+        "color_usage": "Primary purple anchors hierarchy, secondary purple marks verified states, accent purple highlights unresolved unknowns and caution prompts."
+      },
+      "interaction_spec": {
+        "default_state": "Four ladder rows are visible with status chips for Claimed, Verified, Guaranteed, and Unknown.",
+        "hover": "Row card elevates with purple-tinted shadow and reveals one-line audit detail.",
+        "click": "Clicking a row opens inline evidence text and source timestamp.",
+        "animation": "Rows fade-up in 220ms stagger; chip color transitions in 200ms ease-in-out.",
+        "responsive": "On mobile, rows become full-width stacked cards with 48px minimum tap targets and CTA pinned below ladder."
+      },
+      "copy_spec": {
+        "primary_text": "Trust check before you message",
+        "secondary_text": "Review what is verified, what is guaranteed by Split Lease, and what still needs your confirmation.",
+        "micro_copy": "Buttons: 'Message host now', 'Run disconfirming checklist'. Labels: 'Claimed', 'Verified by ID + lease docs', 'Guaranteed payment rail', 'Unknown: in-person room condition'.",
+        "do": [
+          "Lead with evidence language before urgency language.",
+          "Name unknowns directly in plain words.",
+          "Keep guarantees concrete and time-bound."
+        ],
+        "dont": [
+          "Do not reduce trust to one badge.",
+          "Do not hide unknowns behind expandable legal text.",
+          "Do not gate core trust evidence behind paywalls."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Legitimacy Ladder Pre-Message Panel</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --primary-purple-hover: #251047;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-description: #374151;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n  --shadow-purple-lg: 0 6px 20px rgba(109, 49, 194, 0.35);\n  --transition-base: 0.2s;\n}\n* { box-sizing: border-box; }\nbody {\n  margin: 0;\n  padding: 24px;\n  font-family: 'DM Sans', sans-serif;\n  background: radial-gradient(circle at 15% 0%, rgba(140,104,238,0.16), transparent 35%), var(--bg-off-white);\n  color: var(--text-dark);\n}\n.panel {\n  max-width: 960px;\n  margin: 0 auto;\n  display: grid;\n  grid-template-columns: 1.4fr 1fr;\n  gap: 16px;\n  background: var(--bg-white);\n  border: 1px solid var(--border-color);\n  border-top: 3px solid var(--secondary-purple);\n  border-radius: var(--rounded-xl);\n  padding: 24px;\n  box-shadow: var(--shadow-purple-md);\n}\n.kicker {\n  display: inline-flex;\n  align-items: center;\n  min-height: 32px;\n  padding: 0 12px;\n  border-radius: var(--rounded-pill);\n  background: rgba(109,49,194,0.12);\n  color: var(--secondary-purple);\n  font: 600 12px 'Inter', sans-serif;\n}\nh1 { margin: 10px 0 8px; font: 700 20px/1.2 'Inter', sans-serif; color: var(--primary-purple); }\n.sub { margin: 0 0 14px; font-size: 14px; color: var(--text-description); line-height: 1.5; }\n.ladder { display: grid; gap: 10px; }\n.row {\n  border: 1px solid rgba(109,49,194,0.2);\n  border-radius: var(--rounded-lg);\n  padding: 12px;\n  transition: transform var(--transition-base) ease, box-shadow var(--transition-base) ease;\n  animation: rise 0.22s ease both;\n}\n.row:nth-child(2){ animation-delay: 0.05s; }\n.row:nth-child(3){ animation-delay: 0.10s; }\n.row:nth-child(4){ animation-delay: 0.15s; }\n.row:hover { transform: translateY(-2px); box-shadow: var(--shadow-purple-sm); }\n.row-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }\n.row-title { font: 600 14px 'Inter', sans-serif; color: var(--primary-purple); }\n.row-desc { margin-top: 6px; color: var(--text-gray); font-size: 13px; }\n.chip {\n  border-radius: var(--rounded-pill);\n  padding: 4px 10px;\n  font: 600 11px 'Inter', sans-serif;\n}\n.chip.v { background: rgba(109,49,194,0.14); color: var(--secondary-purple); }\n.chip.g { background: rgba(49,19,93,0.12); color: var(--primary-purple); }\n.chip.u { background: rgba(140,104,238,0.2); color: var(--primary-purple); }\n.side {\n  border: 1px solid var(--border-color);\n  border-radius: var(--rounded-lg);\n  background: linear-gradient(180deg, rgba(140,104,238,0.08), rgba(255,255,255,1));\n  padding: 16px;\n}\n.side h2 { margin: 0 0 6px; font: 700 16px 'Inter', sans-serif; color: var(--primary-purple); }\n.side p { margin: 0 0 10px; font-size: 13px; color: var(--text-gray); }\nul { margin: 0 0 14px; padding-left: 18px; color: var(--text-description); font-size: 13px; line-height: 1.45; }\nbutton {\n  width: 100%;\n  min-height: 48px;\n  border: none;\n  border-radius: var(--rounded-pill);\n  font: 600 14px 'Inter', sans-serif;\n  cursor: pointer;\n  transition: transform var(--transition-base) ease, background var(--transition-base) ease;\n}\n.btn-primary { color: #fff; background: var(--secondary-purple); }\n.btn-primary:hover { background: var(--accent-purple); transform: translateY(-1px); }\n.btn-ghost { margin-top: 8px; color: var(--primary-purple); background: rgba(49,19,93,0.08); }\n.btn-ghost:hover { background: rgba(49,19,93,0.14); }\n@keyframes rise { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }\n@media (max-width: 768px) {\n  body { padding: 16px; }\n  .panel { grid-template-columns: 1fr; padding: 16px; }\n}\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }\n}\n</style>\n</head>\n<body>\n  <section class='panel'>\n    <div>\n      <span class='kicker'>Split Lease Trust Ladder</span>\n      <h1>Trust check before you message</h1>\n      <p class='sub'>Room on W 109th St is available for Mon-Thu stays. Review claim, evidence, guarantee, and unknown in one pass.</p>\n      <div class='ladder'>\n        <article class='row'>\n          <div class='row-top'><span class='row-title'>Claimed: private furnished room</span><span class='chip v'>Claimed</span></div>\n          <p class='row-desc'>Host states private bedroom, in-unit laundry, and weekly cleaning rotation.</p>\n        </article>\n        <article class='row'>\n          <div class='row-top'><span class='row-title'>Verified: ID + lease authority</span><span class='chip v'>Verified</span></div>\n          <p class='row-desc'>Government ID matched and lease authority documents checked 2 days ago.</p>\n        </article>\n        <article class='row'>\n          <div class='row-top'><span class='row-title'>Guaranteed: payment protection rail</span><span class='chip g'>Guaranteed</span></div>\n          <p class='row-desc'>Split Lease holds funds until move-in checklist completion.</p>\n        </article>\n        <article class='row'>\n          <div class='row-top'><span class='row-title'>Unknown: current room condition</span><span class='chip u'>Unknown</span></div>\n          <p class='row-desc'>No recent live walkthrough in last 14 days. Schedule verification call.</p>\n        </article>\n      </div>\n    </div>\n    <aside class='side'>\n      <h2>Disconfirming checklist</h2>\n      <p>Before first message, confirm high-risk details.</p>\n      <ul>\n        <li>Request a same-week live video walkthrough.</li>\n        <li>Confirm exact move-in and move-out handoff process.</li>\n        <li>Review utility split and cleaning responsibilities.</li>\n      </ul>\n      <button class='btn-primary'>Message host now</button>\n      <button class='btn-ghost'>Run disconfirming checklist</button>\n    </aside>\n  </section>\n</body>\n</html>",
+      "before_after": {
+        "before": "Roomster pushes users from listing browse to messaging with minimal pre-message trust architecture, so legitimacy checks happen late and inconsistently.",
+        "after": "Split Lease inserts a transparent legitimacy ladder before messaging so users evaluate claim, evidence, guarantee, and unknown by default."
+      },
+      "implements_principles": [
+        "opp-001",
+        "disappoint-001",
+        "disappoint-003"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "rb-roomster-ui-002",
+      "name": "Probability-Aware Match Card",
+      "category": "card",
+      "opportunity_id": "opp-002",
+      "source_disappointments": [
+        "disappoint-002"
+      ],
+      "journey_phases": [
+        "search",
+        "listing_evaluation"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It stops users from using rank position and headline rent as proxies for quality by surfacing response, fit, and trust probabilities with cost clarity.",
+      "why_this_is_a_signature": "Competitors optimize for browse volume; this card makes uncertainty explicit and explains why a listing is recommended, reducing heuristic errors.",
+      "description": "Each search result card includes three calibrated likelihood cues and one total monthly number before fee breakdown. Users can inspect drivers like response speed, rule compatibility, and verification recency without leaving search. This turns ranking from black-box salience into explainable decision support.",
+      "visual_spec": {
+        "layout": "Horizontal card with left media block, middle listing details, and right probability stack; wraps to vertical under 768px.",
+        "background": "var(--bg-white) with subtle top highlight gradient from rgba(140,104,238,0.10).",
+        "border": "1px solid var(--border-color) with selected state using 2px inset ring in var(--secondary-purple).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 18px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "12px"
+        },
+        "color_usage": "Primary purple anchors key numbers, secondary purple visualizes probability bars, accent purple is used for explanatory tags and uncertainty notes."
+      },
+      "interaction_spec": {
+        "default_state": "Card shows monthly total, three probability bars, and 'why this match' bullets.",
+        "hover": "Card elevates and probability bars brighten with a subtle glow.",
+        "click": "Selecting card opens details while preserving probability summary at top.",
+        "animation": "Bars animate width over 450ms ease-out on load; hover transition 200ms.",
+        "responsive": "On mobile, probability stack moves below price with full-width bars and 48px action buttons."
+      },
+      "copy_spec": {
+        "primary_text": "Likely match for your Tue-Thu schedule",
+        "secondary_text": "$1,780 total monthly cost includes rent, platform fee, and utilities estimate.",
+        "micro_copy": "Labels: 'Response likelihood 88%', 'Fit likelihood 79%', 'Trust confidence 91%'. CTA: 'View full rationale'.",
+        "do": [
+          "Show one all-in monthly number before detailed fees.",
+          "Explain each probability with plain drivers.",
+          "Use confidence language, not certainty language."
+        ],
+        "dont": [
+          "Do not present black-box scores without reason text.",
+          "Do not separate fees from first visible price.",
+          "Do not overpack the card with low-value metrics."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Probability-Aware Match Card</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --primary-purple-hover: #251047;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-description: #374151;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n  --transition-base: 0.2s;\n}\n*{box-sizing:border-box;}\nbody{\n  margin:0;\n  padding:24px;\n  font-family:'DM Sans', sans-serif;\n  background:linear-gradient(180deg,var(--bg-off-white),#fff);\n}\n.card{\n  max-width:980px;\n  margin:0 auto;\n  display:grid;\n  grid-template-columns: 240px 1.2fr 1fr;\n  gap:12px;\n  background:var(--bg-white);\n  border:1px solid var(--border-color);\n  border-radius:var(--rounded-xl);\n  padding:20px;\n  box-shadow:var(--shadow-purple-md);\n  transition:transform var(--transition-base) ease, box-shadow var(--transition-base) ease;\n}\n.card:hover{transform:translateY(-2px); box-shadow:0 6px 20px rgba(109,49,194,0.25);}\n.media{\n  border-radius:var(--rounded-lg);\n  min-height:164px;\n  background:linear-gradient(140deg, rgba(49,19,93,0.9), rgba(109,49,194,0.62));\n  color:#fff;\n  padding:12px;\n  display:flex;\n  align-items:flex-end;\n  font:600 12px 'Inter', sans-serif;\n}\nh1{margin:0 0 8px; font:700 18px/1.2 'Inter', sans-serif; color:var(--primary-purple);}\n.price{font:700 26px 'Inter', sans-serif; color:var(--primary-purple); margin-bottom:4px;}\n.note{margin:0 0 8px; color:var(--text-gray); font-size:13px;}\n.tags{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;}\n.tag{background:rgba(109,49,194,0.12); color:var(--secondary-purple); border-radius:var(--rounded-pill); padding:4px 10px; font:600 11px 'Inter', sans-serif;}\nul{margin:0; padding-left:18px; color:var(--text-description); font-size:13px; line-height:1.45;}\n.stack{display:grid; gap:10px;}\n.metric{border:1px solid rgba(109,49,194,0.2); border-radius:var(--rounded-lg); padding:10px;}\n.metric-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font:600 12px 'Inter', sans-serif; color:var(--primary-purple);}\n.bar{height:8px; border-radius:999px; background:rgba(109,49,194,0.15); overflow:hidden;}\n.fill{height:100%; background:linear-gradient(90deg,var(--secondary-purple),var(--accent-purple)); animation:grow 0.45s ease-out both;}\n.fill.two{width:79%; animation-delay:0.05s;}\n.fill.one{width:88%;}\n.fill.three{width:91%; animation-delay:0.1s;}\n.cta{\n  margin-top:6px;\n  min-height:48px;\n  border:none;\n  border-radius:var(--rounded-pill);\n  background:var(--secondary-purple);\n  color:#fff;\n  font:600 14px 'Inter', sans-serif;\n}\n@keyframes grow { from { width: 0; } }\n@media (max-width: 768px){\n  body{padding:16px;}\n  .card{grid-template-columns:1fr; padding:16px;}\n}\n@media (prefers-reduced-motion: reduce){\n  *, *::before, *::after{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }\n}\n</style>\n</head>\n<body>\n  <article class='card'>\n    <div class='media'>Upper West Side · 6 min to 96 St station</div>\n    <div>\n      <h1>Likely match for your Tue-Thu schedule</h1>\n      <div class='price'>$1,780 total / month</div>\n      <p class='note'>Includes room rent, Split Lease platform fee, and utilities estimate.</p>\n      <div class='tags'>\n        <span class='tag'>Verified host</span>\n        <span class='tag'>Quiet-hours aligned</span>\n        <span class='tag'>Flexible key handoff</span>\n      </div>\n      <ul>\n        <li>Host replies in median 1.8 hours on weekdays.</li>\n        <li>Your office days overlap listed availability exactly.</li>\n        <li>No unresolved trust flags in last 90 days.</li>\n      </ul>\n    </div>\n    <div class='stack'>\n      <div class='metric'>\n        <div class='metric-top'><span>Response likelihood</span><span>88%</span></div>\n        <div class='bar'><div class='fill one'></div></div>\n      </div>\n      <div class='metric'>\n        <div class='metric-top'><span>Fit likelihood</span><span>79%</span></div>\n        <div class='bar'><div class='fill two'></div></div>\n      </div>\n      <div class='metric'>\n        <div class='metric-top'><span>Trust confidence</span><span>91%</span></div>\n        <div class='bar'><div class='fill three'></div></div>\n      </div>\n      <button class='cta'>View full rationale</button>\n    </div>\n  </article>\n</body>\n</html>",
+      "before_after": {
+        "before": "Roomster search emphasizes rank and headline rent, forcing users to infer fit and legitimacy from sparse cues.",
+        "after": "Split Lease exposes response, fit, and trust probabilities with all-in monthly cost so users compare options with calibrated context."
+      },
+      "implements_principles": [
+        "opp-002",
+        "disappoint-002"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "rb-roomster-ui-003",
+      "name": "Guided Commitment Rail Modal",
+      "category": "modal",
+      "opportunity_id": "opp-003",
+      "source_disappointments": [
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "journey_phases": [
+        "proposal_creation",
+        "negotiation",
+        "acceptance"
+      ],
+      "priority": "high",
+      "problem_it_solves": "It replaces unstructured money-and-terms negotiation in chat with explicit staged commitments and reversible checkpoints.",
+      "why_this_is_a_signature": "Instead of handing users off to ad hoc messaging, Split Lease owns the riskiest decision moments with visible state and next-action defaults.",
+      "description": "The modal guides both parties through four commitment stages: intent, terms, verification, and fund authorization. Every stage has one clear outcome and one fallback path, reducing pressure-driven mistakes. Critical terms stay structured and traceable while preserving conversational speed.",
+      "visual_spec": {
+        "layout": "Centered modal with left progress rail and right stage content in a 400px max-width desktop card; full-width sheet on mobile.",
+        "background": "Modal surface var(--bg-white) over var(--overlay-dark) backdrop.",
+        "border": "1px solid var(--border-color) with active step ring in var(--secondary-purple).",
+        "border_radius": "16px",
+        "typography": {
+          "heading": "Inter, 18px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "24px",
+          "gap": "16px"
+        },
+        "color_usage": "Primary purple for sequence hierarchy, secondary purple for active state and action controls, accent purple for caution and reversible-state hints."
+      },
+      "interaction_spec": {
+        "default_state": "User lands on current stage with progress rail, required fields, and explicit next action.",
+        "hover": "Action buttons raise with purple shadow; step pills intensify contrast.",
+        "click": "Primary action advances one stage; secondary action opens reversible path or request-edits branch.",
+        "animation": "Modal enters with 260ms fade/scale; stage transitions slide horizontally in 220ms.",
+        "responsive": "Under 600px modal becomes bottom sheet with sticky action bar and 48px controls."
+      },
+      "copy_spec": {
+        "primary_text": "Commitment rail: step 3 of 4",
+        "secondary_text": "Verify handoff details before payment authorization. You can still request edits after this step.",
+        "micro_copy": "States: 'Intent confirmed', 'Terms aligned', 'Verification in review', 'Authorization pending'. Actions: 'Advance to authorization', 'Request term edits'.",
+        "do": [
+          "Show current stage and next required action at all times.",
+          "Use reversible language before final authorization.",
+          "Keep money movement tied to explicit verification completion."
+        ],
+        "dont": [
+          "Do not bury key terms inside chat threads.",
+          "Do not present final payment actions without stage context.",
+          "Do not remove edit paths before final consent."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Guided Commitment Rail Modal</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --primary-purple-hover: #251047;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-description: #374151;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --overlay-dark: rgba(0, 0, 0, 0.7);\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-2xl: 16px;\n  --rounded-pill: 20px;\n  --shadow-purple-lg: 0 6px 20px rgba(109, 49, 194, 0.35);\n}\n*{box-sizing:border-box;}\nbody{\n  margin:0;\n  min-height:100vh;\n  font-family:'DM Sans', sans-serif;\n  background: radial-gradient(circle at 20% 10%, rgba(140,104,238,0.18), transparent 35%), var(--bg-off-white);\n}\n.overlay{\n  min-height:100vh;\n  background:var(--overlay-dark);\n  display:flex;\n  align-items:center;\n  justify-content:center;\n  padding:20px;\n}\n.modal{\n  width:min(760px, 100%);\n  display:grid;\n  grid-template-columns:220px 1fr;\n  background:var(--bg-white);\n  border-radius:var(--rounded-2xl);\n  border:1px solid var(--border-color);\n  box-shadow:var(--shadow-purple-lg);\n  overflow:hidden;\n  animation:enter .26s ease-out both;\n}\n.rail{\n  background:linear-gradient(180deg, rgba(49,19,93,0.96), rgba(109,49,194,0.84));\n  color:#fff;\n  padding:24px 16px;\n}\n.rail h1{margin:0 0 10px; font:700 16px 'Inter', sans-serif;}\n.step{\n  min-height:48px;\n  border:1px solid rgba(255,255,255,0.35);\n  border-radius:var(--rounded-lg);\n  padding:10px;\n  margin-bottom:8px;\n  font-size:12px;\n}\n.step.active{background:#fff; color:var(--primary-purple); font-weight:700;}\n.content{padding:24px;}\n.kicker{font:600 12px 'Inter', sans-serif; color:var(--secondary-purple);}\nh2{margin:8px 0 6px; font:700 18px 'Inter', sans-serif; color:var(--primary-purple);}\np{margin:0 0 12px; color:var(--text-description); font-size:14px; line-height:1.45;}\n.grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;}\n.box{border:1px solid rgba(109,49,194,0.25); border-radius:var(--rounded-lg); padding:10px; background:rgba(140,104,238,0.08);}\n.label{font:600 11px 'Inter', sans-serif; color:var(--secondary-purple); margin-bottom:4px;}\n.value{font-size:13px; color:var(--text-dark);}\n.actions{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;}\nbutton{min-height:48px; border:none; border-radius:var(--rounded-pill); font:600 14px 'Inter', sans-serif; cursor:pointer;}\n.primary{background:var(--secondary-purple); color:#fff;}\n.secondary{background:rgba(49,19,93,0.1); color:var(--primary-purple);}\n@keyframes enter{from{opacity:0;transform:scale(.97) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}\n@media (max-width:600px){\n  .overlay{padding:0; align-items:flex-end;}\n  .modal{grid-template-columns:1fr; border-radius:16px 16px 0 0;}\n  .rail{padding:16px;}\n  .content{padding:16px;}\n  .grid,.actions{grid-template-columns:1fr;}\n}\n@media (prefers-reduced-motion: reduce){\n  *, *::before, *::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important;}\n}\n</style>\n</head>\n<body>\n  <div class='overlay'>\n    <section class='modal' aria-label='Guided commitment rail'>\n      <aside class='rail'>\n        <h1>Commitment rail</h1>\n        <div class='step'>1. Intent confirmed</div>\n        <div class='step'>2. Terms aligned</div>\n        <div class='step active'>3. Verification in review</div>\n        <div class='step'>4. Authorization pending</div>\n      </aside>\n      <div class='content'>\n        <div class='kicker'>Step 3 of 4</div>\n        <h2>Verify handoff details before payment authorization</h2>\n        <p>You can still request edits after this step. No funds are released until move-in checklist is confirmed.</p>\n        <div class='grid'>\n          <div class='box'><div class='label'>Move-in handoff</div><div class='value'>Tue, Mar 3 · 7:30 PM lobby key exchange</div></div>\n          <div class='box'><div class='label'>Utility split</div><div class='value'>Internet included, electricity capped at $45/month</div></div>\n          <div class='box'><div class='label'>Visit-before-sign</div><div class='value'>Live walkthrough booked for Sat, Mar 1</div></div>\n          <div class='box'><div class='label'>Reversible window</div><div class='value'>24h edit window remains after this stage</div></div>\n        </div>\n        <div class='actions'>\n          <button class='primary'>Advance to authorization</button>\n          <button class='secondary'>Request term edits</button>\n        </div>\n      </div>\n    </section>\n  </div>\n</body>\n</html>",
+      "before_after": {
+        "before": "Roomster hands users into free-form chat for high-stakes commitment and money sequencing, creating ambiguity and pressure-based errors.",
+        "after": "Split Lease provides a staged commitment rail with explicit states, reversible checkpoints, and verification gates before authorization."
+      },
+      "implements_principles": [
+        "opp-003",
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "effort": "large"
+    },
+    {
+      "id": "rb-roomster-ui-004",
+      "name": "Outcome Memory Loop Card",
+      "category": "feedback",
+      "opportunity_id": "opp-004",
+      "source_disappointments": [
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "journey_phases": [
+        "active_lease",
+        "retention"
+      ],
+      "priority": "medium",
+      "problem_it_solves": "It prevents post-stay learning loss by capturing concrete outcomes and automatically feeding them into future search and proposal defaults.",
+      "why_this_is_a_signature": "Where competitors stop after match, this element creates compounding decision quality by turning each stay into reusable evidence.",
+      "description": "This feedback card appears at reflection points and asks only high-signal prompts tied to future decisions. It summarizes what worked, what failed, and what should become next-cycle defaults. Users see immediate value because the next search is pre-tuned from their own outcomes.",
+      "visual_spec": {
+        "layout": "Single card with top outcome summary, three reflection chips, and bottom auto-applied defaults preview.",
+        "background": "var(--bg-white) with a soft diagonal purple highlight.",
+        "border": "1px solid var(--border-color) with left emphasis bar in var(--secondary-purple).",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 18px, 700, var(--primary-purple)",
+          "body": "DM Sans, 14px, 400, var(--text-description)",
+          "accent": "Inter, 12px, 600, var(--secondary-purple)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "12px"
+        },
+        "color_usage": "Primary purple for summaries, secondary purple for selected reflections and defaults, accent purple for prompts that need follow-up."
+      },
+      "interaction_spec": {
+        "default_state": "Card shows one-minute debrief with prefilled events from active stay timeline.",
+        "hover": "Reflection chips brighten and lift slightly with purple shadow.",
+        "click": "Selecting chips updates auto-applied defaults preview in real time.",
+        "animation": "Card enters with 240ms fade-up; preview updates cross-fade in 180ms.",
+        "responsive": "On mobile, chips wrap to full width and primary action remains fixed at bottom with 48px height."
+      },
+      "copy_spec": {
+        "primary_text": "One-minute debrief, better next match",
+        "secondary_text": "Capture what mattered in this stay and we will apply it to your next shortlist automatically.",
+        "micro_copy": "Prompts: 'Handoff was smooth', 'Utility expectations were unclear', 'Quiet hours matched'. CTA: 'Save and apply to next search'.",
+        "do": [
+          "Ask only decision-relevant reflection prompts.",
+          "Show exactly which defaults will update next cycle.",
+          "Keep completion under one minute."
+        ],
+        "dont": [
+          "Do not turn reflection into a long survey.",
+          "Do not collect notes without visible next-cycle impact.",
+          "Do not frame retention as reminders alone."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Outcome Memory Loop Card</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root {\n  --primary-purple: #31135D;\n  --primary-purple-hover: #251047;\n  --secondary-purple: rgb(109, 49, 194);\n  --accent-purple: rgb(140, 104, 238);\n  --text-dark: #1a1a1a;\n  --text-gray: #6b7280;\n  --text-description: #374151;\n  --bg-white: #ffffff;\n  --bg-off-white: rgb(252, 250, 255);\n  --border-color: #e5e7eb;\n  --rounded-lg: 8px;\n  --rounded-xl: 12px;\n  --rounded-pill: 20px;\n  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);\n  --shadow-purple-md: 0 4px 8px rgba(49, 19, 93, 0.15);\n}\n*{box-sizing:border-box;}\nbody{\n  margin:0;\n  padding:24px;\n  font-family:'DM Sans', sans-serif;\n  background:radial-gradient(circle at 0% 0%, rgba(109,49,194,0.12), transparent 36%), var(--bg-off-white);\n}\n.card{\n  max-width:740px;\n  margin:0 auto;\n  background:linear-gradient(165deg, rgba(140,104,238,0.12), rgba(255,255,255,1) 35%);\n  border:1px solid var(--border-color);\n  border-left:4px solid var(--secondary-purple);\n  border-radius:var(--rounded-xl);\n  padding:20px;\n  box-shadow:var(--shadow-purple-md);\n}\nh1{margin:0 0 8px; font:700 18px 'Inter', sans-serif; color:var(--primary-purple);}\n.sub{margin:0 0 12px; color:var(--text-description); font-size:14px; line-height:1.45;}\n.snapshot{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;}\n.metric{border:1px solid rgba(109,49,194,0.22); border-radius:var(--rounded-lg); padding:10px; background:#fff;}\n.metric .k{font:600 11px 'Inter', sans-serif; color:var(--secondary-purple); margin-bottom:4px;}\n.metric .v{font-size:13px; color:var(--text-dark);}\n.chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}\n.chip{\n  min-height:40px;\n  border:1px solid rgba(109,49,194,0.3);\n  border-radius:var(--rounded-pill);\n  padding:0 12px;\n  display:inline-flex;\n  align-items:center;\n  font:500 13px 'DM Sans', sans-serif;\n  color:var(--primary-purple);\n  background:#fff;\n  box-shadow:var(--shadow-purple-sm);\n}\n.chip.active{background:rgba(109,49,194,0.14);}\n.preview{border:1px solid var(--border-color); border-radius:var(--rounded-lg); background:#fff; padding:12px; margin-bottom:10px;}\n.preview h2{margin:0 0 6px; font:700 13px 'Inter', sans-serif; color:var(--primary-purple);}\n.preview ul{margin:0; padding-left:18px; color:var(--text-description); font-size:13px; line-height:1.45;}\nbutton{\n  width:100%;\n  min-height:48px;\n  border:none;\n  border-radius:var(--rounded-pill);\n  background:var(--secondary-purple);\n  color:#fff;\n  font:600 14px 'Inter', sans-serif;\n}\n@media (max-width: 600px){\n  body{padding:16px;}\n  .snapshot{grid-template-columns:1fr;}\n}\n@media (prefers-reduced-motion: reduce){\n  *, *::before, *::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important;}\n}\n</style>\n</head>\n<body>\n  <section class='card'>\n    <h1>One-minute debrief, better next match</h1>\n    <p class='sub'>Capture what mattered in your Feb stay on W 109th St and apply it to your next shortlist.</p>\n    <div class='snapshot'>\n      <div class='metric'><div class='k'>Handoff</div><div class='v'>On time, no key issue</div></div>\n      <div class='metric'><div class='k'>Utilities</div><div class='v'>Electricity exceeded cap once</div></div>\n      <div class='metric'><div class='k'>Quiet hours</div><div class='v'>Fully matched</div></div>\n    </div>\n    <div class='chips'>\n      <span class='chip active'>Handoff was smooth</span>\n      <span class='chip'>Utility expectations were unclear</span>\n      <span class='chip active'>Quiet hours matched</span>\n      <span class='chip'>Kitchen sharing was tighter than expected</span>\n    </div>\n    <div class='preview'>\n      <h2>Auto-applied to next search</h2>\n      <ul>\n        <li>Prioritize listings with documented key handoff protocol.</li>\n        <li>Show utility cap terms in first-card summary.</li>\n        <li>Increase quiet-hours compatibility weight in ranking.</li>\n      </ul>\n    </div>\n    <button>Save and apply to next search</button>\n  </section>\n</body>\n</html>",
+      "before_after": {
+        "before": "Roomster provides little post-outcome structure, so users rely on noisy memory and repeat preventable mistakes.",
+        "after": "Split Lease captures outcome signals quickly and converts them into explicit defaults for future matching and commitment decisions."
+      },
+      "implements_principles": [
+        "opp-004",
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "effort": "medium"
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-5 -->
+  <script id="data-layer-5" type="application/json">{}</script>
+  <!-- INJECT:layer-6 -->
+  <script id="data-layer-6" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "nudge-choice-architecture.txt",
+    "book_chapters": "Introduction + Chapters 1-3: Choice Architecture, Defaults, and Framing"
+  },
+  "reinforcements": [
+    {
+      "new_element_id": "rb-roomster-ui-001",
+      "existing_element_id": "works-004",
+      "existing_element_source": "design-stack",
+      "similarity": "Both center trust continuity and early legitimacy framing before users commit to deeper actions.",
+      "combined_evidence": "Design-stack evidence shows trust transfer must happen at handoff moments; reverse-benchmark evidence shows users explicitly say 'is this legit?' at first contact in Roomster-like flows. Inside-out and outside-in both identify pre-action trust scaffolding as a first-order requirement.",
+      "recommendation": "keep_both",
+      "confidence_boost": "The same trust failure appears in direct user calls and competitor analysis, reducing risk that this is a niche scenario."
+    },
+    {
+      "new_element_id": "rb-roomster-ui-001",
+      "existing_element_id": "communicates-003",
+      "existing_element_source": "design-stack",
+      "similarity": "Both require trust claims to be sequenced as evidence-first rather than badge-first.",
+      "combined_evidence": "Design-stack language emphasizes discoverable trust signifiers that replace in-person inspection; reverse-benchmark transcripts and disappointments show users reject polish-only signals and ask for concrete proof. The legitimacy ladder operationalizes this shared principle.",
+      "recommendation": "merge",
+      "confidence_boost": "Independent evidence streams converge on the same content order: claim -> evidence -> guarantee -> unknowns."
+    },
+    {
+      "new_element_id": "rb-roomster-ui-002",
+      "existing_element_id": "communicates-002",
+      "existing_element_source": "design-stack",
+      "similarity": "Both prioritize one interpretable total cost before detailed breakdowns.",
+      "combined_evidence": "Design-stack calls show users reason with single-sum mental math; reverse-benchmark search disappointment shows confusion around what displayed prices include. Together they support all-in price-first defaults with explanation.",
+      "recommendation": "merge",
+      "confidence_boost": "Pricing legibility is validated as both a first-party user pain and a competitor weakness at search time."
+    },
+    {
+      "new_element_id": "rb-roomster-ui-003",
+      "existing_element_id": "communicates-005",
+      "existing_element_source": "design-stack",
+      "similarity": "Both structure proposal/negotiation into explicit states with clear next actions and feedback.",
+      "combined_evidence": "Design-stack evidence stresses immediate, informative feedback during asynchronous negotiation; reverse-benchmark evidence shows users ask basic process-chain questions ('do I send money?', 'before I sign?') because stage architecture is missing. The commitment rail extends and clarifies the same behavioral need.",
+      "recommendation": "keep_both",
+      "confidence_boost": "The requirement for legible state transitions is supported by both observed user confusion and competitor gap analysis."
+    },
+    {
+      "new_element_id": "rb-roomster-ui-003",
+      "existing_element_id": "guest-works-004",
+      "existing_element_source": "reverse-benchmark",
+      "similarity": "Both reduce off-platform drift by making in-product interaction faster and more decision-structured than ad hoc texting/chat.",
+      "combined_evidence": "Prior reverse-benchmark work identified speed and channel-fragmentation failures; this run adds high-stakes commitment sequencing and reversible checkpoints before money movement. Together they form a stronger anti-workaround pattern.",
+      "recommendation": "keep_both",
+      "confidence_boost": "Multiple reverse-benchmark runs on different competitors independently point to the same failure mode: unstructured messaging causes risky decisions."
+    },
+    {
+      "new_element_id": "rb-roomster-ui-004",
+      "existing_element_id": "guest-communicates-007",
+      "existing_element_source": "reverse-benchmark",
+      "similarity": "Both use batched reflection prompts to capture high-signal outcomes and support better future decisions.",
+      "combined_evidence": "Earlier library patterns propose reflection-point prompts; this run adds transcript-backed memory failure language ('I don't remember things') and ties reflection output directly to next-cycle defaults. This deepens the loop from logging to behavioral adaptation.",
+      "recommendation": "merge",
+      "confidence_boost": "Repeated pattern detection across runs suggests post-outcome memory capture is a durable category gap, not a one-off idea."
+    },
+    {
+      "new_element_id": "rb-roomster-ui-004",
+      "existing_element_id": "guest-works-003",
+      "existing_element_source": "reverse-benchmark",
+      "similarity": "Both address post-match operational drift with recurring, low-friction lifecycle scaffolding.",
+      "combined_evidence": "Existing library emphasizes weekly dashboard behavior; this run contributes debrief-driven default updates so the system improves the next decision cycle, not just current coordination. Combined, they connect execution and learning.",
+      "recommendation": "keep_both",
+      "confidence_boost": "Convergence across lifecycle operations and reflection evidence strengthens the case for end-to-end, not match-only, product architecture."
+    }
+  ],
+  "contradictions": [],
+  "extensions": [
+    {
+      "new_element_id": "rb-roomster-ui-001",
+      "gap_filled": "Pre-message trust architecture that explicitly includes unknowns alongside claims, evidence, and guarantees.",
+      "confidence_note": "Moderate-high confidence: strong competitor and transcript reinforcement, but implementation details should be validated in direct product usability tests.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-roomster-ui-002",
+      "gap_filled": "Search-time probability defaults (response, fit, trust) integrated with all-in cost framing.",
+      "confidence_note": "Moderate confidence: framework support is strong, but probability cue calibration and user interpretation need first-party experimental validation.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-roomster-ui-003",
+      "gap_filled": "Reversible staged commitment rail before authorization/payment in roommate negotiation flows.",
+      "confidence_note": "Moderate-high confidence: transcript language strongly confirms process ambiguity, but legal/ops constraints require design-stack validation of feasible guardrails.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-roomster-ui-004",
+      "gap_filled": "Closed-loop retention model where post-stay reflection directly rewrites future search/proposal defaults.",
+      "confidence_note": "Moderate confidence: concept is behaviorally strong but delayed-payoff, so causal impact on retention quality should be validated longitudinally.",
+      "needs_design_stack_validation": "yes"
+    }
+  ],
+  "cross_process_insights": [
+    {
+      "insight": "Trust proof must be structured before conversation momentum; otherwise users treat responsiveness as a false safety signal.",
+      "elements_involved": [
+        "rb-roomster-ui-001",
+        "rb-roomster-ui-003",
+        "communicates-003",
+        "works-002"
+      ],
+      "implication": "Split Lease should sequence trust as a precondition to chat, then preserve trust with staged commitment states instead of generic messaging-first flows."
+    },
+    {
+      "insight": "Price clarity and fit clarity are one problem in user cognition, not two separate UI concerns.",
+      "elements_involved": [
+        "rb-roomster-ui-002",
+        "communicates-002",
+        "works-006"
+      ],
+      "implication": "Search cards should pair all-in cost with explainable likelihood cues so users can decide with one coherent mental model."
+    },
+    {
+      "insight": "Lifecycle architecture is the compounding moat: coordination support plus memory capture outperforms reminder-only retention.",
+      "elements_involved": [
+        "rb-roomster-ui-004",
+        "guest-works-003",
+        "guest-communicates-007",
+        "guest-behaves-001"
+      ],
+      "implication": "Retention strategy should measure improved decision quality over cycles, not just continued activity or renewals."
+    }
+  ],
+  "token_compliance": {
+    "new_tokens_flagged": [
+      "--primary-purple",
+      "--secondary-purple",
+      "--accent-purple",
+      "--bg-off-white",
+      "--text-description",
+      "--border-color",
+      "Inter",
+      "DM Sans"
+    ],
+    "recommendation": "Replace with existing token system values (colors.accent, colors.signal-info/signal-warn variants, typography.serif/sans) or formally propose a versioned token extension before implementation; do not ship ad hoc purple palette tokens in production UI specs."
+  },
+  "coverage_map": {
+    "discovery": {
+      "element_count": 2,
+      "coverage": "moderate",
+      "source": "both"
+    },
+    "evaluation": {
+      "element_count": 4,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "onboarding": {
+      "element_count": 0,
+      "coverage": "none",
+      "source": "design-stack"
+    },
+    "listing_creation": {
+      "element_count": 0,
+      "coverage": "none",
+      "source": "design-stack"
+    },
+    "pricing": {
+      "element_count": 1,
+      "coverage": "thin",
+      "source": "design-stack"
+    },
+    "proposal_mgmt": {
+      "element_count": 3,
+      "coverage": "strong",
+      "source": "both"
+    },
+    "active_lease": {
+      "element_count": 3,
+      "coverage": "moderate",
+      "source": "both"
+    },
+    "retention": {
+      "element_count": 2,
+      "coverage": "moderate",
+      "source": "reverse-benchmark"
+    }
+  },
+  "next_run_recommendations": [
+    {
+      "process_type": "design-stack",
+      "recommendation": "Run a focused design-stack pass on first-time guest trust and commitment sequencing, specifically testing claim/evidence/guarantee/unknown ordering and reversible checkpoints before payment.",
+      "reason": "This run produced strong outside-in signals, but the highest-risk implementation choices need direct inside-out validation and usability evidence."
+    },
+    {
+      "process_type": "reverse-benchmark",
+      "recommendation": "Benchmark one trust-forward competitor and one transaction-first competitor on post-stay learning loops to validate whether outcome-memory defaults correlate with retention quality.",
+      "reason": "Retention-by-inertia is weakly evidenced in this run; comparative outside-in data can clarify whether decision-quality retention is a true strategic moat."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-7 -->
+  <script id="data-layer-7" type="application/json">{}</script>
+
+  <header class="report-header">
+    <h1>Design Stack v2 Report</h1>
+    <div class="lens-label" id="lens-label"></div>
+    <div class="report-meta">
+      <span id="meta-date"></span>
+      <span id="meta-run-id"></span>
+      <span class="badge" id="meta-status"></span>
+      <span id="meta-elements"></span>
+    </div>
+  </header>
+
+  <div class="coherence-bar" id="coherence-bar">
+    <span class="count" id="coherence-count"></span>
+    <span id="coherence-summary"></span>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="active" data-tab="overview"><span class="layer-num">*</span> Overview</button>
+    <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
+    <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
+    <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
+    <button data-tab="layer-3"><span class="layer-num">3</span> Looks</button>
+    <button data-tab="layer-4"><span class="layer-num">4</span> Behaves</button>
+    <button data-tab="layer-5"><span class="layer-num">5</span> Feels</button>
+    <button data-tab="layer-6"><span class="layer-num">6</span> Coherence</button>
+    <button data-tab="layer-7"><span class="layer-num">7</span> Tests</button>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Overview Tab -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Lens Summary</h3>
+        <p id="overview-lens-summary" style="font-size:16px;color:var(--ink-soft);margin-bottom:20px;"></p>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;">Journey Phase Coverage</h4>
+        <div class="coverage-grid" id="overview-coverage"></div>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin:20px 0 12px;font-family:'IBM Plex Mono',monospace;">Run Statistics</h4>
+        <div id="overview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+      </div>
+      <div id="overview-highlights"></div>
+    </div>
+
+    <!-- Layer 0: Journey Context -->
+    <div class="tab-panel" id="panel-layer-0">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Layer 0: Journey Context</h3>
+        <div id="content-layer-0"></div>
+      </div>
+    </div>
+
+    <!-- Layers 1-5: Element Cards -->
+    <div class="tab-panel" id="panel-layer-1"><div id="content-layer-1"></div></div>
+    <div class="tab-panel" id="panel-layer-2"><div id="content-layer-2"></div></div>
+    <div class="tab-panel" id="panel-layer-3"><div id="content-layer-3"></div></div>
+    <div class="tab-panel" id="panel-layer-4"><div id="content-layer-4"></div></div>
+    <div class="tab-panel" id="panel-layer-5"><div id="content-layer-5"></div></div>
+
+    <!-- Layer 6: Coherence -->
+    <div class="tab-panel" id="panel-layer-6">
+      <div id="content-layer-6"></div>
+    </div>
+
+    <!-- Layer 7: Tests -->
+    <div class="tab-panel" id="panel-layer-7"><div id="content-layer-7"></div></div>
+
+  </main>
+
+  <footer style="text-align:center;padding:32px;color:var(--ink-ghost);font-size:12px;font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v2.0 — Element Pipeline
+  </footer>
+
+  <script>
+    function loadJSON(id) { try { return JSON.parse(document.getElementById(id)?.textContent || '{}'); } catch { return {}; } }
+
+    const config = loadJSON('run-config');
+    const layers = {};
+    for (let i = 0; i <= 7; i++) layers[i] = loadJSON(`data-layer-${i}`);
+
+    // Header
+    const lens = config.lens || layers[0]?.lens || {};
+    document.getElementById('lens-label').textContent = `Lens: ${lens.host_call || '?'} + ${lens.book_extract || '?'}`;
+    document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
+    document.getElementById('meta-run-id').textContent = config.run_id || '';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = config.status || 'pending';
+    statusEl.className = `badge badge-${config.status || 'partial'}`;
+
+    // Count elements
+    let totalElements = 0;
+    for (let i = 1; i <= 5; i++) totalElements += (layers[i]?.elements || []).length;
+    totalElements += (layers[7]?.elements || []).length;
+    document.getElementById('meta-elements').textContent = `${totalElements} elements`;
+
+    // Coherence bar
+    const coherence = layers[6] || {};
+    const contradictions = coherence.contradictions || [];
+    const reinforcements = coherence.reinforcements || [];
+    if (contradictions.length > 0) {
+      const bar = document.getElementById('coherence-bar');
+      bar.classList.add('has-flags');
+      document.getElementById('coherence-count').textContent = `${contradictions.length} contradiction${contradictions.length !== 1 ? 's' : ''}`;
+      document.getElementById('coherence-summary').textContent = `${reinforcements.length} reinforcement${reinforcements.length !== 1 ? 's' : ''} found`;
+    }
+
+    // Tab navigation
+    document.getElementById('tab-nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+    });
+
+    // Evidence toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('evidence-toggle')) {
+        const list = e.target.nextElementSibling;
+        list.classList.toggle('open');
+        e.target.textContent = list.classList.contains('open') ? 'Hide evidence' : `Show evidence (${list.children.length})`;
+      }
+    });
+
+    // Render element card
+    function renderElementCard(el) {
+      const phases = (el.journey_phases || []).map(p => `<span class="phase-tag">${p}</span>`).join('');
+      const evidenceItems = (el.evidence || []).map(ev =>
+        `<div class="evidence-item">
+          <div class="source">${ev.source || ''}</div>
+          ${ev.quote ? `<div class="quote">"${ev.quote}"</div>` : ''}
+          ${ev.insight ? `<div class="insight">${ev.insight}</div>` : ''}
+        </div>`
+      ).join('');
+      const evidenceCount = (el.evidence || []).length;
+
+      let extras = '';
+      // Layer-specific fields
+      if (el.user_goal) extras += `<div class="extra-field"><label>User Goal</label> <span class="value">${el.user_goal}</span></div>`;
+      if (el.company_goal) extras += `<div class="extra-field"><label>Company Goal</label> <span class="value">${el.company_goal}</span></div>`;
+      if (el.success_metric) extras += `<div class="extra-field"><label>Success Metric</label> <span class="value">${el.success_metric}</span></div>`;
+      if (el.time_budget) extras += `<div class="extra-field"><label>Time Budget</label> <span class="value">${el.time_budget}</span></div>`;
+      if (el.hierarchy_principle) extras += `<div class="extra-field"><label>Hierarchy</label> <span class="value">${el.hierarchy_principle}</span></div>`;
+      if (el.disclosure_pattern) extras += `<div class="extra-field"><label>Disclosure</label> <span class="value">${el.disclosure_pattern}</span></div>`;
+      if (el.cognitive_load_constraint) extras += `<div class="extra-field"><label>Cognitive Load</label> <span class="value">${el.cognitive_load_constraint}</span></div>`;
+      if (el.brand_alignment) extras += `<div class="extra-field"><label>Brand Alignment</label> <span class="value">${el.brand_alignment}</span></div>`;
+      if (el.visual_hierarchy_rule) extras += `<div class="extra-field"><label>Visual Hierarchy</label> <span class="value">${el.visual_hierarchy_rule}</span></div>`;
+      if (el.transition_principle) extras += `<div class="extra-field"><label>Transitions</label> <span class="value">${el.transition_principle}</span></div>`;
+      if (el.journey_state_awareness) extras += `<div class="extra-field"><label>Journey Awareness</label> <span class="value">${el.journey_state_awareness}</span></div>`;
+      if (el.target_emotion) extras += `<div class="extra-field"><label>Target Emotion</label> <span class="value" style="font-size:16px;font-weight:600;">${el.target_emotion}</span></div>`;
+      if (el.emotion_rationale) extras += `<div class="extra-field"><label>Why</label> <span class="value">${el.emotion_rationale}</span></div>`;
+      if (el.validation_method) extras += `<div class="extra-field"><label>Method</label> <span class="value">${el.validation_method}</span></div>`;
+      if (el.success_criteria) extras += `<div class="extra-field"><label>Success Criteria</label> <span class="value">${el.success_criteria}</span></div>`;
+      if (el.failure_meaning) extras += `<div class="extra-field"><label>Failure Means</label> <span class="value">${el.failure_meaning}</span></div>`;
+      if (el.test_description) extras += `<div class="extra-field"><label>Test</label> <span class="value">${el.test_description}</span></div>`;
+
+      // Copy guidelines
+      if (el.copy_guidelines) {
+        const cg = el.copy_guidelines;
+        extras += `<div class="extra-field" style="margin-top:8px;"><label>Copy Voice</label> <span class="value">${cg.voice || ''}</span></div>`;
+        if (cg.example_good) extras += `<div class="extra-field"><label>Good Example</label> <span class="value" style="color:var(--signal-success);">"${cg.example_good}"</span></div>`;
+        if (cg.example_bad) extras += `<div class="extra-field"><label>Bad Example</label> <span class="value" style="color:var(--signal-danger);text-decoration:line-through;">"${cg.example_bad}"</span></div>`;
+      }
+
+      // Anti-goals / anti-patterns
+      const antiItems = el.anti_goals || (el.anti_patterns || []).map(a => typeof a === 'string' ? a : a.pattern);
+      let antiHTML = '';
+      if (antiItems && antiItems.length) {
+        antiHTML = `<div style="margin-top:12px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--signal-danger);font-family:'IBM Plex Mono',monospace;">Anti-goals</label><ul style="margin-top:4px;padding-left:18px;font-size:13px;color:var(--ink-soft);">${antiItems.map(a => `<li>${a}</li>`).join('')}</ul></div>`;
+      }
+
+      return `<div class="element-card">
+        <div class="element-card-header">
+          <h3>${el.title || el.id}</h3>
+          <span class="type-badge type-${el.type || ''}">${(el.type || '').replace(/_/g, ' ')}</span>
+          <span class="priority-badge priority-${el.priority || 'low'}">${el.priority || 'low'}</span>
+        </div>
+        <div class="phase-tags">${phases}</div>
+        <div class="ps-grid">
+          <div class="ps-box problem"><label>Problem</label>${el.problem || 'N/A'}</div>
+          <div class="ps-box solution"><label>Solution</label>${el.solution || 'N/A'}</div>
+        </div>
+        ${extras ? `<div class="extra-fields">${extras}</div>` : ''}
+        ${antiHTML}
+        ${evidenceCount > 0 ? `<div style="margin-top:16px;">
+          <button class="evidence-toggle">Show evidence (${evidenceCount})</button>
+          <div class="evidence-list">${evidenceItems}</div>
+        </div>` : ''}
+      </div>`;
+    }
+
+    // Render element layers (1-5, 7)
+    [1,2,3,4,5,7].forEach(i => {
+      const container = document.getElementById(`content-layer-${i}`);
+      if (!container) return;
+      const data = layers[i];
+      const elements = data?.elements || [];
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No elements discovered by this layer.</p></div>';
+        return;
+      }
+      const layerNames = {1:'Process Patterns',2:'Info Architecture',3:'Visual Patterns',4:'Interaction Patterns',5:'Emotional Elements',7:'Validation Strategies'};
+      container.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:20px;">Layer ${i}: ${layerNames[i]} <span style="font-size:14px;color:var(--ink-muted);font-family:'IBM Plex Mono',monospace;">(${elements.length} element${elements.length!==1?'s':''})</span></h2>` + elements.map(renderElementCard).join('');
+    });
+
+    // Render Layer 0: Journey Context
+    (function renderJourney() {
+      const container = document.getElementById('content-layer-0');
+      if (!container) return;
+      const data = layers[0];
+      if (!data || !data.phases) { container.innerHTML = '<p style="color:var(--ink-ghost);font-style:italic;">No journey context data.</p>'; return; }
+
+      const phaseOrder = ['discovery','evaluation','onboarding','listing_creation','pricing','proposal_mgmt','active_lease','retention'];
+      let html = '';
+      if (data.lens?.lens_summary) html += `<p style="font-size:15px;color:var(--ink-soft);margin-bottom:20px;">${data.lens.lens_summary}</p>`;
+      phaseOrder.forEach(phase => {
+        const p = data.phases[phase];
+        if (!p) return;
+        const risk = p.dropout_risk?.level || 'low';
+        html += `<div class="phase-card">
+          <h4>${phase.replace(/_/g, ' ')}</h4>
+          <p>${p.what_this_lens_reveals || 'No data for this phase.'}</p>
+          ${p.user_state ? `<p style="font-size:12px;color:var(--ink-muted);"><strong>Emotional:</strong> ${p.user_state.emotional_state || '?'} | <strong>Knowledge:</strong> ${p.user_state.knowledge_level || '?'} | <strong>Commitment:</strong> ${p.user_state.commitment_level || '?'}</p>` : ''}
+          <span class="risk risk-${risk}">${risk} dropout risk</span>
+        </div>`;
+      });
+      if (data.cross_phase_patterns?.length) {
+        html += '<h4 style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;color:var(--accent);margin:20px 0 10px;text-transform:uppercase;">Cross-Phase Patterns</h4>';
+        data.cross_phase_patterns.forEach(cp => {
+          html += `<div class="phase-card"><p><strong>${cp.pattern}</strong></p><p style="font-size:12px;color:var(--ink-muted);">Affects: ${(cp.phases_affected||[]).join(', ')} | ${cp.evidence || ''}</p></div>`;
+        });
+      }
+      container.innerHTML = html;
+    })();
+
+    // Render Layer 6: Coherence
+    (function renderCoherence() {
+      const container = document.getElementById('content-layer-6');
+      if (!container) return;
+      const data = layers[6];
+      if (!data || Object.keys(data).length === 0) { container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence data.</p></div>'; return; }
+
+      let html = '';
+
+      // Reinforcements
+      if (data.reinforcements?.length) {
+        html += `<div class="coherence-section"><h3>Reinforcements (${data.reinforcements.length})</h3>`;
+        data.reinforcements.forEach(r => {
+          html += `<div class="reinforcement-card"><div class="card-label" style="color:var(--signal-success);">Reinforcement</div>
+            <p><strong>${r.new_element_id}</strong> reinforces <strong>${r.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${r.similarity || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${r.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Contradictions
+      if (data.contradictions?.length) {
+        html += `<div class="coherence-section"><h3>Contradictions (${data.contradictions.length})</h3>`;
+        data.contradictions.forEach(c => {
+          html += `<div class="contradiction-card"><div class="card-label" style="color:var(--signal-danger);">${c.severity || 'warning'}</div>
+            <p><strong>${c.new_element_id}</strong> conflicts with <strong>${c.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${c.conflict || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${c.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Extensions
+      if (data.extensions?.length) {
+        html += `<div class="coherence-section"><h3>Extensions (${data.extensions.length})</h3>`;
+        data.extensions.forEach(ext => {
+          html += `<div class="extension-card"><div class="card-label" style="color:var(--signal-info);">New Territory</div>
+            <p><strong>${ext.new_element_id}</strong> — ${ext.gap_filled || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">${ext.confidence_note || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Coverage Map
+      if (data.coverage_map) {
+        html += '<div class="coherence-section"><h3>Journey Coverage</h3><div class="coverage-grid">';
+        Object.entries(data.coverage_map).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          html += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g, ' ')}</div>
+            <div class="count">${info.element_count || 0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Emotional Arc
+      if (data.emotional_arc_check) {
+        const arc = data.emotional_arc_check;
+        html += `<div class="coherence-section"><h3>Emotional Arc</h3>`;
+        if (arc.journey_emotion_map?.length) {
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">';
+          arc.journey_emotion_map.forEach(em => {
+            html += `<div style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;text-align:center;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-muted);text-transform:uppercase;">${em.phase}</div>
+              <div style="font-weight:600;color:var(--accent);margin-top:2px;">${(em.target_emotions||[]).join(', ')}</div>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        if (arc.arc_assessment) html += `<p style="font-size:14px;color:var(--ink-soft);">${arc.arc_assessment}</p>`;
+        html += '</div>';
+      }
+
+      container.innerHTML = html || '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence issues detected.</p></div>';
+    })();
+
+    // Overview tab
+    (function renderOverview() {
+      // Coverage
+      const coverageContainer = document.getElementById('overview-coverage');
+      const coverageData = layers[6]?.coverage_map;
+      if (coverageData && coverageContainer) {
+        Object.entries(coverageData).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          coverageContainer.innerHTML += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g,' ')}</div>
+            <div class="count">${info.element_count||0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+      }
+
+      // Lens summary
+      const summaryEl = document.getElementById('overview-lens-summary');
+      if (summaryEl) summaryEl.textContent = layers[0]?.lens?.lens_summary || 'No lens summary available.';
+
+      // Stats
+      const statsEl = document.getElementById('overview-stats');
+      if (statsEl) {
+        const stats = [
+          { label: 'Elements', value: totalElements },
+          { label: 'Reinforcements', value: reinforcements.length },
+          { label: 'Contradictions', value: contradictions.length },
+          { label: 'Extensions', value: (coherence.extensions||[]).length }
+        ];
+        statsEl.innerHTML = stats.map(s =>
+          `<div style="padding:14px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--accent);">${s.value}</div>
+            <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--ink-muted);text-transform:uppercase;">${s.label}</div>
+          </div>`
+        ).join('');
+      }
+
+      // High-priority highlights
+      const highlightsEl = document.getElementById('overview-highlights');
+      if (highlightsEl) {
+        let highPriority = [];
+        [1,2,3,4,5,7].forEach(i => {
+          (layers[i]?.elements || []).forEach(el => {
+            if (el.priority === 'high') highPriority.push(el);
+          });
+        });
+        if (highPriority.length) {
+          highlightsEl.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:24px 0 16px;">High-Priority Elements</h2>` + highPriority.map(renderElementCard).join('');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

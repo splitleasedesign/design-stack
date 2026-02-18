@@ -1,0 +1,298 @@
+{
+  "run_id": "2026-02-17_2200",
+  "layer": 7,
+  "agent": "Test Designer",
+  "element_type": "tests",
+  "lens": {
+    "guest_call": "Steve Zhang Customer Call.txt",
+    "book_extract": "kahneman-part4-choices-prospect-theory.txt"
+  },
+  "journey_type": "guest",
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Reference Point Comparison Effect on Search-to-Proposal Conversion",
+      "validates_element": "works-001 (Reference Point Comparison Engine)",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "The Reference Point Comparison Engine (works-001) claims that showing explicit gain-framed comparisons against the guest's reference alternative will increase search-to-proposal conversion. This claim is grounded in Kahneman's Prospect Theory but has not been validated in the Split Lease context. The risk is that the comparison module adds visual clutter that distracts from the listing content, or that guests distrust the comparison as marketing manipulation.",
+      "solution": "Run an A/B test with three variants: (A) Control: current listing display with standalone nightly rate. (B) Comparison: listing display with the gain-frame price module showing 'Save $X/month vs. [reference].' (C) Comparison + Non-Financial: listing display with gain-frame price module AND the non-financial value strip (leave belongings, same space, full kitchen). Measure search-to-proposal conversion rate, time-on-listing, and bounce rate across all three variants.",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Endowment Effect / Reference Points",
+          "detail": "Kahneman's reference point theory predicts that Variant B and C will outperform Variant A because they make the gain explicit rather than leaving it to System 2 computation."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:33:33",
+          "detail": "Steve's explicit Sonder reference at $90/night confirms that real guests have pre-existing reference points that shape evaluation."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "A/B/C test with statistical significance threshold of p < 0.05",
+      "test_description": "Randomly assign new guest sessions to Control (A), Comparison (B), or Comparison + Non-Financial (C). Track: (1) Primary metric: search-to-proposal conversion rate. (2) Secondary metrics: time-on-listing-page, listing page bounce rate, proposal form completion rate. (3) Segment analysis: compare results for guests who enter a reference alternative vs. those who skip the reference capture. Run for 2 weeks or until each variant has 200+ listing page views.",
+      "success_criteria": [
+        "Variant B or C achieves at least 1.5x the search-to-proposal conversion rate of Variant A",
+        "Time-on-listing increases by at least 20% for Variant B/C vs. A (indicating engagement, not confusion)",
+        "Bounce rate for Variant B/C is not higher than Variant A (would indicate the comparison is overwhelming)"
+      ],
+      "failure_meaning": "If Variant A outperforms B and C, or if bounce rate increases, the comparison module may be perceived as marketing clutter rather than genuine information. This would indicate that guests distrust platform-calculated comparisons and prefer to make their own assessments. In this case, consider a lighter integration: show the comparison only when the guest explicitly requests it ('Compare to my current option').",
+      "implementation_hint": "The comparison module can be implemented as a conditional render component on listing cards and listing detail pages. Variant assignment should be session-level (not page-level) to ensure consistent experience within a session. The reference-point capture prompt should be identical across variants to isolate the effect of the display format."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Loss-State Funnel Conversion Velocity Test",
+      "validates_element": "works-002 (Loss-State Acquisition Funnel) and behaves-005 (Loss-State Accelerated Funnel)",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "The Loss-State Accelerated Funnel (behaves-005) claims that housing-unstable guests should be routed through a compressed flow to capitalize on their risk-seeking psychology. The risk is that the compressed flow sacrifices information quality (guests submit proposals without adequate evaluation) or that the situation-assessment creates a self-selection bias (loss-state guests who identify as loss-state may behave differently than those who do not).",
+      "solution": "Run a two-phase validation: Phase 1 (Observation): Before implementing the accelerated funnel, track the current behavior of guests who match loss-state signals (mobile browsing late at night, multiple listing views in a single session, short session-to-proposal times). Establish the baseline conversion rate and time-to-proposal for this segment. Phase 2 (Intervention): Implement the situation-assessment and accelerated funnel. Track the same metrics for guests who self-identify as loss-state through the assessment.",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Fourfold Pattern",
+          "detail": "Kahneman's prediction: loss-state users are risk-seeking and should convert faster. The test validates whether this theoretical prediction holds in the Split Lease marketplace."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:14:10-0:16:33",
+          "detail": "Steve's detailed description of his loss state provides a real-world archetype for the target segment."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "Pre-post comparison with segment analysis",
+      "test_description": "Phase 1: For 4 weeks, tag sessions that exhibit loss-state behavioral signals (3+ listing views in one session, evening/night browsing, direct-to-search entry without homepage browsing). Record: time-to-first-proposal, proposal completion rate, proposal-to-acceptance rate. Phase 2: Implement the situation-assessment. For guests who select loss-state options, activate the accelerated funnel. Track the same metrics. Compare Phase 2 loss-state guests against Phase 1 loss-state-signal guests.",
+      "success_criteria": [
+        "Loss-state guests in Phase 2 submit proposals 50% faster than loss-state-signal guests in Phase 1",
+        "Proposal-to-acceptance rate for loss-state guests is at least equal to the overall average (indicating proposals are not lower quality)",
+        "At least 15% of new guests self-identify as loss-state through the assessment (indicating the segment is large enough to warrant a dedicated flow)"
+      ],
+      "failure_meaning": "If loss-state guests do not convert faster, the accelerated funnel may be solving a problem that does not exist -- loss-state guests may already be converting at maximum rate. If proposal-to-acceptance rate drops, the compressed flow may be producing lower-quality proposals (wrong dates, unrealistic prices). In either case, revert to the standard flow with optional 'I need a space soon' filter.",
+      "implementation_hint": "The situation-assessment can be a modal or inline card that appears on the guest's first search. Use localStorage to avoid showing it on return visits. The accelerated funnel is a filter and sort modification on the existing search results, not a separate page -- this minimizes implementation complexity."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Endowment Effect Measurement Through Plan Your Stay Engagement",
+      "validates_element": "works-004 (Endowment Acceleration) and behaves-002 (Plan Your Stay Configurator)",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "The Plan Your Stay configurator (behaves-002) claims that helping guests configure a personalized stay accelerates mental ownership, which increases proposal submission rates. The risk is that the configurator introduces friction (more steps before proposing) that actually reduces conversion, or that guests configure ideal stays that are then rejected by hosts, creating a larger loss-aversion event.",
+      "solution": "Run an A/B test: (A) Control: current listing page with the standard proposal button. (B) Configurator: listing page with the Plan Your Stay module and 'Your Space' preview card. Measure proposal submission rate, time-on-listing, and post-proposal satisfaction (did the guest receive a counter-offer? If so, did they accept?).",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Endowment Effect (Sellers vs Choosers)",
+          "detail": "Kahneman predicts that guests who configure 'their' stay will value the arrangement more highly and be more likely to submit (Seller vs Chooser gap). The test validates whether digital configuration creates sufficient mental ownership."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:15:41",
+          "detail": "Steve's place-attachment capacity suggests that configurator engagement will correlate with proposal submission."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "A/B test with funnel analysis",
+      "test_description": "Randomly assign listing page views to Control (A) or Configurator (B). Track: (1) Proposal submission rate. (2) Within Variant B, track configurator engagement depth: did the guest select days? Set a start date? Adjust duration? (3) Counter-offer acceptance rate: do guests who used the configurator accept counters at a higher rate? (4) Time-on-listing-page (engagement proxy). Run for 3 weeks or until each variant has 150+ listing page views.",
+      "success_criteria": [
+        "Variant B achieves at least 2x the proposal submission rate of Variant A",
+        "Within Variant B, guests who engage with 2+ configuration inputs submit at 3x+ the rate of those who only viewed the configurator without interacting",
+        "Counter-offer acceptance rate for Variant B guests is at least 25% higher than Variant A (indicating stronger mental ownership that makes counter-offers feel like preserving something rather than losing something)"
+      ],
+      "failure_meaning": "If Variant A outperforms Variant B, the configurator may be adding friction rather than ownership. If configurator engagement does not correlate with submission, the mental ownership hypothesis may not transfer to digital configuration. In either case, simplify the configurator to a single-step interaction (just select nights-per-week) rather than the full multi-input module.",
+      "implementation_hint": "The configurator can be built as a client-side interactive component that does not require server calls for real-time price updates. Pre-calculate pricing for all possible day combinations and cache them on page load. This ensures the 100ms response target for configuration changes."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Certainty Cascade Post-Submission Anxiety Reduction Test",
+      "validates_element": "works-003 (Certainty Delivery System) and behaves-003 (Certainty Cascade)",
+      "journey_phases": ["proposal_creation", "acceptance"],
+      "problem": "The Certainty Cascade (behaves-003) claims that delivering structured certainty information in the 2 seconds after proposal submission reduces anxiety and increases subsequent engagement (checking status, responding to counter-offers). The risk is that the cascade creates information overload at a moment when the guest just wants confirmation, or that the timeline creates false expectations about host response times.",
+      "solution": "Run an A/B test: (A) Control: current post-submission experience (simple confirmation message). (B) Cascade: the full Certainty Cascade (checkmark, What Happens Next, Protection summary, Timeline). Measure: (1) Post-submission page dwell time (does the guest read the cascade or immediately leave?). (2) Return rate within 24 hours (does the guest come back to check status?). (3) Counter-offer response time (does the cascade make guests more responsive to host counter-offers?). (4) Post-submission anxiety proxy: support ticket volume within 24 hours of submission ('When will the host respond?' type inquiries).",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Certainty Effect",
+          "detail": "Kahneman predicts that certainty information disproportionately reduces anxiety. The test measures whether this translates to behavioral changes."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:06:27",
+          "detail": "Steve's sensitization to uncertain commitments makes him a prototype for the target user."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "A/B test with behavioral and support-ticket analysis",
+      "test_description": "Randomly assign proposal submissions to Control (A) or Cascade (B). Track the four metrics described above. Additionally, conduct a brief post-submission survey (optional, non-intrusive) asking 'How confident do you feel about what happens next?' on a 1-5 scale. Run for 4 weeks to accumulate sufficient proposal submissions.",
+      "success_criteria": [
+        "Variant B guests return to check status within 24 hours at a 30%+ higher rate than Variant A (indicating engagement, not anxiety)",
+        "Support ticket volume for 'when will host respond?' type inquiries drops by at least 50% for Variant B",
+        "Counter-offer response time is at least 2 hours faster for Variant B guests (they are more engaged and less avoidant)",
+        "Post-submission confidence score averages 4.0+ for Variant B vs. 3.0 for Variant A"
+      ],
+      "failure_meaning": "If Variant B does not reduce support tickets or improve confidence, the cascade may be adding information at a moment when simplicity is preferred. If return rate does not increase, the certainty information may not be compelling enough to drive re-engagement. Consider simplifying to a single 'What Happens Next' card without the full timeline.",
+      "implementation_hint": "The cascade elements can be pre-rendered and revealed via CSS animation timing, requiring no additional API calls. The timeline data (step statuses) should be fetched once on submission and cached, with real-time updates pushed via WebSocket for active sessions."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Counter-Offer Framing Effect on Acceptance Rate",
+      "validates_element": "works-006 (Negotiation Reframing) and behaves-004 (Preserved-First Counter-Offer)",
+      "journey_phases": ["negotiation"],
+      "problem": "The Preserved-First Counter-Offer display (behaves-004) claims that showing preserved terms before changed terms will increase counter-offer acceptance rates by neutralizing loss aversion. This is a direct prediction from Kahneman's negotiation research, but it has not been validated in the Split Lease marketplace. The risk is that the preserved-first framing makes guests underestimate the significance of the change, leading to acceptances that later result in dissatisfaction.",
+      "solution": "Run an A/B test: (A) Control: current counter-offer display (shows changes as a diff against the original proposal). (B) Preserved-First: the two-zone display with preserved terms visually dominant and the changed term framed as reduced commitment. Measure counter-offer acceptance rate on first counter, negotiation rounds to agreement, and post-acceptance satisfaction (measured by lease completion rate and renewal rate).",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Defending the Status Quo",
+          "detail": "Kahneman: 'Negotiations over a shrinking pie are especially difficult.' The test validates whether framing the counter as an expanding pie (terms agreed) vs. shrinking pie (terms changed) affects acceptance behavior."
+        },
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Bad Events / Negativity Dominance",
+          "detail": "Kahneman: 'Bad emotions are quicker to form.' The test measures whether Preserved-First prevents the rapid negative impression that the diff-based display creates."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "A/B test with long-term follow-up",
+      "test_description": "Randomly assign counter-offer presentations to Control (A) or Preserved-First (B). Track: (1) First-counter acceptance rate. (2) Average negotiation rounds per agreement. (3) Time from counter-offer view to response (accept or counter-counter). (4) Lease completion rate for accepted counters (do Variant B acceptances lead to leases that complete successfully?). (5) Guest-reported satisfaction at lease midpoint. Run for 8 weeks to accumulate sufficient counter-offer events.",
+      "success_criteria": [
+        "First-counter acceptance rate for Variant B is at least 40% higher than Variant A",
+        "Average negotiation rounds for Variant B is below 2.0 (vs. expected 2.5+ for Variant A)",
+        "Lease completion rate for Variant B acceptances is at least equal to Variant A (no quality degradation from faster acceptance)",
+        "Guest satisfaction at midpoint is not lower for Variant B (confirming the framing did not create unrealistic expectations)"
+      ],
+      "failure_meaning": "If Variant A has a higher lease completion rate than Variant B, the preserved-first framing may be inducing premature acceptance -- guests accept counters they should have negotiated further because the loss signal was suppressed. This would indicate that some loss aversion is USEFUL in negotiation (it prevents bad deals). In this case, test a hybrid: preserved-first framing WITH a mandatory 'Review changes' step before the Accept button.",
+      "implementation_hint": "The counter-offer display variants can be implemented as alternative template renders for the same data payload. No backend changes needed. The preserved-terms-first layout requires reordering the display of existing proposal data, not new data."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Gain-Frame Price Display Comprehension and Trust Test",
+      "validates_element": "communicates-001 (Gain-Frame Price Architecture) and looks-001 (Gain-Frame Price Display)",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "The Gain-Frame Price Architecture (communicates-001) restructures price displays from standalone nightly rates to a three-tier hierarchy: gain vs. reference, monthly total, nightly breakdown. The risk is that guests do not understand the comparison format, distrust the platform's savings calculations, or find the three-tier display confusing compared to the simple nightly rate they expect from Airbnb/Sonder.",
+      "solution": "Run a moderated usability test with 8-10 participants who match the target guest profile (multi-local, currently using hotels or Sonder, analytically inclined). Show each participant: (A) a listing card with the current price format, (B) a listing card with the gain-frame format, and (C) a listing detail page with the full three-tier hierarchy. For each, ask: (1) 'What does this listing cost per month?' (comprehension), (2) 'Is this a good deal compared to what you use now?' (trust/interpretation), (3) 'What information is missing that you would want to see?' (completeness).",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Vivid Outcomes",
+          "detail": "Kahneman: 'A rich and vivid representation reduces the role of probability.' The test measures whether the gain-frame format is perceived as vivid (helpful) or manipulative."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:09:08",
+          "detail": "Steve understood the resegmentation math when Igor explained it conversationally. The test validates whether the same comprehension occurs through a visual display without a human explanation."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "Moderated usability testing with think-aloud protocol",
+      "test_description": "Recruit 8-10 participants via UserTesting or similar platform. Screen for: (1) currently using hotels, Sonder, or Airbnb for periodic accommodation, (2) analytically inclined (self-reported), (3) no prior Split Lease exposure. Present Variants A, B, and C in counterbalanced order. For each variant, record: verbal comprehension (can they state the monthly cost?), trust rating (1-5: 'How much do you trust this price display?'), and spontaneous reactions (coded for positive, neutral, negative sentiment). Test duration: 30 minutes per participant.",
+      "success_criteria": [
+        "At least 80% of participants can correctly state the monthly cost from the gain-frame display (Variant B/C) within 5 seconds",
+        "Average trust rating for the gain-frame display is at least 3.5/5",
+        "No more than 1 participant codes the gain-frame display as 'manipulative' or 'misleading'",
+        "At least 60% of participants prefer the gain-frame display over the standalone rate when asked directly"
+      ],
+      "failure_meaning": "If comprehension is low (below 60%), the three-tier hierarchy may be too complex. Simplify to two tiers (monthly total + savings badge). If trust is low (below 3.0), the platform's savings calculation may need third-party validation (e.g., 'Compared to average Sonder rates in this city, sourced from [data provider]'). If participants prefer the standalone rate, the gain-frame format is solving a problem that only analytical guests care about -- consider offering it as a toggle rather than a default.",
+      "implementation_hint": "Create static mockups of all three variants in Figma for the usability test. No functional prototype needed -- comprehension and trust can be measured from static displays. Record sessions with consent for analysis."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Savings Dashboard Retention Effect During Active Lease",
+      "validates_element": "communicates-004 (Loss-Prevention Dashboard), looks-004 (Savings Dashboard), behaves-006 (Savings Reinforcement Loop), and feels-005 (Endowment-Protected Satisfaction)",
+      "journey_phases": ["active_lease"],
+      "problem": "The Savings Dashboard and Reinforcement Loop claim that continuously showing the guest their running savings total and lease health metrics will increase satisfaction and lease renewal rates. The risk is that the savings number plateaus (becomes expected rather than rewarding), that guests do not visit the Leases page frequently enough for the reinforcement to work, or that the dashboard creates anxiety if savings are lower than expected.",
+      "solution": "Implement the savings dashboard for a cohort of active lease guests and measure its impact on Leases page visit frequency, self-reported satisfaction, and lease renewal rate. Compare against a control cohort who see the current Leases page (no savings dashboard). This is a cohort study, not an A/B test, because the savings dashboard requires historical data accumulation that cannot be retroactively added.",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Bad Events / Negativity Dominance",
+          "detail": "Kahneman's 5:1 ratio predicts that the persistent positive signal (savings) will buffer against occasional negative events. The test measures whether this prediction holds."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:16:05",
+          "detail": "Steve's ROI-tracking mentality suggests he would engage with the savings dashboard. The test validates whether this engagement extends to the broader guest population."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "Cohort comparison with longitudinal tracking",
+      "test_description": "For new leases starting in March, assign the first 50 guests to the Dashboard cohort (savings dashboard visible on their Leases page) and the next 50 to the Control cohort (current Leases page). Track over the full lease duration: (1) Leases page visit frequency. (2) Mid-lease satisfaction survey (one question: 'How satisfied are you with your Split Lease experience? 1-5'). (3) Lease renewal rate. (4) Support ticket volume. Compare both cohorts at lease midpoint and lease end.",
+      "success_criteria": [
+        "Dashboard cohort visits the Leases page at least 2x per week on average (vs. estimated 1x for Control)",
+        "Dashboard cohort mid-lease satisfaction averages at least 0.5 points higher than Control",
+        "Dashboard cohort renewal rate is at least 15 percentage points higher than Control",
+        "Dashboard cohort support ticket volume is at least 20% lower than Control (proactive information reduces support needs)"
+      ],
+      "failure_meaning": "If the dashboard does not increase visit frequency, guests may not find the savings information compelling enough to drive return visits. If satisfaction is not higher, the savings may not be the primary driver of guest satisfaction (host quality, space quality may matter more). If renewal rate is not higher, the endowment effect may not be strong enough to overcome other renewal barriers (price changes, lifestyle changes). In any failure case, consider shifting from a dashboard to push notifications: weekly savings updates sent via email or SMS rather than waiting for the guest to visit the page.",
+      "implementation_hint": "The savings dashboard requires a backend calculation engine that computes savings based on the guest's reference alternative and actual stay history. This is a new data pipeline (stay nights x reference rate - stay nights x Split Lease rate = cumulative savings). The dashboard frontend is a straightforward card layout that reads from this pipeline."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Protection Shield Impact on Listing-to-Proposal Progression",
+      "validates_element": "communicates-005 (Rare-Event Defusal) and looks-005 (Protection Shield Module)",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "The Protection Shield Module (looks-005) claims that preemptively addressing guest fears (scam, photo mismatch, host cancellation) before they reach the proposal button will increase conversion. The risk is that the shield module ACTIVATES fears the guest did not previously have ('I was not worried about scams until they brought it up'), or that the module occupies listing page real estate that could be better used for listing content.",
+      "solution": "Run an A/B test: (A) Control: listing page without Protection Shield. (B) Shield: listing page with Protection Shield module positioned between photos and proposal button. Measure: listing-to-proposal progression rate, time-on-listing, and a post-visit survey question: 'Did you have any concerns about using Split Lease that were addressed on the listing page?'",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Rare Events",
+          "detail": "Kahneman: 'When an unlikely event becomes the focus of attention, we will assign it much more weight than its probability deserves.' The test validates whether the shield defuses fears (as intended) or activates them (paradoxical effect)."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, 0:35:20",
+          "detail": "Steve's respect for Sonder's brand suggests that explicit protection signals may substitute for brand trust."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "A/B test with post-visit survey",
+      "test_description": "Randomly assign listing page views to Control (A) or Shield (B). Track: (1) Listing-to-proposal rate. (2) Time spent on the protection shield section (scroll depth + dwell time for Variant B). (3) Post-visit survey (shown to a 20% sample who do NOT submit a proposal): 'What, if anything, prevented you from proposing for this space?' with free-text response. (4) Return rate: do Variant B viewers return to the listing at a higher rate? Run for 3 weeks.",
+      "success_criteria": [
+        "Variant B listing-to-proposal rate is at least 20% higher than Variant A",
+        "At least 50% of Variant B viewers scroll past the protection shield section (indicating they noticed it)",
+        "Free-text responses from Variant B non-proposers mention trust/safety concerns less frequently than Variant A non-proposers",
+        "Return rate for Variant B is at least equal to Variant A (the shield does not create a 'I already checked, no need to come back' effect)"
+      ],
+      "failure_meaning": "If Variant A outperforms Variant B, the Protection Shield may be activating fears rather than defusing them. In this case, test a subtler version: shield content available on hover/click of a small 'Your Protection' icon, rather than always-visible on the page. If both variants perform equally, the shield is neutral and the real estate may be better used for listing content.",
+      "implementation_hint": "The Protection Shield is a self-contained HTML component that can be conditionally rendered based on the A/B test assignment. It requires no additional backend data -- all protection statements are static content. The scroll depth and dwell time tracking can use the Intersection Observer API."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Journey-Level Validation: Full Prospect Theory Emotional Arc Test",
+      "validates_element": "All L1-L5 elements collectively",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Individual element tests (tests-001 through tests-008) validate specific components in isolation. But the Prospect Theory emotional arc (loss-state entry -> gain framing -> endowment acceleration -> vulnerability defusal -> certainty elation -> satisfaction protection) is a connected sequence where each element depends on the preceding ones. A journey-level validation is needed to ensure the full arc creates a coherent emotional experience that exceeds the sum of its individual elements.",
+      "solution": "Conduct a longitudinal diary study with 10-15 new guests who are entering the platform for the first time. Recruit guests who match the Steve Zhang profile: multi-local, between places or using hotels, analytically inclined. Equip them with a simple daily diary prompt (sent via SMS at 7pm): 'In one sentence, how do you feel about your housing situation today?' Track these guests from discovery through active lease (if they convert) over 8-12 weeks.",
+      "evidence": [
+        {
+          "source_type": "book",
+          "source": "kahneman-part4, Full Prospect Theory framework",
+          "detail": "The entire Part 4 of Kahneman describes a connected psychological framework. The diary study validates whether the framework's predictions (reference point shifts, endowment effect, certainty effect) manifest as a coherent emotional arc in real guest behavior."
+        },
+        {
+          "source_type": "guest_call",
+          "source": "Steve Zhang Customer Call.txt, full transcript",
+          "detail": "Steve's journey from loss-state (0:14:10) through analytical evaluation (0:33:33) to genuine interest (0:23:41) traces the arc this study would measure at scale."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "Longitudinal diary study with sentiment analysis",
+      "test_description": "Recruit 10-15 participants matching the target profile. Enroll them when they first visit Split Lease. Send a daily SMS diary prompt for 8-12 weeks. At key journey moments (search, proposal submission, acceptance, first stay, mid-lease), conduct a 15-minute phone interview to capture detailed emotional state. Code diary entries and interviews for: (1) Dominant emotion per phase. (2) Reference point shifts (can participants articulate what they are comparing to?). (3) Endowment indicators (language that suggests mental ownership before physical possession). (4) Certainty language (expressions of confidence or anxiety about the process). (5) Satisfaction trajectory (are positive sentiments maintained over time?).",
+      "success_criteria": [
+        "At least 70% of participants' diary entries at the acceptance phase contain certainty/relief language (validating the certainty elation design)",
+        "At least 60% of participants who configure a stay in the Plan Your Stay module use possessive language about the space in subsequent diary entries ('my space', 'my place') -- validating endowment acceleration",
+        "The emotional arc for participants who convert to active leases follows the predicted trajectory: negative/anxious at discovery -> comparative at search -> anticipatory at proposal -> confident at acceptance -> satisfied during active lease",
+        "No systematic emotional valley is observed at any phase transition (would indicate a coherence gap in the arc)"
+      ],
+      "failure_meaning": "If the emotional arc does not follow the predicted trajectory, the individual elements may be well-designed but poorly sequenced. If a systematic valley appears at a specific phase (e.g., all participants report anxiety at proposal creation despite the vulnerability defusal), that specific element needs redesign. The diary study reveals emotional patterns that A/B tests cannot capture.",
+      "implementation_hint": "Use a simple SMS-based diary tool (e.g., Twilio + Google Sheets). The daily prompt should be one sentence and require a one-sentence response. Phone interviews should be semi-structured with a focus on the guest's emotional state, not the platform's features. This is a qualitative validation that complements the quantitative A/B tests."
+    }
+  ]
+}

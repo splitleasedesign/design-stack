@@ -1,0 +1,169 @@
+{
+  "lens": {
+    "host_call": "sherene-call.txt",
+    "book_extract": "cialdini-intro-reciprocity.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-0900-001",
+      "type": "validation_strategy",
+      "title": "Gift-Before-Gate Conversion Validation",
+      "validates_element": "works-0900-001",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the gift-before-gate pattern is poorly implemented -- the gift is too generic, too slow to load, or not visible before the request -- the reciprocity mechanism fails and the host sees a form, not a gift. This converts the experience back to the request-first pattern the element was designed to eliminate.",
+      "solution": "A/B test the gift-before-gate onboarding against the current onboarding flow. Measure conversion from landing page to first completed action.",
+      "evidence": [
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Regan Coke Study",
+          "type": "book",
+          "quote": "Subjects who had received a Coke bought twice as many raffle tickets as subjects who had not been given the prior favor.",
+          "insight": "The Coke study provides a clear prediction: hosts who receive a gift (pre-filled data, earnings estimate) before the first request should convert at approximately 2x the rate of hosts who do not. This gives us a testable hypothesis with a specific expected effect size."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Split incoming hosts (post-agent-call) into two groups: (A) Current onboarding flow: account creation form first, then dashboard with information. (B) Gift-first onboarding flow: personalized landing page showing pre-filled property details, earnings estimate, and guest profile summary BEFORE any account creation form. Measure: (1) Time to first action (account creation or listing start). (2) Completion rate of the first action. (3) Drop-off rate at the first gate.",
+      "success_criteria": "The gift-first flow (B) achieves at least 40% higher conversion from landing to first completed action compared to the current flow (A). Secondary: the gift-first flow shows lower drop-off at the account creation step.",
+      "failure_meaning": "If the gift-first flow does not outperform, it may mean: (1) The gift is not personalized enough -- generic gifts do not trigger reciprocity. (2) The gift loads too slowly -- if the host sees the form before the gift, the pattern is inverted. (3) The gift is not perceived as valuable -- information the host already knows is not a gift. Investigate which of these causes the failure by examining time-to-gift-display and gift-content-specificity.",
+      "implementation_hint": "Playwright test: navigate to the onboarding URL with a test host who has call data. Assert that the gift container (identified by data-testid='gift-container') renders before any form element (data-testid='onboarding-form'). Measure time between page load and gift visibility (should be < 500ms). Measure time between gift visibility and form visibility (should be > 2000ms)."
+    },
+    {
+      "id": "tests-0900-002",
+      "type": "validation_strategy",
+      "title": "Rejection-Then-Retreat Recovery Rate Validation",
+      "validates_element": "works-0900-003",
+      "journey_phases": ["listing_creation", "proposal_mgmt"],
+      "problem": "If the retreat offer appears too aggressively (feels like a dark pattern), too subtly (host does not notice it), or at the wrong time (before genuine hesitation), it could increase abandonment rather than recover it. The retreat mechanism is powerful but timing-sensitive.",
+      "solution": "Track the retreat recovery rate across listing creation and proposal management. Measure how many hosts who trigger the hesitation signal accept the retreat offer versus abandoning entirely.",
+      "evidence": [
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Zoo experiment",
+          "type": "book",
+          "quote": "Three times as many of the students approached in this manner volunteered to serve as zoo chaperons.",
+          "insight": "Cialdini's research predicts a 3x increase in compliance when retreat is offered. The test should validate whether the platform's implementation achieves a similar multiplier, accounting for the digital context where the host can simply close the tab."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Instrument the listing creation wizard and proposal response flow with the following analytics events: (1) 'hesitation_detected' -- fired when the host has been inactive on the full request for 30+ seconds. (2) 'retreat_offered' -- fired when the simplified alternative is displayed. (3) 'retreat_accepted' -- fired when the host begins the simplified flow. (4) 'retreat_completed' -- fired when the host finishes the simplified flow. (5) 'retreat_dismissed' -- fired when the host closes the retreat offer and returns to the full flow. (6) 'abandoned_after_retreat' -- fired when the host leaves after seeing the retreat offer. Calculate: retreat recovery rate = retreat_completed / hesitation_detected. Also calculate: retreat-to-full conversion = hosts who later complete the full flow after accepting the retreat.",
+      "success_criteria": "Retreat recovery rate of 30%+ (hosts who were hesitating but complete the simplified flow). Secondary: 20%+ of retreat completers return to finish the full flow within 7 days. Combined: the retreat mechanism should recover at least 40% of hosts who would otherwise abandon.",
+      "failure_meaning": "If recovery is below 30%: (1) The retreat offer may appear too late (host has already emotionally disengaged before the 30-second timer fires). Try 20 seconds. (2) The retreat framing may feel like a downgrade rather than a concession. Test different copy: 'We can simplify this' vs 'How about we start with just the basics?' (3) The full request may not be large enough to create the contrast that makes the retreat feel like a concession. Consider making the full wizard more visually comprehensive before introducing the retreat.",
+      "implementation_hint": "Analytics event tracking: fire 'hesitation_detected' on a debounced 30-second inactivity timer (no mouse movement, no keyboard input, no scroll). Fire 'retreat_offered' when the retreat card component mounts. Use session ID to track the full funnel from hesitation through retreat through eventual full completion."
+    },
+    {
+      "id": "tests-0900-003",
+      "type": "validation_strategy",
+      "title": "Cascading Gift Cadence Engagement Validation",
+      "validates_element": "works-0900-002",
+      "journey_phases": ["evaluation", "onboarding", "active_lease"],
+      "problem": "If gifts are delivered too frequently, they habituate and lose their reciprocity power. If delivered too infrequently, the obligation decays between gifts. The cascading cadence (one gift per touchpoint, time-separated) must hit the right rhythm to maintain the compounding effect without becoming noise.",
+      "solution": "Track engagement rates across the gift cascade and correlate with conversion outcomes. Compare hosts who received N gifts before their first conversion action with hosts who received fewer.",
+      "evidence": [
+        {
+          "source": "sherene-call.txt, full call structure",
+          "type": "host_call",
+          "quote": "Bryant delivers 9 separate gifts across 27 minutes, approximately one every 3 minutes. Sherene's engagement deepens with each gift.",
+          "insight": "The call establishes a natural cadence of approximately 1 gift per 3 minutes during active engagement. The test should validate whether the digital equivalent (1 gift per interaction session, 1 gift per notification) produces a similar deepening of engagement."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "For each host, track: (1) Number of distinct platform gifts received before first conversion action (listing creation, proposal response). A 'gift' is defined as: pre-filled data display, earnings estimate shown, guest profile delivered, or payment confirmation sent. (2) Open/view rate for each gift (did the host actually see it?). (3) Time between gifts. (4) Conversion action and timing. Segment hosts by gift count (0-1 gifts, 2-3 gifts, 4+ gifts before conversion) and compare conversion rates across segments.",
+      "success_criteria": "Hosts who receive 3+ distinct gifts before their first conversion action convert at 1.5x or higher the rate of hosts who receive 0-1 gifts. Secondary: open/view rate for gifts remains above 50% through the cascade (no significant drop-off indicating habituation).",
+      "failure_meaning": "If the 3+ gift segment does not outperform: (1) The gifts may not be perceived as distinct -- they may blur together if they are too similar in content or presentation. (2) The timing between gifts may be too tight, causing notification fatigue rather than compounding obligation. (3) The gifts may not be personalized enough to trigger genuine reciprocity (generic gifts do not create obligation). Investigate by examining which specific gift types correlate with conversion and which do not.",
+      "implementation_hint": "Event tracking: define a 'gift_delivered' event with properties: gift_type (prefilled_data, earnings_estimate, guest_profile, payment_confirmation), gift_content_hash (to detect duplicates), timestamp, host_id. Define a 'gift_viewed' event fired when the gift UI element enters the viewport for more than 1 second. Correlate with conversion events using the host_id."
+    },
+    {
+      "id": "tests-0900-004",
+      "type": "validation_strategy",
+      "title": "Ghost Roommate Handoff Protocol Usability Validation",
+      "validates_element": "behaves-0900-004",
+      "journey_phases": ["active_lease"],
+      "problem": "The Thursday handoff protocol is a novel interaction pattern with no precedent in the platform. If the protocol is confusing, intrusive, or poorly timed, it could create more anxiety than it resolves -- turning the handoff from a managed transition into a platform-imposed burden.",
+      "solution": "Conduct moderated usability tests with hosts and guests simulating a ghost roommate handoff, observing task completion, confusion points, and emotional reactions.",
+      "evidence": [
+        {
+          "source": "sherene-call.txt, 19:13-19:58",
+          "type": "host_call",
+          "quote": "Bryant describes the Thursday handoff with careful attention to timing and cleaning accountability. Sherene engages with the specifics, showing she needs to understand the exact mechanics.",
+          "insight": "Sherene needs the handoff to be both structured (she wants accountability) and flexible (she does not want to micromanage). The usability test must validate that the protocol achieves both: structure without rigidity."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 participants who match the host profile (property owners, 30-55 age range, some hosting experience). Present them with a prototype of the Thursday handoff flow: (1) Morning notification about upcoming handoff. (2) Guest A's check-out confirmation with cleaning checklist. (3) Guest B's check-in notification. (4) Host's dashboard showing the handoff progress. Tasks: (a) Identify what needs to happen today. (b) Check if Guest A has completed cleaning. (c) Determine when Guest B will arrive. (d) Find out what to do if Guest A hasn't cleaned by 3pm. Observe: task completion time, confusion points, emotional reactions (especially anxiety vs. calm), and any moments where the participant says 'I wouldn't want to see this' or 'This is too much.'",
+      "success_criteria": "All 4 tasks completed by 80%+ of participants in under 30 seconds each. No participant expresses increased anxiety from the handoff protocol (it should reduce anxiety, not create it). At least 60% of participants spontaneously comment that the system makes them feel 'more in control' or similar positive-control language.",
+      "failure_meaning": "If tasks take longer than 30 seconds or participants express anxiety: (1) The handoff UI may be too complex -- too many steps, too many notifications, too much information at once. Simplify. (2) The timing may be wrong -- notifications arriving too early or too late relative to the actual handoff. Adjust. (3) The escalation path (what happens if cleaning is not done) may be unclear or alarming. Rephrase. (4) The protocol may feel paternalistic -- hosts may not want to be 'managed.' Offer a minimal mode.",
+      "implementation_hint": "Prototype in Figma or as a standalone HTML page. Include realistic data: Greg's check-out at 2pm Thursday, Johan's check-in at 4pm Thursday. Include both the happy path (everything on time) and one error state (cleaning not confirmed by 3pm). Record screen + audio for analysis."
+    },
+    {
+      "id": "tests-0900-005",
+      "type": "validation_strategy",
+      "title": "Daily Payment Notification Engagement Validation",
+      "validates_element": "feels-0900-004",
+      "journey_phases": ["active_lease"],
+      "problem": "Daily payment notifications risk two failure modes: (1) Notification fatigue -- the host stops opening them after the first week, destroying the reciprocity reinforcement mechanism. (2) Emotional flatness -- the notification feels transactional rather than reassuring, failing to deliver the target emotion of calm.",
+      "solution": "Track notification open rates over the lease duration and conduct a brief qualitative survey at month 1 and month 3 to assess emotional impact.",
+      "evidence": [
+        {
+          "source": "sherene-call.txt, 07:21-07:39",
+          "type": "host_call",
+          "quote": "Bryant describes daily rolling payment. Sherene's response: 'So like on a rolling basis.' Her understanding is immediate, suggesting the concept resonates.",
+          "insight": "The daily payment concept resonates in conversation. The test must validate that the digital notification maintains this resonance over 90+ days without habituation."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track for each host during their active lease: (1) Daily notification open rate (push notification opened within 2 hours of delivery). (2) Open rate trend over time (week 1 vs week 4 vs week 8 vs week 12). (3) Time-to-open (how quickly after delivery does the host open it). (4) In-app engagement after opening (does the host then check the dashboard, view the ledger, or take any action?). At month 1 and month 3, send a 2-question micro-survey: 'How do the daily payment notifications make you feel?' (open text) and 'Would you prefer to receive them daily, weekly, or not at all?' (multiple choice).",
+      "success_criteria": "Week 1 open rate above 70%. Week 12 open rate above 40% (some decline is expected but catastrophic decline indicates habituation). At month 3 survey, fewer than 20% of hosts request weekly or no notifications (80%+ want to keep the daily cadence). Qualitative responses include words like 'reassuring,' 'nice to see,' 'keeps me informed' rather than 'annoying,' 'too many,' 'repetitive.'",
+      "failure_meaning": "If open rates collapse below 30% by week 4: (1) The notification content may be too repetitive. Implement the variation patterns described in feels-0900-004 (different phrasing, milestone celebrations). (2) The notification timing may be wrong. Test morning delivery (8am) vs mid-morning (10am) vs post-meal (1pm) to find the optimal time when hosts naturally check their phones. (3) The notification format may be wrong. Test push notification vs email vs in-app badge to find the channel with the highest sustained engagement.",
+      "implementation_hint": "Analytics: track 'payment_notification_sent' and 'payment_notification_opened' events with timestamps. Calculate open rate as opened/sent per day per host. For the micro-survey, use an in-app modal that appears on the 30th and 90th payment notification view."
+    },
+    {
+      "id": "tests-0900-006",
+      "type": "validation_strategy",
+      "title": "Reciprocity-Anchored Pricing Comprehension Validation",
+      "validates_element": "communicates-0900-004",
+      "journey_phases": ["pricing"],
+      "problem": "If the contrast-anchored pricing display is misunderstood -- the host thinks the lower anchor is their actual earning, or the comparison feels manipulative rather than informative -- the confidence emotion fails and is replaced by suspicion.",
+      "solution": "Conduct a 5-second comprehension test and a think-aloud usability session with the pricing display.",
+      "evidence": [
+        {
+          "source": "sherene-call.txt, 23:28-23:53",
+          "type": "host_call",
+          "quote": "Sherene is doing mental math: '$40 a night... barely breaking even.' She needs the pricing to be immediately comprehensible without calculation.",
+          "insight": "Sherene should be able to understand her earnings in under 5 seconds, without any mental math. If she has to calculate, the pricing display has failed."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Two-part test: (1) Five-second test: Show the pricing display to 10-15 participants for exactly 5 seconds, then remove it. Ask: 'How much will you earn per month?' and 'Is this more or less than you would earn with a single guest?' At least 80% should answer both correctly. (2) Think-aloud: Show the pricing display to 5-8 participants and ask them to describe what they see and what it means. Listen for: confusion between anchor and premium, suspicion about the comparison, and any moments of 'Oh, that is good' (confidence) vs 'Wait, what?' (confusion).",
+      "success_criteria": "Five-second test: 80%+ of participants correctly identify the monthly earning and correctly understand the comparison. Think-aloud: 0 participants express suspicion about the comparison being manipulative. At least 60% spontaneously express positive surprise or satisfaction at the ghost roommate premium.",
+      "failure_meaning": "If comprehension is below 80%: (1) The visual hierarchy between anchor and premium may be unclear. Make the premium larger and the anchor smaller. (2) The comparison framing may be confusing. Test 'vs single guest' vs 'your current rate' vs 'neighborhood average' as the anchor label. (3) The price may be arriving without enough context. Ensure the value stack (included services) is visible before the price number.",
+      "implementation_hint": "Use a tool like Maze or UsabilityHub for the 5-second test. For the think-aloud, use a Figma prototype with realistic numbers: $800 anchor (single guest), $1,200 premium (ghost roommate), $40/night detail."
+    },
+    {
+      "id": "tests-0900-007",
+      "type": "validation_strategy",
+      "title": "End-to-End Reciprocity Journey Arc Validation",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Individual elements may work in isolation but fail to create a coherent reciprocal journey. The emotional arc (curiosity -> relief -> confidence -> calm -> gratitude) must hold across the full lifecycle. If any phase breaks the gift-giving chain, the accumulated obligation dissipates and subsequent phases lose their reciprocity power.",
+      "solution": "Conduct a longitudinal tracking study of the first cohort of ghost roommate hosts through the full journey, measuring reciprocity engagement at each phase transition.",
+      "evidence": [
+        {
+          "source": "cialdini-intro-reciprocity.txt, Ch 2 - Web of Indebtedness",
+          "type": "book",
+          "quote": "A developed system of indebtedness flowing from the rule for reciprocation is a unique property of human culture... allowing for the division of labor, the exchange of diverse forms of goods, and the creation of interdependencies that bind individuals together.",
+          "insight": "Reciprocity works as a system, not as isolated interactions. The journey-level validation must assess whether the gift-giving chain maintains its power across all 8 phases, or whether it breaks at specific transitions."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "For the first 20-30 ghost roommate host onboardings, track the following at each phase transition: (1) Platform gifts delivered (count and type). (2) Host reciprocal actions completed (account creation, listing steps, proposal response, lease completion, renewal decision). (3) Time between gift delivery and reciprocal action. (4) Gift engagement rate (did the host view/interact with the gift?). (5) Phase-to-phase continuation rate. (6) At retention, track renewal decision and correlate with total gifts received across the journey. Create a cohort waterfall chart showing how many hosts pass each phase gate, with gift-count overlay.",
+      "success_criteria": "Phase-to-phase continuation rate above 60% at every transition. Positive correlation (r > 0.3) between total gifts received and retention/renewal rate. No single phase transition showing a drop-off rate above 40%. The emotional arc survey (administered at month 1 and month 3) shows progression from curiosity/relief (early phases) to calm/gratitude (later phases) in at least 60% of respondents.",
+      "failure_meaning": "If a specific phase transition shows > 40% drop-off: the gift chain is breaking at that transition. Investigate what gift is missing or insufficient. If no correlation between gifts and retention: the gifts may not be perceived as genuine (too automated, too generic) or the reciprocity mechanism may not be the primary driver of retention for this population (other factors like price or location may dominate). If the emotional arc is incoherent (hosts report anxiety at phases where calm was targeted): the gift is not achieving its intended emotional effect and needs redesign.",
+      "implementation_hint": "Build a cohort dashboard tracking ghost roommate hosts from first contact through retention. Define phase-gate events: discovery (first landing), evaluation (first call), onboarding (account created), listing_creation (listing published), pricing (price confirmed), proposal_mgmt (proposal responded), active_lease (first payment received), retention (renewal decision). Overlay gift events on the timeline. This is a reporting/analytics implementation, not a code test."
+    }
+  ]
+}

@@ -1,0 +1,344 @@
+{
+  "lens": {
+    "guest_call": "Susan  Bryant customer call.txt",
+    "book_extract": "donnorman-affordances-signifiers-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "First-Night Cancellation Guarantee as Persistent, Responsive Safety Net",
+      "journey_phases": ["listing_evaluation", "negotiation", "acceptance", "move_in"],
+      "problem": "Susan demands to physically inspect the space three times (2:14, 3:05, 3:42) because the listing cannot replace in-person verification. Bryant improvises a first-night cancellation guarantee (3:16) as a verbal compromise, but this affordance exists nowhere on the platform. The guest has no way to discover that she can leave if the space does not match the listing. Norman states that affordances must be discoverable and perceivable: 'If an affordance or anti-affordance cannot be perceived, some means of signaling its presence is required.' The cancellation guarantee is the single affordance that made Susan willing to proceed without physical inspection, yet it has no interaction pattern that surfaces it, responds to the guest's trust state, or adapts across journey phases. The interaction challenge is: how does the system behave differently when the guest is trust-anxious versus trust-satisfied, and how does the cancellation guarantee transition from a prominent safety signal to a background reassurance as trust builds?",
+      "solution": "The cancellation guarantee behaves as a context-aware, phase-adaptive safety signifier that responds to the guest's trust trajectory. During listing evaluation, the guarantee badge responds to scroll depth: it begins as a static badge near the price, but if the guest scrolls back to photos more than once (a behavioral signal of hesitation), the badge subtly pulses once to recapture attention. During negotiation, the guarantee appears in the proposal summary as a confirmed term, not a policy footnote. During acceptance, confirming the booking triggers a success state that prominently restates the guarantee: 'You can cancel after your first night if the space does not match.' At move-in, the House Manual's persistent bottom banner displays the guarantee for 24 hours, with a single-tap 'Cancel Stay' action that opens a confirmation flow. After the first night, the banner transitions to a dismissible notification. The interaction principle is: safety affordances must be most visible when anxiety is highest and must gracefully recede as trust is established, but never fully disappear until the window closes.",
+      "evidence": [
+        {
+          "source": "Susan  Bryant customer call.txt, 3:16",
+          "type": "guest_call",
+          "quote": "There would be something set up where if you come the first night and it's not something that would work, you have the flexibility to cancel.",
+          "insight": "Bryant's improvised guarantee is the only thing that moves Susan past her demand for physical inspection. This affordance must be a permanent, discoverable, and responsive platform feature — not an improvised verbal promise."
+        },
+        {
+          "source": "Susan  Bryant customer call.txt, 3:42-3:58",
+          "type": "guest_call",
+          "quote": "If I like the room in the bathroom, I can, should have pictures. And she said, it's okay. I'll give you the deposit right there.",
+          "insight": "Susan couples photos with readiness to pay — but only after the cancellation guarantee was established. The guarantee is the prerequisite interaction that unlocks the conversion. The system must make this guarantee discoverable before the guest reaches the commitment decision."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Affordances",
+          "type": "book",
+          "quote": "Affordances exist even if they are not visible. For designers, their visibility is critical: visible affordances provide strong clues to the operations of things.",
+          "insight": "The cancellation guarantee is an affordance that exists in policy but is invisible in the interface. Norman's principle demands that its visibility match its importance — and for trust-anxious guests flying from Oregon, it is the most important affordance on the platform."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback has to be planned. All actions need to be confirmed, but in a manner that is unobtrusive.",
+          "insight": "The guarantee's visibility must be planned across phases: prominent at listing evaluation (when trust is lowest), confirmed at acceptance (when commitment happens), actionable at move-in (when reality is tested), and unobtrusive after the first night (when trust is established or the window closes)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Guarantee badge is visible near the price on the listing page, in the proposal summary during negotiation, and as a persistent banner during move-in's first 24 hours. It communicates: 'First-night cancellation guarantee — if the space does not match, you can cancel.'",
+        "loading": "When the guest taps the guarantee badge for details, a sheet slides up within 200ms showing the full terms. A skeleton placeholder holds the layout stable during any content fetch.",
+        "empty": "Not applicable — the guarantee is a policy element, not user-generated content. If no guarantee is available for a listing, the badge is absent entirely rather than showing an empty state, because a missing guarantee is information in itself.",
+        "error": "If the cancellation action fails to process (network error during move-in cancellation), the system displays an inline error with the host's direct contact information: 'We could not process your cancellation. Contact [Host Name] directly or call Split Lease support at [number].' The error state must never leave the guest without a path to exercise the guarantee.",
+        "success": "When the guest confirms a booking, the acceptance confirmation screen includes a highlighted guarantee restatement: 'Remember: you can cancel after your first night if the space does not match the listing.' At move-in, if the guest completes the verification checklist without triggering cancellation, the banner transitions with a fade to a positive confirmation: 'Glad it matched. Enjoy your stay.'"
+      },
+      "transition_principle": "Safety signals transition from prominent to background as trust builds, never disappearing abruptly. The guarantee badge at listing evaluation is static. At acceptance, it is confirmed with a brief scale-up animation. At move-in, the persistent banner uses a slow entrance (slide up from bottom). After 24 hours, the banner fades to 50% opacity, then dismisses on tap. The principle: safety affordances recede gradually, like a handrail you stop gripping once you find your balance.",
+      "timing": {
+        "response_target": "200ms for guarantee detail sheet; 100ms for banner interactions; cancellation action acknowledgment under 1000ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The tokens.json 'out' easing provides a swift initial motion that decelerates naturally, matching the feel of a safety net deploying — fast when you need it, gentle when it catches you. The 200ms sheet animation is fast enough to feel responsive but slow enough to be perceived as a deliberate reveal, not a flash."
+      },
+      "journey_state_awareness": "At listing evaluation, the guarantee is a discovery signifier — the guest may not know it exists. At negotiation, it is a confirmed term. At acceptance, it is a commitment reassurance. At move-in, it is an actionable affordance. The same information adapts its interaction pattern to match the guest's relationship with the guarantee at each phase: unknown, known, committed, exercisable.",
+      "edge_cases": [
+        "Guest attempts cancellation after the 24-hour window — the system must clearly communicate the window has closed and provide alternative dispute resolution paths",
+        "Proxy booking: Susan initiates cancellation on behalf of her friend — the system must verify the cancellation authority of the coordinator role and notify both coordinator and occupant",
+        "Network failure during move-in cancellation — the system must provide an offline fallback (host phone number, support number) because the guest may be in a location with poor connectivity",
+        "Guest opens the guarantee detail sheet repeatedly during listing evaluation — this behavioral signal of high anxiety should not trigger any intrusive intervention, but the system may log it for future trust-building research",
+        "Host disputes the cancellation claim — the system must have a predefined resolution flow that does not require the guest to negotiate directly with the host"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Proposal Negotiation Timeline with Immediate Acknowledgment and Predictive Waiting",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "The Susan call operates at conversational speed: Bryant acknowledges every statement immediately, explains constraints in real time, and offers compromises within seconds. The platform's negotiation is asynchronous — proposals sit in 'pending' states for hours or days. When the phone call drops for 20 seconds at 2:42-3:05, both parties scramble with 'Can you hear me?' — trust erodes within seconds of lost feedback. Norman states: 'Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. If the delay is too long, people often give up.' The interaction challenge is: how does the system maintain the feeling of an active conversation when the actual response cycle is measured in hours, not seconds? Every moment of silence in the negotiation must be filled with informative, non-intrusive feedback that prevents the guest from wondering whether the system heard them.",
+      "solution": "The negotiation timeline behaves as a living conversation thread, not a static status page. When the guest submits a proposal, the system provides three layers of feedback: (1) Instant acknowledgment (under 100ms): the submit button transitions to a confirmed state with a checkmark animation, and the timeline adds a new node — 'Proposal Sent' with timestamp. (2) Contextual prediction (under 2 seconds): the timeline displays 'Rita usually responds within [N] hours' based on the host's actual response history. If no history exists, use the platform median. (3) Intermediate heartbeat feedback: at predictable intervals (6 hours, 12 hours, 24 hours), the system sends a push notification or in-app message: 'Rita has not yet responded. Most hosts respond within [N] hours. We will notify you immediately when she does.' When the host responds, the timeline animates a new node into view with a distinct visual treatment based on the response type: acceptance (purple), counter-offer (coral/warm accent to capture attention), or decline (neutral gray). Counter-offer changes are displayed as an inline diff — only the changed terms are highlighted, unchanged terms are dimmed. The principle is: asynchronous negotiation must behave like a slow conversation, not a silent void.",
+      "evidence": [
+        {
+          "source": "Susan  Bryant customer call.txt, 2:42-3:05",
+          "type": "guest_call",
+          "quote": "Can you hear me, Susan? Me? Yep. Can you hear me? No, I, yeah. You're you're back. I can hear you. Can you hear me? Yes. I can hear you.",
+          "insight": "A 20-second feedback gap causes immediate anxiety and communication scrambling. This is exactly what happens when the platform shows 'pending' for hours — the guest's trust erodes because the feedback channel appears broken. The timeline's heartbeat notifications prevent this anxiety."
+        },
+        {
+          "source": "Susan  Bryant customer call.txt, 6:50-6:57",
+          "type": "guest_call",
+          "quote": "I'll be in contact with Rita. And like I said, I'll keep you updated.",
+          "insight": "Bryant's human promise of future updates is the only signifier Susan receives for what happens next. The platform must replace human promises with systematic, predictable feedback — the timeline's intermediate notifications are the digital equivalent of 'I will keep you updated.'"
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. If the delay is too long, people often give up, going off to do other activities.",
+          "insight": "Norman's threshold applies differently to synchronous and asynchronous interactions. For proposal submission, 'immediate' means instant acknowledgment. For host response, 'immediate' means the guest always knows the current state and expected timeline — no moment of silence without a visible signifier."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Too much feedback can be even more annoying than too little... Feedback has to be planned. All actions need to be confirmed, but in a manner that is unobtrusive.",
+          "insight": "The heartbeat notifications must be prioritized: counter-offers and acceptances are high-urgency (push notification, sound). 'Still waiting' updates are low-urgency (in-app badge, no sound). The system must not become the 'backseat driver' Norman warns about."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The timeline displays the most recent state node with context: 'Proposal Sent — Feb 17 at 3:42 PM' or 'Host Reviewing — Rita usually responds in 6 hours.' The current-state node pulses subtly (scale 1.0 to 1.05, infinite, ease-in-out) to signal that the process is alive.",
+        "loading": "When the guest submits a proposal, the submit button shows a brief spinner (under 500ms) followed by the checkmark confirmation animation. The timeline node appears with a slide-down animation. If the timeline is fetching updated state, a skeleton pulse holds the node positions stable.",
+        "empty": "Before any proposal is submitted, the timeline area shows a single prompt: 'Ready to propose? Select your dates and schedule to begin.' After proposal rejection, the empty state offers: 'This proposal was not accepted. You can submit a new proposal or browse other listings.'",
+        "error": "If proposal submission fails (network error), the system preserves the guest's entered data and displays an inline error: 'Your proposal could not be sent. Your details have been saved — tap to retry.' The guest must never lose their proposal configuration due to a network failure. If the timeline cannot load, show the last known state with a timestamp: 'Last updated 2 hours ago. Tap to refresh.'",
+        "success": "When the host accepts, the timeline's final node uses a distinct celebration animation: the node scales up briefly (1.0 to 1.1 to 1.0) and the label displays 'Accepted!' with a brief confetti of the brand purple. The next-steps prompt appears immediately below: 'Your stay begins [date]. Review your House Manual to prepare for arrival.'"
+      },
+      "transition_principle": "Timeline nodes enter from the top with a slide-down and fade-in, each new node pushing prior nodes down. The current state always occupies the visual focus position. Completed states collapse to a single line (label + timestamp) with a smooth height reduction. The overall feel is a conversation growing downward, like a chat thread — each new event is an addition, not a replacement. State changes on existing nodes (e.g., 'Host Reviewing' to 'Host Responded') animate as a cross-fade to avoid jarring content swaps.",
+      "timing": {
+        "response_target": "100ms for submit button state change; 300ms for timeline node entrance animation; 500ms for state-change cross-fade; heartbeat notifications at 6h, 12h, 24h intervals",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing from tokens.json provides a quick start that decelerates, appropriate for timeline nodes that should appear decisively and settle naturally. The 300ms node entrance is fast enough to feel responsive but slow enough to be visually tracked, ensuring the guest perceives the state change rather than missing it."
+      },
+      "journey_state_awareness": "At proposal creation, the timeline is anticipatory — showing what will happen after submission. During negotiation, it is active — displaying real-time state and predictions. At acceptance, it is conclusive — celebrating the agreement and transitioning to move-in preparation. If the guest returns to the timeline after a long absence, the system highlights any state changes since their last visit with a 'New' badge on the relevant node.",
+      "edge_cases": [
+        "Host does not respond within 48 hours — the system escalates the heartbeat to daily notifications and offers the guest an option to withdraw the proposal or contact support",
+        "Multiple counter-offers in rapid succession — each counter creates a new timeline node; the diff display highlights only the delta from the immediately prior offer, not the original proposal",
+        "Guest submits a proposal while offline — the system queues the submission and displays 'Will send when you reconnect' with the proposal details preserved locally",
+        "Proxy booking: Susan submits a proposal on behalf of her friend — the timeline must show Susan's actions attributed to her role ('Coordinator submitted proposal') and send separate notifications to coordinator and occupant",
+        "Guest navigates away during submission — the system completes the submission in the background and shows a notification badge when the guest returns"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Natural-Language Duration and Schedule Selectors with Real-Time Translation Feedback",
+      "journey_phases": ["search", "proposal_creation"],
+      "problem": "Susan thinks in calendar months ('one month or two months,' 0:11) and weekday names ('Monday to Friday'). The platform requires night counts ('30 night minimum,' 1:35). Bryant performs this vocabulary translation twice during the call. Norman's mapping principle states that 'natural mapping, taking advantage of spatial analogies, leads to immediate understanding.' The interaction challenge is not just the visual layout of the controls (addressed in Layer 3) but how the controls respond to input: what happens when the guest taps 'Weekdays'? What feedback appears? How does the system communicate the translation from guest vocabulary to platform units? How do the controls cascade — does selecting a schedule preset automatically update the duration calculation? The controls must behave as a single, coordinated system that translates in real time, not as independent fields the guest must reconcile mentally.",
+      "solution": "The schedule and duration selectors behave as a coupled input system where every change produces immediate, cascading feedback. When the guest taps a schedule preset ('Weekdays'), three things happen within 200ms: (1) the preset pill animates to its active state (background color transition), (2) the translation summary bar updates to show the new calculation ('Mon-Fri for 2 months = 40 nights'), and (3) if a duration preset is already selected, the total price updates. The summary bar text uses a brief pulse animation (opacity 0.5 to 1.0 over 300ms) to draw attention to the changed value without being disruptive. When the guest switches duration presets, the same cascading update occurs. The 'Custom' option reveals a calendar grid with individual day toggles via a height-expand animation (300ms). On the calendar, tapping a day toggles it with a scale animation (0.8 to 1.0) and immediately updates the summary. If the guest's selection does not meet the host's minimum night requirement, the summary bar transitions to a warning state: the background shifts to a warm tone with a message like 'Rita requires at least 30 nights. Your selection is 24 nights — add 2 more weeks or switch to Full Week.' The warning appears within 100ms of the selection that violates the constraint. The principle is: every input produces immediate, informative, cascading feedback that makes the translation from guest language to platform language visible and correctable in real time.",
+      "evidence": [
+        {
+          "source": "Susan  Bryant customer call.txt, 0:43",
+          "type": "guest_call",
+          "quote": "Like seven nights a week?",
+          "insight": "Susan defaults to full-time because the non-continuous model has no signifier in her vocabulary. The schedule presets ('Weekdays,' 'Weekends') serve as interactive signifiers — tapping one immediately shows what the model means in concrete terms ('Mon-Fri = 5 nights/week'), teaching the concept through interaction rather than explanation."
+        },
+        {
+          "source": "Susan  Bryant customer call.txt, 1:35-2:00",
+          "type": "guest_call",
+          "quote": "Rita would require a 30 night minimum... five nights a week for like two months would be something that would, could work.",
+          "insight": "Bryant computes the translation verbally in real time. The coupled input system must replicate this: when the guest selects 'Weekdays' and '2 months,' the summary bar immediately shows '40 nights' — the same computation Bryant performed, but visible and persistent rather than ephemeral and verbal."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Mapping",
+          "type": "book",
+          "quote": "A device is easy to use when the set of possible actions is visible, when the controls and displays exploit natural mappings.",
+          "insight": "The coupled selector system exploits natural mapping by linking the guest's calendar-based input (months, weekdays) to the platform's night-based output through a visible, real-time translation. The guest never needs to compute night counts mentally."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting.",
+          "insight": "Norman's 100ms threshold applies directly to the coupled selectors: every tap must produce a visible response within 100ms. The summary bar update at 200ms and the price calculation at 200ms ensure the guest always sees the consequence of their action before they process their next decision."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Schedule presets are displayed as a horizontal row of pill buttons, all inactive (neutral background). Duration presets are displayed as selectable cards, all inactive. The summary bar shows placeholder text: 'Select a schedule and duration to see your stay details.' No computation is visible until the guest makes their first selection.",
+        "loading": "If price data must be fetched from the server (e.g., nightly rate depends on the host's dynamic pricing), the price portion of the summary bar shows a skeleton pulse while schedule and night count display instantly from client-side calculation. The guest never waits for the parts that can be computed locally.",
+        "empty": "If no listings match the guest's schedule selection (e.g., 'Weekends' selected but no weekend-available listings in the search area), the system displays an inline suggestion: 'No listings available for weekends in this area. Try Weekdays or expand your search.' The suggestion appears where results would normally render, maintaining layout stability.",
+        "error": "If the guest's selection violates a host constraint (minimum nights, unavailable dates), the summary bar transitions to a warning state with warm-toned background and a clear, actionable message. The error never blocks the guest's interaction — they can continue adjusting selections while the warning is visible. If a network error prevents price calculation, the summary shows the night count (computed locally) with a note: 'Price unavailable — tap to retry.'",
+        "success": "When the guest's selection meets all host constraints and the summary is fully computed, the summary bar displays with a subtle green check icon and the complete translation: 'Mon-Fri for 2 months = 40 nights, $X/night, $Y total.' A 'Continue to Proposal' button appears or becomes enabled below the summary."
+      },
+      "transition_principle": "All preset state changes (active/inactive) use a background-color transition at 150ms to feel snappy but not instantaneous. The summary bar text updates use the opacity pulse (0.5 to 1.0 at 300ms) to draw the eye to the changed value. The calendar grid reveal uses a height-expand with the 'out' easing (300ms) so custom options feel like they unfold naturally rather than pop in. Warning states transition with a background-color shift (200ms) — no jarring red flash, just a warm shift that communicates 'something needs attention.' The principle is: every transition is fast enough to feel like direct manipulation but slow enough to be visually trackable.",
+      "timing": {
+        "response_target": "100ms for preset tap visual feedback; 200ms for summary bar text update; 300ms for calendar grid expand/collapse; 150ms for preset background-color transition",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing from tokens.json matches direct-manipulation interactions: fast initial response (the guest sees their tap registered immediately) with a natural deceleration (the summary settles into its new value). The 100ms visual feedback threshold aligns with Norman's disconcerting-delay principle."
+      },
+      "journey_state_awareness": "In search, the schedule and duration selectors are filters — the results list updates in real time as the guest configures. In proposal creation, the same selectors are commitment tools — the summary now includes the specific host's pricing and constraints, and the 'Continue to Proposal' button is the conversion action. During the active lease, the same interaction pattern reappears in the Date Change Tool within the Stays Manager, allowing the guest to add or swap dates using the same familiar presets and summary feedback they learned during proposal creation.",
+      "edge_cases": [
+        "Guest selects 'Weekdays' but the host only accepts full-week bookings — the warning appears immediately with a suggestion to switch to 'Full Week' or find other listings",
+        "Guest selects a duration that exactly meets the minimum (e.g., 30 nights = 30-night minimum) — the summary shows this as a success state, not a warning, but adds a note: 'This meets the minimum. Adding more nights gives scheduling flexibility.'",
+        "Guest is on a slow connection and price data takes more than 2 seconds — the summary shows the computed night count and schedule immediately, with a skeleton pulse where the price will appear, ensuring the guest is never staring at a blank summary",
+        "Proxy booking: Susan configures the schedule but her friend will be the occupant — the summary should clarify 'Your friend will stay Mon-Fri' rather than 'You will stay Mon-Fri' when proxy mode is active",
+        "Guest switches between presets rapidly (tapping Weekdays, then Weekends, then Full Week in quick succession) — the summary must debounce visual updates to prevent flickering, settling on the final selection within 300ms of the last tap"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Move-In Verification Checklist: Interactive Signifier-to-Reality Bridge",
+      "journey_phases": ["move_in", "active_lease"],
+      "problem": "Susan's entire call is organized around preventing a catastrophic signifier-to-reality gap at move-in. Her friend is flying from Oregon with only the listing's digital signifiers as her conceptual model of the space. Norman distinguishes between 'knowledge in the head' (what the guest remembers from the listing) and 'knowledge in the world' (what is available at the moment of action). At move-in, the guest needs an interactive tool that bridges these two knowledge types — a structured way to verify listing claims against physical reality, item by item, with clear paths for each outcome. The interaction challenge is: how does the system behave when the guest confirms an item versus when the guest flags a discrepancy? How does the checklist adapt if the guest discovers the space does not match? The checklist is not a passive list — it is an interactive decision tree that either builds trust or activates the cancellation safety net.",
+      "solution": "The move-in verification checklist is an interactive, step-by-step tool that presents each listing claim as a confirmable item, with branching interaction paths based on the guest's response. Each item (Private bathroom? Private room? Wi-Fi works? No unexpected co-occupants?) is presented as a card with two response options: a confirm action (check icon, green) and a flag action (flag icon, amber). Confirming an item animates the card to a collapsed, confirmed state (checkmark, green left border) and advances to the next item. Flagging an item expands a sub-flow: a brief text input ('What did you find?'), an optional photo upload, and two action buttons — 'Contact Host' (opens messaging with the flagged item pre-populated as context) and 'Review Cancellation Options' (scrolls to the cancellation banner and expands the cancellation detail sheet). If the guest flags more than 2 items, the system proactively surfaces the cancellation guarantee with a message: 'Multiple items do not match the listing. Remember, you can cancel within 24 hours.' The checklist completion triggers a final state: if all items are confirmed, a success message appears ('Everything matches. Enjoy your stay.') and the cancellation banner transitions to dismissible mode. If items are flagged, the system maintains the cancellation banner at full prominence and prompts the guest to resolve or cancel. The principle is: verification is not a formality — it is an interactive trust-building (or trust-breaking) mechanism with real consequences.",
+      "evidence": [
+        {
+          "source": "Susan  Bryant customer call.txt, 2:22",
+          "type": "guest_call",
+          "quote": "I have to go and see the space and just to make sure that everything is legit. You know how sometimes people give you all kind of run around.",
+          "insight": "Susan's demand for verification is not paranoia — it is learned behavior from prior scam experiences. The interactive checklist gives the guest a structured way to do exactly what Susan demanded: see the space and make sure everything is legit. Each confirmed item converts anxiety into verified trust."
+        },
+        {
+          "source": "Susan  Bryant customer call.txt, 1:20",
+          "type": "guest_call",
+          "quote": "Would somebody else be in the place when she's there?",
+          "insight": "Co-occupancy is a critical verification item. If the guest arrives and encounters unexpected co-occupants, the listing's signifiers have failed. The checklist must include co-occupancy as an explicit verification item: 'Is the co-occupancy situation as described in the listing?'"
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Discoverability",
+          "type": "book",
+          "quote": "Two of the most important characteristics of good design are discoverability and understanding. Discoverability: Is it possible to even figure out what actions are possible and where and how to perform them?",
+          "insight": "At move-in, the guest must discover what to verify and how to act on discrepancies. The checklist makes both discoverable: each item is a verification prompt (what to check), and the flag action reveals the available responses (contact host, review cancellation). Without this structure, the guest must improvise — and an improvising guest in a mismatched space is a guest who cancels and never returns."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Conceptual Models",
+          "type": "book",
+          "quote": "A good conceptual model allows us to predict the effects of our actions. Without a good model, we operate by rote, blindly; we do operations as we were told to do them; we can't fully appreciate why, what effects to expect, or what to do if things go wrong.",
+          "insight": "The branching checklist IS a conceptual model for move-in: confirm = proceed with confidence. Flag = here are your options. The guest can predict the effects of each action because the checklist makes the consequence structure visible."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The checklist presents items sequentially, one card at a time, with the current item expanded and subsequent items visible as collapsed titles. Each card shows the listing claim (e.g., 'Private bathroom') with the listing photo of that feature alongside, and two response buttons: confirm (check) and flag (flag icon).",
+        "loading": "If listing photos must be loaded for comparison (slow connection at the property), the photo area shows a skeleton pulse while the text claim and response buttons are immediately interactive. The guest can confirm or flag based on their physical observation without waiting for the photo to load.",
+        "empty": "If the listing has no verifiable claims (edge case: listing was created without structured data), the checklist shows a minimal version with generic items: 'Does the space match the photos?' 'Is the access code working?' 'Can you connect to Wi-Fi?'",
+        "error": "If the flag submission fails to send (network error), the system saves the flag locally and displays: 'Your report has been saved. It will be sent when you reconnect.' The guest's flagged items are never lost. If the photo upload fails, the text description is still submitted and the system prompts to retry the photo upload later.",
+        "success": "When all items are confirmed, the checklist collapses into a single-line summary: 'All items verified' with a green checkmark. The cancellation banner transitions to dismissible mode. The system stores the verification data as a trust signal that can be referenced in future interactions (e.g., review prompts: 'You verified this space matched the listing on arrival')."
+      },
+      "transition_principle": "Each confirmed item collapses with a smooth height reduction (250ms) and slides the next item into the primary position. Each flagged item expands with a height increase (300ms) to reveal the sub-flow. The overall checklist feels like a conversation: confirm, advance, confirm, advance — or flag, address, decide. Completed items stack above with minimal visual weight so the current item always dominates. The principle is: verification should feel like a guided walkthrough, not an administrative form.",
+      "timing": {
+        "response_target": "100ms for confirm/flag button tap feedback; 250ms for item collapse animation; 300ms for flag sub-flow expand; photo upload shows inline progress indicator",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing provides a decisive start to each transition (the guest sees their action registered instantly) with a natural settling motion. The 250ms collapse is fast enough to maintain flow between items but slow enough for the guest to see the confirmed item stack. At move-in, the guest is physically walking through the space — the interaction speed must match a walking pace, not a scrolling pace."
+      },
+      "journey_state_awareness": "The verification checklist is available only during the first 24 hours of the stay (aligned with the cancellation window). After 24 hours, the checklist results are archived and accessible from the stay history but no longer interactive. During the active lease, if the guest reports an issue that was verified at move-in (e.g., 'bathroom no longer private'), the system can reference the original verification: 'You verified this at move-in. Has something changed?' This creates a longitudinal trust record.",
+      "edge_cases": [
+        "Guest arrives late at night and wants to complete the checklist in the morning — the system allows partial completion and resumes where the guest left off, with the cancellation window timer still running independently",
+        "Guest's friend (the actual occupant in the proxy scenario) arrives while Susan is not present — the checklist must be accessible to the occupant, not just the coordinator, and flagged items notify both roles",
+        "Guest confirms all items but later discovers a hidden issue (e.g., noisy neighbors not mentioned in the listing) — the checklist verification does not waive the guest's right to report issues; the system provides a separate 'Report Issue' path in the Stays Manager",
+        "Host has updated the listing since the guest booked — the checklist uses the listing snapshot at the time of booking, not the current listing, to prevent post-hoc modifications from invalidating the guest's expectations",
+        "Guest with accessibility needs cannot complete photo-dependent verification — the checklist must work with text descriptions alone; photo comparison is supplementary, not required"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Proxy Booking Role-Aware Interaction Routing",
+      "journey_phases": ["proposal_creation", "acceptance", "active_lease"],
+      "problem": "Susan is booking for a friend from Oregon. She says 'I can give you a deposit on her behalf' (2:34) and 'I'm setting up all appointments for her' (3:58-4:31). The platform's interaction model assumes one user performs all actions. When two people share a booking, the system must route interactions to the appropriate role: payment confirmations go to the coordinator (Susan), check-in instructions go to the occupant (friend), and negotiation updates go to both. Norman's signifier principle requires that 'people need some way of understanding the product or service they wish to use, some sign of what it is for, what is happening, and what the alternative actions are.' In a proxy booking, the 'what actions are available' question depends entirely on WHOSE role the current user occupies. The interaction challenge is: how does the system behave differently for the coordinator versus the occupant, and how does it communicate which role the current user is operating in?",
+      "solution": "When 'Booking for someone else' is selected, the system activates a role-aware interaction layer that routes actions, feedback, and notifications based on role. The role toggle at proposal start (two cards: 'Booking for myself' / 'Booking for someone else') uses a scale and background-color animation (200ms) on selection. Once proxy mode is active, the system behaves differently at each phase. During proposal creation, the form fields adapt: payment fields are labeled 'Your payment' (coordinator) while occupant fields are labeled with the friend's name once entered, or 'Guest' before entry. During negotiation, the timeline sends separate notifications to each role: the coordinator receives logistics-focused summaries ('Rita accepted your proposal. Payment of $X will be processed.'), while the occupant receives stay-focused summaries ('Your stay at Rita's condo is confirmed. Check-in details will arrive 24 hours before.'). During the active lease, the Stays Manager renders a role-appropriate primary view: the coordinator sees payment history, date change tools, and scheduling controls. The occupant sees the House Manual, check-in details, and review prompts. Each view has a toggle to access the other role's view ('View guest details' / 'View coordinator details'). Actions are constrained by role: the coordinator can pay and reschedule, the occupant can check in, upload cleaning photos, and write reviews. The interaction principle is: the system always knows who it is talking to and adapts its behavior, actions, and feedback accordingly — two users, one booking, two tailored experiences.",
+      "evidence": [
+        {
+          "source": "Susan  Bryant customer call.txt, 2:34",
+          "type": "guest_call",
+          "quote": "I like to see the place and I can give you a deposit on her behalf and she's ready to come whenever I can find her spot.",
+          "insight": "Susan describes a clear role split: she pays, the friend occupies. The system must route payment actions to Susan and occupancy actions to the friend — mixing them creates confusion for both users."
+        },
+        {
+          "source": "Susan  Bryant customer call.txt, 3:58-4:31",
+          "type": "guest_call",
+          "quote": "She's going to be out most of the day, you know, she has done appointments and all I'm setting up all appointments for her.",
+          "insight": "Susan manages logistics remotely while the friend is physically present. During the active lease, the coordinator needs scheduling tools and payment controls; the occupant needs the House Manual and host contact. Sending both users the same interface wastes their attention and violates Norman's feedback prioritization principle."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Signifiers",
+          "type": "book",
+          "quote": "People need some way of understanding the product or service they wish to use, some sign of what it is for, what is happening, and what the alternative actions are.",
+          "insight": "In a proxy booking, the 'alternative actions' are role-dependent. Susan's available actions (pay deposit, manage schedule) are different from the friend's (check in, verify space, write review). Each user needs signifiers that communicate THEIR available actions, not the full set of all possible actions."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Conceptual Models",
+          "type": "book",
+          "quote": "Good conceptual models are the key to understandable, enjoyable products: good communication is the key to good conceptual models.",
+          "insight": "The proxy booking requires a two-role conceptual model. If the system presents a single-user model to two people with different roles, both will struggle to understand which actions belong to them and which belong to the other person."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The role toggle is visible at the start of the proposal flow. Once proxy mode is active, a persistent role indicator badge appears at the top of the booking view: 'Managing for [Friend's Name]' (coordinator view) or 'Your stay, managed by [Susan's Name]' (occupant view). All subsequent screens respect the active role.",
+        "loading": "When switching between coordinator and occupant views ('View guest details' toggle), a brief cross-fade (200ms) transitions the panel content. The role indicator badge updates simultaneously. If the other role's data must be fetched, a skeleton placeholder maintains layout stability.",
+        "empty": "Before the occupant has been added, the occupant section shows a minimal prompt: 'Add your guest's details — name, arrival date, and any special needs.' The coordinator section is immediately active because Susan is the current user. If the occupant never creates an account, their view remains accessible only to the coordinator (who can show it to the friend on their phone).",
+        "error": "If role assignment conflicts arise (e.g., both users attempt to modify the same date), the system uses last-write-wins with a notification to the other role: 'Susan changed the stay dates to March 10-14. If this is incorrect, tap to update.' The error state never blocks either user — conflicts are resolved through notification, not locks.",
+        "success": "When both roles have completed their respective onboarding (coordinator: payment setup; occupant: profile creation), the booking displays a 'Both roles ready' confirmation. During the active lease, successful actions by one role are confirmed to the other: 'Susan confirmed payment for March' (sent to occupant) or 'Your guest checked in at 6:00 PM' (sent to coordinator)."
+      },
+      "transition_principle": "Role switches use a cross-fade (200ms) rather than a navigation transition because both views represent the same booking — the user is not going to a different place, they are seeing the same place from a different perspective. The role indicator badge uses a color-coded left border (purple for coordinator, blue for occupant, matching Layer 3 visual patterns) to maintain spatial continuity during the switch. The principle is: role changes feel like rotating an object to see a different face, not like navigating to a different page.",
+      "timing": {
+        "response_target": "100ms for role toggle tap feedback; 200ms for role-switch cross-fade; notifications to the other role delivered within 5 minutes of the triggering action",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing provides a smooth cross-fade that settles naturally. The 200ms duration is fast enough to feel like a perspective shift rather than a page load. The 5-minute notification window ensures both roles stay informed without requiring real-time synchronization, which would add unnecessary complexity for actions that are not time-critical."
+      },
+      "journey_state_awareness": "At proposal creation, the role toggle determines which fields are shown. At negotiation, it determines whose notification templates are used. At acceptance, both roles receive confirmation but with role-appropriate content. During the active lease, the Stays Manager defaults to the active user's role view but provides easy access to the other view. If the occupant has not created an account, the coordinator sees both views and can share the occupant view via a link or screen share.",
+      "edge_cases": [
+        "Susan's friend never creates an account — the coordinator must be able to complete all booking actions solo, with the option to invite the occupant later",
+        "The occupant wants to take over coordination (e.g., Susan becomes unavailable) — the system must support role transfer, with both parties confirming the change",
+        "Three-party scenario: Susan books, her friend stays, a third person (Susan's father, mentioned at 6:50) is also involved — the system's two-role model handles this by allowing the coordinator to invite additional contacts who receive read-only status updates",
+        "The occupant and coordinator attempt to communicate through the platform's messaging with the host simultaneously — messages should be threaded and attributed to the sender's role to avoid host confusion",
+        "Accessibility: screen readers must announce the current role context when the view loads ('You are viewing the coordinator view for this booking')"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "System Identity Reinforcement Through Interactive Onboarding Moments",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Susan misidentifies Split Lease as a real estate brokerage (4:55: 'Real estate Agent'). She does not understand the non-continuous nights model ('Like seven nights a week?' at 0:43). Bryant must explain the concept three times across the call. Norman warns that 'hand-lettered signs pasted on products are the equivalent of poor design' — when you need to explain what something is, the design has failed. The interaction challenge extends beyond static signifiers (addressed in Layers 2 and 3): when the guest first interacts with the platform, how does the system behave to teach the non-continuous model through interaction rather than explanation? The guest's first tap, first search, and first listing evaluation must each reinforce the conceptual model through the system's response to their actions.",
+      "solution": "The system teaches the non-continuous model through three progressive interaction moments that respond to the guest's behavior, not through a tutorial or explainer video. (1) First visit: when a new guest lands on the platform and taps any listing card, the first listing they open includes a brief inline overlay (not a modal, not a popup — an inline element at the top of the listing page) that says: 'This space is available part-time. Pick the nights you need — hosts share their space the rest of the time.' The overlay has a 'Got it' dismissal that uses a subtle scale-down animation (1.0 to 0.95 to 0, 300ms). It appears only once, on the first listing view. (2) First search: when the guest uses the search filter for the first time, the schedule preset selector includes a one-line contextual hint below the presets: 'Most guests book weekdays. Pick the nights that match your schedule.' The hint fades out after the guest makes their first selection (opacity 1.0 to 0.0, 500ms, with height collapse). (3) First proposal: when the guest begins configuring a proposal, the translation summary bar starts with a brief animated example before the guest has made selections: it shows a cycling display ('Example: Mon-Fri for 1 month = 20 nights') that animates through 2-3 example configurations over 5 seconds, then settles into the placeholder state awaiting the guest's input. This teaches the translation mechanic through observation, not instruction. The principle is: the system teaches its core concept through the guest's own interactions with it, not through pre-interaction explanations. Each teaching moment is brief, contextual, and non-blocking.",
+      "evidence": [
+        {
+          "source": "Susan  Bryant customer call.txt, 4:55",
+          "type": "guest_call",
+          "quote": "Real estate Agent.",
+          "insight": "Susan has no conceptual model for what Split Lease is. The interactive onboarding moments correct this not by explaining the company but by showing the model in context: the first listing reveals 'available part-time,' the first search shows schedule presets, the first proposal demonstrates the night-count translation."
+        },
+        {
+          "source": "Susan  Bryant customer call.txt, 0:43",
+          "type": "guest_call",
+          "quote": "Like seven nights a week?",
+          "insight": "Susan's default is full-time occupancy. The cycling example in the proposal summary bar ('Mon-Fri for 1 month = 20 nights') directly confronts this default by showing a part-time configuration as the norm, not the exception."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 The System Image",
+          "type": "book",
+          "quote": "When the system image is incoherent or inappropriate, then the user cannot easily use the device. If it is incomplete or contradictory, there will be trouble.",
+          "insight": "The three progressive interaction moments build a coherent system image through repeated, consistent signifiers: 'part-time' on the listing, 'pick your nights' in search, 'nights per week = total' in the proposal. Each interaction reinforces the same conceptual model from a different angle."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Signifiers",
+          "type": "book",
+          "quote": "Signifiers signal things, in particular what actions are possible and how they should be done. Signifiers must be perceivable, else they fail to function.",
+          "insight": "The onboarding moments are interaction-level signifiers: they signal what the platform IS by responding to the guest's first actions with contextual information about the service model. Each signifier is perceivable because it appears at the moment of interaction, not on a separate 'About' page."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "For first-time visitors: inline overlay on first listing, contextual hint on first search, cycling example on first proposal. For returning visitors: all onboarding moments are suppressed (tracked via local storage or account flag). The platform behaves as if the guest already understands the model.",
+        "loading": "The onboarding moments are lightweight UI elements that require no server data. They render from local templates within the same paint cycle as the parent component. No loading state is visible to the guest — the moments appear as part of the natural page render.",
+        "empty": "Not applicable — these moments are system-initiated, not dependent on user-generated content.",
+        "error": "If the onboarding flag fails to persist (local storage unavailable), the moments may re-appear on a subsequent visit. This is acceptable — seeing the onboarding moment twice is a minor annoyance, while missing it entirely leaves the guest without the conceptual model. The fallback behavior errs on the side of over-communication.",
+        "success": "When the guest dismisses the first-listing overlay ('Got it'), the system records the dismissal and never shows it again. When the guest makes their first search selection, the contextual hint fades and never returns. When the guest begins configuring the proposal, the cycling example stops and transitions to the real summary. Each successful interaction teaches the concept and then gets out of the way."
+      },
+      "transition_principle": "All onboarding moments use exit animations that convey departure rather than deletion: the first-listing overlay scales down and fades (300ms), the search hint fades and collapses (500ms), the cycling example cross-fades into the real summary (400ms). The principle is: teaching moments should feel like a guide stepping aside after pointing the way, not like a popup being dismissed.",
+      "timing": {
+        "response_target": "First-listing overlay appears within 500ms of listing page load (after the main content is rendered). Search hint appears inline with the search filter render. Cycling example begins on proposal page load and runs for 5 seconds before settling.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for exit animations; cubic-bezier(0.34, 1.56, 0.64, 1) for the cycling example transitions between configurations",
+        "rationale": "The 'out' easing for exits ensures teaching moments depart smoothly. The 'spring' easing from tokens.json for the cycling example adds a subtle bounce that makes the rotating configurations feel playful and attention-worthy — it signals 'watch this' without being aggressive. The 5-second cycling duration is long enough for the guest to observe 2-3 configurations but short enough to not feel like a tutorial."
+      },
+      "journey_state_awareness": "The onboarding moments are exclusively first-visit behaviors. The system tracks which moments have been shown and never repeats them. If the guest arrives via a referral link from Bryant (the human intermediary scenario from the call), the first-listing overlay adds Bryant's name: 'Bryant connected you to this listing. This space is available part-time — pick the nights you need.' This bridges the human-to-digital handoff that Layer 1 identified as the highest-risk transition.",
+      "edge_cases": [
+        "Guest clears browser data and revisits — onboarding moments re-appear. This is preferable to the guest missing them entirely, but if the guest has an account, the flag should be stored server-side to prevent repetition across devices",
+        "Guest arrives directly on a listing page via a shared link (skipping discovery and search) — the first-listing overlay still appears because it is the first listing they view, regardless of entry path",
+        "Guest is a returning user who previously used a different Split Lease feature (e.g., listed a space as a host) — the onboarding moments for the guest journey should still appear because the guest experience is distinct from the host experience",
+        "Screen reader users — the inline overlay must be announced as a supplementary description, not as an alert that interrupts the listing content. The 'Got it' dismissal must be keyboard-accessible",
+        "Guest's browser has JavaScript disabled — the onboarding moments degrade gracefully to static text that appears as part of the page content, without animations"
+      ]
+    }
+  ]
+}

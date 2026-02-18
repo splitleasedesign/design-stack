@@ -1,0 +1,253 @@
+{
+  "lens": {
+    "guest_call": "Tamycka initial phone call.txt",
+    "book_extract": "cialdini-commitment-socialproof.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-0930-001",
+      "type": "interaction_pattern",
+      "title": "Micro-Commitment State Escalation on Listing Page",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "The listing page currently has only two interaction states: browsing (passive) and submitting a proposal (high-commitment). There is no intermediate state that lets the guest take a small, voluntary action that shifts their self-image from browser to prospect. Cialdini's foot-in-the-door research shows that a 76% compliance rate on a large request follows a small prior commitment. Without intermediate states, the guest must leap from zero commitment to full proposal, which triggers commitment anxiety, especially for a budget-constrained parent like Tamycka who is evaluating whether she can afford this and whether it is safe for her children.",
+      "solution": "Add three intermediate interaction states to the listing page that escalate commitment gradually: (1) 'Save Listing' with optional note -- a written micro-commitment per Cialdini Ch. 3. (2) 'Configure Your Stay' -- selecting days and seeing the live price calculator updates without creating a formal proposal. This is a commitment-without-consequence that shifts self-image. (3) 'Start Proposal' -- the configured stay becomes a draft proposal. Each state change updates the visual treatment (looks-0930-001 graduated purple intensity) and persists across sessions. The transitions between states must feel self-directed and reversible (Cialdini's 'inner choice' principle), not gated or pressured.",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Foot-in-the-door, Freedman & Fraser)",
+          "type": "book",
+          "quote": "A full 76 percent of them offered the use of their front yards...The prime reason for their startling compliance has to do with something that had happened to them about two weeks earlier: They had made a small commitment to driver safety.",
+          "insight": "Small commitments produce disproportionate subsequent compliance. The listing page needs intermediate commitment states between browsing and proposal submission."
+        },
+        {
+          "source": "Tamycka initial phone call.txt, 10:07-10:16",
+          "type": "host_call",
+          "quote": "how does that process work? Like, do I send money? And then there's a lockbox and then I have a security code, like, is that how it works?",
+          "insight": "Tamycka wants to understand the process before committing. Intermediate interaction states let her experience each step incrementally rather than imagining the entire sequence."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Inner choice)",
+          "type": "book",
+          "quote": "We accept inner responsibility for a behavior when we think we have chosen to perform it in the absence of strong outside pressures.",
+          "insight": "Each state transition must feel voluntary. No urgency timers, no forced gates, no pressure copy. The guest chooses to escalate."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Listing page in browse mode. Save button visible but not emphasized. Configure section collapsed. Purple intensity at minimum (bg-off-white). Guest is a viewer.",
+        "loading": "When loading live price calculation after day configuration, show a skeleton shimmer on the price calculator panel with the last known total visible at reduced opacity. Never show a spinner -- the price update should feel instant (under 300ms) or use optimistic rendering.",
+        "empty": "If the guest has no saved listings and no configured stays, the listing page shows the full listing content with a subtle prompt: 'Select your days to see your price.' No empty state error -- the page is complete without interaction.",
+        "error": "If price calculation fails (network error, unavailable dates), show the last known valid price with a subtle inline notice: 'Price shown may not reflect today's availability. Tap to refresh.' Never clear the price display on error -- that destroys the commitment anchor.",
+        "success": "After saving a listing, a brief confirmation appears inline (not a modal): 'Saved to your list' with an undo option. After configuring days, the price calculator updates with a subtle highlight animation. After starting a draft proposal, the page transitions to the proposal creation view with continuity (the configured days and price carry over without re-entry)."
+      },
+      "transition_principle": "Each state transition should feel like a natural next step, not a mode change. Save -> Configure -> Draft Proposal should flow as a single continuous interaction, with each step deepening the visual purple intensity (per looks-0930-001) without jarring layout shifts. The guest should be able to reverse any step without penalty.",
+      "timing": {
+        "response_target": "Under 200ms for save action, under 300ms for price recalculation, under 500ms for draft proposal creation",
+        "easing": "ease-out (--easing-ease-out) for forward transitions (escalating commitment feels settled), ease-in-out for reversals (de-escalating feels smooth, not punishing)",
+        "rationale": "Cialdini's racetrack effect shows confidence increases after commitment. Fast response times reinforce the confidence spike. Slow responses create doubt windows."
+      },
+      "journey_state_awareness": "If the guest has already saved this listing in a prior session, open the page in the 'interest' state with the save already reflected. If they have a draft proposal, open in the 'commitment' state with their configured days pre-loaded. Never reset the guest to browse state if they have already escalated -- that undoes their commitment.",
+      "edge_cases": [
+        "Guest configures days but the host has since marked those days unavailable -- show the configuration with unavailable days flagged, not a blank reset",
+        "Guest saves a listing then the host delists it -- show a 'This listing is no longer available' state with a link to similar listings, preserving the guest's investment in their search",
+        "Guest has multiple draft proposals across different listings -- the most recent draft should surface first, with a clear indicator of other active drafts",
+        "Price changes between configuration and proposal submission -- show the delta explicitly ('Price updated from $X to $Y since you configured') per works-0930-004 anti-lowball principle"
+      ]
+    },
+    {
+      "id": "behaves-0930-002",
+      "type": "interaction_pattern",
+      "title": "Social Proof Badge Loading and Progressive Disclosure",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "Social proof data (similar guest counts, family-friendly ratings, average stay length) may be sparse for new listings or may require asynchronous loading from multiple data sources. If the social proof badge area shows a loading state or empty state, the absence of social proof becomes a negative signal: 'No one like me has stayed here.' For a guest like Tamycka, whose uncertainty about child safety is the primary decision gate, an empty social proof badge is worse than no badge at all -- it confirms her fear that no other parent has validated this space. Cialdini: 'when we are unsure of ourselves...we are most likely to look to and accept the actions of others as correct.' Absent social proof amplifies uncertainty rather than reducing it.",
+      "solution": "Design the social proof badge system with careful handling of loading and empty states: (1) Loading: Show the badge container with a subtle shimmer animation on the text area. The container shape (pill badge per looks-0930-002) is visible immediately, signaling that social proof data exists and is being fetched. Never show 'Loading...' text -- the shimmer is sufficient. (2) Empty (no similar guests): Do NOT show an empty badge. Instead, show a contextual alternative: 'Be the first family to review this space' (reframes absence as opportunity, not evidence of risk). (3) Low count (1-2 similar guests): Show the badge with a qualification: '1 family has stayed here' with no star rating (a single data point is not statistically meaningful). (4) Sufficient count (3+): Show the full badge: '3 families with children | Avg. stay: 8 weeks.' The threshold of 3 is based on communicates-0930-002's exclusion rule: 'do not show social proof numbers that are too small to be credible.'",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 4 (Social proof under uncertainty)",
+          "type": "book",
+          "quote": "when we are unsure of ourselves, when the situation is unclear or ambiguous, when uncertainty reigns, we are most likely to look to and accept the actions of others as correct.",
+          "insight": "The empty state of social proof badges must not amplify uncertainty. Absence of similar-other evidence must be reframed, not displayed as zero."
+        },
+        {
+          "source": "Tamycka initial phone call.txt, 04:19-04:24",
+          "type": "host_call",
+          "quote": "As long as we're able to disinfect.",
+          "insight": "Tamycka's child safety concern is a gating uncertainty. If the social proof badge for family-friendliness shows nothing or shows 'No family reviews yet,' it confirms her worst fear: no other parent has tested this space."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 4 (Bandura phobia treatment)",
+          "type": "book",
+          "quote": "nursery-school-age children chosen because they were terrified of dogs merely watched a little boy playing happily with a dog for twenty minutes a day...67 percent of them were willing to climb into a playpen with a dog.",
+          "insight": "Even minimal similar-other evidence (one child playing with a dog) resolves fear. But zero evidence maintains it. The threshold for showing social proof should be low (1+), with the framing adjusted for credibility."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Social proof badge displays with full data: guest count, family count, average stay length. DM Sans typography per looks-0930-002. Pill shape, bg-off-white background.",
+        "loading": "Badge container with shimmer animation on text area. Pill shape visible. Icon placeholder visible. No text content. Duration: under 1 second for cached data, under 3 seconds for fresh fetch.",
+        "empty": "No badge displayed. Instead, a subtle inline text appears in the social proof zone: 'Be the first family to review this space' in --text-gray, DM Sans 12px. This reframes absence as invitation.",
+        "error": "If social proof data fetch fails, hide the badge entirely. Do not show an error state for social proof -- it is supplementary data, not critical functionality. The listing page must function fully without it.",
+        "success": "Badge renders with a subtle fade-in (opacity 0 to 1, 200ms, ease-out). Numbers within the badge use --font-weight-semibold per looks-0930-002 to draw the eye to the evidence."
+      },
+      "transition_principle": "Social proof badges should appear as natural metadata, not as dramatic reveals. The fade-in should be subtle enough that returning visitors do not notice it. New data points (e.g., a new family review) should update without animation -- the badge simply reflects the current state.",
+      "timing": {
+        "response_target": "Under 1 second for cached data, under 3 seconds for fresh API call. Badge should never block listing page rendering.",
+        "easing": "ease-out for fade-in (arrives and settles), no animation for data updates",
+        "rationale": "Social proof must feel like observed evidence, not a marketing animation. Settled, factual presentation mirrors the DM Sans typographic choice: evidence voice, not promotional voice."
+      },
+      "journey_state_awareness": "If the guest has indicated children in their profile or search filters, prioritize family-specific social proof data in the badge. If the guest's configured schedule matches the recurring pattern (e.g., Thursday-Friday-Saturday), show 'X guests share your schedule' as additional social proof. The badge content should adapt to what the platform knows about the guest's situation.",
+      "edge_cases": [
+        "Listing has many reviews but none from families -- show general social proof ('12 recurring guests') without the family-specific line, avoiding the implication that families have been evaluated and found wanting",
+        "Guest views listing on a slow connection -- badge container renders immediately with shimmer, ensuring the guest knows social proof exists even before data loads",
+        "Social proof data is stale (guest count has changed since last cache) -- serve cached data immediately, then silently update if fresh data differs",
+        "Listing is brand new with zero stays -- show 'New listing' badge instead of social proof. Reframe newness as opportunity: 'New listing -- be among the first guests'"
+      ]
+    },
+    {
+      "id": "behaves-0930-003",
+      "type": "interaction_pattern",
+      "title": "Price Calculator Live Update with Anti-Lowball Protection",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "Tamycka's price sensitivity ('more a price than it is location') means the price calculator is the most interacted-with element on the listing page. Every day-selection change, every duration adjustment triggers a price recalculation. If the price update is slow, shows inconsistent numbers during calculation, or reveals unexpected costs after configuration, it triggers Cialdini's lowball perception: 'An advantage is offered that induces a favorable purchase decision; then...the original purchase advantage is deftly removed.' The interaction pattern for price updates must be instant, consistent, and transparent to prevent any perception of price manipulation.",
+      "solution": "The price calculator follows a strict interaction protocol: (1) Optimistic update: When the guest changes a day or duration, the total updates instantly using client-side calculation with the known nightly rate. This optimistic value is displayed immediately. (2) Server validation: A background request validates the optimistic calculation against actual availability and any dynamic pricing rules. If the server-validated price matches the optimistic price, no visible change occurs. (3) Delta disclosure: If the server-validated price differs (e.g., a day is no longer available, or a bulk discount threshold was crossed), the calculator shows the change explicitly: 'Updated: $675 -> $690 (Saturday Jan 18 unavailable at original rate).' The delta is always explained. (4) Fee inclusion: All fees are included in the displayed total from the first calculation. An expandable 'Price breakdown' shows components but the headline total is always the final number. Per works-0930-004: 'Never remove a price advantage after the guest has mentally committed.'",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Lowball technique)",
+          "type": "book",
+          "quote": "An advantage is offered that induces a favorable purchase decision; then, sometime after the decision has been made but before the bargain is sealed, the original purchase advantage is deftly removed.",
+          "insight": "Any unexplained price change during configuration triggers the lowball perception. The calculator must show deltas explicitly when prices change."
+        },
+        {
+          "source": "Tamycka initial phone call.txt, 05:26-05:28",
+          "type": "host_call",
+          "quote": "I think we could get you under $75 a night.",
+          "insight": "Tamycka has been verbally anchored at sub-$75/night. The calculator must show whether her configuration achieves this anchor. If it does: 'Your rate: $68/night -- below the $75 target.' If it does not: explain why transparently."
+        },
+        {
+          "source": "Tamycka initial phone call.txt, 17:15-17:22",
+          "type": "host_call",
+          "quote": "for me, it's more a price than it is location...I have to budget for right now",
+          "insight": "Budget constraint means every dollar matters. The calculator must never show a tentative price that later increases. Optimistic calculation should err on the side of showing the higher possible price, not the lower."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Price calculator shows the total for the guest's configured schedule in Inter 28px/700 --primary-purple (per looks-0930-004). Per-night rate shown as secondary. Savings indicator shown if bulk discount applies. 'Includes all fees' line visible at bottom.",
+        "loading": "During server validation (background, after optimistic update), a subtle progress indicator appears below the total -- a thin line animation in --accent-purple that does not obscure or replace the displayed price. The optimistic price remains visible and readable.",
+        "empty": "If no days are selected, show a prompt: 'Select your days to see your price' in --text-gray. Do not show $0 or a blank price field -- that implies the space is free or broken.",
+        "error": "If server validation fails, keep the optimistic price displayed with a subtle notice: 'Price shown is an estimate. Tap to refresh for the latest rate.' Never clear the price on error -- the guest's mental anchor must be preserved.",
+        "success": "When server validation confirms the optimistic price, the progress indicator disappears silently. When a bulk discount threshold is crossed, the savings indicator animates in with a brief highlight: 'You save $180 vs. nightly rates' in --success-green (#4B47CE, which is purple in Split Lease)."
+      },
+      "transition_principle": "Price changes should feel like a live calculation responding to the guest's choices, not like a system determining their fate. The total number updates fluidly (number counter animation, 200ms) without layout shifts. The savings indicator appears when earned and disappears when not -- never in a way that feels like a penalty for removing nights.",
+      "timing": {
+        "response_target": "Under 100ms for optimistic client-side update, under 500ms for server validation. Bulk discount threshold animation: 300ms ease-out.",
+        "easing": "ease-out for number updates (arrives at final value and settles), ease-in-out for savings indicator appear/disappear",
+        "rationale": "Price is the most anxiety-laden element for Tamycka. Instant response times reduce the uncertainty window. Settled easing (ease-out) conveys finality -- 'this IS your price' -- not bouncy or playful motion."
+      },
+      "journey_state_awareness": "If the guest has visited this listing before and had a prior configuration, restore their last configuration and show the current price for it. If prices have changed since their last visit, show the delta: 'Price has changed since your last visit: was $X, now $Y.' For returning guests who have submitted proposals before, show their proposal history price alongside the current calculator.",
+      "edge_cases": [
+        "Guest configures 29 nights (one below the 30-night bulk discount threshold) -- show a nudge: 'Add 1 more night to unlock the bulk rate: save $X.' This is not pressure, it is transparent information per works-0930-004",
+        "Host changes pricing between the guest's configuration session and proposal submission -- show explicit delta at proposal submission, never silently update",
+        "Guest's configuration spans a date when dynamic pricing changes (e.g., holiday surcharge) -- show the blended rate with a breakdown by price period",
+        "Network is offline after initial page load -- client-side calculator continues to work with cached rates, with a notice: 'Prices may not reflect latest availability'"
+      ]
+    },
+    {
+      "id": "behaves-0930-004",
+      "type": "interaction_pattern",
+      "title": "Weekly Micro-Review Prompt in Stays Manager",
+      "journey_phases": ["active_lease"],
+      "problem": "The weekly micro-review (works-0930-003) requires an interaction pattern that feels like a natural part of the post-stay workflow, not an interruption or obligation. Cialdini's 'inner choice' principle demands that the review feels self-directed: 'We accept inner responsibility for a behavior when we think we have chosen to perform it in the absence of strong outside pressures.' If the review prompt is too aggressive (modal, blocking), it feels coerced and produces low-quality compliance. If it is too passive (buried in a menu), it produces no reviews at all. The interaction pattern must find the narrow zone between these extremes: visible, inviting, but never mandatory.",
+      "solution": "Design the micro-review prompt as an inline card in the Stays Manager that appears after a completed stay: (1) The card appears in the stay timeline (communicates-0930-004) at the position of the most recent completed stay. (2) The card shows: 'How was your stay on [date]?' with a one-tap 5-star rating and an optional one-line text field. (3) The card is dismissible with a single tap (X or 'Skip'). Dismissal is not penalized -- no guilt copy, no 'Are you sure?' confirmation. (4) After rating, the card transitions to a completed state showing the guest's rating and a brief acknowledgment: 'Thanks -- your rating helps other families find the right fit.' This copy leverages social proof (the guest is contributing to others' decisions) as a reward signal. (5) If the guest adds a text note, it is saved as an additional written commitment per Cialdini's written declaration principle. (6) After 3+ completed reviews, show the accumulation: 'Your 4th review -- your average: 4.6.' This surfaces the commitment evidence timeline (communicates-0930-004).",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Inner choice)",
+          "type": "book",
+          "quote": "We accept inner responsibility for a behavior when we think we have chosen to perform it in the absence of strong outside pressures.",
+          "insight": "The review prompt must be inviting but not coercive. Voluntariness is essential for inner responsibility, which produces durable commitment."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Written commitments)",
+          "type": "book",
+          "quote": "a written declaration has some great advantages. First, it provides physical evidence that the act occurred.",
+          "insight": "The text note option transforms a one-tap rating into a written commitment. Even a single word increases the commitment strength because it is recorded."
+        },
+        {
+          "source": "Tamycka initial phone call.txt, 19:19-19:36",
+          "type": "host_call",
+          "quote": "one of the things that people do is they'll leave stuff for their kids...he leaves toys, his daughter's toys at the location.",
+          "insight": "Physical investment (toys) and digital investment (reviews) both deepen commitment. The platform should facilitate both, making each visible to the guest."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Review prompt card appears inline in the Stays Manager timeline after a completed stay. Card shows: date, star rating selector (5 empty stars), optional text field (collapsed), and dismiss button. Visual treatment: bg-white card with border-color border, rounded-xl, no shadow (flat, not elevated -- it is part of the timeline, not a popup).",
+        "loading": "If submitting the review requires server confirmation, the star rating selection is immediately reflected (optimistic UI) with a subtle sending indicator. The card does not change layout during submission.",
+        "empty": "If the guest has no completed stays, no review prompt appears. The Stays Manager shows only upcoming stays and the general timeline.",
+        "error": "If review submission fails, the card retains the guest's selection with a subtle notice: 'Could not save -- tap to retry.' The guest's input is never lost.",
+        "success": "After rating, stars fill with --chat-purple and the card transitions to completed state: 'Thanks -- your rating helps other families find the right fit.' The card remains in the timeline as part of the commitment evidence (it is the physical evidence Cialdini describes). The text field, if used, shows the guest's note in a subtle quote style."
+      },
+      "transition_principle": "The review card should appear as a natural timeline entry, not as a popup or modal. It scrolls with the timeline. Completion transitions should feel quiet and settled -- a brief color fill on the stars, a text swap from prompt to acknowledgment. No celebration animation (confetti, checkmarks) -- the act of reviewing should feel like documenting, not performing.",
+      "timing": {
+        "response_target": "Star selection response: under 50ms (immediate color fill). Submission: under 500ms with optimistic UI. Card transition to completed state: 300ms ease-out.",
+        "easing": "ease-out for star fill and card transition (settled, not bouncy)",
+        "rationale": "Reviews are commitment acts. The interaction should feel consequential but not dramatic. Quick, settled responses convey 'this was recorded' without theatrical confirmation."
+      },
+      "journey_state_awareness": "Show the review prompt only for stays completed in the last 7 days. Older stays show a 'Rate this stay' link in the timeline entry but not the full prompt card. If the guest has dismissed the prompt 3 times consecutively, reduce frequency to every other stay (respect their preference without removing the option entirely). If the guest has reviewed 5+ stays, show their running average as part of the prompt: 'Your average: 4.7 across 5 stays.'",
+      "edge_cases": [
+        "Guest's stay was disrupted (early checkout, maintenance issue) -- the review prompt should still appear but with adjusted framing: 'How was your stay?' not 'How was your wonderful stay?'",
+        "Guest submits a 1 or 2 star rating -- do not show defensive copy. Show the same acknowledgment. Low ratings are still commitment evidence and valuable feedback.",
+        "Guest tries to edit a submitted review -- allow editing within 24 hours. After that, the review is fixed as commitment evidence (per Cialdini: once written, it becomes physical evidence).",
+        "Network is offline when guest taps a star -- queue the rating locally and submit when connection returns. Show a subtle 'Will save when online' notice."
+      ]
+    },
+    {
+      "id": "behaves-0930-005",
+      "type": "interaction_pattern",
+      "title": "Child-Safety Badge Verification Flow",
+      "journey_phases": ["listing_evaluation", "move_in"],
+      "problem": "The child-safety verification badge (works-0930-005, looks-0930-003) requires an interaction flow for both hosts (declaring safety features) and guests (validating after a stay). The guest-side interaction must feel like contributing to a community resource, not filing a compliance report. Cialdini's commitment principle (written declarations) and social proof principle (similar-other validation) converge here: each guest validation is both a written commitment by the guest and a social proof data point for future similar guests. If the validation interaction is too complex, guests skip it. If it is too simple, the data is meaningless. The interaction must be fast, specific, and meaningful.",
+      "solution": "After a guest with children completes a stay at a listing with the family-friendly badge, surface a compact validation card in the Stays Manager: (1) The card shows: 'You stayed at [listing] with your children. Were these safety features accurate?' followed by a checklist of the host's declared features (e.g., 'Disinfection between guests', 'Outlet covers available', 'Cleaning products secured'). (2) Each feature has a simple confirm/deny toggle (checkmark / X). (3) The guest can optionally add a one-line note per feature. (4) Submission updates the badge's verification level (looks-0930-003 graduated opacity). (5) The card appears AFTER the review prompt (behaves-0930-004), not simultaneously -- avoid overwhelming the guest with post-stay tasks. The validation is presented as an extension of the review, not a separate obligation.",
+      "evidence": [
+        {
+          "source": "Tamycka initial phone call.txt, 04:19-04:24",
+          "type": "host_call",
+          "quote": "As long as we're able to disinfect.",
+          "insight": "Disinfection is a non-negotiable prerequisite. The guest validation flow directly addresses this concern by letting other parents confirm whether the host's cleanliness claims hold up."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Public commitments / Deutsch & Gerard)",
+          "type": "book",
+          "quote": "by far, it was the students who had publicly recorded their initial positions who most resolutely refused to shift from those positions later.",
+          "insight": "Guest validations are semi-public written commitments that deepen the guest's own investment while creating social proof for others."
+        },
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 4 (Similarity condition)",
+          "type": "book",
+          "quote": "The principle of social proof operates most powerfully when we are observing the behavior of people just like us.",
+          "insight": "A parent's validation of child-safety features is maximally powerful social proof for other parents. The interaction flow must capture this parent-specific validation."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Validation card appears in the Stays Manager timeline after the review prompt has been completed or dismissed. Card shows the listing name, the host's declared safety features as a checklist, and a submit button. Visual treatment matches the review card: flat, inline, timeline-native.",
+        "loading": "During submission, the checklist items show a subtle confirmation animation (checkmarks fill with --success-green #4B47CE). The submit button shows a brief 'Saving...' state.",
+        "empty": "If the listing has no family-friendly declaration, no validation card appears. If the guest has not indicated children in their profile, no validation card appears. The flow is only triggered when both conditions are met: family listing + parent guest.",
+        "error": "If submission fails, retain all checked items and show: 'Could not save -- tap to retry.' Never clear the guest's selections.",
+        "success": "Card transitions to completed state: 'Thanks -- your verification helps other families.' The badge on the listing updates in the background. The guest's contribution is reflected in the stays timeline as a commitment event."
+      },
+      "transition_principle": "The validation flow should feel like a natural extension of the review, not a separate form. The card appears only after the review card is resolved (completed or dismissed), creating a logical sequence: 'How was your stay?' then 'Were the safety features as described?' This sequential disclosure prevents task overload.",
+      "timing": {
+        "response_target": "Checklist toggle: under 50ms. Submission: under 500ms with optimistic UI. Card transition: 300ms ease-out.",
+        "easing": "ease-out for all transitions",
+        "rationale": "Matching the review card's timing creates consistency. The validation should feel as easy and quick as the review -- a natural continuation, not a new effort level."
+      },
+      "journey_state_awareness": "Only show the validation card if the guest has children noted in their profile AND stayed at a listing with a family-friendly badge. If the guest has validated this listing before, do not re-prompt (once is sufficient per stay sequence). After the guest has validated 3+ listings, their validation carries 'experienced family reviewer' weight in the badge calculation.",
+      "edge_cases": [
+        "Host updates safety features between the guest's stay and the validation prompt -- show the current feature list, not the one from the time of stay",
+        "Guest denies a safety feature (e.g., says outlet covers were NOT available) -- this is a soft flag, not an immediate badge removal. Multiple denials trigger a review by the platform. The guest should not feel like they are filing a complaint, just providing information.",
+        "Guest has no children in profile but stayed with children -- the validation card does not appear. Consider adding a 'Traveled with children?' question to the review flow to capture this data.",
+        "Listing loses family-friendly status after a host update -- any pending validation cards for that listing are removed from guest timelines"
+      ]
+    }
+  ]
+}

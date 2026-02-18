@@ -1,0 +1,338 @@
+{
+  "lens": {
+    "host_call": "tammy-call.txt",
+    "book_extract": "kahneman-part2-heuristics-biases.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Validate Paired-Tenant Monthly Anchor Eliminates Pricing Rejection",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "evaluation", "pricing"],
+      "problem": "If the paired-tenant monthly total is not presented as the primary anchor, professional hosts will anchor on per-night or single-tenant figures and reject the platform's pricing model. The test must verify that leading with the monthly aggregate changes host pricing acceptance rates.",
+      "solution": "A/B test the pricing presentation with two variants: (A) Current: per-night rate as primary, monthly equivalent as secondary. (B) New: paired-tenant monthly total as primary, per-night breakdown on expansion. Measure pricing acceptance rate (host proceeds past pricing to listing creation) and time-to-decision.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 02:09",
+          "type": "host_call",
+          "quote": "The math doesn't add up.",
+          "insight": "This is the rejection moment that the anchor-first pricing must prevent. If the test shows similar rejection language in user testing, the intervention is failing."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring Index",
+          "type": "book",
+          "quote": "The anchoring effect was 41%... the professionals were almost as susceptible.",
+          "insight": "Even a 30-40% anchoring effect on pricing perception would meaningfully change acceptance rates. The test should detect effects of this magnitude."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Show 50 professional hosts (3+ properties, $3,000+/month anchors) two pricing presentation variants. Variant A: per-night rate primary. Variant B: paired-tenant monthly total primary. Measure: (1) Do they proceed to listing creation? (2) How long do they spend on the pricing screen? (3) What language do they use to describe the pricing? Record verbal reactions in moderated sessions.",
+      "success_criteria": "Variant B achieves at least 30% higher pricing acceptance rate than Variant A. Time-on-pricing-screen is at least 20% shorter in Variant B (indicating less deliberation/confusion). Qualitative: hosts in Variant B do not use 'doesn't add up' or equivalent rejection language.",
+      "failure_meaning": "If Variant B does not improve acceptance, the issue may not be presentation order but the actual income gap. If paired-tenant totals genuinely cannot reach professional host anchors, the pricing model itself needs adjustment, not just the presentation.",
+      "implementation_hint": "Playwright: Navigate to pricing page. Check that the first visible number element matches the monthly total format (contains '/month'). Check that per-night rate is not visible without scrolling or expanding. Analytics: Track 'pricing_screen_to_listing_creation' funnel conversion by variant."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Validate Guest Trust Profile Reduces Proposal Rejection Rate",
+      "validates_element": "works-002",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "Without employment-first proposal presentation, professional hosts reject proposals based on the availability heuristic (worst-case guest memories). The test must verify that leading with employment data increases proposal acceptance.",
+      "solution": "Compare proposal acceptance rates before and after implementing the employment-first trust profile. Track which specific data fields hosts view first and how long they spend before making accept/reject decisions.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 15:57",
+          "type": "host_call",
+          "quote": "If they're a nurse and they're going to be working at a particular hospital, I know where they're working.",
+          "insight": "Employment data is the decision-determining factor. The test must verify that making it the first-viewed field changes the decision."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Availability, Emotion, and Risk",
+          "type": "book",
+          "quote": "Personal experiences, pictures, and vivid examples are more available than incidents that happened to others.",
+          "insight": "Concrete employment details must be more available (vivid, specific) than abstract verification badges to counter negative availability."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Implement the Guest Trust Profile as the proposal header. Track: (1) Proposal open-to-accept rate. (2) Time-to-decision (how long between opening a proposal and accepting/rejecting). (3) Heatmap of where hosts look first when opening proposals. (4) Acceptance rate difference between proposals with complete employment data vs. incomplete employment data.",
+      "success_criteria": "Proposal acceptance rate increases by at least 15% after trust profile implementation. Time-to-decision decreases by at least 20% (hosts decide faster when trust data is front-loaded). Proposals with complete employment data have at least 25% higher acceptance rate than those without.",
+      "failure_meaning": "If acceptance rate does not change, employment data may not be the primary trust signal for all professional hosts, or the data quality may be insufficient (vague employer names, missing purpose). If time-to-decision increases, the trust profile may be adding cognitive load rather than reducing it.",
+      "implementation_hint": "Analytics events: 'proposal_opened', 'proposal_trust_profile_viewed', 'proposal_booking_details_viewed', 'proposal_accepted', 'proposal_rejected'. Track sequence and timing. Heatmap: Use session recording on the proposal view to identify first-view patterns."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Validate Vacancy-Season Entry Converts to Shoulder-Season Expansion",
+      "validates_element": "works-003",
+      "journey_phases": ["discovery", "pricing", "active_lease", "retention"],
+      "problem": "The vacancy-season entry strategy assumes that a successful first experience during low season will motivate hosts to expand to shoulder and peak seasons. The test must verify this graduation actually occurs, not just the initial trial.",
+      "solution": "Track a cohort of professional hosts who enter during vacancy season and measure their behavior in subsequent seasons. The graduation funnel: vacancy-season trial → shoulder-season listing → year-round listing.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 09:01",
+          "type": "host_call",
+          "quote": "If you want practice on one or try out one, put together something that's profitable for us both.",
+          "insight": "She frames the trial as an experiment. The test must verify whether successful experiments lead to expanded commitment."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring as Adjustment",
+          "type": "book",
+          "quote": "The adjustment typically ends prematurely, because people stop when they are no longer certain that they should move farther.",
+          "insight": "The graduated escalation depends on each success moving the host's certainty boundary. The test must check whether income from one season actually adjusts the host's expectations for the next."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Cohort analysis of professional hosts who complete at least one vacancy-season booking. Track: (1) Percentage who list for the following shoulder season (May-October). (2) Percentage who expand from vacancy-only to year-round. (3) Income trajectory across seasons. (4) Self-reported intent to continue (survey after vacancy season ends).",
+      "success_criteria": "At least 30% of vacancy-season trial hosts list for shoulder season. At least 15% expand to year-round within 12 months. Average income per unit increases from vacancy season to shoulder season (indicating the host is willing to accept the model at higher-stakes periods).",
+      "failure_meaning": "If graduation does not occur, the vacancy-season experience may be perceived as 'good enough for empty months but not for real months.' This would indicate that the affect heuristic generalization (positive vacancy experience → positive platform perception) is not working, and the host maintains a 'supplementary income only' categorization for Split Lease.",
+      "implementation_hint": "Cohort definition: hosts with 3+ units who complete their first booking during January-April. Track: listing_active flags per month, income per unit per month, seasonal activation dates. Survey: send post-vacancy-season questionnaire asking about shoulder-season intent and satisfaction."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Validate Airbnb Differentiation Signals Prevent Platform-Category Confusion",
+      "validates_element": "works-004",
+      "journey_phases": ["discovery", "evaluation", "onboarding"],
+      "problem": "The Airbnb availability cascade causes hosts to categorize any booking platform as 'Airbnb-like' by default. The differentiation signals must break this categorization within 10 seconds of first exposure. The test must verify that hosts perceive Split Lease as categorically different.",
+      "solution": "Post-visit categorization survey: after first platform exposure, ask hosts to describe Split Lease in their own words and compare it to other platforms. Measure whether 'different from Airbnb' is a spontaneous or prompted association.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 16:53-19:03",
+          "type": "host_call",
+          "quote": "I really can't stand Airbnb... a lot of landlords are just starting to rent off their own sites.",
+          "insight": "The test must detect whether hosts like Tammy, who have strong Airbnb aversion, perceive Split Lease as a different category."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Availability Cascades",
+          "type": "book",
+          "quote": "An availability cascade is a self-sustaining chain of events.",
+          "insight": "The cascade must be broken, not just dampened. The test must measure categorical perception, not just comparative preference."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 30 professional hosts (mix of Airbnb-experienced and non-Airbnb) the Split Lease landing page for 10 seconds, then ask: (1) 'Describe this platform in 2-3 words.' (2) 'Which platform does this remind you of most?' (3) 'What makes it different from other booking platforms?' Record: spontaneous mentions of Airbnb, VRBO, or 'different' in open-ended responses.",
+      "success_criteria": "At least 80% of hosts describe Split Lease using language that does NOT directly reference Airbnb. At least 60% spontaneously mention 'host control,' 'my policies,' or equivalent sovereignty language. Fewer than 20% say 'reminds me of Airbnb.'",
+      "failure_meaning": "If hosts still categorize Split Lease as Airbnb-like, the differentiation signals are either not prominent enough (below the 2-second System 1 threshold) or not specific enough (generic 'host-friendly' claims vs. specific policy-control mechanisms). If hosts mention VRBO, that is a partial success (VRBO is the positive anchor) but not the goal (Split Lease should be its own category).",
+      "implementation_hint": "Moderated usability test with screen recording. Show landing page for exactly 10 seconds (timed), then blank screen while asking questions. Record audio for later coding of spontaneous associations. Code responses: 'Airbnb-associated,' 'VRBO-associated,' 'unique/different,' 'sovereignty/control language.'"
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Validate Portfolio Onboarding Reduces Time-to-Full-Portfolio-Listed",
+      "validates_element": "works-005",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "The per-unit listing wizard creates an anchoring effect: time-to-first-listing x unit count = perceived total time. The portfolio onboarding must reduce both the actual and perceived total time for multi-property hosts.",
+      "solution": "Compare time-to-full-portfolio-listed between (A) current per-unit wizard and (B) portfolio batch creation with duplicate-and-modify. Measure both actual time and host-perceived difficulty.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 05:47",
+          "type": "host_call",
+          "quote": "I can give you an envelope that I like, and you've got create the stage.",
+          "insight": "She expects portfolio-level handoff. The test must verify whether batch creation matches this expectation."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring as Adjustment",
+          "type": "book",
+          "quote": "Start from an anchoring number, assess whether it is too high or too low, and gradually adjust your estimate.",
+          "insight": "The anchored estimate of total time determines whether the host attempts portfolio listing. First listing time must be short enough that the anchored total is tolerable."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 10 hosts with 3+ units. Group A: create each listing individually (current wizard). Group B: create first listing, then duplicate-and-modify for remaining units (portfolio batch). Measure: (1) Total time to list all units. (2) Completion rate (did they list ALL units, not just the first?). (3) Post-task difficulty rating (1-10). (4) After first listing, ask them to estimate time for all remaining units (anchoring measurement).",
+      "success_criteria": "Group B completes full portfolio listing in at least 40% less total time than Group A. Group B completion rate (all units listed) is at least 30% higher than Group A. Group B's estimated time for remaining units (after first listing) is at least 50% lower than Group A's estimate.",
+      "failure_meaning": "If batch creation does not reduce time, the units may be too different to benefit from duplication (each requires significant customization). If completion rate is still low, the bottleneck may be elsewhere — photos, descriptions, or pricing decisions that batch creation cannot streamline.",
+      "implementation_hint": "Task-based usability test with timer. Provide test participants with a fictional portfolio of 5 units (shared building, 3 identical 1BRs and 2 identical 2BRs). Measure elapsed time, clicks, and errors. Post-task questionnaire: 'On a scale of 1-10, how difficult was this?' and 'How long do you think it would take to list 9 more similar units?'"
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Validate Monthly Income-First Information Hierarchy Reduces Cognitive Load",
+      "validates_element": "communicates-001",
+      "journey_phases": ["discovery", "evaluation", "pricing"],
+      "problem": "The current pricing information hierarchy may lead with per-night rates, forcing the host to perform mental multiplication to reach the monthly figure that is her actual decision criterion. The test must verify that inverting the hierarchy (monthly first, nightly on expansion) reduces cognitive load.",
+      "solution": "Eye-tracking and think-aloud study comparing two information hierarchies on the same pricing data.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 02:09",
+          "type": "host_call",
+          "quote": "The math doesn't add up.",
+          "insight": "She had to do the math herself. The information hierarchy should have done it for her."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring as Priming",
+          "type": "book",
+          "quote": "A high anchor selectively primed the names of luxury brands.",
+          "insight": "The first number in the hierarchy primes the entire evaluation context. Leading with monthly total primes 'serious income'; leading with nightly rate primes 'small supplementary income.'"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 20 professional hosts two pricing screen variants: (A) Per-night rate primary, monthly total secondary. (B) Monthly total primary, per-night breakdown on expansion. Track: eye fixation patterns (what do they look at first?), time-to-stated-comprehension ('I understand how much I would earn'), and spontaneous verbal reactions. Ask each host: 'How much would you earn per month from this unit?'",
+      "success_criteria": "In Variant B, at least 90% of hosts correctly state the monthly income within 5 seconds (vs. requiring calculation in Variant A). Eye tracking shows first fixation on the monthly total in Variant B. Spontaneous reactions in Variant B contain fewer negative financial assessments ('that is not enough,' 'doesn't add up').",
+      "failure_meaning": "If hosts still struggle with Variant B, the monthly total may not be prominent enough, or the paired-tenant aggregation may be confusing (hosts may not understand that the monthly total includes multiple tenants). The information hierarchy may need additional explanation of the paired-tenant model.",
+      "implementation_hint": "Eye-tracking lab study or remote eye-tracking tool (Lookback, Hotjar). Two pricing screens with identical data, different hierarchy. Timer starts at screen display, stops when host says 'I understand.' Record verbal protocol throughout."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Validate Anti-Airbnb Differentiation Visual Signals Register in First 2 Seconds",
+      "validates_element": "communicates-003",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "Differentiation signals must register before System 1 categorizes the platform. This means within 2 seconds of first exposure. If the signals require reading (more than a headline) or scrolling, they arrive too late.",
+      "solution": "Five-second exposure test: show the landing page for 5 seconds, then measure recall of differentiation signals vs. marketplace content.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 19:12",
+          "type": "host_call",
+          "quote": "VRBO... they kind of let you set the policy.",
+          "insight": "If hosts recall 'you set your policies' after a 5-second exposure, the differentiation signal is working. If they recall listing grids, the marketplace pattern is drowning the differentiation."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring as Priming",
+          "type": "book",
+          "quote": "System 1 tries its best to construct a world in which the anchor is the true number.",
+          "insight": "The first visual impression anchors the 'world' System 1 constructs. A 5-second test captures this first-impression world."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show the Split Lease landing page to 30 hosts for exactly 5 seconds. Immediately ask: (1) 'What do you remember seeing?' (2) 'What did the page communicate to you?' (3) 'Was there anything that felt different from other booking platforms?' Code responses for differentiation-signal recall vs. generic-marketplace recall.",
+      "success_criteria": "At least 70% of hosts recall at least one differentiation signal (host policy control, income guarantee, cancellation protection) in their first unprompted response. Fewer than 30% describe the page as a generic listing marketplace.",
+      "failure_meaning": "If differentiation signals are not recalled, they are either not in the first-scan position (below the fold, too small, visually recessive) or they are lost in visual competition with marketplace elements. The visual weight of differentiation signals must be increased relative to listing content.",
+      "implementation_hint": "Remote unmoderated test (UserTesting.com or similar). Screen recording captures the 5-second exposure. Audio recording captures verbal recall. Code responses: 'recalled differentiation signal,' 'recalled marketplace element,' 'recalled brand element,' 'recalled nothing specific.' Calculate signal recall rate."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Validate Income Anchor Typography Creates Correct Financial Impression",
+      "validates_element": "looks-001",
+      "journey_phases": ["pricing", "retention"],
+      "problem": "The income anchor typography (36px Inter Bold 700, #31135D) must create the impression that the displayed number is 'serious money' — not a small side income. The test must verify that typographic scale influences the host's financial perception.",
+      "solution": "Show the same income number ($4,800/month) in two typographic treatments and measure perceived value.",
+      "evidence": [
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Anchoring Index",
+          "type": "book",
+          "quote": "The anchoring effect was 55%... Similar values have been observed in numerous other problems.",
+          "insight": "Visual prominence amplifies anchoring. Larger numbers feel like larger amounts. The test must detect this effect."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Show 40 hosts a pricing summary with identical data. Variant A: Monthly income in standard body text (14px, #374151). Variant B: Monthly income in hero typography (36px, Inter Bold 700, #31135D). After viewing, ask: 'How would you rate this income? 1-10 scale where 10 is excellent.' Also ask: 'Would this income be sufficient for your property?'",
+      "success_criteria": "Variant B receives at least 1.5 points higher on the 1-10 income rating scale. Variant B has at least 20% more hosts answering 'sufficient' to the adequacy question.",
+      "failure_meaning": "If typographic treatment does not influence perceived value, the absolute number may dominate perception regardless of presentation. This would suggest that typography reinforces but cannot override the host's existing anchor — meaning the number itself must be right, not just the typography.",
+      "implementation_hint": "A/B test embedded in a mock pricing page. Random assignment to variant. Post-viewing questionnaire. Statistical test: independent samples t-test on rating scores, chi-square on sufficiency responses."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Validate Real-Time Pricing Calculator Response Time Meets 100ms Target",
+      "validates_element": "behaves-001",
+      "journey_phases": ["pricing"],
+      "problem": "The pricing calculator must update the monthly total within 100ms of any parameter change to feel instantaneous. If the response time exceeds 100ms, the host perceives a delay that signals an amateur platform.",
+      "solution": "Automated performance test measuring calculator response time under various conditions.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 03:27",
+          "type": "host_call",
+          "quote": "I have like 13, 14 [units].",
+          "insight": "If the calculator struggles with portfolio-level calculations (multiple units, complex tenant configurations), the 100ms target may be exceeded. The test must cover portfolio-scale scenarios."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Playwright test suite: (1) Navigate to pricing calculator. (2) Change each parameter (nightly rate, tenant count, schedule split) and measure time from input event to visible monthly total update. (3) Test with 1 unit, 5 units, and 9 units to verify performance at scale. (4) Test on mobile device emulation (slower hardware).",
+      "success_criteria": "P95 response time is under 100ms for single-unit calculations and under 200ms for portfolio-level (9-unit) calculations. No visible jitter or flicker during rapid parameter changes.",
+      "failure_meaning": "If response time exceeds targets, the calculation may need client-side optimization (pre-computed lookup tables instead of server-side calculation). If mobile performance is significantly worse, consider offloading calculation to a web worker.",
+      "implementation_hint": "Playwright: page.evaluate(() => performance.now()) before and after input change. Use MutationObserver on the monthly total element to detect when the DOM update occurs. Run 100 iterations per parameter change and compute P95."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Validate Host-Policy-First Onboarding Creates Sovereignty Feeling",
+      "validates_element": "behaves-004",
+      "journey_phases": ["onboarding"],
+      "problem": "The host-policy-first interaction is designed to create a felt experience of sovereignty, not just inform the host about policies. The test must verify the emotional effect, not just the informational effect.",
+      "solution": "Post-onboarding sentiment analysis comparing policy-first vs. listing-first onboarding flows.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 19:12",
+          "type": "host_call",
+          "quote": "VRBO... they kind of let you set the policy.",
+          "insight": "The sovereignty feeling is what Tammy values about VRBO. The test must verify that the policy-first flow creates a comparable or stronger sovereignty feeling."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Affect Heuristic",
+          "type": "book",
+          "quote": "Good technologies have few costs in the imaginary world we inhabit.",
+          "insight": "If the sovereignty feeling is achieved, the affect heuristic will reduce perceived costs (effort, risk) and increase perceived benefits of the platform."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 20 hosts with Airbnb experience (confirmed platform distrust). Group A: standard onboarding (listing creation first). Group B: policy-first onboarding (set rules before creating listings). After onboarding, ask: (1) 'How much control do you feel you have over your hosting on this platform? 1-10.' (2) 'How does this compare to your experience with other platforms?' (3) 'Would you trust this platform with your properties? Why or why not?' Record audio for sentiment coding.",
+      "success_criteria": "Group B rates perceived control at least 2 points higher than Group A on the 1-10 scale. Group B spontaneously uses sovereignty language ('I control,' 'my rules,' 'they respect my policies') at least twice as often as Group A. Group B trust score is at least 25% higher than Group A.",
+      "failure_meaning": "If the policy-first flow does not improve perceived control, the policies offered may be too limited (hosts feel the choices are cosmetic) or the policy language may be too generic ('set your preferences' vs. 'your cancellation policy is absolute'). The sovereignty must be substantive, not theatrical.",
+      "implementation_hint": "Moderated remote usability test with audio/video recording. Use standardized questionnaire (perceived control, trust, platform comparison). Code audio for sentiment categories: sovereignty language, distrust language, comparison language. Between-groups statistical comparison."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Journey-Level: Vacancy-Season-to-Retention Conversion Funnel for Professional Hosts",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "pricing", "active_lease", "retention"],
+      "problem": "The entire run's thesis is that professional hosts can be acquired through vacancy-season entry and graduated to year-round usage through demonstrated income. The test must validate the end-to-end funnel, not just individual elements.",
+      "solution": "Track a cohort of 50+ professional hosts through the complete funnel: vacancy-season discovery → pricing acceptance → first booking → vacancy-season income → shoulder-season expansion → year-round retention.",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 09:01 and 30:48",
+          "type": "host_call",
+          "quote": "If you want practice on one or try out one... The split release would work for any honor if it was very lucrative.",
+          "insight": "The funnel depends on two conditions: a successful trial and 'lucrative' income. Both must be validated at journey level."
+        },
+        {
+          "source": "kahneman-part2-heuristics-biases.txt, Affect Heuristic",
+          "type": "book",
+          "quote": "The emotional tail wags the rational dog.",
+          "insight": "The journey-level validation must capture emotional trajectory, not just conversion metrics. Does the host's sentiment improve from 'skeptical' to 'committed' as they move through the funnel?"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Cohort definition: professional hosts (3+ units, $3,000+/month anchor) who enter during vacancy season (Jan-April). Track: (1) Discovery-to-pricing conversion (did they engage with pricing?). (2) Pricing-to-listing conversion (did they list at least one unit?). (3) Listing-to-first-booking conversion (did they get their first booking?). (4) First-booking-to-season-completion (did they stay through April?). (5) Vacancy-to-shoulder expansion (did they list for May+?). (6) 12-month retention (still active 12 months later?). NPS survey at each stage.",
+      "success_criteria": "End-to-end conversion (discovery to 12-month retention): at least 10% of entering professional hosts. Vacancy-to-shoulder expansion: at least 30%. NPS trajectory should be upward (improving from discovery to retention). Average portfolio income should increase from vacancy season to shoulder season.",
+      "failure_meaning": "If the funnel breaks at pricing, the anchor strategy needs work. If it breaks at first booking, guest matching needs improvement. If it breaks at expansion (vacancy → shoulder), the positive affect from vacancy season is not generalizing. Each breakpoint reveals a different intervention target.",
+      "implementation_hint": "Analytics pipeline: tag professional host cohort at signup. Track funnel stage transitions with timestamps. Monthly NPS survey. Revenue tracking per host per month. Dashboard: funnel visualization with stage-by-stage drop-off rates and average time-in-stage."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Journey-Level: Emotional Arc Validation — From Hostility to Commitment",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "The emotional arc for professional hosts with Airbnb history should progress: hostility (discovery) → safety (evaluation) → confidence (onboarding) → relief (pricing) → momentum (proposal/active) → excitement (retention). The test must verify this emotional trajectory actually occurs.",
+      "solution": "Longitudinal sentiment tracking across the host journey, using both quantitative measures (ratings) and qualitative measures (language analysis).",
+      "evidence": [
+        {
+          "source": "tammy-call.txt, 16:53 to 30:48",
+          "type": "host_call",
+          "quote": "I really can't stand Airbnb → Feel free to send me anything. The split release would work if it was very lucrative.",
+          "insight": "Within a single call, Tammy moves from active hostility to conditional openness. The platform must sustain and extend this trajectory across months of interaction."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Select 10 professional hosts at each journey stage and conduct 15-minute sentiment interviews. Ask: (1) 'How do you feel about Split Lease right now?' (2) 'Has your feeling changed since you started?' (3) 'What would make you feel more/less positive?' Code responses on the hostility-to-excitement spectrum. Track the same hosts longitudinally if possible.",
+      "success_criteria": "Average sentiment score increases monotonically across journey stages (no emotional regression). At least 80% of hosts who reach the active_lease stage report positive sentiment. Hosts who describe the platform as 'different from Airbnb' at evaluation retain that categorization through retention.",
+      "failure_meaning": "If sentiment regresses at any stage, that stage contains an experience that violates the host's expectations or recreates the Airbnb pattern. Common regression points: (1) pricing screen (number below anchor), (2) first proposal (weak guest match), (3) first dispute (platform overrides host policy). Each regression point requires targeted intervention.",
+      "implementation_hint": "Quarterly sentiment interviews with a panel of 10 professional hosts. Use a consistent emotional vocabulary scale. Track individual trajectories over time. Pair with analytics data (booking count, income, support tickets) to identify experience-sentiment correlations."
+    }
+  ]
+}

@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Stack v2 Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --surface-warm: #fdfcfa;
+      --ink: #1a1714;
+      --ink-soft: #4a4640;
+      --ink-muted: #8a857e;
+      --ink-ghost: #bdb8b0;
+      --accent: #2d5a3d;
+      --accent-light: #e8f0eb;
+      --accent-bright: #3a7a52;
+      --signal-warn: #c17a28;
+      --signal-warn-bg: #fef3e2;
+      --signal-danger: #b83a3a;
+      --signal-danger-bg: #fde8e8;
+      --signal-info: #2d5a8a;
+      --signal-info-bg: #e8f0fa;
+      --signal-success: #2d5a3d;
+      --signal-success-bg: #e8f0eb;
+      --border: #e2dfd9;
+      --border-strong: #ccc8c0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
+      --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+
+    /* Header */
+    .report-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .report-header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; margin-bottom: 4px; }
+    .report-header .lens-label { font-size: 16px; color: var(--ink-soft); margin-bottom: 12px; }
+    .report-meta { display: flex; gap: 24px; flex-wrap: wrap; color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-complete { background: var(--accent-light); color: var(--accent); }
+    .badge-partial { background: var(--signal-warn-bg); color: var(--signal-warn); }
+
+    /* Coherence Alert Bar */
+    .coherence-bar { background: var(--signal-warn-bg); border-bottom: 1px solid rgba(193,122,40,0.2); padding: 10px 40px; font-size: 13px; color: var(--signal-warn); display: none; align-items: center; gap: 12px; }
+    .coherence-bar.has-flags { display: flex; }
+    .coherence-bar .count { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+
+    /* Tab Nav */
+    .tab-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+    .tab-nav button { background: none; border: none; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms var(--ease-out); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .tab-nav button:hover { color: var(--ink-soft); }
+    .tab-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-nav button .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-deep); font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--ink-muted); }
+    .tab-nav button.active .layer-num { background: var(--accent); color: white; }
+
+    /* Main */
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+    .tab-panel { display: none; animation: fadeIn 300ms var(--ease-out); }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Element Card */
+    .element-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .element-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .element-card-header h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; flex: 1; min-width: 200px; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .type-process_pattern { background: #e8f0fa; color: #2d5a8a; }
+    .type-info_architecture { background: #f0e8fa; color: #6a2d8a; }
+    .type-visual_pattern { background: #fae8f0; color: #8a2d5a; }
+    .type-interaction_pattern { background: #faf0e8; color: #8a5a2d; }
+    .type-emotional_element { background: #e8faf0; color: #2d8a5a; }
+    .type-validation_strategy { background: var(--bg-deep); color: var(--ink-soft); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+    .priority-high { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Phase Tags */
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'IBM Plex Mono', monospace; background: var(--accent-light); color: var(--accent); }
+
+    /* Problem/Solution */
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .ps-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px; }
+    .ps-box.problem { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .ps-box.solution { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .ps-box label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+    @media (max-width: 700px) { .ps-grid { grid-template-columns: 1fr; } }
+
+    /* Evidence */
+    .evidence-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; color: var(--ink-muted); transition: all 150ms; }
+    .evidence-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .evidence-list { display: none; margin-top: 12px; }
+    .evidence-list.open { display: block; }
+    .evidence-item { padding: 10px 14px; margin: 6px 0; background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+    .evidence-item .source { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+    .evidence-item .quote { color: var(--ink-soft); font-style: italic; }
+    .evidence-item .insight { color: var(--ink); margin-top: 4px; }
+
+    /* Layer-specific fields */
+    .extra-fields { margin-top: 16px; display: grid; gap: 8px; }
+    .extra-field { font-size: 13px; }
+    .extra-field label { font-weight: 600; color: var(--ink-soft); font-size: 12px; }
+    .extra-field .value { color: var(--ink); }
+
+    /* Coherence sections */
+    .coherence-section { margin-bottom: 28px; }
+    .coherence-section h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 12px; }
+    .reinforcement-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-success-bg); border-left: 4px solid var(--signal-success); font-size: 14px; }
+    .contradiction-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-danger-bg); border-left: 4px solid var(--signal-danger); font-size: 14px; }
+    .extension-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-info-bg); border-left: 4px solid var(--signal-info); font-size: 14px; }
+    .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+    /* Coverage Map */
+    .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .coverage-cell { padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border); }
+    .coverage-cell .phase-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; }
+    .coverage-cell .count { font-size: 24px; font-weight: 700; }
+    .coverage-cell .level { font-size: 11px; color: var(--ink-muted); }
+    .coverage-none { background: var(--signal-danger-bg); }
+    .coverage-thin { background: var(--signal-warn-bg); }
+    .coverage-moderate { background: var(--signal-info-bg); }
+    .coverage-strong { background: var(--signal-success-bg); }
+
+    /* Journey Context phase cards */
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 12px; }
+    .phase-card h4 { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .phase-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+    .phase-card .risk { font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 6px; }
+    .risk-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .risk-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .risk-medium { background: var(--signal-info-bg); color: var(--signal-info); }
+    .risk-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Responsive + Print */
+    @media (max-width: 768px) { .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; } }
+    @media print { .tab-nav, .coherence-bar { display: none; } .tab-panel { display: block !important; page-break-inside: avoid; } body { background: white; } }
+  </style>
+</head>
+<body>
+
+  <!-- Data injection points -->
+  <!-- INJECT:run-config -->
+  <script id="run-config" type="application/json">{
+  "run_id": "2026-02-18_0817",
+  "process_type": "reverse-benchmark",
+  "competitor": "roomster",
+  "lens": {
+    "competitor": "roomster",
+    "book_extract": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "status": "running",
+  "started_at": "2026-02-18T13:17:40Z",
+  "stack_dir": "C:/Users/igor/OneDrive/Documents/design-stack",
+  "run_dir": "C:/Users/igor/OneDrive/Documents/design-stack/runs/2026-02-18_0817"
+}</script>
+  <!-- INJECT:layer-0 -->
+  <script id="data-layer-0" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy",
+    "lens_summary": "Through the Play Bigger lens, Roomster is a fast lead-generation player in roommate matching, but it does not define or own a differentiated category-level problem, so it competes on flow speed instead of category authority and trust depth."
+  },
+  "competitor_overview": {
+    "category": "roommate matching",
+    "primary_strength": "High-volume supply and fast discovery-to-message flow across many cities.",
+    "business_model": "Subscription and premium exposure monetization tied to communication access and listing visibility, which favors lead volume and conversion speed.",
+    "user_base": "Students, young professionals, recent movers, and budget-sensitive renters seeking rooms or roommates quickly.",
+    "brand_perception": "Useful for reach and speed, but mixed on trust due to scam anxiety, paywall friction, and uneven listing reliability."
+  },
+  "phases": {
+    "discovery": {
+      "what_they_do": "Roomster acquires demand through SEO, app-store presence, and broad roommate inventory framing that promises fast matches.",
+      "quality_level": "good",
+      "framework_analysis": "Chapter 1 (Creation Wins) says winners frame a meaningful problem in a different way, not just a better feature list. Roomster presents roommate search as a volume-and-speed problem, but does not strongly claim a distinct category problem it uniquely owns (for example: verified trust-first co-living decisions).",
+      "what_nobody_in_category_does": "No major roommate platform clearly defines and evangelizes a category-level problem like \"safe roommate decisions under uncertainty\" before users start browsing.",
+      "evidence": [
+        {
+          "source": "playbigger-category-design.txt - Chapter 1 (Creation Wins)",
+          "type": "book",
+          "observation": "The book emphasizes that category kings make customers see a problem in a new way and become synonymous with that problem.",
+          "framework_interpretation": "Discovery that focuses on inventory scale without category-level problem framing is strong tactically but weak strategically."
+        },
+        {
+          "source": "Competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Roomster messaging emphasizes broad supply and quick connection outcomes.",
+          "framework_interpretation": "This supports lead generation but does not build a defensible category narrative."
+        }
+      ]
+    },
+    "search": {
+      "what_they_do": "Users filter listings by city, budget, and profile attributes, then scan ranked cards and initiate contact when fit seems acceptable.",
+      "quality_level": "good",
+      "framework_analysis": "Chapter 2 (Category Is the New Strategy) argues that customers organize around problems, then choose the perceived leader. Roomster search is functional for browsing options, but it does not strongly structure search around the highest-stakes user problem (trustworthy compatibility with low downside risk).",
+      "what_nobody_in_category_does": "The category rarely turns search into a problem-ownership layer with explicit trust probability, compatibility confidence, and downside-risk signals as default ranking inputs.",
+      "evidence": [
+        {
+          "source": "playbigger-category-design.txt - Chapter 2 (Category Is the New Strategy)",
+          "type": "book",
+          "observation": "Winning companies market the problem, not only the solution, and become the organizing principle in customers' minds.",
+          "framework_interpretation": "Search systems that optimize engagement without problem-owned trust framing remain replaceable."
+        },
+        {
+          "source": "Industry pattern",
+          "type": "industry_pattern",
+          "observation": "Roommate marketplaces generally prioritize inventory and response velocity in ranking and filtering.",
+          "framework_interpretation": "This creates comparability on speed, not category authority on decision quality."
+        }
+      ]
+    },
+    "listing_evaluation": {
+      "what_they_do": "Users judge photos, bios, rent signals, and profile claims with limited standardized verification depth.",
+      "quality_level": "adequate",
+      "framework_analysis": "Play Bigger stresses that category kings design product, company, and category together. Roomster listing evaluation mostly acts as a marketplace card view, not as a category-defining trust system; this makes evaluation feel workable but not meaningfully different from alternatives.",
+      "what_nobody_in_category_does": "No one in the roommate category consistently turns listing evaluation into a structured trust protocol with clear evidence tiers and comparable risk disclosures.",
+      "evidence": [
+        {
+          "source": "playbigger-category-design.txt - Chapter 1 (Category kings design product, company, and category at the same time)",
+          "type": "book",
+          "observation": "A cool product element alone does not produce category king outcomes without broader category design.",
+          "framework_interpretation": "Listing cards without deeper trust architecture are product-level features, not category-level differentiation."
+        },
+        {
+          "source": "Public review pattern",
+          "type": "public_review",
+          "observation": "Users frequently report uncertainty about authenticity and legitimacy in roommate searches.",
+          "framework_interpretation": "The category has not made trust evaluation itself the core product claim."
+        }
+      ]
+    },
+    "booking_proposal": {
+      "what_they_do": "Roomster primarily hands users from browsing into direct messaging and off-platform agreement; there is no full native proposal/contract/payment-safe commitment flow.",
+      "quality_level": "absent",
+      "framework_analysis": "Chapter 2 shows category leaders own the problem end-to-end in customer perception. By exiting before structured commitment, Roomster stops short of owning the core risk moment where users most need category leadership.",
+      "what_nobody_in_category_does": "Most roommate platforms avoid standardized commitment rails (terms, checkpoints, safe payment sequencing, mutual expectation confirmation) because it increases operational and liability scope.",
+      "evidence": [
+        {
+          "source": "Competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Core flow transitions from listing evaluation to chat rather than an in-product transaction architecture.",
+          "framework_interpretation": "The platform captures intent but does not own the category-defining commitment problem."
+        },
+        {
+          "source": "playbigger-category-design.txt - Chapter 2 (Category strategy and owning the problem)",
+          "type": "book",
+          "observation": "Perceived category leaders become the default choice because they are seen as solving the defining problem.",
+          "framework_interpretation": "Without commitment architecture, Roomster cannot credibly claim ownership of outcome reliability."
+        }
+      ]
+    },
+    "communication": {
+      "what_they_do": "Messaging is central to the product; users negotiate fit, timing, and terms through direct conversation.",
+      "quality_level": "good",
+      "framework_analysis": "Roomster is strongest where it reduces friction to conversation. In Play Bigger terms, this is an execution strength in an existing game, but it is still not the same as creating and dominating a differentiated category problem.",
+      "what_nobody_in_category_does": "Category players do not commonly provide guided communication protocols that turn chat into a repeatable trust-and-commitment process with measurable quality outcomes.",
+      "evidence": [
+        {
+          "source": "Competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Communication access is a key value and monetization lever in the Roomster flow.",
+          "framework_interpretation": "The platform optimizes a strong middle-funnel behavior but not full category ownership."
+        },
+        {
+          "source": "playbigger-category-design.txt - Chapter 1 (Different, not better)",
+          "type": "book",
+          "observation": "Category kings win by being meaningfully different in how the market understands the problem.",
+          "framework_interpretation": "Fast messaging is often better execution, not necessarily a different category claim."
+        }
+      ]
+    },
+    "active_stay": {
+      "what_they_do": "After a match is made, ongoing co-living logistics and conflict management mostly happen outside the platform.",
+      "quality_level": "absent",
+      "framework_analysis": "Play Bigger emphasizes long-term category dominance through owning the core value loop. Roomster's experience effectively ends before active-stay operations, so it cannot compound advantage on the lived outcome users care about most.",
+      "what_nobody_in_category_does": "Roommate platforms broadly ignore active-stay infrastructure (shared rules, issue escalation, routine check-ins, accountability logs) even though this is where relationship risk peaks.",
+      "evidence": [
+        {
+          "source": "Competitor UX observation",
+          "type": "competitor_ux",
+          "observation": "Product scope concentrates on match initiation, not tenancy lifecycle support.",
+          "framework_interpretation": "This leaves post-match value and data outside platform control."
+        },
+        {
+          "source": "playbigger-category-design.txt - Chapter 1 (Category king economics and durable ownership)",
+          "type": "book",
+          "observation": "Category kings capture disproportionate value by owning the category-defining problem over time.",
+          "framework_interpretation": "No active-stay layer means limited path to durable ownership."
+        }
+      ]
+    },
+    "post_stay": {
+      "what_they_do": "Post-stay closure and learning loops are thin; feedback systems are limited compared with transaction-heavy marketplaces.",
+      "quality_level": "weak",
+      "framework_analysis": "Chapter 2 explains that perceived leaders benefit from compounding customer belief. Without structured post-stay evidence loops, Roomster and peers miss a key mechanism for trust compounding and category authority reinforcement.",
+      "what_nobody_in_category_does": "The category underbuilds standardized post-stay incident capture and expectation-gap review that would improve next-match decision quality.",
+      "evidence": [
+        {
+          "source": "Industry pattern",
+          "type": "industry_pattern",
+          "observation": "Roommate products typically have lighter end-of-stay review norms than short-stay travel platforms.",
+          "framework_interpretation": "Weak post-stay signal generation limits market-level trust calibration."
+        },
+        {
+          "source": "playbigger-category-design.txt - Chapter 2 (Customers flock to perceived category leader)",
+          "type": "book",
+          "observation": "Leadership in mindshare compounds when users can repeatedly validate who solves the problem best.",
+          "framework_interpretation": "Thin outcome evidence prevents compounding leadership effects."
+        }
+      ]
+    },
+    "retention": {
+      "what_they_do": "Retention is mostly need-based reactivation when users move again, plus subscription renewal and periodic return to search.",
+      "quality_level": "adequate",
+      "framework_analysis": "Play Bigger suggests enduring advantage comes from category-level pull, not just repeat utility. Roomster retains users mainly through recurring housing need and marketplace reach rather than a distinctive category promise that improves decisions over time.",
+      "what_nobody_in_category_does": "Category players rarely build retention around measurable \"decision quality improvement\" (safer matches, fewer conflicts, faster stable outcomes) as the core repeat-value proposition.",
+      "evidence": [
+        {
+          "source": "playbigger-category-design.txt - Chapter 1 and Chapter 2 (category king dominance and problem ownership)",
+          "type": "book",
+          "observation": "Long-run value concentrates with the company that defines and owns the category problem in customer minds.",
+          "framework_interpretation": "Need-based return without category-specific learning loops produces weaker retention moats."
+        },
+        {
+          "source": "Public review pattern",
+          "type": "public_review",
+          "observation": "Users often return for inventory reach while still expressing trust and value concerns.",
+          "framework_interpretation": "Functional utility supports reuse, but does not signal deep category loyalty."
+        }
+      ]
+    }
+  },
+  "split_lease_phase_mapping": {
+    "discovery": "Split Lease Phase 1 entry (Homepage + Authentication) and Phase 2 listing access entry",
+    "search": "Split Lease Phase 2 (Guest reviews listing detail, duration/day options, pricing context)",
+    "listing_evaluation": "Split Lease Phase 2 (Guest evaluates photos, rules, features, and terms before proposal)",
+    "booking_proposal": "Split Lease Phases 2-4 (Create Proposal, Host Counter, Guest Acceptance) plus Phase 5 document generation",
+    "communication": "Split Lease Phases 3-5 (notifications, proposal edits, ongoing host-guest messaging)",
+    "active_stay": "Split Lease Phase 5 (Leases, Stays Manager, Date Change Tool, House Manual use)",
+    "post_stay": "Split Lease Phase 5 (stay-level reviews and documented end-of-stay artifacts)",
+    "retention": "Split Lease Phase 5 onward (repeat stays, lease history, payment history, future negotiations)"
+  },
+  "category_blind_spots": [
+    {
+      "blind_spot": "Category-level problem framing around trust-first roommate decisions is missing.",
+      "why_nobody_tries": "Most platforms compete as listing marketplaces and optimize acquisition speed, so reframing around trust outcomes can look like conversion friction in the short term.",
+      "framework_insight": "Play Bigger Chapter 2: companies that market and own the defining problem become the category default; roommate platforms mostly market supply and speed instead.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "No standardized commitment rail before money and move-in risk.",
+      "why_nobody_tries": "Owning proposal, terms, and safeguards adds legal, support, and operational complexity beyond lead-gen economics.",
+      "framework_insight": "Play Bigger Chapter 1: category kings design product, company, and category together; stopping at messaging leaves the highest-value problem unowned.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Active-stay lifecycle is not treated as a core product surface.",
+      "why_nobody_tries": "Marketplace incumbents are built for match throughput, not ongoing co-living operations that require continuous product and support investment.",
+      "framework_insight": "Category king economics reward owning the full value loop; ignoring active stay blocks compounding advantage.",
+      "signature_potential": "high"
+    },
+    {
+      "blind_spot": "Post-stay evidence and learning loops are too thin to compound trust.",
+      "why_nobody_tries": "Benefits are delayed and collective, while platform incentives prioritize immediate listing and messaging metrics.",
+      "framework_insight": "Chapter 2 emphasizes mindshare compounding around category leaders; without strong outcome evidence, leadership claims stay shallow.",
+      "signature_potential": "medium"
+    }
+  ],
+  "sources_consulted": [
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/runs/2026-02-18_0817/run-config.json",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/processes/reverse-benchmark/agents/0-competitor-mapping.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/split-lease-journey-map.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/Books/Book Guide/Books_Summary.md",
+    "/mnt/c/Users/igor/OneDrive/Documents/design-stack/Agents-data-source/Books/Books/extracts/playbigger-category-design.txt"
+  ]
+}</script>
+  <!-- INJECT:layer-1 -->
+  <script id="data-layer-1" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "disappointment_summary": "Roomster delivers enough speed and inventory to feel useful, but most high-anxiety moments are handled as user self-service rather than category-level design. Through Play Bigger's Chapter 1-2 lens, the pattern is consistent: the product optimizes lead flow inside an existing roommate marketplace frame, then exits before trust, commitment, and outcome loops are resolved. Nothing is catastrophically broken, so users tolerate it, but the experience repeatedly asks people to do the platform's hardest work themselves (risk assessment, terms alignment, conflict prevention, and post-stay learning).",
+  "disappointments": [
+    {
+      "id": "disappoint-001",
+      "title": "Perfect Match Language, Fast List Reality",
+      "competitor_phase": "discovery",
+      "type": "broken_promise",
+      "what_happens_now": "Discovery messaging implies confident roommate fit, but the first real interaction is still broad inventory browsing and paid-message gating. Users enter expecting guided confidence and instead get a speed-first marketplace funnel where they must determine trust and compatibility themselves.",
+      "why_its_not_a_bug": "The flow functions as intended: listings are visible, filters work, and users can message. The gap is expectation quality, not technical failure, so most users treat it as normal marketplace friction.",
+      "why_it_matters_psychologically": "Chapter 2 emphasizes that category leaders frame the problem and become the market's organizing principle. When positioning promises confidence but experience delivers generic browsing, users feel subtle expectancy violation and default to low-trust heuristics, reducing commitment and brand authority.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "medium",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "Layer 0 discovery analysis (Roomster UX observation)",
+          "type": "competitor_ux",
+          "observation": "Roomster emphasizes fast discovery and broad roommate inventory rather than a trust-first guided decision model.",
+          "framework_interpretation": "Speed framing supports acquisition, but it does not establish category ownership of safer roommate decisions."
+        },
+        {
+          "source": "playbigger-category-design.txt, Chapter 2",
+          "type": "book",
+          "observation": "Winning companies market the defining problem and become the default in customer minds.",
+          "framework_interpretation": "Without problem-first discovery, users see Roomster as one option among many, not the category authority."
+        }
+      ],
+      "the_coffee_test": "Yes: a discovery flow that quantified trust and compatibility before browse would surprise users because they currently expect only inventory speed."
+    },
+    {
+      "id": "disappoint-002",
+      "title": "Filter Work Without Decision Confidence",
+      "competitor_phase": "search",
+      "type": "invisible_labor",
+      "what_happens_now": "Users can filter by budget and profile attributes, but final ranking still requires manual cross-checking for authenticity, lifestyle fit, and downside risk. People open multiple profiles and perform their own trust math to decide who is worth messaging.",
+      "why_its_not_a_bug": "Search returns relevant candidates and supports normal marketplace controls. The burden is cognitive, not functional, so it rarely appears as a support issue.",
+      "why_it_matters_psychologically": "Chapter 2 and its decision-bias framing imply categories reduce mental overload by organizing choices around the real problem. When trust confidence is not a default ranking dimension, choice volume increases strain and pushes satisficing over high-quality matching.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "Layer 0 search analysis",
+          "type": "competitor_ux",
+          "observation": "Roomster search is functional but not explicitly structured around trust probability, compatibility confidence, or downside-risk signals.",
+          "framework_interpretation": "Users must supply missing evaluation logic that a category-designed system would pre-structure."
+        },
+        {
+          "source": "playbigger-category-design.txt, Chapter 2",
+          "type": "book",
+          "observation": "Categories act as an organizing principle in customers' minds.",
+          "framework_interpretation": "If search does not organize around the defining risk, the platform remains replaceable and cognitively expensive."
+        }
+      ],
+      "the_coffee_test": "Yes: default trust-and-fit scoring in results would feel unexpectedly premium in a category where users currently do manual comparison labor."
+    },
+    {
+      "id": "disappoint-003",
+      "title": "Profile Cards Without Evidence Tiers",
+      "competitor_phase": "listing_evaluation",
+      "type": "trust_vacuum",
+      "what_happens_now": "During listing evaluation, users read bios, photos, and claims with limited standardized verification depth. Evidence quality is uneven, so users cannot quickly distinguish low-risk from high-risk profiles.",
+      "why_its_not_a_bug": "Information is present and readable, and many successful matches still occur. The weakness is confidence calibration, not feature failure.",
+      "why_it_matters_psychologically": "Chapter 1 argues category kings design product, company, and category together. Without explicit evidence tiers, users stay in uncertainty management mode, which amplifies scam anxiety and reduces willingness to commit.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "high",
+        "visibility": "obvious_but_accepted"
+      },
+      "evidence": [
+        {
+          "source": "Layer 0 listing_evaluation analysis",
+          "type": "competitor_ux",
+          "observation": "Roomster listing evaluation relies on photos, bios, and profile claims with limited standardized trust architecture.",
+          "framework_interpretation": "Card-level information exists, but it does not function as a category-defining safety protocol."
+        },
+        {
+          "source": "playbigger-category-design.txt, Chapter 1",
+          "type": "book",
+          "observation": "A cool product element alone does not create category king outcomes without broader category design.",
+          "framework_interpretation": "Profile content without verification systems is feature completeness, not category leadership."
+        }
+      ],
+      "the_coffee_test": "Yes: explicit evidence tiers and comparable risk disclosures would feel like a major leap because users currently expect to judge credibility by intuition."
+    },
+    {
+      "id": "disappoint-004",
+      "title": "Chat Handoff at the Commitment Moment",
+      "competitor_phase": "booking_proposal",
+      "type": "abandoned_phase",
+      "what_happens_now": "After interest is established, Roomster moves users into direct messaging and leaves proposal terms, safeguards, and payment sequencing largely off-platform. The highest-risk commitment moment is managed through ad hoc negotiation.",
+      "why_its_not_a_bug": "Messaging works and many users close agreements externally. The platform is performing its intended lead-generation role, so absence of commitment rails is treated as category norm.",
+      "why_it_matters_psychologically": "Chapter 2 says leaders own the defining problem end to end in customer perception. Exiting at commitment creates a trust cliff: users feel they are suddenly alone precisely when stakes become financial and irreversible.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "high",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "Layer 0 booking_proposal analysis",
+          "type": "competitor_ux",
+          "observation": "Roomster transitions from browsing to chat without a full native proposal, contract, or safe-commitment flow.",
+          "framework_interpretation": "The platform captures intent but not the category-defining reliability moment."
+        },
+        {
+          "source": "playbigger-category-design.txt, Chapter 2",
+          "type": "book",
+          "observation": "Perceived category leaders become default choices because they are seen as solving the core problem.",
+          "framework_interpretation": "Without commitment infrastructure, users cannot perceive Roomster as owning outcome quality."
+        }
+      ],
+      "the_coffee_test": "Yes: a built-in mutual terms and safe-commitment flow would feel unexpectedly reassuring in a category where users assume they must figure out commitments alone."
+    },
+    {
+      "id": "disappoint-005",
+      "title": "Open-Ended Messaging With No Trust Script",
+      "competitor_phase": "communication",
+      "type": "mediocre_default",
+      "what_happens_now": "Communication is fast and central, but mostly freeform. Users decide on their own what to ask, what to confirm, and when enough evidence exists to proceed.",
+      "why_its_not_a_bug": "Messages send and receive reliably, and users value speed. The gap is quality of conversation outcomes, which is hard to diagnose as a defect.",
+      "why_it_matters_psychologically": "Chapter 1's different-not-better lens suggests faster chat is execution, not category strategy. In high-ambiguity social decisions, unguided conversation increases omission risk because users forget critical trust questions and over-index on responsiveness.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "every_user",
+        "impact": "medium",
+        "visibility": "only_power_users_notice"
+      },
+      "evidence": [
+        {
+          "source": "Layer 0 communication analysis",
+          "type": "competitor_ux",
+          "observation": "Roomster's messaging is a core value and monetization lever but lacks guided trust-and-commitment protocols.",
+          "framework_interpretation": "Strong mid-funnel throughput does not guarantee high-quality commitment decisions."
+        },
+        {
+          "source": "playbigger-category-design.txt, Chapter 1",
+          "type": "book",
+          "observation": "Category kings win by being meaningfully different in the problem they own.",
+          "framework_interpretation": "Unguided chat is common category behavior, not differentiated problem ownership."
+        }
+      ],
+      "the_coffee_test": "Yes: guided message checklists and trust milestones would pleasantly surprise users because they currently expect an unstructured text thread."
+    },
+    {
+      "id": "disappoint-006",
+      "title": "Move-In and Then Product Silence",
+      "competitor_phase": "active_stay",
+      "type": "abandoned_phase",
+      "what_happens_now": "Once roommates agree and move in, co-living logistics, expectation drift, and conflict handling happen outside Roomster. There is no active-stay layer for shared rules, escalation, or accountability.",
+      "why_its_not_a_bug": "Roomster is positioned as a matching platform, so users do not expect tenancy operations. The product technically completes its advertised job before the stay begins.",
+      "why_it_matters_psychologically": "Chapter 1's category king economics emphasize owning the value loop over time. The lived phase carries the most emotional risk; absence here prevents trust compounding and leaves users to manage interpersonal stress unsupported.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "some_users",
+        "impact": "high",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "Layer 0 active_stay analysis",
+          "type": "competitor_ux",
+          "observation": "Product scope concentrates on match initiation; ongoing co-living operations are mostly off-platform.",
+          "framework_interpretation": "Roomster cannot capture post-match data or improve outcomes in the phase users care about most."
+        },
+        {
+          "source": "playbigger-category-design.txt, Chapter 1",
+          "type": "book",
+          "observation": "Category kings capture disproportionate value by owning the problem over time.",
+          "framework_interpretation": "No active-stay layer means no durable ownership flywheel."
+        }
+      ],
+      "the_coffee_test": "Yes: lightweight stay support and conflict-prevention tools would feel unexpectedly thoughtful because users currently assume total post-match silence."
+    },
+    {
+      "id": "disappoint-007",
+      "title": "Weak Closure and Reputation Carryover",
+      "competitor_phase": "post_stay",
+      "type": "missing_delight",
+      "what_happens_now": "At the end of a roommate arrangement, structured closeout is limited. Little standardized capture of expectation gaps, incidents, or verified outcomes feeds forward into better next decisions.",
+      "why_its_not_a_bug": "Users can leave and restart search without blocked functionality. Because post-stay feedback is optional and delayed, its absence is experienced as normal rather than broken.",
+      "why_it_matters_psychologically": "Chapter 2 highlights compounding belief around perceived leaders. Without strong post-stay evidence loops, users cannot rely on community memory, so each new decision reintroduces baseline uncertainty.",
+      "who_feels_it": "both",
+      "severity": {
+        "frequency": "some_users",
+        "impact": "medium",
+        "visibility": "only_power_users_notice"
+      },
+      "evidence": [
+        {
+          "source": "Layer 0 post_stay analysis",
+          "type": "industry_pattern",
+          "observation": "Roommate products typically have lighter end-of-stay review norms and thinner closure artifacts than transaction-heavy marketplaces.",
+          "framework_interpretation": "Thin feedback loops block trust calibration at category level."
+        },
+        {
+          "source": "playbigger-category-design.txt, Chapter 2",
+          "type": "book",
+          "observation": "Leadership in mindshare compounds when users can repeatedly validate who solves the problem best.",
+          "framework_interpretation": "No repeatable validation loop prevents durable category authority."
+        }
+      ],
+      "the_coffee_test": "Yes: structured post-stay debriefs that materially improve future matching would delight users because almost nobody expects roommate platforms to learn from outcomes."
+    },
+    {
+      "id": "disappoint-008",
+      "title": "Reactivation Without Progress",
+      "competitor_phase": "retention",
+      "type": "mediocre_default",
+      "what_happens_now": "Users often return when they move again, but each cycle feels similar: browse, message, self-verify, and negotiate manually. There is limited sense that the platform has become smarter about the user's decision quality.",
+      "why_its_not_a_bug": "Repeat usage is possible and inventory remains available, so retention appears acceptable on basic metrics. The disappointment is absence of cumulative advantage, not inability to complete tasks.",
+      "why_it_matters_psychologically": "Chapter 1-2 frame enduring advantage as owning the problem in customer memory. When repeat users do not feel increasing confidence or reduced effort, loyalty stays transactional and switching resistance remains weak.",
+      "who_feels_it": "guest",
+      "severity": {
+        "frequency": "most_users",
+        "impact": "medium",
+        "visibility": "hidden"
+      },
+      "evidence": [
+        {
+          "source": "Layer 0 retention analysis",
+          "type": "competitor_ux",
+          "observation": "Retention is mostly need-based reactivation and marketplace reach rather than measurable decision-quality improvement.",
+          "framework_interpretation": "Functional utility drives return, but does not compound category preference."
+        },
+        {
+          "source": "playbigger-category-design.txt, Chapters 1-2",
+          "type": "book",
+          "observation": "Long-run value concentrates with companies that define and own a category problem in customer minds.",
+          "framework_interpretation": "Without visible learning loops, recurring demand does not convert into category king loyalty."
+        }
+      ],
+      "the_coffee_test": "Yes: a retention experience that proves each move gets safer and easier would feel distinctly better than today's repeat-from-scratch norm."
+    }
+  ],
+  "disappointment_clusters": [
+    {
+      "cluster_name": "Trust Without Infrastructure",
+      "disappointment_ids": [
+        "disappoint-002",
+        "disappoint-003",
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "pattern": "Roomster provides discovery and messaging throughput, but users must perform core trust work themselves: evaluate evidence quality, ask the right questions, and structure commitment terms off-platform.",
+      "signature_potential": "A trust-protocol layer (evidence tiers, guided messaging, and commitment safeguards) could become a clear Split Lease signature because it reframes roommate matching from lead generation to decision safety."
+    },
+    {
+      "cluster_name": "Lifecycle Drop-Off After Match",
+      "disappointment_ids": [
+        "disappoint-006",
+        "disappoint-007"
+      ],
+      "pattern": "The highest-emotion phases (active stay and closure) receive little product support, so outcomes and lessons do not feed back into category trust.",
+      "signature_potential": "Owning active-stay and post-stay loops can create compounding differentiation by turning lived outcomes into defensible product intelligence."
+    },
+    {
+      "cluster_name": "Need-Based Return, Not Category Pull",
+      "disappointment_ids": [
+        "disappoint-001",
+        "disappoint-008"
+      ],
+      "pattern": "Users come for speed and inventory, then return mainly when life events force another search; the experience does not steadily increase confidence in a unique category promise.",
+      "signature_potential": "A category narrative anchored in safer roommate decisions, reinforced across every cycle, could shift retention from convenience reactivation to durable preference."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-2 -->
+  <script id="data-layer-2" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "crossref_summary": "Transcript evidence strongly confirms that the biggest Layer 1 disappointments are not theoretical: users repeatedly describe trust uncertainty, manual verification labor, and off-platform coordination exactly at high-risk moments. Hosts and guests both rely on ad hoc workarounds (texts, screenshots, external calendars, manual vet checks, personal legitimacy proofs), which mirrors the Roomster pattern of strong lead flow but weak end-to-end decision and commitment infrastructure. The calls also reveal two grounded extensions: a recurring legitimacy-proof burden before users trust the channel at all, and rescheduling failures caused by hidden cross-platform availability constraints.",
+  "validated_disappointments": [
+    {
+      "disappointment_id": "disappoint-003",
+      "disappointment_title": "Profile Cards Without Evidence Tiers",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I don't know if this guy is legit or what it is.",
+          "context": "Host reacts to repeated outreach and questions whether the person/company is real before discussing fit.",
+          "match_type": "emotional_moment"
+        },
+        {
+          "transcript": "patricia-call-2.txt",
+          "speaker": "host",
+          "quote": "there are so many scams around and I've already been scammed twice.",
+          "context": "Host explains prior scam history and heightened caution before accepting any booking flow.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "Susan  Bryant customer call.txt",
+          "speaker": "guest",
+          "quote": "I have to go and see the space and just to make sure that everything is legit.",
+          "context": "Guest-side decision depends on legitimacy proof before ticket purchase and commitment.",
+          "match_type": "unmet_expectation"
+        }
+      ],
+      "user_language": "legit, scams, make sure everything is legit",
+      "framework_reinforcement": "Yes. This directly reinforces Layer 1's trust-vacuum thesis: users demand evidence chains before commitment, so generic profile/bio information is not enough to establish category-level trust."
+    },
+    {
+      "disappointment_id": "disappoint-004",
+      "disappointment_title": "Chat Handoff at the Commitment Moment",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "host",
+          "quote": "so he was texting me and saying, Hey, you know, I can't make a fist for another day.",
+          "context": "Rescheduling happens in direct text threads, outside a structured in-product commitment rail.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "robbie-call.txt",
+          "speaker": "host",
+          "quote": "We have to confirm the payment immediately. The contract has been fueled.",
+          "context": "Host pushes for immediate payment confirmation and manual contract certainty at commitment time.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "texting me, confirm the payment immediately",
+      "framework_reinforcement": "Yes. The evidence supports Layer 1's commitment-cliff diagnosis: when stakes increase, users leave streamlined product flow and negotiate certainty through manual channels."
+    },
+    {
+      "disappointment_id": "disappoint-005",
+      "disappointment_title": "Open-Ended Messaging With No Trust Script",
+      "validation_strength": "strong",
+      "transcript_evidence": [
+        {
+          "transcript": "Frederick_s Customer Call with Vale.txt",
+          "speaker": "guest",
+          "quote": "I thought it would be like, just me and the other person. Like I thought it'd be a little bit simpler.",
+          "context": "Guest reveals mismatch between expected arrangement clarity and the actual complexity of sharing/turnover rules.",
+          "match_type": "unmet_expectation"
+        },
+        {
+          "transcript": "Customer call- Vince.txt",
+          "speaker": "guest",
+          "quote": "they're not communicating well right now.",
+          "context": "Guest depends on uncertain back-and-forth to finalize schedule and start timing.",
+          "match_type": "parallel_frustration"
+        },
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "host",
+          "quote": "That's the frustrating part",
+          "context": "Host expresses direct frustration in an unstructured rescheduling flow that relies on manual coordination.",
+          "match_type": "emotional_moment"
+        }
+      ],
+      "user_language": "a little bit simpler, not communicating well, frustrating",
+      "framework_reinforcement": "Yes. This strengthens Layer 1's point that freeform communication creates omission risk and confusion; users want scripted clarity around shared use, schedule changes, and commitments."
+    },
+    {
+      "disappointment_id": "disappoint-002",
+      "disappointment_title": "Filter Work Without Decision Confidence",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "tammy-call.txt",
+          "speaker": "host",
+          "quote": "what are they there for? What's the company who are they there and where are they going to be working?",
+          "context": "Host performs manual qualification and risk scoring before accepting people.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "andreas-call.txt",
+          "speaker": "host",
+          "quote": "excellent credit on every single tenant",
+          "context": "Host sets explicit trust thresholds and asks for verification details as part of decision quality control.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "what are they there for, excellent credit on every single tenant",
+      "framework_reinforcement": "Yes. Users are doing their own decision math instead of relying on system-ranked confidence signals, matching Layer 1's invisible-labor finding."
+    },
+    {
+      "disappointment_id": "disappoint-006",
+      "disappointment_title": "Move-In and Then Product Silence",
+      "validation_strength": "moderate",
+      "transcript_evidence": [
+        {
+          "transcript": "chantel-call.txt",
+          "speaker": "host",
+          "quote": "I have kind of like a book... and then I use that checklist. They leave to verify that nothing has been broken or damaged.",
+          "context": "Host runs post-move-in operations manually with personal documentation and checklists.",
+          "match_type": "workaround"
+        },
+        {
+          "transcript": "tammy-call.txt",
+          "speaker": "host",
+          "quote": "we have onsite... managers... if they have a problem, they come the next day or that day",
+          "context": "Host relies on private operational infrastructure for active-stay issue resolution.",
+          "match_type": "parallel_frustration"
+        }
+      ],
+      "user_language": "kind of like a book, checklist, onsite managers",
+      "framework_reinforcement": "Yes. The calls confirm that active-stay reliability is handled off-platform through host-run systems, consistent with Layer 1's abandoned-phase diagnosis."
+    }
+  ],
+  "new_discoveries": [
+    {
+      "id": "discovery-001",
+      "title": "Legitimacy Proof Tax Before Any Real Booking Conversation",
+      "type": "trust_vacuum",
+      "transcript_evidence": [
+        {
+          "transcript": "tag-call .txt",
+          "speaker": "host",
+          "quote": "I don't know if this guy is legit or what it is.",
+          "context": "User blocks progress until identity is proven."
+        },
+        {
+          "transcript": "patricia-call-2.txt",
+          "speaker": "host",
+          "quote": "there are so many scams around and I've already been scammed twice.",
+          "context": "Prior scam experience creates a default skepticism posture."
+        },
+        {
+          "transcript": "Susan  Bryant customer call.txt",
+          "speaker": "guest",
+          "quote": "I have to go and see the space and just to make sure that everything is legit.",
+          "context": "Guest requires legitimacy verification before travel commitment."
+        }
+      ],
+      "relates_to_competitor": "This extends the Roomster-like trust pattern upstream: before profile evaluation, users must first verify that the channel itself is real, which adds friction before normal marketplace decisions even begin.",
+      "framework_analysis": "Play Bigger Ch.1-2 implies category leaders define and own the core risk narrative. When legitimacy proof is improvised (LinkedIn links, ad-hoc calls, manual reassurance), the company is not perceived as category authority; users stay in defensive verification mode."
+    },
+    {
+      "id": "discovery-002",
+      "title": "Availability Opacity From Cross-Platform Calendars Creates Failed Reschedules",
+      "type": "invisible_labor",
+      "transcript_evidence": [
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "host",
+          "quote": "Airbnb. I have some of them today.",
+          "context": "Host inventory is managed across multiple platforms."
+        },
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "host",
+          "quote": "you guys have the most up to date. We can update that.",
+          "context": "Availability requires manual synchronization and intervention."
+        },
+        {
+          "transcript": "nneka-call.txt",
+          "speaker": "host",
+          "quote": "there can be some difficulties there in matching with your listing availability",
+          "context": "Mismatch between desired usage and actual availability becomes a repeated coordination burden."
+        }
+      ],
+      "relates_to_competitor": "Like Roomster's search-confidence gap, users are shown possibility before certainty; they spend effort on dates that may fail due to hidden constraints.",
+      "framework_analysis": "Under Play Bigger's 'category as organizing principle,' availability should be a first-order truth in the experience. If users must coordinate through screenshots and manual updates, the platform behaves like a lead router, not a category-defining system."
+    }
+  ],
+  "library_connections": [
+    {
+      "disappointment_id": "disappoint-003",
+      "existing_element_id": "communicates-003",
+      "connection": "The Trust Credential Stack directly addresses scam anxiety by sequencing verification mechanisms before trust claims.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "disappoint-004",
+      "existing_element_id": "communicates-005",
+      "connection": "Pre-Packaged Proposal reduces ad-hoc negotiation load, but current transcript evidence shows rescheduling/payment commitments still spill into manual text/call channels.",
+      "gap_or_reinforcement": "partial"
+    },
+    {
+      "disappointment_id": "disappoint-005",
+      "existing_element_id": "works-003",
+      "connection": "Matching platform interaction speed to conversational speed helps replace fragmented text threads with clear, structured actions.",
+      "gap_or_reinforcement": "partial"
+    },
+    {
+      "disappointment_id": "disappoint-006",
+      "existing_element_id": "guest-communicates-001",
+      "connection": "Current-Week Hero Card improves active-stay clarity for recurring actions, but host-side operational accountability artifacts remain mostly outside product rails.",
+      "gap_or_reinforcement": "partial"
+    },
+    {
+      "disappointment_id": "discovery-001",
+      "existing_element_id": "communicates-006",
+      "connection": "Agent Continuity Frame supports early legitimacy transfer by making communication feel person-backed rather than anonymous-platform originated.",
+      "gap_or_reinforcement": "reinforcement"
+    },
+    {
+      "disappointment_id": "discovery-002",
+      "existing_element_id": "guest-works-007",
+      "connection": "Surface Real-Time Availability Inside the Guest's Decision Flow is a direct solution path for the Airbnb-sync opacity described in the calls.",
+      "gap_or_reinforcement": "reinforcement"
+    }
+  ],
+  "transcripts_scanned": {
+    "host_count": 10,
+    "guest_count": 7,
+    "transcripts_with_matches": [
+      "andreas-call.txt",
+      "chantel-call.txt",
+      "cristina-call.txt",
+      "nneka-call.txt",
+      "paul-call.txt",
+      "tag-call .txt",
+      "Copy of Call with Tom C guest.txt",
+      "Customer call- Vince.txt",
+      "Frederick_s Customer Call with Vale.txt",
+      "Susan  Bryant customer call.txt",
+      "Theodore Matthews.txt"
+    ],
+    "transcripts_without_matches": [
+      "shirley-call.txt",
+      "rami-call.txt",
+      "Customer call Tom.txt",
+      "Taline  Bryant.txt",
+      "Tyler Wood 24 November 2021.txt"
+    ]
+  }
+}</script>
+  <!-- INJECT:layer-3 -->
+  <script id="data-layer-3" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "opportunity_thesis": "Roomster's strongest capability is fast lead flow, but the validated pain shows the category still abandons users at legitimacy, commitment, and lived-outcome moments. Through the Play Bigger lens, this creates a clear opening for Split Lease to define a new category around trusted roommate decision quality end-to-end: prove legitimacy before contact, structure commitment before money risk, preserve coordination reliability during the stay, and compound trust from outcomes after the stay. The signature play is not 'better matching speed' but category ownership of safer shared-living decisions under uncertainty.",
+  "opportunities": [
+    {
+      "id": "opp-001",
+      "title": "Legitimacy Chain Before First Contact",
+      "based_on_disappointments": [
+        "disappoint-001",
+        "disappoint-003"
+      ],
+      "split_lease_phases": [
+        "discovery",
+        "search",
+        "listing_evaluation"
+      ],
+      "the_signature": "Before chat begins, Split Lease shows a transparent legitimacy chain for each side: identity proof, role proof, payment readiness, and what is still unverified. The signature moment is that users no longer ask 'is this legit?' because uncertainty is made explicit and comparable upfront, instead of hidden inside bios and intuition.",
+      "why_competitors_wont_copy": "Lead-generation marketplaces optimize for message starts and low-friction volume. A rigorous pre-contact legitimacy layer introduces operational overhead, exposes uncertainty honestly, and can reduce short-term conversion optics, which conflicts with volume-first business models.",
+      "behavioral_framework_case": "Play Bigger Ch.1-2 argues category kings become synonymous with the defining problem. In this category, the defining problem is trust under uncertainty, not inventory browsing. Owning legitimacy before contact reframes the market around a new problem definition that competitors have not claimed.",
+      "user_evidence": "Users repeatedly describe legitimacy anxiety at first contact: 'I don't know if this guy is legit,' 'there are so many scams around and I've already been scammed twice,' and 'I have to go and see the space ... to make sure that everything is legit.'",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not collapse trust into a single verified badge; preserve evidence tiers and explicit unknowns.",
+        "Do not hide legitimacy evidence behind paywalls or deep clicks; it must inform first contact decisions.",
+        "Do not overpromise certainty; confidence signaling must stay tied to verifiable proof."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "communicates-003",
+          "communicates-006",
+          "works-001"
+        ],
+        "gap_assessment": "Partial overlap. The library supports trust communication and continuity framing, but a unified pre-contact legitimacy chain is not yet fully defined as a category surface."
+      }
+    },
+    {
+      "id": "opp-002",
+      "title": "Guided Commitment Rail With Safe Agreement States",
+      "based_on_disappointments": [
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "split_lease_phases": [
+        "proposal_creation",
+        "negotiation",
+        "acceptance"
+      ],
+      "the_signature": "Split Lease turns ad hoc chat into a staged commitment rail with explicit states (intent, terms alignment, conditional acceptance, payment-safe confirmation). Users still converse naturally, but each stage captures critical commitments in-platform so no one is forced to finalize high-risk decisions in ambiguous text threads.",
+      "why_competitors_wont_copy": "Roomster-style products are structurally designed to stop at messaging. Owning commitment rails requires legal/process infrastructure, support responsibilities, and accountability at the highest-liability moment, which lead-funnel businesses avoid.",
+      "behavioral_framework_case": "Play Bigger Ch.2 emphasizes that leaders own the defining problem end-to-end in customer perception. If commitment reliability is off-platform, category ownership is impossible. A guided rail moves Split Lease from 'connection tool' to 'decision-quality authority.'",
+      "user_evidence": "Transcript patterns show commitment happening in manual channels: 'he was texting me ... can't make it for another day,' pressure moments like 'confirm the payment immediately,' and recurring frustration that flows are not 'simpler' or 'communicating well.'",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "strong",
+        "framework_support": "strong",
+        "feasibility": "moderate",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not turn this into a rigid legal wizard; keep conversational speed while enforcing state clarity.",
+        "Do not let core terms drift into off-platform threads after state entry begins.",
+        "Do not hide who owes the next action; every state must have explicit responsibility and deadline."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "communicates-005",
+          "works-003"
+        ],
+        "gap_assessment": "Strong reinforcement. Existing elements cover proposal structure and interaction speed, but a full end-to-end commitment-state rail remains only partially assembled."
+      }
+    },
+    {
+      "id": "opp-003",
+      "title": "Availability Truth Layer for Reschedule Reliability",
+      "based_on_disappointments": [
+        "disappoint-002",
+        "disappoint-005"
+      ],
+      "split_lease_phases": [
+        "search",
+        "listing_evaluation",
+        "negotiation",
+        "acceptance",
+        "active_lease"
+      ],
+      "the_signature": "Split Lease makes availability a first-order truth across search and negotiation by exposing cross-platform constraints and preserving a shared, current scheduling state through reschedules. The signature is that users stop wasting effort on dates that were never truly available and can modify plans without collapsing back to manual texting.",
+      "why_competitors_wont_copy": "Most category players are optimized for listing exposure and initial messages, not synchronized scheduling infrastructure. Building reliable availability truth demands deeper integrations and operational ownership that do not pay back in short-term lead metrics.",
+      "behavioral_framework_case": "Play Bigger Ch.2 says category leaders become the organizing principle for the problem customers actually experience. When users repeatedly hit hidden date conflicts, the real problem is reliability of planning, not search volume. Owning schedule truth is a category-level repositioning move.",
+      "user_evidence": "Users describe manual sync burden and failed reschedules: inventory spread across platforms ('Airbnb. I have some of them today'), manual updates ('you guys have the most up to date. We can update that'), and explicit mismatch pain ('difficulties ... matching with your listing availability').",
+      "opportunity_score": {
+        "signature_potential": "medium",
+        "category_gap": "most_competitors",
+        "user_validation": "strong",
+        "framework_support": "moderate",
+        "feasibility": "moderate",
+        "alignment": "natural_fit"
+      },
+      "anti_patterns": [
+        "Do not present stale availability with cosmetic 'last updated' labels as a substitute for sync truth.",
+        "Do not treat reschedule as an edge case; it must be a core state transition.",
+        "Do not separate scheduling state from proposal state; users need one source of truth."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "guest-works-007",
+          "works-003"
+        ],
+        "gap_assessment": "Partial overlap. A direct availability element exists, but the end-to-end reliability model across search-through-reschedule remains under-specified."
+      }
+    },
+    {
+      "id": "opp-004",
+      "title": "Outcome Flywheel Across Active-Stay and Post-Stay",
+      "based_on_disappointments": [
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "split_lease_phases": [
+        "move_in",
+        "active_lease",
+        "retention"
+      ],
+      "the_signature": "Split Lease continues after match with lightweight active-stay protocols and structured post-stay debrief artifacts that feed forward into future trust and matching quality. The signature is visible compounding: each completed stay makes the next decision measurably safer and easier for both sides.",
+      "why_competitors_wont_copy": "Incumbents are built for throughput at match initiation and avoid lifecycle operations. Active/post-stay systems require ongoing product, policy, and support investment whose payoff is delayed and cumulative, not immediate funnel conversion.",
+      "behavioral_framework_case": "Play Bigger Ch.1-2 ties category king economics to owning the value loop over time. Without active-stay and post-stay infrastructure, trust cannot compound and leadership claims stay shallow. This opportunity creates the compounding mechanism.",
+      "user_evidence": "Hosts run their own off-platform operations ('I have kind of like a book ... checklist') and private escalation systems ('we have onsite managers'), while repeat users report re-entering the cycle without meaningful progress.",
+      "opportunity_score": {
+        "signature_potential": "high",
+        "category_gap": "entire_category",
+        "user_validation": "moderate",
+        "framework_support": "strong",
+        "feasibility": "ambitious",
+        "alignment": "core_to_brand"
+      },
+      "anti_patterns": [
+        "Do not ship isolated tools without a shared lifecycle memory model.",
+        "Do not collect stay data without returning next-cycle decision value to users.",
+        "Do not frame retention as reminders; the promise is improved decision outcomes over time."
+      ],
+      "existing_library_overlap": {
+        "related_elements": [
+          "guest-communicates-001",
+          "guest-works-003"
+        ],
+        "gap_assessment": "Partial overlap. Existing elements support active-stay clarity, but a full active-to-post-stay trust compounding flywheel remains a major strategic gap."
+      }
+    }
+  ],
+  "opportunity_ranking": [
+    {
+      "id": "opp-001",
+      "rank": 1,
+      "reason": "It attacks the earliest and most universal blocker (legitimacy anxiety) with the strongest transcript signal and sets the trust frame that determines all downstream conversion quality."
+    },
+    {
+      "id": "opp-002",
+      "rank": 2,
+      "reason": "It addresses the highest-stakes failure point where money and commitment risk peak, and competitors are structurally disincentivized to own this phase."
+    },
+    {
+      "id": "opp-004",
+      "rank": 3,
+      "reason": "It creates the long-term category moat through compounding outcome data, but depends on trust and commitment layers to activate at scale."
+    },
+    {
+      "id": "opp-003",
+      "rank": 4,
+      "reason": "It solves a validated, recurring coordination pain and improves reliability, but its standalone category-defining power is lower than trust and commitment ownership."
+    }
+  ],
+  "strategic_narrative": "These opportunities form a category-design sequence, not a feature list. First, Split Lease reframes entry around legitimacy so users start from evidence instead of suspicion. Second, it owns the commitment moment with explicit agreement states so high-risk decisions stop leaking into unstructured channels.\n\nWith trust and commitment architecture in place, Split Lease can outperform the category on reliability by making availability truth and reschedules operationally dependable. That reduces hidden coordination labor and prevents confidence erosion between intent and acceptance.\n\nFinally, Split Lease compounds advantage where competitors go silent: active-stay and post-stay. By converting lived outcomes into reusable trust and matching intelligence, the platform becomes the default authority for safer roommate decisions over time, which is exactly the category-king position Play Bigger describes."
+}</script>
+  <!-- INJECT:layer-4 -->
+  <script id="data-layer-4" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "elements": [
+    {
+      "id": "rb-roomster-pb-ui-001",
+      "name": "Legitimacy Chain Panel",
+      "category": "section",
+      "opportunity_id": "opp-001",
+      "source_disappointments": [
+        "disappoint-001",
+        "disappoint-003"
+      ],
+      "journey_phases": [
+        "discovery",
+        "search",
+        "listing_evaluation"
+      ],
+      "priority": "high",
+      "problem_it_solves": "Users currently start conversations while still wondering whether the person and listing are legitimate, creating early trust drop-off.",
+      "why_this_is_a_signature": "Category incumbents optimize for message volume; this element makes legitimacy proof the default starting condition before chat.",
+      "description": "A top-of-listing panel that displays four explicit trust states: identity proof, role proof, payment readiness, and unresolved unknowns. It preserves speed to message, but forces visible evidence ordering before first contact. The panel also includes a one-click disconfirming checklist so users can test assumptions, not just confirm them.",
+      "visual_spec": {
+        "layout": "Two-column panel in desktop (evidence list + action rail), stacked on mobile.",
+        "background": "#ffffff on a subtle off-white gradient.",
+        "border": "1px solid #e5e7eb with 3px top accent in secondary purple.",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 20px, 700, #31135D",
+          "body": "DM Sans, 14px, 400, #374151",
+          "accent": "Inter, 12px, 600, rgb(109, 49, 194)"
+        },
+        "spacing": {
+          "padding": "24px",
+          "gap": "14px"
+        },
+        "color_usage": "Primary purple anchors headings, secondary purple marks verified states, accent purple marks unresolved unknowns."
+      },
+      "interaction_spec": {
+        "default_state": "Four rows visible with status chips: Verified, Partial, Pending, Unknown.",
+        "hover": "Row elevates with purple-tinted shadow and reveals source timestamp.",
+        "click": "Click opens inline evidence details and source trail.",
+        "animation": "Rows fade-up with 180ms stagger and chip color transition over 200ms.",
+        "responsive": "Below 768px rows stack full-width and CTA rail moves below evidence list with 48px buttons."
+      },
+      "copy_spec": {
+        "primary_text": "Trust check before you message",
+        "secondary_text": "See what is verified, what is still uncertain, and what Split Lease guarantees.",
+        "micro_copy": "Actions: 'Message now', 'Run disconfirming checklist'. Labels: 'Identity verified', 'Role verified', 'Payment rail ready', 'Unknowns to confirm'.",
+        "do": [
+          "Name unknowns directly.",
+          "Keep proof language concrete.",
+          "Show evidence source and recency."
+        ],
+        "dont": [
+          "Do not collapse trust into one badge.",
+          "Do not hide unknowns in legal footnotes.",
+          "Do not gate proof behind paywalls."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Legitimacy Chain Panel</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--bg-off:#fcfaff;--border:#e5e7eb;}\n*{box-sizing:border-box}body{margin:0;padding:20px;background:radial-gradient(circle at 10% 0,rgba(140,104,238,.16),transparent 40%),var(--bg-off);font-family:'DM Sans',sans-serif;color:#1f2937;}\n.panel{max-width:920px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr;gap:14px;background:#fff;border:1px solid var(--border);border-top:3px solid var(--secondary-purple);border-radius:12px;padding:24px;}\nh1{font:700 20px 'Inter',sans-serif;color:var(--primary-purple);margin:0 0 8px}.sub{margin:0 0 12px;font-size:14px;color:#374151}.row{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid var(--border);border-radius:8px;margin:8px 0;background:#fff}.chip{font:600 11px 'Inter',sans-serif;padding:3px 10px;border-radius:999px;background:rgba(109,49,194,.12);color:var(--secondary-purple)}.actions button{display:block;width:100%;min-height:48px;margin-bottom:8px;border:none;border-radius:8px;font:600 13px 'Inter',sans-serif;cursor:pointer}.primary{background:var(--primary-purple);color:#fff}.secondary{background:#fff;border:1px solid var(--border);color:var(--secondary-purple)}\n@media (max-width:768px){.panel{grid-template-columns:1fr}}\n</style>\n</head>\n<body><section class='panel'><div><h1>Trust check before you message</h1><p class='sub'>See what is verified, what is uncertain, and what Split Lease guarantees.</p><div class='row'><span>Identity proof</span><span class='chip'>Verified</span></div><div class='row'><span>Role proof</span><span class='chip'>Verified</span></div><div class='row'><span>Payment readiness</span><span class='chip'>Partial</span></div><div class='row'><span>Unknowns to confirm</span><span class='chip'>Pending</span></div></div><aside class='actions'><button class='primary'>Message host now</button><button class='secondary'>Run disconfirming checklist</button></aside></section></body>\n</html>",
+      "before_after": {
+        "before": "Roomster-style discovery rushes users to chat with limited structured trust proof.",
+        "after": "Split Lease introduces visible evidence tiers before first message so users can compare risk explicitly."
+      },
+      "implements_principles": [
+        "opp-001",
+        "disappoint-001",
+        "disappoint-003",
+        "discovery-001"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "rb-roomster-pb-ui-002",
+      "name": "Commitment State Rail Drawer",
+      "category": "modal",
+      "opportunity_id": "opp-002",
+      "source_disappointments": [
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "journey_phases": [
+        "proposal_creation",
+        "negotiation",
+        "acceptance"
+      ],
+      "priority": "high",
+      "problem_it_solves": "High-stakes terms and payment sequencing currently spill into unstructured chat where responsibility and next action are unclear.",
+      "why_this_is_a_signature": "Lead-funnel competitors avoid owning commitment liability; this element makes Split Lease own the riskiest decision moment with explicit states.",
+      "description": "A side drawer with four commitment states: intent, term alignment, verification, and authorization. Each state has one required decision, one owner, and one due time. Users can still chat, but canonical terms are versioned in the drawer and cannot drift into text chaos.",
+      "visual_spec": {
+        "layout": "Right-side drawer on desktop, bottom sheet on mobile.",
+        "background": "White surface over dark translucent overlay.",
+        "border": "1px solid #e5e7eb with active step ring in secondary purple.",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 18px, 700, #31135D",
+          "body": "DM Sans, 14px, 400, #374151",
+          "accent": "Inter, 12px, 600, rgb(109, 49, 194)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "12px"
+        },
+        "color_usage": "Primary purple for hierarchy, secondary purple for active state, accent purple for caution states."
+      },
+      "interaction_spec": {
+        "default_state": "Current state and next owner task visible at top.",
+        "hover": "Action buttons gain purple shadow and stronger contrast.",
+        "click": "Primary action advances state; secondary action requests edits with audit trail.",
+        "animation": "Drawer slides in over 240ms; state card transitions over 180ms.",
+        "responsive": "Below 640px becomes full-width bottom sheet with sticky action footer."
+      },
+      "copy_spec": {
+        "primary_text": "Commitment rail: 3 of 4",
+        "secondary_text": "Verify terms before authorization. Every next action has a clear owner and deadline.",
+        "micro_copy": "States: 'Intent confirmed', 'Terms aligned', 'Verification in progress', 'Authorization pending'. Actions: 'Advance', 'Request edits'.",
+        "do": [
+          "Keep ownership explicit.",
+          "Show reversible language before final authorization.",
+          "Preserve term history."
+        ],
+        "dont": [
+          "Do not bury terms in chat.",
+          "Do not ask for payment before verification.",
+          "Do not hide deadlines."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Commitment State Rail Drawer</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--border:#e5e7eb;}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:'DM Sans',sans-serif;background:#f4f4f5}.overlay{min-height:100vh;background:rgba(0,0,0,.55);display:flex;justify-content:flex-end}.drawer{width:min(420px,100%);background:#fff;padding:20px;border-left:1px solid var(--border)}h1{font:700 18px 'Inter',sans-serif;color:var(--primary-purple);margin:0 0 10px}.state{border:1px solid var(--border);border-radius:10px;padding:10px;margin:8px 0}.state.active{border-color:var(--secondary-purple);box-shadow:0 0 0 2px rgba(109,49,194,.15)}.meta{font:600 11px 'Inter',sans-serif;color:var(--secondary-purple);margin-bottom:4px}.actions{display:flex;gap:8px;margin-top:14px}.actions button{flex:1;min-height:48px;border:none;border-radius:8px;font:600 13px 'Inter',sans-serif;cursor:pointer}.primary{background:var(--primary-purple);color:#fff}.secondary{background:#fff;border:1px solid var(--border);color:var(--secondary-purple)}\n</style>\n</head>\n<body><div class='overlay'><aside class='drawer'><h1>Commitment rail: step 3 of 4</h1><div class='state'><div class='meta'>Done</div>Intent confirmed</div><div class='state'><div class='meta'>Done</div>Terms aligned</div><div class='state active'><div class='meta'>Current</div>Verification in progress</div><div class='state'><div class='meta'>Next</div>Authorization pending</div><div class='actions'><button class='primary'>Advance</button><button class='secondary'>Request edits</button></div></aside></div></body>\n</html>",
+      "before_after": {
+        "before": "Users finalize risky commitments in ad hoc text threads.",
+        "after": "Split Lease introduces a staged, auditable commitment rail with explicit ownership and deadlines."
+      },
+      "implements_principles": [
+        "opp-002",
+        "disappoint-004",
+        "disappoint-005"
+      ],
+      "effort": "large"
+    },
+    {
+      "id": "rb-roomster-pb-ui-003",
+      "name": "Availability Truth Timeline",
+      "category": "card",
+      "opportunity_id": "opp-003",
+      "source_disappointments": [
+        "disappoint-002",
+        "disappoint-005"
+      ],
+      "journey_phases": [
+        "search",
+        "listing_evaluation",
+        "negotiation",
+        "acceptance",
+        "active_lease"
+      ],
+      "priority": "medium",
+      "problem_it_solves": "Users spend effort on dates that appear available but fail later due to cross-platform conflicts and manual reschedule drift.",
+      "why_this_is_a_signature": "Most competitors show static availability snapshots; this element exposes synchronized state history and conflict certainty before users negotiate.",
+      "description": "A compact timeline card attached to listing and proposal views. It shows latest sync source, confidence level for each date block, and a clear conflict flag when availability changed. Reschedule requests reuse the same timeline so users do not lose context between search and agreement.",
+      "visual_spec": {
+        "layout": "Vertical card with timeline rail and confidence badges.",
+        "background": "#ffffff",
+        "border": "1px solid #e5e7eb",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 16px, 700, #31135D",
+          "body": "DM Sans, 13px, 400, #374151",
+          "accent": "Inter, 11px, 600, rgb(109, 49, 194)"
+        },
+        "spacing": {
+          "padding": "18px",
+          "gap": "10px"
+        },
+        "color_usage": "Secondary purple for reliable states, amber for warning states, red for conflicts."
+      },
+      "interaction_spec": {
+        "default_state": "Shows three latest sync events with confidence tags.",
+        "hover": "Timeline nodes enlarge slightly and reveal source platform.",
+        "click": "Clicking an event opens date-level diff and recommended fallback dates.",
+        "animation": "New sync events enter with 160ms fade-slide.",
+        "responsive": "On mobile nodes stay vertical with full-width tap targets."
+      },
+      "copy_spec": {
+        "primary_text": "Availability truth",
+        "secondary_text": "Last synced 6 minutes ago. 2 dates changed since your last view.",
+        "micro_copy": "Labels: 'High confidence', 'Needs confirmation', 'Conflict detected'. Action: 'See alternatives'.",
+        "do": [
+          "Surface recency and source.",
+          "Show conflicts early.",
+          "Tie fallback dates to the same context."
+        ],
+        "dont": [
+          "Do not hide stale data behind generic timestamps.",
+          "Do not separate reschedule from source-of-truth timeline.",
+          "Do not show false certainty."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Availability Truth Timeline</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--border:#e5e7eb;}*{box-sizing:border-box}body{margin:0;padding:20px;background:#fafafa;font-family:'DM Sans',sans-serif}.card{max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px}h1{font:700 16px 'Inter',sans-serif;color:var(--primary-purple);margin:0 0 6px}.sub{font-size:13px;color:#374151;margin-bottom:10px}.event{display:grid;grid-template-columns:16px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px dashed #eee}.dot{width:10px;height:10px;border-radius:50%;background:var(--secondary-purple)}.tag{font:600 11px 'Inter',sans-serif;padding:3px 8px;border-radius:999px;background:rgba(109,49,194,.12);color:var(--secondary-purple)}\n</style>\n</head>\n<body><div class='card'><h1>Availability truth</h1><p class='sub'>Last synced 6 minutes ago. 2 dates changed since your last view.</p><div class='event'><span class='dot'></span><span>Split Lease sync completed</span><span class='tag'>High confidence</span></div><div class='event'><span class='dot'></span><span>Airbnb hold detected for Thu</span><span class='tag'>Conflict</span></div><div class='event'><span class='dot'></span><span>Fallback window suggested</span><span class='tag'>Needs confirmation</span></div></div></body>\n</html>",
+      "before_after": {
+        "before": "Users discover date conflicts late and coordinate reschedules through manual back-and-forth.",
+        "after": "Split Lease surfaces synchronized availability truth and conflict-aware alternatives before commitment."
+      },
+      "implements_principles": [
+        "opp-003",
+        "disappoint-002",
+        "disappoint-005",
+        "discovery-002"
+      ],
+      "effort": "medium"
+    },
+    {
+      "id": "rb-roomster-pb-ui-004",
+      "name": "Outcome Compounding Debrief Card",
+      "category": "feedback",
+      "opportunity_id": "opp-004",
+      "source_disappointments": [
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "journey_phases": [
+        "move_in",
+        "active_lease",
+        "retention"
+      ],
+      "priority": "medium",
+      "problem_it_solves": "Without structured closeout, each new housing cycle restarts from scratch and users do not benefit from prior outcomes.",
+      "why_this_is_a_signature": "Competitors end value at match; this element captures lived-outcome signals and converts them into next-cycle defaults.",
+      "description": "A one-minute debrief card shown at key milestones and lease end. It asks three high-signal prompts, then previews exactly which trust and matching defaults will update for future decisions. The card links active-stay observations to retention value so users feel compounding benefit.",
+      "visual_spec": {
+        "layout": "Single card with quick prompts above an auto-updated defaults preview.",
+        "background": "White surface with subtle purple diagonal wash.",
+        "border": "1px solid #e5e7eb with left accent stripe in secondary purple.",
+        "border_radius": "12px",
+        "typography": {
+          "heading": "Inter, 18px, 700, #31135D",
+          "body": "DM Sans, 14px, 400, #374151",
+          "accent": "Inter, 12px, 600, rgb(109, 49, 194)"
+        },
+        "spacing": {
+          "padding": "20px",
+          "gap": "10px"
+        },
+        "color_usage": "Primary purple for summary, secondary purple for selected prompts, accent purple for next-cycle update hints."
+      },
+      "interaction_spec": {
+        "default_state": "Three prompt chips and a hidden defaults preview.",
+        "hover": "Prompt chips brighten and lift slightly.",
+        "click": "Selecting chips reveals updated defaults in real time.",
+        "animation": "Defaults preview cross-fades in 180ms.",
+        "responsive": "On mobile chips stack and primary CTA is fixed to card footer with 48px height."
+      },
+      "copy_spec": {
+        "primary_text": "One minute now, safer next match",
+        "secondary_text": "Tell us what worked and we will carry it into your next shortlist automatically.",
+        "micro_copy": "Prompts: 'Handoff smooth', 'Rules mismatch', 'Communication reliable'. CTA: 'Save and apply'.",
+        "do": [
+          "Keep completion under a minute.",
+          "Show direct next-cycle impact.",
+          "Prioritize decision-relevant prompts."
+        ],
+        "dont": [
+          "Do not ask long survey questions.",
+          "Do not collect feedback without visible payoff.",
+          "Do not frame retention as reminders only."
+        ]
+      },
+      "html_css": "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8' />\n<meta name='viewport' content='width=device-width, initial-scale=1.0' />\n<title>Outcome Compounding Debrief Card</title>\n<style>\n@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap');\n:root{--primary-purple:#31135D;--secondary-purple:rgb(109,49,194);--accent-purple:rgb(140,104,238);--border:#e5e7eb;}*{box-sizing:border-box}body{margin:0;padding:20px;background:radial-gradient(circle at 0 0,rgba(140,104,238,.18),transparent 35%),#fcfaff;font-family:'DM Sans',sans-serif}.card{max-width:680px;margin:0 auto;background:#fff;border:1px solid var(--border);border-left:4px solid var(--secondary-purple);border-radius:12px;padding:20px}h1{margin:0 0 6px;font:700 18px 'Inter',sans-serif;color:var(--primary-purple)}.sub{margin:0 0 10px;color:#374151}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}.chip{border:1px solid var(--border);border-radius:999px;padding:6px 10px;font:600 12px 'Inter',sans-serif;color:var(--secondary-purple);background:#fff}.preview{padding:10px;border-radius:8px;background:rgba(109,49,194,.08);font-size:13px;color:#374151}.cta{margin-top:10px;min-height:48px;border:none;border-radius:8px;padding:0 14px;font:600 13px 'Inter',sans-serif;background:var(--primary-purple);color:#fff;cursor:pointer}\n</style>\n</head>\n<body><section class='card'><h1>One minute now, safer next match</h1><p class='sub'>Tell us what worked and we will apply it to your next shortlist.</p><div class='chips'><span class='chip'>Handoff smooth</span><span class='chip'>Rules mismatch</span><span class='chip'>Communication reliable</span></div><div class='preview'>Next-cycle updates: prioritize listings with explicit handoff protocol, elevate hosts with stable communication history.</div><button class='cta'>Save and apply</button></section></body>\n</html>",
+      "before_after": {
+        "before": "Post-stay feedback is thin, so each new decision starts with little reusable trust memory.",
+        "after": "Split Lease captures high-signal outcomes and rewrites future matching defaults automatically."
+      },
+      "implements_principles": [
+        "opp-004",
+        "disappoint-006",
+        "disappoint-007",
+        "disappoint-008"
+      ],
+      "effort": "medium"
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-5 -->
+  <script id="data-layer-5" type="application/json">{}</script>
+  <!-- INJECT:layer-6 -->
+  <script id="data-layer-6" type="application/json">{
+  "lens": {
+    "competitor": "roomster",
+    "book": "playbigger-category-design.txt",
+    "book_chapters": "Part 1: The Category King Economy (Chapters 1-2) — Creation Wins, Category Is the New Strategy"
+  },
+  "reinforcements": [
+    {
+      "new_element_id": "rb-roomster-pb-ui-001",
+      "existing_element_id": "communicates-003",
+      "existing_element_source": "design-stack",
+      "similarity": "Both prioritize explicit trust signaling before deeper commitment actions.",
+      "combined_evidence": "Design-stack trust credential patterns focus on proof ordering; this reverse-benchmark run adds competitor-gap evidence that users still ask 'is this legit?' before first contact.",
+      "recommendation": "merge",
+      "confidence_boost": "Inside-out and outside-in both identify legitimacy proof as a first-order need."
+    },
+    {
+      "new_element_id": "rb-roomster-pb-ui-002",
+      "existing_element_id": "communicates-005",
+      "existing_element_source": "design-stack",
+      "similarity": "Both turn proposal chaos into explicit negotiation states with visible next action.",
+      "combined_evidence": "Design-stack calls show confusion at asynchronous commitment moments; this run adds Roomster category evidence that manual chat handoffs are structural, not incidental.",
+      "recommendation": "keep_both",
+      "confidence_boost": "Multiple runs point to the same commitment-cliff pattern with different source materials."
+    },
+    {
+      "new_element_id": "rb-roomster-pb-ui-003",
+      "existing_element_id": "guest-works-007",
+      "existing_element_source": "design-stack",
+      "similarity": "Both bring real-time availability state into the core guest decision path.",
+      "combined_evidence": "Existing guest pattern calls for in-flow availability clarity; this run contributes transcript-backed cross-platform sync failure evidence and reschedule breakdowns.",
+      "recommendation": "merge",
+      "confidence_boost": "The same availability pain appears in both active guest behavior and competitor benchmark analysis."
+    },
+    {
+      "new_element_id": "rb-roomster-pb-ui-004",
+      "existing_element_id": "guest-communicates-007",
+      "existing_element_source": "reverse-benchmark",
+      "similarity": "Both use lightweight reflection prompts to preserve memory and improve future decision quality.",
+      "combined_evidence": "Prior reverse-benchmark work proposed reflection prompts; this run ties them to category-level retention weakness and repeat-from-scratch user behavior.",
+      "recommendation": "keep_both",
+      "confidence_boost": "Independent reverse-benchmark runs converge on post-stay memory loops as a durable gap."
+    },
+    {
+      "new_element_id": "rb-roomster-pb-ui-004",
+      "existing_element_id": "guest-works-003",
+      "existing_element_source": "design-stack",
+      "similarity": "Both strengthen active-stay lifecycle support instead of treating match completion as the product endpoint.",
+      "combined_evidence": "Design-stack identifies Stays Manager as behavioral center of gravity; this run adds Play Bigger evidence that lifecycle ownership is the category moat.",
+      "recommendation": "keep_both",
+      "confidence_boost": "Cross-process convergence increases confidence that lifecycle operations are strategic, not feature-level."
+    }
+  ],
+  "contradictions": [],
+  "extensions": [
+    {
+      "new_element_id": "rb-roomster-pb-ui-001",
+      "gap_filled": "Pre-contact legitimacy chain that explicitly includes unresolved unknowns as first-class trust data.",
+      "confidence_note": "Moderate-high confidence from direct transcript language about scams and legitimacy checks.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-roomster-pb-ui-002",
+      "gap_filled": "Auditable commitment-state rail with ownership and deadline clarity before money movement.",
+      "confidence_note": "Moderate-high confidence; operational/legal details require design-stack validation of implementation constraints.",
+      "needs_design_stack_validation": "yes"
+    },
+    {
+      "new_element_id": "rb-roomster-pb-ui-003",
+      "gap_filled": "Unified availability truth timeline across search, negotiation, and rescheduling.",
+      "confidence_note": "Moderate confidence; concept is validated but integration feasibility should be tested.",
+      "needs_design_stack_validation": "yes"
+    }
+  ],
+  "cross_process_insights": [
+    {
+      "insight": "Trust sequencing is two-step: legitimacy evidence before chat, then commitment state clarity before payment.",
+      "elements_involved": [
+        "rb-roomster-pb-ui-001",
+        "rb-roomster-pb-ui-002",
+        "communicates-003",
+        "communicates-005"
+      ],
+      "implication": "Split Lease should treat trust as a staged architecture, not a single verification badge."
+    },
+    {
+      "insight": "Availability reliability and negotiation reliability are one system problem, not separate feature tracks.",
+      "elements_involved": [
+        "rb-roomster-pb-ui-003",
+        "guest-works-007",
+        "works-003"
+      ],
+      "implication": "Date certainty must stay synchronized from listing card through acceptance and later reschedule states."
+    },
+    {
+      "insight": "Retention quality improves when active-stay signals feed into future default decisions.",
+      "elements_involved": [
+        "rb-roomster-pb-ui-004",
+        "guest-works-003",
+        "guest-communicates-007"
+      ],
+      "implication": "Measure retention by improved next-cycle decision quality, not only return rate."
+    }
+  ],
+  "token_compliance": {
+    "new_tokens_flagged": [
+      "--primary-purple",
+      "--secondary-purple",
+      "--accent-purple"
+    ],
+    "recommendation": "Use canonical style-guide palette and formal token aliases before production implementation; avoid ad hoc token naming in shipped components."
+  },
+  "coverage_map": {
+    "discovery": {
+      "element_count": 1,
+      "coverage": "thin",
+      "source": "both"
+    },
+    "evaluation": {
+      "element_count": 2,
+      "coverage": "moderate",
+      "source": "both"
+    },
+    "onboarding": {
+      "element_count": 0,
+      "coverage": "none",
+      "source": "design-stack"
+    },
+    "listing_creation": {
+      "element_count": 0,
+      "coverage": "none",
+      "source": "design-stack"
+    },
+    "pricing": {
+      "element_count": 1,
+      "coverage": "thin",
+      "source": "design-stack"
+    },
+    "proposal_mgmt": {
+      "element_count": 2,
+      "coverage": "moderate",
+      "source": "both"
+    },
+    "active_lease": {
+      "element_count": 3,
+      "coverage": "moderate",
+      "source": "both"
+    },
+    "retention": {
+      "element_count": 2,
+      "coverage": "moderate",
+      "source": "reverse-benchmark"
+    }
+  },
+  "next_run_recommendations": [
+    {
+      "process_type": "design-stack",
+      "recommendation": "Run a guest-focused design-stack pass on first-contact legitimacy and commitment sequencing with direct usability validation.",
+      "reason": "This run produced strong outside-in trust signals that now need direct interaction validation with guests and hosts."
+    },
+    {
+      "process_type": "reverse-benchmark",
+      "recommendation": "Benchmark one trust-forward competitor and one pure lead-funnel competitor on reschedule reliability and post-stay memory loops.",
+      "reason": "Comparative evidence will sharpen which reliability and retention mechanisms are truly category-defining."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-7 -->
+  <script id="data-layer-7" type="application/json">{}</script>
+
+  <header class="report-header">
+    <h1>Design Stack v2 Report</h1>
+    <div class="lens-label" id="lens-label"></div>
+    <div class="report-meta">
+      <span id="meta-date"></span>
+      <span id="meta-run-id"></span>
+      <span class="badge" id="meta-status"></span>
+      <span id="meta-elements"></span>
+    </div>
+  </header>
+
+  <div class="coherence-bar" id="coherence-bar">
+    <span class="count" id="coherence-count"></span>
+    <span id="coherence-summary"></span>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="active" data-tab="overview"><span class="layer-num">*</span> Overview</button>
+    <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
+    <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
+    <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
+    <button data-tab="layer-3"><span class="layer-num">3</span> Looks</button>
+    <button data-tab="layer-4"><span class="layer-num">4</span> Behaves</button>
+    <button data-tab="layer-5"><span class="layer-num">5</span> Feels</button>
+    <button data-tab="layer-6"><span class="layer-num">6</span> Coherence</button>
+    <button data-tab="layer-7"><span class="layer-num">7</span> Tests</button>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Overview Tab -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Lens Summary</h3>
+        <p id="overview-lens-summary" style="font-size:16px;color:var(--ink-soft);margin-bottom:20px;"></p>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;">Journey Phase Coverage</h4>
+        <div class="coverage-grid" id="overview-coverage"></div>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin:20px 0 12px;font-family:'IBM Plex Mono',monospace;">Run Statistics</h4>
+        <div id="overview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+      </div>
+      <div id="overview-highlights"></div>
+    </div>
+
+    <!-- Layer 0: Journey Context -->
+    <div class="tab-panel" id="panel-layer-0">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Layer 0: Journey Context</h3>
+        <div id="content-layer-0"></div>
+      </div>
+    </div>
+
+    <!-- Layers 1-5: Element Cards -->
+    <div class="tab-panel" id="panel-layer-1"><div id="content-layer-1"></div></div>
+    <div class="tab-panel" id="panel-layer-2"><div id="content-layer-2"></div></div>
+    <div class="tab-panel" id="panel-layer-3"><div id="content-layer-3"></div></div>
+    <div class="tab-panel" id="panel-layer-4"><div id="content-layer-4"></div></div>
+    <div class="tab-panel" id="panel-layer-5"><div id="content-layer-5"></div></div>
+
+    <!-- Layer 6: Coherence -->
+    <div class="tab-panel" id="panel-layer-6">
+      <div id="content-layer-6"></div>
+    </div>
+
+    <!-- Layer 7: Tests -->
+    <div class="tab-panel" id="panel-layer-7"><div id="content-layer-7"></div></div>
+
+  </main>
+
+  <footer style="text-align:center;padding:32px;color:var(--ink-ghost);font-size:12px;font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v2.0 — Element Pipeline
+  </footer>
+
+  <script>
+    function loadJSON(id) { try { return JSON.parse(document.getElementById(id)?.textContent || '{}'); } catch { return {}; } }
+
+    const config = loadJSON('run-config');
+    const layers = {};
+    for (let i = 0; i <= 7; i++) layers[i] = loadJSON(`data-layer-${i}`);
+
+    // Header
+    const lens = config.lens || layers[0]?.lens || {};
+    document.getElementById('lens-label').textContent = `Lens: ${lens.host_call || '?'} + ${lens.book_extract || '?'}`;
+    document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
+    document.getElementById('meta-run-id').textContent = config.run_id || '';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = config.status || 'pending';
+    statusEl.className = `badge badge-${config.status || 'partial'}`;
+
+    // Count elements
+    let totalElements = 0;
+    for (let i = 1; i <= 5; i++) totalElements += (layers[i]?.elements || []).length;
+    totalElements += (layers[7]?.elements || []).length;
+    document.getElementById('meta-elements').textContent = `${totalElements} elements`;
+
+    // Coherence bar
+    const coherence = layers[6] || {};
+    const contradictions = coherence.contradictions || [];
+    const reinforcements = coherence.reinforcements || [];
+    if (contradictions.length > 0) {
+      const bar = document.getElementById('coherence-bar');
+      bar.classList.add('has-flags');
+      document.getElementById('coherence-count').textContent = `${contradictions.length} contradiction${contradictions.length !== 1 ? 's' : ''}`;
+      document.getElementById('coherence-summary').textContent = `${reinforcements.length} reinforcement${reinforcements.length !== 1 ? 's' : ''} found`;
+    }
+
+    // Tab navigation
+    document.getElementById('tab-nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+    });
+
+    // Evidence toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('evidence-toggle')) {
+        const list = e.target.nextElementSibling;
+        list.classList.toggle('open');
+        e.target.textContent = list.classList.contains('open') ? 'Hide evidence' : `Show evidence (${list.children.length})`;
+      }
+    });
+
+    // Render element card
+    function renderElementCard(el) {
+      const phases = (el.journey_phases || []).map(p => `<span class="phase-tag">${p}</span>`).join('');
+      const evidenceItems = (el.evidence || []).map(ev =>
+        `<div class="evidence-item">
+          <div class="source">${ev.source || ''}</div>
+          ${ev.quote ? `<div class="quote">"${ev.quote}"</div>` : ''}
+          ${ev.insight ? `<div class="insight">${ev.insight}</div>` : ''}
+        </div>`
+      ).join('');
+      const evidenceCount = (el.evidence || []).length;
+
+      let extras = '';
+      // Layer-specific fields
+      if (el.user_goal) extras += `<div class="extra-field"><label>User Goal</label> <span class="value">${el.user_goal}</span></div>`;
+      if (el.company_goal) extras += `<div class="extra-field"><label>Company Goal</label> <span class="value">${el.company_goal}</span></div>`;
+      if (el.success_metric) extras += `<div class="extra-field"><label>Success Metric</label> <span class="value">${el.success_metric}</span></div>`;
+      if (el.time_budget) extras += `<div class="extra-field"><label>Time Budget</label> <span class="value">${el.time_budget}</span></div>`;
+      if (el.hierarchy_principle) extras += `<div class="extra-field"><label>Hierarchy</label> <span class="value">${el.hierarchy_principle}</span></div>`;
+      if (el.disclosure_pattern) extras += `<div class="extra-field"><label>Disclosure</label> <span class="value">${el.disclosure_pattern}</span></div>`;
+      if (el.cognitive_load_constraint) extras += `<div class="extra-field"><label>Cognitive Load</label> <span class="value">${el.cognitive_load_constraint}</span></div>`;
+      if (el.brand_alignment) extras += `<div class="extra-field"><label>Brand Alignment</label> <span class="value">${el.brand_alignment}</span></div>`;
+      if (el.visual_hierarchy_rule) extras += `<div class="extra-field"><label>Visual Hierarchy</label> <span class="value">${el.visual_hierarchy_rule}</span></div>`;
+      if (el.transition_principle) extras += `<div class="extra-field"><label>Transitions</label> <span class="value">${el.transition_principle}</span></div>`;
+      if (el.journey_state_awareness) extras += `<div class="extra-field"><label>Journey Awareness</label> <span class="value">${el.journey_state_awareness}</span></div>`;
+      if (el.target_emotion) extras += `<div class="extra-field"><label>Target Emotion</label> <span class="value" style="font-size:16px;font-weight:600;">${el.target_emotion}</span></div>`;
+      if (el.emotion_rationale) extras += `<div class="extra-field"><label>Why</label> <span class="value">${el.emotion_rationale}</span></div>`;
+      if (el.validation_method) extras += `<div class="extra-field"><label>Method</label> <span class="value">${el.validation_method}</span></div>`;
+      if (el.success_criteria) extras += `<div class="extra-field"><label>Success Criteria</label> <span class="value">${el.success_criteria}</span></div>`;
+      if (el.failure_meaning) extras += `<div class="extra-field"><label>Failure Means</label> <span class="value">${el.failure_meaning}</span></div>`;
+      if (el.test_description) extras += `<div class="extra-field"><label>Test</label> <span class="value">${el.test_description}</span></div>`;
+
+      // Copy guidelines
+      if (el.copy_guidelines) {
+        const cg = el.copy_guidelines;
+        extras += `<div class="extra-field" style="margin-top:8px;"><label>Copy Voice</label> <span class="value">${cg.voice || ''}</span></div>`;
+        if (cg.example_good) extras += `<div class="extra-field"><label>Good Example</label> <span class="value" style="color:var(--signal-success);">"${cg.example_good}"</span></div>`;
+        if (cg.example_bad) extras += `<div class="extra-field"><label>Bad Example</label> <span class="value" style="color:var(--signal-danger);text-decoration:line-through;">"${cg.example_bad}"</span></div>`;
+      }
+
+      // Anti-goals / anti-patterns
+      const antiItems = el.anti_goals || (el.anti_patterns || []).map(a => typeof a === 'string' ? a : a.pattern);
+      let antiHTML = '';
+      if (antiItems && antiItems.length) {
+        antiHTML = `<div style="margin-top:12px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--signal-danger);font-family:'IBM Plex Mono',monospace;">Anti-goals</label><ul style="margin-top:4px;padding-left:18px;font-size:13px;color:var(--ink-soft);">${antiItems.map(a => `<li>${a}</li>`).join('')}</ul></div>`;
+      }
+
+      return `<div class="element-card">
+        <div class="element-card-header">
+          <h3>${el.title || el.id}</h3>
+          <span class="type-badge type-${el.type || ''}">${(el.type || '').replace(/_/g, ' ')}</span>
+          <span class="priority-badge priority-${el.priority || 'low'}">${el.priority || 'low'}</span>
+        </div>
+        <div class="phase-tags">${phases}</div>
+        <div class="ps-grid">
+          <div class="ps-box problem"><label>Problem</label>${el.problem || 'N/A'}</div>
+          <div class="ps-box solution"><label>Solution</label>${el.solution || 'N/A'}</div>
+        </div>
+        ${extras ? `<div class="extra-fields">${extras}</div>` : ''}
+        ${antiHTML}
+        ${evidenceCount > 0 ? `<div style="margin-top:16px;">
+          <button class="evidence-toggle">Show evidence (${evidenceCount})</button>
+          <div class="evidence-list">${evidenceItems}</div>
+        </div>` : ''}
+      </div>`;
+    }
+
+    // Render element layers (1-5, 7)
+    [1,2,3,4,5,7].forEach(i => {
+      const container = document.getElementById(`content-layer-${i}`);
+      if (!container) return;
+      const data = layers[i];
+      const elements = data?.elements || [];
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No elements discovered by this layer.</p></div>';
+        return;
+      }
+      const layerNames = {1:'Process Patterns',2:'Info Architecture',3:'Visual Patterns',4:'Interaction Patterns',5:'Emotional Elements',7:'Validation Strategies'};
+      container.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:20px;">Layer ${i}: ${layerNames[i]} <span style="font-size:14px;color:var(--ink-muted);font-family:'IBM Plex Mono',monospace;">(${elements.length} element${elements.length!==1?'s':''})</span></h2>` + elements.map(renderElementCard).join('');
+    });
+
+    // Render Layer 0: Journey Context
+    (function renderJourney() {
+      const container = document.getElementById('content-layer-0');
+      if (!container) return;
+      const data = layers[0];
+      if (!data || !data.phases) { container.innerHTML = '<p style="color:var(--ink-ghost);font-style:italic;">No journey context data.</p>'; return; }
+
+      const phaseOrder = ['discovery','evaluation','onboarding','listing_creation','pricing','proposal_mgmt','active_lease','retention'];
+      let html = '';
+      if (data.lens?.lens_summary) html += `<p style="font-size:15px;color:var(--ink-soft);margin-bottom:20px;">${data.lens.lens_summary}</p>`;
+      phaseOrder.forEach(phase => {
+        const p = data.phases[phase];
+        if (!p) return;
+        const risk = p.dropout_risk?.level || 'low';
+        html += `<div class="phase-card">
+          <h4>${phase.replace(/_/g, ' ')}</h4>
+          <p>${p.what_this_lens_reveals || 'No data for this phase.'}</p>
+          ${p.user_state ? `<p style="font-size:12px;color:var(--ink-muted);"><strong>Emotional:</strong> ${p.user_state.emotional_state || '?'} | <strong>Knowledge:</strong> ${p.user_state.knowledge_level || '?'} | <strong>Commitment:</strong> ${p.user_state.commitment_level || '?'}</p>` : ''}
+          <span class="risk risk-${risk}">${risk} dropout risk</span>
+        </div>`;
+      });
+      if (data.cross_phase_patterns?.length) {
+        html += '<h4 style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;color:var(--accent);margin:20px 0 10px;text-transform:uppercase;">Cross-Phase Patterns</h4>';
+        data.cross_phase_patterns.forEach(cp => {
+          html += `<div class="phase-card"><p><strong>${cp.pattern}</strong></p><p style="font-size:12px;color:var(--ink-muted);">Affects: ${(cp.phases_affected||[]).join(', ')} | ${cp.evidence || ''}</p></div>`;
+        });
+      }
+      container.innerHTML = html;
+    })();
+
+    // Render Layer 6: Coherence
+    (function renderCoherence() {
+      const container = document.getElementById('content-layer-6');
+      if (!container) return;
+      const data = layers[6];
+      if (!data || Object.keys(data).length === 0) { container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence data.</p></div>'; return; }
+
+      let html = '';
+
+      // Reinforcements
+      if (data.reinforcements?.length) {
+        html += `<div class="coherence-section"><h3>Reinforcements (${data.reinforcements.length})</h3>`;
+        data.reinforcements.forEach(r => {
+          html += `<div class="reinforcement-card"><div class="card-label" style="color:var(--signal-success);">Reinforcement</div>
+            <p><strong>${r.new_element_id}</strong> reinforces <strong>${r.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${r.similarity || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${r.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Contradictions
+      if (data.contradictions?.length) {
+        html += `<div class="coherence-section"><h3>Contradictions (${data.contradictions.length})</h3>`;
+        data.contradictions.forEach(c => {
+          html += `<div class="contradiction-card"><div class="card-label" style="color:var(--signal-danger);">${c.severity || 'warning'}</div>
+            <p><strong>${c.new_element_id}</strong> conflicts with <strong>${c.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${c.conflict || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${c.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Extensions
+      if (data.extensions?.length) {
+        html += `<div class="coherence-section"><h3>Extensions (${data.extensions.length})</h3>`;
+        data.extensions.forEach(ext => {
+          html += `<div class="extension-card"><div class="card-label" style="color:var(--signal-info);">New Territory</div>
+            <p><strong>${ext.new_element_id}</strong> — ${ext.gap_filled || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">${ext.confidence_note || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Coverage Map
+      if (data.coverage_map) {
+        html += '<div class="coherence-section"><h3>Journey Coverage</h3><div class="coverage-grid">';
+        Object.entries(data.coverage_map).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          html += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g, ' ')}</div>
+            <div class="count">${info.element_count || 0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Emotional Arc
+      if (data.emotional_arc_check) {
+        const arc = data.emotional_arc_check;
+        html += `<div class="coherence-section"><h3>Emotional Arc</h3>`;
+        if (arc.journey_emotion_map?.length) {
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">';
+          arc.journey_emotion_map.forEach(em => {
+            html += `<div style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;text-align:center;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-muted);text-transform:uppercase;">${em.phase}</div>
+              <div style="font-weight:600;color:var(--accent);margin-top:2px;">${(em.target_emotions||[]).join(', ')}</div>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        if (arc.arc_assessment) html += `<p style="font-size:14px;color:var(--ink-soft);">${arc.arc_assessment}</p>`;
+        html += '</div>';
+      }
+
+      container.innerHTML = html || '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence issues detected.</p></div>';
+    })();
+
+    // Overview tab
+    (function renderOverview() {
+      // Coverage
+      const coverageContainer = document.getElementById('overview-coverage');
+      const coverageData = layers[6]?.coverage_map;
+      if (coverageData && coverageContainer) {
+        Object.entries(coverageData).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          coverageContainer.innerHTML += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g,' ')}</div>
+            <div class="count">${info.element_count||0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+      }
+
+      // Lens summary
+      const summaryEl = document.getElementById('overview-lens-summary');
+      if (summaryEl) summaryEl.textContent = layers[0]?.lens?.lens_summary || 'No lens summary available.';
+
+      // Stats
+      const statsEl = document.getElementById('overview-stats');
+      if (statsEl) {
+        const stats = [
+          { label: 'Elements', value: totalElements },
+          { label: 'Reinforcements', value: reinforcements.length },
+          { label: 'Contradictions', value: contradictions.length },
+          { label: 'Extensions', value: (coherence.extensions||[]).length }
+        ];
+        statsEl.innerHTML = stats.map(s =>
+          `<div style="padding:14px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--accent);">${s.value}</div>
+            <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--ink-muted);text-transform:uppercase;">${s.label}</div>
+          </div>`
+        ).join('');
+      }
+
+      // High-priority highlights
+      const highlightsEl = document.getElementById('overview-highlights');
+      if (highlightsEl) {
+        let highPriority = [];
+        [1,2,3,4,5,7].forEach(i => {
+          (layers[i]?.elements || []).forEach(el => {
+            if (el.priority === 'high') highPriority.push(el);
+          });
+        });
+        if (highPriority.length) {
+          highlightsEl.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:24px 0 16px;">High-Priority Elements</h2>` + highPriority.map(renderElementCard).join('');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

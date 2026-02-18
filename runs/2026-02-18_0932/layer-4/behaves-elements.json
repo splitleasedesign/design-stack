@@ -1,0 +1,302 @@
+{
+  "lens": {
+    "host_call": "anthony-call.txt",
+    "book_extract": "wisdomofcrowds-collective-intelligence.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-0932-001",
+      "type": "interaction_pattern",
+      "title": "SMS Micro-Interaction Response Loop: Optimistic Confirmation with Graceful Timeout",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "The platform will send SMS messages to passive hosts across every journey phase (per works-0932-001). But SMS is an asynchronous channel with no guaranteed delivery, read receipts, or response timing. The platform must handle the full lifecycle of an SMS interaction: message sent, awaiting response, response received, response timeout, and error states. Without a deliberate interaction pattern, the platform will either over-prompt (sending follow-ups that annoy passive hosts) or under-prompt (letting critical actions expire without escalation). Surowiecki's aggregation condition requires that every participant's signal reaches the system -- but aggregation over SMS requires patience, graceful degradation, and intelligent escalation that respects the passive host's communication tempo.",
+      "solution": "Design an SMS interaction loop with five states: (1) Sent -- message delivered, platform records timestamp, no UI change for 4 hours (passive hosts may not check their phone immediately). (2) Awaiting -- after 4 hours with no response, the platform flags the interaction as 'awaiting' in the agent dashboard but does NOT send a follow-up to the host. (3) Gentle Nudge -- after 24 hours with no response, send exactly one follow-up SMS, shorter than the original: 'Just checking -- reply OK to confirm your listing details.' (4) Timeout -- after 48 hours with no response to either message, categorize as 'no response' and trigger agent outreach (phone call or personalized text). (5) Received -- any host reply at any point in the cycle (even after timeout) is processed immediately and resets the interaction to 'complete.' The principle is: SMS interactions with passive hosts operate on a 48-hour cycle, not a web-speed cycle. Optimistic confirmation means the platform assumes the message was received and the host will respond -- it does not panic at silence.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, 4:58-5:04",
+          "type": "host_call",
+          "quote": "This is a cell phone. I could probably texting pictures.",
+          "insight": "Anthony's primary channel is SMS on a cell phone. His response timing to texts is unknown, but his call behavior (monosyllabic, no follow-up questions) suggests he processes communications in brief bursts, not sustained sessions. The SMS interaction loop must accommodate sporadic engagement."
+        },
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Introduction (aggregation condition)",
+          "type": "book",
+          "quote": "Aggregation -- some mechanism exists for turning private judgments into a collective decision.",
+          "insight": "SMS is the aggregation mechanism for passive hosts. But aggregation requires patience: Galton collected all 800 tickets before computing the average. The platform must collect passive host responses over 48 hours before concluding that the signal is missing."
+        },
+        {
+          "source": "anthony-call.txt, KEY BEHAVIORAL OBSERVATIONS",
+          "type": "host_call",
+          "quote": "Flat emotional affect throughout. Passive engagement - no relationship building.",
+          "insight": "Anthony will not feel urgency about platform communications. A follow-up SMS sent 30 minutes after the first will feel like nagging. A follow-up sent 24 hours later feels like a reasonable reminder. The interaction timing must match the host's emotional tempo."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Message composed and ready to send. In the agent dashboard, the SMS appears as a draft card with the host's name, message preview, and a 'Send' button. The message follows the SMS typographic template: CATEGORY line, fact line, action line.",
+        "loading": "After send is triggered, the card shows a subtle purple progress indicator (--secondary-purple, 2px bar) for 1-2 seconds while the SMS API confirms delivery. The 'Send' button transitions to 'Sending...' in --text-light-gray with opacity 0.5.",
+        "empty": "No SMS interactions in the queue. The agent dashboard section shows: 'No pending SMS interactions. All hosts have responded or been contacted.' in --text-gray, centered, with a check-circle icon in --secondary-purple.",
+        "error": "If SMS delivery fails (invalid number, carrier rejection), the card border changes to --protocol-danger (#DC3545), the status reads 'Delivery failed' with an alert-circle icon, and the agent sees options: 'Retry' or 'Switch to Email.' No error is shown to the host.",
+        "success": "When the host replies, the card transitions to a green-free success state: border changes to --secondary-purple (2px), a check-circle icon appears, and the host's reply is shown in a quote block. The card collapses into the 'Completed' section after 10 seconds."
+      },
+      "transition_principle": "Transitions between states should feel patient and unhurried. Use ease-out easing for all state changes to convey calm progression, not urgency. The visual tempo of SMS interactions should mirror the communication tempo: slow, measured, respectful of the host's time. No bouncing, no pulsing, no attention-grabbing animations.",
+      "timing": {
+        "response_target": "200ms for UI state changes in the agent dashboard. 4 hours before first 'awaiting' flag. 24 hours before gentle nudge. 48 hours before timeout escalation.",
+        "easing": "ease-out (--easing-ease-out) for all state transitions. 300ms duration (--transition-slow) for card border color changes. 200ms (--transition-base) for icon appearances.",
+        "rationale": "The SMS channel operates on human-time, not web-time. The UI transitions should reflect this slower tempo. Ease-out communicates 'settling into place' rather than 'demanding attention.'"
+      },
+      "journey_state_awareness": "During onboarding (photo request), the timeout escalation is more urgent because an incomplete listing blocks guest matching. During active lease (monthly check-in), the timeout is less urgent and may extend to 72 hours. During retention (relist intent), the timeout triggers an agent call rather than another SMS. The interaction loop adapts its urgency to the journey phase.",
+      "edge_cases": [
+        "Host responds after the 48-hour timeout and agent has already called -- the SMS response should still be recorded and the interaction marked complete, with a note that agent outreach occurred",
+        "Host responds with an unexpected message (not OK/NO/1-5 but a full sentence or question) -- route to agent for manual processing, do not auto-interpret",
+        "SMS delivery reports delayed response (carrier reports delivery hours after send) -- do not send nudge until delivery is confirmed",
+        "Host texts photos in response to a non-photo request -- detect image attachment and route to listing photo pipeline regardless of original request context",
+        "Host number changes or is disconnected -- after 3 consecutive delivery failures across different interactions, flag the host for email-only communication"
+      ]
+    },
+    {
+      "id": "behaves-0932-002",
+      "type": "interaction_pattern",
+      "title": "Confirmation Card Toggle: Edit/Confirm Micro-Interaction for Pre-Populated Data",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "The pre-populated listing (from works-0932-002 and communicates-0932-002) presents data collected during the agent call in a confirmation card format. Each data point needs an interaction pattern for the host to either confirm ('this is correct') or edit ('this needs changing'). The challenge is designing a toggle that is (1) effortless for the 90% of data points that are correct and (2) functional for the 10% that need editing -- without requiring the host to actively confirm every correct field. Anthony's monosyllabic pattern ('Yes.' 'Okay.') suggests that he will scan the card and only intervene if something is wrong. The interaction must support this passive-confirmation behavior.",
+      "solution": "Design the confirmation card with auto-confirm-on-pass behavior: (1) Default state: all pre-filled data points show as 'confirmed' (check-circle icon, --secondary-purple) unless the host explicitly toggles to edit. There is no 'Confirm' button per field -- confirmation is the default. (2) Edit toggle: tapping/clicking any data point's value transitions it to an editable field with the current value pre-filled. The check-circle icon changes to an edit-2 icon (Feather). The field border animates from --border-color to --secondary-purple (focus state). (3) Save edit: pressing Enter or tapping outside the field saves the edit, transitions back to confirmed state with a brief scale pulse (1.02x for 150ms) on the check-circle to signal 'saved.' (4) Discard edit: pressing Escape or tapping the edit-2 icon reverts to the original value. (5) Whole-card confirm: a single 'Looks Good' button at the bottom confirms all fields simultaneously. For hosts like Anthony, this is one tap to confirm the entire listing. (6) Auto-confirm timeout: if the host views the confirmation card but takes no action within 48 hours, all pre-filled data is auto-confirmed and only missing fields (photos) remain as action items. This mirrors Anthony's 'silence means agreement' pattern.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, 0:40-1:47",
+          "type": "host_call",
+          "quote": "Bryant confirms each data point sequentially: availability, price, utilities, deposit, laundry, parking. Anthony confirms each with 'Yes' or a short fact.",
+          "insight": "The call's confirmation pattern is: agent states data, host confirms with one word. The digital equivalent should be: platform shows data, host confirms with zero taps (auto-confirm) or one tap ('Looks Good'). Any pattern that requires more interaction than Anthony's 'Yes' is over-designed for this archetype."
+        },
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Introduction (Craven's scenario method)",
+          "type": "book",
+          "quote": "Instead of asking them to consult with each other to come up with an answer, he asked each of them to offer his best guess about how likely each of the scenarios was.",
+          "insight": "Craven presented pre-formulated scenarios for confirmation, not generation. The confirmation card presents pre-filled data for confirmation, not creation. The interaction pattern must make confirmation easier than creation -- which means making 'no action' equivalent to 'confirmed.'"
+        },
+        {
+          "source": "anthony-call.txt, KEY BEHAVIORAL OBSERVATIONS",
+          "type": "host_call",
+          "quote": "Extremely brief responses: 'Yes.' 'Okay.' 'Got it.'",
+          "insight": "Anthony's interaction vocabulary has three entries: affirmative, neutral acknowledgment, and comprehension signal. The confirmation card's interaction vocabulary should be equally minimal: confirm all, edit one, or do nothing (auto-confirm)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All pre-filled data points displayed in confirmation card format (--bg-off-white background, check-circle icons in --secondary-purple). The 'Looks Good' button is prominent at the bottom. Missing data points (photos) show alert-circle icons in --protocol-danger.",
+        "loading": "When the card first loads, data points populate sequentially from top to bottom with a 50ms stagger, using opacity 0 to 1 transition. This creates a gentle cascade effect that draws the eye down the card without requiring scroll.",
+        "empty": "If no call data exists for this host (edge case: host signed up without agent call), the card shows the standard creation wizard instead. A message reads: 'We do not have details for your space yet. Let us help you get started.' No confirmation card is shown for hosts without pre-existing data.",
+        "error": "If a host edits a field to an invalid value (e.g., price of $0, non-numeric deposit), the field border transitions to --protocol-danger, and a single-line error message appears below the field in --text-sm --protocol-danger: 'Please enter a valid amount.' The check-circle remains hidden until the error is resolved.",
+        "success": "After 'Looks Good' is tapped, the card transitions to a completed state: all check-circle icons pulse once (scale 1.0 to 1.15 to 1.0, 200ms), the card background shifts from --bg-off-white to --bg-white, and a brief 'Listing confirmed' message appears in --secondary-purple. After 2 seconds, the view transitions to the next step (photo upload prompt)."
+      },
+      "transition_principle": "Transitions should feel like settling, not jumping. The check-circle pulse on save communicates 'recorded' without demanding attention. The edit-toggle transition should feel like opening a drawer -- smooth, predictable, reversible. The whole-card confirmation should feel like putting down a completed checklist -- satisfying and final without being dramatic.",
+      "timing": {
+        "response_target": "100ms for edit toggle (field must become editable instantly -- no perceived delay). 150ms for check-circle pulse on save. 200ms for card-level state transitions. 2000ms for success message display before auto-advancing.",
+        "easing": "ease-out for edit toggle open (feels like 'opening'). ease-in-out for check-circle pulse (smooth both ways). ease-out for card completion transition.",
+        "rationale": "Confirmation interactions must feel instantaneous because the host's mental model is 'I am checking a fact, not performing an action.' Any delay between tap and response breaks the checking metaphor."
+      },
+      "journey_state_awareness": "During first-time onboarding, the confirmation card includes a brief tooltip: 'These details came from your call with [Agent Name]. Just confirm or edit.' During subsequent visits (host returns to edit listing), the tooltip is hidden and the card opens directly. If the host is in co-host mode, the agent sees the same card with an 'Edit on behalf of host' label.",
+      "edge_cases": [
+        "Agent call data conflicts with data the host previously entered on the platform (e.g., host entered $2,800 on web, agent recorded $3,000 from call) -- show both values and ask host to pick, do not silently overwrite",
+        "Host opens confirmation card on mobile while receiving the SMS version of the same confirmation -- ensure both channels show identical data and either can be used to confirm",
+        "Host partially edits (changes price but not deposit) and leaves without tapping 'Looks Good' -- save all edits immediately on field blur, treat unedited fields as confirmed, and show 'You have unconfirmed changes' on next visit",
+        "Data from the call is incomplete (agent captured price but not deposit) -- show available fields as confirmable and missing fields as 'Please add' with empty input fields, not as errors",
+        "Auto-confirm timeout fires while the host is actively editing -- cancel the timeout and restart the 48-hour clock from the last edit timestamp"
+      ]
+    },
+    {
+      "id": "behaves-0932-003",
+      "type": "interaction_pattern",
+      "title": "Co-Host Mode Activation: Progressive Permission Transfer with Audit Trail",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "Co-Host Mode (works-0932-005) requires an interaction pattern for activation, ongoing use, and deactivation. The challenge is that passive hosts like Anthony will not understand or engage with a complex permission management system. The activation must be as simple as Anthony's 'Okay' -- but the system must maintain a clear audit trail of who did what, because co-host actions affect the host's property and finances. Surowiecki's independence condition requires that the platform can distinguish agent-mediated actions from host-initiated actions. The interaction pattern must balance simplicity (for the host) with accountability (for the platform).",
+      "solution": "Design Co-Host Mode activation as a single-step opt-in with progressive permission expansion: (1) Activation trigger: the agent identifies a passive host and sends an SMS: 'Would you like [Agent Name] to manage your listing for you? Reply YES to give them access.' One reply activates Co-Host Mode with default permissions (edit listing, respond to inquiries, upload photos). (2) Default permissions are pre-set to cover 80% of what agents need. No permission configuration UI is shown to the host at activation. (3) Elevated permissions (accept proposals, change pricing, modify lease terms) require a separate one-time SMS confirmation: '[Agent Name] wants to accept a proposal for your space. Reply OK to approve.' This is a per-action confirmation for high-stakes decisions, not a permission toggle. (4) Deactivation: the host can reply STOP to any co-host notification to revoke co-host access. A confirmation SMS follows: 'Co-host access removed. Reply UNDO within 24 hours to restore.' (5) Every co-host action is logged in the platform with a 'via [Agent Name]' tag, visible to the host if they ever log into the platform, and included in monthly SMS summaries.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, KEY BEHAVIORAL OBSERVATIONS",
+          "type": "host_call",
+          "quote": "PERFECT CO-HOST CANDIDATE -- won't self-serve setup.",
+          "insight": "The agent already identified Anthony as a co-host candidate. The activation pattern must be as frictionless as the call itself: one question, one answer. If activation requires navigating a permissions page, Anthony will never complete it."
+        },
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Ch 3 (Information Cascades and Independence)",
+          "type": "book",
+          "quote": "Independence -- people's opinions are not determined by the opinions of those around them.",
+          "insight": "Co-Host Mode inherently risks violating independence because the agent acts on the host's behalf. The per-action SMS confirmation for high-stakes decisions preserves a minimal independent signal from the host: even if the host always says 'OK,' that OK is recorded as a distinct data point from the agent's recommendation."
+        },
+        {
+          "source": "anthony-call.txt, 3:18-3:37",
+          "type": "host_call",
+          "quote": "All payments guaranteed to you... in the case that a guest didn't pay or missed a payment, we cover that. Okay.",
+          "insight": "Anthony's 'Okay' to the payment guarantee represents his entire evaluation of a significant financial commitment. The co-host activation SMS will receive a similar 'Okay' -- and this must be sufficient for activation. The interaction pattern cannot require more from Anthony than he is willing to give."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Co-Host Mode is inactive. The agent sees a 'Request Co-Host Access' button on the host's profile in the agent dashboard. The host's listing operates in standard self-serve mode.",
+        "loading": "After the agent triggers the co-host request, the button transitions to 'Request Sent' in --text-light-gray while the SMS is dispatched. The agent dashboard shows a pending indicator (outlined circle in --accent-purple, per the engagement spectrum pattern).",
+        "empty": "Not applicable -- co-host mode is either active or inactive, never empty.",
+        "error": "If the host replies with something other than YES/STOP (e.g., a question like 'What does this mean?'), the system does not activate co-host mode and instead routes the response to the agent for manual follow-up. The dashboard shows 'Host responded -- review needed' with the host's message quoted.",
+        "success": "When the host replies YES, the agent dashboard updates: the 'Request Co-Host Access' button becomes a purple badge reading 'Co-Host Active' in --secondary-purple on --bg-off-white. The host's engagement indicator (looks-0932-003) transitions from 'Passive' to 'Passive (Co-Hosted)' -- same color level but with a small link icon overlay."
+      },
+      "transition_principle": "Co-host activation should feel like a quiet handshake, not a contract signing. The transition from inactive to active should be subtle in the agent dashboard (badge color change) and invisible to the host (they replied YES and nothing else changes for them). The principle is: co-host mode works in the background; the host should barely notice it exists.",
+      "timing": {
+        "response_target": "SMS sent within 5 seconds of agent trigger. Dashboard update within 200ms of host reply receipt. Permission changes take effect immediately upon host confirmation -- no processing delay.",
+        "easing": "ease-in-out for badge state transitions in the agent dashboard. No animation on the host's side (SMS is text-only).",
+        "rationale": "Co-host activation is a one-time event, not a repeated interaction. Speed of activation matters (the agent wants to start working immediately), but the visual transition should be understated because it represents an ongoing state, not a momentary action."
+      },
+      "journey_state_awareness": "During onboarding, co-host activation is most likely to occur and the default permissions are broadest (listing creation, photo upload, description writing). During active lease, co-host permissions may be narrower (date changes, communication with guests) since the listing is already published. During retention, co-host mode may include a 'relist on behalf of host' permission that requires explicit SMS confirmation.",
+      "edge_cases": [
+        "Host activates co-host mode but later logs into the platform and makes direct changes -- both the host's changes and the agent's co-host changes must coexist without conflict; last-write-wins with audit trail showing who changed what",
+        "Agent leaves the company while co-host mode is active -- the host receives an SMS: 'Your co-host [Agent Name] is no longer active. Reply YES to assign a new co-host or SELF to manage your listing directly.' No listing changes occur during the transition",
+        "Multiple agents need co-host access to the same listing (e.g., primary agent and backup) -- only one active co-host per listing; the primary agent can delegate specific tasks but not transfer co-host status",
+        "Host replies YES to co-host activation after the request has expired (agent sent request weeks ago) -- honor the YES if the agent is still active; send confirmation SMS to both host and agent",
+        "Host deactivates co-host mode mid-lease while the agent has pending actions (unreplied guest inquiry) -- immediately revoke edit access but queue pending actions as notifications to the host with suggested responses"
+      ]
+    },
+    {
+      "id": "behaves-0932-004",
+      "type": "interaction_pattern",
+      "title": "Crowd-Calibrated Pricing Real-Time Update: Non-Intrusive Market Context Refresh",
+      "journey_phases": ["pricing", "listing_creation"],
+      "problem": "The crowd range indicator (looks-0932-001 and communicates-0932-003) shows the host where their price sits relative to comparable listings. But the crowd data is not static -- new listings are added, existing listings fill or expire, and seasonal demand shifts the range. The interaction question is: how should the pricing display update when the crowd data changes? If the range shifts and the host's price is now at the edge rather than the middle, how does the UI communicate this without creating anxiety or undermining the host's pricing confidence? Surowiecki shows that crowd estimates improve with more data -- but individual participants should not feel pressured by every fluctuation in the crowd average.",
+      "solution": "Design the pricing display with quiet updates and milestone notifications: (1) Real-time visual updates: the crowd range bar updates silently whenever the host views the pricing section. The bar repositions to reflect current data with no animation or attention signal -- it simply shows the current state. The host should never see the bar 'move' because movement implies urgency. (2) Milestone notifications: if the host's price moves from the middle tercile to the edge tercile (or beyond the range), a single-line note appears below the bar: 'Your price is now at the high end of the range for similar spaces.' No recommendation, no alarm -- just a factual statement. (3) Agent briefing: if the host is in co-host mode, the agent receives a dashboard alert when the host's price position changes significantly, allowing the agent to decide whether to discuss it with the host. (4) No automatic price suggestions, no 'optimize your price' CTAs, no gamified pricing scores. The crowd data is context, not instruction.",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, 0:52-1:00",
+          "type": "host_call",
+          "quote": "It would be 3000 for the month... Is that right? Yes.",
+          "insight": "Anthony's price is a fact, not a variable. He will not respond well to a UI that implies his price should change. The pricing display must respect the host's autonomy: show the crowd context without suggesting the host is wrong."
+        },
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Ch 3 (Information Cascades)",
+          "type": "book",
+          "quote": "Too much communication can paradoxically make groups less intelligent... Monkey See, Monkey Do.",
+          "insight": "If the pricing display aggressively suggests price changes based on crowd data, hosts will converge on the crowd average -- creating an information cascade that destroys the pricing diversity that makes the crowd estimate accurate in the first place. The display must show data without creating pressure to follow it."
+        },
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Introduction (diversity condition)",
+          "type": "book",
+          "quote": "Diversity of opinion -- each person should have some private information, even if it's just an eccentric interpretation of the known facts.",
+          "insight": "Each host's price is their 'private information.' The pricing display should inform this private judgment with crowd context, not replace it. If every host converges on the crowd average, the crowd loses its diversity and the average becomes less accurate."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The crowd range bar is displayed below the host's price field. The host's price is marked on the bar. Range endpoints are visible. A single context sentence appears below. The display is static -- no animation, no movement.",
+        "loading": "When the pricing section first loads, the crowd range bar fades in (opacity 0 to 1, 300ms, ease-out) after the host's price is displayed. This sequence ensures the host sees their price first and the crowd context second -- never the reverse.",
+        "empty": "If insufficient comparable listings exist to generate a crowd range (fewer than 5 comparable listings in the area), the range bar is not shown. Instead, a subtle note: 'Not enough data to show local pricing context yet.' No empty bar, no placeholder range.",
+        "error": "If the crowd data API fails, the pricing section displays the host's price without the range bar. No error message is shown to the host -- the range bar is an enhancement, not a requirement. The agent dashboard logs the data failure.",
+        "success": "Not applicable in the traditional sense. The 'success' state is the static display of accurate crowd context alongside the host's price. There is no action to complete, no confirmation to receive."
+      },
+      "transition_principle": "The pricing display should feel like looking at a thermometer, not watching a stock ticker. The data is there to be read at a glance, not monitored for changes. All updates happen between page loads -- the host never sees the bar animate or shift. Stability is the core interaction principle for pricing context.",
+      "timing": {
+        "response_target": "Crowd data loaded within 500ms of pricing section render. Range bar fade-in at 300ms after price display. Milestone notification (if triggered) appears 1 second after range bar, allowing the host to process the visual before reading text.",
+        "easing": "ease-out for initial fade-in. No easing for updates (updates are instant between page loads, not animated).",
+        "rationale": "Pricing decisions are deliberative (System 2), not reactive. The display timing should support deliberation by presenting information in a calm, sequential order: price first, context second, note third."
+      },
+      "journey_state_awareness": "During initial listing creation, the range bar appears with a brief explainer tooltip on first view: 'This shows how your price compares to similar spaces nearby.' On subsequent visits, the tooltip is hidden. During retention (host considering relisting), the range bar includes a time note: 'Range updated for current season.' If the host's price has not changed but the range has shifted significantly since their last lease, the agent is notified.",
+      "edge_cases": [
+        "Host's price is far outside the crowd range (e.g., $5,000 when range is $2,600-$3,400) -- show the range bar but extend the visual scale to include the host's price; do not truncate or hide the outlier position",
+        "Crowd range collapses to a very narrow band (e.g., $2,900-$3,100) because many hosts priced similarly -- this may indicate an information cascade; flag for platform team review but show the narrow range to the host as-is",
+        "Host is the only listing in their specific micro-area -- expand the comparison geography (from block to neighborhood to borough) and note the broader comparison: 'Based on Upper West Side listings'",
+        "Seasonal demand shift causes the crowd range to jump significantly between the host's listing creation and their first check-in -- show the updated range with a note: 'Range updated since your listing was created'",
+        "Host edits their price to exactly match a crowd range endpoint -- treat this as any other price position; do not highlight or call out the coincidence"
+      ]
+    },
+    {
+      "id": "behaves-0932-005",
+      "type": "interaction_pattern",
+      "title": "Silence Interpretation Check-In: Timed SMS Probe with Binary Response Routing",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "The Silence Interpretation Framework (communicates-0932-005) identifies a core problem: passive host silence is ambiguous. But the interaction pattern for the check-in SMS must handle not just the happy path (host replies YES/NO) but also the full range of responses: delayed reply, no reply, unexpected reply, and the timing of when to ask. The challenge is extracting one bit of information (satisfied/not-satisfied) from a host who may not reply at all, without creating the impression that the platform is monitoring or judging them. Surowiecki demonstrates that even minimal signals improve collective intelligence -- but extracting those signals from reluctant participants requires precise interaction design.",
+      "solution": "Design the silence check-in as a three-stage interaction with binary routing: (1) Stage 1 -- The Probe: at the designated milestone (first month of lease, mid-lease, 2 weeks before lease end), send one SMS: 'How are things going with your space? Reply GOOD or HELP.' The two options are not YES/NO (which feels like a survey) but GOOD/HELP (which feels like an offer of assistance). (2) Stage 2a -- GOOD response: record 'Satisfied-Passive' status. Send no follow-up. Do not acknowledge the reply with another SMS (over-communication annoys passive hosts). The data point feeds the retention model silently. (3) Stage 2b -- HELP response: immediately route to the assigned agent with context: 'Anthony replied HELP to monthly check-in. Please follow up.' The agent contacts the host within 4 hours. The platform sends one auto-reply to the host: 'Got it. [Agent Name] will reach out shortly.' (4) Stage 2c -- No response after 48 hours: categorize as 'Ambiguous Silence.' Send one follow-up: 'Just checking in. Reply GOOD if all is well.' If still no response after another 48 hours, categorize as 'Non-Responsive' and flag for agent outreach. (5) Stage 3 -- Pattern tracking: after 3+ check-ins, the system categorizes the host's pattern: 'Always Responds GOOD' (retained, low-touch), 'Mixed' (needs attention), 'Never Responds' (high churn risk).",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, KEY BEHAVIORAL OBSERVATIONS",
+          "type": "host_call",
+          "quote": "Flat emotional affect throughout. Passive engagement - no relationship building.",
+          "insight": "Anthony will not volunteer satisfaction data. The check-in must ask for it, but in a way that feels like an offer of help (GOOD/HELP) rather than a demand for feedback (Rate your experience 1-5). The phrasing must match Anthony's transactional relationship with the platform."
+        },
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Introduction (aggregation and accuracy)",
+          "type": "book",
+          "quote": "If you ask a large enough group of diverse, independent people to make a prediction... the errors each of them makes will cancel themselves out. Each person's guess has two components: information and error. Subtract the error, and you're left with the information.",
+          "insight": "A single GOOD/HELP response contains minimal information but zero ambiguity. Unlike silence (which contains zero information), a binary response at least places the host in the 'satisfied' or 'needs help' category. Even this one-bit signal improves the platform's collective intelligence about host experience."
+        },
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Ch 1 (Who Wants to Be a Millionaire audience)",
+          "type": "book",
+          "quote": "Those random crowds of people picked the right answer 91 percent of the time... the audiences had nothing better to do than sit in a TV studio and press a button.",
+          "insight": "The Millionaire audience's success came from the simplicity of the input mechanism: press one of four buttons. The check-in SMS asks the host to 'press' one of two buttons (GOOD or HELP). Reducing the input to its minimum increases the probability that even passive hosts will respond."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Check-in not yet due. The agent dashboard shows the next scheduled check-in date for each host in a subtle calendar indicator. No SMS is queued.",
+        "loading": "Check-in SMS is being sent. The dashboard shows a sending indicator (--accent-purple spinner) next to the host's name. This state lasts under 2 seconds.",
+        "empty": "Host has no active lease -- no check-ins are scheduled. The check-in section in the dashboard shows 'No active leases' in --text-light-gray.",
+        "error": "SMS delivery failure -- handled identically to behaves-0932-001 error state. Additionally, if the host's phone number has been flagged as non-responsive across 3+ interactions, the check-in defaults to email with the same GOOD/HELP binary options.",
+        "success": "Host replied GOOD -- the dashboard shows a green-free success indicator: --secondary-purple check-circle with 'Satisfied' label. Host replied HELP -- the dashboard shows an --accent-purple alert indicator with 'Needs Attention' label and the agent's response deadline (4 hours)."
+      },
+      "transition_principle": "Check-in interactions should feel invisible to the host. The SMS arrives, the host replies (or does not), and life continues. There is no 'you completed a check-in!' celebration. The transition from 'check-in sent' to 'response received' should be reflected only in the agent dashboard, never surfaced to the host as a status or achievement.",
+      "timing": {
+        "response_target": "Check-in SMS sent at 10:00 AM local time on the milestone date (morning is optimal for non-urgent SMS). 48-hour window before follow-up. 4-hour agent response deadline for HELP replies.",
+        "easing": "No easing relevant to SMS-side interactions. Dashboard state transitions use ease-out at 200ms.",
+        "rationale": "10:00 AM is chosen because it avoids early morning (intrusive) and evening (forgotten by morning). The 48-hour window respects passive hosts' sporadic phone-checking habits without letting urgent issues (HELP replies) languish."
+      },
+      "journey_state_awareness": "First month check-in focuses on settling: 'How are things going with your space?' Mid-lease check-in focuses on continuity: 'Everything still going well?' End-of-lease check-in pivots to retention: 'Your lease ends soon. Would you list again? Reply YES or NO.' Each milestone has a different SMS text but the same binary response pattern and routing logic.",
+      "edge_cases": [
+        "Host replies GOOD to a check-in but then contacts the agent with a problem the same week -- the agent should update the satisfaction status manually; the system should not override agent judgment with automated check-in data",
+        "Host replies with a word other than GOOD or HELP (e.g., 'fine', 'ok', 'yes') -- interpret any affirmative response as GOOD using a simple NLP match (fine, ok, yes, great, sure, yep, all good); anything else routes to agent",
+        "Check-in timing coincides with a platform-generated notification (new proposal, lease document) -- defer the check-in by 24 hours to avoid SMS overload; never send more than one platform SMS per day",
+        "Host responds to the end-of-lease retention check-in with YES (would list again) -- trigger the relist workflow: send the host a confirmation card for their next lease, pre-filled with prior listing data, within 48 hours",
+        "Multiple hosts share the same phone number (e.g., couple co-owning a property) -- check-in responses are attributed to the listing, not the phone number; the SMS is addressed to the listing address, not a person"
+      ]
+    },
+    {
+      "id": "behaves-0932-006",
+      "type": "interaction_pattern",
+      "title": "Agent Dashboard Action Queue: Priority-Sorted Task Triage with Passive Host Flagging",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "The agent dashboard (communicates-0932-004) aggregates host signals into an actionable view, but the interaction pattern for how the agent works through their task queue is undefined. Agents manage portfolios of 20-50+ hosts with varying engagement levels. Without a clear interaction pattern, agents will rely on memory and ad-hoc workflows, which Surowiecki's framework identifies as a decentralization failure: the agent has local knowledge about each host but no mechanism to aggregate it into an optimized work sequence. The dashboard must not just show information -- it must guide action.",
+      "solution": "Design the action queue as a priority-sorted, swipeable task list with passive host escalation: (1) Tasks are auto-sorted by urgency: HELP replies from check-ins (highest), proposal expirations within 24 hours, incomplete listings older than 7 days, pending SMS responses older than 48 hours, routine check-ins due. (2) Each task card shows: host name + engagement indicator (looks-0932-003), task description in one line, time indicator (e.g., '2h overdue', 'due today'). (3) Primary action: tapping a task card expands it to show context (host's listing, last communication, relevant data) and action buttons (Call, SMS, Complete, Defer). (4) Quick-complete: swiping a task right marks it as complete with a single gesture. Swiping left defers it 24 hours. (5) Passive host flagging: tasks for hosts with 'Passive' or 'Silent' engagement levels are visually distinguished with a muted purple background (--bg-off-white) and a small SMS icon, reminding the agent that these hosts prefer text over call. (6) Batch actions: the agent can select multiple tasks and send a batch of personalized SMS messages (using templates with host name and listing address auto-filled).",
+      "evidence": [
+        {
+          "source": "anthony-call.txt, 3:48-4:02",
+          "type": "host_call",
+          "quote": "I see that there isn't any pictures here. Is there, would that be possible for you to share some photos with me?",
+          "insight": "Bryant identified a task (missing photos) during the call and must now track it manually. The action queue automates this: after the call, 'Anthony - photos needed' appears as a task, auto-generated from the listing's incomplete status. The agent does not need to remember -- the system remembers."
+        },
+        {
+          "source": "wisdomofcrowds-collective-intelligence.txt, Introduction (Craven's Bayesian aggregation)",
+          "type": "book",
+          "quote": "Craven took all the guesses, and used a formula called Bayes's theorem to estimate the Scorpion's final location... The final estimate was a genuinely collective judgment.",
+          "insight": "Craven's method aggregated individual data points into a prioritized composite. The agent dashboard does the same: it takes individual host signals (engagement level, task status, response patterns) and aggregates them into a prioritized action queue. The agent's work sequence becomes a collective judgment of where their attention should go."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The action queue displays all current tasks sorted by priority. Each task card shows host name, engagement indicator, task description, and time indicator. The queue scrolls vertically. A badge at the top shows the total count of outstanding tasks.",
+        "loading": "On dashboard load, tasks populate with a 30ms stagger from top to bottom (highest priority first). A skeleton loader (--bg-light-gray rectangles) shows the expected layout while data loads. Total load time target: under 800ms.",
+        "empty": "No tasks in the queue. The dashboard shows a centered message: 'All caught up. No pending tasks.' with a check-circle icon in --secondary-purple. This state should feel rewarding, not empty.",
+        "error": "If task data fails to load, show a retry prompt: 'Could not load your tasks. Tap to retry.' No fake data, no stale cache -- the agent needs accurate, current information.",
+        "success": "When a task is completed (swiped right or marked complete), the card slides out to the right (200ms, ease-in) and the remaining tasks shift up to fill the gap (150ms, ease-out). A brief 'Done' label appears in --secondary-purple at the card's former position before fading (100ms)."
+      },
+      "transition_principle": "The action queue should feel like a flowing river, not a static list. Completed tasks flow away, new tasks appear. The agent should feel momentum -- each completed task brings them closer to 'All caught up.' Swipe gestures feel physical and satisfying. The queue never feels overwhelming because tasks are presented one screen at a time, with the most urgent always visible.",
+      "timing": {
+        "response_target": "Task card expansion: 150ms. Swipe-to-complete: 200ms for card exit animation. Task list reorder after completion: 150ms. New task appearance (when a host replies or a deadline triggers): 300ms fade-in at the appropriate priority position.",
+        "easing": "ease-in for card exit (accelerates away -- feels like 'clearing'). ease-out for card entry (decelerates into position -- feels like 'arriving'). ease-in-out for list reorder (smooth repositioning).",
+        "rationale": "Agent dashboard interactions should feel efficient and fluid. The agent processes many tasks per session, so each interaction must be quick (under 200ms perceived) and the transitions must not create visual confusion during rapid task completion."
+      },
+      "journey_state_awareness": "The action queue dynamically adjusts task priority based on the host's journey phase. Onboarding tasks (incomplete listings) are prioritized over retention tasks (check-ins) because onboarding has higher dropout risk (per layer-0 journey-context). Proposal management tasks are always highest priority because they have external deadlines (guest waiting for response). The queue recalculates priority each time the agent opens the dashboard.",
+      "edge_cases": [
+        "Agent has 50+ tasks and the queue feels overwhelming -- introduce a 'Focus Mode' that shows only the top 5 highest-priority tasks with a 'Show more' expansion; the initial view should never feel like an infinite scroll",
+        "Two tasks for the same host conflict (e.g., 'send photo reminder' and 'proposal pending') -- consolidate into a single host card with multiple sub-tasks to reduce context-switching",
+        "Agent completes a task but the platform does not reflect the change (e.g., marks 'photos uploaded' but listing still shows incomplete) -- the task reappears with a 'Still incomplete -- verify' label after 1 hour",
+        "New urgent task arrives while the agent is mid-conversation with a host -- the task appears at the top of the queue with a subtle pulse but does not interrupt the current expanded task card",
+        "Agent accidentally swipes a task to complete -- provide a 5-second 'Undo' toast at the bottom of the screen; after 5 seconds, the completion is permanent"
+      ]
+    }
+  ]
+}

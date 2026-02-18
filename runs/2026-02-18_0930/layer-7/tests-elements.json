@@ -1,0 +1,238 @@
+{
+  "lens": {
+    "guest_call": "Tamycka initial phone call.txt",
+    "book_extract": "cialdini-commitment-socialproof.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-0930-001",
+      "type": "validation_strategy",
+      "title": "Micro-Commitment Ladder Funnel Validation",
+      "validates_element": "works-0930-001",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the micro-commitment escalation ladder is poorly implemented, guests may perceive intermediate steps (save, configure) as friction rather than value. The commitment ladder could reduce proposal submission rates if the intermediate steps distract from the primary goal.",
+      "solution": "Measure the funnel: save -> configure -> propose. Compare proposal submission rates between guests who engage with intermediate steps and those who skip directly to proposal.",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Foot-in-the-door)",
+          "type": "book",
+          "quote": "76 percent of them offered the use of their front yards...The prime reason was something that had happened to them about two weeks earlier.",
+          "insight": "If the ladder works, guests who save a listing should submit proposals at a significantly higher rate than guests who do not. If this correlation does not hold, the intermediate steps are friction, not commitment."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track the conversion funnel: listing view -> save listing -> configure days -> start proposal -> submit proposal. Measure conversion rates at each step. Compare proposal submission rate for guests who completed at least one intermediate step vs. guests who went directly from listing view to proposal.",
+      "success_criteria": "Guests who save a listing have a 2x higher proposal submission rate than guests who do not. Guests who configure days have a 3x higher rate. If intermediary steps correlate with LOWER submission rates, they are friction and should be simplified.",
+      "failure_meaning": "The commitment ladder is perceived as obstruction rather than escalation. The intermediate steps may be too complex, too prominent, or psychologically perceived as gates rather than invitations. Revisit works-0930-001's anti-goals: 'DO NOT make any micro-commitment feel mandatory.'",
+      "implementation_hint": "Analytics events: 'listing_saved', 'days_configured', 'proposal_started', 'proposal_submitted'. Segment by: first-time vs. returning guest, guest-with-children vs. general. Run for 4 weeks minimum to collect statistically significant data."
+    },
+    {
+      "id": "tests-0930-002",
+      "type": "validation_strategy",
+      "title": "Similar-Other Social Proof Impact on Listing Evaluation",
+      "validates_element": "works-0930-002",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If similarity-based social proof does not actually reduce uncertainty for the target guest, the badges add visual clutter without functional benefit. The badges could also backfire if the social proof signals are perceived as fake or manufactured.",
+      "solution": "A/B test listing pages with and without similarity-based social proof badges. Measure listing-to-proposal conversion rates, time spent on listing page, and exit rates.",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 4 (Similarity / Wallet experiment)",
+          "type": "book",
+          "quote": "Only 33 percent of the wallets were returned when the first finder was seen as dissimilar, but fully 70 percent were returned when he was thought to be a similar other.",
+          "insight": "If the similarity condition holds on Split Lease, guests who see 'families with children stayed here' should convert at a higher rate than guests who see generic '12 guests stayed here' or no social proof at all."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Three-arm A/B test on listing pages: (A) No social proof badges, (B) Generic social proof badges ('12 recurring guests'), (C) Similarity-based social proof badges ('3 families with children | Avg. stay: 8 weeks'). Measure: listing-to-proposal conversion rate, time-on-page, scroll depth, and bounce rate. Segment results by guest profile: guests with children vs. general.",
+      "success_criteria": "Condition C (similarity-based) produces a 20%+ higher conversion rate than Condition A (no badges) among guests with children. Condition B (generic) produces at most a 10% improvement. If Condition B outperforms Condition C, the similarity specificity is counterproductive.",
+      "failure_meaning": "Either (a) guests do not notice the badges (placement issue -- revisit communicates-0930-002), (b) guests do not trust the badges (credibility issue -- the data may be too sparse to feel authentic), or (c) social proof is less important than price and safety features for this demographic. If (c), the information hierarchy should de-prioritize social proof.",
+      "implementation_hint": "Use Playwright to verify badge rendering across breakpoints. Analytics events: 'social_proof_badge_viewed' (viewport intersection), 'listing_page_time', 'proposal_started'. Minimum sample: 500 guests per arm, 4-week duration."
+    },
+    {
+      "id": "tests-0930-003",
+      "type": "validation_strategy",
+      "title": "Weekly Micro-Review Completion Rate and Commitment Correlation",
+      "validates_element": "works-0930-003",
+      "journey_phases": ["active_lease"],
+      "problem": "If the weekly micro-review prompt is too frequent, too intrusive, or feels like an obligation, guests will develop 'review fatigue' and dismiss it habitually. If it is too subtle, completion rates will be near zero and the commitment-building mechanism will not function.",
+      "solution": "Track weekly review completion rates over time. Correlate review completion with guest retention (lease renewal, additional stays). Monitor dismiss rates to detect review fatigue.",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Written commitments)",
+          "type": "book",
+          "quote": "a written declaration has some great advantages. First, it provides physical evidence that the act occurred.",
+          "insight": "If reviews function as commitment devices, guests who write reviews should have higher retention than guests who do not. The correlation should strengthen over time (more reviews = stronger commitment)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) Review completion rate per stay (target: 60%), (2) Dismiss rate per stay, (3) Correlation between cumulative reviews completed and lease renewal rate, (4) Text note addition rate (secondary commitment metric). Monitor these metrics weekly for 3 months across all active lease guests.",
+      "success_criteria": "60% of stays generate a one-tap review. Guests with 5+ reviews have a 30%+ higher lease renewal rate than guests with 0-1 reviews. Text note addition rate: 20%+ of reviews include a note. Dismiss rate stays below 50% per stay.",
+      "failure_meaning": "If completion rate is below 30%, the prompt is too subtle or the value proposition is unclear -- revisit behaves-0930-004 placement and copy. If dismiss rate exceeds 70%, the prompt is perceived as annoying -- reduce frequency. If there is no correlation between reviews and retention, the commitment hypothesis is wrong for this context -- reviews may function as feedback but not as commitment devices.",
+      "implementation_hint": "Analytics events: 'review_prompt_shown', 'review_completed' (with star value), 'review_dismissed', 'review_note_added'. Retention metric: lease extended beyond initial term or additional proposal submitted. Playwright: test that the review card appears inline in the timeline after a stay is marked complete."
+    },
+    {
+      "id": "tests-0930-004",
+      "type": "validation_strategy",
+      "title": "Price Transparency Anti-Lowball Perception Test",
+      "validates_element": "works-0930-004",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If price transparency is implemented but the total displayed during listing evaluation differs from the total at proposal submission (due to fees, dynamic pricing, or calculation errors), the lowball perception will be triggered regardless of intent. Even a $5 difference can destroy trust for a budget-constrained guest.",
+      "solution": "Compare the price shown on the listing page with the price shown at proposal submission. Any discrepancy is a failure. Additionally, survey post-proposal guests about price surprise.",
+      "evidence": [
+        {
+          "source": "Tamycka initial phone call.txt, 17:15-17:22",
+          "type": "host_call",
+          "quote": "for me, it's more a price than it is location...I have to budget for right now",
+          "insight": "For a budget guest, price surprise is not just disappointing -- it is disqualifying. The test must verify zero discrepancy between evaluation price and proposal price."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated test: For every proposal submitted, compare the price displayed on the listing page calculator (captured as a snapshot at the time of the guest's last listing page view) with the price shown at proposal submission. Flag any discrepancy greater than $0.01. Additionally, for the first 100 proposals, include a post-submission micro-survey: 'Was the price at submission what you expected? Yes / No / Not sure.'",
+      "success_criteria": "Price match rate: 95%+ of proposals show identical prices between listing evaluation and proposal submission. Post-submission survey: 90%+ of respondents answer 'Yes' to 'Was the price what you expected?'. Any discrepancy flagged should be traceable to a specific cause (host price change, date unavailability) and should have been disclosed to the guest before submission.",
+      "failure_meaning": "A discrepancy rate above 5% indicates a systemic calculation inconsistency between the listing page calculator and the proposal engine. This is an engineering bug, not a design problem, but its impact is a design problem: lowball perception destroys trust. Escalate to engineering immediately.",
+      "implementation_hint": "Playwright end-to-end test: navigate to a listing, configure 3 nights/week for 10 weeks, capture the displayed total, navigate to proposal submission, compare totals. Run nightly against staging. Alert on any diff > $0.01. Server-side: log listing-page-price and proposal-page-price for every proposal for retroactive audit."
+    },
+    {
+      "id": "tests-0930-005",
+      "type": "validation_strategy",
+      "title": "Child-Safety Badge Impact on Parent Guest Conversion",
+      "validates_element": "works-0930-005",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "If the child-safety badge does not actually resolve parent guests' uncertainty, it adds complexity to the listing page without benefit. Alternatively, the badge could deter non-parent guests by implying the space is optimized for children rather than general use.",
+      "solution": "A/B test listing pages with and without the family-friendly badge. Segment results by parent vs. non-parent guests.",
+      "evidence": [
+        {
+          "source": "Tamycka initial phone call.txt, 04:19-04:24",
+          "type": "host_call",
+          "quote": "As long as we're able to disinfect.",
+          "insight": "If the badge resolves the disinfection concern, parent guests should convert at a higher rate on badge-enabled listings. If it does not, the badge may be too vague or the specific safety features are not what parents actually need."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test on listings that have opted into family-friendly designation: (A) Standard listing page without badge, (B) Listing page with family-friendly badge and expandable safety features. Measure: listing-to-proposal conversion rate segmented by parent vs. non-parent guests. Secondary: time-on-page and safety feature expansion rate.",
+      "success_criteria": "Parent guests on Condition B convert at 2x the rate of parent guests on Condition A. Non-parent guests show no significant conversion decrease on Condition B vs. Condition A (the badge should not deter them). Safety feature expansion rate: 30%+ of parent guests tap to see details.",
+      "failure_meaning": "If parent conversion does not improve, the badge is either (a) not visible enough (placement issue), (b) not specific enough (parents need more than 'Family-Friendly'), or (c) not trusted (host self-declaration without guest verification is insufficient). If non-parent conversion decreases, the badge may be creating an unwanted segment signal.",
+      "implementation_hint": "Ensure A/B split is randomized within the same listings (badge shown to some guests, not others). Analytics: 'family_badge_viewed', 'family_badge_expanded', 'proposal_started'. Minimum sample: 200 parent guests per arm. 6-week duration recommended due to smaller parent-segment sample size."
+    },
+    {
+      "id": "tests-0930-006",
+      "type": "validation_strategy",
+      "title": "Progressive Price Disclosure Comprehension Test",
+      "validates_element": "communicates-0930-001",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the total-first price hierarchy is implemented but guests still do not understand the pricing structure, the information architecture has failed at its core job. Comprehension is not the same as visibility: the guest might see the total but not understand what it covers, how it was calculated, or how it compares to alternatives.",
+      "solution": "Usability test with 5-8 budget-conscious guests. Ask them to evaluate a listing and articulate the total cost of their configured stay.",
+      "evidence": [
+        {
+          "source": "Tamycka initial phone call.txt, 10:56-10:58",
+          "type": "host_call",
+          "quote": "if I book for three days, my first, so then I would just pay for the three days up front. Is that how it works?",
+          "insight": "Tamycka's question reveals a need to understand the payment structure, not just the total price. The usability test must verify that guests understand not just WHAT they pay but WHEN and HOW."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Moderated usability test with 5-8 participants who match Tamycka's profile: budget-conscious, recurring schedule, first-time platform users. Task: 'You need a place to stay Thursday-Friday-Saturday for the next 10 weeks. Find a listing you can afford and tell me how much it will cost.' Observe: (1) Can they articulate the total cost within 30 seconds of viewing the listing? (2) Do they understand what is included in the total? (3) Do they express surprise at any point during the flow from search to proposal submission?",
+      "success_criteria": "80%+ of participants can correctly state the total cost within 30 seconds of viewing the listing page. 100% of participants report no price surprise between listing evaluation and proposal submission. Participants describe the pricing as 'clear' or 'straightforward' in post-task interview.",
+      "failure_meaning": "If participants cannot articulate the total quickly, the visual hierarchy is not strong enough -- the total may not be prominent enough or may be competing with per-night rate for attention. If participants express surprise at proposal submission, fee disclosure is incomplete during evaluation. If participants describe pricing as 'confusing,' the progressive disclosure pattern needs simplification.",
+      "implementation_hint": "Recruit through budget-conscious parent communities (parenting forums, gig worker groups). Use a prototype or staging environment with real listing data. Record screen and audio. Score on: time to correct total, accuracy of understanding, surprise events. Post-task: SUS questionnaire + 3 open-ended questions about pricing clarity."
+    },
+    {
+      "id": "tests-0930-007",
+      "type": "validation_strategy",
+      "title": "Social Proof Badge Typography Distinctiveness Perception",
+      "validates_element": "looks-0930-002",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "If the DM Sans typography on social proof badges is not sufficiently distinct from Inter-based UI content, guests may not register the badges as a different category of information. The badges would be read as more platform copy rather than as observed evidence from real guests.",
+      "solution": "A/B test badge typography: DM Sans (proposed) vs. Inter (matching UI). Measure badge noticeability through eye-tracking or click-through rates on badges.",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 4 (Canned laughter)",
+          "type": "book",
+          "quote": "Experiments have found that the use of canned merriment causes an audience to laugh longer and more often when humorous material is presented and to rate the material as funnier.",
+          "insight": "Social proof works even when the presentation is obvious. But if the badge is not perceived as distinct from marketing copy, its social-proof function may be diluted. The typography must signal 'this is evidence, not promotion.'"
+        }
+      ],
+      "priority": "low",
+      "validation_method": "usability_test",
+      "test_description": "Show 5 participants two versions of a listing page: one with DM Sans social proof badges, one with Inter badges. Ask: 'What information on this page comes from other guests?' Measure whether participants can correctly identify social proof content. Secondary: preference ranking between the two versions.",
+      "success_criteria": "80%+ of participants correctly identify the social proof badges within 10 seconds on the DM Sans version. If Inter badges achieve the same identification rate, the typography distinction is unnecessary and adds complexity without benefit.",
+      "failure_meaning": "If participants cannot distinguish social proof from platform copy, the DM Sans distinction is too subtle. Consider stronger differentiation: background color, icon treatment, or explicit label ('From other guests:'). If DM Sans is less readable than Inter at 12px, readability trumps distinctiveness.",
+      "implementation_hint": "Low-fidelity test: create two static mockups (Figma or HTML screenshots). Show to participants in randomized order. Record time to identify social proof content. This can be run as a 15-minute unmoderated test."
+    },
+    {
+      "id": "tests-0930-008",
+      "type": "validation_strategy",
+      "title": "Commitment Gradient Purple Intensity Perception Test",
+      "validates_element": "looks-0930-001",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "acceptance"],
+      "problem": "If the graduated purple intensity (lighter for browsing, deeper for commitment) is not perceptible to guests, the visual feedback loop for commitment escalation does not function. Alternatively, if the color shift is TOO dramatic, it may feel like the interface is changing unpredictably.",
+      "solution": "Usability test with 5 participants walking through the full search -> evaluate -> propose -> accept flow. Observe whether they notice or comment on the visual progression.",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Racetrack study)",
+          "type": "book",
+          "quote": "Just after placing a bet, they are much more confident of their horse's chances of winning.",
+          "insight": "The visual shift to deeper purple after proposal submission should visually reinforce the confidence spike. If participants do not feel 'more settled' in the post-proposal view, the visual treatment is not achieving its emotional goal."
+        }
+      ],
+      "priority": "low",
+      "validation_method": "usability_test",
+      "test_description": "Walk 5 participants through the full journey flow (search -> listing evaluation -> day configuration -> proposal submission -> acceptance). After the session, ask: 'Did you notice any visual changes as you progressed through the process? How did the interface feel at the beginning vs. at the end?' Do NOT prompt about color or purple specifically -- observe whether they naturally mention the progression.",
+      "success_criteria": "At least 3 of 5 participants mention that the interface felt 'different' or 'more serious/settled' as they progressed. They do not need to identify the purple gradient specifically -- the emotional perception is what matters. No participants should describe the progression as 'confusing' or 'broken.'",
+      "failure_meaning": "If no participants notice the progression, the color shifts are too subtle. Consider increasing the contrast between browsing state (bg-off-white) and committed state (primary-purple background). If participants describe it as 'confusing,' the shifts may be happening too abruptly or inconsistently across page elements.",
+      "implementation_hint": "Use a clickable prototype with all four commitment states (browse, interest, commitment, confirmed). Record screen and audio. This test can be combined with tests-0930-006 (price comprehension) to reduce participant recruitment overhead."
+    },
+    {
+      "id": "tests-0930-009",
+      "type": "validation_strategy",
+      "title": "Journey-Level Emotional Arc Validation",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "acceptance", "move_in", "active_lease"],
+      "problem": "Individual elements may test well in isolation but fail to create a coherent emotional arc across the full journey. The transition from calm (discovery) to confidence (evaluation) to momentum (proposal) to belonging (active lease) must feel natural, not like distinct emotional phases.",
+      "solution": "Longitudinal diary study with 3-5 guests over their first 4 weeks on the platform (discovery through first 2-3 stays).",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Commitment escalation)",
+          "type": "book",
+          "quote": "Start small and build...prisoners were frequently asked to make statements so mildly anti-American or pro-Communist as to seem inconsequential.",
+          "insight": "The emotional arc should feel like a natural progression, not a series of emotional jolts. The diary study captures the guest's actual emotional experience over time, revealing whether the arc feels natural or manufactured."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 3-5 guests who match Tamycka's profile. At each journey phase transition (after first search, after first listing evaluation, after proposal submission, after acceptance, after first stay, after third stay), send a 2-question micro-survey: (1) 'How confident do you feel about your decision right now? (1-10)', (2) 'Describe your feeling in one word.' Track the confidence trajectory and emotional vocabulary across the journey.",
+      "success_criteria": "Confidence scores increase monotonically from discovery to active lease (each phase scores higher than the prior). Emotional vocabulary shifts from uncertainty words (curious, cautious, unsure) to commitment words (confident, settled, home). No participant's confidence score drops by more than 2 points at any phase transition.",
+      "failure_meaning": "A confidence drop at a specific phase transition indicates a design failure at that transition point. The specific phase where the drop occurs identifies which layer's elements need revision. If confidence plateaus rather than increasing, the commitment escalation mechanisms are not functioning.",
+      "implementation_hint": "Use a simple SMS-based survey tool (Twilio or similar). Send the 2-question survey automatically when the guest completes each phase milestone (triggered by platform events). Run for 8 weeks to capture the full discovery-to-active-lease arc. This is the most valuable test in the set but also the most resource-intensive."
+    },
+    {
+      "id": "tests-0930-010",
+      "type": "validation_strategy",
+      "title": "Stay Timeline Commitment Evidence Perception Test",
+      "validates_element": "communicates-0930-004",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stay Timeline is designed to surface commitment evidence that makes the guest feel invested. But if the timeline is perceived as a billing ledger or a surveillance tool, it will trigger the opposite emotion: defensiveness rather than belonging.",
+      "solution": "Usability test with 3-5 active lease guests who have completed 5+ stays. Show them a prototype of the Stay Timeline and observe their emotional reaction.",
+      "evidence": [
+        {
+          "source": "cialdini-commitment-socialproof.txt, Ch. 3 (Written commitments / POW program)",
+          "type": "book",
+          "quote": "Once a man wrote what the Chinese wanted, it was very difficult for him to believe that he had not done so.",
+          "insight": "The timeline should make the guest feel 'I have been here, I belong here.' If instead it makes them feel 'they are tracking me,' the commitment mechanism is inverted."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 3-5 active lease guests a prototype of the Stay Timeline with their actual data (stays completed, ratings given, milestones). Ask: (1) 'What does this page make you feel?', (2) 'Is there anything on this page you would not want to see?', (3) 'Does this feel like YOUR page or the PLATFORM's page?' Observe emotional responses and body language.",
+      "success_criteria": "80%+ of participants describe positive emotions (pride, satisfaction, belonging). 0% describe surveillance or tracking concerns. 80%+ say the page feels like 'theirs.' Milestone markers generate visible positive reactions (smile, verbal acknowledgment).",
+      "failure_meaning": "If participants feel surveilled, the timeline is showing too much platform-collected data (cleaning photo compliance rates, response times) vs. guest-authored data (ratings, notes). Rebalance toward guest-generated content. If milestones feel artificial, they may be too frequent or too game-like -- reduce to the minimum meaningful set (5, 10, 20 stays).",
+      "implementation_hint": "Use actual guest data in the prototype for maximum authenticity. Conduct in person if possible (emotional reactions are harder to read via video). 30-minute sessions. Can be combined with a general Stays Manager feedback session."
+    }
+  ]
+}
