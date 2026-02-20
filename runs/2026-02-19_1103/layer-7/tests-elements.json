@@ -1,0 +1,802 @@
+{
+  "lens": {
+    "guest_call": "Sophie Charvet - 18 April 2022.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Upfront Eligibility Disqualification Gate Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the eligibility gate is poorly implemented, ineligible prospects may still reach human agents (gate too subtle or positioned too late), or eligible prospects may be falsely turned away (gate too aggressive or poorly worded). Both failure modes waste resources and lose potential guests.",
+      "solution": "Run a quantitative comparison of inbound call qualification rates before and after gate deployment, combined with a task-based usability test to verify that both eligible and ineligible prospects correctly self-classify within 10 seconds of encountering the gate.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 0:26-1:00",
+          "type": "guest_call",
+          "quote": "I need to understand how I can help you the best, because you mentioned something because you need it almost next week and, uh, zap something too quick.",
+          "insight": "Sophie's call is the baseline failure: an ineligible prospect consuming agent time. The test must verify this scenario is eliminated or dramatically reduced."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Stimulus-Response Compatibility section",
+          "type": "book",
+          "quote": "The idea is that you want the signal you receive (the stimulus) to be consistent with the desired action.",
+          "insight": "The validation must confirm stimulus-response alignment: ineligible prospects receive a redirect signal, eligible prospects receive a proceed signal, and neither group misreads the gate."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track the percentage of inbound calls where the caller's need falls below service minimums (sub-6-week duration or sub-3-week lead time). Measure this baseline before deploying the eligibility gate, then compare after deployment. Complement with a task-based usability test: give 10 participants a scenario (5 eligible, 5 ineligible) and observe whether they correctly identify their eligibility status within 10 seconds of encountering the gate.",
+      "success_criteria": "60% or greater reduction in inbound calls from prospects with sub-6-week needs within 30 days of gate deployment. In the usability test, 9 out of 10 participants correctly self-classify (eligible proceeds, ineligible redirects) within 10 seconds. Zero false-disqualification errors (eligible prospect incorrectly told they do not qualify).",
+      "failure_meaning": "If ineligible calls do not decrease, the gate is not visible or not positioned early enough in the discovery flow. If eligible prospects are falsely turned away, the constraint language is too aggressive or ambiguous. If self-classification takes longer than 10 seconds, the constraint information requires fewer words or more visual prominence.",
+      "implementation_hint": "Analytics: tag inbound calls with caller-stated duration and lead time. Compare pre/post gate deployment. Usability: Maze or UserTesting.com unmoderated test with 10 participants, 2 scenarios each. Playwright: verify that entering a duration under 6 weeks triggers the inline eligibility feedback within 200ms."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Graceful Redirect Email Capture Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the redirect path is poorly implemented, ineligible prospects may leave without engaging with any capture mechanism (email field not prominent enough, value proposition not compelling), or may feel manipulated (the redirect feels like a sales trap rather than a helpful pivot).",
+      "solution": "Measure email capture rate from ineligible prospects and qualitative sentiment of the redirect experience through post-interaction surveys.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 1:25-1:38",
+          "type": "guest_call",
+          "quote": "That's unfortunate that we cannot help you... if you ever need something in this type of arrangement, but it was a little more lead time. We'll be happy to help you.",
+          "insight": "The current verbal redirect captures zero future value. Any email capture rate above 0% represents improvement over the baseline."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track email capture rate from prospects who trigger the ineligibility state. Measure: (1) percentage of ineligible prospects who see the redirect card, (2) percentage who interact with the email field, (3) percentage who submit an email. Additionally, send a one-question follow-up to captured emails within 24 hours: 'How did the experience of learning we could not help you feel?' with a 5-point satisfaction scale.",
+      "success_criteria": "20% or greater email capture rate from ineligible prospects. Follow-up satisfaction score of 3.5 or above out of 5 (indicating the redirect felt helpful, not manipulative). Secondary: 15% of shared links (from the redirect card's share mechanism) result in a new prospect interaction within 30 days.",
+      "failure_meaning": "If email capture is below 10%, the redirect card's value proposition is not compelling or the email field is not prominent enough. If satisfaction is below 3.0, the redirect feels like a sales trap -- the emotional framing needs revision. If shares are near zero, the share mechanism is not discoverable or not relevant to the proxy/referral use case.",
+      "implementation_hint": "Analytics: event tracking on redirect card impression, email field focus, email submission, share button click. Follow-up: automated email via SendGrid or similar, triggered by redirect-card email submission. Include unsubscribe to comply with CAN-SPAM."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Elimination-by-Aspects Search Filter Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "If search filters are poorly implemented, guests may not discover or use them (filters not prominent enough), may find them confusing (filter labels do not match mental models), or may receive zero results without helpful guidance (empty state is a dead end).",
+      "solution": "Measure filter adoption rate, zero-result recovery rate, and search-to-listing-click conversion to verify that filters improve the search experience rather than creating new dead ends.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Structure Complex Choices section",
+          "type": "book",
+          "quote": "Someone using this strategy first decides what aspect is most important, establishes a cutoff level, then eliminates all the alternatives that do not come up to this standard.",
+          "insight": "The test must verify that guests naturally apply elimination-by-aspects behavior through the filters, and that the filters surface the right cutoff criteria (duration, timing) as primary options."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) percentage of search sessions where the guest applies at least one filter before viewing a listing, (2) percentage of zero-result states that produce a guest interaction with the 'what would match' suggestion, (3) search-to-listing-click conversion rate before and after filter deployment. Additionally, run a tree-test or card-sort to verify that filter labels match guest mental models for their primary cutoff criteria.",
+      "success_criteria": "80% of search sessions include at least one filter application. Zero-result states show a 'what would match' suggestion in 100% of cases, and at least 30% of zero-result sessions result in the guest adjusting criteria based on the suggestion. Search-to-listing-click conversion improves by 15% or more after filter deployment.",
+      "failure_meaning": "If filter adoption is below 50%, filters are not prominent enough or labels do not match guest vocabulary. If zero-result recovery is below 15%, the 'what would match' suggestion is not compelling or not visible. If conversion does not improve, filters may be too restrictive or may filter out listings that would have been interesting to the guest.",
+      "implementation_hint": "Analytics: Mixpanel or Amplitude event tracking on filter interactions, zero-result impressions, and suggestion clicks. Tree test: Optimal Workshop with 20+ participants to validate filter label taxonomy. Playwright: verify that selecting duration '4 weeks' triggers the zero-result state with a 'what would match' suggestion within 500ms."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Co-Tenancy Model Comprehension Validation",
+      "validates_element": "works-004",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the co-tenancy visual mapping is poorly implemented, guests may still not understand the shared-space model after viewing a listing (calendar is confusing, daily-life narrative is insufficient), or may understand it intellectually but not feel confident enough to proceed (comprehension without comfort).",
+      "solution": "Run a comprehension test where participants view a listing with the co-tenancy calendar and narrative, then answer factual questions about the arrangement. Complement with a confidence survey measuring whether comprehension translates to willingness to proceed.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 2:10-2:33",
+          "type": "guest_call",
+          "quote": "The way we do it with the two people was complimentary schedule... somebody needs Monday through Friday and somebody else needs Friday. So Monday they become, goes to amaze, which use the same space, but in different timeframes.",
+          "insight": "The agent's verbal explanation is nearly incomprehensible. Any comprehension score above the verbal-explanation baseline represents improvement."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 10 participants who have never experienced co-tenancy housing. Show them a listing page with the calendar visualization and daily-life narrative. Ask 5 factual questions: (1) Which days would you have access to the space? (2) When would you arrive and depart? (3) Who else uses the space? (4) Where would you keep your belongings? (5) What happens on your transition day? Score: correct answers out of 5. Then ask a confidence question: 'On a scale of 1-5, how confident are you that you understand what living in this arrangement would be like?' Compare against a control group that receives only a text description (mirroring the agent's verbal explanation).",
+      "success_criteria": "Treatment group (calendar + narrative) scores an average of 4.0 or above on factual comprehension (out of 5) and 3.5 or above on the confidence scale. Treatment group outperforms control group (text-only) by at least 1.5 points on comprehension and 1.0 points on confidence.",
+      "failure_meaning": "If comprehension is below 3.0, the calendar visualization is not clear enough -- likely the day-color distinction is insufficient or the legend is missing. If comprehension is high but confidence is low, the guest understands the model but finds it anxiety-inducing -- the daily-life narrative needs to be more reassuring and concrete. If the control group performs equally, the calendar adds visual complexity without informational gain.",
+      "implementation_hint": "Usability: UserTesting.com or Maze unmoderated test, 10 participants per group, screened for no prior co-tenancy experience. Test stimulus: Figma prototype of listing page with interactive calendar. Control stimulus: text-only explanation matching the agent's verbal description. Record time-to-answer for each question as a secondary metric."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Smart Default Proposal Completion Rate Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "If smart defaults are poorly calibrated, guests may submit proposals that are unviable (defaults do not reflect listing reality), may feel constrained rather than helped (defaults feel like the platform's preference rather than the guest's), or may not notice that defaults are adjustable (the pre-fill is mistaken for a locked configuration).",
+      "solution": "A/B test pre-filled proposal forms against blank proposal forms, measuring completion rate, time-to-completion, and host acceptance rate of submitted proposals.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Defaults section",
+          "type": "book",
+          "quote": "Many people will take whatever option requires the least effort, or the path of least resistance.",
+          "insight": "The test must verify that smart defaults change the path of least resistance from abandonment to completion. The A/B test directly measures whether defaults achieve this behavioral shift."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test with two variants: (A) proposal form pre-filled with smart defaults (based on guest search criteria and listing patterns), (B) blank proposal form with the same fields. Measure: (1) form completion rate (started vs. submitted), (2) median time from form open to submission, (3) percentage of defaults accepted without modification, (4) host acceptance rate of resulting proposals. Run for 4 weeks or until 200 proposals per variant, whichever comes first.",
+      "success_criteria": "Variant A (defaults) achieves 50% or higher form completion rate, compared to baseline. Time-to-completion is 60 seconds or less for Variant A vs. baseline for Variant B. At least 40% of defaults are accepted without modification (validating that defaults are reasonable). Host acceptance rate for Variant A proposals is equal to or better than Variant B (defaults do not produce worse proposals).",
+      "failure_meaning": "If completion rate does not improve, defaults are not visible enough or the form structure is the bottleneck (not the blank-slate problem). If time-to-completion does not improve, the defaults may not be reducing cognitive load -- possibly because the guest feels compelled to evaluate each default rather than accepting them. If host acceptance drops, defaults are miscalibrated and produce proposals that do not match listing norms. If zero defaults are accepted as-is, the defaults feel prescriptive rather than helpful.",
+      "implementation_hint": "A/B test via LaunchDarkly or Optimizely. Assign at variant level per user (not per session) to avoid cross-contamination. Track events: form_opened, field_edited (with field name), form_submitted, proposal_accepted_by_host. Ensure the default calculation logic is logged for each proposal so miscalibrated defaults can be diagnosed."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Proxy-Guest Share Link Conversion Validation",
+      "validates_element": "works-006",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the proxy-guest flow is poorly implemented, proxy searchers may not discover the 'search on behalf of someone else' mode (too hidden), may generate share links that the end user ignores (link content not compelling), or the handoff from proxy to actual guest may fail (end user cannot act on the shared information).",
+      "solution": "Track the end-to-end proxy-guest funnel: share link generation rate, shared link open rate, and conversion from shared link to actual guest engagement (account creation, listing view, or proposal).",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 3:07",
+          "type": "guest_call",
+          "quote": "I know this, this was just for a family member who was visiting me in New York for a ma. So I won't read that myself.",
+          "insight": "Sophie explicitly declined information because she was not the end user. The test must verify that the share link mechanism provides a path Sophie would have used -- forwarding relevant information to her family member."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) percentage of listing views that generate a share link (target: 10%), (2) open rate of shared links (via link tracking), (3) conversion from shared link open to a measurable action by the end user (account creation, listing view of 30+ seconds, or proposal initiation). Complement with a qualitative intercept: when a user clicks 'Share this listing,' ask a one-question survey: 'Who are you sharing this with?' with options (family member, colleague, friend, other).",
+      "success_criteria": "10% of listing views generate a share link. 40% of shared links are opened by a different user (not the proxy). 15% of opened shared links result in a measurable guest engagement action. The intercept survey reveals the proxy-guest pattern occurs across at least 2 distinct categories (family, corporate, friend).",
+      "failure_meaning": "If share link generation is below 5%, the 'Share this listing' button is not discoverable or the proxy-guest mode is not intuitive. If open rate is low, the link preview (as rendered in messaging apps) is not compelling enough to click. If conversion from open to action is near zero, the shared landing page requires too much effort (login wall, missing context) for the end user to engage.",
+      "implementation_hint": "Analytics: generate unique trackable links (UTM or custom shortlink) for each share event. Track link generation, link open (via redirect through tracking endpoint), and downstream actions via user session matching. Intercept: one-question modal on share button click, dismissable, non-blocking."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Constraint-First Disclosure Scan Time Validation",
+      "validates_element": "communicates-001",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the constraint-first information hierarchy is poorly implemented, prospects may scan past the constraint data without registering it (typography not prominent enough), may be confused by the constraint statement (too technical or ambiguous), or may perceive the constraints as a barrier rather than helpful disclosure (framing too negative).",
+      "solution": "Eye-tracking study or first-click test to verify that constraint data is the first information element registered during discovery page scanning.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Make It Easy / Channel Factors section",
+          "type": "book",
+          "quote": "Often we can do more to facilitate good behavior by removing some small obstacle than by trying to shove people in a certain direction.",
+          "insight": "The test must verify that constraint disclosure functions as an obstacle-removal mechanism (clarifying eligibility) rather than an obstacle itself (discouraging eligible prospects). Scan time and first-fixation data reveal whether the constraint is registered before or after engagement CTAs."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "First-click test (via Optimal Workshop or similar): show participants the discovery landing page for 5 seconds, then blank the screen and ask: 'What are the minimum requirements to use this service?' Score: percentage who can recall at least one constraint (6-week minimum or 3-week lead time). Complement with a preference test: show two versions of the discovery page (constraint-first vs. constraint-below-fold) and ask which feels more honest and trustworthy.",
+      "success_criteria": "80% of participants recall at least one constraint after 5-second exposure. The constraint-first version is rated more honest/trustworthy by at least 60% of participants in the preference test.",
+      "failure_meaning": "If recall is below 50%, the constraint typography does not achieve sufficient prominence in the visual scan order -- the mono typeface treatment or positioning needs revision. If the constraint-first version is rated less trustworthy, the constraint framing may feel like a warning or barrier rather than helpful disclosure -- the copy tone needs adjustment.",
+      "implementation_hint": "First-click test: Optimal Workshop, 20 participants, 5-second exposure to a Figma prototype. Preference test: same tool, A/B comparison. If eye-tracking hardware is available (Tobii), run a 5-participant lab study for richer fixation data."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Zero-Result Redirect Information Completeness Validation",
+      "validates_element": "communicates-002",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the structured dead-end redirect is incomplete, prospects may leave without understanding why no results matched (diagnosis tier missing or unclear), without knowing what would match (reframe tier missing or uncompelling), or without leaving contact information (capture tier missing or too demanding).",
+      "solution": "Task-based usability test where participants are given a scenario that produces zero results, then assessed on their understanding of the mismatch, awareness of alternatives, and willingness to provide an email.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 1:25-1:38",
+          "type": "guest_call",
+          "quote": "That's unfortunate that we cannot help you.",
+          "insight": "The baseline is a verbal dead end with zero information structure. The test must verify that all three information tiers (diagnosis, reframe, capture) are comprehended in a single interaction."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Give 10 participants a scenario: 'You need a 1-month apartment in New York starting next week. Search on this platform.' After they encounter the zero-result redirect, ask: (1) Why did no results match? (2) What would you need to change to find a match? (3) Would you leave your email? Why or why not? Score each response for accuracy and completeness. All three tiers should be correctly understood without additional prompting.",
+      "success_criteria": "9 out of 10 participants correctly identify the specific mismatch (duration too short or lead time too tight). 8 out of 10 can articulate what would need to change (extend to 6 weeks, plan 3 weeks ahead). At least 6 out of 10 express willingness to leave their email with a clear understanding of the value proposition.",
+      "failure_meaning": "If participants cannot identify the mismatch, the diagnosis tier is not specific enough or uses unclear language. If they cannot articulate the adjustment, the reframe tier is not showing concrete alternatives. If email willingness is below 40%, the value proposition for future contact is not compelling or feels like spam.",
+      "implementation_hint": "Usability: UserTesting.com unmoderated, 10 participants with no prior Split Lease exposure. Prototype the zero-result state in Figma with the three-tier redirect card. Record think-aloud for qualitative analysis. Code responses as: correct/partial/incorrect for each tier."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Co-Tenancy Calendar Visual Schedule Translation Validation",
+      "validates_element": "communicates-003",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the visual schedule calendar is poorly designed, guests may not understand which days are theirs vs. the co-tenant's (color distinction insufficient), may not read the 'what to expect' narrative (positioned too far below), or may find the calendar anxiety-inducing rather than clarifying (the visible presence of 'another guest's days' triggers discomfort rather than comprehension).",
+      "solution": "Comprehension and sentiment test combining factual recall with emotional response measurement after calendar exposure.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Understanding Mappings section",
+          "type": "book",
+          "quote": "Even if there are some exotic flavors, the ice cream store can solve the mapping problem by offering a free taste.",
+          "insight": "The calendar is the 'free taste' of co-tenancy. The test must verify it functions as a taste (reduces anxiety, builds confidence) rather than a warning label (increases anxiety, triggers avoidance)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 10 participants a listing page with the co-tenancy calendar. After 15 seconds of viewing (no interaction), ask: (1) Which days would be yours? (2) How do you feel about sharing the space on the other days? Rate anxiety from 1-5. After allowing 30 seconds of interaction (hover/tap on days), ask the same questions again. Measure whether interaction reduces anxiety and improves comprehension vs. passive viewing alone. Include colorblind participants (at least 2 out of 10) to validate accessibility of the color system.",
+      "success_criteria": "Post-interaction comprehension: 10 out of 10 correctly identify their days. Post-interaction anxiety: average below 2.5 out of 5 (moderate-to-low anxiety). Interaction reduces anxiety by at least 0.5 points vs. passive viewing. Colorblind participants achieve the same comprehension score as non-colorblind participants.",
+      "failure_meaning": "If comprehension is low even after interaction, the day-color distinction is insufficient or the legend is unclear. If anxiety remains high, the calendar's presentation of 'other guest's days' is triggering discomfort -- consider reframing (e.g., 'open days' vs. 'other guest's days'). If colorblind participants score lower, the color system relies too heavily on hue and needs additional differentiators (shape, shadow, pattern).",
+      "implementation_hint": "Usability: lab test preferred (for precise timing control), 10 participants including 2 screened for color vision deficiency (Ishihara test at intake). If lab not available, UserTesting.com with colorblind screening question. Use Figma interactive prototype with hover states."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Default-Anchored Proposal Form Cognitive Load Validation",
+      "validates_element": "communicates-004",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "If the default-anchored proposal form communicates poorly, guests may not notice the defaults (pre-fills blend into the form background), may not understand the default sources (contextual labels are too small or unclear), or may feel the defaults are manipulative (the platform is pushing a preferred configuration rather than helping).",
+      "solution": "Cognitive walkthrough combined with a trust survey to verify that defaults are noticed, understood, and perceived as helpful.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Defaults section",
+          "type": "book",
+          "quote": "Most users do not want to have to read an incomprehensible manual to determine which arcane setting to select.",
+          "insight": "The test must verify that the pre-filled form achieves the emotional effect of 'someone helped me' rather than the cognitive effect of 'someone decided for me.'"
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Cognitive walkthrough with 8 participants. Present the pre-filled proposal form and ask: (1) What do you see? (identify the defaults), (2) Where did these values come from? (identify the source labels), (3) Can you change them? (demonstrate editability), (4) Do these defaults feel helpful or pushy? Rate on a 5-point scale. Measure time-to-first-edit as a proxy for noticing the defaults -- participants who do not notice defaults will start editing from the first field; those who notice will scan first and edit selectively.",
+      "success_criteria": "7 out of 8 participants correctly identify the defaults as pre-filled suggestions. 6 out of 8 can articulate at least one default source ('based on my search'). 8 out of 8 demonstrate that they know how to edit defaults. Helpfulness rating averages 3.5 or above out of 5. Median time-to-first-edit is above 5 seconds (indicating the participant scanned the defaults before editing, not immediately overwriting).",
+      "failure_meaning": "If participants do not notice defaults, the visual distinction (italic, muted color) is insufficient. If they cannot identify sources, contextual labels are too small or poorly positioned. If helpfulness is below 3.0, the defaults feel prescriptive -- the framing language needs revision. If time-to-first-edit is under 3 seconds, participants are treating the form as blank despite the pre-fills.",
+      "implementation_hint": "Cognitive walkthrough: moderated session, 8 participants, 15 minutes each. Figma interactive prototype with editable fields. Think-aloud protocol. Record screen and audio for analysis."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Forcing-Function Checkpoint Completion Validation",
+      "validates_element": "communicates-005",
+      "journey_phases": ["acceptance", "move_in"],
+      "problem": "If the forcing-function checkpoint sequence is poorly framed, guests may feel trapped (cannot access their move-in details without clicking through bureaucratic gates), may rush through without actually absorbing the information (clicking 'Got it' without reading), or may abandon the sequence entirely (the checkpoints feel like punishment for saying yes).",
+      "solution": "Task-based test measuring both completion rate and information retention across the three checkpoints. Complement with a sentiment measure to distinguish 'I completed the checkpoints and feel prepared' from 'I clicked through the checkpoints to get it over with.'",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "Another strategy, suggested by Don Norman, is to use what he calls a 'forcing function,' meaning that in order to get what you want, you have to do something else first.",
+          "insight": "The test must verify that the forcing function prevents postcompletion errors (skipping critical steps) without creating resentment (feeling forced). Both outcomes must be measured."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Give 10 participants the scenario: 'Your proposal has been accepted. Complete the next steps to get your move-in details.' Measure: (1) completion time for all three checkpoints, (2) information retention: after completing all checkpoints, ask 3 recall questions (one per checkpoint -- key lease term, payment amount, move-in instruction), (3) emotional sentiment: 'Did this process feel helpful or annoying?' on a 5-point scale.",
+      "success_criteria": "All 10 participants complete all three checkpoints in under 3 minutes. Average recall score is 2.5 or above out of 3 questions. Sentiment averages 3.5 or above out of 5 (helpful rather than annoying). Zero participants express that they felt 'trapped' or 'forced' in think-aloud commentary.",
+      "failure_meaning": "If completion time exceeds 5 minutes, the checkpoint content is too dense or the acknowledge button is not clear. If recall is below 2.0, participants are clicking through without reading -- the content is not scannable enough or the forcing function is not effective at compelling engagement. If sentiment is below 3.0, the checkpoints feel punitive -- the positive framing ('Got it, next step') is not sufficient to offset the gating mechanism.",
+      "implementation_hint": "Usability: UserTesting.com moderated or unmoderated, 10 participants. Figma prototype with gated checkpoint sequence. Include think-aloud for qualitative sentiment capture. Retention test administered immediately after final checkpoint."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Proxy-Guest Information Transfer Validation",
+      "validates_element": "communicates-006",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "If the shareable listing summary is poorly designed, proxies may not find it useful enough to forward (too much or too little information), end users who receive it may not understand it without context (the summary assumes familiarity with the platform), or the handoff may fail because the end user cannot take action from the shared link (login wall, missing context).",
+      "solution": "Two-stage usability test: Stage 1 -- proxy generates and evaluates the shareable summary. Stage 2 -- the proxy's actual forwarding target (or a simulated end user) receives and evaluates the shared link.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 3:07",
+          "type": "guest_call",
+          "quote": "I know this, this was just for a family member who was visiting me in New York for a ma. So I won't read that myself.",
+          "insight": "The test must simulate Sophie's scenario: a proxy who will not consume the information themselves but needs to evaluate whether it is worth forwarding to the actual user."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Stage 1: Give 5 participants the proxy scenario ('Your cousin is visiting New York for 2 months. Find and share a listing option with them.'). Measure: (1) time to generate a share link, (2) proxy's assessment of the summary ('Would you feel confident sending this to your cousin?'). Stage 2: Send the generated summary to 5 different participants acting as end users. Measure: (1) comprehension of the listing without prior platform context, (2) willingness to click through and engage further.",
+      "success_criteria": "Stage 1: All 5 proxies generate a share link within 30 seconds. At least 4 out of 5 express confidence in forwarding the summary. Stage 2: At least 4 out of 5 end users correctly identify the key facts (schedule, location, price) from the summary alone. At least 3 out of 5 express willingness to click through for more details.",
+      "failure_meaning": "If proxies cannot generate a share link quickly, the share mechanism is not discoverable. If proxies lack confidence in forwarding, the summary is either too sparse (missing critical information) or too dense (overwhelming to evaluate). If end users cannot extract key facts, the summary is not self-contained -- it assumes platform context the end user does not have. If end users will not click through, the summary is either sufficient (no need for more) or insufficient (not compelling enough to investigate).",
+      "implementation_hint": "Two-stage test: use UserTesting.com or Maze. Stage 1 participants screened for proxy behavior (have previously searched for housing/travel on behalf of another). Stage 2 participants screened for no prior Split Lease exposure. Share the Figma prototype link between stages."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Constraint-Gate Typography Hierarchy Eye-Scan Validation",
+      "validates_element": "looks-001",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the constraint-gate typography does not achieve Position 1 in the visual scan order, the constraint data will be registered after the CTA or brand messaging, defeating the purpose of constraint-first disclosure. The mono typeface treatment may be too subtle or too alarming depending on execution.",
+      "solution": "Five-second test measuring first-noticed element and recall of constraint data to verify the typography hierarchy achieves the intended scan order.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Stimulus-Response Compatibility section",
+          "type": "book",
+          "quote": "The idea is that you want the signal you receive (the stimulus) to be consistent with the desired action.",
+          "insight": "The visual stimulus (what the eye sees first) must be the constraint data, not the CTA. If the CTA is the first visual stimulus, the guest's automatic action will be to engage, not to self-qualify."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Five-second test: show the discovery landing page for 5 seconds, blank the screen, ask 'What did you notice first?' and 'What are the minimum requirements?' Compare responses across 15 participants. At least 10 should report constraint data as first-noticed. Complement with a contrast/accessibility check: verify that IBM Plex Mono constraint text in ink on surface-warm meets WCAG AAA (15:1 target).",
+      "success_criteria": "10 out of 15 participants report constraint data as the first element noticed. 12 out of 15 can recall at least one specific constraint number (6 weeks or 3 weeks) after 5-second exposure. Contrast ratio meets WCAG AAA (7:1 minimum, 15:1 target).",
+      "failure_meaning": "If the CTA or imagery is noticed first, the mono constraint typography is not achieving sufficient visual weight -- increase size, add a background container, or adjust positioning. If constraints are noticed but numbers are not recalled, the typography is prominent but the content is not scannable -- reduce word count or increase numeric emphasis.",
+      "implementation_hint": "Five-second test: Usability Hub (now Lyssna) or Optimal Workshop, 15 participants, no platform familiarity required. Contrast check: WebAIM contrast checker against the proposed color combinations. If eye-tracking is available, a 5-participant Tobii lab study would provide fixation-order data."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Dead-End Redirect Card Emotional Tone Validation",
+      "validates_element": "looks-002",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the redirect card's visual treatment reads as apologetic, diminished, or alarming (error-state red, sad illustrations, small gray text), the prospect will feel rejected rather than redirected. Conversely, if it reads as too cheerful, the prospect may feel their disappointment is being dismissed.",
+      "solution": "Semantic differential survey measuring the emotional associations of the redirect card's visual treatment, comparing against standard error-state patterns.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "A well-designed system expects its users to err and is as forgiving as possible.",
+          "insight": "The visual treatment must communicate forgiveness, not failure. The test must verify that participants associate the card with 'helpful redirect' rather than 'rejection notice.'"
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 10 participants the redirect card in context (after a simulated zero-result search). Ask them to rate the card on semantic differentials: helpful/unhelpful, warm/cold, honest/evasive, forward-looking/final, respectful/dismissive. Compare against a control: a standard empty-state pattern (sad illustration, 'No results found, try again'). Each differential on a 7-point scale.",
+      "success_criteria": "The redirect card scores above 5.0 on helpful, warm, and honest scales. It outperforms the standard empty state by at least 1.5 points on all five differentials. No participant uses the word 'rejection' or 'error' in open-ended response.",
+      "failure_meaning": "If 'warm' scores below 4.0, the surface color or typography is too clinical -- increase warmth of the background tint. If 'honest' scores below 4.0, the mismatch data is not specific enough -- the diagnosis tier needs more concrete numbers. If 'forward-looking' scores below 4.0, the reframe tier and email capture are not compelling -- the future value proposition needs strengthening.",
+      "implementation_hint": "Semantic differential survey: Google Forms or Typeform, embedded after viewing a Figma prototype screen. 10 participants minimum. Include the standard empty-state control as a within-subjects comparison. Randomize presentation order."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Co-Tenancy Calendar Color Accessibility Validation",
+      "validates_element": "looks-003",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the two-tone calendar color system fails for colorblind users, the entire co-tenancy comprehension mechanism breaks for approximately 8% of male users. If the contrast ratios for co-tenant day text fail WCAG AA, the calendar is inaccessible for low-vision users.",
+      "solution": "Automated contrast ratio testing combined with colorblind simulation review and real-user testing with colorblind participants.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Understanding Mappings section",
+          "type": "book",
+          "quote": "A good system of choice architecture helps people to improve their ability to map choices onto outcomes.",
+          "insight": "The mapping mechanism must work for all users, not just those with typical color vision. If the calendar fails for colorblind users, the mapping is broken for a significant segment."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Three-part validation: (1) Automated contrast check: verify white text (#ffffff) on accent (#2d5a3d) for guest days and ink-soft (#4a4640) on bg-deep (#eae7e1) for co-tenant days, using WebAIM contrast checker. (2) Colorblind simulation: run the calendar through Stark or Sim Daltonism for protanopia, deuteranopia, and tritanopia. Verify that the day-type distinction remains clear through saturation/value difference and shadow differentiator, not just hue. (3) User test: 3 participants with confirmed color vision deficiency complete the co-tenancy comprehension task from tests-009.",
+      "success_criteria": "Guest days: 7:1+ contrast ratio (AAA). Co-tenant days: 4.5:1+ contrast ratio (AA). All three colorblind simulations show a clear visual distinction between day types. All 3 colorblind participants correctly identify their days in the comprehension task.",
+      "failure_meaning": "If guest day contrast fails, the text color needs adjustment (unlikely given 7.5:1 expected). If co-tenant day contrast fails, use ink-soft (#4a4640) instead of ink-muted (#8a857e) as specified in the element. If colorblind simulation shows insufficient distinction, add a secondary differentiator: pattern fill, border style, or icon overlay on co-tenant days. If colorblind participants fail comprehension, the entire color system needs redesign with shape-based differentiation.",
+      "implementation_hint": "Contrast: WebAIM contrast checker (web-based, free). Colorblind simulation: Stark plugin for Figma (free tier). User test: recruit through AccessibilityOz or similar service specializing in participants with disabilities. Playwright: automated contrast ratio check on rendered calendar component using axe-core."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Smart Default Visual Distinction Perception Validation",
+      "validates_element": "looks-004",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "If the visual distinction between default values (italic, muted color) and user-edited values (regular weight, full ink) is too subtle, users will not notice that defaults are present. If it is too strong, defaults will look like errors or placeholders rather than suggestions.",
+      "solution": "A/B perception test comparing the proposed default styling (italic ink-soft) against alternatives (no distinction, placeholder-style gray, underlined) to identify which treatment best communicates 'suggestion, not constraint.'",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Defaults section",
+          "type": "book",
+          "quote": "Many people will take whatever option requires the least effort, or the path of least resistance.",
+          "insight": "The default styling must be visible enough to be noticed (so the user knows the form is helping) but gentle enough to be accepted (so the user takes the path of least resistance rather than clearing all fields to start fresh)."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 12 participants three styling variants of the pre-filled proposal form: (A) italic ink-soft with contextual labels (proposed design), (B) standard weight ink-muted with no labels, (C) placeholder-style ink-ghost with 'Suggested:' prefix. For each variant, ask: (1) Are these values pre-filled or empty? (2) Can you change them? (3) Does this feel helpful or controlling? Rate 1-5.",
+      "success_criteria": "Variant A (proposed): 10+ out of 12 recognize pre-fills. All 12 know they can edit. Helpfulness rating 3.5+. Variant A outperforms B and C on the combination of noticeability and helpfulness. No variant should have more than 2 participants perceiving the defaults as 'controlling.'",
+      "failure_meaning": "If Variant A is not recognized as pre-filled by 8+ participants, the italic + muted styling is too subtle -- increase the distinction (darker muted color, contextual label more prominent). If Variant A scores high on noticeability but low on helpfulness, the styling feels too much like 'the system decided for me' -- reduce the visual weight of default values. If Variant C outperforms, users prefer explicit labeling over typographic subtlety.",
+      "implementation_hint": "Preference test: Lyssna (formerly UsabilityHub) or Optimal Workshop, 12 participants, within-subjects design (all participants see all three variants in randomized order). Use static Figma screenshots. 5-minute test."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Postcompletion Checkpoint Progress Visual Satisfaction Validation",
+      "validates_element": "looks-005",
+      "journey_phases": ["acceptance", "move_in"],
+      "problem": "If the progress bar and checkpoint cards are visually overwhelming, the acceptance flow will feel like a bureaucratic gauntlet. If they are too minimal, the guest will not perceive the structure or feel the accomplishment of completing each step.",
+      "solution": "Satisfaction and perceived-effort measurement after completing the checkpoint flow, comparing against a baseline experience (single-page terms acceptance with checkbox).",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Give Feedback section",
+          "type": "book",
+          "quote": "Well-designed systems tell people when they are doing well.",
+          "insight": "The visual checkpoint system must make 'doing well' visible. The test should measure whether participants perceive the progress feedback as rewarding rather than patronizing."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "A/B comparison: (A) three-checkpoint flow with progress bar, checkmarks, and 'Ready for move-in' completion (proposed design), (B) single-page with all terms and a single 'I agree' checkbox (baseline). 10 participants per variant. Measure: (1) perceived effort (1-5 scale), (2) preparedness ('Do you feel ready for move-in?' 1-5), (3) satisfaction with the acceptance experience (1-5).",
+      "success_criteria": "Variant A achieves higher preparedness (4.0+) and higher satisfaction (3.5+) than Variant B, even if perceived effort is slightly higher. The three-checkpoint flow should feel like 'more effort but worth it' not 'more effort and annoying.'",
+      "failure_meaning": "If Variant A has higher effort AND lower satisfaction, the checkpoints feel punitive. If preparedness scores are equal, the forcing functions are not adding informational value -- participants are clicking through without absorbing. If Variant B outperforms on all measures, the single-page approach is actually preferred (simpler for a post-decision context).",
+      "implementation_hint": "A/B: UserTesting.com, 10 participants per variant, between-subjects. Figma interactive prototypes for both variants. Include a 24-hour follow-up for Variant A participants: 'Can you recall 2 of the 5 key lease terms from your checkpoint review?' to test retention."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Shareable Listing Card Messaging App Render Validation",
+      "validates_element": "looks-006",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "If the shareable listing summary card does not render correctly in messaging app previews (WhatsApp, iMessage, SMS), the proxy's forwarded link will display as a generic URL rather than a rich information card, dramatically reducing the likelihood that the end user clicks through.",
+      "solution": "Cross-platform rendering test across major messaging applications and screen sizes to verify that the card's Open Graph / link preview metadata produces a compelling, self-contained preview.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 3:07",
+          "type": "guest_call",
+          "quote": "I know this, this was just for a family member who was visiting me in New York for a ma.",
+          "insight": "Sophie would likely share a link via WhatsApp or iMessage to her family member. If the link preview is a bare URL with no preview card, the family member is unlikely to click through."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Generate the shareable listing summary as a page with proper Open Graph meta tags (og:title, og:description, og:image). Test the link preview rendering in: (1) WhatsApp iOS, (2) WhatsApp Android, (3) iMessage, (4) SMS (fallback), (5) Facebook Messenger, (6) Slack. Verify that: the calendar mini-strip is visible in the og:image, the price is included in the og:description, and the listing title is in the og:title. Test on at least 3 screen sizes (iPhone SE, iPhone 14, Samsung Galaxy S23).",
+      "success_criteria": "The link preview card renders with a visible image, title, and price in all 5 messaging apps that support rich previews. The og:image includes the calendar strip and at least one listing photo. The preview is legible on all 3 screen sizes. SMS fallback displays a clear URL with title text.",
+      "failure_meaning": "If previews do not render, the Open Graph meta tags are missing or misconfigured. If the image is cropped poorly, the og:image dimensions need adjustment for each platform's preview aspect ratio. If the price is missing from the preview, it is not included in the og:description.",
+      "implementation_hint": "Use the Facebook Sharing Debugger (for OG tag validation), WhatsApp link preview tester, and real-device testing for iMessage. Playwright: automated check that og:title, og:description, and og:image tags are present and correctly formatted on the share page URL."
+    },
+    {
+      "id": "tests-019",
+      "type": "validation_strategy",
+      "title": "Benefit Reinforcement Strip Salience Perception Validation",
+      "validates_element": "looks-007",
+      "journey_phases": ["active_lease"],
+      "problem": "If the benefit reinforcement strip is too subtle, guests will not notice it during per-stay friction tasks. If it is too prominent, it will feel manipulative ('they are trying to make me feel better about this chore'). The correct visual weight is a narrow band: noticeable but not attention-competing.",
+      "solution": "In-context perception test measuring whether participants notice the benefit strip, find it helpful, and do not perceive it as manipulative.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Incentives section",
+          "type": "book",
+          "quote": "Do choosers actually notice the incentives they face?",
+          "insight": "The test must verify that guests actually notice the benefit data -- the entire purpose is to make invisible incentives visible. If they do not notice, the strip fails its core function."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "In-context test: 10 participants complete a simulated cleaning photo upload task. After the task, ask: (1) Did you notice anything else on the screen besides the upload form? (unprompted recall), (2) If they noticed the strip, what did it say? (content recall), (3) How did it make you feel? (open-ended), (4) Did it feel helpful or manipulative? (5-point scale). If they did not notice it unprompted, point it out and repeat questions 2-4.",
+      "success_criteria": "At least 6 out of 10 notice the strip unprompted. Of those who notice, at least 5 can recall the benefit type (savings, flexibility). Helpfulness rating averages 3.5+ out of 5. Zero participants describe the strip as 'manipulative' or 'patronizing' in open-ended response.",
+      "failure_meaning": "If fewer than 4 notice it, the strip is too subtle -- increase visual weight (slightly larger type, more contrast with background). If participants notice but feel manipulated, the positioning (below the task, after completion) is not sufficient -- the strip may need to appear on a separate confirmation screen rather than alongside the task. If content recall is low, the benefit data point is not specific enough or the number is not visually prominent.",
+      "implementation_hint": "Usability: moderated session preferred (for natural observation of unprompted noticing). 10 participants, 10 minutes each. Figma prototype of the cleaning photo upload flow with benefit strip. Record eye movement if webcam-based eye tracking is available (Lookback or similar)."
+    },
+    {
+      "id": "tests-020",
+      "type": "validation_strategy",
+      "title": "Inline Eligibility Gate Response Time Validation",
+      "validates_element": "behaves-001",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the eligibility gate responds too slowly (>500ms), the feedback will feel disconnected from the input and the prospect may have already scrolled past. If the state transitions are jarring (abrupt color changes, sudden CTA text swap), the gate will feel like an error message rather than a helpful response.",
+      "solution": "Performance benchmark and perception test measuring response latency and transition smoothness.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Stimulus-Response Compatibility section",
+          "type": "book",
+          "quote": "The idea is that you want the signal you receive (the stimulus) to be consistent with the desired action.",
+          "insight": "The response must feel like a natural consequence of the input, not a delayed judgment. Response latency is a component of stimulus-response compatibility -- a delayed response breaks the causal link between input and feedback."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Two-part validation: (1) Automated performance test: use Playwright or Cypress to enter various duration values and measure the time from input event to feedback element visible. Test with values: 2 weeks (ineligible), 5 weeks (near-miss), 6 weeks (boundary), 8 weeks (eligible). Each test runs 20 iterations to capture variance. (2) Perception test: 8 participants interact with the gate prototype and rate the transition smoothness (1-5) and whether the feedback felt 'instant' or 'delayed.'",
+      "success_criteria": "Automated: 95th percentile response time under 200ms for all input values. Zero visual glitches during state transitions (no flash of unstyled content, no layout shift). Perception: 7 out of 8 participants rate feedback as 'instant' (not 'delayed'). Smoothness rating averages 4.0+ out of 5.",
+      "failure_meaning": "If response time exceeds 200ms, the evaluation logic has unnecessary complexity or the transition CSS is blocking render. If visual glitches occur, the state transition needs a crossfade rather than a swap. If participants perceive delay, the animation duration may be too long -- reduce from 200ms to 150ms.",
+      "implementation_hint": "Playwright: page.evaluate() with performance.now() timestamps around input and element visibility assertions. Run in headless Chrome for consistent timing. Perception test: Figma interactive prototype or deployed staging environment."
+    },
+    {
+      "id": "tests-021",
+      "type": "validation_strategy",
+      "title": "Dead-End Redirect State Transformation Validation",
+      "validates_element": "behaves-002",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the redirect state transformation feels like a page navigation (jarring, context-lost), the prospect will feel disoriented. If the staggered tier reveal is too slow (>600ms total), the prospect may leave before seeing the email capture tier. If the email submission fails silently, the prospect thinks they submitted but the platform captured nothing.",
+      "solution": "End-to-end interaction test measuring the full redirect flow from disqualification to email submission, including error recovery.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "A well-designed system expects its users to err and is as forgiving as possible.",
+          "insight": "The redirect interaction itself must be forgiving: if the email submission fails, the system must provide a clear, inline retry -- not lose the prospect's input."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Playwright end-to-end test: (1) Enter ineligible parameters (duration: 3 weeks), (2) Verify eligibility gate triggers within 200ms, (3) Verify redirect card assembles within 400ms (all three tiers visible), (4) Verify nearest-alternative count renders (not a skeleton), (5) Enter email address and submit, (6) Verify confirmation appears within 300ms, (7) Simulate network failure on email submission, verify inline retry message appears with entered email preserved. Run the full flow 10 times to verify consistency.",
+      "success_criteria": "All 10 runs complete without timeout or visual regression. Redirect card fully visible within 400ms in all runs. Email submission confirmation within 300ms. On simulated network failure, retry message appears within 500ms with email field value preserved. No layout shifts during any transition.",
+      "failure_meaning": "If redirect card exceeds 400ms, the staggered tier animation timing needs reduction. If email submission confirmation is slow, the server endpoint has latency -- consider optimistic UI. If the email field clears on error, the state management is not preserving input during error handling.",
+      "implementation_hint": "Playwright: page.waitForSelector() with timing assertions. Network simulation: page.route() to intercept email submission endpoint and return 500 for error scenario. Visual regression: Playwright screenshot comparison at each state."
+    },
+    {
+      "id": "tests-022",
+      "type": "validation_strategy",
+      "title": "Calendar Interactive Exploration Engagement Validation",
+      "validates_element": "behaves-003",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the calendar interaction is too slow (hover delay >200ms), guests will perceive it as unresponsive. If tooltips are unclear, guests will interact without gaining comprehension. If the touch interaction fails on mobile (no hover equivalent), a significant percentage of users will get a static calendar with no exploration capability.",
+      "solution": "Cross-device interaction test verifying response times, tooltip clarity, and mobile touch behavior.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Understanding Mappings section",
+          "type": "book",
+          "quote": "Even if there are some exotic flavors, the ice cream store can solve the mapping problem by offering a free taste.",
+          "insight": "Each hover/tap is a 'free taste.' If the taste is stale (slow) or confusing (unclear tooltip), the guest will stop tasting and leave without comprehension."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Three-part test: (1) Desktop Playwright: hover each of 7 day circles and verify tooltip appears within 100ms with correct content (day name, arrival/departure time, guest vs. co-tenant status). Verify tooltip crossfades when hovering between days (no exit-then-enter flicker). (2) Mobile Playwright: tap each day circle and verify tooltip appears on first tap, dismisses on second tap of same day, and switches on tap of different day. (3) Usability: 5 participants (3 desktop, 2 mobile) explore the calendar for 30 seconds with think-aloud. Measure: number of days explored, comprehension after exploration, any confusion points.",
+      "success_criteria": "Automated: tooltip appears within 100ms on all 7 days. No visual flicker during crossfade. Mobile touch behavior works correctly (tap-to-reveal, tap-to-dismiss, tap-other-to-switch). Usability: all 5 participants explore at least 4 of 7 days. Post-exploration comprehension: all 5 correctly identify which days are theirs.",
+      "failure_meaning": "If tooltip delay exceeds 150ms, the CSS transition or JS event handler has unnecessary overhead. If crossfade flickers, the tooltip exit and entrance are not properly overlapped -- need simultaneous fade-out/fade-in. If mobile interaction fails, the touch event handling does not properly map tap to hover-equivalent. If participants only explore 1-2 days, the calendar does not invite exploration -- the visual affordance for interactivity needs strengthening.",
+      "implementation_hint": "Playwright: page.hover() with timing assertion for desktop; page.tap() for mobile emulation (iPhone 14, Galaxy S23 viewports). Use page.evaluate() with requestAnimationFrame to measure actual render timing. Usability: moderated, 15 minutes, think-aloud."
+    },
+    {
+      "id": "tests-023",
+      "type": "validation_strategy",
+      "title": "Smart-Default Proposal Pre-Fill Interaction Flow Validation",
+      "validates_element": "behaves-004",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "If default-to-edited state transitions are not perceptible (too subtle), the guest will not know they have changed a value. If price recalculation is delayed or uses a distracting counter animation, the guest's attention will be captured by the price rather than the field they are editing. If the submission confirmation is too fast, it may feel untrustworthy for a financial commitment.",
+      "solution": "End-to-end interaction flow test covering the full path: form load with defaults, selective editing, price recalculation, and submission.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Defaults section",
+          "type": "book",
+          "quote": "Many people will take whatever option requires the least effort, or the path of least resistance.",
+          "insight": "The test must verify that the path of least resistance (accepting all defaults and submitting) works correctly and feels trustworthy, AND that selective editing is smooth and properly reflected in the price."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Playwright end-to-end: (1) Load proposal form and verify all 5 fields are pre-populated within 500ms. (2) Verify total price is calculated and displayed in accent mono. (3) Click/focus one field and edit its value -- verify visual transition from default state (italic, muted) to edited state (regular, full ink) within 200ms. (4) Verify price recalculates and crossfades within 400ms. (5) Submit without editing any other fields -- verify confirmation appears within 300ms. (6) Test the 'submit without any edits' path (accepting all defaults) -- verify this path works and does not trigger any 'are you sure?' prompts.",
+      "success_criteria": "All fields pre-populated within 500ms. Visual state transitions complete within 200ms. Price recalculation crossfade completes within 400ms. Submission confirmation within 300ms. All-defaults submission path works without friction. No layout shifts during any transition.",
+      "failure_meaning": "If pre-population exceeds 500ms, default calculation logic needs optimization or partial rendering (show search-based defaults first, backfill listing-based defaults). If state transitions are imperceptible, the color/weight difference between default and edited is insufficient. If price recalculation is distracting, the crossfade duration may need to increase from 400ms to 600ms, or the animation may need to be reduced to a simple fade rather than a number transition.",
+      "implementation_hint": "Playwright: page.click() on form fields, page.fill() for edits, visual regression for state transitions. Test both fast-submit (no edits) and selective-edit paths. Mock the default-calculation API to ensure consistent test data."
+    },
+    {
+      "id": "tests-024",
+      "type": "validation_strategy",
+      "title": "Counter-Proposal Diff View Clarity Validation",
+      "validates_element": "behaves-005",
+      "journey_phases": ["negotiation"],
+      "problem": "If the diff view is unclear, guests may not understand what changed in the counter-proposal. If the undo window is too short or not visible, guests may accidentally accept terms they did not mean to. If the notification preview does not contain the most important change, guests may deprioritize reviewing the counter.",
+      "solution": "Task-based test where participants receive a counter-proposal and must identify changes, take an action, and optionally undo.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Give Feedback section",
+          "type": "book",
+          "quote": "Warning systems have to avoid the problem of offering so many warnings that they are ignored.",
+          "insight": "The diff view must be specific enough to be meaningful on first scan. The test must verify that participants can identify the exact changes without reading the entire proposal."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Give 8 participants a scenario: 'You submitted a proposal for Monday-Friday, 8 weeks, starting June 1. The host has countered.' Present the diff view showing the host changed the start date to June 15 and the duration to 10 weeks. Ask: (1) What did the host change? (2) What stayed the same? (3) What is the price impact? (4) Accept the changes, then immediately try to undo. Measure: accuracy of change identification, time to reach a decision, and undo success rate.",
+      "success_criteria": "8 out of 8 correctly identify both changes (start date and duration). 7 out of 8 correctly identify the price impact direction (increase or decrease). Median decision time under 30 seconds. 8 out of 8 successfully undo within the 5-second window. Zero participants confuse 'accept' with 'reject.'",
+      "failure_meaning": "If change identification fails, the before/after format is not clear enough -- consider adding explicit labels ('Changed: Start date') rather than relying solely on visual diff. If price impact is missed, the price change line is not prominent enough. If undo fails, the undo affordance (progress bar, button placement) is not discoverable. If accept/reject are confused, the button labels or positioning are ambiguous.",
+      "implementation_hint": "Usability: moderated, 8 participants, 15 minutes each. Figma interactive prototype with the diff view, action buttons, and undo mechanism. Time-stamp each participant's first identification of each change for decision-time measurement."
+    },
+    {
+      "id": "tests-025",
+      "type": "validation_strategy",
+      "title": "Postcompletion Checkpoint Forcing Flow Technical Validation",
+      "validates_element": "behaves-006",
+      "journey_phases": ["acceptance", "move_in"],
+      "problem": "If the gating mechanism fails (guest accesses move-in details without completing earlier checkpoints), the forcing function is broken and postcompletion errors will occur. If checkpoint completion state is not persisted across sessions, returning guests must re-complete already-finished steps.",
+      "solution": "End-to-end automated test verifying the gating mechanism, state persistence, and edge cases.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "if you have to remove the card in order to get your cash, you will not forget to do so.",
+          "insight": "The test must verify the 'card-before-cash' mechanism: move-in details are genuinely inaccessible until earlier checkpoints are complete. Any bypass would defeat the forcing function."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Playwright tests: (1) Attempt to navigate directly to move-in details URL before completing any checkpoints -- verify redirect to first incomplete checkpoint. (2) Complete checkpoint 1, close browser, reopen -- verify checkpoint 1 is still marked complete and checkpoint 2 is active. (3) Complete all three checkpoints -- verify 'Ready for move-in' confirmation appears and move-in details are accessible. (4) Attempt to re-complete an already-completed checkpoint -- verify it shows as done, not re-presented. (5) Test with offline-then-online: acknowledge a checkpoint while offline, reconnect -- verify the acknowledgment is synced.",
+      "success_criteria": "All 5 test scenarios pass. Direct URL access to gated content always redirects to the first incomplete checkpoint. State persists across browser sessions. Completed checkpoints are never re-presented. Offline acknowledgments sync correctly on reconnect.",
+      "failure_meaning": "If direct URL access bypasses the gate, the routing/middleware is not checking checkpoint state before serving gated content. If state does not persist, the checkpoint completion is stored only in session memory, not in the database. If completed checkpoints re-present, the state query is not filtering correctly. If offline sync fails, the optimistic UI pattern is not implemented with proper retry logic.",
+      "implementation_hint": "Playwright: page.goto() for direct URL access test. page.context().clearCookies() and page.context().clearPermissions() for session reset test. page.setOfflineMode(true/false) for offline sync test. Assert on visible elements and URL after each action."
+    },
+    {
+      "id": "tests-026",
+      "type": "validation_strategy",
+      "title": "Benefit Salience Reinforcement Strip Behavioral Impact Validation",
+      "validates_element": "behaves-007",
+      "journey_phases": ["active_lease"],
+      "problem": "If the benefit strip has no measurable impact on guest satisfaction or retention, it is visual noise that adds complexity without value. If it habituates quickly (the guest stops noticing after 2-3 exposures), the salience correction is temporary and ineffective.",
+      "solution": "Longitudinal A/B test measuring satisfaction scores and retention rates for guests who see the benefit strip vs. those who do not, across a full quarter.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Incentives section",
+          "type": "book",
+          "quote": "The most important modification that must be made to a standard analysis of incentives is salience.",
+          "insight": "The test must measure whether the benefit strip actually changes perceived salience of benefits -- not just whether it is noticed, but whether it shifts the guest's overall evaluation of the arrangement over time."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Longitudinal A/B test over 12 weeks (one full quarter): (A) guests see benefit reinforcement strip at every per-stay friction touchpoint, (B) control group sees no strip. Measure: (1) monthly NPS or satisfaction survey (single question: 'How satisfied are you with your co-tenancy arrangement?' 1-10), (2) lease renewal rate at the end of the quarter, (3) support ticket volume related to friction tasks (cleaning photos, schedule issues). Secondary: track whether strip engagement declines over time (measure strip visibility duration via viewport intersection).",
+      "success_criteria": "Variant A satisfaction score is at least 0.5 points higher than Variant B by week 12. Lease renewal rate for Variant A is at least 5 percentage points higher than Variant B. Support ticket volume for Variant A is equal to or lower than Variant B (the strip should not generate complaints). Strip engagement does not decline by more than 30% from week 1 to week 12 (indicating the rotation of benefit types prevents complete habituation).",
+      "failure_meaning": "If satisfaction scores are equal, the benefit strip is not shifting perceived value -- the salience intervention is insufficient. If renewal rates are equal, the benefit awareness does not translate into retention behavior -- the strip may be noticed but not internalized. If strip engagement drops by more than 50%, habituation is occurring too quickly -- the benefit rotation is not diverse enough. If support tickets increase, guests may feel patronized by the benefit strip during frustrating moments.",
+      "implementation_hint": "A/B test: LaunchDarkly or Optimizely, randomized at user level. Satisfaction survey: in-app modal triggered monthly (keep to 1 question to maximize response rate). Renewal tracking: backend event when lease renewal is offered and when it is accepted/declined. Strip engagement: Intersection Observer API to track how long the strip is in the viewport."
+    },
+    {
+      "id": "tests-027",
+      "type": "validation_strategy",
+      "title": "Immediate Clarity Emotional Safety Validation",
+      "validates_element": "feels-001",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the 'immediate clarity' principle fails emotionally, prospects may feel the constraint disclosure is a barrier (scares away eligible guests), a rejection (makes ineligible guests feel unwelcome), or irrelevant (prospects do not connect the constraints to their own situation). The target emotion is safety; the test must verify that safety is achieved.",
+      "solution": "Emotional response survey immediately after discovery page exposure, measuring whether 'safety' is the dominant emotional association.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 1:09",
+          "type": "guest_call",
+          "quote": "This was just, uh, for the month of may actually. Um, And, And, uh, yeah, it could have been flexible for earlier than that, but not, not beyond, uh, the end of may, unfortunately.",
+          "insight": "Sophie's emotional trajectory was hope -> effort -> disappointment. The test must verify that the new design replaces this with clarity -> self-assessment -> resolution (proceed or redirect)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "10 participants view the discovery page with constraint-first disclosure. 5 are given an eligible scenario (8 weeks, starting in 4 weeks), 5 are given an ineligible scenario (3 weeks, starting next week). After 15 seconds of viewing, each participant answers: (1) How do you feel right now? (open-ended), (2) Rate your feelings: safe/unsafe, respected/dismissed, clear/confused (each on a 5-point scale), (3) What would you do next? (proceed, leave, or other). Code open-ended responses for the presence of safety-related language.",
+      "success_criteria": "Eligible participants: safety rating 4.0+, clarity 4.5+, 5 out of 5 say they would proceed. Ineligible participants: respected rating 3.5+ (not dismissed despite mismatch), clarity 4.0+, at least 3 out of 5 engage with the redirect path rather than simply leaving. Open-ended responses contain safety-related language (trusted, honest, clear, helpful) for at least 7 out of 10 participants.",
+      "failure_meaning": "If eligible participants feel unsafe, the constraints read as barriers rather than helpful disclosures -- the framing is too negative. If ineligible participants feel dismissed (respected < 3.0), the redirect path is not emotionally adequate -- it needs warmer, more specific language. If clarity scores are low, the constraint statement is ambiguous or too long.",
+      "implementation_hint": "Usability: moderated or unmoderated, 10 participants, 10 minutes each. Assign scenarios via screening question. Use Figma prototype with the constraint-first discovery page. Ensure the redirect path is functional in the prototype for ineligible-scenario participants."
+    },
+    {
+      "id": "tests-028",
+      "type": "validation_strategy",
+      "title": "Dignified Redirect Emotional Residue Validation",
+      "validates_element": "feels-002",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the redirect experience leaves a negative emotional residue (frustration, dismissal, resentment), the prospect will never return and may actively discourage others. The target emotion is relief; the test must verify that ineligible prospects leave with a neutral-to-positive emotional residue rather than a negative one.",
+      "solution": "Post-interaction emotional assessment measuring the specific emotional residue of the redirect experience.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 1:25-1:38",
+          "type": "guest_call",
+          "quote": "That's unfortunate that we cannot help you. It's I'm sorry if you ever need something in this type of arrangement, but it was a little more lead time.",
+          "insight": "Sophie's emotional residue from the current experience is 'polite dismissal.' The test must verify the new redirect achieves 'respectful redirection' -- a meaningfully different emotional outcome."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "10 participants are given the ineligible scenario and complete the full redirect interaction (disqualification, redirect card, email capture decision). Immediately after, ask: (1) In one sentence, how would you describe this experience to a friend? (2) Would you recommend this platform to someone whose need does match? (Net Promoter-style 1-10), (3) Rate: I felt respected / I felt dismissed / I felt informed / I felt patronized (each 1-5), (4) Would you return to this platform if your housing needs changed? (yes/no/maybe).",
+      "success_criteria": "Average 'respected' rating of 4.0+. Average 'dismissed' rating below 2.0. NPS-style recommendation score of 7.0+ (promoter territory, despite personal ineligibility). At least 7 out of 10 would return or share ('yes' or 'maybe' to Q4). Open-ended descriptions use positive language (helpful, clear, honest) rather than negative (waste, rejection, confusing).",
+      "failure_meaning": "If 'respected' is below 3.5, the redirect feels like dismissal -- the specific mismatch diagnosis and reframe are not emotionally adequate. If 'patronized' is above 3.0, the benefit reframe ('12 options if you extend') feels condescending rather than helpful. If recommendation score is below 5, the experience actively damages brand perception among ineligible prospects. If return intent is below 50%, the future value proposition (email capture) is not compelling.",
+      "implementation_hint": "Usability: moderated preferred (for richer emotional observation), 10 participants, 15 minutes each. Give all participants the Sophie Charvet scenario (family member visiting for 1 month). Administer the emotional assessment immediately after the redirect interaction, before any debrief."
+    },
+    {
+      "id": "tests-029",
+      "type": "validation_strategy",
+      "title": "Co-Tenancy Comprehension-to-Confidence Bridge Validation",
+      "validates_element": "feels-003",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the interactive calendar builds comprehension but not confidence, guests will understand the co-tenancy model intellectually but still feel too anxious to commit. The target emotion is confidence; the test must distinguish between 'I understand it' and 'I would do it.'",
+      "solution": "Two-phase measurement: comprehension (factual understanding) followed by confidence (willingness to proceed), with the gap between them as the key metric.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Understanding Mappings section",
+          "type": "book",
+          "quote": "A good system of choice architecture helps people to improve their ability to map choices onto outcomes.",
+          "insight": "Mapping comprehension is necessary but not sufficient. The test must verify that the interactive calendar closes the gap between comprehension and confidence -- that understanding the arrangement translates into willingness to try it."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "10 participants explore the interactive calendar listing page. Measure: (1) Comprehension score (5 factual questions, as in tests-004), (2) Confidence score ('How confident are you that you could live in this arrangement?' 1-5), (3) Willingness score ('Would you proceed to create a proposal?' definitely yes/probably yes/unsure/probably no/definitely no). Calculate the comprehension-confidence gap: if comprehension is 4.5 but confidence is 2.0, the gap is 2.5 -- meaning the calendar informs but does not reassure. Compare against a control group that reads a text-only description.",
+      "success_criteria": "Treatment group comprehension: 4.0+. Treatment group confidence: 3.5+. Comprehension-confidence gap: under 1.0 (meaning confidence tracks close to comprehension). Willingness: at least 6 out of 10 respond 'definitely yes' or 'probably yes.' Treatment group outperforms control on confidence by at least 1.0 point.",
+      "failure_meaning": "If comprehension is high but confidence is low (gap > 1.5), the calendar explains the model but does not make it feel safe -- the 'what to expect' narrative needs more emotional reassurance (concrete daily-life details, positive framing). If willingness is low despite high confidence, there is a separate barrier (price, location, general reluctance to share space) that the calendar cannot address. If the control group has equal confidence, the interactive calendar adds complexity without emotional benefit.",
+      "implementation_hint": "Usability: 10 participants per group (treatment + control = 20 total), unmoderated via UserTesting.com. Treatment: Figma interactive prototype with hover/tap calendar. Control: static text description matching the agent's verbal explanation. Administer identical questionnaire to both groups."
+    },
+    {
+      "id": "tests-030",
+      "type": "validation_strategy",
+      "title": "Guided Starting Point vs. Blank-Slate Emotional Validation",
+      "validates_element": "feels-004",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "If the pre-filled proposal form does not achieve the target emotion of 'calm,' it may produce the opposite: anxiety about whether the defaults are correct, or resentment about the platform making decisions on the guest's behalf. The emotional distinction between 'someone helped me' and 'someone decided for me' is narrow and critical.",
+      "solution": "Emotional response comparison between the pre-filled form and a blank form, measuring calm, control, and trust.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Defaults section",
+          "type": "book",
+          "quote": "Most users do not want to have to read an incomprehensible manual to determine which arcane setting to select. When choice is complicated and difficult, people might greatly appreciate a sensible default.",
+          "insight": "The test must verify that defaults produce 'appreciation' (emotional calm and trust) rather than 'suspicion' (the platform is choosing for me). The word 'appreciate' is the emotional target."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "A/B emotional test: (A) 5 participants see the pre-filled proposal form, (B) 5 participants see a blank proposal form with the same fields. Both groups attempt to submit a proposal. Measure: (1) Self-reported emotion: calm/anxious, in-control/overwhelmed, trusting/suspicious (each 1-5), (2) Time to first action (scan time before editing or submitting), (3) Open-ended: 'What was your first thought when you saw this form?'",
+      "success_criteria": "Group A (pre-filled) scores 3.5+ on calm, 4.0+ on in-control, 3.5+ on trusting. Group A outperforms Group B on calm by at least 1.0 point. Group A open-ended responses include language like 'helpful,' 'easy,' 'already done' rather than 'suspicious,' 'who chose this,' 'wrong values.'",
+      "failure_meaning": "If calm is below 3.0, the defaults are anxiety-inducing rather than calming -- the guest does not trust the values. Likely cause: contextual labels are missing or unclear, and the guest does not know where the defaults came from. If in-control is low despite calm being high, the guest feels helped but constrained -- the editability affordance needs to be more prominent. If Group B outperforms on any emotional dimension, the blank form is actually preferred for this user segment.",
+      "implementation_hint": "Usability: 5 participants per group, moderated 15-minute sessions. Figma interactive prototypes for both variants. Assign randomly. Administer emotional questionnaire immediately after form interaction, before any debrief."
+    },
+    {
+      "id": "tests-031",
+      "type": "validation_strategy",
+      "title": "Post-Acceptance Preparation Momentum Validation",
+      "validates_element": "feels-005",
+      "journey_phases": ["acceptance", "move_in"],
+      "problem": "If the checkpoint sequence fails emotionally, it will convert the relief of acceptance into resentment ('I said yes and now they are making me do homework'). The target emotion is momentum -- the feeling of actively preparing for something good. The test must verify momentum, not just compliance.",
+      "solution": "Emotional trajectory measurement across the three checkpoints, tracking whether the dominant emotion shifts from relief to momentum to readiness (positive trajectory) or from relief to annoyance to resentment (negative trajectory).",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "when you have finished your main task, you tend to forget things relating to previous steps.",
+          "insight": "The checkpoint system must convert the post-decision state from 'I am done' (postcompletion risk) to 'I am getting ready' (forward momentum). The test must measure this emotional conversion, not just task completion."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "8 participants complete the full three-checkpoint sequence. After each checkpoint (not just at the end), ask a single-word emotion check: 'In one word, how do you feel right now?' Also rate momentum (1-5) after each step. After the final 'Ready for move-in' confirmation, ask: (1) Do you feel prepared for your move-in? (1-5), (2) Did this process feel like preparation or bureaucracy? (5-point scale), (3) Overall: was this a positive experience? (yes/no).",
+      "success_criteria": "Momentum scores increase or remain stable across checkpoints (no decline from checkpoint 1 to 3). Final preparedness score averages 4.0+. 'Preparation vs. bureaucracy' averages 3.5+ (toward preparation). At least 7 out of 8 say 'yes' to overall positive experience. One-word emotion checks show positive/neutral words (ready, good, done, clear) rather than negative (annoyed, forced, bored).",
+      "failure_meaning": "If momentum declines across checkpoints, the sequence feels like a gauntlet -- each step drains energy rather than building it. If final preparedness is low, the checkpoint content is not informative enough (the guest clicked through but did not absorb). If 'bureaucracy' dominates, the positive framing ('Got it, next step') is not working -- the experience feels institutional. If negative emotion words appear, the forcing function is perceived as punishment.",
+      "implementation_hint": "Moderated usability: 8 participants, 20 minutes each. Figma interactive prototype. Pause after each checkpoint for the emotion check (this is the critical measurement point). Audio-record for tone-of-voice analysis as a secondary emotional indicator."
+    },
+    {
+      "id": "tests-032",
+      "type": "validation_strategy",
+      "title": "Benefit Reinforcement Emotional Validation (Not Patronizing)",
+      "validates_element": "feels-006",
+      "journey_phases": ["active_lease"],
+      "problem": "If the benefit strip feels patronizing ('stop complaining, look how much you save') rather than affirming ('here is what your arrangement is doing for you'), it will damage rather than support the guest's emotional relationship with the platform. The line between validation and manipulation is narrow.",
+      "solution": "Qualitative emotional assessment in context: participants complete a friction task with the benefit strip present and provide immediate emotional feedback.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Incentives section",
+          "type": "book",
+          "quote": "Do choosers actually notice the incentives they face?",
+          "insight": "The test must verify not just that the benefit is noticed, but that noticing it produces the right emotional response: gratitude or validation, not resentment or suspicion."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "8 participants complete a simulated cleaning photo upload task with the benefit strip visible after completion. Ask: (1) What emotion did the savings number trigger? (open-ended), (2) Rate: helpful/patronizing, validating/manipulative, reassuring/irrelevant (each 1-5), (3) Would you prefer to see this information? (yes/no/indifferent), (4) When should this NOT appear? (open-ended, to validate the anti-pattern of not showing during error recovery).",
+      "success_criteria": "Open-ended emotions are net positive (7+ out of 8 express positive or neutral emotions). Helpful rating averages 3.5+. Patronizing rating averages below 2.5. Manipulative rating averages below 2.0. At least 6 out of 8 say 'yes' to wanting this information. Participants independently identify error-recovery moments as inappropriate contexts for the strip (validating the anti-pattern in the element design).",
+      "failure_meaning": "If patronizing exceeds 3.0, the benefit strip's positioning or framing makes it feel like the platform is justifying the friction rather than sharing positive data. If manipulative exceeds 2.5, the timing (alongside the friction task) creates a perception of emotional manipulation. If indifference exceeds 50%, the benefit data is not personally meaningful enough -- the numbers may be too small or too generic.",
+      "implementation_hint": "Moderated usability: 8 participants who have experience with recurring tasks (gym check-ins, subscription services) as a proxy for the lease-friction context. Figma prototype of the cleaning photo upload flow. 10 minutes per session."
+    },
+    {
+      "id": "tests-033",
+      "type": "validation_strategy",
+      "title": "End-to-End Guest Journey Arc Validation",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Individual elements may each test well in isolation but fail when composed into a full journey. The emotional arc (safety -> curiosity -> confidence -> calm -> momentum -> validation) may have gaps or jarring transitions between phases. The information density may accumulate across phases and overwhelm the guest. The interaction patterns may conflict in unexpected ways (e.g., the forcing-function checkpoint flow may feel contradictory after the 'ease' of the pre-filled proposal).",
+      "solution": "End-to-end journey walkthrough with a small number of participants who experience the entire guest journey from discovery through active lease in a single session.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt (full transcript)",
+          "type": "guest_call",
+          "quote": "The full Sophie Charvet interaction lasted approximately 3 minutes and covered discovery through disqualification. The test must cover the full journey that Sophie never reached.",
+          "insight": "Sophie's call exposed failures in the earliest phases. This journey-level test must verify that the corrections to early phases (eligibility gate, redirect) produce a coherent experience all the way through active lease."
+        },
+        {
+          "source": "nudge-choice-architecture.txt (full chapter)",
+          "type": "book",
+          "quote": "The cumulative application of Make It Easy, Give Feedback, Expect Error, Defaults, and Incentive Salience principles across a complete journey must produce a coherent system, not a collection of isolated interventions.",
+          "insight": "Choice architecture principles were applied phase-by-phase. The test must verify that the principles compose correctly across the full journey without conflicting or creating cognitive overload."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5 participants who have never used a co-tenancy platform. Walk them through a condensed prototype of the full guest journey: (1) Discovery with eligibility check (eligible scenario), (2) Search with filters, (3) Listing evaluation with interactive calendar, (4) Proposal creation with smart defaults, (5) Counter-proposal review, (6) Acceptance with checkpoint flow, (7) Move-in preparation, (8) One simulated active-lease friction task with benefit strip. After each phase, ask a single emotion word and a 1-5 'would you continue?' score. At the end, ask: (1) Overall coherence ('Did this feel like one experience or a collection of different screens?' 1-5), (2) Overall trust ('Would you use this platform for real housing?' 1-5), (3) Open-ended: 'What was the best and worst moment?'",
+      "success_criteria": "All 5 participants complete the full journey without wanting to stop. 'Would you continue?' averages above 4.0 at every phase transition. Overall coherence averages 4.0+. Overall trust averages 3.5+. Emotion words trend from neutral-positive at discovery to positive at acceptance. No participant identifies a phase transition as jarring or confusing.",
+      "failure_meaning": "If participants want to stop at a specific phase, that phase is the weakest link in the arc -- it needs targeted improvement. If coherence is below 3.5, the visual or interaction patterns shift too dramatically between phases -- need stronger design-system consistency. If trust is below 3.0, the overall experience fails to build cumulative credibility -- likely a specific moment breaks trust (e.g., the forcing-function checkpoints may feel distrustful after the 'ease' of proposal defaults). If a phase transition is identified as jarring, the emotional handoff between elements at that boundary needs attention.",
+      "implementation_hint": "Moderated usability: 5 participants, 45-60 minutes each (condensed journey, not real-time). Figma prototype connecting all phases with clickable flow. This is the most resource-intensive test in the suite; run it last, after individual element tests have identified and resolved component-level issues."
+    },
+    {
+      "id": "tests-034",
+      "type": "validation_strategy",
+      "title": "Ineligible-to-Eligible Prospect Re-Engagement Validation",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "active_lease"],
+      "problem": "The redirect mechanism captures emails from ineligible prospects, but the long-term value of this capture is unproven. If re-engagement emails never convert, the entire redirect-capture system adds complexity without business value. The journey-level question is: does the graceful dead-end redirect actually produce future guests, or does it only produce a database of emails that never convert?",
+      "solution": "Longitudinal tracking of ineligible prospect re-engagement over 6 months, measuring whether captured emails convert to actual platform engagement when the prospect's circumstances change.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 3:07",
+          "type": "guest_call",
+          "quote": "I know this, this was just for a family member who was visiting me in New York for a ma.",
+          "insight": "Sophie lives in New York. She might have future housing needs, know others who commute, or remember Split Lease when circumstances change. The test must verify whether this theoretical future value actually materializes."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track the cohort of ineligible prospects who submitted emails via the redirect card. Over 6 months, measure: (1) email open rate for re-engagement campaigns, (2) click-through rate from emails to platform, (3) conversion rate from click-through to listing view or proposal, (4) conversion rate from re-engaged prospect to actual guest. Compare against the platform's standard acquisition funnel metrics.",
+      "success_criteria": "Email open rate above 20% (indicating the emails are from real, engaged people, not junk submissions). Click-through rate above 5%. At least 2% of captured emails convert to a listing view or proposal within 6 months. At least 0.5% convert to an actual guest. Re-engagement acquisition cost is lower than standard paid acquisition cost per guest.",
+      "failure_meaning": "If open rates are below 10%, the emails are low-quality (junk, typos, or disinterested people who submitted under social pressure from the UI). If click-through is near zero, the re-engagement content is not relevant to the prospect's evolved needs. If zero emails convert to guests, the redirect capture is a feel-good mechanism that adds complexity without producing business value -- consider simplifying or removing the email capture tier.",
+      "implementation_hint": "Analytics: standard email marketing platform (Mailchimp, Customer.io, or similar). Tag captured emails with the prospect's original stated need (duration, timing, city) for targeted re-engagement. Send quarterly re-engagement emails when new listings match the prospect's approximate need profile. Track the full funnel from email capture through lease signing."
+    }
+  ]
+}

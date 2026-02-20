@@ -1,0 +1,436 @@
+{
+  "run_id": "2026-02-19_0902",
+  "layer": 4,
+  "layer_name": "Interaction Engineer",
+  "lens": {
+    "host_call": "robbie-call.txt",
+    "book_extract": "leanux-hypothesis-driven-design.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-0902-001",
+      "type": "interaction_pattern",
+      "title": "Payment Timeline Stepper: Progressive Node Activation as the Host Advances Through the Lease Lifecycle",
+      "journey_phases": ["evaluation", "onboarding", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "The L3 visual pattern (looks-0902-001) defines a four-node payment timeline (Agreements Signed > Guest Moves In > First Night Completed > Your $1,600 Released), but without interaction behavior, the timeline is a static diagram. Robbie's comprehension failure during the call (three re-asks at 03:17, 04:06, 06:14) was not caused by absence of information -- Bryant explained the flow three times. It was caused by the absence of experiential confirmation: Robbie could not feel the sequence because he could only hear it. A static diagram improves on verbal explanation but still requires the host to mentally simulate 'what happens next.' The Lean UX principle of making over analysis demands that we build a timeline that the host experiences progressively -- each node activates as the real event occurs, converting the diagram from a promise into a record. The hypothesis: 'We believe a timeline that progressively activates based on real lease events will reduce payment re-asks by 60%. We will know when we compare support contact rates before and after deployment.'",
+      "solution": "The payment timeline is not a static component -- it is a state machine that reflects the host's actual lease progress. (1) On the post-call landing page (onboarding), all four nodes are visible but only the first node ('Agreements Signed') is interactive. Tapping it reveals: 'Sign the rental agreement and supplemental agreement to get started.' The other three nodes are grayed (--text-gray, opacity 0.5) with labels visible but non-interactive. (2) When the host signs the agreements, the first node transitions to a completed state: fill changes from --border-color stroke to --secondary-purple fill with a 300ms ease-out animation, the pen icon inverts to white, and a subtle checkmark badge appears at the node's bottom-right. Simultaneously, the second node ('Guest Moves In') activates: it gains full opacity and becomes tappable. (3) When the guest checks in, the second node completes identically, and the third node ('First Night Completed') activates. (4) After the first night, the third node completes and the fourth node ('Your $1,600 Released') activates with the enlarged glow treatment from L3. (5) When payment is released, the final node completes with a celebratory pulse animation (scale 1.0 to 1.08 to 1.0 over 400ms, ease-out) and the dollar amount briefly flashes --secondary-purple before settling to --primary-purple. The entire timeline now shows four completed nodes -- a visual record that the promise was fulfilled. (6) For month 2 and beyond, the timeline resets nodes 2-4 to inactive state, maintaining node 1 as permanently completed. This monthly cycle means the host sees the timeline fulfill itself repeatedly, building cumulative confidence.",
+      "evidence": [
+        {
+          "source": "robbie-call.txt, 03:17-06:14",
+          "type": "host_call",
+          "quote": "Robbie asks about payment timing at 03:17, is explained at 03:25, reasserts his model at 04:06 ('this have to be confirmed immediately'), is re-explained at 05:03, and reasserts at 06:14 ('we have to confirm the payment immediately. The contract has been fueled'). Three verbal explanations, three failures.",
+          "insight": "A verbal or static explanation tells the host what will happen. A progressive activation shows the host what is happening. Each node completion is micro-confirmation that the sequence is proceeding as promised. By the second month, the host has watched the full cycle complete once and trusts it will complete again."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Making over Analysis",
+          "type": "book",
+          "quote": "There is more value in creating the first version of an idea than spending half a day debating its merits in a conference room.",
+          "insight": "The progressive timeline is the 'first version' of experiential payment education. Build it, deploy it to the next 10 hosts, and measure: do hosts who see a progressively activating timeline contact support about payment timing less often than hosts who see a static diagram?"
+        },
+        {
+          "source": "robbie-call.txt, 06:37",
+          "type": "host_call",
+          "quote": "Bryant: 'the payment would be collected beforehand and the charges are pre-authorized on the credit card, which is why there's the guarantee.'",
+          "insight": "Bryant tries to provide certainty through verbal explanation of a future guarantee. The progressive timeline provides certainty through visible confirmation of past events. The host does not need to trust a verbal promise -- they can see each completed node as proof that the sequence works."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Outcomes",
+          "type": "book",
+          "quote": "When you're creating hypotheses to test, you want to try to be very specific regarding the outcomes you are trying to achieve.",
+          "insight": "The outcome is not 'host views timeline' (output) but 'host stops asking about payment timing' (outcome). The progressive activation is the mechanism; reduced re-asks are the measurable outcome."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All four nodes visible. Node 1 is active (full opacity, tappable, --border-color stroke). Nodes 2-4 are inactive (opacity 0.5, non-tappable, labels visible in --text-gray). The final node's glow shadow is not rendered until it activates. The confirmation sentence below the timeline reads: 'Each step lights up as it happens -- your $1,600 is released after the first night.'",
+        "loading": "When checking real-time lease status, the currently-active node shows a subtle pulse animation (opacity 0.8 to 1.0, looping every 1.5s) to indicate the system is checking. No skeleton screen -- the existing visual content remains visible. The pulse communicates 'checking status' without removing the timeline the host already trusts.",
+        "node_completing": "The completing node transitions over 300ms: background fill shifts from --bg-white to --secondary-purple, icon color shifts from --text-gray to --white, and a small checkmark badge (12px, --white on --secondary-purple circle) fades in at the bottom-right of the node. Simultaneously, the next node transitions from inactive to active: opacity shifts from 0.5 to 1.0, and the node gains a 1px --secondary-purple border to signal interactivity.",
+        "all_complete": "All four nodes are filled --secondary-purple with white icons and checkmark badges. The final node displays its enlarged glow treatment (--timeline-node-glow). The confirmation sentence updates to: 'Payment complete -- your $1,600 has been released.' The guarantee badge below pulses once (scale 1.0 to 1.05 to 1.0, 200ms) to reinforce the guarantee fulfillment.",
+        "monthly_reset": "At the start of each new monthly cycle, nodes 2-4 smoothly transition back to inactive state (300ms ease-in-out). Node 1 remains completed. A small label appears above the timeline: 'Month 2 of 3' (or equivalent). The confirmation sentence updates: 'Your next $1,600 follows the same path.' This monthly reset is the interaction that builds cumulative trust -- the host watches the cycle complete, reset, and complete again.",
+        "error": "If lease event data is unavailable (API timeout), the timeline retains its last known state. A small info icon appears beside the active node with tooltip: 'Checking status -- your timeline will update shortly.' No node is reverted. No progress is lost visually. The host's trust in the timeline must never be undermined by a data error."
+      },
+      "transition_principle": "Node completions use ease-out (decelerating into the completed state, feeling like arrival). Node activations use ease-in-out (smooth transition into readiness). The monthly reset uses ease-in-out at a slower pace (400ms instead of 300ms) to feel deliberate rather than abrupt. The final node's celebratory pulse uses ease-out with an overshoot (scale to 1.08 then settle to 1.0) to feel like a moment of accomplishment, not just another state change.",
+      "timing": {
+        "response_target": "Node state updates within 2 seconds of the corresponding lease event (agreement signed, guest checked in, first night confirmed, payment released). If the update takes longer than 2 seconds, show the pulse animation on the relevant node.",
+        "easing": "ease-out (cubic-bezier(0.16, 1, 0.3, 1)) for node completions. ease-in-out for activations and resets.",
+        "rationale": "Robbie's anxiety is about timing -- 'when will I be paid?' Each node completion that arrives within 2 seconds of the real event reinforces that the timeline is live and accurate, not a static picture. Delays longer than 5 seconds would allow doubt to form between the event and the confirmation."
+      },
+      "journey_state_awareness": "During evaluation (post-call landing page), the timeline is entirely in default state -- a preview of the sequence. The host taps nodes to learn what each step means. During onboarding (agreements being signed), node 1 is the focus. During active lease (guests moving in, first night, payment), nodes 2-4 activate in real time. During retention (lease end), the timeline shows all cycles completed with a summary: 'Over 3 months, this timeline completed 3 times. Total earned: $4,800.'",
+      "edge_cases": [
+        "Host visits the timeline on a device different from where they signed agreements. State must sync via backend -- the timeline on any device reflects the current lease state, not per-device state.",
+        "Guest check-in is delayed (arrives a day late). Node 2 remains active (not completed) until the actual check-in event. The host sees the node waiting, which may cause anxiety. Mitigation: show a tooltip on the active node: 'Waiting for guest check-in. You will be notified when it happens.'",
+        "Payment release is delayed beyond the expected date. Node 4 remains active with the guarantee badge prominently displayed. An additional message appears: 'Your payment is guaranteed. Expected release: [date].' The guarantee badge must absorb the anxiety that a delayed node would otherwise create.",
+        "Host has multiple active leases (multiple units). Each lease has its own timeline instance. The Leases page shows one timeline per lease, with the most-active lease (closest to a node transition) displayed first.",
+        "Mid-lease termination. If a lease ends early, the timeline shows completed nodes up to the point of termination, with remaining nodes permanently grayed and a label: 'Lease ended [date]. All payments through this date were released.'"
+      ]
+    },
+    {
+      "id": "behaves-0902-002",
+      "type": "interaction_pattern",
+      "title": "Agent-to-Platform Trust Handoff: Recognition Before Registration",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation"],
+      "problem": "Robbie's trust is 100% in Bryant, 0% in the platform. The L3 visual treatment (looks-0902-002) places Bryant's face and name before the brand, but the interaction design must ensure the host never encounters a registration wall, a login screen, or an unfamiliar form before seeing Bryant's name and their property details. The Lean UX MVP concept asks: what is the smallest interaction that tests whether personal recognition drives engagement? The current flow likely requires the host to create an account before seeing anything personalized. This inverts the trust sequence: Robbie must trust an unknown system before the system shows it knows who he is. The interaction must invert this: the system shows it knows Robbie before asking Robbie to trust it. Every additional tap, field, or screen between email click and Bryant's face increases the dropout probability. Robbie said 'just send it to me and let me see' (07:10) -- he expects to see, not to authenticate.",
+      "solution": "The post-call follow-up email links to a unique, token-authenticated URL that requires zero registration. (1) Host clicks the link in Bryant's email. (2) The landing page loads with Bryant's avatar and greeting visible within the first 500ms -- no splash screen, no loading gate, no cookie consent overlay blocking content. (3) The host scrolls through personalized content (property details, guest names, payment timeline, document links) freely, with no interaction required. This is the 'look' phase that Robbie requested. (4) At the bottom of the page, after all content has been consumed, a soft registration prompt appears: 'Ready to move forward? Create your account to sign the agreements.' The prompt includes pre-filled fields (name from call, email from call) so the host sees their data already populated -- another trust signal. (5) If the host does not register on this visit, their viewing activity is logged (which sections they scrolled through, how long they spent on the payment timeline). The next follow-up from Bryant can reference this: 'I noticed you looked at the agreements -- any questions?' (6) The token URL expires after 30 days. If the host returns after expiration, they see a friendly message: 'This link has expired. Contact Bryant at [phone/email] to get a fresh one.' The interaction never dead-ends at a generic login screen.",
+      "evidence": [
+        {
+          "source": "robbie-call.txt, 07:10",
+          "type": "host_call",
+          "quote": "Robbie: 'just send it to me and let me see, I'll send you my PMO. They send it to me about email. Let me take a look on it.'",
+          "insight": "Robbie's requested interaction is: receive email, open it, look at content. He did not say 'send me a login page' or 'let me create an account.' The interaction must honor this expectation: click, see, decide. Registration is a separate, later action that occurs after trust is established through content recognition."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 5 MVPs",
+          "type": "book",
+          "quote": "Lean Startup initially advocates the creation of rapid prototypes designed to test market assumptions and uses customer feedback to evolve them much faster than more traditional software engineering practices.",
+          "insight": "The token-authenticated landing page is the MVP for the trust handoff hypothesis. It tests: 'Can we convert agent-acquired hosts to platform users without requiring upfront registration?' The smallest version is a unique URL that shows personalized content and defers registration to the end. Measure: what percentage of hosts who click through also register?"
+        },
+        {
+          "source": "robbie-call.txt, 00:18",
+          "type": "host_call",
+          "quote": "Bryant: 'I work for a company called split lease... I got in touch with both Ariel and Amber.'",
+          "insight": "The company name is mentioned once; the personal narrative dominates. The interaction must match: the landing page mentions 'Split Lease' minimally (header whisper) and leads with Bryant's name and the specific guest names. The first interactive element the host encounters should be a scroll, not a form field."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Shared Understanding",
+          "type": "book",
+          "quote": "Shared understanding is the collective knowledge of the team that builds up over time as the team works together.",
+          "insight": "The call built shared understanding between Bryant and Robbie. The landing page must extend that shared understanding to the digital domain by showing the same details (property, guests, rent) that Bryant and Robbie discussed. If the landing page shows information the host did not discuss on the call, it breaks the shared understanding and signals that this is a different conversation, not a continuation."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Landing page loaded via token URL. No authentication required. All personalized content visible. Registration prompt is below the fold, not visible until the host scrolls past all informational content. Scroll depth tracking is active but invisible.",
+        "loading": "First paint within 500ms shows Bryant's avatar and 'Hi Robbie' text (these are embedded in the HTML, not fetched via API). Property details and payment timeline load asynchronously but within 1500ms total. Document links load last. The host sees the trust signal (Bryant's face + name) before any content that requires data fetching.",
+        "first_visit": "All content sections are expanded. The payment timeline is in default state (all nodes preview). Document links show download icons. The registration prompt at the bottom uses a warm, conversational tone: 'When you are ready, create your account to review and sign the agreements.' Pre-filled name and email fields are visible but not required to interact with the page.",
+        "return_visit": "Token URL still valid. The page loads with the same content but a subtle 'Welcome back, Robbie' message replaces the 'Hi Robbie, this is Bryant following up on our call' greeting. If the host viewed the payment timeline for more than 10 seconds on the previous visit but did not register, the timeline section is highlighted with a soft purple border pulse on page load to draw attention back to the content they engaged with most.",
+        "registered": "After registration, the page transitions seamlessly to the platform dashboard with the same visual language (Bryant's context, property details, payment timeline). The host should not perceive a 'different website' -- the dashboard is a continuation of the landing page, not a separate environment.",
+        "expired": "Token URL expired. A warm message: 'This link has expired, but your information is still saved. Contact Bryant at [phone/email] to get a new link, or log in if you already have an account.' Two clear paths: contact agent (primary button) or log in (secondary link). No dead end.",
+        "error": "If personalized data fails to load, show Bryant's greeting and a generic message: 'We are loading your property details. If this takes too long, contact Bryant directly at [phone/email].' The agent's contact info is the ultimate fallback -- the trust anchor that always works."
+      },
+      "transition_principle": "Page content appears through a staggered fade-in: Bryant's avatar and greeting (0ms), property card (200ms delay), guest card (400ms delay), payment timeline (600ms delay), document links (800ms delay). Each section uses a 200ms ease-out fade-in. This staggered reveal mimics the conversational pacing of Bryant's call -- information arrives in a comfortable sequence, not all at once. The registration prompt appears only after the last content section is visible, with a 1-second delay after the documents section to create a deliberate pause between information and action request.",
+      "timing": {
+        "response_target": "Trust signal (Bryant's avatar + host name) visible within 500ms. Full content loaded within 1500ms. Registration prompt visible only after scroll or 1-second delay after final content section.",
+        "easing": "ease-out for content appearance (arriving confidently). ease-in-out for registration prompt (approaching gently, not aggressively).",
+        "rationale": "Robbie expects to 'look at it' -- the interaction must prioritize content delivery speed over interactive features. The 500ms threshold for the trust signal is based on the principle that recognition must occur before the host decides whether to stay or leave. If Bryant's face appears after a 3-second blank screen, the host has already formed the impression 'this is not what Bryant promised.'"
+      },
+      "journey_state_awareness": "During discovery/evaluation (the host has only had the call), the landing page is 100% informational with zero interactive demands. During onboarding (host has registered), the same content now includes actionable elements: 'Sign the rental agreement' button replaces the document download link. During listing creation (host is further along), the landing page becomes a reference -- the host can return to it to remind themselves of the details Bryant discussed.",
+      "edge_cases": [
+        "Host forwards the token URL to their partner (Robbie may want to show someone else). The URL should work for any viewer but the personalization (Hi Robbie) remains. A note at the bottom: 'This page was prepared for Robbie. If you are not Robbie, contact Bryant for your own link.'",
+        "Host clicks the link weeks after the call. Content must still be accurate. If guest availability has changed (Ariel or Amber are no longer available), the page should reflect this: 'Since your call with Bryant, Ariel has found another place. Amber is still interested, and we have found a new match: [name].' Stale data destroys trust faster than no data.",
+        "Host opens the link on mobile but has a poor connection. The trust signal (Bryant's avatar + name) must be embedded in the initial HTML payload, not loaded via API. Content below can lazy-load, but the first viewport must render without any API calls.",
+        "Host's email client blocks images. Bryant's name in text ('This is Bryant following up') must carry the trust signal alone when the avatar cannot load. The alt text on the avatar image should read 'Bryant, your Split Lease agent.'",
+        "Multiple hosts share the same email address (couple owns property together). The token URL should be addressable to the primary contact from the call, with a note: 'Share this with your partner -- all the details from our call are here.'"
+      ]
+    },
+    {
+      "id": "behaves-0902-003",
+      "type": "interaction_pattern",
+      "title": "Hesitation-Detected Retreat: Simplify the Request When the Host Stalls",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "Robbie's call behavior shows a clear pattern: when he encounters something he does not understand, he does not abandon -- he defers. 'Just send it to me and let me see' (07:10) is not rejection; it is a request for a lower-commitment path. The Lean UX framework demands testing the hypothesis that a single-path interface (6-step wizard, full proposal acceptance form) is the right approach. Robbie's deferral behavior suggests it is not. He wants to engage, but on simpler terms. The platform currently offers binary choices: complete the full flow or leave. There is no graceful retreat -- no 'just send it to me and let me see' equivalent in the digital interface. When a host stalls on a complex form (stops typing, scrolls back up, hovers on the back button), the platform has no response. The stall becomes an abandonment because the platform does not offer a simpler path. The Lean UX principle of permission to fail applies to the host, not just the team: the host should be permitted to partially engage without the platform treating it as failure.",
+      "solution": "Implement hesitation detection and a retreat mechanism at every high-commitment interaction point. (1) DETECTION: Monitor for hesitation signals -- page idle for 45 seconds, cursor movement toward browser back button, rapid scroll to top without completing any fields, tab switch and return without action, or form field focus without typing for 20 seconds. These signals trigger the retreat state. (2) RETREAT OFFER: A simplified card slides up from the bottom of the viewport (300ms ease-out, translateY from 100% to 0). The card uses a warm, concessive tone: 'This is a lot to take in. How about we start with just the basics?' For onboarding documents: 'Just read the one-page summary first. The full agreements can wait.' For listing creation: 'Just share your address and monthly rent. We will build a draft from there.' For pricing: 'Tell us your monthly rent and we will calculate everything else.' For proposal management: 'Not ready to accept? Save it and come back when you have had time to think.' (3) ACCEPTANCE: If the host accepts the retreat, the complex form dims (opacity 0.4, 300ms) and the simplified card expands to full width with 2-3 fields maximum. The host completes the simpler version, and their partial progress is saved. (4) PERSISTENCE: The path back to the full version is always visible: a link 'Continue with the full version' appears at the bottom of the simplified card, styled as secondary text (--text-gray, --text-sm). (5) MEASURE: Track retreat acceptance rate and subsequent full-completion rate. Hypothesis: '30% of hosts who stall on the full form will accept the retreat, and 50% of those will eventually complete the full version within 7 days.'",
+      "evidence": [
+        {
+          "source": "robbie-call.txt, 07:10",
+          "type": "host_call",
+          "quote": "Robbie: 'Oh, they didn't know what, uh, how many, something of the agreement you're talking about. Um, just send it to me and let me see.'",
+          "insight": "Robbie does not reject the process -- he requests a simpler engagement mode. 'Send it to me and let me see' is the verbal equivalent of accepting a retreat: 'I cannot process this full flow right now, but I will engage with a simpler version (reading documents on my own time).' The platform must provide this same escape valve digitally."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Permission to Fail",
+          "type": "book",
+          "quote": "Permission to fail means that the team has a safe environment in which to experiment.",
+          "insight": "The host also needs permission to fail -- permission to not complete the full flow on the first attempt without losing progress or trust. The retreat mechanism is permission to fail for the host: 'You do not have to get it all done now. Start with the basics and come back.' This transforms abandonment into partial engagement."
+        },
+        {
+          "source": "robbie-call.txt, 04:06",
+          "type": "host_call",
+          "quote": "Robbie: 'this me, where this have to be confirmed immediately. You feel the contract phone to, uh, to, to hold any property for you out loss.'",
+          "insight": "Robbie's fragmented speech reveals cognitive overload -- he is trying to express a complex concern in a non-primary language while processing unfamiliar financial concepts. When the platform detects equivalent cognitive overload signals (stalling, back-navigation, rapid scroll), it must respond the way Bryant does on the call: by simplifying rather than repeating."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Small Batch Size",
+          "type": "book",
+          "quote": "Creating only the design that is necessary to move the team forward and avoiding a big inventory of untested and unimplemented design ideas.",
+          "insight": "The retreat offer embodies small batch size for the host: instead of requiring the full batch (6-step wizard), accept the smallest batch (address + rent) that still moves the process forward. The retreat is not a lesser product -- it is a smaller MVP that can be tested and built upon."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Full interaction flow is presented (6-step wizard, full proposal form, etc.). No retreat offer visible. Hesitation monitoring is active but invisible. The host experiences the standard flow unless they stall.",
+        "hesitation_detected": "After detection thresholds are met (45s idle, back-button hover, etc.), the retreat card begins its entrance. A subtle shadow appears at the bottom of the viewport (100ms) to signal something is arriving, then the card slides up (300ms ease-out). The full form behind the card dims to opacity 0.4 but remains visible -- the host can see they are being offered an alternative, not losing their work.",
+        "retreat_accepted": "The retreat card expands to full width. The complex form fades out (200ms ease-in). The simplified fields are pre-populated with any data already entered in the full form. A progress indicator shows: 'Step 1 of 1' or 'Quick version -- just the basics.' A save button in --gradient-purple-button. Below: 'Want to do the full version instead?' link in --text-gray.",
+        "retreat_completed": "After the host submits the simplified version, a confirmation appears: 'Saved! We have what we need to get started. You can add more details anytime.' The confirmation includes a link to the full version. This state persists -- the next time the host visits the same flow, they see their partial data with an invitation to complete the rest.",
+        "retreat_dismissed": "If the host dismisses the retreat (clicks outside the card, or clicks 'No thanks, I will continue'), the card slides back down (200ms ease-in) and the full form restores to full opacity. The retreat will not trigger again for the same session unless the host stalls for an additional 90 seconds (double the original threshold).",
+        "loading": "If the retreat version requires recalculating (e.g., converting 6 wizard steps into 2 fields), a brief 'Simplifying...' message appears in the card (300ms). No visible loading spinner -- the simplification should be near-instant since it is reducing complexity, not adding it.",
+        "error": "If saving the simplified version fails, the host's data is preserved in browser local storage. Message: 'We could not save right now, but your information is safe on this device. Try again in a moment.' No data loss under any circumstance -- the retreat must feel safe."
+      },
+      "transition_principle": "The retreat card enters with ease-out (arriving confidently, like Bryant's calm redirect during the call). The full form dims with ease-in-out (smooth, not jarring -- the host should feel the platform is stepping back, not that their work is disappearing). Dismissal uses ease-in (the card recedes quickly, restoring the original state without lingering). The overall interaction metaphor is a gentle offer: 'We noticed you might need a simpler path. Here it is. No pressure.'",
+      "timing": {
+        "response_target": "Hesitation detection triggers after 45 seconds of idle on forms, 20 seconds of field focus without typing, or immediate on back-button hover. Retreat card entrance: 300ms. Card dismissal: 200ms. Retreat re-trigger cooldown: 90 seconds after dismissal.",
+        "easing": "ease-out for card entrance (cubic-bezier(0.16, 1, 0.3, 1)). ease-in-out for form dimming. ease-in for card dismissal.",
+        "rationale": "45 seconds of idle is long enough to distinguish genuine hesitation from normal reading or thinking. Shorter thresholds (15-20 seconds) risk triggering during careful review, which would feel intrusive. The 90-second cooldown after dismissal respects the host's explicit choice to continue with the full version while remaining available if they stall again."
+      },
+      "journey_state_awareness": "During onboarding (document review), the retreat is: 'Just read the summary and tell us if you have questions.' During listing creation, the retreat is: 'Share your address and rent -- we will build a draft listing for you.' During pricing, the retreat is: 'Enter your monthly rent. We will handle the nightly rate.' During proposal management, the retreat is: 'Save this proposal and come back when you are ready.' Each retreat is calibrated to the minimum viable input for that phase.",
+      "edge_cases": [
+        "Host triggers hesitation signal but was genuinely reading carefully (the legal documents require careful reading). The retreat card should include a dismiss option: 'I am still reading -- no rush.' This dismiss does not trigger the 90-second cooldown; it disables the retreat trigger for the current section entirely.",
+        "Host accepts retreat, completes simplified version, then immediately wants to do the full version. The transition from simplified to full must be seamless: all data from the simplified version is pre-filled in the full form, and the host continues from where the simplified version left off, not from the beginning.",
+        "Host is on mobile with a small viewport. The retreat card should occupy the bottom 40% of the screen rather than sliding up fully. The dimmed full form behind it should still be partially visible to maintain the sense of 'alternative offered, not replacement imposed.'",
+        "Host has a language barrier (like Robbie). The retreat card text must follow the L3 language-accessible design rules: maximum 8 words per sentence, icon alongside every key concept, no jargon. Example: 'Too much? Start simple.' with an icon of a simplified form.",
+        "Host stalls on the retreat itself (hesitation on the simplified version). Do not trigger a second retreat. Instead, after 60 seconds of idle on the simplified form, show a subtle help message: 'Need help? Contact Bryant at [phone/email].' The agent is the ultimate fallback for hosts who cannot complete even the simplified digital path."
+      ]
+    },
+    {
+      "id": "behaves-0902-004",
+      "type": "interaction_pattern",
+      "title": "Import-Then-Verify Listing Flow: Host Confirms What the Platform Built, Not the Other Way Around",
+      "journey_phases": ["listing_creation", "pricing", "onboarding"],
+      "problem": "Robbie offered to share his existing Craigslist listing twice in two minutes (01:42, 02:49). His instinct is to reuse, not recreate. The L3 visual treatment (looks-0902-004) defines a drop zone, pre-populated preview, and inline edit affordances. But the interaction behavior must ensure that the import-to-verification transition feels effortless and that verification is genuinely cheaper than creation. If the import produces a draft that requires extensive correction, the host will perceive it as 'the system got it wrong' rather than 'the system started for me.' The Lean UX principle of small batch size demands: accept the smallest viable input and produce the closest viable draft. The interaction must also handle the common case where the host's existing listing is dead (as Robbie's Craigslist link was) -- the fallback must be equally smooth.",
+      "solution": "Design the import interaction as a three-phase flow: Input > Process > Verify. (1) INPUT PHASE: The import drop zone is the primary interaction on the listing creation page. Three input modes: paste a URL, upload photos (drag-and-drop or file picker), or paste text from an existing listing description. All three modes are visible simultaneously as tabs within the drop zone. The URL tab is default because it is the most common import source. When the host starts any input, the 'Or create from scratch' link dims further (opacity 0.3) to signal that the import path is active and the scratch path is a fallback. (2) PROCESS PHASE: After input, a progress animation plays inside the drop zone: the upload icon transforms into a spinning extraction indicator (rotating ring, 1.5 seconds per revolution, --secondary-purple). Text updates: 'Building your listing draft...' If URL is dead (like Robbie's Craigslist link), the system gracefully degrades: 'That link is no longer available. Upload your photos instead, and we will use the details from your call with Bryant.' This fallback uses call data (address, rent amount) as a secondary source. If photos are uploaded, the system extracts metadata (EXIF location if available) and displays them immediately in a thumbnail grid while processing. (3) VERIFY PHASE: The drop zone transitions to a full listing preview. Each populated field has a green checkmark (imported successfully) and a pencil edit icon. Each missing field has an amber highlight and 'Needed' label. The host taps any field to edit inline -- a text input expands within the field, replacing the preview text. Edit saves on blur (no save button required for individual fields). The monthly rent displays in dual format: '$1,600/month = ~$53/night.' A final 'Looks good -- publish draft' button at the bottom. (4) MEASURE: Track time-to-published-listing for import-path hosts versus wizard-path hosts. Hypothesis: 'Import-path hosts complete listing creation in under 3 minutes, versus 5+ minutes for wizard-path hosts.'",
+      "evidence": [
+        {
+          "source": "robbie-call.txt, 01:42",
+          "type": "host_call",
+          "quote": "Robbie: 'I will send you, uh, probably so I can forward you that link. I lost where the pictures.'",
+          "insight": "Robbie's first instinct upon being asked about his property is to share existing work. The import interaction must be the first thing the host encounters on the listing page -- not a secondary option hidden behind the standard wizard. The interaction should feel like: 'We expected you to bring existing content, and we are ready for it.'"
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Removing Waste",
+          "type": "book",
+          "quote": "Anything that doesn't contribute to [improved outcomes] is considered waste and should be removed from the team's process.",
+          "insight": "Requiring Robbie to re-enter his address, upload photos one by one, and fill out six wizard steps when this data already exists (from the call, from his listing, from his photos) is waste. The import interaction eliminates this waste by accepting the host's existing content as the starting point."
+        },
+        {
+          "source": "robbie-call.txt, 02:49",
+          "type": "host_call",
+          "quote": "Robbie: 'I was sending the address on everything on the link. I'm going to send you the link of the app.'",
+          "insight": "Robbie says 'the link' and 'the app' -- he thinks of his listing as a shareable object, not as data fields to be re-entered. The import interaction must accept a 'shareable object' (URL, photos, text block) as input, matching the host's mental model of how property information is transmitted."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Small Batch Size",
+          "type": "book",
+          "quote": "Creating only the design that is necessary to move the team forward.",
+          "insight": "The import path is a small batch: accept one input (URL or photos), produce one output (draft listing), request one action (verify and publish). This is smaller and faster than the 6-step wizard and can be deployed and measured sooner."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Import drop zone is the primary element on the listing creation page. Three tabs (URL, Photos, Text) with URL selected by default. The drop zone accepts drag-and-drop for photos. Below: 'Or create from scratch' link in --text-gray, --text-sm. The standard 6-step wizard is not visible unless the host clicks the scratch link.",
+        "input_active": "Host has begun typing a URL, uploading photos, or pasting text. The drop zone expands slightly (4px vertical growth, 200ms ease-out) to accommodate the input. A subtle border color change from --border-color to --secondary-purple indicates active input. The 'create from scratch' link dims to opacity 0.3.",
+        "processing": "Input received, extraction in progress. The upload icon transforms into a rotating ring (--secondary-purple, 1.5s per revolution). Text: 'Building your listing draft...' Estimated time: 3-8 seconds for URL extraction, 1-2 seconds for photo upload, instant for text paste. If URL extraction fails (dead link), a smooth transition to fallback: 'That link is not available. Use your photos or details from your call instead.' The fallback pre-populates from call data (address, rent) so the host sees immediate value even when the primary import fails.",
+        "verify": "Draft listing preview replaces the drop zone. Photos displayed in a grid. Each field shows its content with a checkmark (imported) or amber highlight (needed). The price translation row shows dual format. Inline editing is active on all fields -- tap to edit, blur to save. The 'Publish Draft' button appears at the bottom only when all required fields (address, rent, at least one photo) are populated.",
+        "editing_field": "When the host taps a field to edit, the preview text is replaced by an input field with the current value pre-filled. The input field has a 1px --secondary-purple border to indicate editing mode. On blur, the input field smoothly transitions back to preview text (200ms ease-in-out). If the value changed, the checkmark icon briefly pulses to confirm the save.",
+        "published": "After the host taps 'Publish Draft,' a confirmation animation plays: the listing card gains a soft glow (--shadow-purple-sm expanding to --shadow-purple-md over 500ms) and a banner appears: 'Your listing is live! We will notify you when guests are interested.' The page then transitions to the Leases/Dashboard page.",
+        "error": "If any field save fails (network error), the field reverts to its previous value with a subtle shake animation (2px horizontal, 200ms) and a tooltip: 'Could not save -- try again.' No data loss. If the entire publish fails, all data is preserved in the verify state: 'Something went wrong. Your listing is saved as a draft -- try publishing again.'"
+      },
+      "transition_principle": "The flow progresses forward with ease-out transitions (each phase arrives confidently). The drop zone to preview transition uses a crossfade (drop zone fades out at 200ms while preview fades in at 200ms, overlapping by 100ms for a smooth handoff). Individual field edits use quick ease-in-out (200ms) to feel responsive without being distracting. The 'dead link' fallback uses a gentle lateral slide (the URL error slides left while the photo upload option slides in from the right, both 300ms ease-out) to convey 'alternative path,' not 'failure.'",
+      "timing": {
+        "response_target": "Photo upload: preview thumbnails appear within 500ms. URL extraction: draft preview within 8 seconds. Text paste: immediate field population. Field edit save: within 300ms on blur. Publish confirmation: within 2 seconds.",
+        "easing": "ease-out for all forward transitions (input > process > verify > publish). ease-in-out for inline edits. Lateral ease-out for dead-link fallback.",
+        "rationale": "Robbie's cognitive resources are depleted from a confusing evaluation call. Every second of waiting erodes his willingness to continue. Photo upload must be near-instant (500ms) because photos are the host's primary asset -- seeing them appear immediately confirms the system received his contribution. URL extraction can take longer (8s) because the host expects processing, but must show the rotating indicator to signal activity."
+      },
+      "journey_state_awareness": "During listing creation from onboarding (host just signed agreements), the import zone pre-populates the address and rent from call data, showing: 'We already know your space is at [address] for $1,600/month. Add photos to complete your listing.' During listing creation from the landing page (host clicked through from Bryant's email), the import zone can reference the call: 'Bryant mentioned your renovated studio in East Village. Upload your photos and we will build your listing.' During return visits (host started but did not finish), the verify state is restored from saved data: 'Welcome back. Your draft listing is almost ready.'",
+      "edge_cases": [
+        "Host uploads very large photos (10MB+ each). Show immediate thumbnail preview using browser-side image processing while uploading to server in background. Display upload progress bar per photo. Do not block the verify state while uploads complete -- show thumbnails immediately with a subtle loading indicator on each until server upload confirms.",
+        "Host pastes a URL from a platform the system cannot extract from (not Craigslist, Zillow, or known sites). The system should attempt generic extraction (Open Graph tags, meta descriptions) and populate whatever it can. If nothing is extractable: 'We could not read that link. Try uploading your photos or pasting your listing description instead.'",
+        "Host has no existing listing content at all (no URL, no photos, no text). The import zone should recognize this scenario after 20 seconds of inactivity and offer: 'No existing listing? No problem. Start with just your address and rent.' This links to a minimal 2-field form, not the full 6-step wizard.",
+        "Host imports from a listing with a different rent amount than what was discussed with Bryant ($1,600). The verify phase should flag the discrepancy: 'Your imported listing shows $1,800/month, but you discussed $1,600/month with Bryant. Which is correct?' Two buttons: '$1,600' and '$1,800.' No ambiguity.",
+        "Host begins import, then switches to 'create from scratch.' All data entered or imported so far should be preserved and pre-filled into the wizard fields. The transition is additive, never destructive."
+      ]
+    },
+    {
+      "id": "behaves-0902-005",
+      "type": "interaction_pattern",
+      "title": "Proactive Payment Notification Cycle: Notify Before the Host Wonders",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "Robbie demanded immediate payment confirmation three times during the call (03:17, 04:06, 06:14). The L3 visual treatment (looks-0902-006) defines three notification types (pre-notification, day-of confirmation, next-payment preview) with specific visual treatments. But the interaction behavior must ensure these notifications arrive at the right time, through the right channel, and that the host never has to take an action to learn their payment status. The Lean UX principle of outcomes over outputs applies: the output is 'notification sent.' The outcome is 'host feels confident about payment without checking.' If the host opens the app to check payment status before the notification arrives, the proactive system has failed. The interaction must beat the host's anxiety -- the notification must arrive before the host has time to wonder.",
+      "solution": "Implement a three-phase notification cycle that operates on autopilot for each payment period. (1) PRE-NOTIFICATION (T-48 hours): 48 hours before payment release, push notification + email: 'Your $1,600 for [month] is scheduled for [date].' The notification includes the guarantee badge. On tap, it deep-links to the Leases page with the payment timeline (behaves-0902-001) showing node 3 ('First Night') as completed and node 4 ('Payment Released') as the next active node. No host action required -- this is purely informational. (2) DAY-OF CONFIRMATION (T+0, within 1 hour): When payment is processed, push notification + email: 'Your $1,600 has been released today. Expected in your account within [X] business days.' On tap, deep-links to Leases page where node 4 now shows the completing animation (celebratory pulse from behaves-0902-001). (3) NEXT-PAYMENT PREVIEW (immediately after confirmation): A secondary line in the day-of notification: 'Next payment: $1,600 on [next date].' This line closes the anxiety loop by immediately answering 'when is the next one?' (4) At proposal acceptance, show the full payment calendar: 'Payment 1: $1,600 on [date]. Payment 2: $1,600 on [date]...' This transforms proposal acceptance from 'agreeing to hold the property' into 'seeing when every payment arrives.' (5) At lease end (retention), send a lifetime summary: 'Over [X] months, you earned $[total]. Every payment was on time, guaranteed by Split Lease.' This summary frames the experience as successful in terms of Robbie's desired outcome (reliable payment). (6) MEASURE: Track 'payment anxiety' signals: how often the host checks the Leases page payment section between pre-notification and day-of confirmation. If the host checks 0 times, the proactive system is working. If they check 2+ times, the notification timing needs to move earlier.",
+      "evidence": [
+        {
+          "source": "robbie-call.txt, 04:06",
+          "type": "host_call",
+          "quote": "Robbie: 'this have to be confirmed immediately. You feel the contract phone to hold any property for you out loss.'",
+          "insight": "Robbie's core behavioral driver is anxiety about unconfirmed payment. The proactive notification system converts reactive checking (host opens app to see if paid) into passive assurance (notification arrives before host thinks to check). Every notification is an answer to Robbie's demand: 'here is your confirmation, before you had to ask for it.'"
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Progress = Outcomes, Not Output",
+          "type": "book",
+          "quote": "Features and services are outputs. The business goals they are meant to achieve are outcomes.",
+          "insight": "Sending a notification is an output. Reducing the host's payment anxiety is the outcome. The interaction must be measured by the outcome: did the host check payment status fewer times this month than last month? If the notification arrives but the host still checks three times, the timing or content is wrong and must be iterated."
+        },
+        {
+          "source": "robbie-call.txt, 06:52",
+          "type": "host_call",
+          "quote": "Bryant: 'Even in the case that Ariel or Amber would miss a payment, you're still getting payment for the booking.'",
+          "insight": "Bryant's verbal guarantee was stated once. The notification system states it every payment cycle via the guarantee badge. By the third month, the host has seen 'Guaranteed by Split Lease' six times (two per cycle: pre-notification + confirmation). Repetition through interaction converts a verbal promise into a behavioral expectation."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Continuous Discovery",
+          "type": "book",
+          "quote": "Continuous discovery is the ongoing process of engaging the customer during the design and development process.",
+          "insight": "Monitoring the host's payment-checking behavior between notifications is continuous discovery. If hosts consistently check the Leases page at T-72 hours (72 hours before payment), the pre-notification should move from T-48 to T-72 to preempt the checking behavior. The notification timing is a hypothesis that evolves based on observed host behavior."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "No notification currently pending. The Leases page shows the payment timeline in its current state. The next pre-notification is scheduled in the background. The host sees: 'Next payment: $1,600 on [date]' as a persistent line on the Leases page.",
+        "pre_notification_sent": "48 hours before payment. Push notification and email dispatched. The Leases page updates: payment timeline node 4 gains a subtle glow pulse (opacity 0.7 to 1.0, looping every 2 seconds) to signal 'payment approaching.' The confirmation sentence below the timeline updates: 'Your $1,600 for [month] is scheduled for release on [date].'",
+        "payment_processing": "Payment is being processed. If the host visits the Leases page during processing, node 4 shows a processing animation (rotating ring inside the node, --secondary-purple, same as the import processing indicator for visual consistency). Text: 'Processing your payment now...' This state should last no more than a few minutes.",
+        "payment_confirmed": "Payment released. Push notification + email dispatched. The Leases page updates: node 4 completes with the celebratory pulse (scale 1.0 to 1.08 to 1.0, 400ms, ease-out). The confirmation sentence updates: '$1,600 released on [date]. Expected in your account within [X] business days.' The next-payment preview appears below: 'Next: $1,600 on [next date].' The guarantee badge pulses once.",
+        "payment_delayed": "Payment not released by expected date. The pre-notification already set the expectation. Now a delay notification is sent: 'Your $1,600 payment is being finalized. Expected by [new date]. Your payment is guaranteed by Split Lease.' The guarantee badge on the Leases page gains a persistent glow (not pulsing -- steady, calming) to reinforce the guarantee. Node 4 remains active with the processing animation, not reverted.",
+        "lease_complete": "Final payment released. The retention summary replaces the timeline: a premium card (--gradient-purple-primary background, white text) showing: 'Over [X] months, you earned $[total]. Every payment guaranteed by Split Lease.' Below: 'Ready to list your space again?' button as a warm retention prompt.",
+        "error": "If notification delivery fails (push notification not delivered, email bounced), the system falls back to SMS. If SMS also fails, the Leases page itself serves as the passive notification -- the timeline state updates regardless of notification delivery. The host can always find their payment status on the Leases page, even if active notifications fail."
+      },
+      "transition_principle": "Pre-notifications arrive with a calm, anticipatory tone (no urgency -- the payment is coming, not needed now). Day-of confirmations arrive with a celebratory tone (accomplishment -- the promise was fulfilled). Next-payment previews arrive with a forward-looking tone (continuity -- the cycle continues). Each notification type should feel emotionally distinct: anticipation > celebration > assurance. These emotional tones are conveyed through icon choice (calendar > checkmark > arrow-right), color emphasis (--text-gray > --secondary-purple > --text-gray), and animation (pulse > celebratory scale > fade-in).",
+      "timing": {
+        "response_target": "Pre-notification: exactly T-48 hours before scheduled payment release. Day-of confirmation: within 1 hour of payment processing completion. Next-payment preview: embedded in the day-of confirmation, zero additional delay. Retention summary: within 24 hours of final payment release.",
+        "easing": "N/A for notification dispatch (server-side timing). On the Leases page: ease-out for node state transitions, spring easing (cubic-bezier(0.34, 1.56, 0.64, 1)) for the celebratory pulse to convey a brief moment of joy.",
+        "rationale": "48 hours before payment is early enough to preempt checking behavior but close enough to be specific and credible. 1 hour after processing is fast enough that the host does not need to check -- the notification arrives before the anxiety builds. Immediate next-payment preview prevents the post-confirmation anxiety gap ('great, I got paid, but when is the next one?')."
+      },
+      "journey_state_awareness": "During proposal management (host just accepted), show the full payment calendar as an immediate 'gift' -- the host sees exactly when every payment will arrive. During active lease month 1, notifications are the most detailed (include guest names, property address) to reinforce context. During months 2+, notifications can be shorter ('Your $1,600 released') because context is established. During retention, the cumulative summary replaces individual notifications.",
+      "edge_cases": [
+        "Host has notifications disabled on their device. The email serves as primary channel. If email also fails (bounced, spam-filtered), the Leases page is the fallback. Consider an in-app banner on next visit: 'Your $1,600 was released on [date]. Enable notifications to get payment updates in real time.'",
+        "Payment amount changes mid-lease (e.g., lease amendment). The notification must reflect the new amount, not the original. The pre-notification should explicitly state: 'Your payment for [month] is $1,450 (adjusted from $1,600 per your lease amendment on [date]).' Never let the host discover a different amount without explanation.",
+        "Host has multiple leases with different payment schedules. Each lease has its own notification cycle. Notifications are grouped by day: 'Today you received 2 payments: $1,600 (East Village studio) + $2,100 (Brooklyn 2BR) = $3,700 total.' Aggregation prevents notification fatigue.",
+        "First payment in a new lease. This is the highest-anxiety payment. The pre-notification should be sent at T-72 hours (earlier than usual) with additional context: 'This is your first payment for your lease with Ariel and Amber. $1,600 is scheduled for [date].' The extra 24 hours of lead time addresses the first-time uncertainty.",
+        "Host contacts support about payment between pre-notification and confirmation. The support agent should have access to the notification history and be able to say: 'You should have received a notification yesterday that your payment is scheduled for tomorrow. Everything is on track.' The notification system and support system must share state."
+      ]
+    },
+    {
+      "id": "behaves-0902-006",
+      "type": "interaction_pattern",
+      "title": "Dual-Format Price Input: Accept Monthly, Calculate Nightly, Never Ask the Host to Do Math",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "Robbie's pricing anchor is '$1,600 a month' (02:22). He stated it as a fact. The L3 visual treatment (looks-0902-005) defines a two-tier display with monthly as primary and nightly as derived. But the interaction behavior must ensure the host never encounters a nightly-rate input field as the primary pricing mechanism. If the first thing Robbie sees is 'Enter your nightly rate: $___,' he must mentally convert $1,600/month to a nightly figure -- a System 2 calculation that a cognitively depleted, non-native English speaker will likely abandon or get wrong. The Lean UX outcome is not 'host enters a nightly rate' (output) but 'host is confident they will receive $1,600/month' (outcome). The interaction must achieve the outcome by accepting the host's native input (monthly rent) and performing all conversions automatically.",
+      "solution": "Design the pricing interaction as a single monthly input with real-time dual-format output. (1) The pricing field is a single input labeled 'Your Monthly Rent' with a dollar sign prefix. The host types '1600' and the field displays '$1,600.' No nightly rate input field exists. (2) As the host types, the nightly rate calculation updates in real time below the input field: '= ~$53/night based on 30-night months.' The calculation uses the simplest formula visible to the host (monthly / 30) with a note that actual nightly rate may vary based on lease style. The real-time update uses a 150ms debounce so the number does not flicker during typing. (3) If the platform charges a service fee, a fee disclosure row appears immediately below the calculation: 'After Split Lease service fee (X%): you receive $[net]/month.' This row appears as soon as the host types a number -- never deferred to a later screen. (4) On the proposal acceptance screen, the pricing display is read-only: '$1,600/month' in primary treatment with the total lease value below: 'This 3-month lease earns you $4,800.' The host does not need to interact with pricing at this point -- they only verify the number they already set. (5) On the Leases page during active lease, the pricing display shows: 'Monthly income: $1,600' as the persistent primary number, with the next payment date below. (6) MEASURE: Track pricing support tickets and first-payment surprise rate (percentage of hosts whose first payment differs from their stated monthly rent by more than 5%). Hypothesis: 'Dual-format pricing will reduce pricing surprise to below 5% and cut pricing support tickets by 50%.'",
+      "evidence": [
+        {
+          "source": "robbie-call.txt, 02:22",
+          "type": "host_call",
+          "quote": "Robbie: 'it sounded like it's 16, 1600 a month would be the monthly rent.'",
+          "insight": "Robbie thinks in monthly terms and states his price as a monthly figure. The interaction must accept this exact input format. Any interface that requires conversion to nightly is asking the host to translate between mental models -- a cognitive task that is especially risky for non-native English speakers."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Outcomes",
+          "type": "book",
+          "quote": "When you're creating hypotheses to test, you want to try to be very specific regarding the outcomes you are trying to achieve.",
+          "insight": "The outcome is 'host is confident their monthly income will be $1,600.' The output is 'host filled in a nightly rate field.' By accepting monthly rent directly and deriving the nightly rate automatically, the interaction optimizes for the outcome (confidence in monthly income) rather than the output (nightly rate field completion)."
+        },
+        {
+          "source": "robbie-call.txt, 05:03-05:37",
+          "type": "host_call",
+          "quote": "Bryant: '$1,600 would be released to you after that first night... we'd hold the security deposit as well. And we'd actually matched that. So rather than holding 1600, we'd hold 3,200.'",
+          "insight": "Bryant reinforced $1,600 as the amount Robbie receives. The interaction must never show a different number without immediate, inline explanation. If fees reduce the take-home below $1,600, the fee disclosure must appear in the same viewport as the monthly input, not on a separate screen."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Benchmarks",
+          "type": "book",
+          "quote": "None of your metrics will be meaningful if you don't have a benchmark in place prior to writing your hypotheses.",
+          "insight": "Benchmark the current rate of pricing support tickets and first-payment surprise before deploying the monthly-first input. After deployment, measure the change. If tickets do not decrease, the interaction needs iteration -- perhaps the calculation is confusing, the fee disclosure is unclear, or the lease style variation creates unexpected nightly rates."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Single input field: 'Your Monthly Rent' with dollar sign prefix and placeholder text '1,600.' Below the input, an empty area where the nightly derivation and fee disclosure will appear once the host types. No nightly rate input field anywhere on the page.",
+        "typing": "As the host types digits, the monthly amount formats in real time (comma separator for thousands). After a 150ms debounce, the nightly derivation line fades in (200ms ease-out): '= ~$[X]/night based on 30-night months.' If fees apply, the fee disclosure row fades in 200ms after the derivation: 'After Split Lease fee: $[net]/month.' Both lines update in real time as the host adjusts the monthly figure.",
+        "confirmed": "The host moves focus away from the input (blur event). The monthly amount locks in with a subtle border color change from --secondary-purple (editing) to --border-color (confirmed). The derivation and fee lines become persistent. A small checkmark appears next to the monthly amount.",
+        "mismatch_detected": "If the host enters a monthly amount that differs from the call data (e.g., types $1,800 when the call recorded $1,600), a gentle advisory appears: 'You discussed $1,600/month with Bryant. Would you like to use that amount?' Two inline buttons: 'Use $1,600' and 'Keep $1,800.' This advisory is informational, not blocking -- the host can choose either amount.",
+        "proposal_view": "On the proposal acceptance screen, the pricing display is read-only. Monthly income in primary treatment (28px, bold, purple). Total lease value below (18px, semibold, purple). No input fields. The host verifies, not edits. If the host wants to change pricing, a 'Request adjustment' link takes them back to their listing.",
+        "active_lease_view": "On the Leases page, the pricing display shows monthly income and next payment date. The monthly figure matches the amount set during listing creation. If a lease amendment changed the amount, both the current and original amounts are shown: 'Current: $1,450/month (adjusted from $1,600 on [date]).'",
+        "error": "If the nightly calculation produces an unexpected result (e.g., less than $10/night, which might indicate a typo), the derivation line turns amber: 'That works out to ~$3/night -- did you mean $1,600?' This catches typos (host typed '160' instead of '1600') without blocking input."
+      },
+      "transition_principle": "The derivation and fee lines enter with ease-out fades (200ms) -- they appear confidently because they are answers, not questions. The mismatch advisory enters with a gentle ease-in-out (250ms) to feel like a helpful suggestion, not a correction. The checkmark on confirmation uses a quick ease-out (150ms) to feel responsive. All transitions are subtle because the pricing interaction should feel calm and controlled -- the host sets a number and immediately sees its implications.",
+      "timing": {
+        "response_target": "Real-time derivation update: 150ms debounce after typing. Fee calculation: within 300ms of derivation update. Mismatch detection: within 500ms of field blur if amount differs from call data.",
+        "easing": "ease-out for derivation/fee appearance. ease-in-out for mismatch advisory. Quick ease-out for confirmation checkmark.",
+        "rationale": "150ms debounce prevents flickering during typing while providing near-instant feedback. The host should never finish typing and then wait for the nightly rate to appear -- the calculation must feel immediate. Fee disclosure at 300ms after derivation creates a natural reading sequence: host reads the nightly rate, then the fee appears just as they would naturally look for it."
+      },
+      "journey_state_awareness": "During listing creation, the monthly input is the primary pricing interaction. During pricing adjustments (host revisits their listing), the field pre-fills with the current monthly rate. During proposal management, pricing is read-only with total lease value. During active lease, pricing is displayed as next-payment information. The monthly figure is the constant across all phases -- it is the anchor the host set once and sees validated throughout the journey.",
+      "edge_cases": [
+        "Host enters $0 or an unreasonably low amount. The derivation line shows: '$0/month = $0/night. Enter your monthly rent to continue.' The publish button remains disabled until a valid amount is entered.",
+        "Host's lease style uses weekly pricing (7-day blocks) rather than nightly. The derivation should adapt: '$1,600/month = ~$400/week.' The monthly figure remains primary regardless of how the platform internally structures pricing.",
+        "Host enters an amount that, after fees, produces a net income significantly lower than expected. The fee disclosure must be immediately visible -- not hidden behind a tooltip or disclosed on a later screen. Example: if 15% fee reduces $1,600 to $1,360, the host must see this before they publish their listing.",
+        "Currency input for non-US hosts (future consideration). The input should auto-detect locale and apply appropriate formatting. The monthly-first principle applies regardless of currency.",
+        "Host changes their monthly rent after a lease is already active. The active lease pricing display must update with clear change-tracking: 'Changed from $1,600 to $1,800 on [date]. New nightly rate: ~$60.' No silent changes -- every pricing modification is tracked and displayed."
+      ]
+    },
+    {
+      "id": "behaves-0902-007",
+      "type": "interaction_pattern",
+      "title": "Language-Accessible Icon-First Interaction: Every Critical Action Achievable Without Reading Sentences",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "Robbie is a non-native English speaker whose comprehension difficulties are visible throughout the call: 'this me, where this have to be confirmed immediately' (04:06), 'The contract has been fueled' (06:14), 'how many, something of the agreement you're talking about' (07:10). The L3 visual system (looks-0902-007) defines an icon-primary design with consistent icon-concept pairing. But the interaction behavior must ensure that icons are not just decorative -- they must be the primary interactive affordances. If a host cannot read the button label, they should be able to complete the action by recognizing the icon. This means every interactive element must have an icon that communicates the action independently of the text. The Lean UX hypothesis: 'Non-native English speakers will achieve equivalent task completion rates when icons are the primary interactive affordance. We will know when completion rates are within 15 percentage points of native speaker rates.'",
+      "solution": "Implement an icon-first interaction layer across all critical host flows. (1) Every button, link, and interactive element in a critical flow includes an icon to the left of the text label. The icon is 24px (--icon-md) and the label is maximum 2 words. Icon and label are both interactive (the entire row is a tap target). (2) Tooltips on icon hover (desktop) or long-press (mobile) provide a one-sentence explanation in simple language (maximum 8 words). Example: pen icon + 'Sign' button, tooltip: 'Sign the rental agreement.' (3) Critical multi-step flows use a visual progress tracker with icons for each step, not numbered steps. The listing wizard: upload icon (photos) > home icon (address) > dollar icon (price) > checkmark icon (publish). The host can identify what each step requires by the icon alone. (4) Error messages pair an icon with the error text. The red alert icon is used only for true errors. Amber warning icon for suggestions. Green checkmark for success. The icon communicates severity before the host reads the text. (5) Form labels include micro-icons: address field has a map pin icon, rent field has a dollar icon, photo upload has a camera icon. These icons provide redundant encoding -- the host can identify the field by icon or label. (6) The interaction system is testable: recruit 5 non-native English speakers and ask them to complete the listing flow by looking only at icons. If 4 of 5 can identify what each step requires, the icon system is effective. (7) Consistent icon-concept locking: once a host sees the dollar icon with 'payment,' the dollar icon always means payment across all screens. No icon is reused for different concepts.",
+      "evidence": [
+        {
+          "source": "robbie-call.txt, 04:06",
+          "type": "host_call",
+          "quote": "Robbie: 'this me, where this have to be confirmed immediately. You feel the contract phone to, uh, to, to hold any property for you out loss.'",
+          "insight": "Robbie understands the concept (payment must be confirmed) but cannot process it in English. An icon-first interaction replaces sentence comprehension with icon recognition: dollar icon + checkmark = payment confirmed. The host does not need to parse the sentence to understand the action."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 GOOB",
+          "type": "book",
+          "quote": "Give potential customers a chance to provide feedback on your ideas sooner than you would have in the past. Much sooner.",
+          "insight": "Testing the icon-first system with 5 non-native English speakers is GOOB applied to accessibility. Build the icon system, test it with Robbie-profile hosts, and measure: can they complete the flow without reading? If 4 of 5 succeed, the hypothesis is validated. If not, iterate the icons."
+        },
+        {
+          "source": "robbie-call.txt, 06:14",
+          "type": "host_call",
+          "quote": "Robbie: 'The contract has been fueled.' (likely meaning 'fulfilled')",
+          "insight": "Word-level processing errors are invisible in an icon-first system. The pen icon means 'sign/agreement' regardless of whether the host reads 'fulfilled,' 'fueled,' or 'completed.' The icon provides the stable meaning that language cannot guarantee for non-native speakers."
+        },
+        {
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Assumptions",
+          "type": "book",
+          "quote": "Every project starts with assumptions, but usually we don't explicitly acknowledge this fact.",
+          "insight": "The assumption that all hosts can read English interface text is exactly the kind of unacknowledged assumption that Lean UX demands be stated and tested. The icon-first system tests this assumption by building an interface that does not require English reading for critical actions."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "All buttons show icon + text label. Icons are 24px, colored --secondary-purple for actions and --text-gray for information. Labels are maximum 2 words. Tooltips are loaded but hidden. Form fields include micro-icons to the left of labels.",
+        "hover_desktop": "On icon hover, a tooltip appears after 500ms delay (prevents accidental triggers). Tooltip contains a one-sentence explanation (max 8 words) in DM Sans, --text-sm, --text-dark, on a white background with --shadow-sm. Tooltip positions above the icon if space permits, below if near the top of viewport.",
+        "long_press_mobile": "On mobile long-press (500ms hold), the tooltip appears as a small card anchored to the icon. The card uses the same treatment as desktop tooltip but is slightly larger (accommodates touch targets). The card dismisses on release or after 3 seconds.",
+        "progress_tracker": "Multi-step flows show an icon-based progress bar at the top. Completed steps show their icon in --secondary-purple with a checkmark overlay. The current step shows its icon in --secondary-purple at full opacity with a subtle pulse (opacity 0.8 to 1.0, 1.5s loop). Future steps show their icon in --text-gray at 0.5 opacity. Tapping a completed step allows the host to revisit it. Tapping a future step shows a tooltip: 'Complete [current step] first.'",
+        "error": "Error states pair a red alert icon (--signal-danger) with error text. The icon appears to the left of the error message and uses a brief shake animation (2px horizontal, 200ms) on first appearance to draw attention. Warning states use amber icon (--signal-warn) without shake. Success states use green checkmark (--secondary-purple, since the design system uses purple rather than green for positive states) with a brief pulse.",
+        "loading": "While interactive elements load, their icons show a skeleton state (gray placeholder at the correct size) and their labels show a text skeleton. The icon skeleton resolves before the label to maintain icon-first comprehension order."
+      },
+      "transition_principle": "Tooltips enter with a quick ease-out fade (150ms) -- they should feel instantaneous once triggered, not sluggish. Progress tracker step transitions use ease-in-out at 300ms for a smooth, deliberate progression that the host can track visually. Error shake animations are fast (200ms) and small (2px) -- enough to draw attention without feeling aggressive. Icon color transitions (gray to purple when a step activates) use ease-out at 200ms.",
+      "timing": {
+        "response_target": "Tooltip appearance: 500ms delay after hover/long-press. Icon state update (step completion): within 300ms of the triggering event. Error icon appearance: immediate (0ms delay) with the shake animation starting at appearance.",
+        "easing": "ease-out for tooltip appearance and icon activations. ease-in for tooltip dismissal. ease-in-out for progress tracker transitions.",
+        "rationale": "500ms tooltip delay prevents accidental triggers during normal interaction while being short enough that a deliberate hover or long-press produces a timely result. Immediate error icon appearance ensures the host sees the error state before they continue interacting -- critical for preventing cascading errors in form completion."
+      },
+      "journey_state_awareness": "During evaluation (post-call landing page), icons are informational only -- no interactive demands. During onboarding (document review), the pen icon and dollar icon are the primary interactive icons. During listing creation, the upload icon, home icon, dollar icon, and checkmark icon form the progress tracker. During pricing, the dollar icon is the only interactive element. During proposal management, the checkmark icon (accept) and edit icon (counter) are the primary interactive elements. Each phase uses a consistent subset of the icon vocabulary.",
+      "edge_cases": [
+        "Host is colorblind and cannot distinguish --secondary-purple from --text-gray. Icons in active states should use both color and a secondary signal (filled vs outline, or added badge) to ensure state is communicable without color alone.",
+        "Host uses a screen reader. All icons must have aria-labels matching the tooltip text. The icon-first visual hierarchy should translate to screen-reader-first label hierarchy: the aria-label should describe the action, not the icon shape ('Sign the agreement,' not 'Pen icon').",
+        "Icon vocabulary conflicts: if a future feature introduces a new concept that needs an icon, and the closest available icon is already locked to a different concept, a new icon must be sourced rather than reusing the existing one. Icon-concept locking is strict and must be maintained across the entire platform.",
+        "Host zooms to 200% on mobile (accessibility zoom). Icons at 24px scale to 48px. The icon-text layout must remain intact at 200% zoom without overlap or truncation. Test all interactive elements at 200% zoom.",
+        "Host is literate in English but the icon choice is ambiguous (e.g., the 'door' icon for 'move in' may not be universally understood). The tooltip serves as the disambiguation mechanism. If testing reveals that a specific icon is not recognized by 3 out of 5 users, replace it with a more universally recognized alternative."
+      ]
+    }
+  ],
+  "element_count": 7,
+  "coverage": {
+    "discovery": ["behaves-0902-002"],
+    "evaluation": ["behaves-0902-001", "behaves-0902-002", "behaves-0902-007"],
+    "onboarding": ["behaves-0902-001", "behaves-0902-002", "behaves-0902-003", "behaves-0902-007"],
+    "listing_creation": ["behaves-0902-002", "behaves-0902-003", "behaves-0902-004", "behaves-0902-006", "behaves-0902-007"],
+    "pricing": ["behaves-0902-001", "behaves-0902-003", "behaves-0902-006", "behaves-0902-007"],
+    "proposal_mgmt": ["behaves-0902-001", "behaves-0902-003", "behaves-0902-005", "behaves-0902-006", "behaves-0902-007"],
+    "active_lease": ["behaves-0902-001", "behaves-0902-005", "behaves-0902-006"],
+    "retention": ["behaves-0902-005"]
+  },
+  "layer_3_alignment": {
+    "looks-0902-001_payment_timeline": "Served directly by behaves-0902-001 (progressive node activation state machine). L3 defined the static visual treatment of four nodes with tokens and sizes; L4 defines how each node transitions through inactive > active > completing > completed states, the monthly reset cycle, the celebratory pulse on payment release, and the error states that maintain visual trust when data is unavailable.",
+    "looks-0902-002_agent_landing_page": "Served directly by behaves-0902-002 (recognition before registration). L3 defined the visual hierarchy placing Bryant's face before the brand; L4 defines the token-authenticated URL that eliminates registration gates, the staggered content reveal that mimics conversational pacing, the return visit behavior, and the expired-link fallback that always provides a path forward.",
+    "looks-0902-003_plain_language_summary": "Served by behaves-0902-003 (hesitation-detected retreat) and behaves-0902-002 (trust handoff). The plain-language summary card from L3 appears on the landing page (behaves-0902-002) as part of the document section, and is the retreat target for onboarding hesitation (behaves-0902-003: 'Just read the one-page summary first').",
+    "looks-0902-004_import_verify_listing": "Served directly by behaves-0902-004 (import-then-verify flow). L3 defined the drop zone visual and pre-populated preview; L4 defines the three-phase interaction (input > process > verify), the dead-link graceful degradation, the inline edit behavior on populated fields, and the state transitions between phases.",
+    "looks-0902-005_dual_format_pricing": "Served directly by behaves-0902-006 (dual-format price input). L3 defined the two-tier number stack visual; L4 defines the monthly-first input interaction, the real-time derivation calculation with 150ms debounce, the inline fee disclosure, and the mismatch detection when the entered amount differs from call data.",
+    "looks-0902-006_payment_notification": "Served directly by behaves-0902-005 (proactive payment notification cycle). L3 defined the notification card visuals; L4 defines the three-phase timing cycle (T-48 hours > T+0 > next-payment preview), the deep-link behavior connecting notifications to the Leases page timeline, the payment delay handling, and the retention summary at lease end.",
+    "looks-0902-007_language_accessible_icons": "Served directly by behaves-0902-007 (icon-first interaction system). L3 defined the icon visual system (24px, color coding, consistent pairing); L4 defines how icons become interactive affordances (tooltips on hover/long-press, progress tracker with icon-based steps, error/warning/success icon states) and the testing methodology for validating icon comprehension with non-native speakers."
+  },
+  "methodology_notes": "Seven interaction pattern elements that animate the L3 visual patterns with state machines, transition behaviors, timing specifications, and edge case handling. Each element specifies: (1) states -- the discrete configurations the component can occupy, including default, loading, success, error, and phase-specific variants; (2) transitions -- how the component moves between states, with easing curves mapped to emotional intent; (3) timing -- response targets for each interaction with rationale grounded in Robbie's behavioral patterns; (4) journey state awareness -- how the same component behaves differently across host phases; (5) edge cases -- scenarios where the standard interaction breaks and the recovery path. The Lean UX lens transforms each interaction into a testable hypothesis with measurable outcomes: payment re-ask rate for the timeline, click-to-register rate for the trust handoff, retreat acceptance rate for the hesitation detector, time-to-publish for the import flow, payment check frequency for the notification cycle, pricing surprise rate for the dual-format input, and icon recognition rate for the accessibility system. Every interaction pattern traces to observable behavior in Robbie's call and to specific Lean UX principles. No element specifies final HTML/CSS, animation library choice, or backend implementation -- those belong to subsequent layers."
+}

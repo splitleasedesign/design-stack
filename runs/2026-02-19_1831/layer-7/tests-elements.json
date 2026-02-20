@@ -1,0 +1,1110 @@
+{
+  "lens": {
+    "host_call": "user-stories-initial-analysis.md",
+    "book_extract": "flow-conditions-of-flow.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-1831-001",
+      "type": "validation_strategy",
+      "title": "Challenge-Skill Escalation Ladder: Intermediate Action Adoption Rate",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the escalation ladder is poorly implemented, guests face an all-or-nothing choice between passive browsing and full proposal commitment. The anxiety gap (A3) at phase transitions causes abandonment, and guests who are ready to do more than browse but not ready to propose have no productive path forward.",
+      "solution": "Track adoption of intermediate actions (messaging, saving, comparing) at each phase transition. Conduct task-based usability tests where participants are asked to explore a listing and take any action they feel comfortable with -- observe whether they discover and use intermediate actions before proposing.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Messaging before proposals' section",
+          "type": "host_call",
+          "quote": "Once someone messages a host, the path to a proposal gets shorter, not longer.",
+          "insight": "Messaging as an intermediate step should correlate with higher proposal completion rates. If guests who message first show 2x conversion, the ladder is working."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "If Alex is anxious (A3), the way back to flow requires that he increase his skills.",
+          "insight": "The intermediate actions ARE the skill-building steps. Measuring their usage reveals whether the system provides the A3-to-flow path Csikszentmihalyi describes."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Measure the percentage of guests who use at least one intermediate action (message, save, compare) before their first proposal. Track proposal completion rate for guests who used intermediate actions vs. those who skipped directly to proposal.",
+      "success_criteria": "40% or more of first-time proposers use at least one intermediate action before proposing. Guests who use intermediate actions show at least 1.5x higher proposal completion rate compared to those who skip directly.",
+      "failure_meaning": "Low intermediate action adoption means the actions are invisible, inaccessible, or irrelevant. The ladder exists but guests do not find the rungs. Revisit the behavioral detection thresholds and visual prominence escalation described in behaves-003.",
+      "implementation_hint": "Instrument analytics events for each intermediate action: message_initiated, listing_saved, listing_compared. Tag each proposal with the intermediate actions that preceded it in the same session. Build a funnel visualization showing the escalation path: search > card_hover > listing_view > intermediate_action > proposal."
+    },
+    {
+      "id": "tests-1831-002",
+      "type": "validation_strategy",
+      "title": "Continuous Feedback: Mid-Action Abandonment Reduction",
+      "validates_element": "works-002",
+      "journey_phases": ["search", "proposal_creation", "negotiation"],
+      "problem": "If continuous feedback is absent, guests operate in feedback vacuums during multi-step actions. They start a proposal but abandon because they cannot tell if it is complete, correct, or well-structured. Map exploration feels unproductive because nothing responds to panning.",
+      "solution": "Deploy A/B test comparing current post-action-summary feedback against real-time continuous feedback (live price calculation, map contextual data on pan, proposal completeness indicator). Measure mid-action abandonment rates in both conditions.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'The map should feel alive' section",
+          "type": "host_call",
+          "quote": "Transit stops, landmarks, real-time context -- this is about mood, not just utility. The feeling that something is happening.",
+          "insight": "The alive map is a proxy for the feedback principle. If map interaction increases when contextual data responds to panning, feedback is sustaining engagement."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "A goal-directed, rule-bound action system that provides clear clues as to how well one is performing.",
+          "insight": "Mid-action abandonment is the measurable signal that 'clear clues' are missing. Reduction in abandonment validates that feedback is present during the action, not only after."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control group sees current post-action summaries. Treatment group sees continuous feedback (real-time price on proposal, contextual data on map pan, filter-change card animations). Primary metric: mid-action abandonment rate for proposals. Secondary metric: average map interactions per search session.",
+      "success_criteria": "Treatment group shows 30% or greater reduction in mid-proposal abandonment. Map interactions per session increase by 50% or more in treatment group.",
+      "failure_meaning": "If feedback does not reduce abandonment, the feedback may be noisy (too many signals competing for attention) rather than clarifying. Revisit the cognitive load constraint: feedback must add no more than 1 data point per interaction.",
+      "implementation_hint": "Start with proposal creation feedback (highest stakes, most measurable). Instrument proposal_field_completed, proposal_price_updated, proposal_preview_viewed events. Compare completion funnel before and after adding the real-time price calculator and completeness indicator."
+    },
+    {
+      "id": "tests-1831-003",
+      "type": "validation_strategy",
+      "title": "Concentration Preservation: Session Continuity After Auth",
+      "validates_element": "works-003",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If contextual continuity fails, auth redirects destroy the guest's flow state. They lose search context, scroll position, and filter selections. The cost is not just friction but the complete loss of a flow state that took minutes to build.",
+      "solution": "Conduct controlled usability tests where participants are mid-search (3+ listings viewed, filters applied, map positioned) and trigger an auth-requiring action (message host). Measure: (1) whether they perceive the auth as an interruption or a continuation, (2) whether all state is preserved after auth, (3) whether they continue their task or restart.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible' section",
+          "type": "host_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "The user stories define the testable criterion: users must not lose search context. A usability test directly validates whether context is preserved."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "Concentration is so intense that there is no attention left over to think about anything irrelevant.",
+          "insight": "If participants report needing to re-orient after auth, concentration was broken. The test validates whether the auth interaction is invisible to the guest's flow state."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Task-based usability test with 8-10 participants. Task: search for a room using at least 2 filters, view at least 3 listings, then message a host (triggering auth). Observe: does the participant perceive a disruption? After auth, verify: scroll position preserved, filters intact, map position unchanged. Post-task interview: 'Did you feel like you lost your place at any point?'",
+      "success_criteria": "90% of participants complete the auth and return to their exact prior state without re-searching or re-filtering. In post-task interview, 80% report no sense of losing their place. Average time from auth trigger to resuming the original task is under 10 seconds.",
+      "failure_meaning": "If participants lose state or report re-orientation effort, the inline auth implementation is failing. The modal may be dismissing the underlying page, or the back-button behavior may not be state-preserving. Check that sessionStorage captures scroll, filter, and map state before the modal opens.",
+      "implementation_hint": "Implement state capture on auth trigger: before showing the modal, serialize current page state (scroll Y, active filters, map center/zoom, viewed listings) to sessionStorage. On auth completion, restore all state before dismissing the modal. Test with browser dev tools: force-close the modal and verify state restoration."
+    },
+    {
+      "id": "tests-1831-004",
+      "type": "validation_strategy",
+      "title": "Stays Manager Complexity Ratchet: Weekly Engagement Across Lease Lifecycle",
+      "validates_element": "works-004",
+      "journey_phases": ["active_lease"],
+      "problem": "If the complexity ratchet fails, the Stays Manager becomes stale by mid-lease. Guests visit because they must (payment, dates) but take no meaningful action. Reviews drop off, on-platform messaging declines, and the guest drifts to off-platform communication with the host.",
+      "solution": "Track weekly active engagement (at least one meaningful action per visit) across the full 13-week lease lifecycle. Compare engagement curves between the phased complexity ratchet and a static Stays Manager baseline.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "One cannot enjoy doing the same thing at the same level for long. We grow either bored or frustrated.",
+          "insight": "The engagement curve IS the test. If engagement is flat or declining by week 6, boredom has set in and the complexity ratchet is not working. If engagement sustains or increases, the evolving content is matching growing skill."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "Every review is a past guest activating a future one.",
+          "insight": "Micro-review completion rate is the most direct indicator of whether the rhythm-phase engagement challenge is working. Reviews are the flow activity that the ratchet introduces at weeks 4-9."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Cohort analysis across 13-week leases. Track weekly: (1) visit rate, (2) meaningful action rate (review submitted, date change initiated, message sent, checklist item completed), (3) time on page, (4) off-platform communication indicators. Compare weeks 1-3 (orientation), 4-9 (rhythm), and 10-13 (reflection).",
+      "success_criteria": "60% or more of active-lease guests take at least one meaningful action per week by mid-lease (weeks 4-9). Micro-review completion reaches 8 or more out of 13 possible stay cycles per lease. Engagement does not decline more than 15% from week 4 to week 9.",
+      "failure_meaning": "Declining engagement by mid-lease means the rhythm-phase content is not introducing sufficient challenge. Either the micro-review prompts feel like obligations rather than opportunities, or the evolving content is not visible enough above the fold. Revisit the 'what changed since last visit' indicator and ensure new content is surfaced before static reference information.",
+      "implementation_hint": "Tag each Stays Manager visit with the guest's lease week number and lifecycle phase. Log every interaction: review_prompt_shown, review_submitted, date_change_opened, message_composed, checklist_item_checked. Build a per-cohort engagement heatmap showing action density across all 13 weeks."
+    },
+    {
+      "id": "tests-1831-005",
+      "type": "validation_strategy",
+      "title": "Cross-Activation Social Framing: Message-to-Response Rate",
+      "validates_element": "works-005",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation", "active_lease"],
+      "problem": "If cross-activation events feel transactional rather than social, guests compose vague or minimal messages, hosts respond slowly or not at all, proposals lack clarity, and reviews become perfunctory. The social flow potential of these moments is wasted.",
+      "solution": "Compare message-to-response rates and proposal acceptance rates before and after redesigning cross-activation interactions to include social context (host profile alongside composer, response time indicators, pre-populated proposal data, host-view preview).",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "When a guest messages a host, that's not just UX convenience -- it's the moment two strangers begin to trust each other through the platform.",
+          "insight": "Message-to-response rate is the measurable proxy for trust initiation. Higher rates after social framing indicate the redesign makes the interaction feel more like a conversation and less like a ticket submission."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section (agon)",
+          "type": "book",
+          "quote": "The roots of the word 'compete' are the Latin con petire, which meant 'to seek together.'",
+          "insight": "If negotiation modification rates increase (guests choose 'suggest a change' over binary accept/reject), the agonistic framing is working -- guests feel empowered to seek together rather than accept or flee."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control group uses current message composer (blank field, no host context). Treatment group sees the social-framed composer (host profile, response time, suggested topics, post-send status cascade). Measure: message-to-response rate within 24 hours, proposal completeness score, negotiation modification rate.",
+      "success_criteria": "Message-to-response rate within 24 hours reaches 70% or higher in treatment group. Proposal completeness (all structured fields populated) averages 85% or higher. At least 20% of negotiation interactions use 'suggest a modification' rather than binary accept/reject.",
+      "failure_meaning": "If social framing does not improve response rates, the host context may be insufficient (no profile photos, no response time data) or the treatment may be adding cognitive load rather than social warmth. Conduct follow-up qualitative interviews to understand whether guests perceived the composer as personal or cluttered.",
+      "implementation_hint": "Minimum viable social framing: add host photo + name + 'Usually responds within X hours' to the message composer. Measure impact before adding more complex signals (typing indicators, quality hints). Start with the simplest social context and escalate."
+    },
+    {
+      "id": "tests-1831-006",
+      "type": "validation_strategy",
+      "title": "Value-Before-Investment: Discovery-to-Search Conversion Without Auth",
+      "validates_element": "works-006",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the value-before-investment gate fails, the platform gates meaningful exploration behind sign-up. Guests who arrive skeptical see a sign-up form before seeing any listings, experience platform-level anomie (no visible rules, no social proof), and leave before entering any flow channel.",
+      "solution": "Measure discovery-to-search conversion rate (percentage of first-time visitors who perform at least one search action) with and without requiring authentication for browsing. Monitor time-to-first-search-action as a proxy for how quickly the platform communicates its value.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "host_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them.",
+          "insight": "Conversion rate before vs. after removing the sign-up gate directly tests whether value-before-ask works. If the gate was the barrier, removing it should produce a measurable conversion lift."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow and Culture section",
+          "type": "book",
+          "quote": "When it is no longer clear what is permitted and what is not... behavior becomes erratic and meaningless.",
+          "insight": "Anomie is measurable through behavioral signals: high bounce rate, short session duration, no search actions. These resolve when the guest can see real listings and understand the system's structure without committing identity."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Measure first-time visitor behavior: (1) percentage who perform at least one search action (filter, map pan, card click) within their first session, (2) time from page load to first search action, (3) bounce rate. Compare against baseline if auth was previously required.",
+      "success_criteria": "50% or more of first-time visitors perform at least one search action within their first session. Time-to-first-search-action is under 30 seconds for 70% of visitors. Bounce rate for first-time visitors is below 50%.",
+      "failure_meaning": "If conversion remains low despite open browsing, the issue is not the auth gate but the content or its presentation. The discovery page may not be communicating its value quickly enough -- listings may be below the fold, or the landing page may lead with marketing copy instead of real results. Conduct a first-click test to verify that real listings are the first thing visitors perceive.",
+      "implementation_hint": "Ensure the landing page loads real listing cards above the fold on both mobile and desktop. No hero section, no marketing banner, no sign-up CTA above the listings. Instrument first_search_action event with timestamp relative to page load. Track the funnel: page_load > first_visible_listing > first_interaction > first_search_action."
+    },
+    {
+      "id": "tests-1831-007",
+      "type": "validation_strategy",
+      "title": "Autotelic Platform Context: Five-Trait Phase Audit",
+      "validates_element": "works-007",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "If the five autotelic traits (clarity, centering, choice, commitment, challenge) are not present at every phase, the platform cannot sustain flow across the journey. The guest may find flow at search but lose it at negotiation (no choice), or achieve flow at proposal but lose it at acceptance (no challenge).",
+      "solution": "Conduct an expert heuristic evaluation of each phase against the five autotelic traits. For each phase, score clarity, centering, choice, commitment, and challenge on a 1-5 scale. Supplement with qualitative user research sessions where participants are asked to identify their goal, their options, and their trust level at each phase.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Autotelic Family Context section",
+          "type": "book",
+          "quote": "The family context promoting optimal experience could be described as having five characteristics: clarity, centering, choice, commitment, and challenge.",
+          "insight": "The five traits are independently auditable. Each can be scored at each phase, creating a 5x8 matrix that reveals exactly where the platform fails the autotelic standard."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, multiple sections",
+          "type": "host_call",
+          "quote": "Verified reviews and host credibility signals activate guests... A skeptical guest who sees verified reviews, ID checks, and real host history doesn't need the platform to convince them.",
+          "insight": "Trust signals are the measurable proxy for the 'commitment' trait. Phases where trust signals are absent will score low on commitment, identifying specific design gaps."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Expert review: 2-3 UX evaluators walk through each of the 8 guest phases and score each on the five traits (1 = absent, 5 = strongly present). User research: 6-8 participants complete tasks across phases and answer per-phase questions: 'What can you do here?' (clarity), 'What is most relevant to you right now?' (centering), 'What are your options?' (choice), 'Do you trust this?' (commitment), 'Is there something new or interesting here?' (challenge).",
+      "success_criteria": "No phase scores below 3 on any trait in the expert review. In user research, 80% of participants can articulate their goal at each phase (clarity test) and identify at least 2 meaningful actions (choice test). NPS for active-lease guests exceeds 50.",
+      "failure_meaning": "Low scores on specific traits at specific phases identify precise design gaps. A phase that scores 5 on clarity but 1 on choice is missing action options. A phase that scores 5 on challenge but 1 on commitment is missing trust signals. The 5x8 matrix becomes the prioritization framework for targeted improvements.",
+      "implementation_hint": "Create a scoring rubric that operationalizes each trait: Clarity = guest can state their goal within 5 seconds. Centering = primary content is about the present, not future obligations. Choice = 2+ meaningful actions visible. Commitment = at least 1 trust signal visible without scrolling. Challenge = at least 1 element the guest has not seen in this exact form before."
+    },
+    {
+      "id": "tests-1831-008",
+      "type": "validation_strategy",
+      "title": "Progressive Disclosure: Information Tier Effectiveness",
+      "validates_element": "communicates-001",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "If the three-tier progressive disclosure is poorly calibrated, newcomers are overwhelmed by too much data on cards (Tier 1 too dense) or experienced guests are bored by too little (Tier 2 never reveals enough). The challenge-skill balance of information depth breaks.",
+      "solution": "Conduct tree-testing and first-click tests to validate the Tier 1 scan order (photo > price > location > availability). Use eye-tracking or hover-tracking analytics to measure engagement with Tier 2 content on hover. Compare card click-through rates with and without progressive density tiers.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Listing cards want more layers' section",
+          "type": "host_call",
+          "quote": "Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions -- all without leaving the search grid.",
+          "insight": "The user stories specify what Tier 2 should contain. Testing validates whether these specific elements (image count, availability, neighborhood) increase card engagement or add clutter."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "One cannot enjoy doing the same thing at the same level for long.",
+          "insight": "If returning visitors hover less over time (diminishing Tier 2 engagement), the progressive disclosure is not scaling fast enough with the guest's growing skill. The tiers may need a fourth level for power users."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Task-based usability test with 10 participants (mix of first-time and returning). Task 1: from the search grid, identify which listing best matches criteria (tests Tier 1 scan effectiveness). Task 2: without clicking, tell us as much as you can about a specific listing (tests Tier 2 discovery). Track: hover rate, hover duration, Tier 2 content engagement, card click-through rate. Compare first-time vs. returning participant performance.",
+      "success_criteria": "Tier 1: 90% of participants identify photo, price, and location as the first 3 things they noticed. Tier 2: hover engagement rate of 60% or higher (guests who scroll past a card hover on at least 60% of visible cards). Card click-through rate improves by 15% or more compared to flat cards.",
+      "failure_meaning": "Low hover engagement means Tier 2 content is not visually invited -- the card may not signal that hovering reveals more. Low click-through improvement means the additional data is not decision-relevant. Revisit which data appears in each tier and whether the hover affordance is discoverable.",
+      "implementation_hint": "Instrument card_hovered, tier2_revealed, tier2_element_seen (which specific elements the guest engaged with). Build a heatmap of Tier 2 element engagement to identify which elements drive click-through and which are ignored. Remove ignored elements to reduce clutter."
+    },
+    {
+      "id": "tests-1831-009",
+      "type": "validation_strategy",
+      "title": "Real-Time Feedback Information Layer: Feedback Glanceability",
+      "validates_element": "communicates-002",
+      "journey_phases": ["search", "proposal_creation", "negotiation", "active_lease"],
+      "problem": "If the feedback layer is too dense or too subtle, it either competes with primary content (causing distraction) or goes unnoticed (providing no value). Feedback must pass the 'glanceable' test -- absorbable in under 1 second without breaking concentration.",
+      "solution": "Conduct a rapid-exposure test: show participants a search page with feedback layer active for 3 seconds, then ask them what changed. If they can identify the feedback signal without prompting, the layer is glanceable. If not, it is either invisible or competing with content.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "A goal-directed, rule-bound action system that provides clear clues as to how well one is performing.",
+          "insight": "Feedback must be a 'clear clue,' not a puzzle. If participants cannot identify what changed in 3 seconds, the feedback is not clear enough to function as a flow signal."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Listing cards want more layers' section",
+          "type": "host_call",
+          "quote": "Richer hover states, image counters, availability indicators.",
+          "insight": "Each feedback element (hover response, availability indicator) must be independently glanceable. If any single element requires more than 1 second to parse, the cognitive load constraint is violated."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Rapid-exposure test with 8 participants. Show a search page with active feedback (filter applied, cards animating, map with contextual data) for 3 seconds. Ask: 'What just happened on this page?' Score whether participants identify the feedback signal vs. misinterpret it or miss it entirely. Repeat for proposal (price update on date change) and negotiation (counter-offer difference highlight).",
+      "success_criteria": "80% of participants correctly identify the feedback signal within 3 seconds of exposure. 0% of participants report the feedback as distracting from the primary content.",
+      "failure_meaning": "If feedback is missed, it is too subtle -- increase visual weight (larger animation, higher contrast). If feedback is perceived as distracting, it is too prominent -- reduce animation duration, lower opacity, narrow the visual footprint. The feedback layer must sit between invisible and intrusive.",
+      "implementation_hint": "Start with the highest-stakes feedback: proposal price update on date change. Test this in isolation before adding the full feedback layer. If a single feedback signal cannot pass the glanceability test, adding more will make the problem worse."
+    },
+    {
+      "id": "tests-1831-010",
+      "type": "validation_strategy",
+      "title": "Trust Information Architecture: Trust Signal Recall at Each Decision Gate",
+      "validates_element": "communicates-003",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "If trust signals are absent at earlier phases (discovery, search) but concentrated at listing evaluation, the guest arrives at the listing with accumulated skepticism that trust signals must then overcome. The defensive posture prevents flow entry because the guest remains self-conscious.",
+      "solution": "Conduct a phase-gated recall test: show participants each phase for 10 seconds and ask 'What makes you trust this platform or this listing?' at each gate. Score whether trust signals are recalled at discovery, search, listing evaluation, and proposal -- not just at listing evaluation.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "A skeptical guest who sees verified reviews, ID checks, and real host history doesn't need the platform to convince them -- another user already did.",
+          "insight": "Trust recall at discovery and search means trust signals are doing their job early. If participants only recall trust signals at listing evaluation, earlier phases are failing to establish the commitment trait."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Autotelic Family Context section",
+          "type": "book",
+          "quote": "The fourth differentiating characteristic is commitment, or the trust that allows the child to feel comfortable enough to set aside the shield of defenses.",
+          "insight": "Trust recall is a proxy for whether the guest has 'set aside the shield of defenses.' If they cannot recall trust signals at a given phase, they are still guarded at that phase."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Phase-gated test with 8-10 participants. Show each phase (discovery landing, search grid, listing page, proposal form) for 10 seconds each. After each phase, ask: 'What makes you trust this platform?' and 'What would make you more confident proceeding?' Record unprompted trust signal mentions and prompted awareness of specific elements (badges, review counts, verification icons).",
+      "success_criteria": "At discovery, 60% of participants mention at least one platform-level trust signal unprompted. At search, 70% notice the host verification badge on cards. At listing evaluation, 90% reference reviews or host credibility. At proposal, 70% notice at least one reassurance element (payment protection copy, modification option).",
+      "failure_meaning": "Low recall at discovery means platform-level trust signals (guest count, security certification, press mentions) are not visually prominent enough. Low recall at search means the card-level trust badge is too small or too similar to decorative elements. Address by increasing visual weight of trust signals at underperforming phases.",
+      "implementation_hint": "Run this as an unmoderated remote test. Record screen + audio. Score transcripts for trust-related mentions at each phase. Create a trust-recall heatmap showing which phases have adequate trust signal visibility and which need improvement."
+    },
+    {
+      "id": "tests-1831-011",
+      "type": "validation_strategy",
+      "title": "Stays Manager Temporal Architecture: Content Freshness Per Visit",
+      "validates_element": "communicates-004",
+      "journey_phases": ["active_lease"],
+      "problem": "If the temporal information architecture fails, the Stays Manager shows identical content on consecutive visits. The guest's experience of 'nothing new' confirms that the page is a static utility, not a flow activity. Boredom accumulates and engagement declines.",
+      "solution": "Automated monitoring: for every Stays Manager visit, log whether the guest encountered at least one new content element (new review prompt, new milestone, new action item, updated stay details). Manual review: audit 20 guest accounts at weeks 1, 4, 8, and 12 to verify that content is phase-appropriate.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow and Culture section (Shushwap)",
+          "type": "book",
+          "quote": "At times the world became too predictable and the challenge began to go out of life.",
+          "insight": "If the automated monitor shows consecutive visits with zero new content elements, the Shushwap warning applies: the world has become too predictable. The temporal architecture is not delivering fresh content."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Urgency should surface first on the dashboard' section",
+          "type": "host_call",
+          "quote": "Unread proposals, pending actions, incomplete listings -- that's what a host needs to see the moment they log in.",
+          "insight": "Time-sensitive content is the primary freshness mechanism. If the audit reveals that time-sensitive items are buried below static content, the information hierarchy is inverted."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Implement automated content-freshness tracking: on each Stays Manager page load, log the count of new content elements vs. unchanged elements. Alert if any guest has 2+ consecutive visits with zero new elements. Manual audit: sample 20 accounts at weeks 1, 4, 8, 12 and verify content matches the expected lifecycle phase (orientation, rhythm, reflection).",
+      "success_criteria": "95% of Stays Manager visits include at least one content element that was not present on the previous visit. Manual audit confirms phase-appropriate content in 90% of sampled accounts. Time-sensitive items appear above the fold in 100% of visits where they exist.",
+      "failure_meaning": "Consecutive visits with no new content mean the temporal engine is not firing. Check the lease-week calendar integration, review prompt scheduling, and 'what changed since last visit' logic. If the engine is firing but content is not perceived, check whether new elements are visible above the fold.",
+      "implementation_hint": "Store a content hash per guest per visit. Compare each visit's hash to the prior visit's hash. If identical, flag for investigation. Build a dashboard showing the freshness rate across all active leases to identify systemic content-staleness patterns."
+    },
+    {
+      "id": "tests-1831-012",
+      "type": "validation_strategy",
+      "title": "Goal-First Hierarchy: Time-to-Goal Perception at Phase Entry",
+      "validates_element": "communicates-005",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "acceptance", "move_in"],
+      "problem": "If phases open with mechanism (filter panel, form fields, instruction text) instead of goal (listings, results, preview), the guest does not perceive a clear objective and cannot begin a flow activity. Flow requires that goals are communicated before mechanisms.",
+      "solution": "Conduct a five-second test at each phase entry: show the screen for 5 seconds, then ask 'What can you do on this page?' If participants name the goal (find rooms, compare options, send an offer), the hierarchy is working. If they name the mechanism (filter results, fill in dates, read instructions), the hierarchy is inverted.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "host_call",
+          "quote": "Show something useful first. Offer to refine after.",
+          "insight": "If participants say 'I can see rooms available near me' (goal), the hierarchy works. If they say 'I need to set my filters' (mechanism), it is inverted."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "They have rules that require the learning of skills, they set up goals.",
+          "insight": "Flow activities 'set up goals' as a foundational condition. The five-second test validates whether goals are set up visually within the System 1 assessment window."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Five-second test at 6 phase entry points (discovery, search, listing evaluation, proposal creation, acceptance, move-in). For each: show the screen for 5 seconds, then ask 'What can you do on this page?' and 'What would you do first?' Score responses as goal-oriented or mechanism-oriented. 10 participants minimum.",
+      "success_criteria": "70% of responses are goal-oriented (name the achievable outcome) rather than mechanism-oriented (name the interface element) at every phase. Time-to-first-action is under 5 seconds for 80% of participants.",
+      "failure_meaning": "Mechanism-oriented responses mean the visual hierarchy leads with tools before outcomes. Specific failure: if participants say 'set my filters' at search, the filter panel is more prominent than the results grid. If they say 'fill in dates' at proposal, the form fields are more prominent than the pre-populated preview.",
+      "implementation_hint": "Run as an unmoderated remote test using a tool like Maze or Lyssna. Each participant sees 6 screenshots (one per phase) for 5 seconds each. Responses are text-based. Code responses as goal vs. mechanism and calculate the ratio per phase."
+    },
+    {
+      "id": "tests-1831-013",
+      "type": "validation_strategy",
+      "title": "Negotiation Calibration Data: Decision Quality Under Information",
+      "validates_element": "communicates-006",
+      "journey_phases": ["negotiation"],
+      "problem": "If calibration data is absent during negotiation, the guest evaluates a counter-offer with no reference point. They cannot distinguish a fair counter from an unfair one, leading to either passive acceptance (resentment) or reflexive rejection (lost opportunity). Both outcomes damage the platform.",
+      "solution": "Measure negotiation outcome satisfaction and decision confidence with and without calibration data (market context, difference visualization, modification options). Survey guests after each negotiation about their confidence and perceived fairness.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow and Culture section",
+          "type": "book",
+          "quote": "When it is no longer clear what is permitted and what is not... behavior becomes erratic and meaningless.",
+          "insight": "Decision confidence is the measurable opposite of anomie. Guests who report high confidence in their negotiation decision have received enough calibration data to perceive the rules of the game."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section (agon)",
+          "type": "book",
+          "quote": "In agonistic games, the participant must stretch her skills to meet the challenge provided by the skills of the opponents.",
+          "insight": "If modification rates increase with calibration data, guests feel empowered to play the agonistic game rather than accept or flee. Modification is the skill-stretching response; binary accept/reject is the surrender response."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control group sees counter-offers with basic terms only. Treatment group sees side-by-side comparison with highlighted differences, pre-calculated financial impact, market context data, and a 'suggest a modification' option. Measure: (1) decision confidence (post-negotiation survey, 1-5 scale), (2) modification option usage rate, (3) negotiation completion rate (fewer abandoned negotiations), (4) post-negotiation satisfaction.",
+      "success_criteria": "Treatment group reports decision confidence of 4.0 or higher (vs. expected 3.0 in control). 20% or more of treatment group uses the modification option. Negotiation abandonment rate decreases by 25% or more in treatment group.",
+      "failure_meaning": "If calibration data does not improve confidence, the data may be perceived as unreliable or irrelevant. Market context that does not match the guest's specific situation ('similar listings' that are not actually similar) undermines rather than builds confidence. Validate the data sources and matching algorithms.",
+      "implementation_hint": "Start with the difference visualization (cheapest to implement, highest information value). Add market context only after validating that the comparison itself improves decision quality. The modification option requires backend support for guest counter-offers -- implement after validating the information layer."
+    },
+    {
+      "id": "tests-1831-014",
+      "type": "validation_strategy",
+      "title": "Concentration-Preserving Containment: Zero Re-Orientation Cost",
+      "validates_element": "communicates-007",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If information containment fails, every transition between search, listing, and proposal forces the guest to re-orient to a new layout, losing the spatial mental model that sustained their flow. The re-orientation cost is invisible but cumulative -- each transition spends attention that cannot be recovered.",
+      "solution": "Measure re-orientation cost directly: record time from transition completion to the guest's next meaningful action. Compare this for contained transitions (slide-in panel, in-page expansion) vs. full-page navigations. If containment works, the gap should be near zero.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible' section",
+          "type": "host_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "The testable principle: 'users don't lose context.' If the time between transition and next action is under 2 seconds, context was preserved. If it is 5+ seconds, the guest is re-orienting."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "Concentration is so intense that there is no attention left over to think about anything irrelevant.",
+          "insight": "Re-orientation time is spent on irrelevant processing (finding the back button, re-scanning the layout). The measurement reveals how much attention the platform wastes on non-task activities."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Instrument time-to-next-action after each transition: search-to-listing, listing-to-search (back), listing-to-proposal, proposal-to-listing (back), auth-modal-to-resume. Calculate the median time gap for each transition type. Supplement with session recordings to observe whether guests visually scan/re-orient after transitions.",
+      "success_criteria": "Median time-to-next-action after contained transitions (panels, modals, expansions) is under 2 seconds. Back-navigation restores prior state with zero detectable re-orientation (no scroll adjustment, no filter re-selection). Auth completion to action resumption is under 500ms.",
+      "failure_meaning": "Time gaps above 3 seconds indicate re-orientation cost. The guest is spending attention finding their place. Check: is scroll position restored? Are filters preserved? Is the spatial animation communicating the relationship between old and new content? Session recordings will reveal where the guest's eyes go after a transition -- if they scan the header or navigation, containment is failing.",
+      "implementation_hint": "Log transition_type and time_to_next_action for every navigation event. Build a histogram per transition type. Outliers (> 5s) indicate broken containment. Sample these outlier sessions for recording review."
+    },
+    {
+      "id": "tests-1831-015",
+      "type": "validation_strategy",
+      "title": "Progressive Visual Density Cards: Hover Engagement and Click-Through",
+      "validates_element": "looks-001",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "If the three-tier visual density is not perceived or not rewarding, guests either never discover the hover layer (Tier 2 is invisible) or find it cluttered (Tier 2 adds noise, not value). The visual complexity ratchet fails to match growing search skill.",
+      "solution": "Track hover rate, hover duration, Tier 2 element engagement, and subsequent click-through rate. Compare flat-card control against progressive-density treatment. If the density tiers work, hover engagement should increase over multiple search sessions (the guest learns that hovering reveals value).",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Listing cards want more layers' section",
+          "type": "host_call",
+          "quote": "The current card works but it's leaving engagement on the table.",
+          "insight": "Engagement on the table is measurable: hover-to-click conversion rate. If Tier 2 data increases click-through, the 'table' has been cleared."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "It provided a sense of discovery, a creative feeling of transporting the person into a new reality.",
+          "insight": "Each tier should feel like discovery. If returning visitors hover MORE than first-timers (they have learned the value), the progressive density is creating a discovery habit."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control shows flat listing cards (current). Treatment shows three-tier progressive density cards (Tier 1 default, Tier 2 on hover, Tier 3 expanded preview on long-hover). Track: hover rate, hover duration, Tier 2 element engagement (which elements are looked at), card click-through rate. Segment by visit count to detect learning effects.",
+      "success_criteria": "Hover rate in treatment reaches 50% or more of visible cards. Click-through rate from card to listing increases by 15% or more in treatment. Returning visitors (visit 3+) show higher hover engagement than first-time visitors, indicating learned discovery behavior.",
+      "failure_meaning": "Low hover rate means the hover affordance is not discoverable -- the card does not signal that interaction reveals more. Low click-through improvement means the Tier 2 data is not decision-relevant. Check which specific Tier 2 elements are engaged and remove those that are ignored.",
+      "implementation_hint": "Implement Tier 2 as a CSS hover state first (cheapest test). Log hover events with element-level granularity. If hover rate is low on desktop, test an alternative trigger on mobile (long-press or swipe-up)."
+    },
+    {
+      "id": "tests-1831-016",
+      "type": "validation_strategy",
+      "title": "Living Map: Spatial Exploration Engagement",
+      "validates_element": "looks-002",
+      "journey_phases": ["search"],
+      "problem": "If the map does not feel alive, spatial exploration produces no reward. Guests pan once, see static pins, and revert to scrolling the card grid. The map becomes furniture -- present but unused -- and the spatial-exploration flow activity is lost.",
+      "solution": "Track map interaction frequency (pans, zooms, neighborhood hovers) and duration. Compare static-pin map against the living-map treatment (proximity pin scaling, neighborhood boundaries on dwell, transit icons, price labels on zoom). If the map feels alive, interaction frequency and duration should both increase.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'The map should feel alive' section",
+          "type": "host_call",
+          "quote": "Transit stops, landmarks, real-time context -- this is about mood, not just utility. The feeling that something is happening.",
+          "insight": "Map interaction frequency is the behavioral proxy for 'mood.' A guest who pans, zooms, and hovers repeatedly is experiencing the map as alive. A guest who ignores it after the first glance perceives it as dead."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "A sense that one's skills are adequate to cope with the challenges at hand, in a goal-directed, rule-bound action system that provides clear clues as to how well one is performing.",
+          "insight": "Map exploration becomes goal-directed when contextual data responds to exploration. Without feedback, map interaction is random panning. With feedback, it is spatial discovery."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control has static pins on the map. Treatment has living map features (pin proximity scaling, neighborhood boundary on 500ms dwell, transit/landmark icons, price labels on zoom-in). Measure: total map interactions per session, average map engagement duration, pin-click rate from the map (vs. from the card grid), and search-session duration.",
+      "success_criteria": "Treatment group averages 50% more map interactions per session than control. At least 30% of listing clicks originate from map pin interactions (vs. card grid). Average search session duration increases by 10% or more, indicating deeper spatial exploration.",
+      "failure_meaning": "If map interactions do not increase, the visual feedback may be too subtle (pin scaling too small, boundary fill too transparent) or too slow (dwell threshold too high). If interactions increase but listing clicks from pins do not, the map is entertaining but not decision-useful. Revisit pin-to-card linking so that map exploration connects to the card grid.",
+      "implementation_hint": "Implement pin proximity scaling first (cheapest, most direct feedback). Measure impact before adding neighborhood boundaries and transit icons. Each layer should be validated independently before combining them."
+    },
+    {
+      "id": "tests-1831-017",
+      "type": "validation_strategy",
+      "title": "Contextual Continuity Visual Transitions: Spatial Comprehension",
+      "validates_element": "looks-003",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If visual transitions between search, listing, and proposal do not communicate spatial relationships, the guest loses their mental model of the interface. They cannot answer 'Where was I? Where am I now? How do I get back?' without conscious effort, which breaks flow.",
+      "solution": "Conduct a navigation-comprehension test: after each transition (search to listing, listing to proposal), ask participants to point to where they came from and describe how to get back. If spatial continuity works, they should point correctly without hesitation.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible' section",
+          "type": "host_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "If participants can describe how to return to their prior context (search grid, listing, etc.) without referring to the browser back button, the transition design communicates its spatial relationship successfully."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "Concentration is so intense that there is no attention left over to think about anything irrelevant.",
+          "insight": "If participants need to think about how to navigate back, they are spending attention on irrelevant navigation mechanics. Spatial comprehension should be automatic."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Think-aloud usability test with 6-8 participants. After each transition (search to listing panel, listing to proposal expansion, auth modal appearance), pause and ask: 'Can you show me where you were before?' and 'How would you get back there?' Score: correct pointing, correct back-navigation method, time to answer (under 2 seconds = pass).",
+      "success_criteria": "90% of participants correctly identify their prior context location within 2 seconds. 100% successfully navigate back to the prior context using the designed affordance (back arrow, escape, panel dismiss) without using the browser back button.",
+      "failure_meaning": "Incorrect pointing means the transition animation does not communicate origin. Slow response means the spatial model is not automatic. Browser back-button usage means the designed affordance is not discoverable. Revisit the animation direction (panel should slide FROM the card), the back affordance visibility, and the dimmed search grid behind the panel.",
+      "implementation_hint": "Test with a prototype first (Figma prototype with slide-in panel animation). If spatial comprehension passes in prototype, implement in code. If it fails in prototype, the animation design needs revision before development begins."
+    },
+    {
+      "id": "tests-1831-018",
+      "type": "validation_strategy",
+      "title": "Proposal Form Visual Continuation: Self-Consciousness Reduction",
+      "validates_element": "looks-004",
+      "journey_phases": ["proposal_creation"],
+      "problem": "If the proposal form arrives as a visual rupture (new page, blank fields, clinical layout), it maximizes the self-consciousness that Csikszentmihalyi identifies as a flow inhibitor. The guest sees blank boxes and worries about whether they are doing it right.",
+      "solution": "Measure proposal form anxiety through a combination of completion time, field revision rate (how often guests change pre-populated values), and a post-submission confidence survey. Compare pre-populated visual-continuation form against blank-field form.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Autotelic Personality section",
+          "type": "book",
+          "quote": "A person who is constantly worried about how others will perceive her... is also condemned to permanent exclusion from enjoyment.",
+          "insight": "Self-consciousness is measurable through behavioral proxies: excessive field editing (re-typing, deleting, re-entering), long pause before submission, and low confidence scores after submission."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "A well-structured proposal -- clear dates, schedule, pricing, intent -- activates the host to respond.",
+          "insight": "Proposal quality (completeness of structured fields) improves when the guest is confident. Pre-population reduces self-consciousness, which increases quality, which increases host activation."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control has blank proposal form on a new page. Treatment has pre-populated form that expands from the listing page. Measure: (1) completion rate, (2) time to submit, (3) field revision rate (edits to pre-populated values), (4) post-submission confidence survey (1-5 scale: 'How confident are you that this proposal is well-structured?'), (5) host response rate to resulting proposals.",
+      "success_criteria": "Treatment shows 25% or greater improvement in completion rate. Post-submission confidence averages 4.0 or higher (vs. expected 3.0 in control). Host response rate to treatment proposals is 15% or more higher than to control proposals.",
+      "failure_meaning": "If completion rate does not improve, the pre-populated form may be confusing (guest does not realize fields are editable) or anxiety-inducing in a different way (guest worries about changing pre-set values). If confidence is low despite pre-population, the host-view preview may be missing or the reassurance copy may be insufficient. Test the preview component in isolation.",
+      "implementation_hint": "Start by pre-populating dates and price from the listing context. Add the host-view preview card. Add the 'You can modify before the host accepts' reassurance copy adjacent to the submit button. Each component reduces self-consciousness independently."
+    },
+    {
+      "id": "tests-1831-019",
+      "type": "validation_strategy",
+      "title": "Stays Manager Visual Evolution: New Content Visibility Per Visit",
+      "validates_element": "looks-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the visual evolution is imperceptible, the Stays Manager looks identical on every visit despite containing different content. The stable skeleton succeeds (clarity) but the evolving content fails (challenge) because new elements are visually indistinguishable from unchanged elements.",
+      "solution": "Track whether guests interact with new content elements (the 'what changed since last visit' indicators, new review prompts, new milestones). If guests consistently engage with fresh content, they perceive the visual evolution. If they scroll past it to static reference sections, the evolution is invisible.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "One cannot enjoy doing the same thing at the same level for long.",
+          "insight": "Engagement with new content vs. static content reveals whether the visual evolution is working. If the ratio shifts toward new content over time, the guest is responding to the complexity ratchet."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Autotelic Family Context section",
+          "type": "book",
+          "quote": "Clarity... challenge.",
+          "insight": "The stable skeleton provides clarity (guest knows where to look). The 'what changed' indicator provides challenge visibility. If the indicator is not noticed, challenge is invisible despite being present in the data."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track first-interaction-target per Stays Manager visit: does the guest first interact with a new content element (review prompt, milestone, action item) or a static element (lease terms, host contact, House Manual)? Calculate the new-content-first rate across the lease lifecycle. Track 'what changed' indicator click/tap rate.",
+      "success_criteria": "New-content-first rate is 60% or higher across all visits. 'What changed since last visit' indicator tap rate is 40% or higher. Engagement with new content elements is higher than engagement with static reference elements by mid-lease (week 6+).",
+      "failure_meaning": "Low new-content-first rate means new elements are visually subordinate to static elements. The 'what changed' indicator may be too subtle (pulse too gentle, position too low on page). Increase the visual weight of fresh content: larger animation, higher contrast, or position swap (new content above static content).",
+      "implementation_hint": "Log first_interaction_element per visit with a classification of new vs. static. Build a weekly heatmap showing which page zone receives the first interaction. If static zones win, new content is not visually prominent enough."
+    },
+    {
+      "id": "tests-1831-020",
+      "type": "validation_strategy",
+      "title": "Trust Signal Visual Grammar: Cross-Context Recognition Speed",
+      "validates_element": "looks-006",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the trust badge visual grammar is inconsistent across phases, the guest cannot build a System 1 association between the visual pattern and credibility. Each phase's trust signals look different, requiring conscious evaluation every time -- preventing the automatic trust response that enables flow.",
+      "solution": "Measure recognition speed: show participants trust badges from different phases (discovery ambient pills, search card badges, listing detail sections, proposal reassurance copy) in random order. Time how quickly they identify each as a trust signal. If the grammar is consistent, recognition should be fast and phase-independent.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "A skeptical guest who sees verified reviews, ID checks, and real host history doesn't need the platform to convince them.",
+          "insight": "Conviction speed is the metric. If trust badges are recognized instantly (consistent grammar), the guest moves from skepticism to confidence faster at each phase."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Autotelic Family Context section",
+          "type": "book",
+          "quote": "Commitment, or the trust that allows the child to feel comfortable enough to set aside the shield of defenses.",
+          "insight": "Recognition speed of trust signals determines how quickly the guest lowers their defenses. Inconsistent grammar means the shield stays up longer at each phase transition."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Rapid-identification test with 8-10 participants. Show 12 UI elements from across all phases (4 trust badges, 4 content elements, 4 navigation elements) in random order, each for 2 seconds. Ask participants to tap 'trust signal' or 'not trust signal.' Measure accuracy and reaction time for trust badges across different phase contexts.",
+      "success_criteria": "Trust badges are correctly identified with 85% or higher accuracy across all phase contexts. Average reaction time for trust badge identification is under 1.5 seconds. No statistically significant difference in recognition speed between phases (grammar is phase-independent).",
+      "failure_meaning": "Low accuracy at specific phases means the trust badge at that phase deviates from the visual grammar. Variable reaction times across phases mean the grammar is not consistent. Audit the specific trust badge implementation at each phase against the canonical pattern (shield-check icon + pill + text label).",
+      "implementation_hint": "Create a visual audit checklist: for each phase, capture the trust badge as implemented and compare against the canonical specification (icon size, pill color, text size, label font weight). Any deviation is a grammar violation that should be corrected before testing."
+    },
+    {
+      "id": "tests-1831-021",
+      "type": "validation_strategy",
+      "title": "Real-Time Visual Micro-Feedback: Perceived System Responsiveness",
+      "validates_element": "looks-007",
+      "journey_phases": ["search", "proposal_creation", "negotiation", "active_lease"],
+      "problem": "If the visual feedback layer is absent, every action feels like shouting into a void. The guest clicks a button with no scale pulse, applies a filter with no card animation, submits a proposal with no progress indicator. The system feels dead, and the guest cannot tell if their actions are working.",
+      "solution": "Measure perceived system responsiveness via a post-task survey question ('How responsive did the interface feel? 1-5') and behavioral proxy (repeat-click rate -- guests who click the same button twice because they did not perceive the first response). Compare with and without the micro-feedback layer.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "Clear clues as to how well one is performing.",
+          "insight": "Repeat-click rate is the inverse of 'clear clues.' A guest who clicks twice did not receive a clear clue that the first click registered. The feedback layer eliminates repeat-clicks."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'The map should feel alive' section",
+          "type": "host_call",
+          "quote": "The feeling that something is happening.",
+          "insight": "Perceived responsiveness IS the feeling that something is happening. A 5/5 responsiveness score means the guest feels the system is alive and listening."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control has no micro-feedback (standard browser defaults). Treatment has the full feedback layer (button pulse, filter card animation, progress indicators, waiting-state pulses). Measure: (1) perceived responsiveness (post-task survey 1-5), (2) repeat-click rate, (3) task completion confidence.",
+      "success_criteria": "Treatment group rates perceived responsiveness at 4.0 or higher (vs. expected 3.0 in control). Repeat-click rate decreases by 50% or more. Task completion confidence increases measurably.",
+      "failure_meaning": "If responsiveness scores do not improve, the micro-feedback may be too subtle (animations too brief or too small) or too busy (too many simultaneous animations competing for attention). Test each feedback type in isolation before combining them.",
+      "implementation_hint": "Implement the button pulse first (most universally applicable, easiest to test). Measure repeat-click rate before and after. If the pulse alone reduces repeat-clicks, layer additional feedback types one at a time."
+    },
+    {
+      "id": "tests-1831-022",
+      "type": "validation_strategy",
+      "title": "Sub-200ms Direct Action Response: Perceived Latency",
+      "validates_element": "behaves-001",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "If action acknowledgment exceeds 200ms, the guest consciously wonders 'did that work?' -- an irrelevant thought that breaks flow concentration. The two-phase cascade (acknowledgment then resolution) must deliver the first signal within the perceptual threshold for causation.",
+      "solution": "Measure actual response times for all direct interactions (click, hover, type, filter) using performance monitoring. Verify that 95th percentile acknowledgment time is under 200ms. Supplement with a perceived-latency test: participants rate whether each interaction felt 'instant' or 'delayed.'",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "Concentration is so intense that there is no attention left over to think about anything irrelevant.",
+          "insight": "Any response gap above 200ms forces the thought 'did that work?' -- which is an irrelevant thought that spends attentional resources. The 200ms threshold is where causation perception breaks."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Listing cards want more layers' section",
+          "type": "host_call",
+          "quote": "Richer hover states... all without leaving the search grid.",
+          "insight": "Hover states must respond within the perceptual causation window or the guest does not connect their action (hovering) to the system response (new data appearing). The feedback feels coincidental rather than causal."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated performance monitoring: instrument all direct-interaction response times (button click to acknowledgment, hover to Tier 2 reveal, filter change to card animation start, field focus to focus ring appearance). Report 50th, 90th, and 95th percentile. Alert if 95th percentile exceeds 200ms for any interaction type. Supplement with 10-participant perceived-latency test: after 20 interactions, rate each as 'instant' or 'delayed.'",
+      "success_criteria": "95th percentile acknowledgment time is under 200ms for all direct interactions. Resolution phase completes within 500ms for direct actions and 2000ms for computed feedback. In the perceived-latency test, 90% of interactions are rated as 'instant.'",
+      "failure_meaning": "If acknowledgment exceeds 200ms, identify the bottleneck: is it render time, network latency, or JavaScript execution? If the acknowledgment animation itself is fast but the triggering event is slow (debounced handlers, lazy-loaded content), optimize the event pipeline. If perceived latency is poor despite fast actual times, the animation may lack visual impact -- increase the feedback magnitude (larger pulse, more contrast).",
+      "implementation_hint": "Use the Performance Observer API to measure time from user-interaction event to first paint of the acknowledgment state. Log all measurements to an analytics dashboard with 200ms and 500ms threshold lines."
+    },
+    {
+      "id": "tests-1831-023",
+      "type": "validation_strategy",
+      "title": "Contextual Continuity Preservation: State Integrity Across All Transitions",
+      "validates_element": "behaves-002",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If state preservation fails for any single transition type, the guest's accumulated search context (scroll position, filters, map state, viewed listings) is lost. The cost is not just inconvenience but the destruction of a mental model that took minutes of engaged exploration to build.",
+      "solution": "Automated state-integrity testing: for each transition type (search-to-listing, listing-to-proposal, auth modal, back navigation), verify that all state variables are preserved exactly. Manual session replay to catch edge cases the automated tests miss.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible' section",
+          "type": "host_call",
+          "quote": "Users don't lose search context.",
+          "insight": "State integrity is a binary test per state variable: preserved or lost. Every lost variable is a context rupture."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "Concentration is so intense that there is no attention left over to think about anything irrelevant.",
+          "insight": "Each lost state variable forces irrelevant processing: re-scrolling, re-filtering, re-positioning the map. The automated test ensures zero irrelevant processing per transition."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "End-to-end automated test suite covering all transition types. For each transition: (1) set a known state (specific scroll Y, specific filters, specific map center/zoom, specific viewed listings), (2) trigger the transition, (3) complete the sub-task (view listing, start proposal, complete auth), (4) trigger back-navigation, (5) verify all state variables match the pre-transition values exactly. Run on every deployment.",
+      "success_criteria": "100% of state variables are preserved across every transition type in every test run. No regression across deployments. Specifically: scroll position restored to within 5px, filter selections identical, map center/zoom identical, viewed-listings list unchanged.",
+      "failure_meaning": "Any state variable loss is a regression that must be fixed before deployment. The most common failure modes: scroll position reset on back-navigation (missing sessionStorage persistence), filter state lost during auth (modal dismissal clears parent page state), map zoom reset on listing panel close (map component re-renders instead of preserving state).",
+      "implementation_hint": "Use Playwright or Cypress for the automated suite. Create a state-snapshot function that captures all relevant state variables before and after each transition. Assert exact equality on comparison. Add this to the CI pipeline as a required check."
+    },
+    {
+      "id": "tests-1831-024",
+      "type": "validation_strategy",
+      "title": "Challenge-Skill Escalation: Behavioral Detection Threshold Calibration",
+      "validates_element": "behaves-003",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the behavioral detection thresholds are miscalibrated, the system either surfaces intermediate actions too early (overwhelming the guest before they are ready) or too late (the guest has already abandoned before the intermediate challenge appeared).",
+      "solution": "Analyze the distribution of guest behavior signals (hover count, scroll depth, dwell time) relative to the configured thresholds. Compare abandonment rates in the threshold window (just before the intermediate action appears) vs. just after. Adjust thresholds based on observed behavior patterns.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "Neither boredom nor anxiety are positive experiences, so Alex will be motivated to return to the flow state.",
+          "insight": "The threshold calibration determines whether the intermediate challenge arrives during boredom (too late -- the guest has already disengaged) or during anxiety (too early -- the guest is overwhelmed). The optimal moment is the transition point between initial flow (A1) and emerging boredom (A2)."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Messaging before proposals' section",
+          "type": "host_call",
+          "quote": "Having the option is better than having no action at all.",
+          "insight": "The option (messaging) must appear when the guest wants it. Behavioral signals (extended dwell, deep scroll, repeated card hovers) indicate the guest has absorbed current-level information and is ready for the next challenge."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "For each threshold (3 hovers for Tier 2, 60% scroll for Message Host prominence, 90s dwell for Proposal button elevation): (1) measure the distribution of guest behavior relative to the threshold, (2) calculate abandonment rate in the 30-second window before and after threshold trigger, (3) measure adoption rate of the surfaced action. Iterate thresholds to minimize pre-threshold abandonment while maintaining post-threshold adoption.",
+      "success_criteria": "Abandonment rate in the 30-second window before threshold trigger is under 10%. Adoption rate of the surfaced intermediate action (message, save, compare) is above 20% among guests who trigger the threshold. Returning guests trigger thresholds faster (lower absolute counts, shorter dwell times) due to accumulated skill.",
+      "failure_meaning": "High pre-threshold abandonment means the threshold is too high -- the guest has already lost interest before the intermediate action appears. Low post-threshold adoption means the action surfaced is not compelling or not visible enough. Adjust thresholds downward and increase visual prominence of the surfaced action.",
+      "implementation_hint": "Start with generous thresholds (low counts, short dwell times) and increase gradually. It is better to show the intermediate action too early (slightly premature but available) than too late (the guest has already left). Use event-stream analysis to find the natural breakpoints in guest behavior that correspond to readiness signals."
+    },
+    {
+      "id": "tests-1831-025",
+      "type": "validation_strategy",
+      "title": "Stays Manager Interaction Surface: Phase-Appropriate Action Availability",
+      "validates_element": "behaves-004",
+      "journey_phases": ["active_lease"],
+      "problem": "If the three-phase interaction surface is not correctly gated by lease week, guests see complexity inappropriate to their skill level. Week-1 guests see narrative review prompts (too complex). Week-10 guests see only the orientation checklist (too simple). The challenge-skill mismatch breaks the flow.",
+      "solution": "Audit the interaction surface at each lifecycle phase by testing with accounts at specific lease weeks. Verify that Phase 1 (weeks 1-3), Phase 2 (weeks 4-9), and Phase 3 (weeks 10-13) present the correct interaction set and that no future-phase interactions leak into earlier phases.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Autotelic Family Context section",
+          "type": "book",
+          "quote": "Challenge, or the parents' dedication to provide increasingly complex opportunities for action to their children.",
+          "insight": "Phase-appropriate interactions ARE the increasingly complex opportunities. If week-1 shows week-10 actions, complexity is premature. If week-10 shows week-1 actions, the guest is bored."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "It is this dynamic feature that explains why flow activities lead to growth and discovery.",
+          "insight": "The dynamic feature is the phase transition. If the audit reveals that interactions do not change between phases, the dynamic feature is missing and growth/discovery is impossible."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Create test accounts at lease weeks 1, 3, 5, 8, 10, and 13. For each: load the Stays Manager and verify: (1) which interaction elements are visible (checklist, review prompts, date change tool, timeline, renewal card), (2) which elements are absent (future-phase elements should not appear), (3) which elements have transitioned from one visual state to another (checklist items from unchecked to checked, timeline from partial to more filled). Run on every deployment.",
+      "success_criteria": "Week 1: orientation checklist visible, review prompts absent, renewal card absent. Week 5: micro-review prompt visible, checklist completed or hidden, date change tool at standard prominence. Week 10: cumulative review prompt visible, renewal consideration card visible, timeline nearly complete. 100% accuracy in phase-appropriate element visibility across all test accounts.",
+      "failure_meaning": "Any out-of-phase element is a lifecycle engine bug. Trace the logic that determines lease week from the current date and lease start date. Common failure: timezone mismatches causing week-number drift, or calendar-based triggers that fire on UTC midnight rather than the guest's local timezone.",
+      "implementation_hint": "Create a lifecycle phase calculator function that takes lease_start_date and current_date and returns the phase (1, 2, or 3) and the specific week number. Unit-test this function exhaustively. Then verify that the Stays Manager's content rendering respects the phase output."
+    },
+    {
+      "id": "tests-1831-026",
+      "type": "validation_strategy",
+      "title": "Cross-Activation Conversational Framing: Social Context Impact",
+      "validates_element": "behaves-005",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation", "active_lease"],
+      "problem": "If cross-activation interactions remain transactional (text box + submit button), the guest does not feel they are communicating with a person. Messages are vague, proposals are incomplete, reviews are perfunctory. The social flow potential of these moments is unrealized.",
+      "solution": "Measure message quality (word count, question inclusion, specific listing references), proposal quality (structured field completeness), and review quality (detail level, narrative vs. one-word) before and after adding social context to each interaction. Supplement with qualitative interviews asking 'Who were you writing to?'",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "The platform is the medium. When a guest messages a host, that's the moment two strangers begin to trust each other.",
+          "insight": "If guests describe writing to 'Jessica' (the host) rather than 'the platform,' the social framing is working. If they describe 'submitting a message,' it is not."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section (agon)",
+          "type": "book",
+          "quote": "What each person seeks is to actualize her potential.",
+          "insight": "Higher-quality messages, proposals, and reviews indicate that the guest is investing more skill in the interaction -- 'actualizing their potential' as a communicator rather than minimizing effort."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Before/after analysis: measure message quality metrics (average word count, percentage containing a question, percentage referencing the specific listing), proposal completeness (percentage of optional fields populated), and review quality (average word count, percentage with narrative text vs. rating-only) before and after adding social context (host profile, response time, quality hints, host-view preview).",
+      "success_criteria": "Average message word count increases by 30% or more. Percentage of messages containing a specific question increases to 60% or higher. Proposal optional-field completion rate increases to 70% or higher. Review average word count increases by 40% or more.",
+      "failure_meaning": "If quality does not improve, the social context may not be prominent enough or may be adding cognitive load rather than social motivation. Conduct qualitative interviews to understand whether guests noticed the host profile and response time, and whether it influenced what they wrote.",
+      "implementation_hint": "Start by adding the host's photo and name to the message composer. Measure message quality before and after this single change. If it works, add response time indicator. If that works, add suggested topics. Layer social context incrementally and measure each addition's impact."
+    },
+    {
+      "id": "tests-1831-027",
+      "type": "validation_strategy",
+      "title": "Error Recovery as Flow Redirection: Productive Recovery Rate",
+      "validates_element": "behaves-006",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "If error states terminate the guest's flow without a productive redirect, every error becomes an exit point. The guest hits a dead end and leaves rather than recovering. The platform's error states become its most effective exit doors.",
+      "solution": "Track error-to-recovery rate: the percentage of guests who encounter an error and take a productive next action (retry, view alternative, try different input) rather than leaving the page or abandoning the session. Compare current error states against redesigned error states with productive redirects.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "Neither boredom nor anxiety are positive experiences, so Alex will be motivated to return to the flow state. How is he to do it?",
+          "insight": "The productive redirect answers Csikszentmihalyi's question: 'How to return to flow.' The recovery rate measures whether the answer is actually provided -- whether the error state gives the guest a path back to engagement."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "host_call",
+          "quote": "Show something useful first.",
+          "insight": "Error states must show something useful (the redirect) alongside the error message (the ask). Error states that are all-ask, no-value function as exit doors."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "For each error type (zero search results, listing unavailable, proposal submission failure, message send failure, auth failure, payment error), track: (1) error occurrence rate, (2) productive recovery rate (guest takes a redirect action within 30 seconds), (3) session continuation rate (guest remains on the platform for 60+ seconds after the error), (4) error-to-exit rate (guest leaves within 30 seconds of the error).",
+      "success_criteria": "Productive recovery rate is 60% or higher across all error types. Error-to-exit rate is below 30% for all error types. Session continuation rate after error recovery is 70% or higher. No user input is ever lost due to an error (verified through automated testing).",
+      "failure_meaning": "Low recovery rate for a specific error type means that error's redirect is not compelling or not visible. High exit rate means the error state is perceived as terminal. Audit each low-performing error state: is the redirect action visible? Is it specific to the guest's context? Is user input preserved?",
+      "implementation_hint": "Log error_type, redirect_shown, redirect_clicked, and session_continued for every error event. Build a per-error-type funnel: error > redirect shown > redirect clicked > session continued. Identify error types with the highest exit rates and redesign those first."
+    },
+    {
+      "id": "tests-1831-028",
+      "type": "validation_strategy",
+      "title": "Value-Before-Investment Gate: Auth Trigger Appropriateness",
+      "validates_element": "behaves-007",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "If auth is triggered for low-intent actions (browsing, viewing listings) or appears as a full-page redirect rather than an inline modal, the gate becomes a wall. The guest perceives the platform as demanding identity before offering value, which is indistinguishable from the paramount reality of everyday web browsing.",
+      "solution": "Audit all auth trigger points to verify that auth only appears on high-intent actions (message, save, propose, review). Monitor: time from first visit to auth encounter, and whether auth trigger preserves the guest's current context.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible' section",
+          "type": "host_call",
+          "quote": "High-intent actions trigger it -- messaging, proposing -- nothing else.",
+          "insight": "The testable criterion is explicit: auth must trigger only on messaging, proposing, saving, and reviewing. Any other trigger point is a violation."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "They facilitate concentration and involvement by making the activity as distinct as possible from the paramount reality.",
+          "insight": "A sign-up gate IS the paramount reality. The test validates that the guest can explore extensively without encountering it, making the platform distinct from every other sign-up-first website."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated audit: crawl all guest-facing pages as an unauthenticated user. Attempt every interaction (search, filter, map, view listing, view reviews, view host profile). Verify that no auth gate appears. Then attempt each high-intent action (message, save, propose) and verify that the inline auth modal appears correctly. Measure: (1) number of non-auth-gated interactions available, (2) auth modal type (inline vs. redirect), (3) post-auth state restoration.",
+      "success_criteria": "100% of browse/search/view interactions are available without auth. Auth appears only on message, save, propose, and review actions. Auth is always inline modal, never full-page redirect. Post-auth action execution happens within 500ms. Zero pages redirect to a /login URL.",
+      "failure_meaning": "Any auth trigger on a browse/search/view action is a gate violation. Any full-page redirect to /login is a context-destruction violation. Any post-auth delay above 500ms means the original action intent is not being preserved through the auth flow.",
+      "implementation_hint": "Create an auth-trigger map: list every clickable element on every guest-facing page and classify it as auth-required or not. Any element classified as auth-required that is not message/save/propose/review should be reclassified. Run the automated crawl against this map on every deployment."
+    },
+    {
+      "id": "tests-1831-029",
+      "type": "validation_strategy",
+      "title": "Discovery Emotional Entry: Curiosity vs. Skepticism",
+      "validates_element": "feels-001",
+      "journey_phases": ["discovery", "search"],
+      "problem": "If the discovery experience fails emotionally, the guest's first emotion is skepticism rather than curiosity. They perceive the platform as another website demanding something from them, not as a distinct world worth exploring. The flow channel never opens.",
+      "solution": "Conduct first-impression interviews: recruit participants who have never seen the platform, show them the landing page for 10 seconds, then ask them to describe their emotional reaction in one word and explain what they expect to happen next. Score responses as curiosity-oriented or skepticism-oriented.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "host_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them.",
+          "insight": "If participants' first word is 'interesting' or 'curious,' the platform is showing value first. If it is 'suspicious' or 'typical,' the platform is showing mechanism first."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "Making the activity as distinct as possible from the paramount reality of everyday existence.",
+          "insight": "Curiosity is the emotional signal that the platform feels distinct. Skepticism is the emotional signal that it feels like the paramount reality. The one-word emotional response directly measures distinctiveness."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Remote first-impression test with 10-12 participants (never seen the platform). Show landing page for 10 seconds. Ask: (1) 'In one word, how does this make you feel?', (2) 'What do you think you can do here?', (3) 'Would you keep exploring? Why or why not?' Code responses as curiosity-oriented (curious, interested, intrigued, hopeful) or skepticism-oriented (suspicious, confused, bored, typical).",
+      "success_criteria": "70% or more of participants give a curiosity-oriented one-word response. 80% correctly identify the platform's purpose (finding rooms/housing) without instruction. 75% say they would continue exploring. Fewer than 10% use the word 'typical' or 'generic.'",
+      "failure_meaning": "Skepticism-dominant responses mean the landing page is not distinct from everyday web browsing. Check: are real listings visible above the fold? Is any marketing copy preceding the listings? Is a sign-up form visible? Eliminate all elements that make the platform feel like 'another website' and lead with real listing content.",
+      "implementation_hint": "Run as an unmoderated remote test. Show a screenshot or live page for exactly 10 seconds, then redirect to the survey. Analyze one-word responses as a word cloud to identify dominant emotional themes."
+    },
+    {
+      "id": "tests-1831-030",
+      "type": "validation_strategy",
+      "title": "Search Absorption: Session Depth and Time-Loss",
+      "validates_element": "feels-002",
+      "journey_phases": ["search"],
+      "problem": "If search feels like scrolling a catalog rather than active discovery, the guest never reaches the absorption state where they lose track of time. They scan superficially, see nothing that rewards deeper attention, and leave without evaluating any listing in depth.",
+      "solution": "Measure flow proxies during search: session duration, scroll depth, number of card interactions (hovers, clicks), and map interactions. Post-search, ask participants: 'Did you lose track of time?' The combination of behavioral depth and subjective time-distortion indicates absorption.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "The sense of time becomes distorted.",
+          "insight": "Time distortion is a hallmark of flow. If guests report that 10 minutes of searching felt like 5, they experienced absorption. If 10 minutes felt like 15, they experienced boredom."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Listing cards want more layers' section",
+          "type": "host_call",
+          "quote": "The current card works but it's leaving engagement on the table.",
+          "insight": "Engagement left on the table is measurable through session depth. Shallow sessions (few hovers, few clicks, short duration) indicate that cards are not rewarding deeper attention."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Analyze search session data: (1) session duration distribution, (2) interaction depth (hovers per session, unique cards clicked, map interactions), (3) post-session survey (sample 5% of search sessions with a 2-question pop-up: 'Did you find what you were looking for?' and 'Did time pass quickly or slowly?'). Segment by new vs. returning visitors.",
+      "success_criteria": "Median search session duration exceeds 5 minutes. Average hovers per session exceed 8 cards. At least 40% of search sessions include a map interaction. In the post-session survey, 60% of respondents report time passing 'quickly' or 'very quickly.'",
+      "failure_meaning": "Short sessions with few interactions indicate the search experience is not rewarding exploration. If map interactions are low, the map is not perceived as alive or useful. If time passes slowly, the guest is bored -- the card/map feedback is not sufficient to create absorption. Prioritize the living map and progressive card density implementations.",
+      "implementation_hint": "Instrument session-level metrics: session_start, session_end, cards_hovered, cards_clicked, map_panned, map_zoomed, filters_applied. Build a session-depth score combining these signals. Identify what separates high-depth sessions from low-depth sessions to understand which features drive absorption."
+    },
+    {
+      "id": "tests-1831-031",
+      "type": "validation_strategy",
+      "title": "Messaging as Emotional Bridge: Pre-Proposal Confidence Lift",
+      "validates_element": "feels-003",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If messaging does not build emotional confidence, it becomes a dead-end interaction -- the guest sends a message but does not progress to a proposal. The emotional bridge from evaluation to commitment fails to form because the messaging experience felt transactional rather than connective.",
+      "solution": "Track the message-to-proposal conversion funnel: do guests who message a host subsequently create a proposal for that listing at a higher rate than guests who do not message first? Supplement with a qualitative interview asking messagers whether messaging made them more or less likely to propose.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Messaging before proposals' section",
+          "type": "host_call",
+          "quote": "Once someone messages a host, the path to a proposal gets shorter, not longer.",
+          "insight": "The testable claim: messaging shortens the path to proposal. If message-to-proposal conversion exceeds non-message-to-proposal conversion, the emotional bridge is working."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "In short, it transformed the self by making it more complex.",
+          "insight": "Messaging transforms the guest from solitary evaluator to social participant. If messaging increases proposal confidence, the transformation is occurring -- the guest has developed social skill on the platform."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Cohort analysis: compare proposal creation rates for (A) guests who messaged the host first vs. (B) guests who proposed without messaging. Control for listing quality, price range, and guest search depth. Calculate message-to-proposal conversion rate, time-to-proposal after messaging, and proposal quality metrics.",
+      "success_criteria": "Guests who message first create proposals at 2x or higher the rate of those who do not. Time from first message to proposal is under 48 hours for 60% of messagers. Proposals from guests who messaged first are rated higher in completeness (85%+ structured field completion).",
+      "failure_meaning": "If messaging does not lift proposal rates, the messaging experience may not be building confidence. Check: is the host responding? (Low host response rate means the bridge is broken on the host side.) Does the reply add information the guest needed? Conduct qualitative interviews with guests who messaged but did not propose to understand the gap.",
+      "implementation_hint": "Tag each proposal with whether the guest messaged the same host within the prior 7 days. Build a comparison dashboard showing conversion rates, time-to-proposal, and proposal quality for messagers vs. non-messagers."
+    },
+    {
+      "id": "tests-1831-032",
+      "type": "validation_strategy",
+      "title": "Proposal Confidence: Post-Submission Emotional State",
+      "validates_element": "feels-004",
+      "journey_phases": ["proposal_creation"],
+      "problem": "If the proposal experience generates anxiety rather than confidence, the guest submits but immediately regrets -- second-guessing their dates, their price, their message. This post-submission anxiety reduces their engagement with the waiting period and may cause premature withdrawal.",
+      "solution": "Post-proposal micro-survey (1 question, appears 5 seconds after submission): 'How confident do you feel about this proposal? 1-5.' Track the score distribution and correlate with proposal outcomes (accepted, countered, rejected, withdrawn).",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Autotelic Personality section",
+          "type": "book",
+          "quote": "A person who is constantly worried about how others will perceive her... is also condemned to permanent exclusion from enjoyment.",
+          "insight": "Post-submission confidence is the inverse of self-consciousness. A score of 4-5 means the guest feels the proposal represents them well. A score of 1-2 means they are worried about how the host will perceive them."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "A well-structured proposal activates the host to respond.",
+          "insight": "Confident guests produce better-structured proposals. Confidence score should correlate with proposal quality and host response speed."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Display a single-question micro-survey 5 seconds after proposal submission: 'How confident do you feel about this proposal? (1-5).' Track: (1) confidence score distribution, (2) correlation between confidence and proposal outcome, (3) correlation between confidence and withdrawal rate, (4) change in confidence scores before and after implementing the pre-populated form and host-view preview.",
+      "success_criteria": "Average confidence score is 4.0 or higher. Proposals with confidence 4-5 are accepted at 20% or more higher rate than proposals with confidence 1-3. Withdrawal rate for confidence-4-5 proposals is under 5%.",
+      "failure_meaning": "Low average confidence means the proposal experience is not reducing self-consciousness. Check: are fields pre-populated? Is the host-view preview visible before submission? Is the 'you can modify before acceptance' reassurance copy present? Each missing component contributes to anxiety.",
+      "implementation_hint": "Implement the micro-survey as a non-blocking toast that appears after the submission confirmation. Keep it to exactly 1 question with a 5-point scale. No text input. The goal is maximum response rate with zero friction."
+    },
+    {
+      "id": "tests-1831-033",
+      "type": "validation_strategy",
+      "title": "Negotiation as Collaborative Game: Agency vs. Powerlessness",
+      "validates_element": "feels-005",
+      "journey_phases": ["negotiation"],
+      "problem": "If negotiation feels like a take-it-or-leave-it ultimatum, the guest experiences powerlessness -- the alienation condition Csikszentmihalyi describes. They either accept terms they do not want (resentment) or reject terms that could have been modified (lost opportunity).",
+      "solution": "Post-negotiation survey asking about perceived agency: 'How much control did you feel you had over the outcome? (1-5).' Track modification option usage as a behavioral proxy for agency. Conduct qualitative interviews to understand whether guests felt they were 'seeking together' with the host or being dictated to.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow and Culture section",
+          "type": "book",
+          "quote": "Alienation is a condition in which people are constrained by the social system to act in ways that go against their goals.",
+          "insight": "A control score of 1-2 indicates platform-imposed alienation: the guest felt constrained. A score of 4-5 indicates agency: the guest felt they could shape the outcome."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section (agon)",
+          "type": "book",
+          "quote": "The roots of the word 'compete' are the Latin con petire, which meant 'to seek together.'",
+          "insight": "Qualitative responses that describe the negotiation as collaborative ('we worked it out') validate the agonistic framing. Responses that describe it as adversarial ('I had to accept') indicate the framing failed."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Post-negotiation survey (2 questions): (1) 'How much control did you feel over the outcome? (1-5)', (2) 'Would you describe this negotiation as collaborative or one-sided?' Quantitative: track modification option usage rate, negotiation completion rate, and post-negotiation satisfaction. Qualitative: 5-7 in-depth interviews with guests who completed a negotiation.",
+      "success_criteria": "Average control score is 3.5 or higher. 60% or more describe the negotiation as collaborative. Modification option usage is 20% or higher. Negotiation completion rate (not abandoned) is 70% or higher.",
+      "failure_meaning": "Low control scores mean the guest felt powerless. Check: is the modification option visible and accessible? Does the market context data help the guest evaluate the counter-offer? Are there more than 2 action options (accept, modify, decline with message)? If 'one-sided' responses dominate, the collaborative framing is not reaching the guest -- the copy and visual design need revision.",
+      "implementation_hint": "Add the survey as a 2-question modal that appears 5 seconds after negotiation completion (acceptance, modification sent, or decline). Keep response rate high by making it minimal and quick."
+    },
+    {
+      "id": "tests-1831-034",
+      "type": "validation_strategy",
+      "title": "Acceptance as Transformation: Emotional Transition Test",
+      "validates_element": "feels-006",
+      "journey_phases": ["acceptance", "move_in"],
+      "problem": "If acceptance is reduced to a transactional confirmation, the guest's emotional state after acceptance is deflation rather than accomplishment. They do not feel transformed by the journey they completed. The post-acceptance vacuum breeds anxiety about what comes next.",
+      "solution": "Post-acceptance micro-survey: 'How do you feel right now? (1) Relieved, (2) Excited, (3) Anxious, (4) Accomplished, (5) Uncertain.' Track whether the two-beat design (celebration + orientation) shifts responses from anxiety/uncertainty toward accomplishment/excitement.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "It transformed the self by making it more complex. In this growth of the self lies the key to flow activities.",
+          "insight": "Accomplishment and excitement indicate the guest feels the self-transformation Csikszentmihalyi describes. Anxiety and uncertainty indicate the transformation was not acknowledged and the guest feels adrift."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "A4, although complex and enjoyable, does not represent a stable situation, either.",
+          "insight": "High anxiety after acceptance means the orientation beat (what happens next) is failing. The guest is at A4 with no visible next challenge. The timeline and move-in checklist must be immediately visible."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Display a 1-question emotional-state survey 10 seconds after acceptance: 'How do you feel right now?' with 5 emotion options (Relieved, Excited, Anxious, Accomplished, Uncertain). Track distribution. Also measure: (1) time from acceptance to first next-step action (viewing lease documents, accessing House Manual), (2) whether the 'what happens next' timeline was viewed.",
+      "success_criteria": "Accomplished + Excited responses exceed 60% combined. Anxious + Uncertain responses are below 25% combined. 80% of guests view the 'what happens next' timeline within 30 seconds of acceptance. Time to first next-step action is under 2 minutes.",
+      "failure_meaning": "High anxiety/uncertainty means the celebration beat is too brief or absent, and the orientation beat is not visible. If the timeline is not viewed, it may be below the fold or overshadowed by the confirmation dialog. If time-to-next-action is long, the guest does not know what to do after acceptance -- the orientation content is not actionable enough.",
+      "implementation_hint": "Implement the celebration beat as a full-width confirmation card with the listing photo and agreed terms. Implement the orientation beat as an immediately visible timeline below the card. Survey appears as a non-blocking toast after 10 seconds. Do not require action on the survey to proceed."
+    },
+    {
+      "id": "tests-1831-035",
+      "type": "validation_strategy",
+      "title": "Stays Manager Weekly Ritual: Emotional Engagement Over Time",
+      "validates_element": "feels-007",
+      "journey_phases": ["active_lease"],
+      "problem": "If the Stays Manager does not evolve emotionally, it becomes a chore the guest tolerates rather than a ritual they anticipate. Emotional disengagement leads to behavioral disengagement: fewer reviews, fewer on-platform messages, and drift to off-platform coordination.",
+      "solution": "Track emotional engagement proxies across the 13-week lifecycle: unprompted return visits (visits not triggered by a notification), on-platform message initiation rate, review prompt engagement rate, and time spent on the page beyond minimum required actions. Supplement with a mid-lease and end-of-lease NPS survey.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "One cannot enjoy doing the same thing at the same level for long.",
+          "insight": "Declining unprompted visit rate indicates boredom. Stable or increasing unprompted visits indicate that the evolving content creates anticipation -- the guest visits to see what is new, not because they have to."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "Every review is a past guest activating a future one.",
+          "insight": "Review engagement rate across the lease lifecycle is the most direct measure of whether the Stays Manager sustains the emotional energy for community contribution. Declining review engagement means the guest has emotionally checked out."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Longitudinal cohort analysis across full lease lifecycles. Track weekly: (1) unprompted visits (visits not within 1 hour of a notification), (2) on-platform message initiation, (3) review prompt interaction rate (shown vs. engaged), (4) time on page, (5) off-platform communication indicators (if detectable). Mid-lease NPS survey at week 7. End-of-lease NPS at week 13.",
+      "success_criteria": "Unprompted visit rate does not decline more than 20% from week 3 to week 10. Review prompt engagement rate exceeds 50% throughout the rhythm phase (weeks 4-9). Mid-lease NPS exceeds 40. End-of-lease NPS exceeds 50. On-platform messaging does not decrease more than 25% from weeks 1-3 to weeks 7-9.",
+      "failure_meaning": "Declining unprompted visits mean the guest has stopped expecting novelty. Declining review engagement means the review prompts feel like obligations. Low NPS means the Stays Manager is perceived as a utility, not a valuable experience. All of these indicate that the emotional evolution (orientation > rhythm > reflection) is not perceived by the guest.",
+      "implementation_hint": "Tag each Stays Manager visit with notification_triggered (boolean) to distinguish prompted from unprompted visits. Track NPS with a single-question survey at weeks 7 and 13. Build a lifecycle engagement dashboard showing all metrics on a per-week timeline."
+    },
+    {
+      "id": "tests-1831-036",
+      "type": "validation_strategy",
+      "title": "Concentration Protection: Flow State Survival Rate Across Interruptions",
+      "validates_element": "feels-008",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If platform mechanics (auth, page loads, errors) break the guest's concentration, the flow state that took minutes to build is destroyed. The guest must rebuild from scratch, if they return at all. The emotional cost is disproportionate to the technical cause.",
+      "solution": "Measure flow-state survival rate: the percentage of engaged sessions (3+ listings viewed, 2+ minutes of search activity) that maintain engagement after an interruption (auth trigger, page transition, error). Compare session depth before and after each interruption type.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, opening paragraph",
+          "type": "book",
+          "quote": "Concentration is so intense that there is no attention left over to think about anything irrelevant.",
+          "insight": "Flow survival rate is measurable: if the guest continues their task (views more listings, adjusts their search, progresses toward a proposal) within 30 seconds of an interruption, the flow state survived. If they leave or restart from scratch, it did not."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible' section",
+          "type": "host_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "Flow survival through auth is the highest-priority test case. If the inline modal preserves the flow state, the guest continues immediately. If a redirect destroys it, the guest may never return to their prior engagement level."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Define an 'engaged session' as 3+ listings viewed and 2+ minutes of continuous search activity. For each interruption type (auth modal, search-to-listing transition, listing-to-proposal transition, error display), measure: (1) the percentage of engaged sessions that remain engaged after the interruption (take a meaningful action within 30 seconds), (2) session depth after interruption vs. before, (3) session termination rate within 60 seconds of the interruption.",
+      "success_criteria": "Flow survival rate (meaningful action within 30 seconds of interruption) is 80% or higher for inline transitions (panels, modals, expansions). Session termination rate within 60 seconds of any interruption is below 15%. Post-interruption session depth (remaining interactions) is at least 70% of pre-interruption depth.",
+      "failure_meaning": "Low survival rate for a specific interruption type means that interruption is breaking flow. Compare survival rates across interruption types to identify the worst offenders. Common culprit: auth modal that clears the underlying page state, or listing panel that resets scroll position on dismiss. Each low-survival interruption needs targeted investigation into state preservation.",
+      "implementation_hint": "Define engagement as a rolling window: the guest is 'engaged' if they have taken a meaningful action in the last 60 seconds. Mark each interruption event and check whether the engagement window continues through it. Build a survival-rate chart per interruption type."
+    },
+    {
+      "id": "tests-1831-037",
+      "type": "validation_strategy",
+      "title": "Journey-Level: End-to-End Flow Channel Continuity",
+      "validates_element": "journey_level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Individual elements may each pass their validation, but the overall journey may still fail to sustain flow if phase transitions create cumulative anxiety that no single test captures. The guest's experience is not a sequence of phases but a continuous arc, and the arc must maintain the challenge-skill balance across its entire length.",
+      "solution": "Conduct end-to-end journey tests where participants complete the full guest journey from discovery through active lease (simulated). Measure emotional state at each phase transition using a rapid-response emotion scale. Track whether the emotional arc follows the designed progression: curiosity > absorption > connection > confidence > agency > accomplishment > belonging.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt, Flow Activities section",
+          "type": "book",
+          "quote": "It transformed the self by making it more complex. In this growth of the self lies the key to flow activities.",
+          "insight": "The end-to-end journey should produce a cumulative sense of growth. If the guest at acceptance feels more confident and capable than the guest at discovery, the arc succeeded. If they feel more anxious or confused, the arc failed."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "The trust infrastructure is cross-activation infrastructure.",
+          "insight": "Trust should accumulate across phases. A guest who has seen trust signals at discovery, search, listing evaluation, and proposal should arrive at acceptance with high trust. If trust does not accumulate, the cross-phase trust architecture is failing."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Full-journey moderated usability test with 5-8 participants. Simulate the complete guest journey using a prototype or staging environment: discovery (landing page), search (explore listings), listing evaluation (evaluate 2-3 listings), messaging (message a host), proposal creation (submit a proposal), negotiation (respond to a counter), acceptance (accept terms), Stays Manager (view active lease at simulated week 1, 5, 10). At each phase transition, ask participants to rate their emotion on a 5-point scale across 4 dimensions: confidence, trust, engagement, control. Plot the emotional arc across all 8 phases.",
+      "success_criteria": "Confidence increases monotonically from discovery to acceptance (each phase scores higher than the prior). Trust increases from discovery through proposal creation (accumulating trust signals). Engagement peaks at search and active lease (the two highest-frequency touchpoints). Control never drops below 3 at any phase. No phase produces a combined score drop of more than 1 point from the prior phase (no emotional cliff).",
+      "failure_meaning": "An emotional cliff (score drop > 1 point at a phase transition) identifies the exact transition where the flow channel breaks. Common failure points: listing evaluation to proposal (confidence drops due to form anxiety), negotiation (control drops due to binary accept/reject), acceptance to move-in (engagement drops due to post-acceptance vacuum). Each cliff requires targeted intervention at the specific transition.",
+      "implementation_hint": "Use a simple paper form at each transition: 4 scales (confidence, trust, engagement, control) rated 1-5. Plot results as a line graph with phase on the x-axis and each dimension as a separate line. Cliffs and dips are immediately visible. Run this as a quarterly health check on the journey design."
+    },
+    {
+      "id": "tests-1831-038",
+      "type": "validation_strategy",
+      "title": "Journey-Level: Cross-Phase Coherence Audit Against Coherence Report Findings",
+      "validates_element": "journey_level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "The L6 coherence report identified specific contradictions and warnings: micro-review frequency conflict (weekly vs. batched), token drift between tokens.json and production, trust badge visual grammar inconsistency, and emotional coverage gaps at move-in and negotiation-to-acceptance transition. If these are not resolved, the overall journey lacks coherence even if individual elements are well-designed.",
+      "solution": "Conduct a targeted coherence audit that validates the resolution of each L6 finding. For each contradiction, verify that the adopted resolution is implemented consistently. For each warning, verify that the recommended action was taken. For each coverage gap, verify that the gap is either filled or explicitly accepted.",
+      "evidence": [
+        {
+          "source": "layer-6/coherence-report.json, contradictions section",
+          "type": "data",
+          "quote": "The new element proposes one-tap micro-review prompts after EACH completed stay cycle... The existing element explicitly warns against per-stay review prompts.",
+          "insight": "The hybrid resolution (3-point narrative reviews plus optional one-tap micro-ratings) must be verified as implemented. If only one approach was implemented, the contradiction persists."
+        },
+        {
+          "source": "layer-6/coherence-report.json, arc_conflicts section",
+          "type": "data",
+          "quote": "Move-in has the weakest emotional specification of any phase.",
+          "insight": "The coverage gap at move-in is a known debt. This audit verifies whether the debt is acknowledged and tracked, or whether it has been silently ignored."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Manual audit against the L6 coherence report. For each item: (1) Contradiction -- micro-review frequency: verify the hybrid approach is implemented (3 narrative reviews at weeks 4, midpoint, final PLUS optional one-tap micro-ratings in rhythm phase). (2) Contradiction -- token drift: verify tokens.json matches production CSS variables. (3) Contradiction -- trust badge grammar: verify unified approach (shield-check + pill structure with trust-reserved color). (4) Warning -- negotiation-to-acceptance emotional bridge: verify that acceptance screen acknowledges the negotiation journey. (5) Coverage gap -- move-in: verify whether a dedicated move-in emotional element exists or is planned.",
+      "success_criteria": "All 3 contradictions are resolved with the recommended hybrid/unified approach. Token drift is either resolved or has a documented remediation plan. The move-in coverage gap has either a new element addressing it or an explicit decision to address it in a future run. The negotiation-to-acceptance bridge is visible in the acceptance screen design.",
+      "failure_meaning": "Unresolved contradictions mean the journey will present conflicting experiences to the guest. Unresolved token drift means visual inconsistency across phases. Unacknowledged coverage gaps mean the weakest phases remain unaddressed indefinitely.",
+      "implementation_hint": "Create a checklist from the L6 coherence report with one row per finding. Assign each to an owner. Mark as resolved, in-progress, or deferred-with-rationale. This checklist becomes a standing artifact that future runs update."
+    }
+  ]
+}

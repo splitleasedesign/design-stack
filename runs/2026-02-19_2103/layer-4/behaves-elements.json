@@ -1,0 +1,258 @@
+{
+  "lens": {
+    "guest_call": "user-stories-initial-analysis.md",
+    "book_extract": "campbell-initiation-heros-journey.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Gate-Sequenced Notification Delivery for Move-In Orientation",
+      "journey_phases": ["acceptance", "move_in"],
+      "problem": "The seven-gate move-in orientation (L1, works-002) requires a time-sequenced delivery mechanism that respects the guest's psychological readiness at each stage. Campbell's Inanna does not choose her pace through the gates -- the gatekeeper governs each transition. But the platform must govern this pacing without making the guest feel controlled. Currently, platform notifications arrive based on system events (acceptance confirmed, lease activated), not based on the guest's proximity to move-in. A guest who accepts a proposal 3 weeks before move-in receives the same notification cadence as one who accepts 2 days before. This temporal insensitivity means the seven gates either arrive too early (the guest forgets them by move-in) or too compressed (the guest is overwhelmed with 7 messages in 48 hours). Campbell's gatekeeper delivers each gate's instruction at precisely the threshold moment -- the platform must do the same.",
+      "solution": "Implement a countdown-anchored notification sequence triggered by the move-in date, not the acceptance date. (1) Gate 1 fires at T-48h: neighborhood orientation push notification + in-app card. (2) Gate 2 fires at T-24h: access logistics. (3) Gate 3 fires at T-12h: top 3 house rules. (4) Gate 4 fires at T-0 (move-in morning): arrival confirmation prompt. (5) Gate 5 fires 1 hour after arrival confirmation: full House Manual surfaced. (6) Gate 6 fires at 6pm on move-in day: host check-in prompt. (7) Gate 7 fires at 9am the morning after: first-night debrief prompt. Each gate is delivered as a gate notification card (L3, looks-003) with contextual timing. If the guest does not open a gate notification, it persists as an unread card on their dashboard but does not block subsequent gates -- the descent continues regardless, as Inanna's passage through each gate was not contingent on her understanding why the garment was removed.",
+      "evidence": [
+        {
+          "source": "campbell-initiation-heros-journey.txt, Inanna's Descent (lines 354-356)",
+          "type": "book",
+          "quote": "'Extraordinarily, O Inanna, have the decrees of the nether world been perfected, O Inanna, do not question the rites of the nether world.'",
+          "insight": "The gatekeeper's refrain is non-negotiable: the rite proceeds regardless of the guest's questioning. This maps to the notification sequence being time-anchored rather than engagement-contingent. If the guest does not open Gate 2, Gate 3 still arrives at T-12h. The descent is structured; the guest may engage at their own pace but the structure does not wait."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible until it matters' section",
+          "type": "guest_call",
+          "quote": "Authentication should be invisible until it matters. Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "The same 'invisible until it matters' principle governs gate delivery. Each gate's information matters at a specific temporal proximity to move-in. Delivering neighborhood orientation (Gate 1) 3 weeks early would make it invisible noise. Delivering it 48 hours before makes it immediately relevant. The interaction pattern is: surface information at the moment it matters, not before."
+        },
+        {
+          "source": "campbell-initiation-heros-journey.txt, Road of Trials (lines 22-26)",
+          "type": "book",
+          "quote": "The hero is covertly aided by the advice, amulets, and secret agents of the supernatural helper... Or it may be that he here discovers for the first time that there is a benign power everywhere supporting him in his superhuman passage.",
+          "insight": "The gate notification sequence IS the benign power. It arrives without being requested, provides exactly what is needed at each moment, and supports the guest through the 'superhuman passage' of entering a stranger's home. The guest does not need to seek this information -- it finds them."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "No gate notifications visible. The guest's dashboard shows their upcoming move-in date with a countdown indicator but no orientation content yet.",
+        "loading": "No loading state for individual gates. Each gate notification appears fully formed -- the content is pre-composed from the listing's House Manual and host data. The gate card renders in a single animation frame (fade-in + slide from left, 300ms).",
+        "empty": "If a gate's content is unavailable (e.g., the host has not provided neighborhood info for Gate 1), the gate is skipped silently and the numbering adjusts. The guest never sees an empty gate -- 'the decrees have been perfected' means every gate that fires has content.",
+        "error": "If the notification delivery fails (connectivity issue), the gate card is queued and delivered upon reconnection. A subtle indicator on the dashboard shows 'You have pending orientation messages' until all gates are received.",
+        "success": "Each gate, once opened by the guest, transitions from active (accent left border) to completed (accent-light left border + checkmark on gate number pill). The overall gate sequence shows progress: '4 of 7 gates completed.'"
+      },
+      "transition_principle": "Each gate notification arrives with a gentle entrance animation (fade-in from 0 to 1 opacity over 300ms, combined with a 4px upward slide). The animation communicates arrival without urgency -- the gate is presenting itself, not demanding attention. When the guest opens the notification, the card expands smoothly (200ms ease-out) to reveal full content. Gate completion (marking as read) triggers a subtle left-border color transition (accent to accent-light, 400ms ease-in-out) that communicates progress without celebration.",
+      "timing": {
+        "response_target": "Gate notifications render in under 100ms from trigger time. Each gate's trigger is precise: T-48h, T-24h, T-12h, T-0, T+1h, T+6pm, T+9am. Tolerance: +/- 15 minutes for push notification delivery.",
+        "easing": "Gate entrance: cubic-bezier(0.16, 1, 0.3, 1) (out easing from tokens). Card expansion: cubic-bezier(0.16, 1, 0.3, 1). Border color transition: ease-in-out, 400ms.",
+        "rationale": "The countdown-anchored timing ensures each gate fires at the moment of maximum relevance. Campbell's gatekeeper does not open the gate early or late -- the rite is precisely timed. The platform's timing must feel equally deliberate: the guest receives neighborhood info when they are starting to think about the neighborhood (48h out), not when the system happens to process the acceptance."
+      },
+      "journey_state_awareness": "Pre-move-in: the guest is in a state of anticipatory anxiety. Gates 1-3 address this by converting anxiety into preparation. At move-in (Gate 4): the guest is in peak vulnerability -- the arrival confirmation prompt should be the simplest possible interaction (one tap). Post-move-in (Gates 5-7): the guest has crossed the threshold and is in the Belly of the Whale -- information delivery shifts from preparatory to supportive. The check-in prompt (Gate 6) acknowledges the emotional intensity of the first evening. The first-night debrief (Gate 7) provides the first moment of reflection.",
+      "edge_cases": [
+        "Guest accepts proposal less than 48h before move-in: compress gates 1-3 into a single 'Move-In Preparation' card delivered immediately, with all three categories of information. Gates 4-7 proceed on their normal schedule.",
+        "Guest does not confirm arrival (Gate 4): after 4 hours past expected arrival time, prompt the host with a gentle check-in: 'Has your guest arrived?' Do not alarm the host -- frame as routine confirmation.",
+        "Move-in date changes after gate sequence has started: reset the countdown. Any already-delivered gates remain visible but the sequence restarts from the appropriate gate for the new date.",
+        "Guest disables push notifications: all gate content is accessible as in-app cards on the dashboard. A single push notification at T-48h ('Your move-in preparation is ready in the app') attempts to redirect the guest to the in-app sequence.",
+        "Host has not provided content for certain gates (e.g., no neighborhood info): the gate fires with platform-generated content (transit data, map link) supplementing the missing host content. The guest never sees an empty gate."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Embrace-or-Dialogue Counter-Offer Response Pattern",
+      "journey_phases": ["negotiation"],
+      "problem": "When a host counter-offers, the guest faces Campbell's moment at the well: embrace the terms (Niall's kiss), reject them (Fergus's refusal), or -- critically -- dialogue about them (a path Campbell's tale does not explore because the brothers had no way to ask the hag 'why a kiss?'). The platform's current interaction for counter-offers is typically binary: accept or decline, with messaging as a secondary afterthought. This interaction pattern produces Fergus scenarios: the guest sees changed terms, cannot easily explore why, and defaults to rejection. The user stories document identifies that 'messaging before proposals is a natural step' and that messaging 'reduces abandonment when someone is not ready for a proposal.' The same principle applies to counter-offers: messaging before acceptance or rejection reduces abandonment when someone is not ready to decide.",
+      "solution": "Design the counter-offer response as a three-path interaction where messaging carries equal behavioral weight to accepting or countering. (1) Accept path: single tap on 'Accept These Terms.' Optimistic UI transition (per reference behaves-001 pattern from prior runs) -- immediate visual confirmation. The guest has embraced the hag. (2) Counter path: tap 'Suggest Different Terms' to open an inline term editor pre-populated with the host's counter-offer. The guest adjusts specific fields (duration, dates) and submits. This is a new offering at the well -- 'I will not just kiss you, I will offer a different embrace.' (3) Message path: tap 'Message [Host Name]' to open inline messaging within the counter-offer context. The message thread shows the counter-offer summary above the compose field, so the host sees what the guest is responding to. This path is critical: it is the mechanism by which the guest can ask 'Why 10 weeks instead of 16?' and discover the partnership behind the terms. All three paths are visually co-equal (same button size, same prominence) and all three dismiss the counter-offer card once initiated (accept commits, counter navigates to editor, message navigates to thread).",
+      "evidence": [
+        {
+          "source": "campbell-initiation-heros-journey.txt, Tale of Niall (lines 706-731)",
+          "type": "book",
+          "quote": "'Let me have water, woman!' he cried. 'I will give it,' said she, 'and bestow on me a kiss.' He answered: 'forby giving thee a kiss, I will even hug thee!' Then he bends to embrace her...",
+          "insight": "Niall did not merely accept the minimum terms (a kiss) -- he exceeded them ('I will even hug thee!'). The three-path interaction gives the guest this option: accept (the kiss), counter (a different form of embrace), or dialogue (discover who the hag truly is before deciding). The platform must support all three with equal dignity."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Messaging before proposals is a natural step' section",
+          "type": "guest_call",
+          "quote": "The park analogy holds -- you check availability before committing. A message action reduces abandonment when someone isn't ready for a proposal. Having the option is better than having no action at all.",
+          "insight": "The park analogy extends to counter-offers: the guest who can message before deciding is 'checking availability' -- verifying that the arrangement works before committing. The message path reduces counter-offer abandonment just as pre-proposal messaging reduces proposal abandonment."
+        },
+        {
+          "source": "campbell-initiation-heros-journey.txt, Meeting with the Goddess (lines 668-670)",
+          "type": "book",
+          "quote": "She lures, she guides, she bids him burst his fetters. And if he can match her import, the two, the knower and the known, will be released from every limitation.",
+          "insight": "The message path is how the guest 'matches the goddess's import' -- by engaging with the host's reasoning, not just their terms. The guest who dialogues about the counter-offer is doing the work of understanding that Campbell describes as the precondition for release 'from every limitation.' Accept and counter are outcomes; messaging is the process of matching import."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Counter-offer card displayed with host identity zone (top), term comparison (middle), and three co-equal response buttons (bottom). All three buttons are active and interactable. The card uses the counter-offer warmth visual treatment (L3, looks-002).",
+        "loading": "Accept: optimistic UI, no loading state. Counter: inline editor appears with a 200ms slide-down animation. Message: inline compose field appears with a 200ms slide-down animation. Neither counter nor message require a page navigation -- they expand within the existing card context.",
+        "empty": "Not applicable -- a counter-offer card is only rendered when a counter-offer exists.",
+        "error": "Accept failure: graceful revert with protective message ('We could not confirm this right now. The counter-offer is still available -- nothing has changed.'). Counter submission failure: the editor retains the guest's input and shows an inline retry prompt. Message send failure: the compose field retains the draft and shows 'Message not sent. Tap to retry.'",
+        "success": "Accept: the card transitions to a confirmation state -- host avatar with a warm green checkmark, text: 'Terms accepted. You and [Host Name] are confirmed.' A 'View lease details' link appears. Counter: the card transitions to a 'Counter sent' state with a pending indicator. Message: the card remains visible with the thread now showing below the counter-offer summary, allowing continued dialogue alongside the terms."
+      },
+      "transition_principle": "The three paths represent three emotional states: acceptance (resolution), counter-proposal (continued negotiation), and messaging (exploration). The transitions reflect these emotions. Accept: swift, confident, final -- a 200ms fade to the confirmation state. Counter: opening, expanding -- the editor slides in at 300ms, communicating 'the conversation continues.' Message: intimate, conversational -- the compose field appears at 200ms, and the card context (counter-offer summary) remains visible above to anchor the dialogue in its negotiation context.",
+      "timing": {
+        "response_target": "Accept: 0ms perceived (optimistic). Counter editor appearance: 300ms. Message compose field appearance: 200ms. Counter submission: 0ms perceived (optimistic). Message send: 0ms perceived (optimistic, with background delivery).",
+        "easing": "Accept confirmation: ease-out, 200ms. Counter editor slide: cubic-bezier(0.16, 1, 0.3, 1), 300ms. Message compose slide: cubic-bezier(0.16, 1, 0.3, 1), 200ms.",
+        "rationale": "The accept path is fastest because it is the resolution -- the guest has decided and the system must honor that decision instantly. The counter and message paths are slightly slower because they are openings -- the guest is entering a new phase of engagement, and the animation communicates 'you are entering a dialogue, not completing a transaction.'"
+      },
+      "journey_state_awareness": "The guest receiving a counter-offer is in the Meeting with the Goddess state: they have proposed and been met with a response that does not match their expectation. Their emotional state is suspended between hope and vulnerability. The three-path interaction respects this suspension by not forcing a binary choice. For first-time guests (no prior negotiations), the message path should be gently highlighted with a subtle prompt: 'Not sure? You can message [Host Name] to talk about it.' This is Spider Woman's advice before the hero enters the House of the Sun.",
+      "edge_cases": [
+        "Guest opens counter-offer card and navigates away without responding: the card persists in 'pending response' state on the dashboard with a gentle urgency indicator after 48 hours.",
+        "Host withdraws counter-offer while guest is composing a message: the message still sends (now as a general message, not a counter-offer response). The counter-offer card updates to show 'This counter-offer was withdrawn by the host' with the message thread visible below.",
+        "Guest initiates counter but does not submit: the draft is preserved for 7 days. A 'You have an unsent counter-proposal' indicator appears on the dashboard.",
+        "Multiple counter-offer rounds (host counters guest's counter): each round uses the same three-path pattern. The term comparison updates to show the latest round's delta against the guest's most recent terms, not the original proposal.",
+        "Guest taps Accept but then immediately tries to undo: a 5-second grace period allows the guest to tap 'Undo' before the acceptance is committed to the server. This is the 'life-feather' -- the guest can bounce back from a premature commitment."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Stay Cycle Ritual Cadence: Arrival, Evidence, Reflection",
+      "journey_phases": ["active_lease"],
+      "problem": "Each stay within the active lease follows a cycle: arrival notification, active stay, cleaning photos, departure, review. Campbell describes the Road of Trials as producing both 'preliminary victories' and 'momentary glimpses of the wonderful land' (lines 430-431) -- but only if the trials are completed with ritual discipline. Without structured interaction cadence, the stay cycle degenerates into a loose sequence where the guest may skip arrival notification, forget cleaning photos, and abandon the review. Each skipped ritual is a trial incompletely resolved -- Campbell's dragon wounded but not slain. The user stories document confirms that 'every review is a past guest activating a future one' -- but reviews only activate if they are written. The interaction pattern must create a rhythm that makes each ritual feel natural and inevitable, not imposed.",
+      "solution": "Design the stay cycle as a three-beat ritual cadence: Arrival (threshold crossing), Evidence (trial proof), Reflection (trial integration). (1) Arrival beat: on the stay's start date, the guest's dashboard prominently surfaces the 'Mark Your Arrival' prompt. One tap. The interaction feels like signing a guest book -- an acknowledgment of presence. (2) Evidence beat: on the stay's end date (or last evening), the cleaning photo ritual frame (L3, looks-004) surfaces. The interaction is guided by placeholders ('Kitchen,' 'Bedroom,' 'Common area'). Completion triggers the warm background shift and checkmark. (3) Reflection beat: 24 hours after departure (or after evidence submission, whichever is later), the review prompt surfaces. Frame: 'Reflect on This Stay.' The review is not a rating form but a brief reflection -- overall feeling (one-tap emoji scale), one optional sentence, and a private note option for platform-only feedback. Each beat has a clear trigger, a minimal interaction, and a visible completion signal. The three beats create a rhythm that the guest internalizes by stay 3 and performs automatically by stay 6.",
+      "evidence": [
+        {
+          "source": "campbell-initiation-heros-journey.txt, Road of Trials (lines 428-431)",
+          "type": "book",
+          "quote": "Dragons have now to be slain and surprising barriers passed -- again, again, and again. Meanwhile there will be a multitude of preliminary victories, unretainable ecstasies, and momentary glimpses of the wonderful land.",
+          "insight": "The three-beat cadence ensures that each dragon (stay) is slain completely: the hero arrives (crosses the threshold), presents evidence (proves the trial was honorably completed), and reflects (integrates the experience). A stay without all three beats is a dragon wounded but alive -- it may return as accumulated frustration or unresolved tension."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "guest_call",
+          "quote": "Every review is a past guest activating a future one. The trust infrastructure is cross-activation infrastructure.",
+          "insight": "The reflection beat (review) is not just for the guest's benefit -- it is the mechanism by which the guest's experience becomes the next guest's trust signal. The ritual cadence ensures reviews are written consistently, which ensures the cross-activation engine has fuel. A broken cadence (skipped reviews) starves the marketplace of trust."
+        },
+        {
+          "source": "campbell-initiation-heros-journey.txt, Road of Trials (lines 166-175)",
+          "type": "book",
+          "quote": "In our dreams the ageless perils, gargoyles, trials, secret helpers, and instructive figures are nightly still encountered; and in their forms we may see reflected not only the whole picture of our present case, but also the clue to what we must do to be saved.",
+          "insight": "The reflection beat is the guest encountering the 'instructive figures' of their own experience. The review is not a chore -- it is the hero reflecting on the trial and finding 'the clue to what we must do to be saved.' By framing the review as reflection rather than rating, the platform invites the guest into this integrative process."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Between beats: the stay dashboard shows the current stay's status with the next beat indicated but not yet active. The timeline (L3, looks-001) shows the current stay node as active.",
+        "loading": "Each beat action is optimistic. Arrival mark: immediate checkmark. Cleaning photo upload: immediate thumbnail display with background upload. Review submission: immediate confirmation with background save.",
+        "empty": "No empty state within the cadence -- each beat either has not yet fired (upcoming) or has been completed. If the guest has no active stay, the dashboard shows the next scheduled stay with a countdown.",
+        "error": "If a beat's action fails (upload failure, save failure): the beat remains in an 'incomplete' state with a retry prompt. The next beat is not blocked -- if the guest departs without submitting cleaning photos, the reflection beat still fires, but the evidence beat persists as incomplete on the timeline.",
+        "success": "Each completed beat triggers: (1) a subtle node fill on the timeline, (2) a brief haptic feedback on mobile, (3) a confirmation label below the beat prompt. After all three beats: the stay node on the timeline transitions to the full 'completed' state (filled accent circle). If the stay earned a positive mutual review, a small star appears on the node."
+      },
+      "transition_principle": "Each beat surfaces with a gentle slide-up animation (200ms ease-out) at its trigger time. The beat prompt is not intrusive -- it appears on the dashboard as the primary card, pushing other content down. When completed, the beat prompt slides down and compresses into a completed badge (300ms ease-in-out). The transition between beats should feel like a natural progression: arrival --> evidence --> reflection, each arriving at the right moment and retiring gracefully once done.",
+      "timing": {
+        "response_target": "Arrival mark: 0ms perceived. Photo upload: 0ms perceived for thumbnail, background upload within 5000ms. Review submission: 0ms perceived.",
+        "easing": "Beat appearance: cubic-bezier(0.16, 1, 0.3, 1), 200ms. Beat completion compression: ease-in-out, 300ms. Timeline node fill: ease-in-out, 400ms.",
+        "rationale": "The ritual must feel effortless. Campbell's hero does not struggle with the ritual itself -- the struggle is the trial. The interaction cadence should be so smooth that the guest's attention remains on the experience of the stay, not on the mechanics of documenting it."
+      },
+      "journey_state_awareness": "First stay: the three beats are accompanied by brief explanatory labels ('Mark your arrival so [Host Name] knows you are here,' 'Share photos to show the space is ready for next time,' 'Reflect on your first stay'). By stay 3: the labels are reduced to icons and one-word prompts. By stay 6: the beats fire as minimal dashboard cards with no explanation needed -- the ritual is internalized. This progressive reduction mirrors the hero's growing competence on the Road of Trials.",
+      "edge_cases": [
+        "Guest does not mark arrival within 4 hours of stay start: the arrival beat quietly transitions to 'unmarked' state. The host receives no alarm -- absence of arrival mark is not escalated. The evidence and reflection beats still fire normally.",
+        "Guest departs early (before expected end date): the evidence beat fires immediately upon the guest marking early departure. The reflection beat fires 24 hours after the adjusted departure.",
+        "Guest submits cleaning photos but the host disputes cleanliness: this is a conflict resolution flow outside the ritual cadence. The ritual cadence is complete from the guest's perspective; the dispute is a separate interaction.",
+        "Review window expires (guest does not review within 14 days): the reflection beat transitions to an 'expired' state. The timeline node shows as completed (the stay happened) but without the star marker (no review means no mutual reflection). No penalty, but the guest's profile shows the review gap.",
+        "Back-to-back stays with no gap: the evidence and reflection beats from stay N fire before the arrival beat of stay N+1. If timing overlaps (stay N departure = stay N+1 arrival), the evidence beat for stay N takes priority, and the arrival beat for stay N+1 appears immediately after."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Date Change Tool as Hero's Amulet: Agency-First Schedule Navigation",
+      "journey_phases": ["active_lease"],
+      "problem": "The Date Change Tool is the guest's primary instrument for navigating the fluid terrain of the active lease. Campbell describes the hero's amulets as aids that 'the hero is covertly aided by' (line 22) -- instruments of agency, not instruments of compliance. But the current interaction for date changes frames the guest as a petitioner: 'Request a date change' implies the guest needs permission. This framing contradicts the amulet metaphor -- a hero does not 'request permission to use their sword.' The user stories document's emphasis on 'authentication should be invisible until it matters' extends to all platform mediation: the approval process should be invisible in the interaction's framing, even if it exists in the backend. Campbell's Woman as Temptress section warns that 'every failure to cope with a life situation must be laid to a restriction of consciousness' (lines 813-814). A guest who experiences the Date Change Tool as a permission-seeking mechanism has restricted their consciousness to that of a tenant; a guest who experiences it as a scheduling instrument has expanded their consciousness to that of an active navigator.",
+      "solution": "Redesign the Date Change Tool as a calendar-first interface where the guest manipulates their own schedule directly. (1) Entry point: on the stay dashboard, the guest taps 'Adjust Your Schedule' (not 'Request Date Change'). A full-calendar view appears showing the current lease period with scheduled stays highlighted. (2) Interaction: the guest taps a date to toggle it (add a stay date or remove one) or long-presses to drag a stay to a different date (swap). Changes appear immediately on the calendar in a 'pending' visual state (accent-light background instead of full accent). (3) Confirmation: when the guest is satisfied with their adjustments, they tap 'Confirm Changes.' A brief summary shows what changed: 'Adding Tuesday Feb 24, Removing Thursday Feb 26.' One tap to send. (4) Host approval: framed as 'confirmation' not 'approval.' The status line reads '[Host Name] will confirm your schedule update' not 'Waiting for host approval.' (5) Resolution: when the host confirms, the pending dates transition from accent-light to full accent. If the host suggests a modification, the three-path pattern (behaves-002) applies: accept, adjust, or message.",
+      "evidence": [
+        {
+          "source": "campbell-initiation-heros-journey.txt, Road of Trials (lines 22-24)",
+          "type": "book",
+          "quote": "The hero is covertly aided by the advice, amulets, and secret agents of the supernatural helper whom he met before his entrance into this region.",
+          "insight": "The Date Change Tool is the primary amulet of the active-lease phase. It must feel like an extension of the guest's agency, not a form submitted to an authority. 'Covertly aided' means the tool's support (schedule flexibility) is felt without the tool's governance (approval process) being foregrounded."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible until it matters' section",
+          "type": "guest_call",
+          "quote": "Authentication should be invisible until it matters. Inline auth pop-up, not a full-page redirect.",
+          "insight": "The host approval step is the Date Change Tool's 'authentication.' It should be invisible until it matters: the guest manipulates their calendar freely, and the approval step appears only at the moment of confirmation -- inline, not as a separate flow. The guest should never feel that the approval process is the primary interaction; the calendar manipulation is the primary interaction."
+        },
+        {
+          "source": "campbell-initiation-heros-journey.txt, Woman as Temptress (lines 813-814)",
+          "type": "book",
+          "quote": "Every failure to cope with a life situation must be laid, in the end, to a restriction of consciousness.",
+          "insight": "A guest who avoids using the Date Change Tool because it feels like 'asking permission' has restricted their consciousness. They cope with inconvenient dates by enduring them rather than adjusting them. The agency-first design expands consciousness: the guest sees themselves as an active navigator of their schedule, not a passive recipient of fixed dates."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Calendar view showing the current lease period. Scheduled stays in accent (#2d5a3d) filled backgrounds. Available dates in surface (#ffffff). Unavailable dates (outside lease period) in bg-deep (#eae7e1) dimmed. The 'Adjust Your Schedule' label is visible at the top.",
+        "loading": "No loading state for calendar manipulation -- all interactions are local until the guest taps 'Confirm Changes.' The calendar responds instantly to taps and drags.",
+        "empty": "If no dates are scheduled (lease is fully flexible), the calendar shows all dates as available with a prompt: 'Tap dates to schedule your stays.'",
+        "error": "If the confirmation fails to send: 'Your changes are saved locally. We will send them to [Host Name] when your connection is restored.' The pending dates remain in accent-light state.",
+        "success": "Upon confirmation send: pending dates pulse once (200ms) in accent-light. Status line appears: '[Host Name] will confirm your schedule update.' Upon host confirmation: accent-light transitions to full accent (400ms ease-in-out). A brief confirmation: 'Schedule updated.'"
+      },
+      "transition_principle": "Calendar interactions are immediate and responsive -- tapping a date toggles it in under 50ms. The visual transition from empty date to pending date (white to accent-light) is a swift fill animation (150ms). The transition from pending to confirmed (accent-light to accent) is slower and more settled (400ms), communicating 'this is now real.' The overall feel is: the guest moves dates around like chess pieces, with the board responding instantly. The 'sending to host' step is a brief pause before the next move.",
+      "timing": {
+        "response_target": "Calendar tap response: <50ms. Drag-and-drop: 60fps continuous update. Confirmation send: 0ms perceived (optimistic). Host confirmation receipt: background notification.",
+        "easing": "Date toggle: ease-out, 150ms. Pending-to-confirmed: ease-in-out, 400ms. Calendar scroll: spring easing from tokens (cubic-bezier(0.34, 1.56, 0.64, 1)).",
+        "rationale": "The amulet must feel responsive because the hero's instrument must feel like an extension of their will. Any delay between the guest's intention (tap a date) and the visual response breaks the illusion of agency. The calendar's spring easing creates a physical, tactile feel that makes the dates feel manipulable rather than bureaucratic."
+      },
+      "journey_state_awareness": "For first-time date changes: include a one-time inline explanation: 'You can adjust your stay dates anytime. [Host Name] will confirm the changes.' This explanation appears once and is dismissed permanently after the first successful date change. For guests with multiple successful date changes: the explanation is absent, and the tool assumes competence. The hero who has used the amulet successfully grows in confidence; the tool's framing should reflect this growth.",
+      "edge_cases": [
+        "Guest attempts to add a date already booked by another guest: the date appears as unavailable (bg-deep). Tapping it shows a tooltip: 'This date is not available.' No explanation of why (privacy), but the visual state is clear.",
+        "Guest removes all remaining dates in the current period: before confirming, a gentle prompt: 'This will remove all your scheduled stays for the current period. You can add new dates anytime.' This is not a block -- the guest can proceed -- but the prompt ensures the action is intentional.",
+        "Host rejects a date change: the pending dates revert to their prior state (accent-light fades back to white, 400ms). A message from the host appears inline with the calendar: '[Host Name] suggested keeping the original dates. You can message them to discuss.' The three-path pattern applies.",
+        "Date change during an active stay: dates within the current stay period cannot be removed (the guest is physically present). The calendar dims current-stay dates and shows a tooltip: 'You are currently in this stay. These dates cannot be changed.'",
+        "Rapid successive changes: debounce confirmation sends by 2 seconds. If the guest makes multiple changes within 2 seconds, only one confirmation is sent with all changes bundled."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Transformation Mirror: Mid-Lease and End-of-Lease Reflection Moments",
+      "journey_phases": ["active_lease"],
+      "problem": "Campbell's Apotheosis is the moment the hero 'transcends life with its peculiar blind spot and for a moment rises to a glimpse of the source' (lines 1719-1720). But transcendence requires a mirror -- the hero must see their own transformation to complete it. The guest who has completed 8 of 12 stays has undergone genuine growth: they know the space intimately, they have a working relationship with the host, they navigate the stay cycle with ease. But nothing in the platform reflects this growth back to them. Without the mirror, the Apotheosis cannot occur -- the guest completes the lease feeling 'done' rather than 'transformed.' The user stories document identifies that cross-activation depends on the guest's history being visible to future hosts, but the prerequisite is that the guest's history is visible to the guest themselves -- you cannot share a transformation you have not recognized.",
+      "solution": "Design two reflection surfaces that appear at mid-lease and at lease end. (1) Mid-lease reflection (fires at the midpoint stay): a dashboard card that summarizes the journey so far. Content: 'You are halfway through your lease with [Host Name]. You have completed [X] stays, exchanged [Y] reviews, and spent [Z] nights in this space.' Tone: warm, narrative, not statistical. Visual: timeline (L3, looks-001) with the midpoint marker highlighted. One optional interaction: 'Share what is working' (a brief freeform input that goes to the host as a positive mid-lease check-in). (2) End-of-lease reflection (fires after the final stay's review is submitted): a fuller summary card. Content: 'Your journey with [Host Name] is complete. [X] stays, [Y] nights, [Z] mutual reviews. Here is what your hosts have said about you: [composite quote from reviews].' Below: 'Your experience is now part of your Split Lease profile. Future hosts will see your [X] completed stays.' This is the Apotheosis moment: the guest sees themselves as initiated. One optional interaction: 'Continue with [Host Name]' (re-lease inquiry) or 'Explore new spaces' (search, carrying their credential forward).",
+      "evidence": [
+        {
+          "source": "campbell-initiation-heros-journey.txt, Apotheosis (lines 1719-1721)",
+          "type": "book",
+          "quote": "The hero transcends life with its peculiar blind spot and for a moment rises to a glimpse of the source. He beholds the face of the father, understands -- and the two are atoned.",
+          "insight": "The reflection surfaces ARE the 'glimpse of the source.' The guest beholds not the father but their own transformation -- they see in the summary what they have become through the initiation. The mid-lease reflection is a preliminary glimpse; the end-of-lease reflection is the full Apotheosis."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "guest_call",
+          "quote": "An experienced guest applying to a new host is cross-activation in action. Their history, their reviews, their familiarity with how things work -- it all reduces the host's anxiety.",
+          "insight": "The end-of-lease reflection explicitly connects the guest's personal transformation to their marketplace credential. 'Future hosts will see your X completed stays' is the bridge between private growth and public trust. The guest recognizes that their initiation has produced the Ultimate Boon: a reputation that makes future shared-living arrangements easier."
+        },
+        {
+          "source": "campbell-initiation-heros-journey.txt, Apotheosis (lines 1806-1812)",
+          "type": "book",
+          "quote": "He paused: he made a vow that before entering the void he would bring all creatures without exception to enlightenment; and since then he has permeated the whole texture of existence with the divine grace of his assisting presence.",
+          "insight": "The 'Continue with [Host Name]' and 'Explore new spaces' options at lease end map to the Bodhisattva's choice: stay and deepen, or go forth and enlighten others. Both paths carry the guest's transformation forward. The platform frames both as valuable -- not pressuring the guest toward either, but acknowledging that both honor the initiation."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "No reflection surface visible. The dashboard shows the standard stay timeline and current-stay information.",
+        "loading": "The reflection card compiles its content from existing data (stays, reviews, nights). No loading spinner -- the card appears fully formed.",
+        "empty": "If the guest has completed fewer than 2 stays at midpoint (very short lease), the mid-lease reflection is skipped. The end-of-lease reflection always fires if at least one stay was completed.",
+        "error": "Not applicable -- the reflection surfaces are read-only summaries of existing data. If review data is unavailable, the composite quote is omitted and the summary uses quantitative metrics only.",
+        "success": "The reflection card is persistent until dismissed. Dismissal transitions the card to a compressed badge ('Lease summary available') that remains accessible. The 'Share what is working' or 'Continue/Explore' interactions are separate success states within the card -- both use optimistic UI."
+      },
+      "transition_principle": "The reflection card appears with a slow, dignified animation: a 500ms fade-in combined with a slight scale-up (from 0.98 to 1.0). This is slower than any other dashboard card entrance -- the pace communicates 'this is different, this matters, take a moment.' The card's dismissal is a gentle fade-out (300ms). The overall feel is reflective, not transactional.",
+      "timing": {
+        "response_target": "Card composition: compiled from cached data, appears in under 200ms. Animation: 500ms entrance. Interaction responses (share, continue, explore): 0ms perceived (optimistic).",
+        "easing": "Card entrance: cubic-bezier(0.16, 1, 0.3, 1), 500ms. Dismissal: ease-in, 300ms.",
+        "rationale": "The Apotheosis moment requires temporal distinction from the rest of the dashboard. The slower entrance communicates that this is not a notification but a mirror. The guest should feel that the platform is pausing to acknowledge their journey, not adding another task to their dashboard."
+      },
+      "journey_state_awareness": "The mid-lease reflection fires when the guest is in a comfort zone -- multiple successful stays behind them, a routine established. This is the optimal moment for reflection because the guest is not anxious (unlike early stays) and not yet focused on endings (unlike the final stay). The end-of-lease reflection fires after the final review, when the guest has completed their last ritual act. Both reflections are read from, not written to -- the guest absorbs, they do not produce. This distinction matters: the reflection is a gift from the platform, not a request.",
+      "edge_cases": [
+        "Guest's lease is too short for a midpoint (3 or fewer stays): skip mid-lease reflection. End-of-lease reflection still fires.",
+        "Guest has a negative experience (low reviews): the reflection surfaces emphasize quantitative completion ('You completed X stays') rather than qualitative assessment. The composite review quote is omitted if the average is below a threshold. The tone remains warm and factual, never evaluative.",
+        "Guest extends their lease (re-signs with same host): the end-of-lease reflection does not fire until the final lease ends. The mid-lease reflection adjusts to the extended midpoint.",
+        "Guest abandons the lease early (leaves before all stays are completed): an adjusted reflection fires: 'You completed X of Y planned stays.' No judgment. The credential still reflects what was completed.",
+        "Multiple leases on the platform: the end-of-lease reflection for the second lease includes a cross-lease summary: 'Across 2 leases, you have completed X stays.' The guest sees their full Road of Trials, not just the current chapter."
+      ]
+    }
+  ]
+}

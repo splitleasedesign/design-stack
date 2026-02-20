@@ -1,0 +1,160 @@
+{
+  "lens": {
+    "host_call": "dimitri-call.txt",
+    "book_extract": "coldstart-network-effects.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Instant Match Presentation with Deferred Account Creation",
+      "journey_phases": ["discovery", "onboarding"],
+      "problem": "The standard marketplace interaction flow is: sign up -> create profile -> browse. For agent-recruited hosts, this inverts the motivation. Dimitri was recruited to see a specific match (Ariel and Amber). Requiring account creation before showing the match introduces friction at the exact moment of peak interest. Chen's 'Magic Moment' concept shows that users must experience the product's value before they invest in the infrastructure.",
+      "solution": "Present the match as an interactive preview accessible via a magic link (no account required). (1) Agent sends a personalized link after the call. (2) Link opens directly to the match page: Ariel and Amber's profiles + Dimitri's pre-filled property. (3) Account creation is triggered only when the host takes an action that requires it (accept proposal, upload photos, view full documents). (4) The magic link persists for 7 days and bookmarks progress.",
+      "evidence": [
+        {
+          "source": "dimitri-call.txt, 5:48-5:56",
+          "type": "host_call",
+          "quote": "I texted it to you. So the, that you, this is your cell phone, I'm going to text it to you.",
+          "insight": "Dimitri prefers text-based communication. The magic link should arrive via text from Bryant, not from a platform email. The interaction model is: text arrives -> tap link -> see match -> decide."
+        },
+        {
+          "source": "coldstart-network-effects.txt, Ch 10 (Magic Moments)",
+          "type": "book",
+          "quote": "The Magic Moment is the first experience where users 'get' why the product is valuable.",
+          "insight": "Dimitri's magic moment is seeing that two vetted tenants want his specific apartment for his specific dates. This must happen BEFORE any friction (account creation, form filling)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Magic link page showing match summary: guest profiles, property preview, agent attribution. No login wall.",
+        "loading": "Skeleton loading with property address visible immediately (parsed from URL). Guest profiles load within 1 second.",
+        "empty": "If the match is no longer available, show: 'This match has been filled, but Bryant has other interested guests for your space. [Contact Bryant].'",
+        "error": "If the link is expired: 'This link has expired. [Text Bryant to get a new one].' Direct to human, not to platform signup.",
+        "success": "After account creation: smooth transition to full match view with verification details unlocked. No page reload."
+      },
+      "transition_principle": "No page transitions for account creation. Inline modal overlays the match page. After account creation, the modal dismisses and the match page enriches with additional data (verification details, messaging). The host never loses context.",
+      "timing": {
+        "response_target": "Match page loads within 2 seconds of tap. Account creation modal appears within 100ms of action trigger.",
+        "easing": "ease-out for modal appearance. No spring/bounce animations — this is a trust context, not a playful one.",
+        "rationale": "Dimitri is evaluating the platform's professionalism. Fast, clean transitions signal competence. Slow or playful animations signal informality."
+      },
+      "journey_state_awareness": "First-time visitors via magic link see a simplified interface. Returning visitors see their progress preserved. If the host has already reviewed the match, the page shows their last action and next step.",
+      "edge_cases": ["Link opened on desktop vs. mobile (responsive design critical)", "Link shared with someone other than the host (show 'This was prepared for Dimitri — is that you?')", "Agent updates the match after link was sent (show 'Updated' badge on changed elements)", "Host opens link before guests have completed their profiles (show pending profile state)"]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Video Tour Scheduling Within the Platform",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "Dimitri offers to show the apartment in person or via video tour: 'I can arrange with the current tenant to either show them the apartment personally... or do a video tour, whatever works for them.' This interaction currently happens outside the platform (direct text/email). If the platform can facilitate video tours, it keeps the interaction in-platform and captures the conversion moment.",
+      "solution": "Embed a video tour scheduling interaction within the proposal review flow. (1) After the host reviews guest profiles, offer 'Schedule a Video Tour' as a secondary action alongside Accept/Decline. (2) The scheduler shows the host's timezone (Europe) and the guests' timezone, with overlapping availability. (3) Video tour happens via the platform (integrated video call or Zoom link). (4) After the tour, the platform prompts the host to accept or decline with the tour context fresh.",
+      "evidence": [
+        {
+          "source": "dimitri-call.txt, 4:24-4:34",
+          "type": "host_call",
+          "quote": "I can arrange with the current tenant to either show them the apartment personally, they're New York... or do a video tour, whatever works for them.",
+          "insight": "Dimitri's current solution: coordinate with his tenant to show the apartment. The platform should replace this coordination, not require it."
+        },
+        {
+          "source": "coldstart-network-effects.txt, Ch 9 (Killer Product)",
+          "type": "book",
+          "quote": "Products need to be 'better' in a way that matters to the hard side.",
+          "insight": "Scheduling a video tour across timezones is a specific problem the platform can solve better than manual text coordination."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "'Schedule Video Tour' button visible on proposal review page, styled as secondary action.",
+        "loading": "Calendar loading with shimmer effect. Host's timezone and guest's timezone shown immediately.",
+        "empty": "If no overlapping availability in the next 7 days: 'No times match this week. Share your availability and we'll find a slot.'",
+        "error": "If scheduling fails: 'We'll text Bryant to coordinate manually. He'll find a time that works.'",
+        "success": "Tour scheduled confirmation with calendar invite sent to all parties. 'You'll get a reminder 15 minutes before.'"
+      },
+      "transition_principle": "Video tour scheduling opens as an inline expansion below the proposal card, not a new page. After scheduling, the expansion collapses and a 'Tour scheduled: [date]' badge appears on the proposal card.",
+      "timing": {
+        "response_target": "Calendar loads within 1.5 seconds. Scheduling confirmation appears within 300ms of selection.",
+        "easing": "ease-out for expansion/collapse. No bounce.",
+        "rationale": "Scheduling is a logistical interaction. Fast, functional, no decorative transitions."
+      },
+      "journey_state_awareness": "The video tour option appears only when the host has not yet accepted/declined the proposal. After the tour, the accept/decline buttons become more prominent (visual promotion from secondary to primary). If the host is in a different timezone than the guest, the timezone difference is highlighted.",
+      "edge_cases": ["Host wants to have current tenant show the apartment (add 'Invite someone else to show' option)", "Guest is not available for video (offer photo walkthrough as alternative)", "Host cancels tour (prompt reschedule, not immediate decline of proposal)", "Technical issues with video (automatic fallback to phone call with number provided)"]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Cross-Timezone Push Notification with Quiet Hours",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "Dimitri in Europe will receive notifications on NYC time. A 2 PM notification in New York is 8 PM or later in Europe. Critical updates (payment received, cleaning photos) are informational; urgent updates (lease issue, property emergency) need immediate attention. The notification system must respect the host's local timezone while ensuring urgent items are never delayed.",
+      "solution": "Implement timezone-aware notification queuing. (1) Non-urgent notifications (payments, cleaning photos, status updates) are queued and delivered during the host's local daytime hours (8 AM - 8 PM in their timezone). (2) Urgent notifications (property emergency, lease violation) bypass quiet hours and deliver immediately. (3) The host's weekly digest is sent at their preferred local time (default: 9 AM local). (4) The host can customize quiet hours and urgency thresholds.",
+      "evidence": [
+        {
+          "source": "dimitri-call.txt, 0:33",
+          "type": "host_call",
+          "quote": "I will be in Europe, actually for work.",
+          "insight": "6-9 hour timezone shift. Unmanaged notifications will arrive at inappropriate local times, training the host to ignore or silence them."
+        },
+        {
+          "source": "coldstart-network-effects.txt, Ch 19 (Engagement Effect)",
+          "type": "book",
+          "quote": "The Engagement Effect describes the increase in engagement that happens as the network grows.",
+          "insight": "Well-timed notifications drive engagement. Poorly-timed notifications kill it. A notification that wakes a host at 3 AM in Paris has negative engagement value."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Notifications queued and delivered in local daytime window. Badge count updates silently.",
+        "loading": "No loading state visible — notifications queue invisibly.",
+        "empty": "If no notifications in the weekly digest: 'Quiet week at 30th Street. Everything is running smoothly.'",
+        "error": "If notification delivery fails: retry with exponential backoff. After 3 failures, add to weekly digest as fallback.",
+        "success": "Notification delivered with soft haptic (mobile) or subtle sound (desktop). No intrusive modals."
+      },
+      "transition_principle": "Notifications appear as non-blocking toasts that auto-dismiss after 5 seconds. Urgent notifications pin to the top of the screen until acknowledged.",
+      "timing": {
+        "response_target": "Non-urgent: queued, delivered within local daytime window. Urgent: delivered within 30 seconds of trigger.",
+        "easing": "ease-in for notification appearance, ease-out for auto-dismiss.",
+        "rationale": "Non-urgent notifications should feel gentle and informational. Urgent notifications should feel immediate but not alarming."
+      },
+      "journey_state_awareness": "The system detects the host's timezone from their last login location or device settings. If the host travels (detects timezone change), it adjusts quiet hours automatically. If the host hasn't opened the app in 14+ days, the system sends a gentle re-engagement notification with a status summary.",
+      "edge_cases": ["Host travels between timezones frequently (use most recent timezone, not profile timezone)", "Host has multiple properties in different timezones (per-property notification settings)", "Guest sends cleaning photos at 3 AM host time (queue for morning delivery)", "Property emergency at 4 AM host time (deliver immediately with clear 'URGENT' label and sound)"]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "One-Session Deal Completion Flow",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "Dimitri wants things done 'within next week.' But the standard flow (onboard -> list -> wait for proposals -> review -> accept) spans multiple sessions and multiple days. For agent-recruited hosts with pre-matched guests, the entire flow should be completable in a single session. Chen's atomic network theory predicts that speed of first-transaction is critical: the longer the gap, the higher the probability the hard-side user defaults to alternatives.",
+      "solution": "Create a single-session deal completion flow for agent-recruited hosts. (1) Magic link opens to match preview (no account needed). (2) Host reviews guest profiles and property summary. (3) Account creation happens inline (email + password, 30 seconds). (4) Property details are confirmed (pre-filled from agent notes, 60 seconds). (5) Deal terms are reviewed and accepted (dates, pricing, agreement, 2 minutes). (6) Total flow: under 5 minutes from link-open to deal-signed.",
+      "evidence": [
+        {
+          "source": "dimitri-call.txt, 6:10",
+          "type": "host_call",
+          "quote": "Within next week.",
+          "insight": "One-week deadline. A one-session flow converts urgency into action. Multi-session flows lose the urgency to competing alternatives."
+        },
+        {
+          "source": "coldstart-network-effects.txt, Ch 6 (Atomic Network)",
+          "type": "book",
+          "quote": "The atomic network is the smallest possible network where there are enough people for the product to become useful.",
+          "insight": "The atomic network for Dimitri (apartment + Ariel/Amber + guarantee) must form in one session. If it requires multiple sessions, the anti-network effect (Dimitri finds tenants elsewhere) takes hold."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Linear flow with progress indicator: Review Match (1/4) -> Confirm Property (2/4) -> Review Terms (3/4) -> Accept (4/4).",
+        "loading": "Each step loads data from agent notes. Skeleton states show pre-filled field shapes so the host sees the flow's structure immediately.",
+        "empty": "If agent notes are incomplete: 'Bryant is still preparing your details. We'll text you when everything is ready.' Do NOT show an empty form.",
+        "error": "If any step fails: save progress, show 'Something went wrong. Bryant has been notified. You can pick up where you left off.' Include agent's direct contact.",
+        "success": "Final step: confetti-free confirmation. 'Deal confirmed. Ariel and Amber will be notified. Bryant will send you the agreement to review.' Clean, professional."
+      },
+      "transition_principle": "Slide transitions between steps (left-to-right). Back button always available. Progress bar updates with smooth fill animation. No full-page reloads between steps.",
+      "timing": {
+        "response_target": "Each step transition under 300ms. Form submissions under 1 second. Total flow under 5 minutes for hosts with complete agent notes.",
+        "easing": "ease-out for step transitions. No spring animations — professional, not playful.",
+        "rationale": "Speed signals competence. A 5-minute deal flow proves the platform is faster than direct dealing, which is the core value proposition for hard-side hosts."
+      },
+      "journey_state_awareness": "If the host leaves mid-flow, they can return via the same magic link and pick up at their last step. Progress is preserved for 7 days. If the host hasn't completed the flow in 48 hours, Bryant gets a notification to follow up.",
+      "edge_cases": ["Host wants to review the agreement before accepting (expand inline, don't navigate away)", "Host wants to counter the proposed terms (inline term editor at step 3)", "Host's current tenant hasn't moved out yet (show estimated availability, allow provisional acceptance)", "Host wants to add another property to the same deal (defer, offer after first deal completes)"]
+    }
+  ]
+}

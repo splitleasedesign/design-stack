@@ -1,0 +1,327 @@
+{
+  "lens": {
+    "guest_call": "Customer call- Vince.txt",
+    "book_extract": "dontmakemethink-usability-laws.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Service Concept Comprehension Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "listing_evaluation"],
+      "problem": "If the service concept explainer fails to communicate the time-split model within 5 seconds, guests will form wrong mental models (hotel, traditional sublet, Airbnb) that persist through the rest of the journey, producing support calls, mismatched expectations, and dropout at proposal creation.",
+      "solution": "Run a two-part validation: (1) unmoderated usability test measuring concept comprehension, and (2) analytics tracking of post-listing inquiry call content to measure 'how does this work?' question frequency.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 1:19-1:33",
+          "type": "guest_call",
+          "quote": "How does this work like is, uh, like there's a full kitchen in there, you know, are you splitting it with like a hotel, like multiple, multiple people, multiple people throughout the week where you clean everything out and you go home or what?",
+          "insight": "Vince's cascade of wrong mental models is the exact failure mode this test must detect. If users can describe the service model correctly after viewing the listing page, the explainer works. If they produce hotel/Airbnb/sublet analogies, it does not."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.11)",
+          "type": "book",
+          "quote": "I should be able to 'get it' -- what it is and how to use it -- without expending any effort thinking about it.",
+          "insight": "Krug's First Law provides the pass/fail criterion: 'get it' without effort. The test measures whether users 'get it' -- not whether they like it, not whether they click, but whether they can articulate what the service is."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8-12 participants who have never used a shared-living platform. Show them the listing page for 10 seconds, then hide it. Ask: 'In your own words, what is this service? How does it work?' Score responses on a 3-point rubric: (0) wrong model or no comprehension, (1) partial understanding (knows it involves sharing but not the time-split mechanism), (2) correct understanding (can describe the time-split, ghost roommate concept, and personal storage). Separately, track analytics on inquiry calls and chat: measure the percentage of first-contact messages that contain concept-clarification questions ('how does this work?', 'is this like Airbnb?', 'do I share the space?').",
+      "success_criteria": "75% or more of usability test participants score 2 (correct understanding) after a 10-second exposure to the listing page. Post-launch: 50% reduction in concept-clarification questions during first-contact inquiries compared to the pre-redesign baseline.",
+      "failure_meaning": "If comprehension is below 75%, the service concept explainer's visual hierarchy, language, or placement is not working for scanning behavior. Specific failure modes to diagnose: (a) participants who score 0 likely did not see the explainer at all -- check placement and visual weight, (b) participants who score 1 saw it but did not process the time-split mechanism -- check whether the 3-panel illustration is clear, (c) if inquiry call questions persist, the explainer may work in a test setting but not in real browsing conditions where attention is more fragmented -- check above-fold placement on actual device viewports.",
+      "implementation_hint": "For the usability test: use a tool like UserTesting.com or Maze with a 10-second timed exposure followed by a free-text question. For analytics: tag incoming inquiry messages with a 'concept_question' boolean. Build a dashboard comparing concept_question rate before and after the listing page redesign. Playwright hint for automated regression: load the listing page, verify the concept explainer block is in the initial DOM (not lazy-loaded), verify it is above the fold on 375px (mobile) and 1440px (desktop) viewports using getBoundingClientRect()."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Schedule Translation Accuracy Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["proposal_creation", "negotiation", "active_lease"],
+      "problem": "If the office-days-to-stay-nights translation is confusing, guests will book the wrong nights, producing scheduling conflicts with ghost roommates, support tickets, and a first-stay experience that does not match expectations.",
+      "solution": "Run a task-based usability test measuring booking accuracy, and track analytics on schedule-related support tickets and booking corrections.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 6:27-6:43",
+          "type": "guest_call",
+          "quote": "Actually, I'm sorry. I'm thinking about it. Uh, I think what I mean is Sunday, Monday, I'm supposed to be in the office Monday, Tuesday.",
+          "insight": "Vince's real-time error is the exact failure mode: entering office days when the system expects booking nights. The test must measure whether the automatic translation prevents this class of errors."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.15)",
+          "type": "book",
+          "quote": "Every question mark adds to our cognitive workload, distracting our attention from the task at hand.",
+          "insight": "The translation is a recurring question mark. Success means the question mark is eliminated -- the guest never pauses to wonder whether they entered the right thing."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 10-15 participants. Give them a scenario: 'You work in the office on Monday and Thursday. Use the schedule tool to set up your stay.' Measure: (1) whether the final booked nights are correct (Sunday and Wednesday nights), (2) time to complete the task, (3) whether the participant hesitates, self-corrects, or expresses confusion. Run the same task with a control group using a traditional nights-only selector (no office-day input, no dual display). Compare error rates between the office-day-input version and the nights-only version.",
+      "success_criteria": "95% or more of participants using the office-day input produce correct bookings on the first attempt. Mean task completion time under 20 seconds. Error rate at least 3x lower than the nights-only control group. Post-launch: 50% reduction in schedule-related support tickets compared to baseline.",
+      "failure_meaning": "If error rate exceeds 5%, the translation visualization is not clear enough. Diagnose: (a) if participants enter office days but the derived nights are wrong, the translation logic has a bug, (b) if participants bypass the office-day input and try to select nights directly, the input affordance is not guiding them to the intended interaction path, (c) if task time exceeds 30 seconds, the dual display may be confusing rather than clarifying -- simplify the visual relationship between office-day badges and stay-night badges.",
+      "implementation_hint": "Playwright automated test: navigate to the proposal creation page, click 'Monday' and 'Thursday' in the office-day selector, assert that 'Sunday' and 'Wednesday' night badges appear in the stay-nights row within 200ms. Assert the monthly cost display updates. Repeat for edge cases: single day (Monday only -> Sunday night), consecutive days (Mon-Tue-Wed -> Sun-Mon-Tue nights), weekend days (Saturday -> Friday night). For analytics: create a 'booking_correction' event that fires when a guest changes their schedule within 24 hours of initial booking -- high correction rates indicate translation confusion."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Flexibility Assurance Impact on Commitment Conversion",
+      "validates_element": "works-003",
+      "journey_phases": ["proposal_creation", "acceptance", "active_lease"],
+      "problem": "If flexibility assurances are not visible at commitment points, guests with uncertain schedules will hesitate, delay, or abandon at proposal submission and lease signing, representing lost conversions from qualified leads.",
+      "solution": "Run an A/B test comparing commitment conversion rates with and without the flexibility callout at proposal submission and lease signing pages.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 5:06-5:25",
+          "type": "guest_call",
+          "quote": "Is there a times when I could just do one night a week, like if after six months or two months by schedule changes from just going in once a week...",
+          "insight": "Vince raises flexibility before pricing, establishing it as a prerequisite for commitment. If the flexibility callout increases conversion, it confirms that flexibility anxiety is a real barrier, not a secondary concern."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.3 (p.31)",
+          "type": "book",
+          "quote": "The more important something is, the more prominent it is.",
+          "insight": "Krug's hierarchy principle predicts that making flexibility visually prominent will reduce the cognitive load of seeking reassurance, which should translate directly to faster and more confident commitment."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test on the proposal submission page and the lease signing page. Control: current page without flexibility callout. Variant: page with the flexibility assurance callout positioned adjacent to the commitment button (signal-info palette, single sentence, phase-appropriate content). Measure: (1) proposal submission rate (percentage of guests who reach the proposal page and click submit), (2) lease signing completion rate, (3) time-on-page before submission (shorter = less hesitation), (4) post-signing schedule change rate (to verify that flexibility is actually used, not just reassuring). Run for minimum 4 weeks or until statistical significance is reached with 500+ participants per variant.",
+      "success_criteria": "Variant (with callout) produces at least a 15% relative increase in proposal submission rate and at least a 10% relative increase in lease signing completion rate compared to control. Time-on-page before submission decreases by at least 10% in the variant (indicating reduced hesitation). Date-change tool usage among active-lease guests remains stable or increases (confirming the flexibility promise is real, not just reassuring copy).",
+      "failure_meaning": "If conversion does not improve: (a) the flexibility callout may be positioned incorrectly -- test moving it closer to the button or making it more prominent, (b) the callout language may be too vague -- test more specific language ('Change your schedule with 1-week notice' vs. 'Flexible scheduling'), (c) flexibility anxiety may not be the primary conversion barrier for this population -- investigate other barriers (price, trust, timeline). If time-on-page increases in the variant, the callout may be introducing a new question ('What are the limits of this flexibility?') rather than answering the existing one.",
+      "implementation_hint": "Use the platform's existing A/B testing framework. The callout component should be feature-flagged. Analytics events: 'proposal_submit_clicked', 'lease_sign_completed', 'flexibility_callout_visible' (to confirm exposure), 'date_change_tool_used' (post-signing). Segment results by guests who mentioned schedule uncertainty during inquiry (CRM flag) vs. those who did not -- the effect should be strongest in the uncertain-schedule segment."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Satisfice-First Search Results Validation",
+      "validates_element": "works-004",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "If search results present a grid of equally weighted listings, satisficing guests will either click the first one regardless of match quality, or leave the platform if no single listing is immediately compelling. If unavailable listings produce dead-end pages, satisficing guests will leave rather than restart search.",
+      "solution": "Track analytics on search-to-inquiry conversion and validate the fallback alternative promotion through a dead-link test.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 1:02-1:07",
+          "type": "guest_call",
+          "quote": "The one you reached out about is in Nolita, it looks like it's between, um, right on Mulberry.",
+          "insight": "Vince found one listing and acted on it. The search results must support this behavior by making the best match obvious and immediately actionable."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.2 (p.24-25)",
+          "type": "book",
+          "quote": "Most of the time we don't choose the best option -- we choose the first reasonable option, a strategy known as satisficing.",
+          "insight": "Krug's satisficing principle provides the theoretical basis: the search results design should maximize the probability that the first listing a guest sees is the right one, and provide a seamless fallback when it is not."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track three metrics: (1) First-listing action rate: percentage of guests who take an action (inquiry, save, start proposal) on the FIRST listing they view after a search. (2) Alternative click-through rate: when a listing is unavailable and an alternative is promoted, percentage of guests who click through to the alternative vs. leaving the platform. (3) Search-to-inquiry time: elapsed time between the guest's first search and their first inquiry action. Compare these metrics before and after implementing the single-recommended-match design and the proactive alternative promotion.",
+      "success_criteria": "First-listing action rate above 30% (indicating the recommendation algorithm surfaces relevant matches). Alternative click-through rate above 50% (indicating the proactive promotion prevents dead-end dropout). Search-to-inquiry time decreases by at least 20% (indicating the satisfice-first design reduces browsing time).",
+      "failure_meaning": "If first-listing action rate is below 30%: the recommendation algorithm may be surfacing poor matches -- review the matching criteria (location, schedule, amenities) and compare to what guests actually search for. If alternative click-through is below 50%: the alternative promotion may not be prominent enough, or the alternatives may not be sufficiently similar to the original listing. If search-to-inquiry time does not decrease: the single-match design may be causing guests to feel they have not seen enough options -- consider showing 2-3 results with clear visual hierarchy rather than a single dominant match.",
+      "implementation_hint": "Analytics events: 'search_performed' (with query parameters), 'listing_viewed' (with position in results), 'listing_action' (inquiry, save, propose), 'unavailable_listing_viewed', 'alternative_promoted', 'alternative_clicked'. Build a funnel dashboard: Search -> First listing viewed -> Action taken. Playwright automated test for the alternative promotion: navigate to an unavailable listing URL, assert the muted listing state renders, assert the alternative card appears within 500ms, assert the alternative card contains a 'Similar space' heading and an actionable CTA."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Novel-Above-Standard Visual Hierarchy Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the listing page follows conventional layout (photos first, then amenities, then description), first-time visitors will scan only the conventional elements and miss the novel service concepts entirely, producing the same wrong-mental-model problem Vince exhibited.",
+      "solution": "Run eye-tracking or click-heatmap analysis on the listing page to validate that the service concept explainer receives attention before conventional listing details.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 4:13-4:25",
+          "type": "guest_call",
+          "quote": "Obviously having a kitchen, um, I've seen some places where they only really, you know, have something to cook.",
+          "insight": "Vince extracted the kitchen amenity but missed the service concept. The test must verify that the redesigned hierarchy reverses this: concept gets attention first, amenities get attention second."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.3 (p.31)",
+          "type": "book",
+          "quote": "The more important something is, the more prominent it is.",
+          "insight": "Krug's hierarchy principle can be directly measured: if the concept explainer is 'more prominent,' it should receive more visual attention (measured by fixation time or click density) than standard listing elements."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Use a click-heatmap tool (Hotjar, Microsoft Clarity) or eye-tracking study with 15-20 first-time visitors viewing the listing page. Measure: (1) first fixation location -- does the eye land on the concept explainer or the photos first? (2) total fixation time on the concept explainer vs. photos vs. amenities in the first 10 seconds, (3) scroll depth -- do users scroll past the concept explainer without fixating? Compare heatmaps between the current layout (conventional hierarchy) and the proposed layout (concept above photos). Supplement with the comprehension test from tests-001 to correlate attention with understanding.",
+      "success_criteria": "In the proposed layout, at least 70% of first-time visitors fixate on the concept explainer within their first 3 fixations. Total fixation time on the concept explainer exceeds fixation time on photos during the first 10 seconds. Scroll-past-without-reading rate for the concept explainer is below 15%. These attention metrics should correlate with improved comprehension scores from tests-001.",
+      "failure_meaning": "If the concept explainer does not capture early fixations: its visual weight (size, color contrast, whitespace) may be insufficient to break the scanning pattern that draws eyes to photos. Increase the contrast between the concept block and the surrounding content. If users fixate on it but comprehension does not improve: the content (language, illustration) may be unclear even when seen -- revise the copy and visual. If scroll-past rate is high: the concept block may look like a generic banner that users have learned to ignore (banner blindness) -- change its visual treatment to be clearly distinct from advertising or promotional content.",
+      "implementation_hint": "Install Hotjar or Clarity on the listing page. Create two heatmap recordings: one for the current page, one for the redesigned page (A/B split or sequential deployment). Filter recordings to first-time visitors only (no account, no prior session). For eye-tracking: use a tool like Tobii or Lookback with in-person sessions. Playwright regression test: verify the concept explainer's getBoundingClientRect().top is less than the photo gallery's getBoundingClientRect().top on all viewport sizes."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Verbal-to-Digital Feature Discovery Validation",
+      "validates_element": "works-006",
+      "journey_phases": ["active_lease"],
+      "problem": "If features explained verbally during the inquiry call (date trading, storage, schedule scaling) are not self-evident on the platform, guests will bypass the platform for routine tasks (texting the agent, calling the host), reducing platform engagement and preventing scalability.",
+      "solution": "Track platform feature adoption rates for the three verbally-introduced features and compare with off-platform communication rates for the same tasks.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 5:25-5:39",
+          "type": "guest_call",
+          "quote": "Through our app, once you're in a rental agreement, you can actually change your dates on the flat using the app.",
+          "insight": "The date-change feature was verbally introduced but never demonstrated. The test measures whether the platform version of this feature is used or bypassed."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.9)",
+          "type": "book",
+          "quote": "If something is hard to use, I just don't use it as much.",
+          "insight": "Krug's wife's principle is the simplest usability test: usage rate IS the test. If the date-change tool is used less than texting the agent for the same task, the tool has failed."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track three feature adoption metrics over the first 3 months of active leases: (1) Date-change tool usage rate: percentage of schedule changes initiated through the platform tool vs. through agent/host communication (text, email, chat). (2) Storage guide access rate: percentage of guests who open the storage card in the move-in guide before or during their first stay. (3) First-use success rate: percentage of guests who complete a date change on their first attempt without contacting support. Additionally, survey active-lease guests at the 1-month mark: 'When you need to change your schedule, do you use the app or contact your agent?' to capture self-reported behavior.",
+      "success_criteria": "Date-change tool usage rate above 50% of all schedule changes within 3 months of launch. Storage guide access rate above 80% of guests before or during their first stay. First-use success rate for the date-change tool above 85%. Survey responses show at least 60% of guests prefer the app over contacting the agent for schedule changes.",
+      "failure_meaning": "If date-change tool usage is below 50%: the tool is either not discoverable on the dashboard or too difficult to use. Run a usability test specifically on the date-change flow. If storage guide access is below 80%: the guide is not being delivered at the right time or the notification is not compelling enough. Test delivery timing (24 hours before vs. 2 hours before first stay). If first-use success is below 85%: the tool's interaction pattern is not self-evident -- observe 5-8 users attempting a date change and identify where they get stuck.",
+      "implementation_hint": "Analytics events: 'date_change_initiated' (with source: 'app_tool' or 'agent_request'), 'storage_guide_opened', 'date_change_completed', 'date_change_abandoned'. Build a dashboard showing the ratio of app-initiated vs. agent-initiated schedule changes over time. The ratio should trend toward app-initiated as guests become familiar with the tool. Playwright automated test: navigate to the active lease dashboard, assert the 'Change my schedule' button is visible without scrolling, click it, toggle one office day, assert the cost display updates, click 'Save changes', assert success state renders."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Dual-Format Schedule Display Clarity Validation",
+      "validates_element": "communicates-002",
+      "journey_phases": ["proposal_creation", "active_lease"],
+      "problem": "If the dual-format display (office days + stay nights) is confusing rather than clarifying, it adds visual noise instead of reducing cognitive load, making the schedule interface harder to use rather than easier.",
+      "solution": "Run a quick preference test and task-based usability test comparing three schedule display variants.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 6:43-6:56",
+          "type": "guest_call",
+          "quote": "It's hard to say like thinking of the days you need with the backing up to the nights that isn't completely understandable.",
+          "insight": "The agent confirms the translation is a systemic problem. The dual display must solve it for all guests, which means it must be tested for clarity across different schedule patterns, not just the Mon-Tue pattern."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.17-18)",
+          "type": "book",
+          "quote": "Your goal should be for each page to be self-evident.",
+          "insight": "The dual display must be self-evident: the relationship between office days and stay nights must be obvious at a glance without reading the bridge sentence."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Test three variants with 10 participants each: (A) nights-only display (control), (B) dual-format with office days primary and stay nights secondary (proposed), (C) dual-format with both at equal visual weight. For each variant, present 3 scenarios with different schedules (Mon-Tue office, Mon-Thu office, Sat-Sun office) and ask: 'Which nights will you be staying at the apartment?' Measure: (1) correct answer rate, (2) response time, (3) self-reported confidence ('How sure are you?'). Additionally, ask: 'Which display was clearest?' as a preference question after seeing all three.",
+      "success_criteria": "Variant B (proposed dual-format, office days primary) produces correct answers at least 90% of the time, at least 2x the accuracy of Variant A (nights-only). Response time for Variant B is under 10 seconds. Self-reported confidence for Variant B is at least 4/5. Preference test: at least 60% of participants prefer Variant B.",
+      "failure_meaning": "If Variant B does not outperform Variant A: the dual display may be adding confusion rather than reducing it. Check whether participants understand the derivation arrow or equals sign connecting the two rows. If Variant C (equal weight) outperforms Variant B: the visual hierarchy between office days and stay nights may be unnecessary -- guests may benefit from seeing both with equal prominence. If response time exceeds 15 seconds for any variant: the schedule display is too complex for scanning behavior and needs radical simplification.",
+      "implementation_hint": "Use Maze or UserTesting for the remote test. Present each variant as a static screenshot with a scenario description. Measure time from screenshot display to answer submission. For the preference test, show all three variants side by side and ask for a forced ranking. Playwright regression: verify both office-day badges and stay-night badges render on the proposal page; assert the office-day row appears above the stay-night row; assert the bridge sentence renders on the first visit but not on subsequent visits (check localStorage or cookie flag)."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Move-In Guide Scannability and Promise Delivery Validation",
+      "validates_element": "communicates-006",
+      "journey_phases": ["move_in", "active_lease"],
+      "problem": "If the move-in guide is not scannable, guests will skip critical information (storage location, house rules), producing a gap between the verbal promise ('feel like home') and the physical reality (confused in an unfamiliar space). This gap drives early churn.",
+      "solution": "Run a post-first-stay survey measuring information recall and promise delivery, combined with analytics on guide engagement.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 2:10-2:20",
+          "type": "guest_call",
+          "quote": "You're able to like kind of store your stuff in between stays so like toiletries and monitors and whatever you need there.",
+          "insight": "Storage is the physical operationalization of the 'feel like home' promise. If the guest finds the storage location during their first visit, the promise is delivered. If they do not, it is broken."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.5 (p.44)",
+          "type": "book",
+          "quote": "Omit needless words.",
+          "insight": "Krug's brevity principle applied to the move-in guide: every word over 20 per card is a word the guest will skip. Scannability can be measured by whether guests recall the key information from each card."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Two-part validation: (1) Post-first-stay survey sent within 24 hours of the guest's first visit. Questions: 'Were you able to find your storage area easily?' (yes/no + difficulty rating), 'What was the WiFi password?' (recall test), 'How many house rules do you remember?' (open-ended), 'Did the space feel like home on your first visit?' (1-5 scale). (2) Analytics tracking: guide open rate, time spent per card, card completion rate (how many guests reach card 5 of 5), and which card has the highest drop-off.",
+      "success_criteria": "Storage findability: at least 85% of guests report finding storage easily (difficulty rating 1-2 out of 5). WiFi recall: at least 70% can recall or approximately recall the password (indicating they used the guide). House rules recall: at least 60% can name at least 1 of 3 rules. Home-feel rating: average of 3.5 or above out of 5. Guide completion rate: at least 60% of guests reach all 5 cards. Guide open rate: at least 90% of guests open the guide before or during their first stay.",
+      "failure_meaning": "If storage findability is below 85%: the storage card photo may not match the actual unit, or the card's position (third) may be too late -- test moving it to second position. If WiFi recall is below 70%: the tap-to-copy affordance may not be working or the guide may not be opened at the right time -- test delivery 2 hours before arrival vs. 24 hours. If home-feel rating is below 3.5: the issue may be physical (space condition) rather than informational (guide quality) -- segment by listing to identify unit-specific problems. If guide completion drops sharply after card 2: the progressive collapse interaction may be confusing -- test a flat layout (all cards visible) vs. the progressive sequence.",
+      "implementation_hint": "Post-stay survey: trigger via email or in-app notification 12-24 hours after the guest's first check-in. Keep survey to 5 questions maximum. Analytics: track 'guide_opened' with timestamp relative to check-in time, 'card_viewed' with card_number, 'card_completed' (Next/Done tapped), 'wifi_copied' (tap-to-copy event). Build a card-level funnel: Card 1 -> Card 2 -> Card 3 -> Card 4 -> Card 5. Identify the highest-dropout card."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Date-Change Tool Self-Evidence and Usability Validation",
+      "validates_element": "behaves-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the date-change tool is not self-evident on first encounter, guests will default to texting the agent to change their schedule, bypassing the platform and preventing scalability. The tool competes directly with texting: if it requires more effort or thought than a text message, it loses.",
+      "solution": "Run a task-based usability test comparing the date-change tool to the texting alternative, measuring task completion time, error rate, and preference.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 5:25-5:39",
+          "type": "guest_call",
+          "quote": "Through our app, once you're in a rental agreement, you can actually change your dates on the flat using the app.",
+          "insight": "The feature was described verbally but never demonstrated. The usability test simulates the guest's first encounter with the tool, weeks after the verbal description, with no prior experience."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.9)",
+          "type": "book",
+          "quote": "If something is hard to use, I just don't use it as much.",
+          "insight": "The competitive benchmark is not other software tools -- it is texting. The date-change tool must be faster and easier than typing 'Hey, can I switch to just Monday nights next week?'"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 10-12 participants who have not seen the date-change tool before. Present the active lease dashboard and give the task: 'Your office schedule changed. You now only need to be in the office on Monday. Update your stay to match.' Do NOT tell them where the tool is or how it works. Measure: (1) can they find the 'Change my schedule' button without help? (findability rate), (2) can they complete the change correctly on the first attempt? (first-attempt success rate), (3) total time from task assignment to successful completion, (4) number of errors or wrong taps. After the task, ask: 'If you needed to change your schedule for real, would you use this tool or text your agent?' (preference). Benchmark: measure how long it takes the same participants to compose a text message with the same schedule change request -- the tool must be faster.",
+      "success_criteria": "Findability rate: at least 90% locate the button without help. First-attempt success rate: at least 80%. Task completion time: under 30 seconds median, and faster than the text-message benchmark for at least 70% of participants. Preference: at least 60% say they would use the tool over texting.",
+      "failure_meaning": "If findability is below 90%: the 'Change my schedule' button is not prominent enough on the dashboard -- increase size, change position, or add a visual cue. If first-attempt success is below 80%: the edit-mode interaction (tapping days to toggle) is not self-evident -- test adding a more explicit instruction or changing the interaction pattern (drag instead of tap, or a different visual treatment for the editable state). If the tool is slower than texting: the interaction has too many steps -- look for steps that can be eliminated (e.g., skip the edit-mode entry and make the calendar always editable). If preference skews toward texting despite faster tool completion: the tool may feel impersonal or anxiety-producing -- investigate the emotional dimension of the interaction.",
+      "implementation_hint": "Use UserTesting or Lookback for remote moderated sessions. Record screen and audio. For the text-message benchmark: have participants type the schedule change message into a text field (simulating a text to the agent) and time it. Playwright automated regression: from the dashboard, click 'Change my schedule', assert edit mode activates (button text changes to 'Save changes'), click a day cell, assert the corresponding night toggles within 200ms, assert cost display updates, click 'Save changes', assert success state. Test on both desktop (1440px) and mobile (375px) viewports."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Proposal Status Tracker Anxiety Reduction Validation",
+      "validates_element": "behaves-007",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "If the post-submission experience is a black box ('We will get back to you'), guests will fill the information vacuum with anxious narratives, leading to duplicate inquiries, off-platform alternatives, and dropout before the host responds.",
+      "solution": "Compare guest behavior during the waiting period with and without the status tracker, measuring inquiry volume, alternative browsing, and dropout rate.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 6:27",
+          "type": "guest_call",
+          "quote": "But I will have myself or someone get in touch with you shortly.",
+          "insight": "'Shortly' is informationally empty. The status tracker replaces vague promises with concrete steps. The test measures whether this transparency reduces the anxiety-driven behaviors (duplicate inquiries, browsing alternatives) that 'shortly' produces."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.2 (p.26-28)",
+          "type": "book",
+          "quote": "Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through.",
+          "insight": "Applied to waiting: without a status tracker, the guest muddles through the uncertainty with invented narratives. Transparent progress tracking replaces muddling with factual status."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test on the post-submission page. Control: standard confirmation page ('Thank you. We will be in touch.'). Variant: 3-step status tracker with estimated timeline. Measure over 4+ weeks: (1) duplicate inquiry rate: percentage of guests who contact support asking about their proposal status during the waiting period, (2) platform return rate: percentage of guests who return to the platform to check their proposal status (variant only -- if they check the tracker, the tracker is providing value), (3) proposal-to-response dropout rate: percentage of guests who submit a proposal but do not engage with the host response when it arrives, (4) alternative browsing rate: percentage of guests who search for other listings or visit competitor sites (measurable via platform search activity and referral data) during the waiting period.",
+      "success_criteria": "Variant (status tracker) produces at least a 40% reduction in duplicate inquiry rate. Platform return rate for tracker-checking exceeds 50% of submitting guests. Proposal-to-response dropout rate decreases by at least 20% in the variant. Alternative browsing rate during the wait decreases or stays flat (indicating the guest is not hedging by exploring alternatives).",
+      "failure_meaning": "If duplicate inquiries do not decrease: the status tracker may not be conveying enough information to satisfy the guest's anxiety. Test adding more specific status updates (e.g., 'The host viewed your proposal at 3:45 PM'). If return rate is low: guests may not know the tracker exists -- test a push notification when the status changes. If dropout-to-response does not decrease: the waiting period itself may be too long regardless of transparency -- investigate whether faster host response times are needed rather than better status tracking.",
+      "implementation_hint": "Feature-flag the status tracker for the A/B split. Analytics events: 'status_tracker_viewed' (with step shown), 'support_inquiry_submitted' (with topic tag 'proposal_status'), 'proposal_response_viewed', 'search_performed_during_wait' (for guests with an active proposal). Build a cohort comparison dashboard: control vs. variant across all four metrics. Run until 300+ proposals per variant for statistical significance."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "End-to-End Guest Journey Arc Validation",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Individual elements may work in isolation but fail when combined into a full journey. The emotional arc (confusion-to-calm-to-momentum-to-confidence-to-safety-to-relief-to-control) may have gaps or contradictions that only emerge when a guest traverses the complete path. The schedule-to-nights translation, flexibility messaging, and concept explanation are designed as discrete elements, but the guest experiences them as a continuous journey.",
+      "solution": "Run a longitudinal diary study with 5-8 actual guests from inquiry through first active-lease month, tracking emotional state, comprehension, and friction points at each phase transition.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, full transcript",
+          "type": "guest_call",
+          "quote": "N/A -- the full transcript from 0:04 (Sorry about this) through 6:56 (get the wheels turning on our side) represents a single guest's complete emotional journey from uncertainty to cautious optimism.",
+          "insight": "Vince's call covers discovery through proposal creation in a single conversation. The diary study extends this observation across the full journey, tracking whether the platform delivers the emotional arc that the phone call initiates."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.19)",
+          "type": "book",
+          "quote": "Making pages self-evident is like having good lighting in a store: it just makes everything seem better.",
+          "insight": "Krug's 'good lighting' metaphor applies to the whole journey, not just individual pages. The diary study tests whether the journey as a whole feels well-lit -- or whether certain phases feel dark (confusing, anxiety-producing, friction-heavy) despite individual pages being clear."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 real prospective guests (hybrid workers seeking 1-3 night/week housing near their office). Follow them from initial platform visit through their first month as active-lease guests. At each phase transition (search to listing view, listing to proposal, proposal to acceptance, acceptance to move-in, move-in to active lease), prompt a brief diary entry via text message: 'Rate your confidence right now from 1-5 and tell us one thing that is on your mind.' At the end of the first month, conduct a 20-minute interview covering: overall journey satisfaction, moments of confusion, moments of delight, and whether the platform delivered on the promises made during the inquiry process. Plot the confidence ratings as a journey arc and compare to the target emotional arc from the coherence report.",
+      "success_criteria": "Average confidence rating never drops below 3/5 at any phase transition. Confidence shows an overall upward trend from discovery (target: 3/5) to active lease (target: 4.5/5). Zero participants report being unable to find a critical feature (date-change tool, storage location, flexibility information) during the journey. At least 6 of 8 participants report that the platform delivered on the promises made during their inquiry. Phase-transition dropout rate is zero (all participants who start a phase complete it).",
+      "failure_meaning": "If confidence drops below 3 at any phase: that phase transition has a design problem that individual-element tests did not catch. Review the diary entries at that transition point to identify the specific friction. If the overall arc is flat rather than upward: the journey may feel neutral rather than progressively positive -- investigate whether delight moments (first-match discovery, optimistic submission confirmation, home-feel at move-in) are being experienced as designed. If a participant cannot find a critical feature: the feature's discoverability has failed despite passing individual usability tests -- investigate the feature's context within the full dashboard, not in isolation.",
+      "implementation_hint": "Use a diary study tool (dscout, Indeemo) or a simple SMS/WhatsApp prompt system. Trigger prompts based on platform events (proposal submitted, lease signed, first check-in). The interview at 1 month can be conducted via Zoom. Compile diary entries into a journey map per participant, then overlay all participants to identify common friction points. This is a qualitative study -- sample size is small but insight depth is high. Run it once before launch (with a prototype) and once after launch (with real platform interactions)."
+    }
+  ]
+}

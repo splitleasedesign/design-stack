@@ -1,0 +1,617 @@
+{
+  "lens": {
+    "host_call": "diane-kaufhold-call.txt",
+    "book_extract": "kahneman-cognitive-ease.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Verbal-to-Digital Language Match Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the website uses different phrasing than agents use on calls, hosts who visit the site to verify call claims will not recognize the promises, destroying the cognitive ease the call built. The language match may silently degrade over time as call scripts and website copy evolve independently.",
+      "solution": "Conduct a language concordance audit and A/B test to measure the impact of phrase-level matching between call scripts and website copy on post-call engagement.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 15:59",
+          "type": "host_call",
+          "quote": "You don't have to start the account. Anyway, if I want to, I want to read the whole website.",
+          "insight": "Diane explicitly announces she will compare the website against what Robert said. This is a verification intent that makes language matching measurably important."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Illusions of Truth",
+          "type": "book",
+          "quote": "A reliable way to make people believe in falsehoods is frequent repetition, because familiarity is not easily distinguished from truth.",
+          "insight": "Phrase-level repetition is the mechanism. If this fails, truth-feeling is lost. The test must measure truth-feeling proxies (engagement, time on page, conversion) after controlling for language match."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Create two versions of the host landing page. Version A uses exact phrases from the current call script for the three core guarantees (payment guarantee, damage matching, no host fees). Version B uses the current website copy for the same guarantees. Route post-call hosts (identified by agent referral link) to each version. Measure: (1) time on page, (2) scroll depth, (3) pages visited, (4) onboarding activation rate within 7 days.",
+      "success_criteria": "Version A (call-language match) achieves at least 15% higher onboarding activation rate within 7 days compared to Version B (current website copy). Time on page is at least 20% longer for Version A, indicating engagement rather than bounce.",
+      "failure_meaning": "If Version A does not outperform Version B, either: (a) the current website copy is already close enough to call language that phrase-level matching provides no incremental benefit, (b) the post-call verification behavior is less common than Diane's case suggests, or (c) other factors (visual design, page speed) dominate over language matching. In case (a), the audit is unnecessary. In case (b), the call-to-website handoff is not the primary dropout point. In case (c), prioritize visual/performance improvements over copy alignment.",
+      "implementation_hint": "Create a quarterly automated audit: record 10 recent agent calls, extract the top 5 value proposition phrases, compare against the current website landing page copy. Flag divergences above 2 words per phrase. The A/B test requires agent referral tracking (UTM or unique link per agent) to identify post-call visitors."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Familiarity Trap Detection at Pricing Confirmation",
+      "validates_element": "works-002",
+      "journey_phases": ["pricing", "active_lease"],
+      "problem": "Experienced hosts may pattern-match Split Lease pricing to their existing nightly rental model and misconfigure rates. If the pricing confirmation step fails to surface false familiarity, hosts discover the mismatch during active leases, causing disputes and churn.",
+      "solution": "Measure pricing revision rate before and after implementing the controlled-friction confirmation card, and run usability tests to observe whether experienced hosts engage with the projection or skip through it.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 14:20",
+          "type": "host_call",
+          "quote": "I just did all of that for years... I'm familiar.",
+          "insight": "Diane's confidence signals false familiarity. The test must determine whether the confirmation card successfully activates System 2 engagement in hosts who declare familiarity."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Strain and Effort",
+          "type": "book",
+          "quote": "Performance was better with the bad font. Cognitive strain mobilizes System 2.",
+          "insight": "The confirmation card is designed to be the 'bad font' of pricing. The test measures whether this controlled strain improves pricing accuracy without increasing abandonment."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track two metrics before and after implementing the pricing confirmation card: (1) Pricing revision rate: percentage of hosts who change their pricing within the first 30 days after initial setup. (2) Time spent on the confirmation card: median dwell time, segmented by hosts who declared prior experience vs. first-time hosts. Additionally, run 5 moderated usability tests with experienced hosts who have prior rental experience, observing whether they read the monthly projection or attempt to skip past it.",
+      "success_criteria": "Pricing revision rate drops from baseline to below 15% within 30 days. Median dwell time on the confirmation card is at least 8 seconds (indicating the host read the projection rather than immediately clicking confirm). In usability tests, at least 4 of 5 experienced hosts verbally engage with the monthly projection before confirming.",
+      "failure_meaning": "If pricing revision rate does not decrease: the confirmation card does not surface the familiarity trap effectively. The projection may be too abstract, too similar to what the host expected, or visually easy to skip. If dwell time is under 3 seconds: hosts are clicking through the confirmation without reading, and the friction is insufficient. If usability participants skip the projection: the visual design does not create enough differentiation from the preceding scenario cards to trigger the System 2 pause. In all failure cases, increase the visual weight of the novel information (variable-rate callout) or require an explicit interaction (e.g., toggling between scenarios) before the confirm button becomes active.",
+      "implementation_hint": "Add analytics events: pricing_confirmation_viewed, pricing_confirmation_dwell_time, pricing_confirmation_confirmed, pricing_revised_within_30d. Segment by host experience level (prior hosting platforms used, years of experience from onboarding profile). The usability test protocol should include a think-aloud prompt at the confirmation card: 'Tell me what you see on this screen.'"
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Listing Import Path Completion Rate",
+      "validates_element": "works-003",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the import path is not the default or if the import process introduces latency and friction, experienced multi-property hosts will not complete listing creation and the platform loses its highest-value host segment.",
+      "solution": "Compare listing completion rates between the import path and manual creation path, and measure multi-property completion rates specifically.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 10:51-11:03",
+          "type": "host_call",
+          "quote": "We take that information from that site for you, create your listings, send you back links to your listings, and then you go in and you verify if you like everything.",
+          "insight": "The import path was described as effortless. The test must verify that the actual implementation matches this promise in practice."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 00:49",
+          "type": "host_call",
+          "quote": "It's unbelievable. You know, the day is never long enough.",
+          "insight": "Time poverty is the binding constraint. Completion rate is the ultimate proxy for whether the import path respects this constraint."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track listing creation completion rates segmented by path (import vs. manual) and by host type (single-property vs. multi-property). For import-path hosts, measure: (1) time from link submission to first verification task, (2) verification task completion rate within 48 hours, (3) second and third property completion rates for multi-property hosts. For comparison, measure the same metrics for manual-creation hosts.",
+      "success_criteria": "Import path achieves at least 70% listing completion within 7 days for hosts with existing listings (per works-003 success metric). Multi-property hosts complete at least 2 of 3 listings within 14 days. Import path completion rate is at least 25% higher than manual creation path for experienced hosts. Verification task takes under 3 minutes per property on average.",
+      "failure_meaning": "If completion rate is below 50%: the import itself is introducing friction (scraping failures, incomplete data, poor verification UX). If multi-property hosts complete only 1 of 3: the sequencing (verify Manhattan today, Queens tomorrow) is not being delivered or the follow-up notifications are not effective. If import and manual paths have similar rates: the import is not providing the expected effort reduction, possibly because the verification step is as effortful as manual creation.",
+      "implementation_hint": "Instrument the import pipeline: link_submitted, import_started, import_field_populated (per field), import_complete, verification_sent, verification_opened, verification_completed. For multi-property tracking, use a property_index (1, 2, 3) to measure completion curves. Set up a cohort analysis comparing 7-day and 14-day completion rates across import vs. manual."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Host Agency Preservation: Explore-Then-Claim Conversion",
+      "validates_element": "works-004",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "Pre-creating accounts removes agency from hosts whose System 2 is still engaged in evaluation. If the explore-then-claim flow does not convert as well as or better than the pre-created-account flow, the design change will reduce onboarding rates.",
+      "solution": "A/B test the current pre-created-account-with-password flow against the new explore-then-claim flow, measuring activation rate and time-to-activation.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 15:59",
+          "type": "host_call",
+          "quote": "You don't have to start the account. Anyway, if I want to, I want to read the whole website.",
+          "insight": "Diane explicitly resists the pre-created account. The test must determine whether this resistance pattern is common enough to justify the flow change."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Cognitive Ease (main passage)",
+          "type": "book",
+          "quote": "When you feel strained, you are more likely to be vigilant and suspicious.",
+          "insight": "The theory predicts that strained hosts (evaluating a novel platform) will respond better to explore-then-claim than to pre-created accounts. The A/B test validates this prediction."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Split post-call hosts into two groups. Group A receives the current flow: a pre-created account with a temporary password. Group B receives the new flow: a personalized preview link with browse-then-claim. Measure: (1) activation rate within 14 days, (2) time from email receipt to first platform interaction, (3) pages viewed before activation, (4) listing creation initiated within 7 days of activation.",
+      "success_criteria": "Group B (explore-then-claim) achieves an activation rate above 40% within 14 days (per works-004 success metric). Group B activation rate is no more than 5% lower than Group A. Group B views at least 2 more pages before activation than Group A, indicating genuine exploration. Group B has equal or higher listing creation initiation rate within 7 days of activation.",
+      "failure_meaning": "If Group B activation rate is more than 10% lower: the explore-then-claim flow creates too much distance between the call and the commitment, and the extra browsing step causes hosts to lose momentum. If Group B has fewer pages viewed: hosts are not exploring, they are bouncing -- the preview content is not engaging enough to retain attention. In these failure cases, consider a hybrid: send the preview link first, then send the password 3-5 days later if the host has browsed but not claimed.",
+      "implementation_hint": "The A/B test requires: (1) two email templates (password vs. preview link), (2) a preview page that tracks browsing behavior without authentication (anonymous session tied to the preview link), (3) activation tracking that distinguishes password-based login from claim-based activation. Run for 4 weeks minimum to collect sufficient sample size (target: 50+ hosts per group)."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Cumulative Payment Trust Accumulation Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "If successful payments are invisible, hosts do not associate reliable income with the platform's guarantee, and a single negative event can define the entire relationship. The payment trust accumulation pattern adds notifications and dashboard elements that could improve retention or could produce notification fatigue.",
+      "solution": "Measure the correlation between visible payment confirmation engagement and lease renewal rate, and monitor notification opt-out rates to detect fatigue.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 06:23",
+          "type": "host_call",
+          "quote": "COVID made the mess... I had pretty good people, steady... some moved out, didn't pay a few more months.",
+          "insight": "Diane's invisible success was erased by visible failure. The test must determine whether visible success (payment confirmations with running counts) creates a measurable resilience buffer."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, The Pleasure of Cognitive Ease",
+          "type": "book",
+          "quote": "The mere exposure effect occurs because the repeated exposure of a stimulus is followed by nothing bad.",
+          "insight": "Each payment confirmation is an exposure event. The test measures whether hosts who engage with these exposures have higher retention than those who do not."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After implementing the payment confirmation notifications and dashboard badge row, track: (1) payment confirmation open rate (email/push), (2) dashboard badge row engagement (time spent viewing, visits to payment section), (3) notification opt-out rate, (4) lease renewal rate segmented by confirmation engagement level (high: opens >80% of confirmations; medium: 40-80%; low: <40%). Additionally, track how hosts respond to the first negative event (late payment, damage claim) segmented by their prior positive confirmation engagement.",
+      "success_criteria": "Lease renewal rate above 60% (per works-005 success metric). High-engagement hosts (>80% confirmation open rate) have at least 15% higher renewal rate than low-engagement hosts. Notification opt-out rate stays below 10%. After a first negative event, high-engagement hosts return to the dashboard within 48 hours at least 30% more often than low-engagement hosts (indicating the trust reservoir draws them back to check status rather than disengage).",
+      "failure_meaning": "If no correlation between confirmation engagement and renewal: the payment confirmations are not building the mere-exposure safety signal. Possible causes: confirmations are too generic (they feel like receipts, not trust events), the running count is not salient enough, or renewal decisions are driven by other factors (guest quality, market conditions) that overpower the trust signal. If opt-out rate exceeds 20%: the notifications are perceived as spam rather than reassurance. Reduce frequency to one monthly summary rather than per-payment confirmation.",
+      "implementation_hint": "Tag each payment confirmation email/push with a unique tracking pixel or link. On the dashboard, track time-in-viewport for the badge row section using intersection observer. Create a host engagement score based on confirmation interactions. Set up a cohort analysis comparing renewal rates across engagement quartiles. The negative-event response tracking requires tagging the first late payment or damage claim per host and measuring subsequent platform visits."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "2-Minute Task Completion Validation",
+      "validates_element": "works-006",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "If individual tasks require more than 2 minutes or if deep-linked notifications do not deliver the host directly to the task, time-poor hosts will defer and eventually abandon the platform.",
+      "solution": "Measure actual task completion times and compare them to the 2-minute target, and track the completion rate of deep-linked vs. dashboard-navigated tasks.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 00:49",
+          "type": "host_call",
+          "quote": "It's unbelievable. You know, the day is never long enough.",
+          "insight": "The 2-minute constraint is derived from Diane's structural time poverty. The test validates whether the implementation actually achieves this constraint."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "System 2 is lazy and that mental effort is aversive.",
+          "insight": "If actual task time exceeds the estimated time, the host's System 1 registers a promise violation, which increases suspicion and reduces willingness to engage with the next task."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Instrument every atomic task (listing verification, pricing scenario, pricing confirmation, proposal review) with start and completion timestamps. Measure: (1) median completion time per task type, (2) completion rate within 48 hours of notification, (3) completion rate for deep-linked tasks vs. tasks accessed through dashboard navigation, (4) sequential completion rate for multi-property hosts (does completing property 1 predict completing property 2 within 48 hours?).",
+      "success_criteria": "Median completion time under 2 minutes for each task type (per works-006 success metric). Task completion rate above 65% within 48 hours of notification. Deep-linked tasks have at least 20% higher completion rate than dashboard-navigated tasks. Multi-property sequential completion rate: at least 70% of hosts who complete property 1 begin property 2 within 48 hours.",
+      "failure_meaning": "If median completion time exceeds 3 minutes: the task is not atomic enough and needs to be split further, or the task screen contains too much information/too many decisions. If deep-linked tasks do not outperform dashboard: the deep links are not working properly (broken URLs, authentication walls, mobile rendering issues) or the notification copy does not communicate the task clearly enough. If multi-property sequential rate is low: the notification sequencing is too fast (host feels pressured) or too slow (host forgets about remaining properties).",
+      "implementation_hint": "Instrument with task_opened, task_completed, task_abandoned events. Include the source (deep_link vs. dashboard vs. email) as an event property. For multi-property hosts, track property_index and time_between_properties. Set up a real-time dashboard showing median task times by type so the product team can monitor whether new tasks breach the 2-minute ceiling."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Call-Echo Information Hierarchy Usability Validation",
+      "validates_element": "communicates-001",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the website's information hierarchy does not match the call's information delivery order, post-call hosts will not find the guarantees they came to verify, causing frustration and dropout.",
+      "solution": "Run a first-click usability test with post-call hosts to measure whether they find the three core guarantees within the first 10 seconds of landing on the page.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 04:36-05:28",
+          "type": "host_call",
+          "quote": "We guarantee that we will collect the payment and pay you... if the damage exceeds the $500, we will match for the same amount.",
+          "insight": "These are the guarantees hosts come to verify. The test measures whether the information hierarchy makes them findable within seconds."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "The general principle is that anything you can do to reduce cognitive strain will help, so you should first maximize legibility.",
+          "insight": "Legibility includes informational findability. If the guarantees are present but buried, they are not legible in the Kahneman sense."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8 hosts who recently completed a sales call. Show them the host landing page and ask: 'Robert mentioned three things the platform guarantees. Can you find them on this page?' Measure: (1) time to first guarantee identification, (2) number of guarantees identified within 30 seconds, (3) whether hosts use the same words from the call or the website's words when describing what they found. Record eye-tracking or scroll behavior if possible.",
+      "success_criteria": "At least 6 of 8 hosts identify all three guarantees within 30 seconds. At least 5 of 8 use call-language words (not website-language words) when describing what they found, indicating phrase-level recognition occurred. Average time to first guarantee identification is under 5 seconds.",
+      "failure_meaning": "If hosts cannot find the guarantees within 30 seconds: the information hierarchy is wrong -- guarantees are below the fold, too small, or obscured by other content. If hosts use website-language words: the phrase-level matching has failed, and the website copy has diverged from call language. If first guarantee identification takes over 10 seconds: the visual weight of the guarantee headlines is insufficient relative to other page elements.",
+      "implementation_hint": "Recruit from recent call completions (within 7 days). Run remotely using screen-sharing with think-aloud protocol. Record exact phrases hosts use when identifying guarantees -- this is the most valuable qualitative data. Compare host phrases to call script phrases and website phrases to measure recognition vs. comprehension."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Sequential Pricing Disclosure Usability Validation",
+      "validates_element": "communicates-002",
+      "journey_phases": ["pricing", "listing_creation"],
+      "problem": "If the sequential scenario-based pricing flow does not replicate the conversational scaffolding of the sales call, hosts will either misconfigure rates (too easy, false familiarity) or abandon the flow (too hard, too many steps).",
+      "solution": "Run moderated usability tests comparing the sequential scenario flow against a traditional multi-field pricing form, measuring both accuracy and completion rate.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 12:29-13:49",
+          "type": "host_call",
+          "quote": "If somebody says, I want only every week, but Monday through Thursday... then we will say, okay, how much per day you would want.",
+          "insight": "Robert's sequential scaffolding is the benchmark. The test evaluates whether the digital implementation replicates this scaffolding effectively."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Illusions of Truth",
+          "type": "book",
+          "quote": "The familiarity of one phrase in the statement sufficed to make the whole statement feel familiar, and therefore true.",
+          "insight": "False familiarity produces misconfigured pricing. The test measures whether the sequential flow surfaces the novel elements that hosts might otherwise miss."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 10 hosts with prior rental experience. Randomly assign 5 to the sequential scenario flow (one question per card, summary at end) and 5 to a traditional multi-field pricing form (all options visible simultaneously). Give all 10 the same scenario: 'You want to charge $50/night for guests booking 4+ nights and $65/night for guests booking 2-3 nights.' Measure: (1) pricing configuration accuracy (do the entered values match the scenario?), (2) completion time, (3) comprehension (ask: 'How much would a guest who books Monday-Thursday pay per month?'), (4) perceived difficulty (1-5 scale).",
+      "success_criteria": "Sequential flow achieves at least 80% configuration accuracy (4 of 5 hosts enter correct values). Sequential flow comprehension: at least 4 of 5 hosts correctly calculate the monthly amount. Sequential flow perceived difficulty is at least 1 point lower than the traditional form on the 1-5 scale. Both flows complete within 3 minutes.",
+      "failure_meaning": "If sequential flow accuracy is below 60%: the individual scenario cards are not clear enough, or the host is losing context between cards. If comprehension is low despite correct configuration: the host entered numbers correctly but does not understand what they produce, meaning the confirmation card is not surfacing the projection effectively. If perceived difficulty is equal: the sequential flow adds steps without reducing perceived cognitive load.",
+      "implementation_hint": "Build both prototypes in Figma or a lightweight web prototype. Think-aloud protocol for all sessions. After configuration, present the monthly projection to all participants (both groups) and observe reaction. The key qualitative data is whether the sequential flow participants say 'I already knew that' (familiarity trap persists) or 'Oh, I see' (the projection surfaced something new)."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Guest Profile Richness Impact on Proposal Acceptance",
+      "validates_element": "communicates-003",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If guest profiles are informationally thin, hosts enter the vigilance-suspicion cluster and reject proposals that they would accept with richer information. But adding more information could also increase cognitive load and slow decision-making.",
+      "solution": "A/B test a rich guest profile card (purpose, schedule, verifications, personal message, Zoom option) against the current profile format, measuring proposal acceptance rate and decision time.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 09:48",
+          "type": "host_call",
+          "quote": "So I don't need them first to see?",
+          "insight": "Diane's default is physical evaluation. The test measures whether rich digital profiles satisfy the same assessment need."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Ease, Mood, and Intuition",
+          "type": "book",
+          "quote": "Good mood, intuition, creativity, gullibility, and increased reliance on System 1 form a cluster.",
+          "insight": "Information richness should produce the ease cluster. The test measures whether richer profiles increase acceptance (ease) or decrease it (overload)."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Split hosts into two groups for proposal delivery. Group A sees the current guest profile format. Group B sees the rich profile card (guest purpose as headline, visual schedule, verification badges, personal message, Zoom CTA). Measure: (1) proposal acceptance rate, (2) median decision time (notification to action), (3) Zoom meeting scheduling rate, (4) host-initiated message rate after proposal view.",
+      "success_criteria": "Group B (rich profile) achieves at least 10% higher proposal acceptance rate than Group A. Decision time is no more than 30 seconds longer for Group B (richness should not cause paralysis). Zoom scheduling rate is at least 2x higher in Group B (the prominent CTA works). Host message rate is equal or higher (the host engages more, not less).",
+      "failure_meaning": "If acceptance rate is lower in Group B: the additional information is introducing new reasons to decline rather than building trust. Review which information elements correlate with rejection (e.g., employer name, location details). If decision time is much longer: the card has too much information and hosts are deliberating rather than intuitively assessing. Simplify the card to the top 4 information elements. If Zoom rate does not increase: hosts do not need the physical-evaluation bridge as much as Diane's case suggests.",
+      "implementation_hint": "Requires two proposal card templates with analytics on each information element (viewed, clicked, time spent). Track which elements hosts interact with most before accepting vs. declining. Run for 6 weeks minimum (proposal volume may be low per host). Segment by host experience level to test whether the richness effect differs for experienced vs. novice hosts."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "High-Contrast Guarantee Headlines Visual Validation",
+      "validates_element": "looks-001",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If guarantee headlines are not visually dominant on the host landing page, they will be missed during the critical first-scan moment, and the cognitive ease from the call will not transfer to the website.",
+      "solution": "Run a 5-second test and an eye-tracking study to measure whether guarantee headlines are the first visual elements hosts perceive on the landing page.",
+      "evidence": [
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "The general principle is that anything you can do to reduce cognitive strain will help, so you should first maximize legibility... use high-quality paper to maximize the contrast.",
+          "insight": "Visual contrast directly drives truth perception. The test validates whether the implemented contrast level is sufficient to dominate the first scan."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 16:38",
+          "type": "host_call",
+          "quote": "What should I look for? What's the name of it?",
+          "insight": "Diane arrives with zero visual familiarity. The guarantees must be the loudest visual element on the page to anchor her immediately."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Run a 5-second test with 20 participants (mix of hosts and non-hosts). Show the host landing page for exactly 5 seconds, then ask: 'What do you remember from this page?' Record responses. Score: (1) how many participants mention any guarantee, (2) whether they recall specific phrases vs. general impressions, (3) what competing elements they mention instead. Additionally, if eye-tracking is available, run with 5 participants to map the first 3 seconds of gaze pattern.",
+      "success_criteria": "At least 14 of 20 participants (70%) mention at least one guarantee in their 5-second recall. At least 8 of 20 (40%) recall a specific phrase rather than a general impression ('they guarantee payments' vs. 'it seemed professional'). Eye-tracking: the guarantee headlines receive the first fixation at least 60% of the time.",
+      "failure_meaning": "If recall is below 50%: the guarantee headlines are not visually dominant enough. Possible causes: competing elements (hero image, navigation, logo) are drawing attention first; the headline font size is too small; the contrast ratio, while meeting WCAG, is perceptually insufficient against the warm background. Increase headline size, reduce competing visual elements above the fold, or add subtle vertical emphasis (rule lines, background card).",
+      "implementation_hint": "5-second tests can be run cheaply via UsabilityHub or Maze. Eye-tracking can be done with Tobii Pro or similar. For the recall coding, create a codebook that distinguishes: guarantee mention (specific), guarantee mention (general), platform name, visual design comment, no recall. The 5-second test should be repeated after any major landing page redesign."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Mono Typography Financial Trust Signal Validation",
+      "validates_element": "looks-002",
+      "journey_phases": ["evaluation", "active_lease"],
+      "problem": "The hypothesis that monospace typography for financial figures increases perceived credibility has theoretical support from Kahneman but no direct empirical evidence in the design stack system. If the hypothesis is wrong, the mono treatment adds visual complexity without benefit.",
+      "solution": "Run a preference test comparing financial figures in mono vs. sans typography, measuring perceived credibility and precision.",
+      "evidence": [
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "If you care about being thought credible and intelligent, do not use complex language where simpler language will do.",
+          "insight": "The principle extends to typography: the simplest, most precise rendering of financial data should be the most credible. The test validates whether mono is perceived as more precise than sans."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 06:23",
+          "type": "host_call",
+          "quote": "COVID made the mess... some moved out, didn't pay a few more months.",
+          "insight": "Diane's payment anxiety means financial figures carry emotional weight. The test measures whether typographic treatment affects the emotional response to financial promises."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 20 participants two versions of the payment guarantee section: Version A uses IBM Plex Mono for dollar amounts and counts; Version B uses Outfit (the body sans) for the same figures. Ask each participant to rate both versions on: (1) Which version looks more precise? (2) Which version do you trust more for financial information? (3) Which version looks more professional? Use a forced-choice format. Additionally, ask 5 participants to explain their choice in open-ended responses.",
+      "success_criteria": "At least 65% of participants choose the mono version as more precise. At least 60% choose mono as more trustworthy for financial information. Open-ended responses reference concepts related to 'data,' 'official,' 'bank statement,' or 'receipt' when explaining their mono preference.",
+      "failure_meaning": "If preference is below 55%: the mono treatment does not produce a measurable trust signal, and the typographic complexity it introduces is not justified. Remove the mono treatment for financial figures and use the standard sans throughout. If participants prefer sans as more trustworthy: the mono treatment may feel cold or impersonal in the warm visual context, creating an unwanted emotional dissonance.",
+      "implementation_hint": "This is a lightweight preference test that can be run in Maze or Google Forms with screenshots. Create two identical payment confirmation cards differing only in the typography of dollar amounts and counts. Randomize presentation order. The open-ended responses are the most valuable data -- code them for spontaneous mentions of precision, trust, data, or official-ness."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Single-Focus Pricing Card Flow Completion Validation",
+      "validates_element": "looks-004",
+      "journey_phases": ["pricing"],
+      "problem": "If the single-focus card layout feels like too many steps (each scenario is a separate card), hosts may perceive the pricing setup as more complex than it actually is, increasing abandonment despite each individual card being simple.",
+      "solution": "Measure pricing flow completion rate and perceived complexity before and after implementing the single-card layout.",
+      "evidence": [
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "The general principle is that anything you can do to reduce cognitive strain will help, so you should first maximize legibility.",
+          "insight": "Single-focus cards maximize legibility per step, but the test must verify that the step count does not counteract this by increasing perceived process length."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 12:29-13:49",
+          "type": "host_call",
+          "quote": "Robert walked through pricing as sequential scenarios.",
+          "insight": "The sequential model worked in conversation. The test validates whether the digital implementation preserves this sequential ease."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "After implementing the single-focus card layout for pricing, measure: (1) pricing flow completion rate (start to final confirmation), (2) drop-off rate per card (which scenario card has the highest abandonment), (3) median time per card, (4) total flow time, (5) post-flow survey: 'How complex did you find the pricing setup?' (1-5 scale).",
+      "success_criteria": "Pricing flow completion rate above 80%. No single card has a drop-off rate above 15%. Median time per card under 30 seconds. Total flow time under 3 minutes for standard scenarios. Perceived complexity rating below 2.5 on a 5-point scale.",
+      "failure_meaning": "If completion rate is below 70%: hosts are abandoning mid-flow, likely because the step count feels long or the cards do not provide enough context for decision-making. Consider combining the simplest scenarios into a single card. If one card has high drop-off: that specific scenario is unclear or the question is ambiguous. Revise that card's copy and example. If perceived complexity is above 3: the card-per-scenario model feels like too many steps despite each step being simple. Consider a hybrid: one card for the primary rate, one card for the secondary rate, and the summary -- three steps instead of variable.",
+      "implementation_hint": "Track pricing_flow_started, pricing_card_N_viewed, pricing_card_N_completed, pricing_flow_completed, pricing_flow_abandoned events. Include a one-question in-flow survey after the final confirmation (optional, non-blocking): 'How easy was setting up your pricing?' with a 1-5 emoji scale. Compare completion rates before and after the layout change."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Payment Badge Row Engagement and Trust Validation",
+      "validates_element": "looks-005",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "The badge row visualization may not draw attention on the dashboard or may not produce the mere-exposure effect hypothesized by Kahneman's framework. If hosts do not notice the badges, the visual pattern provides no trust benefit.",
+      "solution": "Track badge row engagement using viewport intersection analytics and correlate with renewal behavior.",
+      "evidence": [
+        {
+          "source": "kahneman-cognitive-ease.txt, The Pleasure of Cognitive Ease",
+          "type": "book",
+          "quote": "The mere exposure effect occurs because the repeated exposure of a stimulus is followed by nothing bad.",
+          "insight": "Each badge fill must be a conscious exposure. The test measures whether hosts actually perceive the badge updates."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 04:36",
+          "type": "host_call",
+          "quote": "We guarantee that we will collect the payment and pay you.",
+          "insight": "The badge row is the visual proof of this guarantee. The test measures whether hosts engage with this proof."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Implement viewport intersection tracking on the badge row section of the host dashboard. Measure: (1) percentage of dashboard visits where the badge row is in the viewport for at least 2 seconds, (2) whether hosts scroll to the badge row on visits following a payment confirmation notification, (3) click-through rate on the badge row (if it links to payment details), (4) correlation between badge row view frequency and lease renewal rate.",
+      "success_criteria": "Badge row is in-viewport for 2+ seconds on at least 60% of dashboard visits. At least 40% of visits within 24 hours of a payment notification include badge row viewing. Hosts who view the badge row on 5+ visits have at least 10% higher renewal rates than those who view it fewer than 3 times.",
+      "failure_meaning": "If in-viewport rate is below 40%: the badge row is positioned too low on the dashboard and hosts are not scrolling to it. Move it above the fold. If post-notification viewing is low: the payment confirmation email/push is not driving hosts back to the dashboard. The notification itself may be sufficient as the exposure event, and the dashboard badge is redundant. If no correlation with renewal: the badge row is noticed but does not influence retention decisions. The trust signal may need to be stronger (e.g., include dollar amounts in the badges, add a trend line).",
+      "implementation_hint": "Use Intersection Observer API to track badge row visibility. Create a custom analytics event: badge_row_viewed with properties (duration_ms, payment_count_at_view, source: organic_visit | notification_click). Correlate with renewal events after 6 months of data collection."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Optimistic Import Interaction Pattern Validation",
+      "validates_element": "behaves-001",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "The optimistic import pattern (skeleton preview, progressive field population, progress notifications) adds implementation complexity. If the skeleton preview and progress notifications do not reduce the perceived latency gap or do not increase listing completion, the complexity is not justified.",
+      "solution": "Compare perceived wait time and listing completion rates between the optimistic import pattern and the current silent-import pattern.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 10:51-11:03",
+          "type": "host_call",
+          "quote": "We take that information from that site for you, create your listings.",
+          "insight": "The current import is silent during processing. The test measures whether the optimistic pattern fills the dead zone effectively."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, The Pleasure of Cognitive Ease",
+          "type": "book",
+          "quote": "Repetition induces cognitive ease and a comforting feeling of familiarity.",
+          "insight": "Each progress notification is a mere-exposure event. The test measures whether these exposures improve completion rates."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Split hosts who submit a listing import link into two groups. Group A (control): current flow -- silent processing, then a single notification when the import is complete with a verification link. Group B (optimistic): immediate skeleton preview, progress notifications at 25%/50%/75%/100%, then the verification card. Measure: (1) verification task completion rate within 48 hours, (2) time from link submission to first platform revisit, (3) number of platform visits during the import period, (4) perceived wait time (survey: 'How long did the import feel?').",
+      "success_criteria": "Group B verification completion rate is at least 15% higher than Group A within 48 hours. Group B has at least 1 additional platform visit during the import period (mere-exposure events). Group B perceived wait time is lower despite the actual processing time being identical.",
+      "failure_meaning": "If completion rates are similar: the latency gap is not the primary barrier to listing completion. Hosts may be abandoning for other reasons (import quality, verification UX, loss of interest). If progress notifications increase visits but not completion: hosts are checking in but not finishing -- the verification card needs simplification. If perceived wait time is higher in Group B: the progress notifications are drawing attention to the wait rather than filling it, creating the 'watched pot' effect.",
+      "implementation_hint": "Group B requires: (1) a skeleton preview component that renders within 2 seconds of link submission, (2) a progress tracking system that updates the backend import status in real-time, (3) a notification delivery system that sends at 25/50/75/100% milestones. Group A uses the existing flow. Both groups receive the same verification card upon import completion. Run for 4 weeks. Perceived wait time survey is sent 1 hour after import completion."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Controlled Friction Confirmation Card Interaction Validation",
+      "validates_element": "behaves-002",
+      "journey_phases": ["pricing"],
+      "problem": "The controlled friction confirmation card must create a perceptible pause (rhythm change from 300ms to 400ms entrance) that activates System 2 without feeling sluggish. If the rhythm change is imperceptible, no System 2 activation occurs. If it is too pronounced, it feels like a page load error.",
+      "solution": "Measure interaction timing on the confirmation card vs. scenario cards, and observe the rhythm change effect in usability testing.",
+      "evidence": [
+        {
+          "source": "kahneman-cognitive-ease.txt, Strain and Effort",
+          "type": "book",
+          "quote": "Cognitive strain, whatever its source, mobilizes System 2.",
+          "insight": "The 100ms timing difference is designed to produce micro-strain. The test verifies whether it succeeds."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 14:20",
+          "type": "host_call",
+          "quote": "I just did all of that for years... I'm familiar.",
+          "insight": "The confirmation card targets false familiarity. The test measures whether the card changes host behavior at the confirmation step."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Measure interaction timing on the pricing flow: (1) median time from card appearance to user action for each scenario card vs. the confirmation card, (2) scroll behavior on the confirmation card (did the host scroll to see the projection?), (3) rate of hosts who change their rates after seeing the confirmation (indicating the projection surfaced a mismatch), (4) rate of hosts who click 'adjust' vs. 'confirm' on the confirmation card.",
+      "success_criteria": "Median dwell time on the confirmation card is at least 3 seconds longer than on individual scenario cards (indicating the host paused and read). At least 70% of hosts scroll to see the full projection. At least 10% of hosts adjust rates after seeing the confirmation (indicating the projection surfaced a genuine mismatch). The 'adjust' rate is higher for experienced hosts than first-time hosts (confirming that the familiarity trap is real).",
+      "failure_meaning": "If dwell time difference is under 1 second: the rhythm change is imperceptible, and the confirmation card is being treated the same as a scenario card. Increase the visual differentiation (wider card, different background, more prominent callout). If scroll rate is below 50%: the projection is below the fold on the card and hosts are confirming without seeing it. Move the projection above the confirm button. If adjust rate is below 3%: either hosts genuinely understood the pricing and the confirmation adds no value, or the projection is too similar to what they expected to trigger re-evaluation.",
+      "implementation_hint": "Add analytics events: pricing_confirmation_viewed, pricing_confirmation_scrolled, pricing_confirmation_dwell_time_ms, pricing_confirmation_action (confirm | adjust). Segment by host_experience_level. The scroll tracking can use intersection observer on the projection section within the card."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Explore-Then-Claim Interaction Flow Validation",
+      "validates_element": "behaves-003",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "The explore-then-claim sequence adds a browsing step before account activation. If the browsing experience is not compelling or if the claim button is not discoverable, the flow may reduce conversion compared to the current pre-created account approach.",
+      "solution": "Track the full funnel from preview link click through browsing to account claim, identifying where hosts drop off.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 15:59",
+          "type": "host_call",
+          "quote": "I want to read the whole website.",
+          "insight": "Diane's request is the use case for the preview page. The test validates whether the preview satisfies this verification intent."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, The Pleasure of Cognitive Ease",
+          "type": "book",
+          "quote": "The mere exposure effect occurs because the repeated exposure of a stimulus is followed by nothing bad.",
+          "insight": "Each preview page visit is a mere-exposure event. The test measures whether multiple visits precede claiming."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track the full explore-then-claim funnel: (1) preview link click rate from email, (2) preview page load time, (3) scroll depth on preview page, (4) number of preview page visits before claim, (5) claim button click rate, (6) activation form completion rate, (7) time from first preview visit to claim. Also track: return visits (hosts who view the preview, leave, and come back).",
+      "success_criteria": "Preview link click rate above 60% from email. Claim rate above 40% within 14 days (per works-004 metric). At least 30% of claiming hosts visited the preview page 2+ times before claiming (indicating the mere-exposure buildup works). Activation form completion rate above 90% (the form is simple enough that dropping off is rare). Return visit rate above 25%.",
+      "failure_meaning": "If link click rate is below 40%: the email is not compelling enough. Test different email subject lines and preview descriptions. If claim rate is below 25%: the preview content is not converting browsing intent into commitment. Review the preview page for clarity, guarantee visibility, and claim button placement. If no return visits: hosts are making a single binary decision (browse and claim or browse and leave). The mere-exposure buildup is not happening. The preview may need a follow-up prompt after 3-5 days.",
+      "implementation_hint": "The preview page must work without authentication: use a signed URL or short-lived token that identifies the host without requiring login. Track page views using anonymous session cookies tied to the preview token. The claim button should fire a claim_button_clicked event before opening the activation form. Track email_link_clicked using UTM parameters or redirect URLs."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Guest Proposal Rich Preview Interaction Validation",
+      "validates_element": "behaves-006",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "The rich proposal preview card adds multiple information layers (purpose, schedule, verifications, message, Zoom). If the card is too dense, hosts may feel overwhelmed rather than informed. If key information is not scanned, the richness fails to produce cognitive ease.",
+      "solution": "Track which card sections hosts interact with before making accept/decline decisions, and measure Zoom uptake.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 09:48",
+          "type": "host_call",
+          "quote": "So I don't need them first to see?",
+          "insight": "The Zoom feature is the explicit bridge for hosts accustomed to physical evaluation. Zoom scheduling rate is a direct measure of the bridge's effectiveness."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Ease, Mood, and Intuition",
+          "type": "book",
+          "quote": "Good mood, intuition, creativity, gullibility, and increased reliance on System 1 form a cluster.",
+          "insight": "If the card produces ease, hosts will act intuitively (faster decisions). If it produces overload, they will act analytically (slower decisions or avoidance)."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track interaction patterns on the rich proposal card: (1) time from card view to first action (accept/decline/zoom), (2) which card sections receive interaction (scroll to, click, hover) before the decision, (3) Zoom meeting scheduling rate, (4) proposal response rate within 48 hours, (5) undo rate on decline actions (hosts who decline and then undo within 30 seconds).",
+      "success_criteria": "Median decision time under 90 seconds (the card enables fast evaluation, not slow deliberation). At least 60% of hosts interact with the guest purpose section before deciding. Zoom scheduling rate above 15% for first-time proposal reviewers. Proposal response rate above 70% within 48 hours. Undo rate below 5% (hosts are confident in their decisions).",
+      "failure_meaning": "If decision time exceeds 3 minutes: the card is overwhelming and hosts are deliberating rather than intuitively assessing. Simplify to fewer information elements. If guest purpose section is rarely viewed: it is not visually prominent enough or hosts are making decisions based on other factors (schedule, rate). If Zoom rate is below 5%: hosts do not need the physical-evaluation bridge or the Zoom CTA is not discoverable. If undo rate exceeds 15%: hosts are making hasty decisions they regret, suggesting the card does not provide enough information for confident action.",
+      "implementation_hint": "Track proposal_card_viewed, proposal_section_viewed (with section_name: purpose | schedule | verification | message | zoom_cta), proposal_action (accept | decline | zoom | counter), proposal_action_undone. Use intersection observer for section-level visibility tracking. The undo toast should fire an undo_triggered event."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Warm Recognition Emotional Validation at Handoff",
+      "validates_element": "feels-001",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "The warm recognition pattern targets an emotional state (safety through phrase-level familiarity) that is difficult to measure directly. If the pattern succeeds, hosts feel comfortable and continue. If it fails, they feel uneasy and leave. But the emotion itself is invisible -- only its behavioral consequences are measurable.",
+      "solution": "Use a combination of behavioral proxies (bounce rate, scroll depth, time to action) and a micro-survey to measure the emotional outcome of the call-to-website handoff.",
+      "evidence": [
+        {
+          "source": "kahneman-cognitive-ease.txt, Cognitive Ease (main passage)",
+          "type": "book",
+          "quote": "When you are in a state of cognitive ease, you are probably in a good mood, like what you see, believe what you hear, trust your intuitions, and feel that the current situation is comfortably familiar.",
+          "insight": "Cognitive ease produces specific behavioral outcomes: engagement (staying, scrolling, exploring). These are the measurable proxies for the target emotion."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 16:38",
+          "type": "host_call",
+          "quote": "What should I look for? What's the name of it?",
+          "insight": "Diane arrives with zero visual familiarity. The test measures whether the page produces the 'I know this' feeling within seconds."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 6 hosts who completed a sales call within the past 3 days. Send them the host landing page link and ask them to browse as they normally would, thinking aloud. After 2 minutes, ask: (1) 'How does this page feel compared to what you heard on the call?' (2) 'Does anything here surprise you?' (3) 'Do you feel ready to proceed, or do you want to see more first?' Record think-aloud commentary, focusing on any verbalized recognition moments ('Oh, Robert mentioned this') or dissonance moments ('This is not what I expected').",
+      "success_criteria": "At least 4 of 6 hosts verbalize a recognition moment within the first 30 seconds of browsing. At least 4 of 6 describe the page as consistent with or reinforcing the call. No more than 1 of 6 reports a significant dissonance between call and page. At least 4 of 6 express readiness to proceed (claim account, explore listings) rather than requesting more verification.",
+      "failure_meaning": "If recognition moments are absent: the phrase-level matching is not producing the expected familiarity signal. The language may be close but not identical, or the visual hierarchy may be burying the matched phrases below other content. If dissonance is reported by 2+: there is a specific mismatch (tone, terminology, missing guarantee) that needs to be identified and resolved. If most hosts want more verification: the page is not producing enough cognitive ease to reach the commitment threshold -- more content, better visual treatment, or an explicit agent-bridge element is needed.",
+      "implementation_hint": "This is a qualitative study requiring moderated sessions. Use screen-sharing with think-aloud. The most valuable data is the spontaneous language hosts use: 'This is what Robert said' vs. 'This looks different from what I heard.' Code all think-aloud statements as recognition (positive), neutral, or dissonance (negative). Repeat after any major page redesign."
+    },
+    {
+      "id": "tests-019",
+      "type": "validation_strategy",
+      "title": "Competence Respect Copy Tone Validation",
+      "validates_element": "feels-002",
+      "journey_phases": ["evaluation", "pricing"],
+      "problem": "If copy tone treats experienced hosts as beginners, it produces emotional friction (condescension, annoyance) that pushes hosts toward the vigilance-suspicion cluster. But if copy skips too much explanation, novice hosts may be confused. The tone must adapt to experience level.",
+      "solution": "A/B test expert-framed copy ('here is what is different') against beginner-framed copy ('here is how it works') for hosts with declared prior experience, measuring engagement and completion rates.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 14:20",
+          "type": "host_call",
+          "quote": "I just did all of that for years... I'm familiar.",
+          "insight": "Diane's emotional response to beginner framing would be annoyance. The test measures whether expert framing produces better engagement for experienced hosts."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "Couching familiar ideas in pretentious language is taken as a sign of poor intelligence and low credibility.",
+          "insight": "The corollary: explaining obvious concepts to an expert is taken as a sign of disrespect. The test validates whether tone adaptation produces measurable engagement differences."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "For hosts who indicate prior hosting experience during onboarding (2+ years, existing listings on other platforms), split into two groups for the pricing flow. Group A sees expert-framed copy: 'You know nightly pricing. Here is what is different about Split Lease: your rate changes based on how many nights a guest books.' Group B sees beginner-framed copy: 'Let us walk you through setting up your pricing. A nightly rate is what you charge per night...' Measure: (1) pricing flow completion rate, (2) time-to-completion, (3) post-flow satisfaction rating (1-5), (4) support contact rate within 24 hours of pricing setup.",
+      "success_criteria": "Group A (expert-framed) has at least equal completion rate to Group B. Group A satisfaction rating is at least 0.5 points higher. Group A time-to-completion is at least 20% faster. Group A support contact rate is no higher than Group B (expert framing does not cause confusion).",
+      "failure_meaning": "If Group A has lower completion: expert framing skips too much context, and even experienced hosts need some scaffolding for Split Lease's unique model. Add back selective scaffolding for the genuinely novel elements while maintaining the expert tone. If satisfaction ratings are equal: tone adaptation does not produce a measurable emotional difference, and a single tone can serve both audiences. If support contact is higher for Group A: the expert framing left gaps that the beginner framing filled.",
+      "implementation_hint": "Requires host experience detection during onboarding (simple question: 'Have you listed properties on other platforms before?'). Copy variants must be written carefully -- the expert version must still explain what is genuinely novel about Split Lease pricing while skipping the basics. Run for 6 weeks to collect sufficient experienced-host sample."
+    },
+    {
+      "id": "tests-020",
+      "type": "validation_strategy",
+      "title": "Accumulated Reassurance Emotional Validation",
+      "validates_element": "feels-005",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "The accumulated reassurance pattern targets a gradual emotional shift from vigilance to settled confidence over multiple payment cycles. This is a slow-building emotional effect that cannot be validated in a single test session.",
+      "solution": "Use a longitudinal micro-survey at payment milestones (3rd payment, 6th payment, lease end) to track the host's emotional state toward the platform over time.",
+      "evidence": [
+        {
+          "source": "kahneman-cognitive-ease.txt, The Pleasure of Cognitive Ease",
+          "type": "book",
+          "quote": "Such a stimulus will eventually become a safety signal, and safety is good.",
+          "insight": "Safety signals build through repetition. The longitudinal survey tracks whether the safety signal is accumulating as predicted."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 06:23",
+          "type": "host_call",
+          "quote": "COVID made the mess... I had pretty good people, steady.",
+          "insight": "Diane's baseline is anxiety from prior financial disruption. The survey measures whether the payment confirmation pattern shifts this baseline over time."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "At three milestones during a host's first lease (3rd payment received, 6th payment received, lease completion), send a one-question micro-survey: 'How confident are you that payments will continue to arrive on time?' with a 1-5 scale and an optional free-text response. Track: (1) confidence score trajectory over the three milestones, (2) whether hosts who engage with payment confirmations (open rate >80%) have higher confidence scores, (3) free-text themes at each milestone.",
+      "success_criteria": "Average confidence score increases by at least 0.5 points from milestone 1 (3rd payment) to milestone 3 (lease completion). High-confirmation-engagement hosts score at least 0.3 points higher than low-engagement hosts at each milestone. Free-text responses at milestone 3 include terms related to reliability, trust, or satisfaction for at least 60% of respondents.",
+      "failure_meaning": "If confidence does not increase: the payment confirmations are not building the safety signal. Possible causes: the confirmations are perceived as routine noise rather than trust events, or external factors (market conditions, guest issues) dominate the emotional calculus. If no difference between high and low engagement: the mere-exposure mechanism is not operating through the payment confirmations. The trust signal may be building through other channels (guest quality, agent interactions) that overshadow the payment confirmations.",
+      "implementation_hint": "Use a triggered email survey at each milestone (3rd payment_received event, 6th payment_received event, lease_completed event). One question, 1-5 scale, optional free text. Response rate target: 40%+. Analyze as a within-subject longitudinal trend. Pair with the analytics from tests-005 to create a combined view of behavioral engagement and self-reported confidence."
+    },
+    {
+      "id": "tests-021",
+      "type": "validation_strategy",
+      "title": "Journey-Level Emotional Arc Coherence Validation",
+      "validates_element": "journey-context (L0) + coherence-report (L6)",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Individual elements may each work correctly in isolation, but the overall emotional arc from discovery to retention may contain jarring transitions, contradictory emotional signals, or cumulative fatigue that only becomes visible when experienced as a complete journey. The coherence report identifies two arc conflicts (pricing ease-to-strain transition, onboarding calm-to-listing momentum transition). These must be validated as a sequence, not as isolated elements.",
+      "solution": "Conduct a longitudinal journey mapping exercise with 3 hosts who are tracked from their sales call through their first completed lease, capturing emotional state at each phase transition.",
+      "evidence": [
+        {
+          "source": "kahneman-cognitive-ease.txt, Ease, Mood, and Intuition",
+          "type": "book",
+          "quote": "Good mood, intuition, creativity, gullibility, and increased reliance on System 1 form a cluster. At the other pole, sadness, vigilance, suspicion, an analytic approach, and increased effort also go together.",
+          "insight": "The emotional arc should maintain the ease cluster as the default, with only the pricing confirmation pause dipping briefly into the strain cluster. The journey-level test validates that the arc delivers this pattern."
+        },
+        {
+          "source": "diane-kaufhold-call.txt (full journey context)",
+          "type": "host_call",
+          "quote": "Multiple phase analyses revealing an arc from pragmatic openness (discovery) through cautious evaluation (evaluation) through agency assertion (onboarding) to competent engagement (pricing/proposals) to accumulated trust (active lease).",
+          "insight": "The predicted arc is documented in the journey context. The test validates whether real hosts experience this arc or a different one."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "manual_review",
+      "test_description": "Select 3 new hosts who match Diane's profile (experienced, multi-property, time-poor). At each phase transition (post-call, post-website-visit, post-account-activation, post-first-listing, post-pricing, post-first-proposal, post-first-payment, post-lease-completion), conduct a 5-minute phone check-in or text survey asking: (1) 'How are you feeling about the platform right now?' (open-ended), (2) 'What is the one thing that most affected your experience in the last step?' (3) 'Are you more or less likely to continue than you were before this step?' Map responses to the predicted emotional arc from the coherence report.",
+      "success_criteria": "At least 2 of 3 hosts report an emotional trajectory that broadly matches the predicted arc: openness/curiosity (discovery) -> recognition/safety (evaluation) -> calm agency (onboarding) -> momentum (listing/pricing) -> informed trust (proposals) -> settled confidence (active lease). No more than 1 of 3 reports a phase transition that produced a jarring emotional shift or a desire to abandon. The two identified arc conflicts (pricing ease-to-strain, onboarding calm-to-momentum) do not produce negative emotional reports in more than 1 of 3 hosts each.",
+      "failure_meaning": "If the emotional trajectory diverges significantly from the prediction: the theoretical arc is wrong, and the elements designed to produce it need to be re-evaluated against actual host emotions. If a specific phase transition produces jarring shifts in 2+ hosts: that transition is the highest priority for redesign. If hosts report cumulative fatigue rather than cumulative confidence: the journey is too long or too demanding, and the micro-task and import patterns are not sufficiently reducing total effort.",
+      "implementation_hint": "This is a high-investment, high-value longitudinal study. Select 3 hosts from the next cohort of experienced multi-property hosts who complete a sales call. Assign a researcher to each host as a non-intrusive observer. Check-ins should be brief (5 minutes maximum, text preferred for time-poor hosts) and scheduled to coincide with natural phase transitions (the host just completed something). The study takes 3-6 months to complete one full journey cycle. Start immediately and report preliminary findings after the first 3 hosts complete onboarding + first listing."
+    }
+  ]
+}

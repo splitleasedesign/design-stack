@@ -1,0 +1,176 @@
+{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Live Price Recalculation on Term Configuration",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "William has 'no budget' — he is price-discovering, not price-confirming. When the guest configures terms (dates, duration, days per week) on the listing page, the price must update in real-time. Any delay between term selection and price display forces the guest to hold both values in working memory simultaneously, increasing cognitive load. Refactoring UI's principle of immediate feedback applies: the UI must respond at conversational speed — the same speed at which the agent calculated pricing on the call.",
+      "solution": "Implement optimistic, client-side price recalculation that updates within 100ms of any term input change: (1) As the guest drags the date range or selects days, the price summary updates live — no 'Calculate' button needed. (2) Use a subtle scale animation (1.0 -> 1.05 -> 1.0, 200ms) on the price figure when it changes, drawing the eye without being distracting. (3) If server validation is needed, show the client-calculated price immediately and reconcile silently. Only show a loading state if server response takes > 1 second. (4) On error (dates unavailable), replace the price with a clear error message in the same space — do not add a new element.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 0:40-0:55",
+          "type": "guest_call",
+          "quote": "Do you have a budget which you'd like to spend per night? I don't really have a budget now. I have to see.",
+          "insight": "The guest is discovering price, not confirming it. The UI must let him experiment with term configurations and see price consequences immediately."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Relative sizing doesn't scale",
+          "type": "book",
+          "quote": "Let go of the idea that everything needs to scale proportionately — giving yourself the freedom to fine-tune things independently makes it a hell of a lot easier to design for multiple contexts.",
+          "insight": "Applied to interaction: the price display does not need to wait for all fields to be configured. It can update independently as each field changes."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Price summary shows estimated total based on current term configuration. Nightly rate + total clearly displayed.",
+        "loading": "If server validation takes > 1s, show a subtle shimmer animation on the price figure (not a spinner). The previous price remains visible but slightly faded.",
+        "empty": "Before any terms are configured, show 'Configure your dates to see pricing' in the price summary area.",
+        "error": "If selected dates are unavailable, replace the price with an inline error: 'These dates are not available. Try adjusting your schedule.' Error uses --status-error color but NOT a modal or toast.",
+        "success": "After successful calculation, a subtle scale-pulse (200ms) on the price figure draws attention to the updated value."
+      },
+      "transition_principle": "All price updates use ease-out transitions. The price figure should feel like it settles into place — confident and resolved, not jittery. Never use bounce or spring easing for financial data.",
+      "timing": {
+        "response_target": "100ms for client-side recalculation. 1000ms maximum for server reconciliation.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) — the style guide's --easing-ease-out equivalent",
+        "rationale": "Price responsiveness must feel instantaneous to match conversational speed. The agent calculated pricing in real-time during the call; the platform must match this."
+      },
+      "journey_state_awareness": "First-time visitors see a tooltip explaining that the price updates as they adjust terms. Returning visitors (with prior proposals) do not see the tooltip. The price summary remembers the guest's last-configured terms across sessions.",
+      "edge_cases": [
+        "Guest selects dates that span a pricing tier change (e.g., 8 weeks at one rate, 12 weeks at a lower rate) — show both tiers with a 'You save X by extending to Y weeks' note",
+        "Guest selects all 7 days — redirect to a full-time lease suggestion rather than pricing the weekly model",
+        "Network failure during server reconciliation — keep showing the client-calculated price with a subtle 'prices may vary' disclaimer"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Cleaning Photo Submission as One-Tap Flow",
+      "journey_phases": ["active_lease"],
+      "problem": "William's cleanliness concern means cleaning photo submission is the highest-trust interaction in the active lease. If submitting photos is friction-heavy (open camera app, take photos, return to Split Lease, navigate to submission page, upload, confirm), compliance drops. Low compliance means William never sees proof that his co-tenant cleaned, and his anxiety from the call ('Doesn't sound too good to me') resurfaces every week. The submission flow must be faster than texting a photo to the co-tenant.",
+      "solution": "Design cleaning photo submission as a one-tap capture-and-send flow within the Stays Manager: (1) When the guest's stay ends, the primary action button in the Stays Manager changes to 'Submit Cleaning Photos'. (2) Tapping opens the native camera directly — no intermediate screen. (3) After capture, the photo appears in a preview with a single 'Send' button. (4) Submission uses optimistic UI — the photo appears as 'sent' immediately, with background upload. (5) Success confirmation appears inline: 'Cleaning photos submitted. Your co-tenant will see these.' (6) If the guest wants to add more photos, a '+' button appears after the first is sent.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 4:06-4:14",
+          "type": "guest_call",
+          "quote": "I don't want to use somebody else's sheets. How clean it's going to be.",
+          "insight": "Cleaning photos are the observable proof that resolves this concern. The submission flow must be so easy that compliance approaches 100%."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "When you take a hierarchy-first approach to designing the actions on a page, the result is a much less busy UI that communicates more clearly.",
+          "insight": "The cleaning photo submission IS the primary action at the end of a stay. It should be the only prominent action — not competing with 'View Lease', 'Message Host', or 'Change Dates'."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Primary button reads 'Submit Cleaning Photos' with a camera icon. Appears only when the guest's stay has ended and no photos have been submitted.",
+        "loading": "After capture, the photo thumbnail appears with a subtle upload progress indicator (thin purple bar beneath the thumbnail). Button text changes to 'Sending...'",
+        "empty": "N/A — this state only appears post-stay.",
+        "error": "If upload fails: 'Photo could not be sent. Tap to retry.' Photo remains in local storage. Retry is a single tap.",
+        "success": "Inline confirmation: checkmark + 'Photos submitted' + timestamp. The button disappears and the status zone updates to 'Cleaning verified'."
+      },
+      "transition_principle": "The photo preview should slide in from the bottom (200ms ease-out), suggesting the photo is entering the system. Success confirmation should fade in (300ms) — calm and settled.",
+      "timing": {
+        "response_target": "Camera opens within 200ms of button tap. Photo preview appears within 100ms of capture. Upload begins immediately — no 'Confirm Upload' step.",
+        "easing": "ease-out for all transitions in this flow",
+        "rationale": "This is a weekly task that must feel effortless. Any friction reduces compliance, which reduces trust between co-tenants."
+      },
+      "journey_state_awareness": "First submission: show a brief tooltip ('Take 2-3 photos showing the space is clean'). After the first successful submission: no tooltip, just the button. If photos are not submitted within 24 hours of stay end: nudge notification.",
+      "edge_cases": [
+        "Guest exits the camera without taking a photo — return to Stays Manager with the button still visible",
+        "Guest submits blurry/dark photos — accept them (do not add image quality gates that create friction)",
+        "Co-tenant disputes cleaning — photos become evidence in the dispute flow, so they must be timestamped and geotagged"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Progressive Confirmation for Commitment Escalation",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "The journey map shows every critical action requires a 'Yes, Proceed' confirmation dialog. But the book warns against applying the same treatment to all actions: destructive/high-severity actions should get strong confirmation treatment, while exploratory actions should not. Currently, the proposal submission (non-binding) and the acceptance (binding) use the same confirmation pattern, which either over-warns the explorer or under-warns the committer.",
+      "solution": "Implement progressive confirmation that escalates with commitment level: (1) PROPOSAL (non-binding): No modal confirmation. Inline success message: 'Your interest has been sent to the host. You can modify or withdraw at any time.' This matches the agent's verbal reassurance. (2) NEGOTIATION (counter-offer): Lightweight confirmation: a slide-up panel showing the comparison of original vs. counter terms, with 'Accept Counter' as secondary button and 'Counter Back' as tertiary. (3) ACCEPTANCE (binding): Full confirmation modal with summary of all terms, total cost, payment schedule, and primary 'Accept & Pay' button. This is the only point where 'Yes, Proceed' is appropriate.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Destructive actions",
+          "type": "book",
+          "quote": "Combine this with a confirmation step where the destructive action actually is the primary action, and apply the big, red, bold styling there.",
+          "insight": "Confirmation treatment should match action severity. Apply the full confirmation treatment only at the acceptance stage — the 'destructive' (irreversible) moment."
+        },
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated.",
+          "insight": "A confirmation modal on a non-binding proposal contradicts the agent's reassurance. If it is truly non-binding, why does the UI ask 'Are you sure?'"
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Action button visible with appropriate styling (secondary for proposal, primary for acceptance).",
+        "loading": "Optimistic UI for proposal (show success immediately). Full loading state for acceptance (spinner on button, disable other actions).",
+        "empty": "N/A",
+        "error": "Proposal error: inline message below the button. Acceptance error: modal stays open with error message and retry button.",
+        "success": "Proposal: inline green confirmation. Acceptance: full-screen success state with next steps."
+      },
+      "transition_principle": "Proposal success: subtle fade-in confirmation (200ms). Acceptance success: expand from center with gentle scale-up (400ms) — this is the most important moment in the journey and deserves the most deliberate transition.",
+      "timing": {
+        "response_target": "Proposal: < 200ms optimistic response. Acceptance: actual server confirmation required, target < 2s.",
+        "easing": "ease-out for proposal, ease-in-out for acceptance modal",
+        "rationale": "Proposal should feel lightweight. Acceptance should feel weighty and deliberate."
+      },
+      "journey_state_awareness": "First-time proposers see a 'This is non-binding' tooltip. Returning proposers do not. Acceptance always shows the full confirmation regardless of experience level.",
+      "edge_cases": [
+        "Guest double-taps the proposal button — debounce, show only one success message",
+        "Guest navigates away during acceptance loading — show a 'Your acceptance is being processed' banner when they return",
+        "Payment fails during acceptance — keep the modal open, show specific error ('Card declined'), allow retry or payment method change"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Context-Aware Primary Action in Stays Manager",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager must serve different guest intents across the stay lifecycle: before arrival (confirm arrival), during stay (view house manual), at departure (submit cleaning photos), between stays (change dates, review). A static page with all actions visible at once violates the single-primary-action principle. The guest must scan and decide what to do, which adds friction to a weekly touchpoint.",
+      "solution": "Implement a context-aware primary action that changes based on the current stay state: (1) PRE-ARRIVAL (2 days before scheduled arrival): Primary button = 'Confirm Arrival' / 'I'm on my way'. (2) DURING STAY: Primary = 'Access House Manual' (first stay) or no primary action (subsequent stays — the guest knows the drill). (3) POST-STAY (within 24h of departure): Primary = 'Submit Cleaning Photos'. (4) BETWEEN STAYS (no upcoming stay within 5 days): Primary = 'Request Date Change' or 'Review Last Stay'. Only ONE primary action is visible at a time. All other actions are accessible via secondary links below the primary.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "Most pages only have one true primary action.",
+          "insight": "The Stays Manager must have one primary action per state, not a toolbar of options. The action changes contextually."
+        },
+        {
+          "source": "William Romano.txt, 3:12-3:30",
+          "type": "guest_call",
+          "quote": "The person who is matched with you will have to clean before he uses, after you used it, before he used it. And after he used, he would have to prepare it for you to be clean.",
+          "insight": "The cleaning workflow has a clear lifecycle. The Stays Manager must mirror this lifecycle with its primary action, making the correct next step obvious."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "One primary action button reflecting current stay state. Subtitle text explains what will happen ('Confirm your arrival for Thursday').",
+        "loading": "Button shows loading spinner. Previous state text remains visible.",
+        "empty": "If no active lease: 'You have no active leases. Browse listings?' with a link.",
+        "error": "Error appears below the button: 'Could not confirm arrival. Try again.' Button remains tappable.",
+        "success": "Primary action completes, success message fades in, and the button transitions to the next state action (e.g., after confirming arrival, the next action becomes 'Submit Cleaning Photos' for post-stay)."
+      },
+      "transition_principle": "When the primary action changes state, it crossfades (old action fades out 200ms, new action fades in 200ms). The transition should feel like the page is adapting to the guest, not like the page is being rebuilt.",
+      "timing": {
+        "response_target": "State change detection: immediate (client-side). Action completion: < 1s. New action appearance: 400ms after current action completes.",
+        "easing": "ease-in-out for crossfade between actions",
+        "rationale": "The action state change is the most frequent interaction on the most-visited page. It must feel seamless."
+      },
+      "journey_state_awareness": "First active lease: include helper text explaining each action. After 3+ stays: reduce helper text to one line. After 8+ stays: no helper text — the guest has learned the rhythm.",
+      "edge_cases": [
+        "Guest has two active leases — show a lease selector above the primary action",
+        "Stay is cancelled after pre-arrival confirmation — primary action reverts to date-related actions",
+        "Guest misses the cleaning photo window (>48h after departure) — show 'Cleaning photos overdue' with urgent styling"
+      ]
+    }
+  ]
+}

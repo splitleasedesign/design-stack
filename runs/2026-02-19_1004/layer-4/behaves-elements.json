@@ -1,0 +1,338 @@
+{
+  "lens": {
+    "host_call": "hemeden-call.txt",
+    "book_extract": "donnorman-affordances-signifiers-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Optimistic Payment Confirmation with Anxiety-Aware Timing",
+      "journey_phases": ["active_lease", "proposal_mgmt", "retention"],
+      "problem": "Hemeden nearly abandoned the entire hosting relationship when told payment would arrive at the end of the guest's stay (16:20: 'I'm going to have to think about that'). She only re-engaged when payment timing was shifted to 24 hours after guest arrival (17:03). For an owner-occupant host who lives in the rental space, payment is not just compensation -- it is the primary feedback signal that the system is working and that she made the right decision. Norman states that 'feedback must be immediate: even a delay of a tenth of a second can be disconcerting. If the delay is too long, people often give up.' Payment timing for a first-time host is not a billing detail; it is the interaction pattern that determines whether the host perceives the platform as trustworthy or risky. Any gap between guest arrival and payment confirmation creates an anxiety window where the host is hosting a stranger in her home with no financial confirmation that the system is functioning.",
+      "solution": "Show an optimistic payment status indicator the moment a guest's arrival is confirmed. The pattern proceeds in three stages: (1) On guest arrival confirmation, immediately display a payment status card reading 'Payment processing -- your payout of $X will arrive within 24 hours' with a progress indicator. This is optimistic UI: the host sees forward momentum before the transaction fully settles. (2) When payment clears, replace the processing state with a confirmed state: 'Payment received: $X deposited to your account.' Use Tier 1 notification treatment (accent-light background, serif headline, left accent border) so the host cannot miss it. (3) If payment fails or is delayed, show an explicit error state with the reason and a clear next step, never leaving the host in ambiguity. The pattern must also apply to subsequent weekly payments during an active lease: each payment triggers the same three-stage sequence. Norman's principle: feedback must be immediate, informative, and prioritized. Payment is the highest-priority feedback signal for this host type.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 16:20",
+          "type": "host_call",
+          "quote": "I'm going to have to think about that.",
+          "insight": "End-of-stay payment timing nearly caused a complete dropout. The host perceived delayed financial feedback as unacceptable risk. The interaction pattern must eliminate this anxiety window by providing optimistic forward-progress signals from the moment of guest arrival."
+        },
+        {
+          "source": "hemeden-call.txt, 17:03",
+          "type": "host_call",
+          "quote": "Okay, that's fine. We can do it 24 hours after guest arrives.",
+          "insight": "The host immediately agreed once the payment timing was adjusted to 24 hours post-arrival. This reveals the acceptable feedback latency for financial events: hours, not days. The interaction must honor this commitment precisely."
+        },
+        {
+          "source": "hemeden-call.txt, 16:55",
+          "type": "host_call",
+          "quote": "What if something happened?",
+          "insight": "The host projects forward to failure scenarios during an active lease. The error state of payment must address this anxiety directly -- if something goes wrong, the host must see a clear explanation and next step, not silence."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting. If the delay is too long, people often give up, going off to do other activities.",
+          "insight": "Norman's feedback immediacy principle applied to financial events: the delay between guest arrival and payment confirmation must be filled with visible progress, not silence. An empty state during this window is functionally equivalent to no feedback."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Payment status card visible on the active lease dashboard showing next expected payout date and amount. Calm, informational tone using mono typography for the dollar amount on a surface background.",
+        "loading": "Immediately upon guest arrival confirmation, the payment card transitions to a processing state: 'Payment processing -- $X arriving within 24 hours.' A subtle progress bar or animated accent-colored indicator shows forward motion. The card elevates to Tier 1 visual treatment (accent-light background) to signal importance.",
+        "empty": "Before any guest has arrived, the payment section shows a preview: 'When your guest arrives, payment of $X will process within 24 hours.' This pre-populates the host's mental model of the financial flow before it activates, eliminating the unknown.",
+        "error": "If payment processing fails, the card shifts to signal-warn-bg background with a clear, non-technical explanation: 'Payment delayed -- we are resolving this and will update you within [timeframe]. Your guest's stay is not affected.' Include a direct contact link to support. Never leave the host with an unexplained delay.",
+        "success": "Payment confirmed state: accent-light background, serif headline 'Payment received,' mono typography for the exact amount, and the date of deposit. This state persists on the dashboard for 48 hours before transitioning to the payment history. A subtle checkmark icon reinforces completion."
+      },
+      "transition_principle": "Transitions between payment states must feel like progress, not interruption. Use the easing-out token (cubic-bezier(0.16, 1, 0.3, 1)) for smooth state changes. The processing-to-confirmed transition should include a brief scale-up of the dollar amount (1.0 to 1.02 to 1.0) to create a moment of satisfaction. Error transitions use no animation -- they appear immediately and fully formed because urgency demands clarity, not elegance.",
+      "timing": {
+        "response_target": "Processing indicator must appear within 500ms of guest arrival confirmation. Payment confirmed notification must arrive within 24 hours of guest arrival, matching the promise made in the Hemeden call.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The easing-out curve provides fast initial response (the host sees something happening immediately) and a gentle settle (the information lands without jarring). For financial feedback, speed of initial response is critical because the host's anxiety about payment begins at the moment of guest arrival."
+      },
+      "journey_state_awareness": "During the first hosting experience, payment feedback is maximally prominent (Tier 1 treatment, push notifications, dashboard prominence). For returning hosts with successful payment history, the processing state can be quieter (Tier 2) because trust has been established. The pattern adapts: first-time hosts need reassurance; experienced hosts need confirmation without interruption.",
+      "edge_cases": [
+        "Guest arrives but check-in confirmation is delayed (e.g., host forgets to confirm) -- show a prompt: 'Has [guest name] arrived? Confirm to start payment processing.'",
+        "Payment method fails on the guest side -- show the host a clear status without revealing guest financial details: 'Payment is being re-processed. We will notify you within 12 hours.'",
+        "Multiple weekly payments during a long stay -- each week triggers the same processing-to-confirmed cycle, maintaining the feedback loop throughout the lease.",
+        "Host checks the dashboard at 3am during the processing window -- the processing state must be self-explanatory without support context, including an estimated completion time."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Constraint-Gated Proposal Filtering with Instant Mismatch Signaling",
+      "journey_phases": ["proposal_mgmt", "listing_creation", "retention"],
+      "problem": "Hemeden rejected Matthew's proposal in 11 seconds based on a single date mismatch (08:51: 'Well, yeah, that might not work'). She evaluated Jade on duration before any personal assessment (10:54). Her decision pattern is binary: does this proposal violate my constraints? If yes, reject immediately. If no, evaluate the person. But without automated constraint gating, the host must manually perform this filter for every proposal, wasting cognitive effort on proposals she would instantly reject. Norman's signifier principle requires that 'signifiers must be perceivable, else they fail to function' -- if constraint compatibility is not the first perceivable signal on a proposal, the host is forced into detective mode. For an owner-occupant host who works 9-to-5 (09:43) and has limited attention, every incompatible proposal that reaches her inbox is a trust-eroding event that signals the platform does not respect her boundaries.",
+      "solution": "Implement a two-layer constraint gate. Layer 1 (system-side): proposals that violate hard constraints (dates outside availability window, duration exceeding max stay, guest count exceeding limit) are automatically filtered and never shown to the host. The host sees a count badge: '2 proposals filtered (outside your dates)' -- proving the system is working without burdening her with incompatible options. Layer 2 (host-side): proposals that are near-matches (e.g., dates overlap partially, duration is close to the limit) are shown with constraint compatibility indicators at the top of each card, using the three-band visual structure from looks-004. The interaction pattern when a proposal arrives: (1) push notification with the compatibility verdict in the first line ('New proposal from Jade -- all constraints match'), (2) proposal card opens with Band 1 (compatibility indicators) visible before any guest details, (3) tapping a mismatch indicator expands an inline explanation ('Requested 8 weeks -- your max is 4 weeks. Counter-offer?'). The platform never asks the host to review a proposal it already knows is incompatible.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 08:51",
+          "type": "host_call",
+          "quote": "Well, yeah, that might not work.",
+          "insight": "11-second rejection. The host did not need guest details, references, or biography -- only the date parameter. The interaction pattern must enable this same speed of triage digitally: constraint compatibility must be the first signal, not the last."
+        },
+        {
+          "source": "hemeden-call.txt, 10:54-11:03",
+          "type": "host_call",
+          "quote": "She wanted, she was looking for like around eight to 10 weeks... it just wouldn't make sense.",
+          "insight": "Second proposal also rejected on constraint grounds (duration) before personal evaluation. The host's consistent pattern: filter by constraints first, assess person second. The interaction must mirror this sequence."
+        },
+        {
+          "source": "hemeden-call.txt, 00:30",
+          "type": "host_call",
+          "quote": "I don't really want people coming in and out of my house cause I lived there.",
+          "insight": "Constraints for this host type are non-negotiable safety boundaries, not preferences. Showing her proposals that violate these boundaries communicates that the platform does not take her safety seriously."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.4",
+          "type": "book",
+          "quote": "Constraints That Force the Desired Behavior.",
+          "insight": "Norman's forcing-function principle: the system should use the host's constraints to prevent incompatible proposals from reaching her, not record them as advisory notes. Constraints should force correct system behavior, not just inform the host."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Proposal inbox shows only constraint-compatible proposals. A subtle badge on the filter icon shows the count of auto-filtered proposals: 'Filtered: 3.' The inbox feels clean and curated, not empty.",
+        "loading": "When a new proposal arrives, the notification appears with the compatibility verdict pre-computed: 'New proposal from [name] -- matches your availability and duration.' The host knows before opening whether this is worth her time.",
+        "empty": "No compatible proposals available. The empty state shows: 'No proposals yet that match your availability (after Sep 10) and duration (up to 4 weeks). We are actively matching.' This reinforces that the constraints are being honored, not that the platform has failed.",
+        "error": "If constraint matching fails (e.g., host's constraints are not set), the system prompts: 'Set your availability and preferences so we can filter proposals for you.' This prevents proposals from arriving unfiltered and overwhelming a host who has not completed constraint setup.",
+        "success": "When a proposal passes all constraints, the card appears with a green compatibility strip at the top: three accent-colored dots for dates, duration, and guest count, each labeled 'Match.' The host scans this strip in under 2 seconds and proceeds to guest evaluation with confidence."
+      },
+      "transition_principle": "New proposals animate into the inbox from the top with easing-out, landing in their constraint-sorted position. Filtered proposals are never shown being removed -- the host never sees what was filtered, only the count. When the host taps a compatibility indicator, the explanation expands with a spring easing (cubic-bezier(0.34, 1.56, 0.64, 1)) to feel responsive and alive. Rejecting a proposal slides it off-screen to the left; accepting slides it to the right -- spatial mapping that mirrors the binary decision.",
+      "timing": {
+        "response_target": "Constraint matching must complete within 200ms of proposal receipt. The compatibility verdict must be included in the push notification -- the host should never open a notification and then wait for the constraint check to run.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Constraint filtering is a System 1 operation for the host (instant, binary). The interaction timing must match this cognitive speed: no loading spinners, no 'checking compatibility' states. The verdict arrives pre-computed."
+      },
+      "journey_state_awareness": "During the first proposal cycle, the system shows more context around filtered proposals ('We filtered 2 proposals that did not match your September 10th availability -- your constraints are being enforced'). For experienced hosts, the filter count is sufficient without explanation. If the host has never received a compatible proposal, the system should proactively suggest widening constraints only after 2 weeks of zero matches, not immediately.",
+      "edge_cases": [
+        "Guest proposes dates that partially overlap with the host's availability -- show as a near-match with an inline counter-offer option: 'Jade requested Aug 15 - Sep 30. Your space opens Sep 10. Suggest Sep 10 - Oct 8 instead?'",
+        "Host changes her constraints after proposals have been received -- re-run constraint matching on existing proposals and notify the host of any status changes.",
+        "All proposals are filtered -- ensure the empty state does not feel like platform failure. Communicate that filtering is working as intended.",
+        "A proposal violates one constraint but is an excellent match on all others -- show it in a separate 'Near matches' section below the main inbox, clearly labeled, so the host can choose to flex if she wishes."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Real-Time Net Income Calculator with Interacting-Control Transparency",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt"],
+      "problem": "Hemeden sets a nightly rate of $75 (13:28) but has no visibility into what she will actually earn. The COO explains that stays under 30 nights trigger occupancy tax (05:36-06:53), but Hemeden does not know her local rate (06:36: 'I don't know. I'm going to have to look into that'). The COO then describes how duration and tax interact: 'we go certain nights and everybody wins because you don't have to pay uncle Sam or we go less certain nights and then I have to collect the texts on your behalf' (06:57). This is Norman's refrigerator problem: two controls that appear independent (price and duration) but interact through hidden mechanisms (tax thresholds, platform fees). Norman states: 'the two controls are not independent. The freezer control also affects the fresh food temperature, and the fresh food control also affects the freezer.' The current state sends the host on an external research mission (tax rate lookup) and asks her to make pricing decisions with zero real-time feedback on their financial consequences.",
+      "solution": "Build a live financial calculator that updates in real time as the host adjusts any pricing input. The interaction pattern: (1) When the host enters or changes a nightly rate, immediately display two scenario columns side by side -- 'Under 30 nights' and '30+ nights' -- each showing gross income, estimated tax/fees, and net income per night and per stay. The net income number is the visually dominant element (largest type, accent color, mono font). (2) When the host adjusts max stay duration on the listing screen, the financial calculator reflects the tax implications instantly: switching from 35 nights to 25 nights triggers the tax scenario to highlight, with a plain-language note: 'Stays under 30 nights include estimated occupancy tax of ~$X per night.' (3) For tax rate: the system pre-fills an estimated local tax rate by zip code on entry. If unavailable, it shows the regional average with a prompt: 'Enter your local rate for a precise estimate.' The host is never sent on an external research mission. (4) During proposal review, the calculator shows net income for that specific proposal's dates and duration, not just the generic nightly rate. Every number updates within 1 second of any input change.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 06:36",
+          "type": "host_call",
+          "quote": "I don't know. I'm going to have to look into that.",
+          "insight": "The host cannot complete her pricing decision because a critical variable (local tax rate) must be researched externally. The interaction pattern must eliminate this homework assignment by providing the rate or a close estimate within the platform."
+        },
+        {
+          "source": "hemeden-call.txt, 06:57",
+          "type": "host_call",
+          "quote": "We go certain nights and everybody wins because you don't have to pay uncle Sam or we go less certain nights and then I have to collect the texts on your behalf.",
+          "insight": "The COO verbally maps the hidden interaction between duration and tax. This verbal explanation must become a visual interaction: when the host adjusts duration, the financial consequences update in real time, making the interaction visible."
+        },
+        {
+          "source": "hemeden-call.txt, 13:28",
+          "type": "host_call",
+          "quote": "Right now about 75.",
+          "insight": "The host's pricing input is simple and immediate. But this single number conceals a complex system of interactions. The calculator must accept the simple input and reveal the complex output instantly."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Conceptual Models (Refrigerator)",
+          "type": "book",
+          "quote": "The two controls are not independent. The freezer control also affects the fresh food temperature, and the fresh food control also affects the freezer.",
+          "insight": "The two-scenario layout is the interaction design solution to Norman's refrigerator problem. By showing both outcomes simultaneously, the host perceives the interaction between controls without needing verbal explanation."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The financial calculator is visible alongside the nightly rate input field. It shows two scenario columns with the host's current rate pre-populated. Net income numbers are displayed in accent-colored mono typography. The calculator is not a popup or modal -- it is a persistent, always-visible panel.",
+        "loading": "When the host types a new rate or adjusts duration, the numbers animate to their new values within 300ms using spring easing. During the brief calculation, the changing numbers show a subtle pulse animation rather than a spinner -- the host perceives 'updating' not 'loading.'",
+        "empty": "Before the host enters a nightly rate, the calculator shows placeholder examples: 'Enter your nightly rate to see estimated earnings.' The scenario columns display sample numbers in ink-ghost typography to preview the format without creating false expectations.",
+        "error": "If the tax rate cannot be determined (zip code not recognized, rate database unavailable), the calculator shows both scenarios with and without tax, labeled clearly: 'Tax rate unavailable for your area -- showing estimates with and without tax. Enter your rate manually for precision.' The calculator never refuses to compute; it always provides the best available estimate.",
+        "success": "When the host finalizes a rate, the calculator transitions to a confirmation summary: 'At $75/night for a 4-week stay: estimated net income $X.' This summary persists on the listing confirmation screen, anchoring the host's financial expectations."
+      },
+      "transition_principle": "Number changes use the spring easing token (cubic-bezier(0.34, 1.56, 0.64, 1)) with 300ms duration -- the numbers bounce slightly into their new position, creating a sense of lively responsiveness. When the host switches between the two scenario columns (tap to compare), a subtle crossfade with easing-out keeps the transition smooth. The net income number, being the most important, always settles last in the animation sequence, drawing the eye to the final answer.",
+      "timing": {
+        "response_target": "Financial calculation must complete and display updated numbers within 300ms of any input change. Tax rate lookup by zip code must return within 2 seconds on first entry. Subsequent calculations (same zip, different rate) must be instant from cache.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "Spring easing for number transitions creates a feeling of precision machinery responding to input -- appropriate for financial calculations where the host needs to trust that the numbers are being computed, not guessed. The slight overshoot in spring easing draws attention to the changed value."
+      },
+      "journey_state_awareness": "During listing creation, the calculator shows generic scenarios (under 30 nights vs. over 30 nights). During proposal review, the calculator shows the specific net income for that proposal's dates and duration. During active lease, the calculator is replaced by the actual payment tracking (behaves-001). For returning hosts, the calculator pre-populates from their previous rate and tax data, reducing setup friction to zero.",
+      "edge_cases": [
+        "Host is in a jurisdiction with no occupancy tax -- the calculator should detect this and show a single column with no tax deduction, simplifying the display.",
+        "Host sets a max stay of exactly 30 nights -- the calculator shows both scenarios because a stay could end at 29 or 30 nights, with a note explaining the threshold.",
+        "Platform fees change between listing creation and proposal review -- the calculator must always use the current fee schedule and note if fees have changed since the listing was created.",
+        "Host enters an unrealistically high or low nightly rate -- the calculator computes normally but shows a gentle contextual note: 'Most hosts in your area charge $50-$100/night' without preventing the host from setting her own rate."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Structured Checkpoint Prompts Replace Continuous Monitoring",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "Hemeden works 9-to-5 (09:43), is new to hosting (13:48: 'I just started doing this'), and lives in her rental space. She cannot and should not monitor the hosting situation continuously. The call reveals her need for structured decision points: the 4-week review (11:44: 'would it be fair to say you would review it after those four weeks?'), the trial night as a low-risk evaluation (12:10-13:17), and the payment confirmation as a trust signal. Without structured checkpoints, the host must continuously assess whether the arrangement is working -- an unsustainable cognitive burden for a part-time host. Norman warns that 'poor feedback can be worse than no feedback at all, because it is distracting, uninformative, and in many cases irritating and anxiety-provoking' and that feedback must be 'planned' and 'prioritized.' The interaction pattern must replace continuous monitoring with scheduled, actionable moments that give the host a sense of control without demanding her constant attention.",
+      "solution": "Design a four-checkpoint interaction sequence for every hosting engagement. Checkpoint 1 (Trial Night): If the host opted for a trial night, prompt her 12 hours after the guest's trial stay with a single-screen decision: 'How was the trial night? Proceed with the full booking or decline.' One tap to proceed, one tap to decline with an optional reason. Checkpoint 2 (Payment Confirmed): Triggered by behaves-001, this is both a financial event and a trust checkpoint. The first payment confirmation includes a brief pulse check: 'Everything going well? Let us know if you need anything.' Checkpoint 3 (Mid-Stay Review): At the 4-week mark (or at 50% of the stay duration, whichever is shorter), a Tier 1 notification prompts: 'Your 4-week review is here. Would you like to extend [guest name]'s stay for another 4 weeks?' with two clear options and a summary of the hosting period (payments received, any issues logged). Checkpoint 4 (End-of-Stay Summary): After the guest departs, present a complete hosting summary: total income, duration, and an invitation to host again with constraints intact. Each checkpoint is a single-screen interaction requiring under 60 seconds.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 11:44",
+          "type": "host_call",
+          "quote": "Would it be fair to say that you would review it after those four weeks?",
+          "insight": "The 4-week review was negotiated into the hosting arrangement as a structured decision point. The host expects the platform to initiate this review at the scheduled time, not require her to remember or request it."
+        },
+        {
+          "source": "hemeden-call.txt, 12:10-13:17",
+          "type": "host_call",
+          "quote": "Potentially offering a trial night to these guests... the person could come in, stay a night and then we would compensate you for the cleaning costs.",
+          "insight": "The trial night is a low-risk checkpoint before full commitment. It should be a formalized interaction pattern with a clear decision prompt after the trial, not an informal arrangement that lacks platform support."
+        },
+        {
+          "source": "hemeden-call.txt, 09:43",
+          "type": "host_call",
+          "quote": "I have a nine to five, so I don't really, you know, it's just going to be too much.",
+          "insight": "The host has limited time and attention. Checkpoints must be brief, actionable, and scheduled -- never requiring the host to proactively monitor or manage the situation."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback has to be planned. All actions need to be confirmed, but in a manner that is unobtrusive. Feedback must also be prioritized, so that unimportant information is presented in an unobtrusive fashion, but important signals are presented in a way that does capture attention.",
+          "insight": "Norman explicitly calls for planned, prioritized feedback. Each checkpoint is a planned feedback moment with clear priority: trial evaluation and mid-stay review are high-priority (Tier 1), routine confirmations are lower-priority (Tier 2)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Between checkpoints, the active lease dashboard shows a calm status: guest name, days remaining, next checkpoint date. No alerts, no prompts -- the host can trust that the platform will notify her when action is needed.",
+        "loading": "When a checkpoint is being prepared (e.g., calculating 4-week review summary), the dashboard shows: 'Preparing your 4-week review -- it will be ready shortly.' This is rare and brief; most checkpoints are pre-computed.",
+        "empty": "If no checkpoint is due (mid-stay, between payment dates), the dashboard shows the next milestone: 'Next: 4-week review on [date].' The host can see the future without needing to track it herself.",
+        "error": "If a checkpoint cannot be completed (e.g., host does not respond to the 4-week review within 72 hours), the system sends a follow-up: 'Your 4-week review is still waiting. If we don't hear from you by [date], the current arrangement will continue unchanged.' Default to continuity, not cancellation.",
+        "success": "When the host completes a checkpoint (extends the stay, confirms satisfaction), the card transitions to a success state: 'Stay extended for 4 more weeks. Next review: [date].' The success state lingers for 24 hours before reverting to the calm default."
+      },
+      "transition_principle": "Checkpoints appear as elevated Tier 1 cards that animate in from the top of the dashboard with easing-out, pushing the default content down. They feel like a natural part of the flow, not an interruption. When the host completes the checkpoint, the card collapses with a gentle downward animation and the default state fills the space. The transition communicates: checkpoint acknowledged, back to calm. No celebratory animations -- this is a working host, not a gamified experience.",
+      "timing": {
+        "response_target": "Checkpoint notifications must arrive within 1 hour of their trigger time (e.g., 4-week mark, trial night completion). The host's response to a checkpoint should be processed within 2 seconds, with immediate visual confirmation.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Easing-out for checkpoint appearance ensures the notification arrives smoothly without startling the host. The gentle deceleration communicates importance without urgency -- this is a scheduled event, not an emergency."
+      },
+      "journey_state_awareness": "For first-time hosts, every checkpoint includes a brief contextual note ('This is your 4-week review -- a chance to decide if you would like to continue hosting [guest name]'). For returning hosts, the note is omitted and the checkpoint is purely actionable. If the host has extended past one 4-week cycle, subsequent checkpoints can be pushed to Tier 2 (dashboard only, no push notification) unless the host has indicated she wants continued prompts.",
+      "edge_cases": [
+        "Guest departs before the 4-week checkpoint -- skip the mid-stay review and go directly to Checkpoint 4 (end-of-stay summary).",
+        "Host does not respond to a checkpoint -- default behavior is continuation. Never cancel a stay because a checkpoint went unanswered. Send one follow-up after 48 hours, then log the non-response and maintain the status quo.",
+        "Multiple checkpoints coincide (payment confirmation + 4-week review on same day) -- merge into a single Tier 1 card that addresses both, never stack multiple Tier 1 notifications on the same day.",
+        "Host is on vacation during a checkpoint -- detect if the host has not opened the app in 5+ days and delay non-critical checkpoints by 72 hours with a note: 'We noticed you may be away. Your 4-week review will be ready when you return.'"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Progressive Protection Reveal Before Every Trust Commitment",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "Hemeden spent a significant portion of the call extracting information about protections she could not discover independently: the anti-squatter clause (03:01-04:44), the damage deposit (15:08), and the payment guarantee. She then requested the legal document for lawyer review (04:44), indicating that verbal disclosure alone was insufficient. Norman states that 'people need some way of understanding the product or service they wish to use, some sign of what it is for, what is happening, and what the alternative actions are.' Every protection that required a phone call to discover represents a failed interaction pattern. The interaction challenge is: how do you reveal protections progressively at the exact moments when the host faces a trust decision, so that each protection appears when it is most relevant and most needed -- not all at once (overwhelming) and not only when asked (too late)?",
+      "solution": "Tie protection reveals to trust commitment points using a 'show the shield before asking for the step' pattern. The interaction sequence at each trust decision: (1) BEFORE the host is asked to commit (enter personal information, agree to terms, accept a guest), a protection badge animates in from the left margin, visually entering the host's field of view with purpose. The badge shows the relevant protection in plain language. (2) The commit action (button, toggle, signature) appears AFTER the protection badge has been visible for at least 2 seconds -- enforcing the see-then-act sequence. (3) Tapping a protection badge expands an inline detail panel with the relevant clause in plain language, plus a link to the full document. The detail panel slides down with spring easing, feeling responsive. (4) Dismissing the detail panel collapses it with easing-out and the badge returns to its compact state, still visible. The principle is: at evaluation, show 'Anti-squatter clause included' before asking the host to create an account. At onboarding, show 'Damage deposit held by Split Lease' before asking the host to agree to terms. At proposal acceptance, show 'Guest has signed non-residency agreement' before the accept button becomes active.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 03:01-04:44",
+          "type": "host_call",
+          "quote": "Part of the agreement which our guests signed with host... guests explicitly agrees that property is not intended to become his or her [primary residence]... specifically exempted from the landlord tenants laws.",
+          "insight": "The most critical protection for this owner-occupant host required a verbatim phone reading to discover. The interaction pattern must make this protection visible at the exact moment the host evaluates whether to commit to the platform."
+        },
+        {
+          "source": "hemeden-call.txt, 04:44",
+          "type": "host_call",
+          "quote": "Do you mind sending me that document so that I can have like a lawyer review this?",
+          "insight": "Verbal protection disclosure was necessary but not sufficient. The host needs a durable, reviewable artifact. The progressive reveal must include an expandable detail layer and a document download link -- not just a badge."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Signifiers",
+          "type": "book",
+          "quote": "In design, signifiers are more important than affordances, for they communicate how to use the design.",
+          "insight": "The platform's legal protections are affordances that exist but lack visible signifiers. The progressive reveal pattern creates the signifier layer that Norman identifies as the design priority."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Signifiers",
+          "type": "book",
+          "quote": "Signifiers must be perceivable, else they fail to function.",
+          "insight": "A protection buried in a downloadable PDF is not perceivable in the interaction context. The badge-first pattern ensures the protection is perceivable at the moment of the trust decision."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Protection badges are visible but compact -- icon + one-line text in mono on accent-light background with left accent border. They sit above the commit action on every trust-decision screen. The badges are not interactive prompts; they are passive signifiers of safety.",
+        "loading": "When the host first navigates to a trust-decision screen, protection badges animate in sequentially (200ms stagger) from the left, drawing the eye to the protection information before the commit action loads. This enforced sequence (protections appear first, action appears second) prevents the host from acting before seeing her safety net.",
+        "empty": "If no specific protection applies to the current screen (unlikely but possible), the badge area is absent -- never show an empty protection section, as it would signal a lack of protection.",
+        "error": "If protection data cannot be loaded (e.g., agreement document is unavailable), the badge shows a fallback: 'Your legal protections are being updated -- contact us for details.' The commit action remains available but includes a note: 'You can also review protections before finalizing.'",
+        "success": "When the host taps to expand a protection badge and reads the detail, a subtle checkmark appears on the badge, indicating 'reviewed.' This state persists across sessions, so the host does not need to re-read protections she has already examined. Over time, all badges show checkmarks, signaling comprehensive understanding."
+      },
+      "transition_principle": "Protection badges enter the screen with a staggered left-to-right animation using spring easing (cubic-bezier(0.34, 1.56, 0.64, 1)), creating a sense of items being revealed for the host's benefit. The commit action (e.g., 'Accept Guest' button) fades in with easing-out AFTER all badges have settled, enforcing the see-before-act sequence. Expanding a badge detail panel pushes content below it downward with easing-out, maintaining spatial continuity. Collapsing the panel reverses the animation. These transitions are purposeful, not decorative -- they encode the interaction sequence into the motion itself.",
+      "timing": {
+        "response_target": "Protection badges must be fully visible within 800ms of screen load. The commit action must appear no earlier than 2 seconds after the first badge becomes visible, ensuring the host has time to perceive the protections before being asked to act.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "Spring easing for badge entry creates a subtle 'arrival' feeling -- the protections are being presented to the host, not passively sitting on the page. This draws attention to information that might otherwise be scanned past."
+      },
+      "journey_state_awareness": "During evaluation (first visit), all protection badges are expanded by default, showing one line of detail beneath each. During onboarding (host has created an account), badges are compact but animate on entry. During proposal acceptance (host is experienced with the platform), badges are compact and static -- the host has already internalized the protections, so the animation would feel redundant. The 'reviewed' checkmark persists across all phases, building a visual record of the host's growing understanding.",
+      "edge_cases": [
+        "Host revisits the evaluation page after a week -- protection badges should still be visible and may have updated if terms have changed. Changed protections are highlighted with a 'Updated' indicator.",
+        "Host's lawyer requests a specific clause -- the detail panel includes a 'Share this clause' action that copies the text or generates a shareable link, reducing the friction of external review.",
+        "Host is on a slow connection -- protection badges load before any images or secondary content, ensuring the trust infrastructure is the first thing visible.",
+        "New protections are added after the host has onboarded -- surface the new protection as a Tier 2 notification on next login: 'New protection added: [description].' Do not re-trigger the full progressive reveal sequence for returning hosts."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Verbal-to-Digital Continuity Bridge at First Platform Contact",
+      "journey_phases": ["onboarding", "listing_creation", "evaluation"],
+      "problem": "Hemeden's entire conceptual model of Split Lease was built from a phone call with the COO and Bryant. She heard specific terms, specific numbers, and specific promises. She is a novice (13:48: 'I just started doing this') with no prior hosting framework. Norman warns that 'when the system image is incoherent or inappropriate, the user cannot easily use the device. If it is incomplete or contradictory, there will be trouble.' The first time Hemeden opens the platform after the call, every element she encounters either reinforces or contradicts the model she built from the conversation. If the platform presents a generic onboarding flow with unfamiliar terminology, the host must reconcile two competing system images -- the verbal one from the call and the digital one from the platform. This reconciliation is cognitive work that a novice host may not succeed at, leading to confusion and dropout. The interaction challenge: how does the platform behave as a continuation of the conversation, not a new beginning?",
+      "solution": "When a host first logs in after a sales call, the platform presents a personalized continuity bridge -- a single welcome screen that reflects the specific details discussed in the call. The interaction sequence: (1) The welcome screen opens with the agent's name and a brief note: 'Bryant set up your hosting profile based on your conversation. Here is what we have so far.' (2) Below the note, the host's key parameters are displayed as editable summary chips (matching the constraint pill visual from looks-002): '$75/night,' 'Max 4 weeks,' 'Available Sep 10+,' '1 guest.' The host can tap any chip to adjust, but the defaults match what was discussed. (3) Below the chips, the pending next steps from the call are listed as a brief checklist: 'Review booking agreement (sent to your email),' 'Confirm your local tax rate,' 'Meet Jade (trial night pending).' Each item links to the relevant platform action. (4) The host taps 'Looks right -- let's continue' to proceed to the dashboard, which preserves the same terminology and parameters. The principle is: the first digital interaction must feel like the conversation is continuing, not starting over. The platform demonstrates that it listened by reflecting back what was discussed.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 13:48",
+          "type": "host_call",
+          "quote": "I just started doing this.",
+          "insight": "No prior hosting framework. The only framework this host has is the phone call. If the platform does not reflect the call, the host has no framework at all and must build one from scratch -- a cognitive burden that risks dropout."
+        },
+        {
+          "source": "hemeden-call.txt, 17:08",
+          "type": "host_call",
+          "quote": "I think you've answered almost all the questions I have.",
+          "insight": "The word 'almost' marks residual uncertainty. The continuity bridge should close these loops by showing the host what is resolved (constraints, rate, protections) and what remains open (lawyer review, tax rate, guest match). This maps her mental model to a visible checklist."
+        },
+        {
+          "source": "hemeden-call.txt, 07:52",
+          "type": "host_call",
+          "quote": "Hey Hamilton, this is Brian actually here as well.",
+          "insight": "The host interacted with two people on the call (COO and Bryant). The platform must clarify who her ongoing contact is. The continuity bridge attributes the setup to Bryant (her operational contact), creating a clear single point of contact mapping."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 System Image",
+          "type": "book",
+          "quote": "The designer expects the user's model to be identical to the design model, but because designers cannot communicate directly with users, the entire burden of communication is on the system image.",
+          "insight": "The continuity bridge IS the system image's first contact with the host. If it contradicts the verbal model from the call, the composite system image fractures. If it reinforces the verbal model, the composite system image is coherent and the host can trust both."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The continuity bridge appears once -- on the host's first authenticated login. It shows the agent's name, the host's parameters from the call, and the pending next steps. After the host confirms ('Looks right'), the bridge does not reappear, and the dashboard becomes the default entry point.",
+        "loading": "If the host's profile data from the call has not yet been entered by the agent, the bridge shows a partial state: 'Bryant is setting up your profile -- some details are still being added. Here is what we have so far.' Partial information is better than no information; the bridge never shows a blank loading screen.",
+        "empty": "If no call data is available (host signed up independently via the website), the bridge is replaced by a standard onboarding flow. The continuity bridge only appears when there is a prior conversation to bridge from. Forcing it on hosts without call context would feel hollow.",
+        "error": "If the call data is incorrect (wrong rate, wrong dates), the summary chips are editable. The host taps a chip, corrects it, and the platform updates. The interaction acknowledges that verbal conversations are imperfect transcriptions: 'If anything looks different from what you discussed, tap to adjust.'",
+        "success": "When the host confirms all parameters and proceeds, the bridge collapses into a compact header on the dashboard: 'Welcome back, Hemeden. Your profile is set up as discussed with Bryant.' This header persists for the first three logins, then fades to the standard dashboard."
+      },
+      "transition_principle": "The continuity bridge loads with the summary chips animating in from the left with staggered timing (200ms per chip), using spring easing. This creates a feeling of the conversation's content being 'placed on the table' for the host to review. The checklist items fade in below with easing-out. When the host confirms, the bridge collapses vertically into the dashboard header with a smooth easing-out transition, communicating: 'the conversation has become your profile.' This is a one-time ceremony -- it should feel deliberate and meaningful.",
+      "timing": {
+        "response_target": "The continuity bridge must load within 1 second of the host's first login. All call-derived data (rate, constraints, pending steps) must be pre-loaded from the CRM integration, not fetched on demand. The host should never wait for her own profile information to appear.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "Spring easing for the summary chips creates a sense of items being presented with care -- each chip arrives with a subtle bounce that draws the eye and communicates 'we prepared this for you.' This is appropriate for a one-time ceremony that sets the tone for the entire platform relationship."
+      },
+      "journey_state_awareness": "The continuity bridge is exclusively a first-login interaction. It does not reappear on subsequent visits. However, the parameters it established (rate, constraints, agent contact) persist throughout the journey and are referenced in the same terminology on all subsequent screens. If the host changes a parameter later (e.g., raises her rate), the new value is reflected everywhere, but the original call-discussed value is noted in the edit history: 'Originally set at $75/night during your call with Bryant.' This maintains the thread of continuity even as the host's situation evolves.",
+      "edge_cases": [
+        "Host logs in before the agent has entered all call data -- show available data and note: 'Bryant is finalizing a few details. Check back soon or reach out to Bryant directly.'",
+        "Host had a call with one agent but the account was set up by a different agent -- the bridge attributes to the agent the host actually spoke with, not the backend operator.",
+        "Host logs in on mobile with limited screen space -- the continuity bridge collapses summary chips to a vertical list and reduces the checklist to the top 3 items with a 'See all' link.",
+        "Host does not confirm the bridge and closes the app -- on next login, the bridge reappears in the same state. It persists until explicitly confirmed or dismissed."
+      ]
+    }
+  ]
+}

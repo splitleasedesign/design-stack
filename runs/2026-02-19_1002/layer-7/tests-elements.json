@@ -1,0 +1,588 @@
+{
+  "lens": {
+    "host_call": "june-call.txt",
+    "book_extract": "microinteractions-rules-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Hidden Rule Capture Completeness Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["listing_creation", "pricing"],
+      "problem": "If the conditional rule capture mechanism fails to accommodate parameterized rules (threshold + owner responsibility + overage assignment), hosts will enter rules that the platform silently simplifies or drops. The host then discovers during the active lease that the platform is not enforcing what they stated, destroying trust.",
+      "solution": "Test that every non-standard host rule type can be captured, stored, displayed, and enforced accurately across the full lifecycle.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 04:08-04:51",
+          "type": "host_call",
+          "quote": "The electric bill, because people have been ridiculous... I believe it's only covered up to 40, the first $40 I pay and they have to pay different.",
+          "insight": "The utility cap is a three-parameter rule: threshold ($40), responsibility (host pays first $40), and assignment (guest pays overage). If any parameter is lost in capture, the rule is wrong."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Designing Rules, p. 52-64",
+          "type": "book",
+          "quote": "Rules define the hidden parameters of how a microinteraction works.",
+          "insight": "Saffer warns that hidden rules create invisible failure modes. The test must verify that the platform's rule structure matches the host's stated rule, not a simplified version of it."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5 hosts with non-standard rental rules (utility caps, conditional fees, seasonal pricing). Ask each to enter their rules into the listing creation flow. After completion, compare the platform's stored rule against the host's verbal description. Have the host review the listing preview and identify any rule that was simplified, dropped, or mistranslated. Repeat with the proposal review screen and the active lease dashboard to verify the rule persists accurately across phases.",
+      "success_criteria": "100% of non-standard rules (utility cap with threshold, conditional fees, custom deposit schedules) are captured with all parameters intact, displayed in the host's own language on listing preview, and accurately represented on the proposal review screen. Zero rule simplifications or parameter losses detected by the host during review.",
+      "failure_meaning": "If rules are simplified or dropped, the platform's data model cannot accommodate the range of real host rules. This is a structural failure, not a UI failure -- the rule input fields must be redesigned to support conditional logic, not just binary toggles.",
+      "implementation_hint": "Create a test fixture with 5 rule types of increasing complexity: (1) flat fee ($140 cleaning), (2) threshold with split ($40 cap, guest pays over), (3) temporal condition (different deposit for stays under/over 3 months), (4) building-level rule applied to multiple units, (5) compound rule (utility cap AND no pets AND quiet hours). Verify each appears correctly on listing, proposal, and dashboard screens. Playwright: navigate to listing editor, enter each rule type, capture the displayed output, compare to input."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Agent Trust Inheritance on First Platform Visit Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the first platform screen does not carry the agent's identity and the host's specific data, the trust built during the call resets to zero. The host evaluates the platform as a stranger rather than as a continuation of their conversation with Bryant.",
+      "solution": "Test that agent-referred hosts recognize the platform as connected to their agent within the first 3 seconds of their first visit.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 13:27",
+          "type": "host_call",
+          "quote": "I'll get those listings created. I can send you an email with a link to our site and you can expect that shortly after the call.",
+          "insight": "The host expects a personalized delivery, not a generic onboarding page. The test must measure whether the host perceives the platform as 'what Bryant sent me' or 'a new website.'"
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 2, Manual Triggers, p. 25-26",
+          "type": "book",
+          "quote": "Make the trigger something the target users will recognize as a trigger in context.",
+          "insight": "The entry screen is a trigger. If the host does not recognize it as connected to their agent conversation, the trigger fails and engagement does not initiate."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 8 hosts (who have completed a call with an agent) two versions of the first platform screen: (A) the agent-continuity version (agent name, property address, pre-populated pricing, 'Review and Confirm' action) and (B) a generic onboarding version ('Welcome to Split Lease! Create your account to get started'). Ask each host: 'Which screen feels like a continuation of your phone call?' and 'On a scale of 1-5, how confident are you that this platform has your correct information?' Measure time to first meaningful action on each version.",
+      "success_criteria": "At least 7 of 8 hosts identify version A as the continuation of their call. Average confidence score for version A exceeds 4.0/5.0. Time to first meaningful action on version A is under 60 seconds. Time to first meaningful action on version B exceeds 120 seconds.",
+      "failure_meaning": "If hosts do not recognize the agent-continuity screen as connected to their call, the visual signals (agent name, property data) are insufficient. The failure could indicate that the agent's identity needs to be more prominent, that the data needs to be more specific, or that the framing language ('Bryant prepared your listing') does not resonate.",
+      "implementation_hint": "A/B test with real post-call hosts. Version A: surface-warm background, Instrument Serif headline 'Bryant prepared your listing at [address]', pre-populated pricing strip, single 'Review Your Listing' CTA. Version B: standard white background, 'Welcome to Split Lease' headline, 'Create Account' form. Track: first-click target, time-to-first-action, session duration, listing confirmation rate. Playwright: verify version A renders agent name, property address, and pricing within the first viewport (no scrolling required)."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Cross-Platform Complexity Absorption Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "If the platform ignores the host's multi-platform reality, accepting a booking creates hidden operational costs (manual calendar blocking, double-booking risk) that compound with each booking and drive the host back to simpler single-platform workflows.",
+      "solution": "Test that the cross-platform calendar disclosure reduces double-booking risk and that multi-platform hosts perceive the platform as reducing (not adding to) their coordination burden.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 05:40-05:52",
+          "type": "host_call",
+          "quote": "Tell them it's something they have to decide quickly because I would have to block it on the different platforms I have it on.",
+          "insight": "Cross-platform calendar blocking is a real, immediate cost. The test must measure whether the disclosure panel actually prompts the host to block calendars, or whether it is ignored."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Absorb Complexity, p. 67",
+          "type": "book",
+          "quote": "Absorb Complexity.",
+          "insight": "The platform must absorb complexity, not just acknowledge it. The test must distinguish between 'the host saw the reminder' and 'the host acted on it.'"
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track two metrics for multi-platform hosts over 3 months: (1) Double-booking rate (percentage of accepted proposals that result in calendar conflicts reported by hosts on other platforms). (2) Post-acceptance action: after the host accepts a proposal, measure whether they use the 'Copy Dates' button from the interstitial. Additionally, survey multi-platform hosts at the end of the first lease: 'Did Split Lease make your multi-platform management easier, harder, or about the same?'",
+      "success_criteria": "Double-booking rate under 5% for hosts who use the calendar disclosure panel. 'Copy Dates' button usage above 40% on first-time acceptances (indicating the interstitial is noticed and useful). Survey: at least 60% of multi-platform hosts say Split Lease made management 'easier' or 'about the same' (not harder).",
+      "failure_meaning": "If double-booking rate exceeds 5%, the disclosure panel is insufficient and calendar sync automation must be prioritized. If 'Copy Dates' usage is below 40%, the interstitial is being ignored (too subtle, auto-dismisses too fast, or positioned wrong). If hosts report management is 'harder,' the platform is adding coordination burden rather than absorbing it.",
+      "implementation_hint": "Analytics events: fire 'calendar_panel_viewed' when the panel enters the viewport on the proposal screen. Fire 'copy_dates_clicked' on the interstitial button. Fire 'double_booking_reported' as a support ticket tag. Survey: in-app prompt after first lease completion asking the multi-platform management question. Playwright: verify the calendar panel renders with correct dates and platform names on the proposal screen, and that the post-acceptance interstitial appears and auto-dismisses after the correct duration."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Multi-Property Building Inheritance Validation",
+      "validates_element": "works-004",
+      "journey_phases": ["listing_creation", "pricing"],
+      "problem": "If building-level attributes (address, utility policy, deposit) do not inherit correctly to the second listing, multi-property hosts must re-enter shared data, creating inconsistency risk and multiplicative friction.",
+      "solution": "Test that second-listing creation time is significantly shorter than first-listing time and that building-level rules are identical across all units.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 09:36-09:41",
+          "type": "host_call",
+          "quote": "It's something like join in with, and you can list both of my apartments.",
+          "insight": "June expects listing both apartments to be a single, fluid interaction. The test must measure whether the second listing feels incremental or repetitive."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Limited Options and Smart Defaults, p. 69",
+          "type": "book",
+          "quote": "Limited Options and Smart Defaults.",
+          "insight": "The second listing's smart default should be 'same as your first listing.' The test must verify that the host only interacts with fields that are genuinely different between units."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5 multi-property hosts. Have each create a first listing (full flow). Immediately after confirmation, prompt them to create a second listing for a different unit in the same building. Measure: (1) Time to complete the second listing. (2) Number of fields the host interacted with on the second listing. (3) Whether building-level attributes (address, utility cap, deposit) are identical across both listings. (4) Host's perceived effort: 'How did creating the second listing compare to the first?'",
+      "success_criteria": "Second-listing completion time under 40% of first-listing completion time. Number of fields interacted with on the second listing under 50% of the first. Building-level attributes are byte-identical across both listings. At least 4 of 5 hosts describe the second listing as 'much easier' or 'easy.'",
+      "failure_meaning": "If second-listing time exceeds 40% of first-listing time, the inheritance is not working or the host is re-entering data unnecessarily. If building-level attributes diverge, the inheritance mechanism has a bug or the host inadvertently edited building data. If hosts do not perceive the second listing as easier, the visual distinction between inherited and editable data is unclear.",
+      "implementation_hint": "Instrument listing creation flow to log: timestamp at start, timestamp at completion, and field-interaction events (focus, change, blur) for each field. Compare field interaction counts between first and second listings. Playwright: create a first listing, verify success, trigger second-listing flow, verify building banner pre-populates with first listing's building-level data, enter only unit-specific fields, submit, verify both listings share identical building attributes via API comparison."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Active Lease Adaptive Long Loop Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the lease health dashboard provides static feedback regardless of lease maturity, it either overwhelms compliant leases with unnecessary alerts or fails to escalate genuine problems. The adaptive feedback model must be validated over a real lease term.",
+      "solution": "Track whether the adaptive notification frequency and ambient-to-alert color escalation correlate with reduced host support contacts and reduced host dashboard check frequency over the lease term.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 04:26-04:51",
+          "type": "host_call",
+          "quote": "I have had bills of a hundred, $200... I had to start protecting myself cause it was getting too much.",
+          "insight": "June's monitoring anxiety is experience-driven and persistent. The test must measure whether the adaptive dashboard actually reduces her checking behavior over time."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 5, Long Loops, p. 117",
+          "type": "book",
+          "quote": "Long Loops.",
+          "insight": "Saffer's principle predicts that the microinteraction should evolve over time. The test must measure the evolution of both the system's behavior (notification frequency) and the host's behavior (checking frequency)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track across 50+ active leases over 3+ months: (1) Host dashboard visit frequency by lease month (expecting decline in months 2-3 for compliant leases). (2) Support contact rate about payment or utility status by lease month (expecting decline). (3) Alert accuracy: when the dashboard transitions from ambient to alert, how often does the alert correspond to a genuine issue? (4) Host notification engagement rate: do hosts open/view payment confirmation notifications? Does engagement change over time?",
+      "success_criteria": "Dashboard visit frequency decreases by at least 30% from month 1 to month 3 for leases with no alert events. Support contact rate decreases by at least 40% from month 1 to month 3 for compliant leases. Alert accuracy exceeds 90% (alerts correspond to genuine threshold breaches). Notification engagement remains above 60% even as frequency decreases (hosts still value the confirmation when it arrives).",
+      "failure_meaning": "If dashboard visits do not decline, hosts are not trusting the ambient feedback and continue manual monitoring. If support contacts do not decline, the dashboard is failing to provide the information hosts need. If alert accuracy is below 90%, the threshold detection has false positives that erode trust. If notification engagement drops below 60%, the host has tuned out all notifications (ambient and alert), which is dangerous.",
+      "implementation_hint": "Analytics events: fire 'lease_dashboard_viewed' on each visit with lease_month as a property. Fire 'payment_notification_opened' and 'utility_notification_opened' with lease_month. Track 'support_contact_lease_status' as a tagged support event. Alert accuracy: compare 'alert_mode_activated' events against actual utility bills or payment records. Cohort analysis: group leases by compliance (no alerts vs. at least one alert) and compare behavioral metrics."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Single-Surface Proposal Decision Validation",
+      "validates_element": "works-006",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the proposal screen fragments verification across multiple pages or hides critical information behind tabs, the host either makes an uninformed decision (speed without thoroughness) or delays the decision while searching for information (thoroughness without speed).",
+      "solution": "Test that the single-surface proposal screen enables hosts to make informed accept/decline decisions within 60 seconds without contacting support.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 05:40-05:52",
+          "type": "host_call",
+          "quote": "Tell them it's something they have to decide quickly because I would have to block it on the different platforms I have it on.",
+          "insight": "Speed is essential. The test must measure time-to-decision as a primary metric."
+        },
+        {
+          "source": "june-call.txt, 06:04-06:15",
+          "type": "host_call",
+          "quote": "I need to know who they are and what type of people. I don't want Connie in the house.",
+          "insight": "Thoroughness is non-negotiable. The test must also verify that hosts feel they have all the information they need, not just that they decided quickly."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 8 hosts a prototype single-surface proposal screen with all three zones (Guest, Terms, Action) populated with realistic data. Ask each host: (1) Accept or decline this proposal. (2) What was the vetting status of the guests? (3) Does the rent match your listing? (4) What platforms do you need to block? Time the accept/decline decision. After the test, ask: 'Did you feel you had everything you needed to decide?' and 'Was anything missing?'",
+      "success_criteria": "Median time from screen load to accept/decline action under 45 seconds. At least 7 of 8 hosts correctly identify vetting status, rent match, and cross-platform impact without navigating away from the primary screen. At least 7 of 8 hosts say they had everything they needed. Zero hosts ask for information that should be on the screen but was not found.",
+      "failure_meaning": "If decision time exceeds 45 seconds, the screen is either too dense (information overload) or critical information is not scannable (buried in text rather than indicated by badges/checkmarks). If hosts cannot identify vetting status or rent match, the visual indicators are insufficiently prominent. If hosts say something was missing, the three-zone architecture has a gap.",
+      "implementation_hint": "Prototype in Figma or a coded prototype with realistic data. Track: time from page render to button click, eye-tracking if available (which zone do hosts look at first?), and post-task recall accuracy. Playwright: verify all three zones render within the viewport on desktop (1280px), verify the Accept button has a 2-second activation delay, verify vetting badge and payment guarantee badge are visible without scrolling."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Persistent Rule Strip Scan Time Validation",
+      "validates_element": "communicates-001",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "If the persistent rule verification strip is not scannable in under 2 seconds, it fails its purpose: providing instant confirmation that the host's rules are captured correctly. If it requires reading or interpretation, it becomes another source of cognitive load rather than a reassurance mechanism.",
+      "solution": "Test that hosts can verify their pricing and rules from the strip in under 2 seconds on any screen where it appears.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 07:32-07:36 and 10:59-11:04",
+          "type": "host_call",
+          "quote": "Are there any fees? Anything? No. [asked identically twice in the same call]",
+          "insight": "The strip exists because verbal feedback does not persist. If the strip also fails to persist (by being too slow to scan or too hard to find), it has not solved the problem."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Feedback Illuminates the Rules, p. 86",
+          "type": "book",
+          "quote": "Feedback Illuminates the Rules.",
+          "insight": "The strip is feedback. If the host cannot process it in under 2 seconds, the rules are not illuminated and the feedback has failed."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 10 hosts the rule strip on three different screens (listing editor, proposal review, lease dashboard). On each screen, ask: 'What is your rent? What is your deposit? What is your utility cap?' Time from question to correct answer. Also test cross-screen consistency: show the strip on screen 1, then navigate to screen 2, and ask if the host noticed the strip was the same or different.",
+      "success_criteria": "Median time to correctly state all three values from the strip: under 2 seconds per screen. At least 9 of 10 hosts correctly identify all three values on all three screens. At least 8 of 10 hosts identify the strip as 'the same' across screens without prompting, confirming spatial and visual consistency.",
+      "failure_meaning": "If scan time exceeds 2 seconds, the strip's information density is too high (more than 5 rules displayed), the mono typeface is not creating sufficient visual distinction, or the strip is positioned where the host does not look first. If hosts give incorrect values, the strip's labels or numbers are ambiguous. If hosts do not recognize cross-screen consistency, the spatial positioning or visual treatment is varying between screens.",
+      "implementation_hint": "Timed recall test with realistic screen mockups. Vary the content around the strip (different page layouts) while keeping the strip identical to test whether it is recognized as the stable element. Eye-tracking if available to verify the strip is processed in the first 2 seconds of page viewing. Playwright: verify the rule strip renders in the same DOM position and with identical CSS on listing, proposal, and dashboard pages."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Single-Surface Proposal Decision Screen Architecture Validation",
+      "validates_element": "communicates-002",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If any of the three zones (Guest, Terms, Action) requires scrolling past the viewport on desktop or more than one screen length on mobile, the single-surface principle is violated and the host must navigate to find verification data.",
+      "solution": "Test that all three zones fit within the viewport on desktop and within one scroll length on mobile with no critical information hidden.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 05:40-05:52 and 06:04-06:15",
+          "type": "host_call",
+          "quote": "Tell them it's something they have to decide quickly... I need to know who they are.",
+          "insight": "Speed requires all information on one surface. Scrolling to find the vetting badge or the calendar panel means the host cannot scan and decide in 30 seconds."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Visual Feedback, p. 96",
+          "type": "book",
+          "quote": "Visual feedback is the most effective form.",
+          "insight": "Visual indicators only work if they are visible. A vetting badge below the fold is not visual feedback -- it is hidden data."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated viewport testing across standard screen sizes: (1) Desktop 1280x800: verify all three zones (guest card, terms/rule strip, action buttons) are visible without scrolling. (2) Desktop 1920x1080: same verification. (3) Mobile 375x812 (iPhone): verify all three zones are within one full scroll (2x viewport height). (4) Test with maximum-length guest names and maximum number of rule-match indicators to verify the layout does not break with edge-case content.",
+      "success_criteria": "On desktop (1280x800), the Accept/Decline buttons are visible without any scrolling. On mobile (375x812), the Accept/Decline buttons are visible within one full scroll. No horizontal overflow on any screen size. Guest zone, Terms zone, and Action zone all have their primary indicators (vetting badge, rule match checkmarks, guarantee badge) visible at their expected positions.",
+      "failure_meaning": "If the Accept button requires scrolling on desktop, the zones are too tall and must be compressed (reduce padding, compact the rule strip, or shrink the calendar panel). If the Accept button is not reachable within one scroll on mobile, the sticky-positioned button behavior (from behaves-003) is not implemented correctly.",
+      "implementation_hint": "Playwright viewport tests: set viewport to 1280x800, navigate to proposal screen, assert Accept button is within viewport bounds. Repeat at 375x812 with scroll-to-element assertion (Accept button's offsetTop < 2 * viewport height). Inject edge-case data: guest names of 40 characters, 5 rule-match indicators, 3-line calendar panel. Assert no layout overflow."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Agent-Continuity Entry Screen Recognition Validation",
+      "validates_element": "communicates-003",
+      "journey_phases": ["onboarding"],
+      "problem": "If the entry screen does not successfully trigger recognition of the agent conversation, the host experiences the platform as a stranger rather than a continuation. This is the single highest-risk moment in the entire journey.",
+      "solution": "Test that agent-referred hosts identify the entry screen as 'from my agent' rather than 'from a new company' within the first 3 seconds.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 06:33",
+          "type": "host_call",
+          "quote": "I been going through a lot of stuff myself. I'm sorry.",
+          "insight": "A depleted host arriving from an email link has near-zero tolerance for unfamiliar contexts. Recognition must be immediate."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Don't Start from Zero, p. 64",
+          "type": "book",
+          "quote": "Don't Start from Zero.",
+          "insight": "The entry screen must show populated data (not empty forms) to demonstrate the platform already knows the host's information."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Conduct a 3-second exposure test with 10 post-call hosts. Show the entry screen for exactly 3 seconds, then remove it. Ask: 'What did you see?' and 'Who was this from?' Track whether the host mentions the agent's name, their property address, or their pricing -- the three personalization signals. Follow up: show the screen again and ask the host to complete the 'Review and Confirm' flow, measuring time to completion and error rate.",
+      "success_criteria": "At least 8 of 10 hosts mention the agent's name in the 3-second recall. At least 7 of 10 mention either their property address or their pricing. Zero hosts describe the screen as 'a new website' or 'an account creation page.' Time to complete the Review and Confirm flow: under 2 minutes for 80% of hosts.",
+      "failure_meaning": "If hosts do not recall the agent's name after 3 seconds, the headline is not prominent enough or the agent's identity is competing with other visual elements. If hosts describe the screen as 'a new website,' the warm personalization signals (surface-warm background, agent photo, property data) are insufficient to override the generic-SaaS impression.",
+      "implementation_hint": "3-second exposure test can use a timed slide presentation or a prototype with auto-advance. Critical elements to validate: (1) agent name is the largest text on screen, (2) property address is visible without scrolling, (3) pricing numbers match the call values exactly. Follow-up flow test measures whether the pre-populated data is accurate enough that the host confirms without edits."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Cross-Platform Calendar Disclosure Effectiveness Validation",
+      "validates_element": "communicates-004",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the cross-platform calendar disclosure panel is ignored (too subtle) or creates anxiety (too prominent), it fails to achieve its purpose of being a helpful reminder that does not block the decision.",
+      "solution": "Test that the panel is noticed by hosts without creating decision anxiety or increasing time-to-decision beyond acceptable limits.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 05:40-05:52",
+          "type": "host_call",
+          "quote": "Tell them it's something they have to decide quickly because I would have to block it on the different platforms I have it on.",
+          "insight": "The host is already aware of the cross-platform obligation. The panel should confirm, not teach."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Less Is More, p. 92",
+          "type": "book",
+          "quote": "Less Is More.",
+          "insight": "The panel must be minimal. If it is too detailed, it becomes a warning that increases anxiety rather than a reminder that provides help."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test with three variants: (A) No calendar panel, (B) Calendar panel with specific dates and platform names, (C) Calendar panel with specific dates, platform names, AND a 'Copy Dates' button in the post-acceptance interstitial. Measure: time-to-accept-decision, proposal acceptance rate, self-reported anxiety ('How stressed did you feel making this decision?' 1-5 scale), and double-booking rate over the next 30 days.",
+      "success_criteria": "Variant B and C show no increase in time-to-decision compared to variant A (the panel does not slow hosts down). Variant C shows 'Copy Dates' usage above 30%. Variants B and C show lower self-reported anxiety than A (hosts feel more supported, not more pressured). Double-booking rate for B and C is at least 50% lower than A over 30 days.",
+      "failure_meaning": "If time-to-decision increases with the panel, it is too prominent and creates deliberation rather than confirmation. If 'Copy Dates' usage is below 30%, the interstitial auto-dismisses too fast or the button is not noticed. If anxiety increases, the panel's visual tone is wrong (it looks like a warning rather than a reminder). If double-booking rate does not decrease, the panel is being seen but not acted on.",
+      "implementation_hint": "A/B test with feature flags. Variant A: proposal screen without calendar panel. Variant B: proposal screen with signal-info-bg panel showing dates and platform names. Variant C: B plus post-acceptance interstitial with Copy Dates button. Track: time from proposal_screen_loaded to accept_button_clicked, copy_dates_clicked event, post-decision survey (1-question inline), double_booking_reported support tag within 30 days."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Adaptive Lease Dashboard Ambient-to-Alert Transition Validation",
+      "validates_element": "communicates-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the ambient-to-alert color transition is too subtle, hosts miss genuine alerts. If it is too dramatic, hosts experience false alarm anxiety. The transition must be unmistakable without being alarming.",
+      "solution": "Test that hosts correctly identify the current dashboard mode (ambient vs. alert) and the specific issue when an alert is active.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 04:26-04:51",
+          "type": "host_call",
+          "quote": "I have had bills of a hundred, $200... I had to start protecting myself cause it was getting too much.",
+          "insight": "Missing a utility overage alert would betray the trust the dashboard is designed to build. The alert mode must be impossible to miss."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 5, Spring-Loaded and One-off Modes, p. 111-113",
+          "type": "book",
+          "quote": "Spring-Loaded and One-off Modes.",
+          "insight": "The alert mode must be spring-loaded: clearly activated, clearly resolved. The test must verify both transitions (ambient-to-alert and alert-to-ambient)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 8 hosts a simulated lease dashboard in three states: (1) All-green ambient (everything under threshold), (2) One amber alert (utility at $48 vs. $40 cap), (3) One red critical (payment 5 days late). For each state, ask: 'Is everything fine or does something need attention?' and 'What specifically needs attention?' Time from screen display to correct identification of the issue.",
+      "success_criteria": "All 8 hosts correctly identify the all-green state as 'everything fine' in under 3 seconds. At least 7 of 8 correctly identify the amber alert and name 'utility' or 'electric' as the issue in under 5 seconds. At least 7 of 8 correctly identify the red critical and name 'payment' as the issue in under 3 seconds. Zero hosts misidentify the all-green state as having a problem.",
+      "failure_meaning": "If hosts cannot identify the alert state in under 5 seconds, the color escalation is too subtle or the amber/red is not distinct enough from the green baseline. If hosts misidentify the green state as problematic, the ambient color is too close to the alert color (a false positive in reverse). If hosts cannot name the specific issue, the alert row lacks clear labeling.",
+      "implementation_hint": "Simulated dashboard with controlled states. Present each state for 10 seconds, then ask questions. Critical visual validation: accent (#2d5a3d) for ambient, signal-warn (#c17a28) for amber, signal-danger (#b83a3a) for red. All on their respective background tokens. Playwright: render all three states, capture screenshots, verify color values of the utility and payment rows match expected tokens for each state."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Mono-Numeric Rule Strip Visual Distinctiveness Validation",
+      "validates_element": "looks-001",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "If the IBM Plex Mono numeric treatment does not create sufficient visual distinction from surrounding Outfit body text, the rule strip does not 'pop' and hosts must search for their numbers rather than recognizing them instantly.",
+      "solution": "Test that hosts can locate their pricing values on a screen with mixed content in under 1 second, using only the typeface distinction as a finding aid.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 08:27-08:32",
+          "type": "host_call",
+          "quote": "One 40 cleaning fee... 2,500 for the deposit... 26 90 for the rent.",
+          "insight": "June states her numbers as a unified set. The visual treatment must make these numbers instantly findable as a group among other content."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Microcopy, p. 76",
+          "type": "book",
+          "quote": "Microcopy.",
+          "insight": "Labels must use the host's vocabulary. The test must also verify that labels ('Rent' not 'Monthly Rate') are understood without explanation."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 10 hosts a screen with mixed content (body text in Outfit, headings in Instrument Serif, and the rule strip with numerics in IBM Plex Mono). Ask: 'Point to where your pricing information is.' Time from instruction to correct identification. Then show the same screen with all text in Outfit (no mono distinction) and repeat. Compare identification times between conditions.",
+      "success_criteria": "Median time to locate pricing in the mono-distinguished version: under 1 second. Median time in the undistinguished version: over 2 seconds. The mono treatment should provide at least a 50% speed improvement in locating numeric data. Zero hosts identify the wrong content as their pricing in the mono version.",
+      "failure_meaning": "If the mono treatment does not provide faster identification, the typeface distinction is insufficient (possibly because the surrounding text also uses numbers, or because the accent-light background is too subtle). If identification times are similar, consider increasing the font-weight difference or adding more visual container separation.",
+      "implementation_hint": "Controlled exposure test with two screen variants. Variant A: rule strip in IBM Plex Mono semibold on accent-light container. Variant B: rule strip in Outfit regular with no container. Both versions have identical content and layout otherwise. Measure: time from screen display to first finger-touch or mouse-click on the rule strip area. Eye-tracking if available."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Optimistic Listing Confirmation Flow Validation",
+      "validates_element": "behaves-001",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the optimistic display of agent-created listings has data errors (wrong rent, missing utility rule, incorrect availability), the host's first platform experience is a correction task rather than a confirmation task, undermining the 'Don't Start from Zero' principle.",
+      "solution": "Test that agent-created listings display with correct data at least 90% of the time and that the inline correction microinteraction handles errors gracefully.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 09:41-10:12",
+          "type": "host_call",
+          "quote": "I'll take the information from your other listings, but I'll send it over to you and you can, from there, you'd be able to change anything that didn't look right.",
+          "insight": "Bryant frames the interaction as review-and-correct. If more than 10% of fields need correction, the host perceives the platform as inaccurate rather than pre-populated."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Don't Start from Zero, p. 64",
+          "type": "book",
+          "quote": "Don't Start from Zero.",
+          "insight": "Starting from the host's data is only valuable if the data is correct. Pre-populated wrong data is worse than no data because it requires the host to both verify AND correct."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track across 100+ agent-created listings: (1) What percentage of hosts confirm the listing without any edits? (2) Which fields are most frequently edited (indicating systematic transcription errors)? (3) Time from page load to listing confirmation. (4) Support contact rate within 24 hours of listing confirmation (indicating post-confirmation discovery of errors).",
+      "success_criteria": "At least 70% of hosts confirm the listing without any edits. No single field has an edit rate above 20% (which would indicate a systematic data capture problem). Median time from page load to confirmation: under 90 seconds. Support contact rate within 24 hours: under 10%.",
+      "failure_meaning": "If edit rate exceeds 30%, the agent-to-platform data pipeline has transcription errors that need to be fixed at the source (better call note templates, structured intake forms). If a specific field has high edit rates (e.g., utility cap always wrong), that field's capture mechanism in the agent workflow needs redesign. If confirmation time exceeds 90 seconds, the pre-populated screen is confusing or the host is re-verifying data that should be instantly scannable.",
+      "implementation_hint": "Analytics events: fire 'listing_confirmed_no_edits' or 'listing_confirmed_with_edits' with a list of edited field names. Track 'listing_field_edited' with field name for each edit event. Track 'listing_confirmation_time' as elapsed seconds from page render to confirmation button click. Playwright: create an agent-mediated listing via API, open the host confirmation page, verify all pre-populated fields match the API data."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Persistent Rule Feedback Across Screen Transitions Validation",
+      "validates_element": "behaves-002",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "If the rule verification strip re-animates, repositions, or disappears during screen transitions, it loses its function as a stable reference point and the host must re-locate their rules on each new screen.",
+      "solution": "Test that the strip maintains spatial and visual stability across navigation events, creating the perceptual anchor that Saffer's feedback principle requires.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 07:32-07:36 and 10:59-11:04",
+          "type": "host_call",
+          "quote": "Are there any fees? [asked twice in one call]",
+          "insight": "The strip exists to prevent this repetition. If the strip itself moves or changes across screens, it reintroduces the instability it was designed to eliminate."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Less Is More, p. 92",
+          "type": "book",
+          "quote": "Less Is More.",
+          "insight": "The strip should not animate on page transitions. Its absence of motion is its most important behavioral property."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Automated cross-page consistency test: navigate through the three primary rule-relevant screens (listing editor, proposal review, lease dashboard) and capture the rule strip's DOM position, CSS styles, and rendered pixel coordinates on each screen. Compare across screens to verify identical positioning and styling. Also measure: does the strip re-render or re-animate on navigation? (Check for CSS animation/transition events on the strip element during navigation.)",
+      "success_criteria": "Strip's top offset, left offset, width, and height are identical (within 1px tolerance) across all three screens. Strip's CSS properties (background-color, font-family, font-weight, color) are identical across all three screens. Zero CSS animation or transition events fire on the strip element during page transitions. Strip content (rule values) is identical across all screens (no stale data).",
+      "failure_meaning": "If position shifts, the strip is participating in page layout reflows rather than being fixed. If CSS properties change, the strip is being re-rendered with different styles on different pages. If animations fire, the strip is re-entering the DOM on each page rather than persisting. All of these violations mean the strip does not function as a stable anchor.",
+      "implementation_hint": "Playwright: navigate to listing editor, capture strip element's bounding box and computed styles. Navigate to proposal screen, repeat capture. Navigate to lease dashboard, repeat capture. Assert all captures are identical. Additionally: attach a MutationObserver to the strip's parent during navigation to detect any DOM re-insertion, and listen for animationstart/transitionstart events on the strip element."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Ambient-to-Alert Lease Health Escalation Behavioral Validation",
+      "validates_element": "behaves-004",
+      "journey_phases": ["active_lease"],
+      "problem": "If the ambient-to-alert color transition is not smooth (abrupt swap instead of 200ms ease) or the alert row expansion is jarring, the mode shift creates anxiety rather than helpful urgency.",
+      "solution": "Test that the color transition and row expansion behaviors feel 'smooth and informative' rather than 'sudden and alarming' to hosts.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 04:26-04:51",
+          "type": "host_call",
+          "quote": "I had to start protecting myself cause it was getting too much.",
+          "insight": "June has an existing anxiety about utility problems. The alert transition must inform without amplifying that anxiety."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 5, Spring-Loaded and One-off Modes, p. 111-113",
+          "type": "book",
+          "quote": "Spring-Loaded and One-off Modes.",
+          "insight": "The spring-loaded mode must activate and deactivate cleanly. Both transitions need testing."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 6 hosts a simulated lease dashboard that transitions in real time from ambient to alert (utility exceeds cap). Record the host's immediate verbal reaction and body language. Then show the reverse transition (alert to ambient after the issue resolves). Ask: 'How did the change feel? Smooth or sudden? Helpful or alarming?' Rate on a 5-point scale from 'alarming' (1) to 'informative' (5).",
+      "success_criteria": "Average rating above 3.5/5.0 ('informative' end of the scale). Zero hosts describe the transition as 'alarming' or 'scary.' At least 4 of 6 hosts describe it as 'smooth' unprompted. The reverse transition (alert to ambient) is noticed by at least 5 of 6 hosts (confirming the spring-loaded mode deactivation is visible).",
+      "failure_meaning": "If the transition is rated below 3.5, it is too dramatic and needs slowing (increase from 200ms to 300ms) or softening (use a more gradual color shift). If hosts do not notice the reverse transition, the alert-to-ambient return is too subtle and hosts may remain anxious about a resolved issue.",
+      "implementation_hint": "Coded prototype with a button that triggers the state transition in real time. Record reactions via screen recording with audio. The critical implementation detail: the 200ms easing-out color transition must be present -- test that the easing token is correctly applied and not overridden by a framework default."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Protection-Rule Enforcement Lifecycle Validation",
+      "validates_element": "behaves-007",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "If the enforcement confirmation loop does not span the full lifecycle (captured, applied, enforced), the host sees their rule at creation but loses sight of it during the lease. The gap between 'I told you my rule' and 'I can see you enforcing it' is the trust gap this element is designed to close.",
+      "solution": "Test that a host-defined protection rule is visible with appropriate enforcement status at every journey phase.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 04:26-04:51",
+          "type": "host_call",
+          "quote": "I have had bills of a hundred, $200... I had to start protecting myself.",
+          "insight": "The rule exists because of pain. The host needs to see enforcement evidence, not just a data field, to believe the platform is protecting her."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Feedback Illuminates the Rules, p. 86",
+          "type": "book",
+          "quote": "Feedback Illuminates the Rules.",
+          "insight": "A rule without enforcement feedback at each phase is a rule that has not been illuminated. The test must verify illumination at every phase."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Trace a single protection rule (e.g., $40 utility cap) through the complete journey: (1) During listing creation, verify the rule appears with the left-border accent treatment and an 'Active' label. (2) On the published listing, verify the rule is visible to the host's view. (3) On the proposal review screen, verify the rule appears with a match/mismatch indicator. (4) On the active lease dashboard, verify the rule appears with real-time enforcement data (usage vs. cap). (5) After an enforcement event (utility exceeds cap), verify a timestamped event appears. Conduct this trace for 3 different rule types.",
+      "success_criteria": "The rule is visible with the correct enforcement status at all 5 checkpoints for all 3 rule types. The left-border accent treatment is consistent across all checkpoints. Enforcement events include timestamps and specific values. At no checkpoint is the rule absent, hidden behind a settings menu, or displayed without the protection visual treatment.",
+      "failure_meaning": "If the rule disappears at any checkpoint, the lifecycle is broken at that phase transition. If the visual treatment changes (accent border disappears), the rule loses its 'protection' visual signature and becomes indistinguishable from ordinary data. If enforcement events lack timestamps or specifics, the 'evidence' quality is too low to build trust.",
+      "implementation_hint": "Manual walkthrough with screenshot documentation at each checkpoint. Create a test account, enter a $40 utility cap rule, proceed through the full journey to active lease. Screenshot the rule at each phase, annotate the enforcement status and visual treatment. Playwright: navigate to each phase and assert the presence of the rule element with the expected CSS class (protection-border), correct numeric value, and expected status label."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Recognition Before Demand Emotional Validation",
+      "validates_element": "feels-001",
+      "journey_phases": ["onboarding"],
+      "problem": "If the first platform visit produces obligation ('another thing I have to figure out') rather than relief ('he already did the work'), the emotional promise of the agent call is broken and the host may not return.",
+      "solution": "Test that post-call hosts describe their first platform visit emotion as 'relief' or 'recognition' rather than 'confusion' or 'overwhelm.'",
+      "evidence": [
+        {
+          "source": "june-call.txt, 06:33",
+          "type": "host_call",
+          "quote": "I been going through a lot of stuff myself. I'm sorry.",
+          "insight": "A depleted host needs relief, not another task. The emotional test must measure whether the platform delivers on this need."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 2, Manual Triggers, p. 25-26",
+          "type": "book",
+          "quote": "Make the trigger something the target users will recognize as a trigger in context.",
+          "insight": "Recognition is the emotional prerequisite for engagement. Without it, the trigger fails."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "After 8 post-call hosts complete their first platform visit (clicking the email link, seeing the entry screen, reviewing the listing), ask: 'In one word, how did that feel?' Record the word verbatim. Then ask: 'On a scale of 1-5, how much did this feel like a continuation of your phone call vs. a completely new experience?' (1 = new experience, 5 = continuation). Finally: 'Was there a moment when you felt relieved or recognized? If so, when?'",
+      "success_criteria": "At least 5 of 8 hosts use words associated with relief or ease (e.g., 'easy,' 'simple,' 'nice,' 'familiar,' 'relieved'). Average continuation score above 3.5/5.0. At least 6 of 8 hosts identify a specific recognition moment (usually seeing their pricing or the agent's name). Zero hosts use words associated with overwhelm or confusion.",
+      "failure_meaning": "If hosts describe the experience as overwhelming or confusing, the entry screen has too much unfamiliar content or the agent-continuity signals are insufficient. If the continuation score is below 3.5, the platform feels like a separate entity from the call experience, indicating the trust bridge has not been built.",
+      "implementation_hint": "Post-task emotional interview protocol. Conduct immediately after the first platform visit while the emotional response is fresh. Record verbatim one-word responses for thematic analysis. The continuation scale is the most diagnostic metric: a score above 4.0 indicates strong trust inheritance; below 3.0 indicates a trust reset."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Vigilance Offloading Progressive Trust Validation",
+      "validates_element": "feels-007",
+      "journey_phases": ["active_lease"],
+      "problem": "If the platform fails to earn the host's trust through repeated accurate monitoring, the host adds platform-checking to their existing monitoring routine rather than offloading vigilance. The platform has increased the host's burden instead of reducing it.",
+      "solution": "Test that dashboard visit frequency decreases over the lease term for hosts with compliant leases, indicating progressive trust transfer.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 04:26-04:51",
+          "type": "host_call",
+          "quote": "I have had bills of a hundred, $200... I had to start protecting myself cause it was getting too much.",
+          "insight": "June's monitoring is a trauma response. The test must measure whether the platform's feedback is trustworthy enough to reduce this behavior."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 5, Long Loops, p. 117",
+          "type": "book",
+          "quote": "Long Loops.",
+          "insight": "The emotional arc from active vigilance to ambient trust must unfold over multiple cycles. The test needs longitudinal data."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track for 30+ hosts with active leases lasting 3+ months: (1) Dashboard visit frequency per week by lease month. (2) Time spent on the dashboard per visit by lease month. (3) Support contacts about lease status by lease month. (4) For hosts who experienced an alert event (utility overage), measure: did dashboard visit frequency spike after the alert? Did it return to pre-alert levels after resolution? Segment by host type: first-time vs. returning hosts.",
+      "success_criteria": "For compliant leases: dashboard visit frequency decreases by 25%+ from month 1 to month 3. Time per visit decreases by 30%+ (shorter glances, not deep investigations). Support contacts about lease status decrease by 40%+ from month 1 to month 3. After an alert event that is resolved: dashboard visit frequency spikes within 48 hours and returns to pre-alert levels within 2 weeks.",
+      "failure_meaning": "If dashboard visits do not decrease, the ambient feedback is not trustworthy enough to offload vigilance. Possible causes: the payment confirmation does not arrive when expected, the utility tracking seems inaccurate, or the dashboard's green state is not reassuring enough. If visits increase over time, the host's anxiety is growing, which indicates a fundamental trust failure. If the post-alert spike does not resolve within 2 weeks, the alert damaged trust and the ambient mode was not re-established.",
+      "implementation_hint": "Longitudinal analytics dashboard. Track 'lease_dashboard_view' events with lease_id, lease_month, and duration_on_page. Cohort by lease compliance (no alerts, 1 alert, 2+ alerts). Visualize weekly visit frequency as a trend line per cohort. The key insight: the slope of the trend line should be negative for compliant leases. A flat or positive slope is a failure signal."
+    },
+    {
+      "id": "tests-019",
+      "type": "validation_strategy",
+      "title": "Journey-Level Validation: End-to-End From Call to Active Lease Monitoring",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Individual elements may each work correctly in isolation but fail as a coherent journey. The emotional arc from surprise (discovery) to relief (onboarding) to professional confidence (listing) to equipped decisiveness (proposal) to calm vigilance offloading (active lease) must be experienced as a continuous thread, not as disconnected screens.",
+      "solution": "Test the complete journey with real hosts from first call to first month of active lease, measuring whether the emotional arc unfolds as designed.",
+      "evidence": [
+        {
+          "source": "june-call.txt (entire transcript)",
+          "type": "host_call",
+          "quote": "June's journey from surprise ('I'm surprised I've never heard of Split Lease') through cautious evaluation through depleted delegation through proactive expansion represents the full arc this validation must cover.",
+          "insight": "The journey is not a set of transactions -- it is an emotional narrative. The test must measure the narrative's coherence, not just each screen's usability."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 5, Long Loops, p. 117",
+          "type": "book",
+          "quote": "Long Loops.",
+          "insight": "Saffer's long loop principle applies to the entire host journey, not just the active lease. The test must measure how the host's relationship with the platform evolves over weeks and months."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5 real hosts through the normal acquisition process. Track each host from their first call through to one month of active lease (approximately 8-12 weeks). At three checkpoints (after onboarding, after proposal acceptance, after first month of lease), conduct a 15-minute emotional check-in interview asking: 'How do you feel about Split Lease right now?' 'What has been the best and worst moment so far?' 'On a scale of 1-5, how much does the platform feel like an extension of your agent vs. a separate system?' Track conversion through each phase and identify where any host drops out.",
+      "success_criteria": "At least 4 of 5 hosts reach the one-month active lease checkpoint. Average 'extension of agent' score increases from checkpoint 1 to checkpoint 3 (indicating progressive trust building). The most-cited 'best moment' should be recognition-related (seeing their data on the platform) for checkpoint 1, decision-confidence-related (proposal screen) for checkpoint 2, and calm-monitoring-related (green dashboard) for checkpoint 3. No host drops out during the human-to-digital handoff (onboarding to listing creation).",
+      "failure_meaning": "If hosts drop out at onboarding, the trust bridge from call to platform is failing. If the 'extension of agent' score does not increase over time, the platform is not earning progressive trust. If the worst-moment themes cluster around a specific phase, that phase needs redesign. If hosts drop out at proposal management, the speed-thoroughness tension is unresolved.",
+      "implementation_hint": "Longitudinal study requiring coordination with the sales team to identify and tag 5 incoming hosts for tracking. Set calendar reminders for check-in interviews at each checkpoint. Use a standardized interview guide with the three questions above. Track platform analytics (page views, actions, time-on-site) for each tracked host as a companion data source to the qualitative interviews."
+    },
+    {
+      "id": "tests-020",
+      "type": "validation_strategy",
+      "title": "Journey-Level Validation: Emotional Arc Consistency Across Microinteraction Touchpoints",
+      "validates_element": "journey-level",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "The Microinteractions lens introduces a structural framework (triggers, rules, feedback, loops/modes) that must coexist with the existing Kahneman System 1/System 2 framework from prior runs. If the two frameworks produce conflicting design recommendations at any touchpoint, the host experiences inconsistency.",
+      "solution": "Audit 5 critical touchpoints to verify that the Microinteractions framework and the System 1/System 2 framework produce compatible, not conflicting, design guidance.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 07:32-07:36 and 10:59-11:04",
+          "type": "host_call",
+          "quote": "Are there any fees? [asked twice]",
+          "insight": "This moment is analyzable through both frameworks: Kahneman (System 1 failed to retain the answer), Saffer (feedback failed to illuminate the rule). The test must verify that both analyses point to the same solution (persistent visibility)."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Feedback Illuminates the Rules, p. 86 combined with kahneman-part1-two-systems.txt, The Associative Machine",
+          "type": "book",
+          "quote": "Both Saffer and Kahneman converge on the principle that invisible systems produce distrust.",
+          "insight": "The two frameworks should reinforce each other at every touchpoint. Any divergence signals an element that needs reconciliation."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Select 5 critical touchpoints: (1) First platform entry screen, (2) Listing creation utility cap field, (3) Proposal review vetting badge, (4) Proposal acceptance with calendar disclosure, (5) Active lease dashboard payment confirmation. For each, document: (A) What the Kahneman framework recommends (System 1 processing, associative coherence, cognitive ease). (B) What the Saffer framework recommends (trigger type, rule capture, feedback form, loop behavior). (C) Whether A and B converge on the same design or diverge. If they diverge, propose a resolution.",
+      "success_criteria": "All 5 touchpoints show convergence between the two frameworks. No touchpoint has a design recommendation from one framework that contradicts the other. The convergence document serves as a reference for future lens integrations.",
+      "failure_meaning": "If any touchpoint shows divergence, the corresponding element needs revision to reconcile the two analytical frameworks. For example, if Kahneman recommends minimal visual change (cognitive ease) but Saffer recommends clear mode-shift feedback (spring-loaded mode), the resolution might be a smooth 200ms transition that provides Saffer's mode feedback without violating Kahneman's ease principle. The divergence itself is valuable knowledge for future design decisions.",
+      "implementation_hint": "Create a 5-row comparison table. Each row: Touchpoint | Kahneman Recommendation | Saffer Recommendation | Convergent? | Resolution (if divergent). This is a design review exercise, not a technical test. Conduct as a team review session with the comparison table as the agenda."
+    }
+  ]
+}

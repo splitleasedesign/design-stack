@@ -1,0 +1,338 @@
+{
+  "lens": {
+    "host_call": "kent-call.txt",
+    "book_extract": "campbell-departure-heros-journey.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Optimistic Artifact Reveal with Evidence Cascade",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "Kent requests protective artifacts at specific threshold moments: success stories (06:16), sample contracts (09:24), policy documents (10:02). Campbell calls these 'amulets against the dragon forces he is about to pass.' When the host clicks to view a threshold artifact (success story, contract sample, vetting report), the current pattern would be a full page load or a modal that pops in abruptly. Neither respects the psychological weight of the moment -- the host is reaching for protection before crossing a threshold. If the artifact loads slowly, the host experiences a gap between their courage and their evidence, exactly when Campbell's framework says the hero is most vulnerable. If it loads abruptly, the transition feels transactional rather than protective. The lower layers (L2 communicates-009, L3 looks-018) define what the artifact card contains and how it looks. This layer defines how it behaves: what happens in the 0-800ms between the host's click and the artifact's full availability, and how state transitions within the artifact (collapsed to expanded, summary to full document) should feel.",
+      "solution": "When the host triggers an artifact reveal (clicks 'View contract,' expands a vetting category, opens a success story), the interaction should begin with an optimistic reveal of the artifact card's container and summary (0-120ms), followed by a cascade of the supporting evidence elements (120-400ms). The container appears immediately with its left accent border and title -- the host sees the protective shape before the protective content. Then the summary text, the access trigger, and any supporting data cascade in from top to bottom with staggered timing. This mirrors Campbell's amulet delivery: the hero first sees the amulet, then learns its purpose, then takes it. If the full document requires a network fetch, the summary layer remains interactive and the fetch indicator appears within the expanded section only -- never replacing the summary the host has already processed. On failure, the artifact card remains visible with the summary intact and an inline error with retry, never collapsing back to the pre-reveal state (the host already committed the courage to look -- do not retract the threshold).",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:24-09:27",
+          "type": "host_call",
+          "quote": "I mean, do you, do you have like a sample contract you can send me?",
+          "insight": "Kent asks for the contract as a specific protective artifact at a specific moment. The interaction must honor this moment -- the artifact should appear with the speed and ceremony that matches the host's need for protection before commitment."
+        },
+        {
+          "source": "kent-call.txt, 06:16",
+          "type": "host_call",
+          "quote": "And what else do, do you guys have references of your own? Like, you know, how, how do I check you out?",
+          "insight": "Kent demands references at the evaluation threshold. The reveal interaction must feel responsive enough that the host does not lose momentum -- their courage to ask is fragile, and a slow or broken response extinguishes it."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, Supernatural Aid",
+          "type": "book",
+          "quote": "For those who have not refused the call, the first encounter of the hero-journey is with a protective figure who provides the adventurer with amulets against the dragon forces he is about to pass.",
+          "insight": "Campbell's amulets are delivered with ceremony by a protective figure. The optimistic reveal pattern creates digital ceremony: the artifact appears immediately as a protective shape, then fills with protective content, mirroring the figure-then-amulet sequence."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, Supernatural Aid",
+          "type": "book",
+          "quote": "One has only to know and trust, and the ageless guardians will appear.",
+          "insight": "The guardian must appear when summoned. A slow load or jarring transition after the host reaches for protection violates this principle -- the guardian seems absent precisely when needed. The optimistic reveal ensures the guardian (artifact container) appears instantly, even if the full content takes longer."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The artifact trigger (button, link, or expandable section header) is visible at the phase boundary with clear affordance. The artifact card is not yet visible -- only the invitation to reveal it.",
+        "loading": "The artifact card container appears immediately (0-120ms) with its accent border, title, and a shimmer placeholder for the summary text. The host sees the protective shape and knows the amulet is arriving. If a network fetch is required for the full document, a subtle inline progress indicator appears within the expanded section only -- the summary remains readable and the card never collapses.",
+        "empty": "If the artifact has no content (e.g., no success stories yet for this market), the card appears with its container intact and a message in the agent's conversational register: 'We are building our success stories in your area -- Frederick can share relevant examples from similar markets.' The empty state offers a path to the human guardian, never a dead end.",
+        "error": "The artifact card remains visible with whatever content has already loaded. The error appears as an inline message below the last successfully loaded element: 'Could not load the full document -- try again or contact Frederick.' A retry trigger is immediately available. The card never collapses back to pre-reveal state.",
+        "success": "All artifact content is visible. The cascade animation completes with a subtle settle effect. No success toast or confirmation banner -- the artifact's presence IS the confirmation. The host's attention should remain on the content, not on a notification about the content."
+      },
+      "transition_principle": "Artifact reveals expand outward from the trigger point, creating a spatial relationship between the host's action and the resulting content. The cascade timing (120-400ms total, with 40-60ms stagger between child elements) creates a perceivable rhythm that feels like unpacking rather than popping. Collapse (if the host closes the artifact) uses the same easing but slightly faster (80% of expand duration), because closing is a retreat and should feel swift rather than lingering.",
+      "timing": {
+        "response_target": "120ms for container appearance. 400ms for full cascade completion. 200ms for collapse.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing from tokens.json provides a fast start that decelerates -- the artifact arrives quickly (matching the host's urgency at the threshold) and settles gently (matching the protective, reassuring nature of the content). The 120ms container target is below the 200ms threshold where users perceive delay, ensuring the artifact feels instant."
+      },
+      "journey_state_awareness": "During evaluation (first encounter with artifacts), the cascade is at full duration (400ms) to give the host time to perceive the protective structure. During proposal management (host has seen many artifacts), the cascade can accelerate to 250ms -- the host knows the pattern and does not need the full ceremony. During active lease (the host is inside the Belly of the Whale), artifacts relating to payment guarantees or guest information should always use the full 400ms cascade because these moments carry the same threshold anxiety regardless of experience.",
+      "edge_cases": [
+        "Host opens multiple artifacts rapidly (e.g., scanning all four vetting categories in the proposal view). Each cascade should be independent but stagger initiation by 60ms to prevent visual chaos. If more than 3 artifacts are expanding simultaneously, skip the cascade and show all content immediately.",
+        "Network failure during full document fetch after summary has loaded. The summary must remain visible and interactive. Never retract content the host has already seen.",
+        "Host on a slow connection (>3G equivalent). The shimmer placeholder in the loading state should persist for up to 8 seconds before showing a gentle timeout message with retry. Never show a spinner -- the shimmer maintains the artifact's protective shape.",
+        "Artifact contains very long content (full rental agreement, 10+ pages). The initial reveal shows only the summary and first section. A 'Continue reading' trigger loads subsequent sections progressively -- never a full-document dump that forces the host to scroll past content they did not request."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Evidence Ladder Progressive Disclosure with Scroll-Anchored Momentum",
+      "journey_phases": ["discovery", "evaluation", "onboarding"],
+      "problem": "Kent's 12-question sequence during the call follows a natural evidence-gathering hierarchy: proposition, credibility, economics, vetting, commitment, verification (L2 communicates-008). The evidence ladder information architecture presents these answers in sequence. But the interaction question is: how does the host advance through the ladder? If the entire ladder is visible at once, the host faces a wall of text that undermines the sequential trust-building Campbell's Departure describes. If the ladder requires explicit clicks to advance, it feels gated and patronizing -- the due-diligence host wants to move at their own pace, not the platform's. The interaction must create forward momentum without forced gates, allowing the host to advance naturally through scroll behavior while ensuring each rung gets its moment of attention before the next one appears.",
+      "solution": "The evidence ladder uses scroll-triggered progressive disclosure. Each rung becomes fully visible as the host scrolls it into the viewport's focus zone (the central 60% of the screen). The rung above fades to 80% opacity and translates up slightly (-4px), and the rung below shows only its headline as a 'next answer' preview at reduced opacity (50%). This creates a reading tunnel effect where the current rung is dominant and adjacent rungs provide context. The host advances by scrolling naturally -- no buttons, no gates, no explicit 'next' actions. However, each rung's entrance is animated: it translates from 12px below its final position and fades from 0 to full opacity over 300ms using the tokens.json 'out' easing. This entrance animation provides the 'moment of attention' that each answer deserves. The credibility triad strip (L3 looks-019) at the top of the ladder is always visible -- it does not scroll with the content, acting as a persistent trust anchor while the host descends through the evidence.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 01:13 through 09:31",
+          "type": "host_call",
+          "quote": "Kent's 12 questions in order: 'tell me what you guys do' (01:13) through 'they're generally for a three month minimum?' (09:31).",
+          "insight": "Kent's questions follow a natural hierarchy where each answer enables the next question. The scroll-anchored interaction mirrors this: each rung enters the viewport as the host naturally advances, and the next rung's preview creates the same forward pull that Kent's questions created for Frederick."
+        },
+        {
+          "source": "kent-call.txt, 07:59",
+          "type": "host_call",
+          "quote": "What else should I know? What am I not asking you that I should be asking you?",
+          "insight": "Kent explicitly seeks the next piece of information. The evidence ladder's next-rung preview serves this function visually -- the host can always see what comes next, creating the same 'tell me more' momentum that Kent's meta-question expressed."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, The Call to Adventure",
+          "type": "book",
+          "quote": "The familiar life horizon has been outgrown; the old concepts, ideals, and emotional patterns no longer fit; the time for the passing of a threshold is at hand.",
+          "insight": "Each rung of the evidence ladder represents a mini-threshold. The scroll-triggered entrance animation marks each threshold passing -- the host sees the old answer recede and the new answer arrive, visually enacting Campbell's 'passing of a threshold.'"
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, Refusal of the Call",
+          "type": "book",
+          "quote": "Not all who hesitate are lost. The psyche has many secrets in reserve. And these are not disclosed unless required.",
+          "insight": "The progressive disclosure pattern respects the host's autonomy -- information is 'disclosed' only as the host advances. The host who hesitates on a rung (stops scrolling) gets time with that answer. The host who scrolls rapidly can traverse the ladder quickly. The interaction adapts to the host's pace, not the platform's."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The first rung (proposition) is fully visible. The second rung's headline is visible as a preview at 50% opacity. Subsequent rungs are below the fold. The credibility triad strip is visible at the top.",
+        "loading": "If the evidence ladder is loading content dynamically (e.g., success stories fetched from an API), each rung shows its structural outline (headline placeholder, evidence area placeholder) with a shimmer effect. The credibility triad loads first because it is the smallest and most impactful element. Rungs populate top-to-bottom as data arrives.",
+        "empty": "If a specific rung has no content (e.g., no success stories available), the rung shows a brief explanation in the agent's conversational register and collapses to half-height, maintaining the ladder's visual continuity without creating a gap. The adjacent rungs adjust position smoothly.",
+        "error": "If a rung fails to load, it shows an inline retry trigger within its allocated space. Other rungs remain functional -- a single rung failure does not break the ladder. The host can continue scrolling past the failed rung.",
+        "success": "All rungs are loaded and the host has scrolled to the bottom. The final rung includes an engagement trigger: 'Ready to take the next step? Talk to Frederick' or 'Create your listing.' This is the threshold crossing invitation that Campbell's Supernatural Aid prepares the hero for."
+      },
+      "transition_principle": "Rung entrance transitions use vertical translation (12px to 0px) plus opacity (0 to 1) with a 300ms duration. This creates a gentle surfacing effect -- the answer rises into view as if emerging from depth, matching Campbell's metaphor of 'deep' knowledge surfacing when required. Adjacent rung opacity shifts (active/inactive) use a 200ms transition to avoid abrupt state changes. The credibility triad strip remains fixed and never transitions -- its permanence signals unchanging institutional facts.",
+      "timing": {
+        "response_target": "300ms for rung entrance animation. 200ms for adjacent rung opacity shift. 0ms for credibility triad (static, no animation).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing creates a decelerating entrance that settles gently into place -- each answer arrives confidently and rests, rather than bouncing or overshooting. The 300ms duration is long enough to be perceived as intentional but short enough not to impede a host scrolling at normal reading speed."
+      },
+      "journey_state_awareness": "First-time visitors see the full ladder with all entrance animations. Returning visitors who have previously scrolled through the entire ladder see all rungs at full opacity immediately -- the entrance animations only fire once per session. This respects the due-diligence host's review pattern: on first visit they discover sequentially, on subsequent visits they may want to jump directly to a specific rung (e.g., the contract sample they came back to re-read).",
+      "edge_cases": [
+        "Host scrolls very rapidly (flick gesture on mobile). Entrance animations should not queue up and fire sequentially after the scroll stops. Instead, any rung that enters the viewport during rapid scroll appears immediately at full opacity without animation. The reading tunnel effect applies only during normal-speed scroll.",
+        "Very short viewport (small mobile screen). If only one rung fits on screen at a time, the adjacent-rung opacity reduction should not apply -- each rung takes full viewport and the preview of the next rung appears as a bottom-anchored teaser bar rather than a faded element.",
+        "Host uses keyboard navigation (Tab key). Each rung should be focusable, and focus should trigger the same entrance animation as scroll-based viewport entry. The reading tunnel effect should apply to focused vs. unfocused rungs.",
+        "Host bookmarks or shares a deep link to a specific rung. The ladder should scroll to that rung immediately, showing all preceding rungs in their completed state (full opacity, no animation). Only rungs below the linked one retain their entrance animation."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Vetting Evidence Stack Expand-Collapse with Status-Anchored Feedback",
+      "journey_phases": ["proposal_mgmt", "active_lease"],
+      "problem": "Kent's most anxiety-laden question is 'Do you do any vetting of these people?' (04:56). The L3 looks-020 vetting evidence stack presents four categories (employment, financial, documents, references) with status pips and expandable detail. The interaction challenge is: how do these categories expand and collapse, and what feedback does the host receive during the transition? If all four expand simultaneously, the proposal view becomes a wall of data that overwhelms rather than reassures. If expansion is slow or unclear about which category opened, the host loses the spatial relationship between the status pip they trusted and the evidence beneath it. Campbell writes that 'the adventure is always and everywhere a passage beyond the veil of the known into the unknown; the powers that watch at the boundary are dangerous; to deal with them is risky; yet for anyone with competence and courage the danger fades.' Each category expansion is a micro-passage from status (known) to evidence (previously unknown). The interaction must make the danger fade progressively, not all at once.",
+      "solution": "Each vetting category expands independently with a status-anchored interaction: the status pip and category label remain fixed at the top of the expanding section, and the evidence content pushes downward from beneath them. This anchoring ensures the host never loses sight of the status they are investigating -- the green 'pass' pip remains visible while the details of what passed appear below it. Expansion uses a height-auto animation with the 'out' easing at 250ms. Collapse is faster at 180ms. Only one category can be expanded at a time by default (accordion behavior), but a 'show all details' toggle at the top of the stack allows the host to expand all categories simultaneously for a comprehensive view. When a category expands, the other categories' pips remain visible above and below, providing persistent status context. The payment guarantee bar at the bottom of the stack is always visible and never scrolls -- it anchors the entire vetting experience with its persistent reassurance.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 04:56-05:05",
+          "type": "host_call",
+          "quote": "Do you do any vetting of these people? ... On the site we have rental application form, which this guest fill, and we call it all the information about their jobs, about their situation, their financial situation. We also do checks on the documents they submit.",
+          "insight": "Kent expects four specific categories of vetting evidence. The accordion interaction lets him investigate each category individually, in his own order, at his own pace -- mirroring how he interrogated Frederick one question at a time during the call."
+        },
+        {
+          "source": "kent-call.txt, 03:35",
+          "type": "host_call",
+          "quote": "Even if that happens, we will pay you because we are the one on that.",
+          "insight": "Frederick's payment guarantee should remain visible throughout the vetting review. The sticky guarantee bar at the bottom of the stack ensures the host sees the safety net regardless of which vetting category they are investigating."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, The Crossing of the First Threshold",
+          "type": "book",
+          "quote": "The adventure is always and everywhere a passage beyond the veil of the known into the unknown; the powers that watch at the boundary are dangerous; to deal with them is risky; yet for anyone with competence and courage the danger fades.",
+          "insight": "Each vetting category is a mini-passage from known (status pip) to unknown (detailed evidence). The status-anchored expansion keeps the known visible while revealing the unknown below it, making the danger fade progressively rather than all at once."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, The Crossing of the First Threshold",
+          "type": "book",
+          "quote": "The usual person is more than content, he is even proud, to remain within the indicated bounds.",
+          "insight": "The default collapsed state (status pips only) respects the host who is content with the summary. The expandable interaction serves the due-diligence host who needs to verify what lies beneath. Both archetypes are served by the same pattern."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All four categories are collapsed, showing status pips and labels in a compact stack. The payment guarantee bar is visible below. The host can scan all four statuses in under 10 seconds without interacting.",
+        "loading": "If vetting data is still being fetched (e.g., a background check is in progress), the relevant category shows a pulsing amber pip with the label 'Verifying...' in IBM Plex Mono. The category is not expandable until data arrives. Other categories with completed checks remain interactive. The loading state communicates that verification is active, not absent.",
+        "empty": "If a vetting category has no data (e.g., no references available for a first-time guest), the category shows a neutral pip (border color, not green/amber/red) with the label 'Not available' and is expandable to show a brief explanation: 'This guest is new to the platform. Employment and financial checks are complete.' The empty state does not alarm -- it contextualizes.",
+        "error": "If vetting data fails to load, the category shows a red pip with 'Unable to verify' and is expandable to show a retry trigger and a message: 'Contact Frederick for manual verification of this category.' The error state provides a human fallback, maintaining Campbell's supernatural aid presence.",
+        "success": "All four categories show green pips. The 'show all details' toggle is available. When all categories are expanded, the stack provides a comprehensive vetting portrait of the guest. The accept/decline action appears below the guarantee bar, framed as a confident decision enabled by complete evidence."
+      },
+      "transition_principle": "Category expansion uses downward push animation -- the status header stays fixed and content appears to emerge from beneath it. This creates a reveal-from-source effect where the evidence is always spatially connected to the status that summarizes it. Other categories below the expanding one shift downward smoothly (150ms, 'out' easing) to accommodate the new content. The payment guarantee bar maintains its bottom-anchored position, shifting down with the expanding content but never scrolling off screen.",
+      "timing": {
+        "response_target": "250ms for category expansion. 180ms for category collapse. 150ms for adjacent category position shift.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing provides a fast initial reveal that decelerates into settled position -- the evidence arrives confidently and rests. The 250ms expansion is 50ms shorter than the evidence ladder rung entrance because the vetting stack operates within a single proposal view (less spatial context needed) and the host is making a time-sensitive decision. The 180ms collapse is brisk -- closing a category the host has already read should feel efficient."
+      },
+      "journey_state_awareness": "First-time proposal review: all categories default to collapsed. The host must choose to investigate, preserving their sense of agency and control. Subsequent proposal reviews: the stack remembers the host's last expansion pattern and defaults to it (if the host always expands Employment and Financial, show those expanded by default on the next proposal). During active lease (checking on a current guest): all categories expand by default, since the host has already accepted this guest and is now monitoring rather than evaluating.",
+      "edge_cases": [
+        "A vetting category changes status while the host is viewing the proposal (e.g., a background check completes and changes from amber 'Verifying' to green 'Pass'). The pip should transition color over 400ms with a subtle scale pulse (1.0 to 1.15 to 1.0) to draw attention without alarming. If the category was previously non-expandable, it should become expandable with a brief flash of the accent-light background to signal new availability.",
+        "Host views a proposal on mobile where the vetting stack must share screen with guest name, dates, and actions. On small viewports, the payment guarantee bar should float as a sticky footer rather than appearing inline below the stack. The stack itself should use full-width cards with edge-to-edge left accent borders for easier tap targeting.",
+        "Guest has a flagged vetting category (red pip). The flagged category should auto-expand on proposal load to surface the concern immediately -- the host should not have to discover a red flag by clicking on it. The expansion should use a slightly longer duration (350ms) and the signal-danger-bg color should pulse once on load to ensure the host notices.",
+        "Host expands a category and then scrolls the proposal view so the expanded category is partially off-screen. The status header should become sticky at the top of the viewport while the expanded content remains scrollable beneath it -- the host should always know which category they are reading."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Boundary Configuration with Live Consequence Preview",
+      "journey_phases": ["listing_creation", "pricing"],
+      "problem": "Kent explicitly rejects the 6-week minimum stay: 'I don't wanna do anything that short' (09:46). Campbell describes platform participation as 'a form of self-annihilation' -- the host surrenders autonomy and must retain control over non-negotiable boundaries. The L2 communicates-013 and L3 looks-022 layers define the boundary configuration controls and their visual prominence. The interaction question is: what happens when the host adjusts a boundary? If the host drags a minimum stay slider from 6 weeks to 3 months, what feedback do they receive, how quickly, and through what mechanism? Without live consequence feedback, the host is configuring in the dark -- they set a value but cannot understand its impact until they see proposals (or fail to see them). The due-diligence host needs to understand the consequence of every setting before committing to it, just as Kent needed to understand every aspect of Split Lease before agreeing.",
+      "solution": "When the host adjusts any boundary control (minimum stay, guest requirements, availability), a consequence preview updates in real time below the control. The preview uses two components: (1) a natural-language consequence statement that updates on every value change ('With a 3-month minimum, you will only receive proposals for stays of 3 months or longer'), and (2) a quantitative impact indicator when data is available ('Approximately 35% of our current guest pool qualifies for stays of this length in your area'). The consequence statement updates immediately (0ms perceived delay) using a crossfade transition (150ms). The quantitative indicator uses a 300ms debounce after the host stops adjusting, then updates with a brief number-counting animation (400ms) to draw attention to the data change. The control itself provides haptic feedback on mobile at each value step. When the host confirms their boundary settings, a brief confirmation appears in the agent's voice ('Frederick will enforce these terms on every proposal') that reinforces the supernatural aid's protective commitment.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:46",
+          "type": "host_call",
+          "quote": "Yeah. See, I don't wanna do anything that short.",
+          "insight": "Kent's rejection of the 6-week minimum is absolute. He needs to see the consequence of his setting in real time -- not as a validation error after submission, but as live feedback that confirms the platform will enforce his boundary."
+        },
+        {
+          "source": "kent-call.txt, 09:49",
+          "type": "host_call",
+          "quote": "You can also set your listing for longer than that.",
+          "insight": "Frederick's assurance that the boundary is configurable must translate into an interaction that feels configurable -- the host must see their choice reflected immediately and understand its impact. The live preview is the digital equivalent of Frederick saying 'you can do that' and showing what it means."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, The Belly of the Whale",
+          "type": "book",
+          "quote": "The passage of the threshold is a form of self-annihilation... The hero, instead of conquering or conciliating the power of the threshold, is swallowed into the unknown.",
+          "insight": "Boundary configuration is the host's mechanism for controlling the terms of their self-annihilation. The live consequence preview makes the unknown known -- the host can see exactly what they are agreeing to before they cross the threshold."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, The Belly of the Whale",
+          "type": "book",
+          "quote": "No creature can attain a higher grade of nature without ceasing to exist.",
+          "insight": "The host's old identity (fully independent landlord) must evolve, but the evolution must be voluntary and informed. The live consequence preview ensures the host understands exactly which aspects of their old identity they are retaining (minimum stay, guest standards) and which they are transforming (platform-mediated matching, third-party payments)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The boundary control shows its current value prominently in IBM Plex Mono. The consequence statement shows the implication of the current value. The quantitative indicator shows the relevant data for the current value. All elements are stable and readable.",
+        "loading": "When the quantitative indicator is fetching updated data after a value change (the 300ms debounce period), a subtle shimmer replaces the number while the consequence statement updates immediately. The host always has the natural-language consequence, even while the quantitative data is updating.",
+        "empty": "If quantitative data is not available for this market or boundary type, the consequence statement appears alone without the quantitative indicator. No 'data not available' message -- the absence of the indicator is invisible. The natural-language consequence is always sufficient on its own.",
+        "error": "If the quantitative data fetch fails, the consequence statement remains visible and accurate. A small footnote appears: 'Live data temporarily unavailable -- your setting is saved.' The boundary configuration never fails -- only the supplementary data can fail.",
+        "success": "After the host confirms their boundaries, a brief confirmation fades in below the last control: 'Your terms are set. Frederick will enforce these on every proposal.' The confirmation uses the agent's conversational register and fades out after 4 seconds, leaving the controls in their confirmed state."
+      },
+      "transition_principle": "The consequence statement uses a crossfade (opacity 1 to 0 to 1, 150ms total) on value change, ensuring the text never appears to jump or reflow. The quantitative indicator uses a counting animation (old number incrementing or decrementing to new number, 400ms) that draws the eye to the data change through motion rather than static replacement. The combination creates a feedback loop: adjust control, see consequence immediately, see data update shortly after. This loop rewards exploration and makes the host feel in control.",
+      "timing": {
+        "response_target": "0ms perceived delay for consequence statement update. 300ms debounce + 400ms animation for quantitative indicator. 150ms for consequence crossfade.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The consequence statement must feel instant because it is the primary feedback mechanism -- any delay between adjusting the slider and seeing the consequence breaks the feeling of control. The quantitative indicator uses a debounce because it involves data computation and the counting animation provides a visual transition that explains the brief delay."
+      },
+      "journey_state_awareness": "During initial listing creation, all boundary controls are prominent and the consequence previews are verbose ('With a 3-month minimum, you will only receive proposals from guests who want to stay for 3 months or longer. Shorter requests will be filtered automatically.'). During listing edits (the host returns to change a boundary), the consequence previews are concise ('Min stay: 3 months. ~35% of guest pool qualifies.') because the host already understands the mechanism. The quantitative data updates to reflect current market conditions, showing the host whether their boundaries are still well-calibrated.",
+      "edge_cases": [
+        "Host sets a boundary so restrictive that no guests qualify (e.g., 12-month minimum in a market with no long-term demand). The quantitative indicator should show '0%' with a gentle warning in signal-warn color: 'No current guests match this setting. Consider adjusting or ask Frederick about demand in your area.' Never prevent the host from setting their preferred boundary -- warn, but respect their autonomy.",
+        "Host adjusts the boundary rapidly (dragging a slider back and forth). The consequence statement should update on every value change without queuing animations -- each new value replaces the previous immediately. The quantitative indicator debounce resets on each interaction, so only the final resting value triggers a data fetch.",
+        "Two boundary controls interact (e.g., minimum stay and pricing together affect guest pool). The quantitative indicators for both controls should update when either is changed, showing the combined impact. A brief connecting line or shared indicator can show 'With these settings combined, ~25% of guest pool qualifies.'",
+        "Host has not yet provided location data. The quantitative indicator cannot show market-specific data. It should show a prompt: 'Add your location to see how many guests match these settings.' The consequence statement still works without location data."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Post-Call Momentum Sequence with Temporal Pacing and Re-Engagement Triggers",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "Kent's call ends with 'I'll review it and I'll get back to you' (11:17). Frederick sends all documents in a single batch. Campbell warns: 'Refusal of the summons converts the adventure into its negative.' The L2 communicates-011 and L3 looks-023 layers define the information architecture and visual design of the sequenced delivery. The interaction challenge is: what behavioral logic governs the delivery timing, and how does the system respond to host engagement or disengagement? A static sequence (Day 1: success stories, Day 2: contract, Day 4: policies) does not adapt to the host's actual behavior. If Kent opens and reads the success stories within an hour, waiting until Day 2 to send the contract wastes momentum. If Kent does not open the success stories by Day 2, sending the contract on schedule overwhelms a host who has not processed the first delivery. The interaction pattern must be responsive to the host's engagement signals.",
+      "solution": "The post-call delivery sequence operates on an engagement-responsive cadence rather than a fixed calendar. The logic is: (1) First delivery (success stories) sends within 1 hour of the call, always. (2) Each subsequent delivery triggers when the host engages with the previous one (opens the email, clicks the document link, or spends more than 30 seconds on the linked page), plus a minimum 18-hour cooldown to prevent overwhelming. (3) If the host does not engage with a delivery within 48 hours, a gentle re-engagement ping fires: a brief message from the agent referencing the specific document ('Hi Kent, did you get a chance to look at the success stories? Happy to walk through any of them with you.'). (4) If the host does not engage after the re-engagement ping within another 48 hours, the sequence pauses and the agent is notified for a personal follow-up call. (5) The sequence progress indicator (L3 looks-023) updates in real time across all channels -- if the host opened the success stories via email, their in-app progress bar reflects this. Each delivery notification uses the same visual template (agent attribution, sequence indicator, artifact card, guidance note, next-step preview) to create a predictable rhythm that the host learns to trust.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 11:17",
+          "type": "host_call",
+          "quote": "So I, all right, well I look forward to your, your information. Yeah. And I'll review it and I'll get back to you.",
+          "insight": "Kent commits to reviewing but provides no timeline. The engagement-responsive cadence turns 'I will get back to you' from an indefinite deferral into a structured path: each delivery arrives when Kent is ready (demonstrated by engaging with the previous one), not on an arbitrary calendar."
+        },
+        {
+          "source": "kent-call.txt, 10:02-10:37",
+          "type": "host_call",
+          "quote": "I'm gonna share with you this other page when we have the policies and all the documents that we use, you will see there an example of a rental agreement, an example of a supplemental agreement, the credit card authorization form.",
+          "insight": "Frederick lists 4+ documents to send in a batch. The engagement-responsive sequence replaces this batch with a series of timed, contextual deliveries. Each document arrives with guidance about what to look for, not as a raw attachment in a pile."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, Refusal of the Call",
+          "type": "book",
+          "quote": "Refusal of the summons converts the adventure into its negative. Walled in boredom, hard work, or 'culture,' the subject loses the power of significant affirmative action and becomes a victim to be saved.",
+          "insight": "The post-call void is where the adventure converts to its negative -- not through active refusal but through passive drift. The engagement-responsive cadence prevents drift by matching delivery pace to host engagement, and the re-engagement pings catch drift before it becomes permanent."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, Supernatural Aid",
+          "type": "book",
+          "quote": "Having responded to his own call, and continuing to follow courageously as the consequences unfold, the hero finds all the forces of the unconscious at his side.",
+          "insight": "The key word is 'continuing.' The engagement-responsive sequence ensures continuity: each delivery is a new consequence that unfolds when the host is ready. The sequence never races ahead of the host (preventing overwhelm) or falls behind (preventing drift)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The first delivery (success stories) is sent. The sequence indicator shows Step 1 of 4 highlighted. The host's engagement status is 'awaiting first open.'",
+        "loading": "Between deliveries, the host's in-app dashboard shows the sequence indicator with the next step's document name visible but grayed out: 'Next: Sample contract (coming after you review the success stories).' This creates anticipation without pressure.",
+        "empty": "If the host has never engaged with any delivery (no opens, no clicks after the first delivery), the sequence is in a holding state. After the re-engagement ping and the subsequent 48-hour wait, the system shows the agent a notification: 'Kent has not engaged with post-call materials. Recommend personal follow-up.' The host sees nothing new -- no additional automated messages after the re-engagement ping.",
+        "error": "If a delivery fails to send (email bounce, notification failure), the system retries once after 1 hour, then alerts the agent to use an alternative channel (text message, as Kent indicated he is reachable by text at 11:00). The sequence does not skip a delivery due to a failed channel -- it finds another way.",
+        "success": "The host has engaged with all deliveries in the sequence. The final delivery includes the scheduled follow-up: 'You have reviewed everything. Frederick is available [specific time] to answer questions and help you create your listing.' The sequence is complete, and the host transitions from passive review to active listing creation."
+      },
+      "transition_principle": "Each delivery notification uses the same visual template and arrives through the same channel, creating a predictable rhythm. The sequence indicator advances with a segment fill animation (200ms, 'out' easing) that the host can perceive across deliveries -- each advance is a visible step forward. Re-engagement pings use the same template but with a slightly warmer tone (the agent's name is more prominent, the language is more personal), signaling 'this is Frederick checking in' rather than 'this is an automated follow-up.'",
+      "timing": {
+        "response_target": "First delivery: within 60 minutes of call end. Subsequent deliveries: engagement trigger + 18-hour minimum cooldown. Re-engagement ping: 48 hours after unengaged delivery. Agent escalation: 96 hours after unengaged delivery.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 60-minute first delivery capitalizes on the call's momentum while giving the agent time to personalize the note. The 18-hour cooldown between engagement-triggered deliveries prevents overwhelming a host who reads everything immediately. The 48-hour re-engagement window respects the host's schedule -- Kent may be busy for a day or two without having lost interest."
+      },
+      "journey_state_awareness": "The sequence adapts its content based on what the host said during the call. If the agent marked 'host asked about contracts' (as Kent did at 09:24), the contract delivery moves to position 2 (highest priority after success stories). If the agent marked 'host concerned about vetting' (as Kent was at 04:56), the sequence includes a bonus delivery: a vetting process walkthrough with a real example. The sequence template is standard but the content order and emphasis are personalized based on call notes.",
+      "edge_cases": [
+        "Host engages with delivery 1 immediately (within minutes of receiving it) and then engages with delivery 2 eighteen hours later, but does not engage with delivery 3. The re-engagement ping for delivery 3 should reference both the document and the host's prior engagement: 'You moved through the first two quickly -- take your time with the policies. Let me know if anything stands out.'",
+        "Host replies to a delivery email with a question. The sequence should pause automated deliveries until the agent responds to the question. Sending the next document while a question is unanswered signals that the platform values its schedule over the host's concerns.",
+        "Host opens a delivery but does not click through to the document (opens email but does not click the link). This is a partial engagement signal. The system should wait 24 hours and then send a gentle prompt: 'The success stories are ready when you are -- here is the link again.' Do not advance to the next delivery based on an email open alone.",
+        "Agent forgets to personalize a delivery note. The system should have fallback templated notes that reference the host by name and the specific document, but flag the agent that personalization was missed. The sequence should never stall because an agent did not write a note."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Agent Continuity Presence with Contextual Status Updates",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "Kent's entire trust relationship is with Frederick. Campbell describes the supernatural aid figure as 'the benign, protecting power of destiny' whose presence reassures the hero. The L2 communicates-014 and L3 looks-021 layers define the information architecture and visual design of the agent continuity banner. The interaction question is: how does the agent banner behave across different contexts and states? A static banner showing 'Frederick, your agent' is better than nothing, but it does not maintain the living, responsive quality of Frederick's presence during the call. During the call, Frederick was responsive -- he answered questions, offered information, adapted his explanations. The banner must exhibit some of this responsiveness to maintain the sense that the guardian is present and attentive, not just named.",
+      "solution": "The agent continuity banner updates its status line contextually based on the host's current activity and journey state. The status update is not real-time (Frederick is not watching the host's every click) but event-driven: it changes when the host enters a new context or when a meaningful event occurs. Status examples: on the dashboard, 'Available until 6pm EST -- message me anytime'; on the proposal view, 'I vetted this guest -- take a look at their profile'; on the listing wizard boundary step, 'Set your terms -- I will enforce them on every proposal'; after a re-engagement ping, 'I sent you the contract yesterday -- let me know your questions.' Each status update uses a subtle crossfade transition (200ms) so the text change is perceivable but not distracting. The contact button in the banner updates its label contextually: 'Message' by default, 'Call' when a scheduled call is imminent, 'Text' if the host indicated texting preference (as Kent did at 10:37). Tapping the contact button opens the communication channel directly -- no intermediate screens, no chatbot, no 'submit a ticket' flow.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 08:48-09:10",
+          "type": "host_call",
+          "quote": "And what else I can share with you? I think this links so far are good, and also let share with you my information so you can have it hand like my email and phone number.",
+          "insight": "Frederick offers personal accessibility as a safety net. The agent banner makes this accessibility persistent and contextual -- the host always knows how to reach Frederick and the contact method adapts to the host's stated preference."
+        },
+        {
+          "source": "kent-call.txt, 03:35",
+          "type": "host_call",
+          "quote": "Even if that happens, we will pay you because we are the one on that.",
+          "insight": "Frederick's personal commitment ('we are the one on that') uses conversational register that the banner's status updates should echo. The status line when viewing a proposal should feel like Frederick speaking, not a system notification."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, Supernatural Aid",
+          "type": "book",
+          "quote": "What such a figure represents is the benign, protecting power of destiny. The fantasy is a reassurance -- a promise that the peace of Paradise, which was known first within the mother womb, is not to be lost.",
+          "insight": "The contextual status updates maintain the reassurance function across contexts. A static name is institutional; a responsive status is personal. The host feels protected not just by the platform but by Frederick specifically -- the supernatural aid figure who knows their situation."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, Supernatural Aid",
+          "type": "book",
+          "quote": "One has only to know and trust, and the ageless guardians will appear.",
+          "insight": "The contact button's one-tap access is the digital equivalent of 'the guardians will appear.' The host does not need to navigate to a support page or submit a form -- they tap, and Frederick appears. The interaction removes all barriers between the host and their guardian."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Banner visible at top of every authenticated screen. Agent name, avatar, status line ('Available -- message anytime'), and contact button. The banner occupies a compact fixed height (48px) and does not compete with page content.",
+        "loading": "If the status line is updating (context change), a brief shimmer replaces the text for 150ms maximum before the new status appears. The agent name and avatar never shimmer -- they are always instantly recognizable.",
+        "empty": "If the agent has no contextual status for the current screen (a rare case), the default status ('Available -- message anytime') persists. The banner never appears empty or without a status line.",
+        "error": "If the agent's availability data cannot be fetched, the status shows 'Frederick, your agent' without availability information. The contact button remains functional -- even if the system cannot confirm Frederick's schedule, the host can still initiate contact.",
+        "success": "After the host uses the contact button and sends a message or initiates a call, the status briefly updates to 'Message sent -- Frederick will respond shortly' or 'Connecting your call...' (3 seconds), then returns to the contextual default. The host receives confirmation that their action reached the guardian."
+      },
+      "transition_principle": "Status line updates use a crossfade (opacity 1 to 0 to 1, 200ms total) triggered by context changes (page navigation, event receipt). The crossfade is subtle enough that the host may not consciously notice individual updates but will over time internalize that the banner is alive and responsive. The contact button label changes use the same crossfade. The banner itself never moves, resizes, or reflows -- its spatial stability is part of its reassurance function.",
+      "timing": {
+        "response_target": "200ms for status line crossfade. 0ms for contact button tap response (immediate channel opening). 3000ms for post-action confirmation display.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 200ms crossfade is fast enough to feel responsive to context changes but slow enough to be perceivable -- the host should notice that the banner is contextually aware without being distracted by frequent changes. The 0ms contact response reflects the 'guardian appears immediately' principle."
+      },
+      "journey_state_awareness": "During onboarding (early in the relationship), the status updates are more frequent and more personal: 'I sent you the success stories -- what did you think?' During active lease (the host is established), updates are less frequent and more operational: 'Guest check-in confirmed for Monday.' The banner adapts its personality from warm/nurturing (early journey, when trust is being built) to efficient/professional (later journey, when trust is established). This mirrors how Frederick's conversational register would naturally evolve from introductory warmth to operational efficiency.",
+      "edge_cases": [
+        "Frederick is unavailable (out of office, after hours). The status shows 'Frederick is out until [date/time] -- urgent matters: call [backup number].' The banner never shows 'unavailable' without a fallback. The backup contact inherits the same one-tap accessibility.",
+        "The host's assigned agent changes (Frederick leaves the company or transfers accounts). The banner should transition gradually: the new agent is introduced in a status message ('Maria is taking over from Frederick -- she has your full history') and the avatar/name update after the host acknowledges. Never silently replace the guardian.",
+        "Host is on a screen where the banner competes for vertical space (mobile listing wizard with many form fields). The banner should collapse to show only the avatar and a small contact icon, expanding to full width on tap. The guardian presence is maintained in miniature.",
+        "Multiple events update the status simultaneously (host enters proposal view AND a new payment is confirmed). Priority order: safety-critical updates first (payment issues, guest flags), then context-specific updates (proposal vetting summary), then informational updates (payment confirmation). Only the highest-priority status shows; others queue and appear if the host remains on the same screen for more than 10 seconds."
+      ]
+    }
+  ]
+}

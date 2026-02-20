@@ -1,0 +1,343 @@
+{
+  "lens": {
+    "host_call": "diane-kaufhold-call.txt",
+    "book_extract": "kahneman-cognitive-ease.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Optimistic Listing Import with Verification Settle",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "Robert offers Diane a listing import path (10:32-11:03): provide a link, the team pulls the data, and she verifies. For a host with three properties and extreme time poverty ('the day is never long enough,' 00:49), this is the only viable path. But the import creates a latency gap: the host provides a link, days pass while the team scrapes data, then an email arrives asking for verification. During this gap, every moment of silence is a moment where cognitive ease decays. Kahneman's mere exposure research shows that positive feelings require repeated stimulus; absence of stimulus resets the familiarity counter. The host who felt good about the call forgets the feeling while waiting for the import. When the verification email arrives, she is effectively a cold lead re-encountering an unfamiliar platform. The interaction pattern must eliminate this latency gap or fill it with ease-building micro-exposures.",
+      "solution": "Treat the listing import as an optimistic operation with immediate visual feedback and progressive refinement. When the host provides an existing listing link: (1) show an instant skeleton preview of what the imported listing will look like, populated with whatever metadata is immediately available (title, first photo, location), within 2 seconds of link submission. This is the 'I heard you' acknowledgment. (2) As the import completes field by field over the following hours, send the host a lightweight progress notification: 'Your Manhattan listing is 80% imported -- photos, description, and amenities are ready. We still need your pricing.' Each notification is a mere-exposure event. (3) When the import is complete, deliver a single verification card per property -- not a full form, but a summary with 'Looks good' or 'Edit' actions. The verification must feel like approval, not work. (4) For multi-property hosts, sequence verifications across days rather than bundling them: verify Manhattan today, Queens Building 1 tomorrow.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 10:51-11:03",
+          "type": "host_call",
+          "quote": "We take that information from that site for you, create your listings, send you back links to your listings, and then you go in and you verify if you like everything.",
+          "insight": "Robert describes the import as a done-for-you service, but the current implementation has a dead zone between link submission and verification delivery. The host provides a link and then waits in silence. For a host who is evaluating whether this platform is worth her scarce time, silence is indistinguishable from abandonment."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, The Pleasure of Cognitive Ease",
+          "type": "book",
+          "quote": "The mere exposure effect occurs because the repeated exposure of a stimulus is followed by nothing bad. Such a stimulus will eventually become a safety signal, and safety is good.",
+          "insight": "Each progress notification during the import is a mere-exposure event: the host encounters the platform, and nothing bad happens. The import progressing is a positive signal. By the time the verification card arrives, the host has already had 2-3 positive platform exposures, making the verification feel familiar rather than novel."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 00:49",
+          "type": "host_call",
+          "quote": "It's unbelievable. You know, the day is never long enough.",
+          "insight": "Diane's time poverty means the verification must be a 2-minute task, not a 15-minute editing session. An optimistic import that pre-fills correctly reduces verification to a scan-and-approve action, compatible with her schedule gaps."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "The general principle is that anything you can do to reduce cognitive strain will help, so you should first maximize legibility.",
+          "insight": "The verification card must present imported data in the same visual layout the final listing will use -- maximum legibility, no translation effort. The host sees what guests will see, not a form representation of what guests will see."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The listing card shows a skeleton preview immediately after link submission. Key metadata (title, location, first photo) populates within 2 seconds from URL metadata extraction. Remaining fields show as outlined placeholder blocks with subtle pulse animation (opacity 0.4 to 0.7, 1.5s cycle, easing-out) to signal 'in progress, not empty.'",
+        "loading": "As the import processes, fields fill in progressively. Each field fill uses the settle animation (300ms, easing-out). The skeleton pulse stops for filled fields and continues for unfilled ones. A progress indicator at the top of the card shows completion percentage in mono typography (IBM Plex Mono). The host can leave and return; progress is preserved.",
+        "empty": "If the import fails to extract a specific field (e.g., the source listing has no amenity data), that field shows a clearly marked gap with a one-tap 'Add' action and a suggestion derived from comparable listings: 'Similar listings in Queens include: washer/dryer, AC, WiFi.' The empty state is a guided gap, not a blank field.",
+        "error": "If the import fails entirely (broken link, private listing, unsupported platform), show the error immediately -- within 3 seconds of link submission, not after a silent delay. The error message uses the exact source site name: 'We could not access your Airbnb listing. This usually means the listing is set to private. You can try a direct link or create your listing manually.' Offer the manual path as a fallback, not as the primary path.",
+        "success": "When all fields are populated and the host taps 'Looks good,' the card transitions to a published state with a brief accent-light background flash (300ms, easing-out) and the running count updates: 'Listing 1 of 3 verified.' The spring easing (cubic-bezier(0.34, 1.56, 0.64, 1), 500ms) is reserved for the moment all properties are verified -- this is the milestone celebration."
+      },
+      "transition_principle": "The import-to-verification transition must feel like a single continuous process, not two separate events. The skeleton preview is the beginning of the listing; the completed card is the end. Every state between is a visible step on the same continuum. The host never encounters a 'start over' moment -- only a 'continue from here' moment.",
+      "timing": {
+        "response_target": "Skeleton preview: under 2 seconds from link submission. Per-field population: 300ms settle per field as data arrives. Full import notification: within 24 hours. Verification tap response: sub-100ms acknowledgment.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The easing-out curve starts fast and decelerates, matching the perceptual expectation of data 'arriving' and 'settling into place.' The spring curve for milestone completion adds a subtle overshoot that registers as a micro-celebration -- distinct from routine transitions. The skeleton pulse is slow and ambient to avoid drawing active attention to the loading state."
+      },
+      "journey_state_awareness": "For first-time hosts like Diane, the skeleton preview includes a one-line contextual note: 'We are importing your listing from [source site]. You will be able to review everything before it goes live.' This sets expectations. For returning hosts importing a second or third property, the note is omitted and the skeleton preview includes a comparison badge: 'Similar to your Manhattan listing.' This leverages the familiarity the first import built.",
+      "edge_cases": [
+        "Host provides a link to a listing on an unsupported platform: show the error within 3 seconds with a specific message naming the platform. Offer to accept photos and a description via text/email as an alternative import method. Never leave the host with a dead end.",
+        "Imported data differs significantly from the host's actual property (e.g., the listing on the other site is outdated): the verification card must make differences visually prominent. Fields that seem inconsistent with the host's call data (e.g., listed as unfurnished but Diane mentioned furnished) should be flagged: 'Your Airbnb listing says unfurnished -- is this correct?'",
+        "Host has multiple listings on different platforms for the same property: detect duplicates by address matching and present a merge view: 'We found your property on Airbnb and another site. Here is the combined information -- confirm which details are correct.'",
+        "Network interruption during import: the optimistic skeleton persists with a non-alarming 'Import paused -- we will resume when you are back online' message. No data loss. The host returns to exactly the same state.",
+        "Host verifies one property but ignores the others: do not bundle reminders. Send individual reminders per property, spaced 2-3 days apart, each with its own deep link and 2-minute time estimate. Never send a 'you have 2 unfinished listings' message that implies a backlog."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Controlled Friction at Pricing Confirmation to Surface False Familiarity",
+      "journey_phases": ["pricing", "listing_creation"],
+      "problem": "Diane responds to Robert's complex pricing explanation (12:29-13:49) with immediate confidence: 'I just did all of that for years... I'm familiar' (14:20). But Split Lease's pricing model has genuinely novel elements -- per-night rates that vary by number of nights booked per week, complementary schedule matching, alternating occupancy -- that her 15 years of nightly UN diplomat rentals never involved. Kahneman's illusions of truth research explains: 'The familiarity of one phrase in the statement sufficed to make the whole statement feel familiar, and therefore true.' The phrase 'per night' triggered pattern-matching to her old model, making the entire Split Lease pricing structure feel understood when it was only recognized. If the pricing interface accepts her inputs without surfacing the differences, she will misconfigure her rates and discover the mismatch only when active leases produce unexpected income. The interaction pattern must introduce deliberate friction at the confirmation step -- not to slow her down, but to surface what is genuinely different.",
+      "solution": "After the host enters all pricing values through the sequential scenario flow (one question per card, per L2/L3), present a confirmation card that introduces controlled cognitive strain by showing a concrete real-dollar scenario that reveals the novel mechanics. This card does not repeat the numbers the host entered -- it shows what those numbers produce in practice. Specifically: (1) 'With your rates, here is what a typical month looks like:' followed by a concrete scenario showing Guest A (Mon-Thu, 4 nights x $50 = $200/week = $800/month) and Guest B (Fri-Sat, 2 nights x $60 = $120/week = $480/month), with total monthly income in mono typography. (2) Highlight the element that is novel: 'Because your rate changes based on how many nights a guest books, a 2-night guest pays more per night than a 4-night guest. Is this what you intended?' (3) Require explicit confirmation: a single 'Yes, these rates are correct' button. No auto-advance. The host must actively affirm after seeing the projection. This is the moment where Kahneman's 'cognitive strain mobilizes System 2' works in the host's favor.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 14:20-14:51",
+          "type": "host_call",
+          "quote": "I just did all of that for years. I sold two co-ops on 54th and 52nd... I did it for 15 years, so I'm familiar.",
+          "insight": "Diane declares familiarity without engaging with the unique elements. Her System 1 approved the pricing model based on surface recognition. The confirmation card must activate her System 2 by showing her something she does not expect -- the variable-rate monthly projection -- forcing her to verify rather than assume."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Strain and Effort",
+          "type": "book",
+          "quote": "Performance was better with the bad font. Cognitive strain, whatever its source, mobilizes System 2, which is more likely to reject the intuitive answer suggested by System 1.",
+          "insight": "The confirmation card is the 'bad font' of the pricing flow -- a deliberate strain point that improves outcomes. By showing concrete dollar projections rather than repeating the host's inputs, the card creates a moment where the host's System 2 checks whether the real-world result matches her intuitive expectation."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 12:29-13:49",
+          "type": "host_call",
+          "quote": "If you have a person four nights, how much per day... and how much per day if you will have two nights.",
+          "insight": "Robert's explanation involved variable rates by occupancy pattern -- a genuinely novel concept for someone used to flat nightly rates. The confirmation card must make this variable structure visually explicit: two guests, two rates, two income lines, one total."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Illusions of Truth",
+          "type": "book",
+          "quote": "The familiarity of one phrase in the statement sufficed to make the whole statement feel familiar, and therefore true.",
+          "insight": "The phrase 'per night' is the familiarity anchor that makes the whole pricing model feel understood. The confirmation card breaks this illusion by showing that 'per night' at Split Lease means something different than 'per night' at a hotel -- the rate depends on how many nights the guest books."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The confirmation card appears after all individual pricing scenarios have been entered via the sequential card flow. It presents a concrete monthly projection on a white card against the warm background. Guest scenarios are shown as rows in a mini-table rendered with mono typography (IBM Plex Mono) for dollar amounts. The total monthly income is visually prominent at the bottom. A highlighted callout box below the table uses the signal-info-bg (#e8f0fa) background with the explanatory note about variable rates.",
+        "loading": "If the projection requires server calculation (e.g., factoring in platform markup to show net income), show the card frame immediately with the host's entered rates visible, and a subtle inline spinner adjacent to the projected totals. The host sees her inputs instantly; only the calculated outputs require a brief wait (target: under 500ms).",
+        "empty": "Not applicable -- this card only appears after pricing values have been entered. If the host somehow reaches this card without entering values, redirect to the first pricing scenario card.",
+        "error": "If the entered rates produce an implausible result (e.g., 2-night rate lower than 4-night rate, total monthly income below a reasonable threshold for the property's location), the projection card shows the result but adds a signal-warn callout: 'Your 2-night rate ($40/night) is lower than your 4-night rate ($50/night). Most hosts charge more per night for shorter stays. Would you like to adjust?' The warning is advisory, not blocking -- the host can confirm the rates as-is.",
+        "success": "When the host taps 'Yes, these rates are correct,' the card transitions with the settle animation (300ms, easing-out) to a confirmed state showing a checkmark and the final rates in a compact summary. If this is the last property, the spring animation (500ms, cubic-bezier(0.34, 1.56, 0.64, 1)) fires for the milestone celebration."
+      },
+      "transition_principle": "The transition into the confirmation card should feel like a pause -- a deliberate slowing of the sequential flow's rhythm. The individual pricing scenario cards advance at a brisk pace (settle timing, 300ms). The confirmation card enters with a slightly longer animation (400ms) and a brief spatial shift (the card is wider or differently positioned than the scenario cards), signaling 'this is different -- pay attention here.' The rhythm change is the interaction-level equivalent of Kahneman's 'bad font' -- it activates System 2 through unexpected pacing.",
+      "timing": {
+        "response_target": "Confirmation card render: under 500ms after the last pricing scenario is completed. Projection calculation: under 500ms. Host confirmation acknowledgment: sub-100ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 400ms entrance (vs. the 300ms standard) creates a 100ms perceptual gap that registers as 'this card is different.' Not long enough to feel slow, but long enough for System 1 to notice the rhythm change. This is the timing equivalent of typographic weight change -- a shift in the tempo that cues the host to engage more carefully."
+      },
+      "journey_state_awareness": "For experienced hosts like Diane who signal familiarity ('I'm familiar'), the confirmation card leads with the projection scenario -- it assumes the host does not need instructions and goes straight to 'here is what your rates produce.' For first-time hosts with no prior rental experience, the card adds a brief contextual explanation above the projection: 'Here is how your pricing works in practice. Review the scenario below to make sure the income matches your expectations.' The friction is the same; the framing adapts to the host's declared expertise level.",
+      "edge_cases": [
+        "Host enters identical rates for all occupancy patterns (e.g., $50/night regardless of nights per week): the confirmation card still shows the projection but omits the variable-rate callout, since there is no variable to explain. It instead highlights the complementary schedule total: 'Two part-time guests at your rates would earn you $X/month -- comparable to a full-time rental at $Y/month.'",
+        "Host enters rates that produce monthly income significantly below market rate for the property's location: show a non-blocking advisory with market context in the signal-info callout: 'Similar properties in Queens typically earn $X-Y/month. Your current rates would produce $Z/month.' Advisory only, never blocking.",
+        "Host skips the confirmation card (closes the browser, navigates away): save the entered rates as draft. On return, open directly to the confirmation card with all data preserved. The host never re-enters values because she abandoned the confirmation.",
+        "Multi-property host enters very different rates across properties: after all properties are priced, show a cross-property comparison card: 'Manhattan: $65/night for 4 nights. Queens Building 1: $45/night for 4 nights.' This surfaces inconsistencies the host may not have noticed across separate pricing sessions.",
+        "Reduced motion preference: the deliberate rhythm pause (400ms vs. 300ms) is retained even with reduced motion, because it is a timing difference, not an animation. The card still appears with a slight delay. Only the motion itself (slide, opacity transition) is replaced with a simple fade."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Agency-Preserving Account Activation: Explore-Then-Claim Sequence",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "Robert offers to pre-create Diane's account (10:07), but Diane explicitly pushes back: 'I want to read the whole website' (15:59). At 16:38 she asks 'What's the name of it?' -- after 17 minutes of conversation, the platform has not achieved name-level familiarity. In Kahneman's framework, Diane is in a state of cognitive strain regarding the platform: it is novel, unfamiliar, and her System 2 is actively evaluating. In this state, 'When you feel strained, you are more likely to be vigilant and suspicious.' Having an account created without her consent does not reduce strain -- it triggers the vigilance-and-suspicion cluster. She perceives a loss of agency. The interaction pattern must let the host's cognitive ease build through voluntary exploration before any commitment action is taken on her behalf.",
+      "solution": "Replace the pre-created-account-with-password flow with an explore-then-claim sequence. (1) After the call, the agent sends a single personalized link that opens a no-login-required preview page. The link is the only thing the host needs to remember or find -- no site name search required. (2) The preview page shows the three core guarantees in call-language headlines (payment guarantee, damage matching, no host fees), a preview of what her imported listing would look like (if the agent captured property details during the call), and the agent's name and contact info. All browsable without authentication. (3) A subtle 'Claim your account' button sits below the fold, visible only after the host has scrolled past the core content. The language frames the host as the actor: she claims, she activates, she decides. (4) Tapping 'Claim your account' opens a minimal activation form: email, password, confirm. The account was prepared on the backend (the agent's pre-creation still happens), but the host's perception is that she chose to activate it. (5) If the host browses but does not claim, one follow-up reminder after 5-7 days using the same preview link. No pressure language, no urgency cues.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 15:59",
+          "type": "host_call",
+          "quote": "You don't have to start the account. Anyway, if I want to, I want to read the whole website.",
+          "insight": "Diane explicitly asserts control over the onboarding pace. She wants to verify before anything is done in her name. The interaction pattern must support this verification-first behavior, not override it."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 16:38",
+          "type": "host_call",
+          "quote": "What should I look for? What's the name of it?",
+          "insight": "The platform has not achieved name-level familiarity. The personalized link eliminates the search friction: the host does not need to remember a name or find a website. She taps the link the agent sent and arrives directly at a personalized experience."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Cognitive Ease (main passage)",
+          "type": "book",
+          "quote": "When you feel strained, you are more likely to be vigilant and suspicious, invest more effort in what you are doing, feel less comfortable, and make fewer errors.",
+          "insight": "Diane is in a strained state: evaluating a novel platform. In this state, pre-creating her account triggers vigilance, not ease. The explore-then-claim sequence lets strain dissipate through voluntary browsing before presenting any commitment action."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, The Pleasure of Cognitive Ease",
+          "type": "book",
+          "quote": "The mere exposure effect occurs because the repeated exposure of a stimulus is followed by nothing bad. Such a stimulus will eventually become a safety signal.",
+          "insight": "Browsing the preview page without being asked to commit is a positive mere-exposure event: the host encounters the platform and nothing bad happens (no demands, no passwords, no obligations). This exposure builds the safety signal that makes claiming the account feel natural when the host is ready."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The preview page loads with the warm background (tokens: bg #f6f4f0), personalized greeting ('Robert prepared this for you'), and the three guarantee headlines in Instrument Serif. The page is fully browsable. No login prompts, no modal overlays, no required actions. The 'Claim your account' button uses the accent color (#2d5a3d) and sits below the fold.",
+        "loading": "If the preview page includes a listing preview (from call-captured property details), the listing card loads with the same skeleton-then-populate pattern as behaves-001. The page itself loads in under 3 seconds. If the agent has not yet captured property details, the listing preview section is omitted entirely -- never show an empty section that promises content it cannot deliver.",
+        "empty": "If the host visits the preview link before the agent has prepared any content, show a minimal page with the guarantee headlines and a message: 'Robert is preparing your personalized preview. Check back soon, or we will email you when it is ready.' Never show a blank page or a generic template.",
+        "error": "If the preview link is expired or invalid, show a clear error with the agent's direct contact information: 'This link has expired. Contact Robert at [phone/email] for a new one.' Never redirect to a generic signup page -- the host's first platform interaction should always be personalized.",
+        "success": "When the host taps 'Claim your account' and completes the minimal form (email + password), the page transitions smoothly (300ms, easing-out) to a welcome state showing her name, agent contact, and a clear next action: 'Your first step: verify your imported listing (2 min).' The spring animation (500ms) applies to the welcome greeting. The host's journey begins from a state of her own choosing."
+      },
+      "transition_principle": "The explore-to-claim transition must feel like the host's initiative, not the platform's request. The 'Claim your account' button never draws aggressive attention -- no animation, no pulsing, no countdown. It is always visible to the host who scrolls, but never demands attention from the host who is still browsing. The transition from preview to activated account is the host's action; the platform's role is to be ready when she is.",
+      "timing": {
+        "response_target": "Preview page load: under 3 seconds. Account claim form submission: sub-100ms acknowledgment, under 2 seconds for full activation. Welcome state render: 300ms settle after activation.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The preview page must load fast because Diane is busy and will abandon a slow page. The activation must feel instant because delay at the moment of commitment creates doubt. The spring easing on the welcome greeting marks account activation as a positive milestone without being celebratory to the point of feeling performative."
+      },
+      "journey_state_awareness": "For hosts who visit the preview link within hours of the call (still in a warm state from the conversation), the page leads with the listing preview and the claim button is positioned closer to the fold -- the host is more likely to be ready to claim early. For hosts who visit days later (cooler state, more verification needed), the page leads with the guarantees and platform explanation, with the claim button positioned further down -- the host needs more content before committing. This can be determined by the timestamp delta between the call and the first page visit.",
+      "edge_cases": [
+        "Host visits the preview link on a phone while commuting (Diane's likely use case): the page must be fully functional on mobile. The claim button must be thumb-reachable. The activation form must use large tap targets (48px minimum) and auto-fill compatible email fields.",
+        "Host forwards the preview link to a partner or property manager for their review: the preview should be comprehensible to someone who did not hear the call. The guarantee headlines provide context; the agent's name provides a contact point. The claim action should only be available to the intended host (link is personalized, account is pre-associated).",
+        "Host visits the preview link multiple times over days before claiming: each visit is a mere-exposure event. The page should not change between visits (consistency builds familiarity) except to show updated import progress if applicable.",
+        "Host never claims the account: after one reminder at 5-7 days, no further automated outreach. The agent can follow up personally. The preview link remains active for 30 days. The pre-prepared account data is retained but never activated without the host's action.",
+        "Agent creates the account and sends the password before the host visits the preview (current flow): the system should detect this and redirect the password email to the explore-then-claim flow instead. The host receives the preview link, not a password."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Progressive Payment Trust Accumulation with Visible Running Count",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "Diane's COVID experience reveals what happens when years of reliable rental income leave no visible record: 'I had pretty good people, steady... some moved out, didn't pay a few more months' (06:23). The disruption dominated her memory because there was no accumulated evidence of prior success to counterbalance it. On the platform, if payments deposit silently (money appears in the bank account with no platform-specific marker), each successful payment is a wasted mere-exposure opportunity. The host never associates the reliable income with the platform's guarantee. When the first problem occurs -- a late payment, a guest dispute, a damage claim -- the host has no reservoir of visible platform successes to draw on. The single negative event defines her entire perception. Kahneman's mere exposure research requires the stimulus to be consciously perceived: 'repetition induces cognitive ease and a comforting feeling of familiarity.' Silent deposits are not perceived as platform events.",
+      "solution": "Make every successful payment a visible, countable, platform-branded event that accumulates into a trust record. (1) After each on-time payment, push a confirmation notification (email or in-app) showing: amount received, running count ('Payment 4 of 6'), and cumulative earnings this lease ('$3,200 total'). The notification uses mono typography for financial figures and the platform's visual identity anchors (brand purple, warm background). (2) On the host dashboard, render the payment history as a row of circular badges -- one per payment period. Completed payments fill with the accent color and show a checkmark. Upcoming payments are outlined. The visual effect: a progress bar made of discrete, countable units. (3) When the badge for a new payment fills, animate it with a gentle settle (300ms, easing-out) to draw the eye. (4) When a negative event occurs (late payment, damage claim), present it within the context of the positive record: '5 of 6 payments on time. 1 payment is 3 days late -- here is what we are doing.' The positive history absorbs the negative event.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 06:23",
+          "type": "host_call",
+          "quote": "COVID made the mess... I had pretty good people, steady... some moved out, didn't pay a few more months.",
+          "insight": "Diane's years of successful rentals left no visible record. When the disruption came, the failures defined the entire experience. A visible running count would have provided context: '47 of 48 months paid on time' makes the single failure an exception. Without the count, the failure is the whole story."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 04:36",
+          "type": "host_call",
+          "quote": "We guarantee that we will collect the payment and pay you. So you don't have to worry about collecting the payment from the guests.",
+          "insight": "The payment guarantee is the platform's core promise. Every successful payment is proof the guarantee works. But proof that is invisible (silent bank deposit) builds less trust than proof that is visible (branded confirmation with running count). The guarantee must be actively demonstrated, not just passively honored."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, The Pleasure of Cognitive Ease",
+          "type": "book",
+          "quote": "Repetition induces cognitive ease and a comforting feeling of familiarity... The consequences of repeated exposures benefit the organism in its relations to the immediate animate and inanimate environment.",
+          "insight": "Each visible payment confirmation is a repeated positive exposure. Cumulative exposure builds the platform into a safety signal. But the exposure must be conscious -- a silent deposit is not a conscious exposure. The branded notification with the running count ensures the host registers each success as a platform event."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Ease, Mood, and Intuition",
+          "type": "book",
+          "quote": "A good mood is a signal that things are generally going well, the environment is safe, and it is all right to let one's guard down.",
+          "insight": "Each visible positive event reinforces the host's good mood about the platform. The cumulative effect shifts her default from vigilance (is this platform reliable?) to ease (this platform works for me). This mood shift makes the renewal decision automatic rather than deliberated."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Dashboard shows the payment badge row: filled badges for completed payments (accent color #2d5a3d with white checkmark), outlined badges for upcoming payments (border color #e2dfd9). Below the row, a running count in IBM Plex Mono: '4 of 6 payments received -- $3,200 earned.' For multi-property hosts, each property has its own badge row, with a cumulative total across all properties at the top of the dashboard section.",
+        "loading": "When the dashboard loads, badge states are populated from cached data immediately (no spinner). If server data is more current than the cache, updated badges fill with the settle animation as the fresh data arrives. The host never sees an empty badge row while waiting for data.",
+        "empty": "For a new lease with no payments yet: all badges are outlined, and the count reads 'First payment expected [date].' The badge row exists from day one so the host is primed to expect the pattern. The empty state communicates anticipation, not absence.",
+        "error": "A late or missed payment changes the corresponding badge to signal-warn (#c17a28) background with an exclamation icon. The count updates to include context: '5 of 6 payments on time. 1 payment 3 days late.' A brief explanation appears below: 'We are working with the guest to resolve this. Your payment guarantee covers this situation.' The positive badges remain prominently visible -- the error is contextualized, not isolated.",
+        "success": "When a payment is confirmed and its badge fills, the animation sequence is: (1) badge fills with accent color (200ms, easing-out), (2) checkmark fades in (150ms), (3) running count updates with a brief text highlight (100ms). Total sequence: 450ms. For the final payment of a lease, the spring easing (cubic-bezier(0.34, 1.56, 0.64, 1), 500ms) applies to the full badge row, and a lease completion summary card appears below: 'Lease completed. 6/6 on time. $4,800 earned. 0 damage claims.'"
+      },
+      "transition_principle": "Payment badge fills are the gentlest animation in the system -- they should feel like a status update, not a celebration. The exception is the lease completion milestone, which uses the spring easing to mark a genuinely significant moment. The badge row is an ambient trust builder: always present, always growing, never demanding attention. Its power comes from cumulative repetition, not from any single dramatic transition.",
+      "timing": {
+        "response_target": "Payment confirmation notification: within 5 seconds of payment processing. Dashboard badge update: within 10 seconds of payment confirmation, or on next dashboard load. Badge fill animation: 450ms total sequence.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 200ms badge fill is fast enough to feel responsive but slow enough to be visually perceived as a distinct event. The checkmark fade at 150ms follows the fill, creating a two-beat rhythm (fill, then confirm) that makes the event memorable. The spring easing for lease completion creates a distinct moment that the host associates with the culmination of the platform delivering on its promise."
+      },
+      "journey_state_awareness": "For first-lease hosts (highest anxiety, most vigilant about payment reliability), the payment confirmation notification includes the guarantee reminder: 'Payment received. As guaranteed, we collected and delivered your payment.' For hosts on their second or third lease, the guarantee reminder is omitted -- the host has already built the safety signal. The running count and badge row serve as sufficient reinforcement. For multi-property hosts like Diane, the dashboard shows a consolidated view: 'Across 3 properties: 14 of 18 payments received. $11,200 total earned.' This compound view makes the platform's aggregate value impossible to ignore.",
+      "edge_cases": [
+        "Payment arrives but the host has not visited the dashboard in weeks: the email notification becomes the primary mere-exposure channel. The email must carry the same visual identity anchors (brand purple, mono typography for amounts, running count) so it functions as a standalone trust-building event even if the host never opens the dashboard.",
+        "Payment is late but the guarantee covers it and the host receives payment on time anyway: show the badge as on-time (the host was paid on time) but add a subtle indicator that the platform intervened: 'Payment delivered on time via your guarantee.' This makes the guarantee's value visible rather than invisible.",
+        "Host has multiple properties with staggered payment schedules: each property's badge row updates independently, but the consolidated view updates whenever any property receives a payment. This means the host sees dashboard activity more frequently, increasing mere-exposure events.",
+        "Guest disputes a payment or requests a partial refund: the affected badge shows the dispute state (signal-info color #2d5a8a) with a tooltip: 'Under review -- your payment is protected by the guarantee.' Never show a badge as 'failed' while a dispute is pending.",
+        "Lease ends without all payments received (early termination): show the badge row as-is with a summary: '4 of 6 payments received before early termination. Your guarantee covers the remaining balance -- details here.' The incomplete row is honest about what happened while directing the host to the resolution."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Call-to-Website Cognitive Echo: Phrase-Level Recognition at First Digital Contact",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "The sales call builds cognitive ease through Robert's conversational warmth, concrete examples, and real-time responsiveness. When Diane transitions to the website ('I want to read the whole website,' 15:59), she moves from a warm human context to a cold digital one. Kahneman's framework predicts the consequences: 'When you feel strained, you are more likely to be vigilant and suspicious.' A website that looks, sounds, or feels different from the call triggers the strain-vigilance-suspicion cluster. But the threat is not just tonal mismatch -- it is phrase-level discontinuity. Kahneman's illusions of truth research shows that familiarity operates at the phrase level: 'The familiarity of one phrase in the statement sufficed to make the whole statement feel familiar, and therefore true.' If the website says 'payment intermediation service' instead of 'we guarantee that we will collect the payment and pay you,' the concept is identical but the truth-feeling is destroyed because the specific phrase is unrecognized. The interaction pattern must ensure that the first 10 seconds of the host's website experience produce phrase-level recognition of the call's key claims.",
+      "solution": "Design the host's first digital contact point (whether the preview page from behaves-003 or the main website) to produce phrase-level cognitive echoes within the first viewport. (1) The three core guarantee statements appear above the fold, using the exact conversational phrasing from the call script: 'We guarantee that we will collect the payment and pay you,' 'If the damage exceeds your deposit, we will match the same amount,' 'We do not charge you -- all our income comes from markup to the guests.' These are headlines in Instrument Serif on the warm background. (2) Each guarantee scrolls into view with a staggered entrance (300ms per item, 150ms delay between items, easing-out) -- the pacing mimics Robert's conversational rhythm of introducing one point at a time. (3) Below each headline, a one-line plain-language explanation appears (Outfit, body weight) that mirrors the agent's follow-up phrasing, not legal language. Legal terms are relegated to an expandable section accessed by a 'View details' link. (4) The page's visual temperature (warm background, generous spacing, serif headlines) creates the environmental equivalent of conversational warmth, bridging the mood gap between the call and the screen.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 04:36-05:28",
+          "type": "host_call",
+          "quote": "We guarantee that we will collect the payment and pay you. So you don't have to worry about collecting the payment from the guests... if the damage exceeds the $500, we will match for the same amount.",
+          "insight": "These are the canonical guarantee phrases. They passed Diane's System 1 during the call. The website must present these exact phrases so her System 1 registers recognition, not novelty, at first digital contact."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 15:59",
+          "type": "host_call",
+          "quote": "You don't have to start the account. Anyway, if I want to, I want to read the whole website.",
+          "insight": "Diane announces she will verify the call's claims on the website. This is an explicit comparison intent. If the website uses different words for the same promises, the comparison fails and the claims must be re-evaluated from scratch -- exactly the cognitive cost the call was supposed to eliminate."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Illusions of Truth",
+          "type": "book",
+          "quote": "A reliable way to make people believe in falsehoods is frequent repetition, because familiarity is not easily distinguished from truth.",
+          "insight": "The website is the second exposure to the guarantees (the call was the first). Repetition builds truth-feeling, but only if the specific phrases are repeated. Paraphrasing the same idea in different words is not repetition -- it is a new statement that must be evaluated independently."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "Do not use complex language where simpler language will do... couching familiar ideas in pretentious language is taken as a sign of poor intelligence and low credibility.",
+          "insight": "If the website elevates the call's plain language into formal or legal register, it does not merely lose familiarity -- it actively signals low credibility. The host interprets the formality as evasion or corporate-speak, undermining the personal trust Robert built."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The host's first viewport shows the warm background (tokens: bg #f6f4f0), a personalized or generic greeting, and the first guarantee headline in Instrument Serif at display size. Additional guarantees are visible below, staggered in a natural reading flow. Financial figures in the guarantees use IBM Plex Mono. No login prompts, no CTAs above the fold -- the first viewport is purely recognition-building.",
+        "loading": "The page must render the guarantee headlines from static markup (no JavaScript dependency) to ensure they appear within the first contentful paint, ideally under 1.5 seconds. Dynamic content (listing previews, agent info) can load progressively below. The host must see the recognition-triggering phrases before anything else loads.",
+        "empty": "If the host arrives at the website directly (not through the agent's personalized link), the guarantees appear in the same language but without personalization. The experience is slightly less warm but the phrase-level recognition still works. A generic subheading suggests 'Speak with one of our team members to learn how this works for your property.'",
+        "error": "If the page fails to load (network error, server down), the fallback page must still show the guarantee headlines from a static HTML cache or service worker. The core recognition-building content must survive infrastructure failures. A persistent connection error shows: 'We are experiencing technical issues. The guarantees described here remain in effect -- contact [agent name/phone] for assistance.'",
+        "success": "When the host scrolls through all three guarantees and continues to explore (indicating engagement rather than bounce), the interaction is successful. If the host subsequently clicks 'Claim your account' or contacts the agent, the phrase-level recognition has done its work. No explicit success state is shown to the host -- the success is measured by engagement metrics, not by a visible celebration."
+      },
+      "transition_principle": "The guarantee headlines enter the viewport with a staggered reveal that mimics conversational pacing. Each headline appears 150ms after the prior one settles, creating a rhythm of introduction that feels like listening to someone speak, not reading a brochure. The stagger is subtle -- the host may not consciously notice it -- but her System 1 registers the pacing as conversational rather than static. This is the interaction-level bridge between the warm call and the cold screen.",
+      "timing": {
+        "response_target": "First guarantee headline visible: under 1.5 seconds from page load. All three headlines visible: under 3 seconds (including scroll if needed on mobile). Stagger between headlines: 150ms delay, 300ms settle each.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "1.5 seconds for first headline matches the performance threshold where hosts perceive a page as 'fast.' The 150ms stagger between headlines is short enough that the host does not wait for content but long enough that each headline registers as a distinct statement (mirroring Robert's conversational pauses between value propositions). The total 3-second window for all three guarantees ensures the recognition moment happens before the host's System 1 has time to form a 'this is unfamiliar' judgment."
+      },
+      "journey_state_awareness": "For hosts arriving from the agent's personalized link (warm state, recent call memory), the guarantees are accompanied by the agent's name: 'As Robert explained...' This creates an explicit bridge between the call and the page. For hosts arriving directly from search or ads (cold state, no call context), the guarantees stand alone as the platform's core proposition. The phrasing is identical in both cases -- only the framing adapts.",
+      "edge_cases": [
+        "Host visits the website weeks after the call (the phrase memory has faded): the guarantees still use the call language, but the page adds a brief re-introduction: 'Split Lease helps you earn more from your property. Here is how we protect you.' The re-introduction primes the host to receive the guarantees as a refresher rather than encountering them as if for the first time.",
+        "Host visits on a slow mobile connection: the guarantee headlines must render from server-side HTML, not client-side JavaScript. Even on 3G, the first headline must appear within 3 seconds. Progressive enhancement ensures the staggered animation works on fast connections and degrades to immediate display on slow ones.",
+        "Host speaks a language other than English: if the platform offers translated content, the call language and website language must match. If the call was in English, the website should default to English. Language mismatch between call and website is the most severe form of phrase-level discontinuity.",
+        "The call script changes over time (agents evolve their language): the website copy must be updated to match current call script language, not the other way around. A quarterly audit compares agent call recordings to website copy and flags divergences. The call is the canonical source of truth for customer-facing language.",
+        "Host arrives at a page other than the homepage (deep-linked to a specific feature): every host-facing page should include a compact version of the guarantee statements (e.g., in a sidebar or footer section) so that phrase-level recognition occurs regardless of entry point."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Guest Proposal Rich Preview with In-Place Evaluation",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "Diane's 15 years of hosting UN diplomats built a guest evaluation model based on physical presence: seeing the person, reading body language, assessing trustworthiness face-to-face. Her instinctive question at 09:48 ('So I don't need them first to see?') reveals that her default is in-person vetting. The platform restricts direct communication until the lease is signed (08:47) and substitutes a Zoom meeting option. But the digital proposal interface must bridge the gap between Diane's rich physical evaluation mental model and the limited information a digital profile provides. Kahneman's cognitive ease research shows that informational richness produces ease, while informational thinness produces strain: 'When you feel strained, you are more likely to be vigilant and suspicious.' A thin guest profile (name, message, dates) triggers the vigilance cluster. A rich profile (purpose, schedule, verification status, personal message) produces enough cognitive ease for the host to evaluate intuitively rather than suspiciously.",
+      "solution": "Design the guest proposal as an in-place rich preview card that provides all decision-relevant information without requiring navigation to a separate profile page. (1) The card opens with the guest's stated purpose in large text: 'Commuter -- works in Manhattan Mon-Thu' or 'Divorced parent -- sees children every other weekend.' Purpose is the closest digital substitute for the 'why is this person here?' assessment that Diane performed in person. (2) Below the purpose, show the proposed schedule as a visual mini-calendar (7-day row with filled/empty day indicators) and lease term ('3 months, starting March 1'). (3) Verification badges appear inline: ID verified, employment verified, prior Split Lease history. These are the digital trust signals that replace physical presence signals. (4) The guest's personal message appears in their own words, visually distinct from platform-generated text (e.g., in a subtle quote block with the guest's initials). A human voice in text produces more ease than a summary. (5) The Zoom meeting option is a prominent action button, not a buried link. For hosts like Diane, this is the bridge between her old evaluation model and the new one. (6) Accept, Decline, and Counter-offer actions are visible without scrolling -- the host can act immediately after scanning the card.",
+      "evidence": [
+        {
+          "source": "diane-kaufhold-call.txt, 09:48",
+          "type": "host_call",
+          "quote": "So I don't need them first to see?",
+          "insight": "Diane's default evaluation model is physical. The proposal card must provide enough digital information to satisfy the same assessment needs: Who is this person? Why do they need my space? Can I trust them? The Zoom option is the explicit bridge to her old model."
+        },
+        {
+          "source": "diane-kaufhold-call.txt, 08:47-09:36",
+          "type": "host_call",
+          "quote": "Nobody does it blindly, we always collect information about our guests and we share most information with hosts.",
+          "insight": "Robert promises information abundance. The proposal card must visibly deliver on this promise. If the guest profile shows only a name and dates, it contradicts the 'most information' claim and triggers distrust."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, Ease, Mood, and Intuition",
+          "type": "book",
+          "quote": "Good mood, intuition, creativity, gullibility, and increased reliance on System 1 form a cluster. At the other pole, sadness, vigilance, suspicion, an analytic approach, and increased effort also go together.",
+          "insight": "An informationally rich proposal card keeps the host in the ease/intuition cluster, enabling the quick evaluative judgments that experienced hosts like Diane excel at. An informationally thin card pushes her into the vigilance/suspicion cluster, making every proposal feel risky regardless of the guest's actual quality."
+        },
+        {
+          "source": "kahneman-cognitive-ease.txt, How to Write a Persuasive Message",
+          "type": "book",
+          "quote": "The general principle is that anything you can do to reduce cognitive strain will help, so you should first maximize legibility.",
+          "insight": "Applied to guest proposals: maximize informational legibility. Every piece of guest information should be immediately parseable without clicking through to separate pages. The host should be able to evaluate the proposal in one scan of one card."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The proposal card shows on a white surface (tokens: surface #ffffff) against the warm background. Guest purpose is displayed as the card's headline in Outfit semibold. The mini-calendar shows proposed days with accent-colored fills for occupied days. Verification badges (ID, employment) use the accent-light background (#e8f0eb) with small icons. The guest's message appears in a subtle quote block. Action buttons (Accept, Schedule Zoom, Decline) are arrayed at the card's bottom with Accept in accent green (#2d5a3d), Zoom in ink-soft outline (#4a4640), Decline in ink-muted text (#8a857e).",
+        "loading": "If guest verification data is still being processed when the host views the proposal, show the verification badge area with a subtle 'Verifying...' label in ink-muted. All other information (purpose, schedule, message) loads immediately from the proposal data. Verification status updates in place when ready, with a 200ms fade-in (easing-out).",
+        "empty": "If the guest did not provide a personal message, the message area shows: 'No personal message provided. Schedule a Zoom meeting to learn more about this guest.' If the guest has no prior Split Lease history, that badge is omitted (not shown as 'No history' -- absence is better than a negative indicator for a first-time guest).",
+        "error": "If the proposal has expired or been withdrawn by the guest, the card shows in a muted state (reduced opacity to 0.6) with a banner: 'This proposal is no longer available.' If the host's response cannot be submitted (network error), the error appears inline below the action buttons: 'Could not submit your response. Your decision is saved locally and will be sent when you are back online.'",
+        "success": "When the host taps Accept: the card transitions (300ms, easing-out) to a confirmed state showing guest name, schedule, and 'Next: lease agreement preparation' as the next step. A brief accent-light background pulse confirms the action. When the host taps Schedule Zoom: the card expands (300ms, easing-out) to reveal a time-picker inline, keeping the host on the same card rather than navigating to a calendar page. When the host taps Decline: the card fades (200ms) and collapses, with a brief 'Declined' confirmation. No lengthy confirmation modal for decline -- the action is simple and reversible within 30 seconds (an undo toast appears)."
+      },
+      "transition_principle": "The proposal card is designed for in-place interaction -- every action happens on the card itself, with no page navigation. The host's context (what property this is for, what other proposals exist) is preserved throughout. Expanding the card for Zoom scheduling or showing the confirmation state both use the easing-out settle (300ms) to feel like the card is responding, not like the page is changing. The host's mental model is 'I am working with this proposal card,' not 'I am navigating between pages.'",
+      "timing": {
+        "response_target": "Proposal card render: under 1 second from notification tap. Action acknowledgment (Accept/Decline/Zoom): sub-100ms visual response. Card transition to new state: 300ms settle. Undo window after Decline: 30 seconds.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Sub-100ms action acknowledgment ensures the host's System 1 registers the tap as successful before the visual transition completes. The 300ms card transitions maintain the settle rhythm established across the platform. The 30-second undo window for Decline gives the host a safety net without requiring a 'Are you sure?' confirmation modal that would slow the time-poor host."
+      },
+      "journey_state_awareness": "For first-time proposal reviewers (highest uncertainty about the evaluation process), the card includes a subtle one-line guide above the guest information: 'Review the guest details below. You can accept, schedule a Zoom meeting, or decline.' For experienced hosts reviewing their fifth or tenth proposal, this guide is suppressed. For hosts who have never used the Zoom feature, the Zoom button includes a subtle badge: 'New' -- but only for the first three proposals. After that, the host either uses it or does not.",
+      "edge_cases": [
+        "Multiple proposals arrive simultaneously for the same property: show them as a stack of cards, one visible at a time, with a count badge ('3 proposals'). Each card is evaluated independently. Do not show comparison tables -- Diane evaluates guests individually based on her own criteria, not relative to other guests.",
+        "Guest's stated purpose does not fit the standard categories (commuter, divorced parent): the card shows whatever the guest wrote as their purpose, verbatim. The platform does not force-categorize. If the purpose is unusual, the Zoom option becomes more prominent: 'This guest has a unique situation -- consider a Zoom meeting to learn more.'",
+        "Host wants to counter-offer (different rate, different dates): the counter-offer flow expands inline on the same card, showing the guest's proposed terms alongside editable fields for the host's counter. The host never leaves the card. Counter-offer submission follows the same sub-100ms acknowledgment and 300ms settle pattern.",
+        "Proposal notification arrives while the host is in the middle of another task (pricing setup, listing verification): the notification appears as a non-blocking banner that can be dismissed or tapped. Tapping opens the proposal card as an overlay on top of the current task, not as a navigation event. Dismissing saves the notification for later. The host's current task state is fully preserved."
+      ]
+    }
+  ]
+}

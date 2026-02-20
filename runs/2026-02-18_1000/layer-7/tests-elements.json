@@ -1,0 +1,211 @@
+{
+  "lens": {
+    "host_call": "dana-call.txt",
+    "book_extract": "refactoringui-hierarchy-spacing-color.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Guest-Type Primacy Scan Time Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the day-badge occupancy pattern is not visually dominant enough, hosts will still need to read text to determine guest type, negating the time savings the pattern promises.",
+      "solution": "Run a 3-second exposure test with host participants. Show a proposal card for 3 seconds, then hide it and ask: 'What days of the week would this guest stay?' If hosts can answer correctly, the visual hierarchy is working.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 02:38",
+          "type": "host_call",
+          "quote": "He was looking just to be for the workweek, Monday to Thursday.",
+          "insight": "This is the first question Dana would ask about any guest. The day-badge pattern must answer it without requiring text reading."
+        },
+        {
+          "source": "refactoringui, Hierarchy is Everything",
+          "type": "book",
+          "quote": "Visual hierarchy refers to how important the elements in an interface appear in relation to one another.",
+          "insight": "If the hierarchy is correct, the most important information (occupancy pattern) should be the first thing noticed — validatable through timed exposure tests."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 5 different proposal cards (varying guest types) to 8-10 host participants. Each card is displayed for exactly 3 seconds. After hiding the card, ask the participant to identify: (1) which days of the week the guest would stay, (2) whether the guest uses this as a primary or secondary address. Record accuracy rates for both questions.",
+      "success_criteria": "At least 80% of participants correctly identify the day pattern within 3 seconds. At least 70% correctly identify the address status. If day pattern accuracy exceeds address status accuracy, the visual hierarchy is correct (day pattern is more visually dominant).",
+      "failure_meaning": "If accuracy is below threshold, the day-badge row is not visually prominent enough — it's competing with other card elements. The visual hierarchy needs adjustment: either increase day-badge visual weight (larger size, stronger color) or decrease competing elements' weight.",
+      "implementation_hint": "Build the test in a simple prototype tool (Figma, InVision). Use a timer script that auto-hides after 3 seconds. Recruit host participants from Split Lease's existing host base, prioritizing those with 6+ months of hosting experience (similar profile to Dana)."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Glanceable Status Dashboard Session Time Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["active_lease"],
+      "problem": "If the status-first dashboard architecture doesn't actually reduce session time for status checks, hosts will still feel the platform is too slow for their between-flight micro-sessions.",
+      "solution": "Measure the time between app open and the host's first tap (indicating they found what they were looking for or took the needed action). Compare this metric before and after the status-first redesign.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I have to go to work tonight. I won't be back towards Sunday.",
+          "insight": "Dana's session time budget is under 10 seconds for a status check. The dashboard must serve this use case."
+        },
+        {
+          "source": "refactoringui, Start with too much white space",
+          "type": "book",
+          "quote": "Give every element a little more room to breathe.",
+          "insight": "White space should reduce visual parsing time, which is measurable through session duration analytics."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Instrument the host dashboard with timing events: (1) dashboard_loaded (timestamp), (2) first_interaction (timestamp and element), (3) session_end (timestamp). Calculate 'time to first interaction' and 'total session duration' for sessions where the host views the dashboard but doesn't navigate to other pages (status-check sessions). Compare baseline metrics vs. post-redesign metrics.",
+      "success_criteria": "Median 'time to first interaction' should be under 5 seconds. Median 'total session duration' for status-check sessions should be under 15 seconds. At least 60% of dashboard sessions should be status-check only (no navigation to other pages), indicating the dashboard itself answers the host's questions.",
+      "failure_meaning": "If time to first interaction exceeds 5 seconds, the status information is not prominent enough — hosts are scanning/scrolling to find it. If session duration exceeds 15 seconds for status checks, the dashboard is presenting too much information or requiring too many interactions.",
+      "implementation_hint": "Add analytics events to the dashboard component: track page load, first click/tap, scroll depth, and page exit. Use Mixpanel, Amplitude, or similar. Segment by host type (flight attendant, travel nurse, etc.) to validate specifically for time-fragmented hosts."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Listing Import Completion Rate Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["listing_creation"],
+      "problem": "If the import flow doesn't actually reduce time-to-listing for cross-listing hosts, the effort of building it is wasted. The flow must be faster than manual creation to justify its existence.",
+      "solution": "A/B test the import flow vs. the standard wizard for hosts who have existing listings on other platforms. Measure completion rate and time-to-listing for both cohorts.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 05:33",
+          "type": "host_call",
+          "quote": "I came across it on furnished finder. It's called the furnished room with private roof garden.",
+          "insight": "Dana's listing exists elsewhere. The import flow is designed specifically for hosts like her. If it doesn't improve her experience, the pattern fails."
+        },
+        {
+          "source": "refactoringui, Don't design too much",
+          "type": "book",
+          "quote": "Designing the smallest useful version you can ship reduces that risk considerably.",
+          "insight": "The import flow is the 'smallest useful version' of listing creation for cross-listing hosts. It must deliver on the promise of reduced effort."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "For new hosts identified as having listings on other platforms (detected via agent call notes or self-reported), randomly assign to: (A) Import flow — URL input, auto-import, review and confirm, publish. (B) Standard wizard — 6-step manual creation. Measure: (1) completion rate (started -> published), (2) time to published listing, (3) 7-day retention (does the host return to the platform after listing creation?). Run for 4 weeks or until 50+ hosts per cohort.",
+      "success_criteria": "Import flow completion rate should be at least 20 percentage points higher than standard wizard (e.g., 90% vs. 70%). Import flow time-to-listing should be under 3 minutes (vs. estimated 10+ minutes for wizard). 7-day retention should be equal or higher for import cohort.",
+      "failure_meaning": "If import completion rate is not significantly higher, the import flow has usability issues — perhaps the URL input is confusing, the mapping is inaccurate, or the review step is too complex. If time-to-listing is not significantly faster, the import is not saving enough manual work. If 7-day retention is lower, the import may be creating low-quality listings that don't generate proposals.",
+      "implementation_hint": "Build the import flow as a separate path triggered when the host indicates they have an existing listing. Use web scraping or API integration (where available) to pull listing data from Furnished Finder, Airbnb, etc. Ensure the review step is simple: pre-filled fields with edit buttons, not a re-creation of the wizard."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Notification Escalation Effectiveness Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["proposal_mgmt", "active_lease"],
+      "problem": "If the three-tier notification system (batch, priority, escalation) doesn't reduce missed actions, hosts with irregular schedules will continue to miss time-sensitive proposals and approvals.",
+      "solution": "Measure the proposal response rate and response latency before and after implementing the escalation system. Segment by host schedule type (regular vs. irregular) to validate the pattern specifically for the target population.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 06:46",
+          "type": "host_call",
+          "quote": "All my folders and blown up nonstop.",
+          "insight": "Dana's notification environment is hostile. The escalation system must cut through this noise for truly time-sensitive actions."
+        },
+        {
+          "source": "refactoringui, Limit your choices — Systematize everything",
+          "type": "book",
+          "quote": "The more systems you have in place, the faster you'll be able to work.",
+          "insight": "A systematic notification approach should produce measurable improvements over ad-hoc notification frequency."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After implementing the three-tier notification system, track: (1) proposal response rate (proposals responded to / proposals received), (2) response latency (time from proposal receipt to host action), (3) notification channel that triggered the action (which tier worked), (4) proposal expiration rate (proposals that expired without host action). Compare pre-implementation baseline to post-implementation metrics over 8 weeks.",
+      "success_criteria": "Proposal response rate should increase from baseline by at least 15 percentage points. Proposal expiration rate should drop below 5%. At least 20% of actions should be triggered by the escalation tier (SMS), validating that push notifications alone are insufficient for this host population.",
+      "failure_meaning": "If response rates don't improve, the notification content or timing is wrong — the right channel is being used but the message isn't compelling enough. If expiration rates remain high despite escalation, the response windows may need to be extended (48-72 hours may not be enough for some hosts).",
+      "implementation_hint": "Implement notification tracking with event properties: notification_tier (batch/priority/escalation), notification_channel (email/push/sms), action_taken (yes/no), latency_seconds. Use this data to optimize timing and channel selection per host."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Guest Preference Match Indicator Trust Validation",
+      "validates_element": "works-004",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the guest preference match indicators don't actually increase host trust in the platform's screening, hosts will still evaluate every proposal with the same anxiety regardless of the match score.",
+      "solution": "Measure host confidence through post-proposal survey and proposal decision speed. Hosts who trust the match indicators should decide faster and report higher confidence.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 04:07",
+          "type": "host_call",
+          "quote": "I have never, ever, ever had a problem with the travelers... nightmares.",
+          "insight": "Dana's trust in guest quality is the key retention factor. The match indicators must measurably improve her confidence in the platform's screening."
+        },
+        {
+          "source": "refactoringui, Don't rely on color alone",
+          "type": "book",
+          "quote": "Always use color to support something that your design already communicates in some other way.",
+          "insight": "The match indicator must communicate clearly through multiple channels (color, icon, text). If any single channel fails, the indicator underperforms."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show host participants two versions of the same proposal: (A) without match indicators (current design), (B) with match indicators (day-badge pattern, compatibility badges, secondary address badge). For each version, ask the participant to: (1) decide accept/reject, (2) rate their confidence in the decision (1-5 scale), (3) describe what information they used to decide. Time the decision for each version. Use a within-subjects design with counterbalanced order.",
+      "success_criteria": "Decision confidence should be at least 1 point higher (on 5-point scale) for version B. Decision time should be at least 30% faster for version B. At least 80% of participants should mention the match indicators when describing their decision process.",
+      "failure_meaning": "If confidence doesn't improve, the match indicators are decorative — they're not communicating actionable screening information. If decision time doesn't improve, the indicators are adding cognitive load rather than reducing it (too complex, too many badges, confusing visual language).",
+      "implementation_hint": "Build two Figma prototypes of the proposal card. Recruit 10-12 host participants. Use a think-aloud protocol to understand how hosts interpret the match indicators. Pay special attention to colorblind participants to validate the 'don't rely on color alone' implementation."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Between-Stay Empty State Anxiety Reduction Validation",
+      "validates_element": "communicates-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the between-stay status display doesn't reduce host anxiety when the guest is not currently staying, absent hosts will continue to worry about their property.",
+      "solution": "Measure host app-check frequency and session duration during between-stay periods. Reduced frequency with maintained satisfaction indicates the status display is working.",
+      "evidence": [
+        {
+          "source": "refactoringui, Don't overlook empty states",
+          "type": "book",
+          "quote": "Empty states are a user's first interaction with a new product.",
+          "insight": "The between-stay state is the most frequent view for part-week leases. If it causes anxiety, the host will either over-check (wasting time) or avoid checking (missing issues)."
+        },
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I'm a flight attendant... I won't be back towards Sunday.",
+          "insight": "Dana checks between flights. If the between-stay state causes anxiety, she'll waste precious time re-checking or worrying."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track app-check behavior during between-stay periods (Friday through Sunday for Mon-Thu guests): (1) number of app opens per between-stay period, (2) session duration per app open, (3) whether the host navigates beyond the dashboard (indicating the status display didn't answer their questions). Compare baseline (before status display redesign) to post-redesign metrics. Additionally, send a brief in-app survey after 4 weeks: 'How informed do you feel about your property between guest stays? (1-5)'",
+      "success_criteria": "App-check frequency during between-stay periods should decrease by at least 20% (fewer anxious re-checks). Session duration should decrease by at least 30% (the host gets the answer faster). Navigation-beyond-dashboard rate should decrease. Survey score should average 4.0 or higher.",
+      "failure_meaning": "If app-check frequency increases, the status display may be creating anxiety rather than reducing it (showing too much information, showing ambiguous status). If session duration increases, the status display is not scannable enough. If survey scores are low, the content isn't addressing the host's actual concerns.",
+      "implementation_hint": "Implement the between-stay status display with the timeline pattern from behaves-005. Track analytics events for each state transition (checkout confirmed, photos received, next stay upcoming). Trigger the in-app survey only for hosts with at least 3 completed stay cycles."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "End-to-End Journey Arc Validation",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "Individual elements may test well in isolation but create an incoherent experience when combined. The journey from Dana's first call to her first active lease involves multiple handoffs (call -> email -> platform -> listing -> proposal -> lease), each designed by different elements. The overall arc must feel like one continuous experience.",
+      "solution": "Run a longitudinal journey test with 3-5 host participants who go through the full journey (simulated) from initial call to first active lease. Observe the emotional arc and identify any discontinuities where the experience 'breaks' — moments where the host feels confused, frustrated, or disconnected.",
+      "evidence": [
+        {
+          "source": "dana-call.txt (full transcript)",
+          "type": "host_call",
+          "quote": "The full call from 00:01 to 07:07 represents one continuous arc from introduction to follow-up promise.",
+          "insight": "The call is a single, coherent experience. The digital journey that follows must maintain this coherence across multiple touchpoints and days/weeks of elapsed time."
+        },
+        {
+          "source": "refactoringui, Choose a personality",
+          "type": "book",
+          "quote": "Whatever you choose, it's important to stay consistent.",
+          "insight": "Consistency across the journey is as important as the quality of individual touchpoints. This can only be validated through end-to-end testing."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 3-5 host participants matching Dana's profile (experienced hosts with existing listings on other platforms). Simulate the full journey over a 1-week period: Day 1: Simulated call with an agent, followed by email with platform link. Day 2-3: Host imports listing and sets preferences. Day 4-5: Receive a simulated proposal and respond. Day 6-7: Review a simulated first stay with between-stay status display. At each touchpoint, conduct a brief interview: (1) How does this feel compared to the last step? (2) Does this feel like the same service? (3) What's surprising or confusing?",
+      "success_criteria": "At least 80% of participants should describe the journey as 'one continuous experience' (or equivalent language). No more than 1 participant should report a 'break' at any single transition point. Overall satisfaction should average 4.0/5 or higher at journey end.",
+      "failure_meaning": "If participants report discontinuities (e.g., 'the call felt personal but the platform feels generic'), the trust bridge elements are failing. If satisfaction drops at specific transition points, those transitions need redesign. If the overall arc doesn't feel coherent, the emotional targets at each phase may be conflicting.",
+      "implementation_hint": "This is a time-intensive test that requires a realistic simulation environment. Build a prototype that simulates the email -> import -> proposal -> lease flow. Use a test moderator to play the agent role for the simulated call. Schedule touchpoints across a real week to capture the authentic pacing of the journey."
+    }
+  ]
+}

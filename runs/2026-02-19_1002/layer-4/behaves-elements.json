@@ -1,0 +1,393 @@
+{
+  "lens": {
+    "host_call": "june-call.txt",
+    "book_extract": "microinteractions-rules-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Optimistic Listing Confirmation with Rollback on Mismatch",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "Bryant promises June he will create her listing and send it for review (13:27). The human-to-digital handoff is the highest-risk transition: June expects a finished product to scan and confirm, not a blank form to fill. If the platform loads slowly, shows an empty state, or requires multi-step account creation before revealing the listing Bryant prepared, June -- who is personally depleted (06:33) and time-constrained (00:19) -- will close the tab. The interaction must feel instant and pre-populated from the first millisecond, matching the 'Don't Start from Zero' principle (Saffer Ch. 3, p. 64). But pre-populated data from a phone call may contain transcription errors (Bryant manually entered $2,690 rent, $2,500 deposit, $140 cleaning fee from a noisy phone conversation). The interaction must handle both the happy path (data is correct, host confirms) and the error path (data is wrong, host corrects) without breaking the flow.",
+      "solution": "Display the agent-created listing optimistically: show all pre-populated data immediately on page load with no loading spinner. Each field appears in its confirmed visual state (mono numerics on accent-light background per L3 looks-001). The host scans and either confirms or taps a field to edit. Editing a field triggers an inline correction microinteraction: the field expands to an editable input, the host changes the value, and the field collapses back to its confirmed visual state with a brief checkmark animation. If the host makes no changes, a single 'Confirm Listing' button saves the listing as-is. If the host edits a field, the button text changes to 'Save Changes and Confirm' to acknowledge the correction. The entire interaction assumes the data is correct (optimistic) and only shifts to correction mode when the host initiates it (rollback on mismatch). No loading state is shown for the initial display because the data was pre-entered by Bryant and is already available server-side before the host clicks the link.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 13:27",
+          "type": "host_call",
+          "quote": "I'll get those listings created. I can send you an email with a link to our site and you can expect that shortly after the call.",
+          "insight": "The promise sets the host's expectation: something finished is waiting for her. The interaction must honor this by showing populated data immediately, not a loading sequence."
+        },
+        {
+          "source": "june-call.txt, 09:41-10:12",
+          "type": "host_call",
+          "quote": "I'll take the information from your other listings, but I'll send it over to you and you can, from there, you'd be able to change anything that didn't look right.",
+          "insight": "Bryant explicitly frames the interaction as review-and-correct, not create-from-scratch. The optimistic display with inline editing matches this mental model."
+        },
+        {
+          "source": "june-call.txt, 06:33",
+          "type": "host_call",
+          "quote": "I been going through a lot of stuff myself. I'm sorry.",
+          "insight": "A depleted user has zero tolerance for loading states or orientation phases. Optimistic display eliminates the cognitive cost of waiting and wondering."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Don't Start from Zero, p. 64",
+          "type": "book",
+          "quote": "Don't Start from Zero.",
+          "insight": "Saffer's principle directly mandates that the interaction begin with the host's data already present. The optimistic display pattern is the behavioral implementation of this principle."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All pre-populated fields displayed in their confirmed visual state (mono numerics, accent-light container). The listing appears complete and ready for review. The 'Confirm Listing' button is active at the bottom.",
+        "loading": "No traditional loading state. The email link includes a pre-authenticated token; the server pre-renders the listing data into the page. If network conditions cause a delay exceeding 500ms, show a skeleton screen that matches the layout of the confirmed state (same field positions, same visual containers) with pulsing placeholder bars where values will appear. The skeleton must not look like an empty form.",
+        "empty": "Should never occur in this flow because Bryant pre-creates the listing. If the edge case occurs (listing not found), show: 'Bryant is still preparing your listing. We will email you when it is ready.' with Bryant's contact information. Do not show a generic 'no listing found' error.",
+        "error": "If the host edits a field and the save fails (network error, validation failure), the field reverts to its previous value with a subtle shake animation (200ms, easing-spring) and a microcopy message below: 'Could not save. Your original value has been restored. Try again.' The rest of the listing remains in its confirmed state -- a single field error must not disrupt the entire page.",
+        "success": "On confirm or save-and-confirm, the listing transitions to a published state. The 'Confirm Listing' button transforms into a checkmark with 'Listing Live' text (300ms transition, easing-out). The rule strip values (rent, deposit, cleaning fee, utility cap) briefly pulse with accent-light highlight to confirm they are captured."
+      },
+      "transition_principle": "Every transition preserves spatial stability. Fields do not reflow or jump when entering edit mode; the edit input expands in place. The confirm-to-published transition uses a contained animation (button morphing) rather than a page transition, so the host never loses visual context of her data.",
+      "timing": {
+        "response_target": "< 100ms for field tap to edit-mode transition. < 300ms for save-and-confirm button animation. < 500ms maximum for the initial page render (pre-rendered server-side).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for field expansion and button morphing (easing-out token). cubic-bezier(0.34, 1.56, 0.64, 1) for the error shake animation (easing-spring token).",
+        "rationale": "The 100ms field response matches Jakob Nielsen's 'instant' threshold. The 300ms button animation is long enough to be perceived as a meaningful state change but short enough to feel responsive. The spring easing on the error shake creates a physical-feeling bounce that draws attention without being alarming."
+      },
+      "journey_state_awareness": "This pattern only appears for hosts arriving via an agent-created listing link (the onboarding-listing_creation bridge). For hosts who self-create listings (no agent), the pattern does not apply; those hosts enter a standard creation flow. For returning hosts reviewing an existing listing, the same confirmed-state visual language is used but the 'Confirm Listing' button is replaced with 'Save Changes.'",
+      "edge_cases": [
+        "Bryant entered the wrong rent amount from the phone call. The host must be able to correct any field without losing the confirmed state of other fields.",
+        "June has two apartments but Bryant only created one listing. The confirm screen should include a prompt: 'Bryant mentioned you have another apartment. Want to list it too?' -- surfaced after confirmation, not before.",
+        "The host clicks the link days after the call, and the listing data may be stale (e.g., availability date has passed). Date fields should flag stale values: 'This date has passed. Update availability.'",
+        "The host's email link expires or the token is invalid. Show 'This link has expired. Text Bryant at [number] to get a new one.' -- not a generic login page."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Persistent Rule Feedback Across Screen Transitions",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "June asked the identical fee question twice in one call (07:32 and 10:59), proving that one-time feedback does not persist even within a single conversation. On the platform, host-defined rules (utility cap: $40, deposit: $2,500, cleaning fee: $140, rent: $2,690) are entered during listing creation but must remain visible and verifiable at every subsequent decision point. The interaction challenge is: how does the rule verification strip (L2 communicates-001, L3 looks-001) behave when the host navigates between screens? If it animates in fresh each time, the host must re-scan and re-verify. If it disappears during transitions, the host experiences a micro-anxiety: 'Are my rules still there?' Saffer's feedback principle (Ch. 4, p. 86) states that rules the user cannot see are rules they do not trust. The interaction pattern must make rules feel permanently present, not repeatedly re-introduced.",
+      "solution": "The rule verification strip is a fixed UI element that persists across screen transitions without re-rendering or re-animating. When the host navigates from the listing editor to the proposal screen to the lease dashboard, the strip remains visually stable -- it does not fade out and fade in. On screens where the strip is relevant (listing editor, proposal review, lease dashboard), it occupies the same spatial position (top of the content area, below any header). On screens where it is not relevant (settings, account profile), it collapses with a 200ms slide-up animation and re-expands when the host returns to a rule-relevant screen. The key behavioral principle: rules that are always visible do not need to be re-verified. The strip's values update in real-time only when the host edits them (during listing editing) or when a threshold is crossed (during active lease monitoring). All other times, the strip is static and inert -- it is reference information, not interactive content.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 07:32-07:36 and 10:59-11:04",
+          "type": "host_call",
+          "quote": "Are there any fees? Anything? No. [asked identically twice in the same call]",
+          "insight": "If the same question recurs within a single conversation, the feedback mechanism has failed. The interaction pattern must prevent this by making the answer permanently visible rather than temporarily confirmed."
+        },
+        {
+          "source": "june-call.txt, 04:08-04:51",
+          "type": "host_call",
+          "quote": "The electric bill... it's only covered up to 40, the first $40 I pay and they have to pay different... I had to start protecting myself cause it was getting too much.",
+          "insight": "The utility cap is a protection rule. Its persistent visibility is not decorative -- it is the host's continuous confirmation that the platform remembers and enforces her boundary."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Feedback Illuminates the Rules, p. 86",
+          "type": "book",
+          "quote": "Feedback Illuminates the Rules.",
+          "insight": "Saffer's core principle applied to navigation: rules must be illuminated not just on the screen where they were entered, but on every screen where they are relevant. Persistent display is persistent illumination."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Less Is More, p. 92",
+          "type": "book",
+          "quote": "Less Is More.",
+          "insight": "The strip is static and inert on most screens -- it does not animate, pulse, or demand attention. Its presence is the feedback. Less movement, more trust."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Strip is visible at its fixed position with all host-defined rules displayed. No animation, no interactivity. It is reference information the host can glance at and ignore.",
+        "loading": "During page transitions, the strip does not show a loading state. It persists from the previous screen. If the destination page's content is still loading, the strip remains stable while the rest of the page shows a skeleton. This creates the effect of 'my rules are always here, even when the page is catching up.'",
+        "empty": "If a host has not yet defined any rules (new listing, no pricing entered), the strip shows placeholder text: 'Your pricing and rules will appear here once entered.' in ink-ghost color. The placeholder occupies the same spatial area as the populated strip to prevent layout shift when rules are added.",
+        "error": "If a rule value becomes invalid (e.g., a utility cap of $0 after an accidental edit), the affected rule's value turns signal-warn color and the label gains a small warning icon. The strip does not disappear or collapse; the error is shown inline within the persistent strip.",
+        "success": "When a rule value is updated (host edits rent, for example), the updated value briefly flashes with an accent-light background pulse (150ms fade in, 300ms hold, 150ms fade out) to confirm the change, then returns to its static state."
+      },
+      "transition_principle": "The strip's position is spatially anchored. It does not participate in page transition animations (no slide, no fade). Content below the strip may transition (fade, slide), but the strip itself remains motionless. This creates a perceptual anchor: the strip is the fixed reference point around which the rest of the UI moves.",
+      "timing": {
+        "response_target": "0ms for strip persistence during navigation (it never leaves the DOM). 150ms for the value-update pulse animation. 200ms for the collapse/expand animation on non-relevant screens.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for collapse/expand (easing-out). No easing for persistence -- it is static.",
+        "rationale": "The strip's behavioral principle is absence of motion. It should feel like a printed label, not a digital element. The only animations are the minimal pulse on value change and the collapse when leaving a rule-relevant screen."
+      },
+      "journey_state_awareness": "During listing creation, the strip is editable (tapping a value opens the corresponding form field). During proposal review, the strip is read-only with match/mismatch indicators comparing the proposal terms to the host's rules. During active lease, the strip is read-only with enforcement indicators (green for within threshold, amber for approaching threshold). The strip's behavior adapts to the journey phase; its position and visual language do not.",
+      "edge_cases": [
+        "The host has more than 5 rules (the L2 communicates-001 maximum). The strip shows the 5 most relevant to the current screen context and offers a 'See all rules' expansion link.",
+        "The host edits a building-level rule (utility cap) while viewing a specific unit. The strip updates across all units simultaneously, and a microcopy notice appears: 'Updated for all your properties.'",
+        "On mobile, the strip must not consume more than 15% of viewport height. If necessary, it collapses to a single-line summary with the most critical value (rent) and an expand chevron.",
+        "If the host is offline and navigates between cached screens, the strip still displays the last known rule values with no error state -- stale data is preferable to no data for reference information."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Single-Surface Proposal Decision with Inline Verification",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "June needs to make fast proposal decisions ('tell them it's something they have to decide quickly,' 05:40) while simultaneously verifying guest quality ('I need to know who they are,' 06:04), pricing accuracy (rent, deposit, cleaning fee, utility cap), and cross-platform calendar impact. In the phone call, these verifications happened sequentially over several minutes. The platform must collapse this linear verification into a parallel, single-surface experience. The interaction challenge is that showing all verification data simultaneously risks overwhelming the host, while hiding any of it behind tabs or links risks the host missing critical information. Saffer's visual feedback principle (Ch. 4, p. 96) requires that the most effective feedback be visual and immediate, not text-heavy and discoverable.",
+      "solution": "The proposal screen loads as a single, non-paginated surface with three zones visible without scrolling (desktop) or within one scroll-length (mobile). The interaction is scan-then-act, not navigate-then-decide. Zone 1 (Guest): guest names, vetting badge (looks-003), and employment summary load inline -- no click required to verify vetting status. Tapping the vetting badge expands an inline detail card (300ms slide-down, easing-out) with credit summary and LinkedIn link, then collapses when tapped again. Zone 2 (Terms): the rule strip (behaves-002) shows with green checkmarks for each rule that matches the proposal terms. Any mismatch shows a signal-warn indicator. Zone 3 (Action): the cross-platform calendar panel (communicates-004, looks-005) appears as a static informational band, followed by the payment guarantee badge and Accept/Decline buttons. The Accept button is disabled for 2 seconds after page load to prevent accidental immediate taps -- this is the only deliberate friction in the flow, ensuring the host has time to scan.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 05:40-05:52",
+          "type": "host_call",
+          "quote": "Tell them it's something they have to decide quickly because I would have to block it on the different platforms I have it on.",
+          "insight": "Speed is a stated requirement. The single-surface design eliminates navigation time. The 2-second button delay is the minimum necessary friction to prevent unconsidered acceptance."
+        },
+        {
+          "source": "june-call.txt, 06:04-06:15",
+          "type": "host_call",
+          "quote": "I need to know who they are and what type of people. I don't want Connie in the house.",
+          "insight": "Guest verification is emotionally charged and non-negotiable. Making vetting status visible inline (no navigation required) respects both the urgency and the thoroughness the host demands."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Visual Feedback, p. 96",
+          "type": "book",
+          "quote": "Visual feedback is the most effective form.",
+          "insight": "Saffer's hierarchy (visual > audio > haptic) mandates that verification status be communicated through badges, checkmarks, and color-coded indicators -- not through text paragraphs the host must read."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Feedback Illuminates the Rules, p. 86",
+          "type": "book",
+          "quote": "Feedback Illuminates the Rules.",
+          "insight": "Every host rule must be illuminated on the proposal screen. Match indicators (green checkmarks) and mismatch indicators (amber flags) turn the host's abstract rules into visible, verifiable feedback at the point of decision."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All three zones are visible. Guest zone shows names, vetting badge, employment line. Terms zone shows the rule strip with match indicators. Action zone shows calendar panel, guarantee badge, and Accept/Decline buttons (Accept enabled after 2-second delay). The host can scan all zones without interaction.",
+        "loading": "The proposal screen uses a skeleton layout matching the three-zone structure. Guest zone shows a circular avatar placeholder and two text-line placeholders. Terms zone shows the rule strip with value placeholders (the host's own rules are known and display immediately; only the proposal's matching values load). Action zone shows button placeholders. The host's rules appear first (they are locally cached); the proposal data appears second.",
+        "empty": "If the proposal has incomplete data (e.g., guest profile not fully loaded), the affected zone shows: 'Waiting for guest details. We will notify you when complete.' The Accept button remains disabled until all zones have data. The host can still Decline with incomplete data.",
+        "error": "If the proposal fails to load entirely, show: 'This proposal could not be loaded. Text Bryant at [number] or try again.' with a single retry button. If a specific zone fails (e.g., guest data unavailable), that zone shows an inline error while the other zones remain functional. A partial-data proposal can be declined but not accepted.",
+        "success": "On Accept tap: the Accept button transforms into a progress indicator (200ms), then a checkmark with 'Accepted' text (300ms). The calendar panel briefly highlights (accent-light pulse, 500ms) as a reminder to block dates on other platforms. The host sees the confirmation without navigating away from the proposal screen."
+      },
+      "transition_principle": "No page transitions within the proposal flow. The vetting detail card expands and collapses inline. The Accept/Decline action completes on the same screen. The only navigation away is after the action is confirmed, when the host can optionally go to the lease dashboard. The principle: the decision happens here; leaving this screen is always the host's choice, never the platform's redirect.",
+      "timing": {
+        "response_target": "< 200ms for vetting badge tap to detail expansion. 2000ms intentional delay before Accept button enables. < 300ms for Accept button transformation to confirmation state. < 500ms for the calendar panel highlight pulse.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for vetting detail slide-down and Accept button transformation (easing-out). No easing for the 2-second delay -- it is a linear timer.",
+        "rationale": "The 200ms detail expansion is fast enough to feel responsive but slow enough to be perceived as a deliberate reveal. The 2-second Accept delay is based on Saffer's principle that rules should prevent errors (Ch. 3, p. 74) -- an accidental acceptance on a time-sensitive proposal has severe cross-platform consequences."
+      },
+      "journey_state_awareness": "For first-time hosts (June's case), the vetting badge detail is auto-expanded on the first proposal to ensure the host sees the full vetting information without needing to know to tap it. For returning hosts who have accepted previous proposals, the detail starts collapsed (they have established trust in the vetting process). The 2-second Accept delay applies to all proposals regardless of host experience -- the cross-platform consequence is always present.",
+      "edge_cases": [
+        "The proposal terms do not match the host's listing (e.g., rent discrepancy). The mismatched rule shows in signal-warn with a note: 'This does not match your listing rate of $2,690.' The Accept button text changes to 'Accept with Modified Terms.'",
+        "The host opens the proposal on mobile where all three zones cannot fit without scrolling. The guest zone and terms zone stack vertically, but the Accept/Decline buttons are sticky-positioned at the screen bottom so the host does not need to scroll past the calendar panel to act.",
+        "Two proposals arrive simultaneously for the same listing. The screen shows the current proposal and a banner: 'You have 1 other proposal for this property.' Accepting one automatically triggers a decline for the other with a confirmation dialog.",
+        "The host's internet drops after tapping Accept. The button shows a 'Saving...' state and retries for up to 10 seconds. If still offline, it reverts to the enabled Accept state with: 'Could not confirm. Please try again when connected.'"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Ambient-to-Alert Lease Health Escalation Loop",
+      "journey_phases": ["active_lease"],
+      "problem": "June's most emotionally charged concern is utility abuse during active leases: '$100, $200 bills... heat is on while the windows are open... I had to start protecting myself' (04:26-04:51). She set a $40 utility cap as a learned protection mechanism. During a 3+ month lease, the platform must provide continuous confirmation that this rule is enforced without creating alert fatigue. Saffer's Long Loop principle (Ch. 5, p. 117) requires recurring microinteractions to evolve over time. A static dashboard that shows the same level of detail in month 1 and month 4 either overwhelms the compliant case or under-serves the problematic case. Additionally, the payment guarantee -- the platform's strongest verbal promise (02:53-03:25) -- must be confirmed each cycle, not assumed from the absence of complaints.",
+      "solution": "Design the lease dashboard as a long loop with two behavioral modes: ambient and alert. In ambient mode (all values within thresholds), the dashboard shows three compact status rows using the color escalation system from L3 looks-004. Each row is a single line: icon + label + value + status color. No interaction required; the host glances and is reassured. The ambient mode gets quieter over time: in the first month, a push notification accompanies each payment and utility update; by the third month of compliance, notifications reduce to monthly summaries only, and the dashboard indicators remain green but do not trigger push alerts. In alert mode (a threshold is crossed), the affected row transitions from green to amber (200ms color shift, easing-out). The row expands to show the specific issue: 'Utility usage: $52 / $40 cap. Guest has been notified of $12 overage.' A push notification fires immediately. If the issue escalates (utility exceeds cap by 50%+ or payment is late), the color shifts to signal-danger. Alert mode is spring-loaded per Saffer Ch. 5 (p. 111-113): it activates on threshold breach and deactivates when the issue resolves, returning the row to ambient green.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 04:26-04:51",
+          "type": "host_call",
+          "quote": "I have had bills of a hundred, $200... the heat is on while the windows are open. They're not home, running, you know, all of that stuff. So I had to start protecting myself cause it was getting too much.",
+          "insight": "Utility monitoring is the host's primary anxiety driver. The ambient mode provides continuous reassurance; the alert mode ensures genuine problems are impossible to miss."
+        },
+        {
+          "source": "june-call.txt, 02:53-03:25",
+          "type": "host_call",
+          "quote": "Payments are guaranteed to you as the landlord... even in the case that a guest missed a payment or didn't pay, you still get paid.",
+          "insight": "The payment guarantee was a verbal promise. Each payment cycle, the ambient confirmation ('Payment of $2,690 deposited') converts this promise into recurring, verifiable feedback."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 5, Long Loops, p. 117",
+          "type": "book",
+          "quote": "Long Loops.",
+          "insight": "Saffer's long loop principle requires the microinteraction to evolve. The notification frequency reduction over compliant months is a direct implementation: the loop adapts based on accumulated behavior data."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 5, Spring-Loaded and One-off Modes, p. 111-113",
+          "type": "book",
+          "quote": "Modes... Spring-Loaded and One-off Modes.",
+          "insight": "Alert mode is spring-loaded: it activates on threshold breach and deactivates on resolution. The host sees the mode shift through color change, providing clear feedback about the current system state."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Ambient mode: three status rows in accent-light/accent color scheme. Payment row: green checkmark + 'February payment: $2,690 deposited.' Utility row: green bar showing usage vs. cap (e.g., '$32 / $40'). Lease timeline row: progress bar showing elapsed and remaining time. All indicators are static and calm.",
+        "loading": "On initial dashboard load, status rows appear as skeleton placeholders matching the three-row layout. Values populate within 1 second as API responses arrive. The rule strip (behaves-002) is already visible during loading, providing the host's anchor while dynamic data loads.",
+        "empty": "In the first days of a new lease before any payment or utility data exists, rows show: 'First payment expected on [date]' and 'Utility tracking begins after first billing cycle.' No blank rows; every empty state has a forward-looking explanation.",
+        "error": "If utility or payment data fails to load, the affected row shows ink-muted text: 'Data temporarily unavailable. Last update: [date].' The row does not turn red (signal-danger is reserved for genuine issues, not data-loading failures). A 'Refresh' link appears beside the unavailable row.",
+        "success": "When a payment is confirmed or a utility bill comes in under the cap, the affected row briefly pulses its green indicator (300ms, easing-out) as a positive-confirmation micro-animation. This is the 'yes, everything is still fine' signal that builds cumulative trust over the lease term."
+      },
+      "transition_principle": "Mode transitions (ambient to alert, alert to ambient) use color as the primary transition signal. The color shift happens over 200ms with easing-out, giving the host time to register the change without it feeling abrupt. Row expansion in alert mode uses a 300ms slide-down. The spring-loaded nature means the host does not need to manually dismiss alerts -- they resolve when the underlying issue resolves.",
+      "timing": {
+        "response_target": "< 200ms for the ambient-to-alert color transition. < 300ms for alert row expansion. Push notifications within 1 hour of threshold breach detection. Monthly summary notifications on the 1st of each month.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for all color transitions and row expansions (easing-out token).",
+        "rationale": "The 200ms color transition is fast enough to draw attention (below the 300ms threshold where motion goes unnoticed) but slow enough to feel deliberate. Push notification timing (within 1 hour) balances urgency with the reality that utility data may not be real-time."
+      },
+      "journey_state_awareness": "First-lease hosts receive more frequent ambient confirmations (each payment cycle, each utility update) to build trust in the platform's monitoring capability. Second-lease hosts receive only monthly summaries in ambient mode, as trust has been established. The alert mode behavior is identical regardless of host experience -- threshold breaches always demand immediate visibility.",
+      "edge_cases": [
+        "Guest utility usage is exactly $40 (at the cap but not over). The row shows amber as a 'near threshold' warning, not green, to proactively signal risk before an overage occurs.",
+        "A roommate replacement occurs mid-lease (June mentioned this at 12:29). The dashboard enters a spring-loaded 'replacement mode': the lease timeline pauses, a new row appears ('Roommate replacement in progress'), and ambient monitoring continues for the remaining roommate.",
+        "The payment guarantee is invoked (guest missed payment, platform pays the host). The payment row shows a special state: 'Payment of $2,690 deposited (guaranteed by Split Lease)' in signal-info color, distinguishing this from a normal payment while confirming the guarantee was honored.",
+        "The host manages two active leases on two properties. The dashboard shows a property selector at the top; the ambient/alert mode applies independently per property. An alert on one property does not affect the display of the other."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Cross-Platform Calendar Acknowledgment at Commitment Points",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "June explicitly states that accepting a booking requires manual calendar blocking on Furnished Finder and other platforms (05:40-05:52). This cross-platform coordination is a real operational cost that the platform currently ignores. Saffer's Absorb Complexity principle (Ch. 3, p. 67) requires the system to handle complexity rather than exporting it. Until full calendar sync automation exists, the interaction pattern must at minimum acknowledge the cross-platform consequence and reduce the host's cognitive burden of remembering it. The interaction challenge is that the acknowledgment must be noticeable without being a blocker -- it is a helpful reminder, not a legal disclaimer.",
+      "solution": "At every commitment point (proposal acceptance, lease extension, early termination), display a cross-platform calendar panel (L2 communicates-004, L3 looks-005) that names the specific dates and specific platforms the host needs to update. The panel appears as a static informational band positioned between the terms verification and the action button. It does not require interaction -- the host does not need to check a box or confirm she has blocked calendars elsewhere. However, after the host taps Accept, a post-action interstitial appears for 3 seconds showing: 'Accepted! Remember to block [dates] on Furnished Finder.' with a 'Copy Dates' button that copies the date range to clipboard. The interstitial auto-dismisses after 3 seconds but can be dismissed earlier by tapping. On subsequent commitments, if the host has previously indicated she uses calendar sync (future feature), the panel instead shows: 'Calendar sync active. Furnished Finder updated automatically.' The interaction evolves from manual reminder to automated confirmation as the platform's integration capabilities grow.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 05:40-05:52",
+          "type": "host_call",
+          "quote": "Tell them it's something they have to decide quickly because I would have to block it on the different platforms I have it on.",
+          "insight": "Cross-platform blocking is not hypothetical -- it is an immediate, stated action the host must take. The interaction pattern must surface this at the exact moment it becomes relevant."
+        },
+        {
+          "source": "june-call.txt, 07:47-08:02",
+          "type": "host_call",
+          "quote": "I'm surprised I've never heard of [Split Lease] as well as I'm a real estate agent as well. I find everybody my own.",
+          "insight": "June is a multi-platform professional. She knows she needs to block calendars; the platform's role is to provide the specific dates at the specific moment, not to teach her the concept."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Absorb Complexity, p. 67",
+          "type": "book",
+          "quote": "Absorb Complexity.",
+          "insight": "Even without automation, the platform absorbs cognitive complexity by surfacing the dates and platform names at the commitment moment, so the host does not need to calculate or remember them."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Less Is More, p. 92",
+          "type": "book",
+          "quote": "Less Is More.",
+          "insight": "The panel is minimal (icon + dates + platform name). The post-action interstitial is ephemeral (3 seconds). The 'Copy Dates' button is a single utility action. No multi-step calendar setup flow at the commitment point."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Pre-action: the calendar panel is a static informational band in signal-info-bg with date range in IBM Plex Mono and platform names in Outfit. It is visible but does not demand interaction. Post-action: the 3-second interstitial shows the same information with a 'Copy Dates' button.",
+        "loading": "The calendar panel loads with the rest of the proposal screen. If the host's platform list is not yet known, the panel shows a generic message: 'Remember to update your other platforms for these dates.' Once the host's platform list loads, it updates to name them specifically.",
+        "empty": "If the host has not indicated which other platforms she uses, the panel shows the generic reminder with an inline link: 'Tell us your other platforms for better reminders.' This link opens a simple multi-select (Furnished Finder, Airbnb, Other) that saves to the host's profile.",
+        "error": "If the date range calculation fails (unlikely but possible with malformed proposal data), the panel shows: 'Check the proposal dates and update your other platforms accordingly.' -- a graceful fallback that still delivers the reminder even without specific dates.",
+        "success": "After the commitment is confirmed, the post-action interstitial appears with a smooth fade-in (200ms, easing-out) and auto-dismisses with a fade-out (200ms) after 3 seconds. If the host taps 'Copy Dates,' a checkmark replaces the button text (150ms transition) confirming the copy."
+      },
+      "transition_principle": "The pre-action panel is static -- no entrance animation, no attention-grabbing motion. It is part of the page layout, not an overlay. The post-action interstitial uses a gentle fade, not a modal or popup, to avoid feeling like an interruption. The 'Copy Dates' button provides a concrete action without creating obligation. The principle: reminders that feel like help stay welcome; reminders that feel like demands get dismissed.",
+      "timing": {
+        "response_target": "0ms for the pre-action panel (it loads with the page). 200ms fade-in for the post-action interstitial. 3000ms display duration for the interstitial. 150ms for the 'Copy Dates' button confirmation.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for fade-in and fade-out (easing-out token).",
+        "rationale": "The 3-second interstitial display is long enough to read and act on ('Copy Dates') but short enough to not feel like a blocker. The auto-dismiss respects the host's time while ensuring the reminder is seen."
+      },
+      "journey_state_awareness": "For first-time hosts accepting their first proposal, the post-action interstitial displays for 5 seconds instead of 3, giving extra time to process the cross-platform implication. For experienced hosts who have accepted previous proposals, the interstitial displays for 2 seconds (they know the drill). If calendar sync is active, the interstitial changes to a brief confirmation: 'Furnished Finder updated automatically' with a green checkmark (1.5 seconds).",
+      "edge_cases": [
+        "The host extends a lease (retention phase). The calendar panel shows the new extended date range and names the platforms: 'Extend block on Furnished Finder to [new end date].'",
+        "The host accepts a proposal and then immediately realizes she needs to decline (changed her mind). The interstitial's 'Copy Dates' is irrelevant in this case. The undo flow (see edge case in behaves-003) takes precedence, and the interstitial is suppressed.",
+        "The host uses an unknown platform not in the standard list. The 'Other' selection during platform setup asks for a free-text name, and the panel displays: 'Update [custom platform name] for these dates.'",
+        "A lease ends early. The calendar panel at the termination point reminds: 'Unblock [dates] on Furnished Finder -- your property is available again.'"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Multi-Unit Listing Duplication with Building-Level Inheritance",
+      "journey_phases": ["listing_creation", "pricing", "retention"],
+      "problem": "June owns a three-family house and proactively offered to list both apartments (09:36). Creating a second listing should not require repeating the full listing flow. Building-level attributes (address, utility policy, deposit, house rules) are shared; unit-level attributes (floor, bedrooms, rent, photos) are unique. The interaction challenge is expressing the distinction between inherited and editable data through behavior, not just visual treatment (L3 looks-006 handles the visual). The host must feel that listing a second unit is an incremental action, not a full repetition. Saffer's Limited Options and Smart Defaults principle (Ch. 3, p. 69) applies: the second listing's defaults should be 'same as your first listing' for all building-level fields.",
+      "solution": "After the host confirms her first listing, the platform surfaces a prompt: 'You mentioned another apartment. List it now?' (timed to appear after the first listing's success confirmation per behaves-001, not before). Tapping 'Yes' opens a streamlined second-listing screen. The building profile (address, utility cap, deposit, house rules, neighborhood) appears as a pre-populated, read-only summary banner at the top (L3 looks-006 visual treatment). Below the banner, only unit-specific fields are editable: unit identifier, bedrooms, rent, and photos. Rent defaults to the first unit's rent with a note: 'Same as your other apartment. Change if different.' The host can override any building-level field by tapping 'Edit building info' in the banner, which opens an inline expansion -- and a confirmation dialog: 'This will update the rule for all your properties. Continue?' The second listing creation should take under 2 minutes, compared to the full first listing flow.",
+      "evidence": [
+        {
+          "source": "june-call.txt, 09:36-09:41",
+          "type": "host_call",
+          "quote": "It's something like join in with, and you can list both of my apartments.",
+          "insight": "The host expects a single continuous interaction for listing multiple units. The behavioral pattern must make the second listing feel like an extension, not a restart."
+        },
+        {
+          "source": "june-call.txt, 04:08-04:19",
+          "type": "host_call",
+          "quote": "The electric bill... it's only covered up to 40, the first $40 I pay and they have to pay different.",
+          "insight": "The utility cap is a building-level rule. The inheritance pattern ensures it carries forward without re-entry, and the confirmation dialog on building-level edits prevents accidental divergence."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Limited Options and Smart Defaults, p. 69",
+          "type": "book",
+          "quote": "Limited Options and Smart Defaults.",
+          "insight": "The second listing's defaults are drawn from the first listing's building-level data. The host only sees options for things that are genuinely variable (unit number, bedrooms, rent). Everything else is a smart default."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 3, Preventing Errors, p. 74",
+          "type": "book",
+          "quote": "Preventing Errors.",
+          "insight": "Manually re-entering building-level data creates inconsistency risk (different utility cap phrasing, different deposit amount). Inheritance prevents these errors by design; the confirmation dialog on building-level edits prevents accidental cross-unit changes."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The second-listing screen shows the building summary banner (read-only, muted visual treatment) above the editable unit fields (full-color, interactive). Rent is pre-filled with first unit's value. Unit identifier and bedrooms are empty, awaiting input.",
+        "loading": "Building data loads from the first listing (locally cached, effectively instant). If the host reaches the second-listing screen before the first listing is fully saved, show: 'Saving your first listing... Your second listing will use the same building info.' with a progress indicator on the building banner only.",
+        "empty": "Unit-specific fields (unit identifier, bedrooms) start empty with placeholder text: 'e.g., Apt 2' and 'e.g., 2 bedrooms.' The rent field is pre-filled but editable. Photos start empty with an upload prompt: 'Add photos for this apartment.' The empty state applies only to unit-level fields; building-level fields are never empty on the second listing.",
+        "error": "If the second listing save fails, the error is shown inline below the submit button: 'Could not save. Your building info is preserved.' The building banner remains stable (it is already saved from the first listing). Only the unit-specific data needs to be re-submitted.",
+        "success": "On save, the submit button transforms to a checkmark with 'Second Listing Live' (300ms, easing-out). The building banner briefly highlights (accent-light pulse) to confirm the shared data is linked. A summary appears: '2 listings active at [address]' with links to both."
+      },
+      "transition_principle": "The transition from first-listing confirmation to second-listing prompt is sequential but not abrupt. The 'List another apartment?' prompt appears 1 second after the first listing's success state, sliding up from below the confirmation (300ms, easing-out). If the host dismisses the prompt, it is available later in the listing management section. The principle: the platform suggests the next step without forcing it.",
+      "timing": {
+        "response_target": "< 100ms for building data inheritance (locally cached). 1000ms delay before the second-listing prompt appears (after first-listing success). < 300ms for the prompt's slide-up animation. < 200ms for building-level edit expansion.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for all animations (easing-out token). cubic-bezier(0.34, 1.56, 0.64, 1) for the building-level edit confirmation dialog bounce-in (easing-spring token).",
+        "rationale": "The 1-second delay before the second-listing prompt gives the host a moment to register the first listing's success before introducing the next action. The spring easing on the confirmation dialog draws attention to a consequential action (editing building-level data affects all units)."
+      },
+      "journey_state_awareness": "For hosts who mentioned multiple units during the call (like June), the second-listing prompt appears proactively after the first listing. For hosts who listed a single unit, the prompt does not appear; the option is available in listing management. For returning hosts adding a third or fourth unit to an existing building, the flow is identical: building banner from existing listings, unit-level fields for new input.",
+      "edge_cases": [
+        "The second apartment has a different rent than the first. The host changes the pre-filled rent value. No confirmation dialog is needed because rent is a unit-level field.",
+        "The host wants to change the utility cap for only one unit (e.g., one unit has electric heat, the other has gas). The building-level edit dialog asks: 'Apply to all properties, or just this one?' If 'just this one,' the cap becomes a unit-level override, visually distinguished from the inherited building value.",
+        "The host wants to list a property at a different address (not the same building). The 'Add listing' flow detects a different address and starts a full first-listing flow rather than the abbreviated second-unit flow.",
+        "Bryant created both listings during the call. Both appear on the host's first visit, and the building/unit distinction is already applied. The host reviews both in sequence, with the building banner shared across both review screens."
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Protection-Rule Enforcement Confirmation Loop",
+      "journey_phases": ["listing_creation", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "June's utility cap and vetting requirements are not preferences -- they are learned protections from painful experiences ('I had to start protecting myself,' 04:51). The L3 visual pattern (looks-007) gives these rules a distinctive left-border accent treatment. But visual distinction alone does not confirm enforcement. The host needs behavioral feedback that the platform is actively protecting her, not just recording her preferences. Saffer's principle that 'feedback illuminates the rules' (Ch. 4, p. 86) means the host must see evidence of enforcement at every phase: during listing creation (the rule is captured), during proposal review (the rule is applied to the proposal), and during the active lease (the rule is being enforced in real time). The interaction challenge is creating a continuous enforcement narrative that spans the full lifecycle of a rule, not just its initial entry.",
+      "solution": "Each protection rule has a lifecycle state that is visible across journey phases. During listing creation, when the host enters a protection rule (e.g., utility cap at $40), the field gains the left-border accent treatment (L3 looks-007) and a microcopy confirmation: 'Active: guests will see this rule on your listing.' During proposal review, the same rule appears in the terms zone with an enforcement indicator: a green checkmark if the proposal terms include the rule, or an amber flag if they do not. During the active lease, the rule appears on the health dashboard with real-time enforcement data (current utility usage vs. cap). When the rule is actively enforced (guest notified of overage, overage charged), the dashboard shows a timestamped enforcement event: '$12 overage charged to guest on Feb 15.' This creates a continuous thread: the host defined the rule, the rule was applied to the proposal, the rule is being enforced during the lease. The enforcement confirmation loop closes the gap between 'I told you my rule' and 'I can see you are enforcing it.'",
+      "evidence": [
+        {
+          "source": "june-call.txt, 04:26-04:51",
+          "type": "host_call",
+          "quote": "I have had bills of a hundred, $200... I had to start protecting myself cause it was getting too much.",
+          "insight": "The rule exists because of pain. Feedback that the rule is merely recorded is insufficient; the host needs to see enforcement events to believe the platform is protecting her."
+        },
+        {
+          "source": "june-call.txt, 06:04-06:15",
+          "type": "host_call",
+          "quote": "I need to know who they are and what type of people. I don't want Connie in the house.",
+          "insight": "The vetting requirement is a protection rule. During proposal review, the vetting badge (L3 looks-003) serves as the enforcement indicator: 'Vetted by Split Lease' means the rule was applied. Without the badge, the rule is unconfirmed."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 4, Feedback Illuminates the Rules, p. 86",
+          "type": "book",
+          "quote": "Feedback Illuminates the Rules.",
+          "insight": "A rule that is entered but never confirmed as enforced is a rule that has not been illuminated. The enforcement confirmation at each phase is the feedback that makes the rule real to the host."
+        },
+        {
+          "source": "microinteractions-rules-feedback.txt, Ch. 5, Long Loops, p. 117",
+          "type": "book",
+          "quote": "Long Loops.",
+          "insight": "Protection rules span the entire lease lifecycle. The enforcement loop must operate as a long loop: consistent in structure across phases, but adapting in frequency and detail as the lease progresses."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The protection rule is displayed with its lifecycle state indicator. Listing phase: 'Active' label in accent color. Proposal phase: green checkmark or amber flag. Active lease phase: real-time enforcement data (usage vs. cap, payment guarantee status).",
+        "loading": "Protection rules load from the host's profile (locally cached). If enforcement data (utility usage) is still loading, the rule shows its last known state with a subtle loading indicator beside the enforcement data only -- the rule itself and its label never show a loading state.",
+        "empty": "If no enforcement events have occurred yet (early in the lease, no utility bill processed), the rule shows: 'Monitoring active. First enforcement check after [date].' The rule is displayed with its left-border accent treatment to confirm it is captured, even before enforcement data exists.",
+        "error": "If enforcement data fails to load, the rule shows: 'Enforcement data temporarily unavailable. Rule is still active.' The left-border accent treatment remains to confirm the rule exists. The error does not affect the rule's visual prominence -- a data loading failure must not look like a rule being deactivated.",
+        "success": "When an enforcement event occurs (guest notified of overage, overage charged), the rule's dashboard row shows a timestamped event in accent color. The row briefly pulses (300ms) to draw attention to the new enforcement event. A monthly enforcement summary is available: 'Your $40 utility cap was respected this month. Guest usage: $38.'"
+      },
+      "transition_principle": "The protection rule's visual identity (left-border accent, mono numerics) is consistent across all phases. Only the enforcement indicator changes: 'Active' label during creation, checkmark/flag during proposal, real-time data during lease. The visual consistency creates a perceptual thread: the host recognizes 'her rule' across different screens by its distinctive treatment, and the changing enforcement indicator tells her where in the lifecycle the rule currently sits.",
+      "timing": {
+        "response_target": "< 100ms for the left-border accent treatment to appear after rule entry. < 200ms for the enforcement indicator to update on the proposal screen. Enforcement event updates on the lease dashboard within 24 hours of the billing event.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for the enforcement event pulse animation (easing-out token).",
+        "rationale": "The instant appearance of the left-border accent (< 100ms) gives immediate feedback that the rule is captured. The 24-hour window for enforcement events reflects the reality that utility billing data is not real-time."
+      },
+      "journey_state_awareness": "In the listing creation phase, the enforcement indicator is forward-looking ('Active: guests will see this'). In the proposal phase, the indicator is comparative ('matches your listing rate' or 'does not match'). In the active lease phase, the indicator is evidence-based ('$38 usage this month vs. $40 cap'). The same rule, the same visual treatment, different enforcement feedback appropriate to the phase.",
+      "edge_cases": [
+        "The host changes a protection rule mid-lease (e.g., raises the utility cap to $50). The enforcement loop resets: 'Updated to $50 cap. Previous enforcement at $40 cap is preserved in history.' Both the old and new rule values are visible in the enforcement history.",
+        "The platform cannot enforce a rule automatically (e.g., no utility data integration with the host's electric company). The rule shows: 'Self-monitored. Upload your utility bill to track against the $40 cap.' The platform provides a manual enforcement path rather than pretending the rule is being auto-enforced.",
+        "A guest disputes an enforcement event (e.g., claims the utility bill was estimated, not actual). The enforcement row shows: 'Overage under review. We will update you within 48 hours.' The rule's left-border treatment remains accent (not amber or red) because the rule itself is not in question -- only the specific enforcement event is.",
+        "The host's vetting protection rule is applied to a proposal where one of two roommates was vetted and the other has a pending background check. The enforcement indicator shows a partial state: 'Ariel: Vetted. Amber: Pending.' The Accept button remains disabled until both vetting checks complete."
+      ]
+    }
+  ]
+}

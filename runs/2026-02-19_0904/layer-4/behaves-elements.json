@@ -1,0 +1,305 @@
+{
+  "lens": {
+    "host_call": "kelly-call.txt",
+    "book_extract": "playbigger-category-design.txt",
+    "lens_summary": "Kelly's rejection was instantaneous -- Bryant said 'matchmaker between guests and hosts' at 01:14 and Kelly had decided to decline by 02:09, a 55-second window. The interaction patterns here address the behavioral timing, state transitions, and progressive disclosure mechanics that would have slowed that decision, forced problem-processing before solution-evaluation, and created recovery pathways when the host signals rejection. Play Bigger's category design framework maps directly to interaction sequencing: the problem must be cognitively processed before the category is named, and the category must be anchored before any proof is offered. Each interaction pattern below specifies the behavioral states, timing constraints, and transition logic that enforce this cognitive sequence through UI behavior."
+  },
+  "elements": [
+    {
+      "id": "behaves-0904-001",
+      "type": "interaction_pattern",
+      "title": "Problem-Absorption Gate: Enforced Dwell Before Category Reveal",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "L2's Problem-First Information Hierarchy (ds-ui-0904-007) and L3's visual weight system (looks-0904-001) establish the three-tier structure (Problem > Category > Proof) and ensure the Problem tier is visually dominant. But visual weight alone cannot enforce cognitive processing. A host can scroll past the Problem tier in under one second, eyes landing on the guest match (Proof tier) before the risk question has been absorbed. Kelly's call demonstrates this failure mode: Bryant delivered solution-data (Landon's schedule, flexibility) within 30 seconds of the conversation starting. Kelly's System 1 categorized the pitch as 'another middleman' before any problem could be processed. In a digital context, this is equivalent to the host scrolling past 'What happens if a tenant stops paying?' to reach 'Landon -- verified professional, Mon-Fri, 3 months.' The Problem tier must not only be visually dominant -- it must be behaviorally gating. The Category and Proof tiers should not be interactable until the host has demonstrably engaged with the Problem tier.",
+      "solution": "Implement a progressive disclosure gate where the Category and Proof tiers are initially collapsed (visually hinted but not readable) and expand only after the host demonstrates engagement with the Problem tier. The gate mechanism works as follows: (1) On page load, the Problem tier renders fully visible with L3's specified typography and color treatment. The Category and Proof tiers render as blurred, height-collapsed placeholders -- the host can see that more content exists below but cannot read it. This creates curiosity without enabling bypass. (2) The gate opens when one of these engagement signals is detected: the host's viewport has kept the Problem tier in view for 4 seconds (dwell threshold), OR the host clicks/taps the Problem tier's question text, OR the host scrolls past the Problem tier's bottom boundary (indicating they have at least visually traversed it). (3) When the gate opens, the Category tier smoothly expands (height animation 400ms, ease-out) and the blur lifts (filter transition 300ms). The Proof tier remains collapsed until the Category tier has been in viewport for 2 seconds or the host scrolls past it. (4) On mobile, where viewport is narrow, the dwell threshold for the Problem tier increases to 5 seconds because the tier takes longer to read at mobile font sizes. (5) If the host attempts to scroll past the Problem tier before the dwell threshold, a subtle resistance effect applies: the scroll decelerates gently (not a hard stop -- that would feel adversarial) and the Problem tier's question text briefly pulses in opacity (from 1.0 to 0.85 and back, 200ms) to draw the eye back. This resistance fires only once per session to avoid annoyance.",
+      "evidence": [
+        {
+          "source": "kelly-call.txt, 00:35-02:09",
+          "type": "host_call",
+          "quote": "Bryant delivers solution-data for 94 seconds (Landon's schedule, flexibility, his role as matchmaker) before Kelly interjects with her rejection. No problem was surfaced during those 94 seconds.",
+          "insight": "The 94-second window between pitch start and rejection is the temporal equivalent of scrolling past the Problem tier to the Proof tier. The dwell gate ensures the host cannot reach solution-data until they have spent a minimum of 4 seconds processing the problem -- a digital-scaled version of the problem-first sequencing that was missing from Bryant's call."
+        },
+        {
+          "source": "playbigger-category-design.txt, Ch 2 (Anchoring Effect)",
+          "type": "book",
+          "quote": "The first offer put on the table in a negotiation has a powerful impact on any other offer that comes after. In category dynamics, an early company that solves the problem will win a powerful place in customers' minds.",
+          "insight": "The dwell gate ensures the problem is the first 'offer on the table.' If the host's first cognitive engagement is with the risk question, that question becomes the anchor. All subsequent information (category definition, guest match) is evaluated relative to that anchor. Without the gate, the guest match becomes the anchor and the outreach is evaluated as 'another tenant pitch.'"
+        }
+      ],
+      "priority": "critical",
+      "states": {
+        "default": "Problem tier fully visible and readable. Category tier collapsed to 48px height, content blurred (filter: blur(6px)), opacity 0.4. Proof tier collapsed to 36px height, content blurred (filter: blur(8px)), opacity 0.3. A subtle gradient fade at the bottom of the Problem tier hints at content below. No 'Read More' button -- the expansion is automatic, triggered by engagement.",
+        "engaged": "Triggered when dwell threshold (4 seconds) or scroll-past is detected. Category tier smoothly expands to full height (400ms ease-out), blur lifts (filter transition 300ms from blur(6px) to blur(0)), opacity transitions from 0.4 to 1.0 (300ms). Proof tier remains collapsed but its opacity increases slightly to 0.5 to signal that more content is coming.",
+        "fully_revealed": "Triggered when Category tier engagement is detected (2-second dwell or scroll-past). Proof tier expands to full height (350ms ease-out), blur lifts (250ms), opacity to 1.0. All three tiers are now fully interactive. A subtle scroll-position indicator appears in the right margin showing the host's position within the three tiers.",
+        "returning_visit": "If the host has previously completed the gate (tracked via localStorage), all three tiers render fully visible on load -- no gate, no delay. The gate only fires once per host to avoid repeated friction.",
+        "error": "If engagement detection fails (JavaScript disabled, or the host uses assistive technology that does not emit scroll/dwell events), all three tiers render fully visible after a 6-second timeout as a graceful fallback. Accessibility must not be compromised by the gate mechanism."
+      },
+      "transition_principle": "Tiers reveal in a cascading waterfall -- Problem first, then Category flows in from below, then Proof follows. The visual metaphor is a conversation unfolding: the host receives the problem, considers it, then receives the answer, then receives the proof. The timing between reveals (4s for Problem-to-Category, 2s for Category-to-Proof) creates a deliberate reading pace that mirrors the problem-first cognitive sequence Play Bigger prescribes.",
+      "timing": {
+        "problem_dwell_threshold": "4000ms on desktop, 5000ms on mobile. Measured from the moment the Problem tier's top edge enters the viewport to the current time, excluding any periods where the Problem tier was scrolled out of view.",
+        "category_reveal_animation": "Height expansion: 400ms ease-out. Blur transition: 300ms linear. Opacity transition: 300ms ease-out. All three transitions fire simultaneously when the gate opens.",
+        "category_to_proof_delay": "2000ms dwell on Category tier, or scroll-past Category tier's bottom edge, whichever comes first.",
+        "proof_reveal_animation": "Height expansion: 350ms ease-out. Blur transition: 250ms linear. Opacity transition: 250ms ease-out.",
+        "scroll_resistance_pulse": "Opacity keyframe: 1.0 to 0.85 to 1.0 over 200ms. Fires once per session when host attempts to scroll past Problem tier before dwell threshold. Accompanied by a 150ms scroll deceleration (not a stop).",
+        "easing": "ease-out (cubic-bezier(0.16, 1, 0.3, 1)) for all tier reveals -- content arrives confidently, decelerating into position.",
+        "fallback_timeout": "6000ms -- if no engagement signal is detected, all tiers reveal automatically. This prevents the host from being permanently stuck behind the gate."
+      },
+      "journey_state_awareness": "In discovery (first visit, cold traffic from outreach), the full gate mechanism fires with 4-second dwell. In evaluation (host has been to the site before or clicked a link from a follow-up email), the gate is reduced: Category tier starts at 60% opacity (partially visible) and reveals fully after 2-second dwell, Proof tier reveals immediately after Category. In later phases (onboarding, listing_creation), no gate is applied -- the host has already processed the category frame.",
+      "edge_cases": [
+        "Host uses keyboard navigation (Tab key) instead of scrolling. The gate should open when the focus moves past the Problem tier's last focusable element, equivalent to scroll-past behavior.",
+        "Host has a screen reader active. The gate must not block content -- all three tiers should be fully available in the accessibility tree from page load. The gate is a visual behavior only, not a content restriction.",
+        "Host arrives via deep link to a specific section (e.g., anchor link to Proof tier). The gate does not apply -- the host's intent is clear and blocking them would be adversarial.",
+        "Host resizes browser window while the gate is active. The dwell timer should not reset on resize -- it continues counting from where it left off."
+      ]
+    },
+    {
+      "id": "behaves-0904-002",
+      "type": "interaction_pattern",
+      "title": "Risk-Contrast Hover State: Row-Level Emphasis on Host Exposure",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "L2's Risk-Contrast Comparison Card (ds-ui-0904-008) and L3's asymmetric visual weight system (looks-0904-002) create a static side-by-side comparison between direct hosting risks and guaranteed-income hosting protections. But a static card invites passive scanning -- the host's eye can glide across all four rows without deeply processing any single risk dimension. Kelly's call shows that she evaluated her hosting approach on a single dimension (trust through direct vetting) and never considered the other dimensions (payment risk, damage liability, early departure). The static card surfaces these dimensions but does not force processing of each one individually. The interaction pattern must create a row-level engagement mechanism that makes each risk dimension feel personal and concrete when the host focuses on it, transforming a passive comparison into an active evaluation.",
+      "solution": "Implement row-level hover/focus states that amplify the risk column and simultaneously suppress the other rows, creating a single-dimension spotlight effect. The interaction sequence: (1) On hover (desktop) or tap (mobile) of any row, that row expands vertically by 8px (padding increase, 200ms ease-out) while other rows contract by 2px and reduce opacity to 0.5 (200ms ease-out). The hovered row's risk cell intensifies: background shifts from #FFF6E8 to #FEE8C8 (a deeper amber), text weight shifts from 500 to 600, and a subtle left border accent (3px solid #C4841D) appears on the risk cell only. (2) The protection cell in the same row simultaneously reveals a micro-detail that was hidden by default: a single qualifying sentence that makes the protection concrete. For example, the 'If tenant stops paying' row's protection cell expands to show 'You get paid regardless' plus a revealed line: 'Guaranteed through the full lease term, deposited monthly.' This progressive detail prevents information overload in the default state while rewarding engagement. (3) On hover-out or tap-away, the row contracts back to default dimensions (200ms ease-out), the micro-detail collapses (150ms), and all rows restore full opacity. (4) On mobile, where hover is unavailable, each row has a tap-to-expand behavior: tapping a row opens it (micro-detail revealed, row expanded) and closes any previously open row. Only one row can be expanded at a time to preserve the single-dimension spotlight effect.",
+      "evidence": [
+        {
+          "source": "kelly-call.txt, 02:09",
+          "type": "host_call",
+          "quote": "Kelly: 'I wanted someone who I can get a little bit more information as far as their nursing and just being more confident in who they were.'",
+          "insight": "Kelly evaluated direct hosting on one dimension: trust through vetting. She never considered payment risk, damage, or early departure. The row-level spotlight forces the host to encounter each dimension individually, increasing the likelihood that at least one risk resonates as personally relevant -- the way it would have if Bryant had asked 'What happens if a tenant stops paying midway?'"
+        },
+        {
+          "source": "playbigger-category-design.txt, Ch 1 (Birdseye ad)",
+          "type": "book",
+          "quote": "Frozen food was not just better than canned food -- it was different from canned food.",
+          "insight": "The row-level emphasis on the risk column makes each dimension feel categorically different from the host's current experience, not incrementally better. When the 'If tenant stops paying' row intensifies, the host is forced to confront a category difference (guaranteed income vs. absorbed loss), not a feature difference."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All four rows display at equal height and full opacity. Risk cells use L3's specified #FFF6E8 background and 500-weight text. Protection cells use #FAF8FF background and 400-weight text. Micro-detail lines are hidden (height: 0, overflow: hidden). Dimension labels are fully visible.",
+        "row_focused": "The focused row expands: padding increases by 4px top and bottom (200ms ease-out). Risk cell background transitions to #FEE8C8 (200ms). Risk cell text weight transitions to 600 (200ms). Risk cell gains a 3px left border in #C4841D (200ms). Protection cell's micro-detail line expands from height 0 to auto (250ms ease-out, max-height technique). Other rows contract by 2px padding and reduce to 0.5 opacity (200ms ease-out).",
+        "mobile_expanded": "On touch devices, tap opens the row with same visual transitions as row_focused. The row remains expanded until another row is tapped or the host taps outside the card. A subtle chevron icon on the dimension label rotates from 0deg to 90deg (200ms) to indicate expandable state.",
+        "all_rows_scanned": "After the host has focused/tapped all four rows at least once (tracked via session state), a summary line appears below the card: 'Direct hosting leaves you exposed on 4 dimensions. Guaranteed-income hosting covers all 4.' This line fades in (opacity 0 to 1, 400ms ease-out) only after all rows have been individually engaged. It rewards complete processing with a synthesizing statement.",
+        "keyboard_focused": "For keyboard navigation, tab moves between rows. The focused row receives the same expanded treatment as hover. Focus indicator: a 2px outline in #31135D with 2px offset, visible only on :focus-visible to avoid mouse-click outlines."
+      },
+      "transition_principle": "Row transitions use ease-out for expansion (content arrives confidently) and ease-out for contraction (content retreats smoothly). The single-row spotlight creates a 'breathing' effect: one row inhales (expands) while others exhale (contract). This rhythm slows the host's scanning pace and creates individual moments of processing for each risk dimension.",
+      "timing": {
+        "hover_delay": "0ms -- row responds immediately to hover to feel responsive. No delay threshold needed because the expansion is subtle enough not to be distracting during casual mouse movement.",
+        "expansion_animation": "200ms ease-out for padding change, background color transition, text weight transition, and border appearance.",
+        "micro_detail_reveal": "250ms ease-out using max-height technique (max-height from 0 to 60px). The reveal starts 50ms after the row expansion begins, creating a slight cascade: row expands, then detail appears within it.",
+        "contraction_animation": "200ms ease-out for all properties returning to default values.",
+        "mobile_tap_hold": "Row remains expanded until next interaction. No auto-collapse timer -- the host controls the pace.",
+        "summary_line_appearance": "400ms ease-out opacity transition, triggered when all four rows have been individually engaged at least once. The summary line renders below the card with 16px margin-top."
+      },
+      "journey_state_awareness": "In discovery (first card encounter), the full hover/tap behavior is active with micro-detail reveals. In evaluation (host returns to the card or sees it in a follow-up email), the micro-details are visible by default (no progressive disclosure needed -- the host has already engaged once). In later phases, the card may be replaced by a condensed version showing only the dimensions most relevant to the host's current phase.",
+      "edge_cases": [
+        "Host hovers across rows rapidly without pausing. The expansion should not fire unless the hover dwells on a row for at least 150ms. This prevents a 'popcorn' effect where rows expand and contract in rapid succession during casual mouse movement.",
+        "Host uses touch device with a stylus. Treat stylus taps the same as finger taps -- single-row expansion on tap, collapse on next interaction.",
+        "Card is embedded in an email (where hover states and JavaScript are unavailable). The card renders in its default state with all micro-details visible. Progressive disclosure is a web-only enhancement.",
+        "Host has reduced-motion preference (prefers-reduced-motion: reduce). Disable all animations. Row focus is indicated by border and background color change only, applied instantly without transition."
+      ]
+    },
+    {
+      "id": "behaves-0904-003",
+      "type": "interaction_pattern",
+      "title": "Vetting Evidence Progressive Disclosure: Expand-on-Demand Trust Cascade",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "L2's Vetting Evidence Trail (ds-ui-0904-009) and L3's two-tier visual weight system (looks-0904-003) present four verification cards (Employment, Identity, Payment History, Background Check) with expandable detail sections. But the interaction behavior of the expansion is unspecified: How does the host discover that cards are expandable? What happens when multiple cards are expanded? How does the expansion reinforce -- rather than undermine -- the host's sense of control? Kelly's core objection was about information access and personal judgment ('I wanted someone who I can get a little bit more information'). The expansion behavior must feel like the host is pulling information toward themselves (active discovery), not like the platform is pushing information at them (passive receipt). If the detail section auto-expands or reveals without the host's explicit action, it violates the control principle that makes this component effective for control-oriented hosts like Kelly.",
+      "solution": "Implement a strictly host-initiated expansion pattern where each card's detail section opens only on explicit click/tap, with no auto-expansion, no hover-triggered reveals, and no time-based progressive disclosure. The interaction sequence: (1) Default state: all four cards show summary-level information (one line each). The 'View verification details' trigger text is styled as an interactive element (L3 purple color, cursor pointer, underline on hover) but does not animate or pulse to attract attention -- the host discovers it naturally. (2) On click/tap of the trigger, the detail section expands downward with a smooth height transition (300ms ease-out). The trigger text changes from 'View verification details' to 'Hide details' with a 150ms crossfade. A subtle rotation animation on an inline chevron icon (0deg to 180deg, 200ms) provides spatial feedback. (3) Multiple cards can be expanded simultaneously -- there is no accordion behavior that collapses one when another opens. Control-oriented hosts may want to compare verification details across dimensions, and collapsing one to see another would feel like the platform is limiting their access. (4) The primary cards (Employment, Identity) show a subtle affordance hint on first page load: the trigger text briefly underlines with a 1px dashed line (opacity 0 to 0.5 to 0, 1500ms) that fires once per session. This is the only proactive signal; everything else waits for the host. (5) When a card is expanded, a thin left accent border (3px solid, matching the card's accent color) extends from the summary section into the detail section, visually connecting them as one unit. The border appears with a height animation (200ms ease-out, 100ms delay after content expansion starts).",
+      "evidence": [
+        {
+          "source": "kelly-call.txt, 02:09",
+          "type": "host_call",
+          "quote": "I wanted someone who I can get a little bit more information as far as their nursing and just being more confident in who they were.",
+          "insight": "Kelly wants to pull information, not receive it passively. The click-to-expand pattern respects this: the host decides when to see more, which dimension to investigate first, and how deep to go. The platform does not presume which details matter -- the host's click pattern reveals their trust priorities."
+        },
+        {
+          "source": "kelly-call.txt, 03:03",
+          "type": "host_call",
+          "quote": "Bryant: 'I'd be happy to get any information if there was anything that you need from him that I didn't have already.'",
+          "insight": "Bryant offered information reactively, after Kelly had already decided. The vetting trail flips this: the information is proactively available (cards are visible with summaries) but the depth is host-controlled (detail expansion is on-demand). The host sees that thorough verification exists without being overwhelmed by it."
+        },
+        {
+          "source": "playbigger-category-design.txt, Ch 2 (Choice Supportive Bias)",
+          "type": "book",
+          "quote": "Once you've committed to a product or service in a new category, you're likely to give positive qualities to an option you've chosen just because you've chosen it.",
+          "insight": "When the host actively chooses to expand a verification card, Choice Supportive Bias works in the platform's favor: the host will attribute positive qualities to the information they chose to reveal. This is why auto-expansion is counterproductive -- information that arrives without the host's choice does not benefit from this bias."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All cards collapsed. Summary lines visible. Trigger text ('View verification details') in L3's specified purple (#31135D), cursor: pointer. Chevron icon at 0deg rotation. Primary cards (Employment, Identity) show one-time dashed underline affordance hint on trigger text (fires on first page load, once per session).",
+        "expanding": "Transition state during expansion. Detail section height transitions from 0 to auto (300ms ease-out, max-height technique with 200px max). Content opacity transitions from 0 to 1 (200ms ease-out, 100ms delay to avoid flash of layout shift). Chevron rotates 0deg to 180deg (200ms ease-out). Trigger text crossfades to 'Hide details' (150ms).",
+        "expanded": "Detail section fully visible with L3's specified grid layout (dt/dd pairs). Left accent border extends full height of card including detail section. The card's box-shadow increases slightly (from sm to md) to give the expanded card gentle elevation above its neighbors, signaling that it is in an active inspection state.",
+        "collapsing": "Reverse of expanding: detail height from auto to 0 (250ms ease-out), content opacity 1 to 0 (150ms, fires first), chevron 180deg to 0deg (200ms), trigger text crossfades back to 'View verification details' (150ms). Shadow returns to sm.",
+        "multiple_expanded": "Multiple cards can be in expanded state simultaneously. No accordion constraint. The component's total height grows to accommodate all expanded cards. If the component exceeds the viewport height, the host can scroll within the page to navigate between expanded cards.",
+        "all_expanded": "When all four cards are expanded, a summary line appears below the component: 'All verifications reviewed.' This line fades in (300ms ease-out) and serves as a quiet confirmation that the host has completed a thorough review. It does not prompt any action.",
+        "keyboard_focused": "Tab moves between trigger elements. Enter/Space toggles expansion. Focus ring: 2px solid #31135D with 2px offset on the trigger text, :focus-visible only."
+      },
+      "transition_principle": "Expansions use ease-out (content arrives smoothly) with a slight opacity delay to prevent layout shift from being visible during the height transition. Collapses use a reverse sequence where opacity fades first (150ms) then height collapses (250ms), so the host never sees content being 'crushed' by a shrinking container. The chevron rotation provides continuous spatial feedback about the card's state.",
+      "timing": {
+        "expansion_height": "300ms ease-out (cubic-bezier(0.16, 1, 0.3, 1)) using max-height technique.",
+        "expansion_opacity": "200ms ease-out, 100ms delay after height transition starts.",
+        "chevron_rotation": "200ms ease-out.",
+        "trigger_text_crossfade": "150ms linear crossfade between 'View verification details' and 'Hide details'.",
+        "collapse_opacity": "150ms ease-out, fires immediately on collapse trigger.",
+        "collapse_height": "250ms ease-out, 100ms delay after opacity fade starts.",
+        "accent_border_extension": "200ms ease-out, 100ms delay after expansion starts.",
+        "affordance_hint": "Dashed underline opacity keyframe: 0 to 0.5 (500ms) to 0 (1000ms). Fires once on page load, once per session.",
+        "shadow_transition": "200ms ease-out for shadow elevation change on expand/collapse."
+      },
+      "journey_state_awareness": "In evaluation (first encounter with a guest proposal), all cards start collapsed and the affordance hint fires on primary cards. In proposal_mgmt (host is reviewing a specific proposal with terms), the Employment card auto-expands on load because employment verification is the most commonly cited trust factor for control-oriented hosts (per Kelly's specific request about 'their nursing'). All other cards remain collapsed. In active_lease (if the host revisits the profile after accepting), all cards show expanded summaries but details remain collapsed -- the host has already made their decision and does not need the full trail unless they seek it.",
+      "edge_cases": [
+        "Host expands a card and then scrolls away before reading the details. The card remains expanded -- it does not auto-collapse. The host's intent to see the information is respected even if they navigate away temporarily.",
+        "Host uses a screen reader. All detail content is present in the DOM and accessible via aria-expanded attributes on the trigger. The trigger announces its state ('View verification details, collapsed' or 'Hide details, expanded'). No content is display:none -- it uses height:0 with overflow:hidden and aria-hidden='true' when collapsed.",
+        "Verification data is partially unavailable (e.g., no payment history for a first-time guest). The card renders with a modified summary: 'First lease on platform -- no prior payment history available.' The detail section contains a single line: 'This is Landon's first lease. Payment will be guaranteed by the platform regardless.' The card is still expandable to show this message.",
+        "Host has prefers-reduced-motion enabled. All transitions are removed. Cards expand and collapse instantly. Chevron rotation is replaced by a static icon swap (down arrow to up arrow)."
+      ]
+    },
+    {
+      "id": "behaves-0904-004",
+      "type": "interaction_pattern",
+      "title": "Category Seed Card Delivery Timing: Post-Rejection SMS/Email Sequence",
+      "journey_phases": ["discovery", "retention"],
+      "problem": "L2's Post-Rejection Category Seed Card (ds-ui-0904-012) and L3's minimal visual design (looks-0904-006) define what the seed card looks like. But the behavioral question is when and how it arrives in the declined host's world. If the card arrives too quickly after the call (within minutes), it feels like a desperate follow-up and triggers the same rejection. If it arrives too late (days later), the category label ('matchmaker') has already hardened as the host's anchor and the seed card cannot displace it. Kelly's call ended at approximately 04:59 with a warm but firm goodbye. The seed card's delivery timing must land in the window between the rejection solidifying (immediate) and the anchor hardening (24+ hours). Play Bigger's Anchoring Effect research suggests anchors are set rapidly but can be displaced by a strong counter-anchor within a short window. The delivery mechanism must also match the host's preferred communication channel -- Kelly exchanged phone numbers with Bryant, suggesting SMS is more natural than email for their relationship.",
+      "solution": "Implement a timed delivery sequence with channel selection logic. The sequence: (1) T+0 (call ends): Agent marks the call as 'declined' in the CRM with one tap. The system queues the seed card for delivery. No immediate action -- the host should not receive anything in the first 20 minutes, which is the 'rejection processing' window where any outreach feels adversarial. (2) T+25 minutes: The system sends the seed card via SMS as a brief text message with a link to the visual card. The SMS text reads: 'Hi Kelly, this is Bryant from SplitLease. Thanks for chatting today. Here is a quick overview of guaranteed-income hosting if it ever becomes relevant: [link].' The tone is warm, informational, non-promotional. The link opens the visual seed card (L2/L3 design) as a standalone mobile-optimized page -- not the platform homepage, not a signup flow, just the card. (3) T+48 hours: If the SMS link was not tapped (tracked via link analytics), the system sends an email with the seed card embedded directly in the email body (not as a link). The email subject line is 'Guaranteed-Income Hosting -- for reference' and contains the card's content rendered as email-safe HTML. No CTA button, no platform links beyond the card content. (4) No further automated touchpoints for 30 days. The next touchpoint is the local social proof notification (L2 ds-ui-0904-011), triggered by geographic adoption milestones, not by a timer. (5) If the SMS link was tapped, the email at T+48h is suppressed -- the host has already seen the card and a duplicate would feel like tracking-driven marketing.",
+      "evidence": [
+        {
+          "source": "kelly-call.txt, 04:12-04:59",
+          "type": "host_call",
+          "quote": "Kelly: 'I have your number, if anything changes or I have an associate that has a property or unit that would work, I will definitely give you.' Bryant: 'Thanks so much.' The call ends warmly, with Kelly retaining Bryant's phone number.",
+          "insight": "Kelly has Bryant's phone number. An SMS from Bryant 25 minutes later is a natural continuation of a phone-based relationship. An email from 'SplitLease Platform' would feel like a different entity -- corporate, not personal. The SMS should come from Bryant's number (or appear to) to maintain the personal relationship that is the only positive signal from this call."
+        },
+        {
+          "source": "playbigger-category-design.txt, Ch 2 (Anchoring Effect)",
+          "type": "book",
+          "quote": "The first offer put on the table in a negotiation has a powerful impact on any other offer that comes after.",
+          "insight": "Kelly's current anchor is 'matchmaker between guests and hosts.' The seed card must arrive before this anchor solidifies into long-term memory. Research on memory consolidation suggests that anchors begin to harden within 24 hours. The 25-minute delivery window catches the host while the call experience is still in working memory -- malleable enough to accept a counter-anchor ('guaranteed-income hosting') but distant enough that the rejection affect has dissipated."
+        },
+        {
+          "source": "kelly-call.txt, 01:14",
+          "type": "host_call",
+          "quote": "Bryant: 'I work basically as a matchmaker between like these types of guests and hosts.'",
+          "insight": "This is the anchor the seed card must displace. The SMS arrives 25 minutes after the call, within the memory consolidation window. Its opening phrase ('guaranteed-income hosting') directly counter-anchors 'matchmaker.' The host now has two competing labels in working memory, and the seed card's visual design (L3's bold purple headline) gives the new label more cognitive weight."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "queued": "Call marked as declined. Seed card queued in CRM. Timer starts. No visible action to the host. Agent sees a confirmation: 'Seed card scheduled for 25 min from now.'",
+        "sms_sent": "T+25 min: SMS dispatched from Bryant's CRM-managed number. Message text: 'Hi [Host Name], this is [Agent Name] from SplitLease. Thanks for chatting today. Here is a quick overview of guaranteed-income hosting if it ever becomes relevant: [link].' The link points to a standalone mobile page rendering the L2/L3 seed card. Analytics track: delivery confirmation, link tap, page dwell.",
+        "sms_tapped": "Host tapped the SMS link. The standalone seed card page loads with L3's minimal design. No navigation, no signup, no CTA. A single 'Back' gesture (swipe or browser back) returns to SMS. Analytics: page load, dwell time, scroll depth. The T+48h email is suppressed.",
+        "sms_not_tapped": "Host did not tap the SMS link within 48 hours. The email fallback fires.",
+        "email_sent": "T+48h: Email dispatched with seed card content embedded in body. Subject: 'Guaranteed-Income Hosting -- for reference.' Sender: 'Bryant at SplitLease.' Card content rendered as email-safe HTML (L2 structure, simplified L3 styling compatible with email clients). No CTA buttons, no platform links. Analytics: open rate, click on phone number.",
+        "dormant": "After SMS and email (or SMS only if tapped), the host enters a 30-day dormancy period with zero automated outreach. The next touchpoint is milestone-triggered (local social proof notification) or agent-initiated (manual follow-up if the host's associates reach out).",
+        "error": "SMS delivery fails (invalid number, carrier block). System falls back to email at T+25min instead. If email also fails (invalid address), the host is flagged for manual agent follow-up within 24 hours."
+      },
+      "transition_principle": "The sequence moves from personal (SMS from Bryant's number) to professional (email from Bryant at SplitLease) to silent (30-day dormancy). Each step is more distant than the last, mirroring a natural relationship cadence after a declined meeting: quick personal follow-up, then a formal reference, then respectful silence. The sequence never escalates -- it only recedes.",
+      "timing": {
+        "post_call_buffer": "0-20 minutes: no outreach. This is the 'rejection processing' window. Any contact during this period triggers defensive bias.",
+        "sms_delivery": "T+25 minutes from call end. Tolerance: +/- 5 minutes (system can batch sends at 5-minute intervals).",
+        "sms_link_tracking_window": "48 hours from SMS send time. If the link is tapped within this window, the email fallback is suppressed.",
+        "email_fallback": "T+48 hours from call end. Only fires if SMS link was not tapped.",
+        "dormancy_period": "30 days from last automated touchpoint. No system-generated outreach during this period.",
+        "next_touchpoint_trigger": "Geographic adoption milestone (1st, 3rd, or 5th local host joins) OR manual agent initiative. Not timer-based."
+      },
+      "journey_state_awareness": "This sequence only fires for hosts in the 'declined at discovery' state. Hosts who decline at later phases (evaluation, onboarding) receive different recovery sequences because they have more platform context. The seed card is specifically designed for hosts like Kelly who never progressed past discovery -- they need the category label, not product information.",
+      "edge_cases": [
+        "Host calls back before the SMS is sent (within 25 minutes). The seed card send is cancelled. The agent handles the re-engagement personally.",
+        "Host replies to the SMS with a question. The reply is routed to the agent's CRM inbox for personal response. No automated reply -- this is a relationship, not a chatbot.",
+        "Host's associate reaches out independently before the 30-day dormancy ends. The associate is handled as a new lead. The original host's dormancy is not interrupted -- the associate's engagement may itself become a social proof signal for later re-engagement.",
+        "Multiple calls are declined by the same host (e.g., re-contacted after 3 months, declines again). The seed card is not re-sent. Instead, the local social proof notification fires if available, or the agent makes a manual decision about whether further outreach is appropriate."
+      ]
+    },
+    {
+      "id": "behaves-0904-005",
+      "type": "interaction_pattern",
+      "title": "Local Social Proof Notification: Milestone-Triggered Delivery with Engagement Detection",
+      "journey_phases": ["discovery", "retention"],
+      "problem": "L2's Local Social Proof Notification (ds-ui-0904-011) and L3's geo-anchored compact card design (looks-0904-005) define the content and visual treatment for re-engaging pre-category hosts like Kelly. But the behavioral question is: what triggers the notification, how does the host interact with it, and what happens after it is delivered? A social proof notification sent on a fixed schedule (monthly, quarterly) would feel like marketing. A notification triggered by a genuine local milestone (a new host joined in Troy, MI) feels like a data update. The distinction is in the trigger logic: timer-based triggers are promotional; event-based triggers are informational. Play Bigger's Groupthink Bias requires real group behavior to be effective -- fabricated or scheduled 'updates' that don't correspond to actual events will be detected as marketing and dismissed. The interaction pattern must ensure that every notification corresponds to a real adoption event in the host's micro-market.",
+      "solution": "Implement an event-driven notification system where each notification is triggered by a real geographic adoption milestone, not by a timer. The system operates as follows: (1) Geographic micro-market definition: each pre-category host is assigned to a micro-market based on their zip code or city. Kelly's micro-market is Troy, MI (or Metro Detroit if Troy alone is too small). The micro-market radius is 10 miles from the host's address. (2) Milestone events that trigger notifications: first host joins within the micro-market (milestone 1), third host joins (milestone 2), first lease completes successfully (milestone 3), first host review posted (milestone 4). Each milestone fires at most one notification per pre-category host. (3) Notification delivery: SMS is the primary channel (matching the personal relationship from the seed card sequence). The SMS contains the L2/L3 notification content as a brief message with a link to the visual card: 'Update from Troy, MI: 3 property owners now use guaranteed-income hosting. $12,400 in guaranteed income paid this month. Bryant is still here if you want to learn more: [link].' The link opens a standalone mobile page with the full L3 notification card. (4) Frequency cap: maximum one notification per calendar month, regardless of how many milestones occur. If multiple milestones fire within a month, only the highest-value one is sent (milestone 4 > 3 > 2 > 1). (5) Engagement detection: if the host taps the SMS link, this is recorded as a re-engagement signal. The agent receives an alert: 'Kelly viewed the Troy social proof update.' The agent can then decide whether to initiate a personal follow-up. The system does not auto-trigger any further outreach -- the agent controls the re-engagement conversation. (6) Opt-out: every notification includes a reply-based opt-out ('Reply STOP to unsubscribe'). If the host opts out, all automated notifications cease permanently for that host. Manual agent outreach remains possible but is the agent's decision.",
+      "evidence": [
+        {
+          "source": "kelly-call.txt, 04:29-04:49",
+          "type": "host_call",
+          "quote": "Kelly: 'You're calling from Michigan, right? I'm right outside, I'm sort of in like Metro Detroit right outside Detroit City.' Bryant: 'I know your way, Troy.'",
+          "insight": "Kelly and Bryant share geographic identity. The notification leverages 'Troy, MI' as a local anchor because it was explicitly named in their conversation. When Kelly sees 'Troy, MI' in a notification months later, it activates both geographic identity and the memory of her warm exchange with Bryant. The location is not just a filter -- it is a relationship signal."
+        },
+        {
+          "source": "playbigger-category-design.txt, Ch 2 (Groupthink Bias)",
+          "type": "book",
+          "quote": "Groupthink Bias describes a tendency to believe things because other people do. Brain studies have shown that when we hold an opinion that differs from others' in a group, our brains produce an error signal, warning us that we are probably wrong.",
+          "insight": "The milestone trigger ensures every notification carries real social proof. '3 property owners in Troy now use guaranteed-income hosting' is a factual statement about real group behavior. The brain's error signal fires because Kelly's opinion ('I work directly') now differs from 3 of her neighbors. A timer-based notification ('Check out our latest features!') would not trigger this bias because it contains no group behavior data."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "monitoring": "The system monitors the pre-category host's micro-market for adoption events. No outreach occurs during monitoring. The host is unaware of this state. Internal dashboard shows: micro-market name, current host count, milestones reached, milestones remaining.",
+        "milestone_reached": "An adoption event triggers a milestone. The system queues a notification. If a monthly frequency cap would be violated (another notification was sent within the last 30 days), the notification is deferred to the next eligible window.",
+        "notification_sent": "SMS dispatched with L2/L3 content. Analytics track: delivery confirmation, link tap, page dwell, agent alert status.",
+        "link_tapped": "Host engaged with the notification. Agent receives an alert with context: 'Kelly viewed the Troy, MI social proof update (milestone 2: 3 local hosts). She originally declined on [date]. Seed card was sent on [date].' The agent decides next steps. No automated follow-up.",
+        "link_not_tapped": "Host did not engage. The notification is logged. The next milestone notification will fire when the next milestone is reached and the frequency cap allows it.",
+        "opted_out": "Host replied STOP. All automated notifications cease permanently. The host's record is flagged: 'Opted out of automated re-engagement on [date].' Manual agent outreach remains at the agent's discretion.",
+        "micro_market_saturated": "If the micro-market reaches a high adoption density (e.g., 10+ hosts within 10 miles), the notification shifts from count-based ('3 property owners') to outcome-based ('$47,000 in guaranteed income paid to Troy hosts this quarter'). The signal escalates from 'people are doing this' to 'people are succeeding at this.'"
+      },
+      "transition_principle": "The system is patient. It monitors silently and speaks only when real events provide genuine social proof. The transition from monitoring to notification is event-driven, not time-driven. The transition from notification to agent action is human-driven, not system-driven. At no point does the system make a decision that should be made by the agent or the host.",
+      "timing": {
+        "milestone_check_frequency": "Daily batch process checks all micro-markets for new milestones. This is an internal system process with no host-facing timing.",
+        "notification_queuing": "When a milestone is detected, the notification is queued for delivery during the next eligible window (respecting the 30-day frequency cap).",
+        "delivery_window": "Notifications are sent between 10:00 AM and 6:00 PM in the host's local timezone. No evening or weekend sends -- the notification should arrive during a time when the host is likely to be in a business-aware mindset.",
+        "agent_alert_delay": "If the host taps the SMS link, the agent alert fires within 5 minutes. The alert includes full context (host name, call date, milestone reached, seed card status).",
+        "frequency_cap": "30 days between automated notifications. No exceptions. If multiple milestones fire within 30 days, only the highest-value one is sent."
+      },
+      "journey_state_awareness": "This pattern applies exclusively to hosts in the 'pre-category' state -- those who declined at discovery and received the seed card but have not re-engaged. If a host re-engages (responds to agent outreach, visits the platform, or refers an associate), they exit the pre-category state and enter evaluation. At that point, automated social proof notifications cease and the agent manages the relationship directly.",
+      "edge_cases": [
+        "No hosts join the micro-market within 6 months. The system does not send any notification -- there is no social proof to deliver. The host remains in monitoring state indefinitely. The agent may choose to make a manual touchpoint based on other signals (regional marketing campaign, industry event).",
+        "The host's associate (mentioned in the call) joins the platform. This is a milestone event AND a personal connection. The notification can reference the associate generically: 'Someone in your network recently joined guaranteed-income hosting in Troy.' No names are shared without consent.",
+        "The host moved to a different area since the call. If the host's address on file changes, the micro-market is reassigned. If no address is on file, the micro-market is based on the phone number's area code (248 = Metro Detroit).",
+        "The micro-market overlaps with another pre-category host's micro-market. Each host receives their own notification based on their own milestone tracking. Two hosts in overlapping micro-markets may receive different notifications at different times depending on when milestones are reached relative to their individual frequency caps."
+      ]
+    },
+    {
+      "id": "behaves-0904-006",
+      "type": "interaction_pattern",
+      "title": "Vocabulary Enforcement State Machine: Real-Time Agent Script Guidance",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation"],
+      "problem": "L2's Category-Defining Label System (ds-ui-0904-010) and L3's strike-through visual pattern (looks-0904-004) define the vocabulary mapping from intermediation language to category-defining language. But vocabulary reference cards are passive -- agents must remember to consult them during live calls, and under conversational pressure they revert to familiar terms. Bryant said 'matchmaker between guests and hosts' (01:14) because that was his natural vocabulary. A reference card on his desk would not have prevented this -- it requires active recall during a flowing conversation. The interaction pattern must bring the vocabulary guidance into the agent's active workspace during the call, providing real-time prompts when intermediation language is detected, without disrupting the conversational flow.",
+      "solution": "Implement a lightweight real-time vocabulary guidance system in the agent's CRM call interface. The system operates as follows: (1) During an active call, the agent's screen shows a compact vocabulary panel in the right sidebar. The panel is always visible but visually quiet: a single column showing the six most critical vocabulary pairs from L2's label system, with the new (category-defining) terms displayed in bold purple and the old terms in faded strike-through. (2) Before the call begins (during the pre-call preparation screen), the panel briefly highlights the three most important vocabulary swaps for the call context. For a discovery call to a new host: 'Remember: guaranteed income, not matching. Hosting protection manager, not matchmaker. Verified occupant, not guest.' This displays for 5 seconds, then fades to the persistent quiet panel. (3) The panel includes a 'Category Opener' section at the top that shows the recommended problem-first opening question for this host type. For Kelly's profile (direct-work preference, nursing sites): 'Have you ever had a tenant stop paying or leave early? What happened?' This is not a script -- it is a prompt that the agent adapts to their conversational style. (4) If the CRM has speech-to-text capability during the call, the system can detect when the agent uses an old-category term (e.g., 'matchmaker,' 'booking,' 'listing') and briefly flash the corresponding new term in the panel. The flash is a gentle pulse (opacity 0.7 to 1.0 to 0.7, 800ms) on the relevant vocabulary pair -- not an intrusive alert. The agent notices it peripherally and self-corrects in the next sentence. (5) Post-call, the system generates a brief vocabulary report: 'Category language used: 4/6 recommended terms. Old terms used: matchmaker (1x), listing (2x).' This report feeds into agent coaching without being punitive.",
+      "evidence": [
+        {
+          "source": "kelly-call.txt, 01:14",
+          "type": "host_call",
+          "quote": "Bryant: 'I work basically as a matchmaker between like these types of guests and hosts.'",
+          "insight": "This sentence set the wrong category anchor. A real-time vocabulary panel would have shown 'matchmaker' as the old term with 'hosting protection manager' as the replacement. If speech-to-text detected 'matchmaker,' the panel would have pulsed the correct term, prompting Bryant to self-correct in his next sentence -- potentially before Kelly categorized the call as 'another middleman pitch.'"
+        },
+        {
+          "source": "playbigger-category-design.txt, Ch 2 (Magic Triangle)",
+          "type": "book",
+          "quote": "Category design is the mindful creation and development of a new market category, designed so the category will pull in customers who will then make the company its king. In marketing terms it is the air wars. It is about winning the war for popular opinion.",
+          "insight": "The 'air wars' are fought with words. Every customer interaction is a battle in the air war, and every word either reinforces the new category or concedes ground to the old one. The vocabulary enforcement system ensures agents fight with the right words in real time, not just in training sessions."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "pre_call": "Agent is preparing for the call. The vocabulary panel shows the three most critical swaps highlighted, plus the Category Opener question. This state lasts until the call connects. Visual treatment: highlighted terms use a yellow-tinted background (#FFF8E1) that fades to the standard quiet panel on call connect.",
+        "active_call": "Call is in progress. The vocabulary panel is in its quiet persistent state: six vocabulary pairs visible, new terms in bold purple, old terms in faded strike-through. The Category Opener section collapses to a single line after the first 60 seconds of the call (the opener should have been delivered by then). If speech-to-text detects an old term, the corresponding pair pulses (800ms, one pulse per detection, maximum three pulses per call to avoid distraction).",
+        "post_call": "Call ended. The vocabulary report generates automatically: terms used, terms missed, old terms detected. The report displays inline in the call summary screen. No score or grade -- just data. The agent reviews it as part of their call wrap-up.",
+        "no_speech_to_text": "If speech-to-text is unavailable, the system operates in passive mode: the vocabulary panel is visible but no real-time detection occurs. The pre-call highlights and post-call report are still available based on agent self-reporting (a quick checkbox: 'Did you use the Category Opener? Which terms did you use?').",
+        "agent_dismissed": "Agent can minimize the vocabulary panel to an icon. A single click/tap restores it. The system does not prevent dismissal -- it respects the agent's workspace preferences. However, the pre-call highlight always fires at maximum visibility before being dismissable."
+      },
+      "transition_principle": "The system moves from helpful (pre-call highlights) to quiet (active call panel) to reflective (post-call report). It never interrupts the conversation or competes for the agent's attention during critical moments. The real-time pulse is peripheral -- designed to be noticed in the corner of the eye, not in the center of focus.",
+      "timing": {
+        "pre_call_highlight_duration": "5000ms. The three critical vocabulary swaps are highlighted with a yellow tint that fades over 5 seconds (opacity 1 to 0 on the highlight background, while the text remains visible in standard styling).",
+        "speech_detection_delay": "If speech-to-text is active, old-term detection fires within 2 seconds of the term being spoken. The panel pulse (800ms) fires immediately on detection.",
+        "pulse_cooldown": "Minimum 30 seconds between pulses for the same term. Maximum 3 total pulses per call across all terms. This prevents the panel from becoming a distraction.",
+        "post_call_report_generation": "Report appears in the call summary within 10 seconds of call end. If speech-to-text is unavailable, the report is replaced by the self-report checkboxes.",
+        "category_opener_collapse": "The Category Opener section collapses from full display to a single line at T+60 seconds into the call (300ms ease-out height transition)."
+      },
+      "journey_state_awareness": "The vocabulary panel adapts its content based on the call type. Discovery calls show the full six-pair mapping with the Category Opener. Evaluation calls show a reduced panel (three pairs) with host-specific context (e.g., 'Kelly prefers direct work -- lead with guaranteed income, not matching'). Onboarding calls show the platform UI vocabulary mapping (listing vs. guaranteed-income property, booking vs. protected lease). The panel content rotates based on the phase, keeping it relevant and preventing vocabulary fatigue.",
+      "edge_cases": [
+        "Agent is on a video call where the vocabulary panel is not visible (screen shared with the host). The panel minimizes automatically when screen sharing is detected and a brief audio notification (single soft chime) replaces the visual pulse for old-term detection.",
+        "Agent is bilingual and the call switches to a non-English language. The vocabulary panel does not operate in non-English modes. Old-term detection is English-only in v1.",
+        "Agent deliberately uses an old term for strategic reasons (e.g., acknowledging what the host calls it: 'I know on nursing sites they call it a listing...'). The pulse still fires but the agent's use is contextually appropriate. The post-call report cannot distinguish strategic from accidental use -- this nuance is handled in coaching, not automation.",
+        "New vocabulary terms are added or changed. The panel content is managed via a central vocabulary configuration that agents and managers can update. Changes propagate to all agent panels within 24 hours."
+      ]
+    }
+  ]
+}

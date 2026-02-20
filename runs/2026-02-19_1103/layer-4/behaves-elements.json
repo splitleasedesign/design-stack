@@ -1,0 +1,355 @@
+{
+  "lens": {
+    "guest_call": "Sophie Charvet - 18 April 2022.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Inline Eligibility Disqualification Gate",
+      "journey_phases": ["discovery", "search"],
+      "problem": "Prospects with incompatible needs (duration too short, lead time too tight) reach human agents before learning basic service constraints. Sophie Charvet called with a 1-month, next-week need and had to be told verbally she was ineligible. The interaction wastes both parties' time because the platform provides no automated stimulus-response-compatible feedback loop during discovery. The system's first interaction response to a mismatched prospect is a phone call -- the most expensive, least scalable response possible.",
+      "solution": "Implement a lightweight, inline eligibility check that responds to the prospect's first expression of need (duration, timing) with immediate, non-blocking feedback about compatibility. When the prospect enters or selects parameters that fall outside service constraints, the UI should respond within 200ms with a clear, warm diagnosis -- not a modal blocker, but an inline state change that transforms the CTA from 'Contact us' to 'See what we offer instead.' The interaction principle is: the system should respond to incompatible inputs the way a good concierge responds -- immediately, helpfully, without requiring the prospect to ask. The response is proportional to the mismatch: a near-miss (5-week need vs. 6-week minimum) gets a softer nudge than a total mismatch (1-week need).",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 0:26-1:00",
+          "type": "guest_call",
+          "quote": "I need to understand how I can help you the best, because you mentioned something because you need it almost next week and, uh, zap something too quick. I don't think we can help you with anything, um, before like three weeks. So is that the minimum commitment we require is minimum six weeks after that?",
+          "insight": "The agent performs what should be an automated interaction: comparing the prospect's stated need against service constraints and delivering immediate feedback. This comparison takes the agent 34 seconds of verbal processing. An automated gate could deliver the same information in under 200ms."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Stimulus-Response Compatibility section",
+          "type": "book",
+          "quote": "The idea is that you want the signal you receive (the stimulus) to be consistent with the desired action. When there are inconsistencies, performance suffers and people blunder.",
+          "insight": "The eligibility gate is a stimulus-response alignment mechanism: when the prospect's input (stimulus) is incompatible with the service, the system's response must immediately signal that incompatibility rather than allowing the prospect to proceed toward a dead-end interaction."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Make It Easy / Channel Factors section",
+          "type": "book",
+          "quote": "Often we can do more to facilitate good behavior by removing some small obstacle than by trying to shove people in a certain direction.",
+          "insight": "The obstacle is ambiguity about eligibility. The gate removes this obstacle at the earliest interaction point -- no clicking through to a call, no navigating to a FAQ page, no reading fine print. The system responds to the prospect's input with eligibility feedback inline, at the point of input."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The eligibility input fields (desired duration, desired start date) appear as standard form elements with no pre-judgment. The CTA reads 'Explore options' or equivalent. No constraint information is displayed until the prospect provides input.",
+        "loading": "After the prospect enters duration or start date, a brief shimmer (150ms) on the constraint feedback area indicates the system is evaluating. This should feel instant -- the shimmer is cosmetic, not blocking. No spinner, no disabled state.",
+        "empty": "If the prospect has not yet entered any parameters, the constraint feedback area is absent (not visible as an empty container). The form feels clean and inviting. Constraints appear only in response to input -- they are reactive, not preemptive clutter.",
+        "error": "When the prospect's input falls outside service parameters, the feedback area transitions in with a warm, non-alarming state change: the input field border shifts from border (#e2dfd9) to signal-warn (#c17a28), and a diagnosis message appears below in ink-soft on signal-warn-bg. The message is specific and comparative: 'Your need: 1 month. Our minimum: 6 weeks.' No generic error language ('Invalid input'). The CTA transforms from 'Explore options' to 'See alternatives' -- it does not disappear or become disabled.",
+        "success": "When the prospect's input matches service parameters, the input field border shifts to accent (#2d5a3d) and a brief confirmation appears: 'We have options for that.' The CTA remains 'Explore options' with increased visual confidence (accent background fills in). The transition from neutral to confirmed should feel like a quiet nod, not a celebration."
+      },
+      "transition_principle": "All state transitions should use the 'out' easing (cubic-bezier(0.16, 1, 0.3, 1)) to feel responsive but not jarring. The transition from default to error or success should feel like the system is thinking alongside the prospect -- a gentle reveal, not a judgment. The incompatibility message should slide in from below (translateY with opacity) rather than appearing abruptly, giving the prospect a moment to register the change before reading. The CTA transformation should crossfade the text label rather than swapping it instantly.",
+      "timing": {
+        "response_target": "200ms from input change to feedback display. The evaluation itself is client-side (comparing input against known constraints), so no network latency. The 200ms includes the transition animation start.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "200ms is within the 'instant' perception threshold for UI feedback. The out easing provides a quick start (the feedback appears almost immediately) with a gentle settle (the feedback eases into its final position), matching the tone of a helpful observation rather than an abrupt correction."
+      },
+      "journey_state_awareness": "During discovery, the gate evaluates broad parameters (duration, lead time) since the prospect may not have specific listing preferences yet. During search, the gate can be more granular -- evaluating against actual listing availability rather than platform-wide constraints. If the prospect has already been through discovery and is now in search, the constraint feedback should reference their previously stated parameters: 'You mentioned 4 weeks -- our shortest options start at 6 weeks.'",
+      "edge_cases": [
+        "Prospect enters a duration at the exact boundary (exactly 6 weeks) -- the system should confirm eligibility, not flag a near-miss warning",
+        "Prospect changes their input multiple times rapidly -- debounce the evaluation to avoid flashing between states; use a 300ms debounce on input change",
+        "Prospect is a proxy searcher (like Sophie, searching for a family member) and may not know the end user's exact parameters -- the gate should accept ranges ('4-8 weeks') and respond to the worst-case end of the range",
+        "Prospect arrives via a marketing channel that already communicated constraints -- the gate should still respond to input but may suppress the constraint message if the prospect's input is already compatible",
+        "Mobile viewport where the feedback area may push the CTA below the fold -- the feedback message must be compact enough (under 2 lines) to keep the CTA visible without scrolling"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Graceful Dead-End Redirect with Future Capture",
+      "journey_phases": ["discovery", "search"],
+      "problem": "When a prospect is confirmed ineligible, the interaction ends in a dead end with no mechanism to capture future value. Sophie's agent said 'That's unfortunate that we cannot help you... if you ever need something in this type of arrangement, but it was a little more lead time. We'll be happy to help you.' This verbal redirect is structureless: it captures no email, offers no specific alternative, and provides no reason for Sophie to re-engage later. The interaction pattern treats ineligible prospects as lost rather than as deferred leads. The system 'expects' this error (ineligible arrivals are predictable) but has no forgiving response path.",
+      "solution": "When eligibility disqualification is confirmed (behaves-001 error state), the UI should transition the entire interaction context from 'qualification' to 'redirect' mode. This is not a separate page -- it is a state transformation of the current view. The redirect state presents three simultaneous actions: (1) a specific mismatch diagnosis with the nearest viable alternative ('If you could extend to 6 weeks, we have 12 options'), (2) a single email capture field framed as future value ('We will notify you when options match your timing'), and (3) a share mechanism for the prospect to forward the platform to someone who might qualify. The interaction should feel like a pivot, not a dismissal -- the same container transforms from a qualification form into a redirect card, maintaining spatial continuity.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 1:25-1:38",
+          "type": "guest_call",
+          "quote": "That's unfortunate that we cannot help you. It's I'm sorry if you ever need something in this type of arrangement, but it was a little more lead time. We'll be happy to help you.",
+          "insight": "The verbal redirect contains no structured capture mechanism. The agent offers a vague future invitation but has no way to convert it into a re-engagement trigger. The system ends the interaction at the point of maximum awareness -- the prospect now understands what the service is -- without capturing that awareness for future use."
+        },
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 3:07",
+          "type": "guest_call",
+          "quote": "I know this, this was just for a family member who was visiting me in New York for a ma. So I won't read that myself.",
+          "insight": "Sophie declines the agent's offer to send information because her current need does not match. But the interaction pattern should have pivoted to capture her as a potential future lead or referral source. She lives in New York -- she may know commuters who qualify. The dead end captured zero value from a fully-engaged, now-informed prospect."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "Humans make mistakes. A well-designed system expects its users to err and is as forgiving as possible.",
+          "insight": "Ineligible arrivals are not errors by the prospect -- they are predictable system events. A 'forgiving' system has a designed, value-capturing path for this event. The dead-end redirect is the system's forgiveness mechanism: it treats the mismatch as a redirection opportunity, not a failure state."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Not applicable -- this pattern activates only after behaves-001 has confirmed ineligibility. The entry state is the error state of behaves-001.",
+        "loading": "When the redirect card is assembling its nearest-alternative count (which may require a database query), show a skeleton state for the alternative count only: 'If you could extend to 6 weeks, we have [---] options.' The mismatch diagnosis and email field appear immediately since they require no async data.",
+        "empty": "If there are zero alternatives even with adjusted criteria (e.g., the platform has no listings at all in the prospect's city), the redirect card omits the alternative tier entirely and leads with the email capture: 'We are expanding to your area. Leave your email to be first to know.' The card never shows 'zero options' -- it always presents a forward-looking action.",
+        "error": "If the email capture submission fails (network error), show a subtle inline retry message below the field: 'Could not save -- try again.' Do not use a modal, toast, or page-level error. The retry message uses signal-warn color. The email field retains the entered value so the prospect does not have to retype.",
+        "success": "After email submission, the email field transforms into a confirmation: 'Saved -- we will reach out when options match.' The confirmation uses accent color and a subtle checkmark icon. The card remains visible (does not dismiss itself) so the prospect can still use the share mechanism or review the mismatch diagnosis."
+      },
+      "transition_principle": "The transition from behaves-001 error state to the redirect card should feel like a spatial transformation, not a page navigation. The eligibility form container should morph into the redirect card using the same container dimensions with content crossfading inside. This maintains the prospect's spatial orientation -- they are in the same place, the context has shifted. Use the 'out' easing for the container morph and stagger the three tiers (diagnosis, alternative, email) with 100ms delays so they appear to build in sequence rather than flash all at once.",
+      "timing": {
+        "response_target": "400ms for the full redirect card to assemble and appear after disqualification is confirmed. The first tier (mismatch diagnosis) should appear within 200ms; the second tier (nearest alternative) within 300ms; the third tier (email capture) within 400ms. The stagger creates a reading-order reveal.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The staggered 400ms total avoids the jarring effect of a full-card pop-in after disqualification. The prospect has just received bad news (ineligible); the redirect should arrive gently, tier by tier, giving them time to process each piece of information. The out easing ensures each tier settles quickly after its entrance."
+      },
+      "journey_state_awareness": "During discovery (first visit, no account), the redirect card emphasizes email capture and the share mechanism -- converting an anonymous visitor into a reachable lead. During search (the prospect has been browsing), the redirect card can be more specific: 'Your search for [city] apartments, 4 weeks, returned no matches. With 6 weeks, you would see [N] options in [city].' If the prospect is a return visitor (cookie or account detected), acknowledge the relationship: 'Welcome back -- we still require a 6-week minimum, but here is what is available now.'",
+      "edge_cases": [
+        "The prospect's email domain suggests they are a corporate user (e.g., @bigcompany.com) -- the share mechanism could be promoted above the personal email capture, since corporate users may be searching on behalf of employees",
+        "The prospect rapidly closes the tab after disqualification -- the redirect card should render server-side as well so that email remarketing can reference the specific mismatch, even if the client-side card was never seen",
+        "The prospect has already submitted their email from a previous visit -- the email field should pre-fill and the CTA should change to 'Update preferences' rather than asking for an email they already provided",
+        "The nearest alternative count is stale (e.g., listings were filled since the last cache) -- use a 'live' indicator if the count is real-time, or omit precision ('several options') if the count is approximate"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Co-Tenancy Calendar Interactive Comprehension",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "The co-tenancy model is an unfamiliar arrangement that even the trained agent struggled to explain: 'the way we do it with the two people was complimentary schedule. So let's say for example, somebody needs Monday through Friday and somebody else needs Friday. So Monday they become, goes to amaze, which use the same space, but in different timeframes.' This verbal explanation is nearly incomprehensible. The interaction challenge is: how does the system respond to the prospect's arrival at a listing page such that the co-tenancy model becomes comprehensible within seconds, without requiring the prospect to read a paragraph of text? The calendar visualization (from looks-003) must behave interactively -- responding to hover, tap, and focus to reveal day-level detail -- so the prospect can explore the schedule split at their own pace.",
+      "solution": "The co-tenancy calendar should be the first interactive element on the listing page. On load, it renders a static 7-day strip with the guest's available days in accent and the co-tenant's days in neutral. On hover or tap of any day, the calendar responds with a detail tooltip or expandable row showing the arrival/departure time for that day: 'Monday -- you arrive by 6pm' or 'Friday -- your last day, check out by 10am.' This interaction transforms an abstract schedule into a concrete daily narrative, one day at a time. The calendar also responds to the prospect's own schedule input: if the prospect has entered preferred days during search, the calendar highlights matches and mismatches. The principle is: the calendar is not a static display but an explorable map of the living arrangement. Each interaction reveals one more layer of concrete detail, following the 'free taste' principle from Nudge.",
+      "evidence": [
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 2:10-2:33",
+          "type": "guest_call",
+          "quote": "The way we do it with the two people was complimentary schedule. So let's say for example, somebody needs Monday through Friday and somebody else needs Friday. So Monday they become, goes to amaze, which use the same space, but in different timeframes.",
+          "insight": "The agent's verbal attempt to map the abstract model onto concrete days fails because language is sequential and the schedule is spatial. An interactive calendar replaces the entire verbal explanation with a single visual that responds to exploration."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Understanding Mappings section",
+          "type": "book",
+          "quote": "Even if there are some exotic flavors, the ice cream store can solve the mapping problem by offering a free taste.",
+          "insight": "Each hover or tap on a calendar day is a 'free taste' -- the prospect experiences one day of the arrangement concretely before committing to evaluate the whole listing. The interaction is low-commitment and reversible: hover off to dismiss the detail, hover on another day to taste a different slice."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Understanding Mappings section",
+          "type": "book",
+          "quote": "A good system of choice architecture helps people to improve their ability to map choices onto outcomes and hence to select options that will make them better off. One way to do this is to make the information about various options more comprehensible, by transforming numerical information into units that translate more readily into actual use.",
+          "insight": "The calendar transforms 'Monday through Friday, complementary schedule' (numerical/temporal abstraction) into 'you arrive Monday at 6pm, you leave Friday at 10am' (units of actual use). Each interaction step makes the mapping more concrete."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The 7-day calendar strip renders immediately on page load with guest days in accent and co-tenant days in neutral. No day is selected or expanded. A subtle legend below reads 'Your days' (accent) and 'Other guest' (neutral). The calendar is visually complete and informative even without interaction.",
+        "loading": "If day-level detail (arrival/departure times) requires an async fetch, the tooltip shows a 1-line skeleton shimmer for 150ms. The calendar day circles themselves are always rendered from static data and never show a loading state -- only the detail layer loads asynchronously.",
+        "empty": "If a listing has no co-tenant yet (all days are available to the guest), the calendar shows all 7 days in accent with a label: 'All days available -- you would be the first guest.' This is a positive empty state: full availability is a feature, not a gap. No gray days, no 'no co-tenant assigned' messaging.",
+        "error": "If day-level detail cannot be fetched, the calendar remains fully functional at the overview level (guest days vs. co-tenant days are always visible). The tooltip for the affected day shows: 'Details unavailable -- contact us for arrival times.' This degrades gracefully: the primary mapping (which days are yours) is never lost, even if the secondary mapping (arrival/departure times) fails.",
+        "success": "When the prospect transitions from calendar exploration to proposal creation, the days they explored most (longest hover time, most taps) are highlighted with a subtle pulse, suggesting they start their proposal from those days. This bridges the calendar interaction into the proposal form as a natural continuation."
+      },
+      "transition_principle": "Hover/tap reveals should use the 'spring' easing (cubic-bezier(0.34, 1.56, 0.64, 1)) for the tooltip entrance to create a lively, inviting feel -- the calendar should feel explorable, not clinical. The tooltip should emerge from the day circle as if growing out of it (scale from 0.9 to 1.0 with opacity from 0 to 1). On hover-off, the tooltip should fade faster (150ms) than it appeared (250ms) to keep the exploration pace brisk. When switching between days, the tooltip should crossfade in place rather than exit-then-enter, maintaining spatial continuity.",
+      "timing": {
+        "response_target": "100ms from hover/tap to tooltip appearance. The calendar should feel as responsive as flipping through physical calendar pages. No perceptible delay between the prospect's input and the system's response.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "The spring easing with its slight overshoot gives the tooltip a physical, tactile quality that invites continued exploration. The 100ms response target ensures the calendar feels like a direct extension of the prospect's gesture, not a system reaction to it."
+      },
+      "journey_state_awareness": "During listing_evaluation (first visit to this listing), the calendar starts with all days at equal visual weight. During proposal_creation (the prospect has started configuring a proposal), the calendar reflects the proposed days with a selected state (accent with a check or ring) so the prospect can see their proposal overlaid on the schedule. If the prospect returns to the listing after a previous visit, the calendar remembers which days they explored and subtly highlights them as 'previously viewed.'",
+      "edge_cases": [
+        "Touchscreen devices where hover is not available -- the first tap on a day should reveal the tooltip, and a second tap on the same day should dismiss it. Tapping a different day should dismiss the current tooltip and reveal the new one.",
+        "Screen readers must receive the calendar data as a structured table with row headers (day names) and cell values ('Your day -- arrive by 6pm' or 'Other guest's day'). The interactive tooltips should be announced via aria-live regions.",
+        "Listings with irregular schedules (e.g., alternating weeks rather than fixed days) -- the calendar should switch to a monthly view with week rows instead of day columns. The interaction principle remains the same: hover/tap reveals detail.",
+        "Listings where the co-tenant's schedule is not yet confirmed -- show the guest's available days in accent and the unconfirmed days in a dashed-border neutral, with a tooltip: 'This day is pending -- may become available.'",
+        "Very narrow mobile screens where 7 day circles may be cramped -- allow horizontal scroll on the day strip or stack into two rows (Mon-Thu / Fri-Sun) with the same interaction behavior"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Smart-Default Proposal Pre-Fill with Edit Affordance",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "Creating a co-tenancy proposal requires configuring multiple parameters (start date, end date, days of week, schedule pattern) for an arrangement the guest has likely never experienced. A blank proposal form is a 'required choice' scenario where the path of least resistance is abandonment. Thaler and Sunstein show that when choice is complicated and difficult, sensible defaults dramatically increase completion. The interaction challenge is twofold: (1) pre-fill the form with smart defaults derived from the guest's search behavior and the listing's successful patterns, and (2) make the pre-filled state visually and interactively distinct from user-edited values, so the guest understands they are being helped, not constrained.",
+      "solution": "On proposal form load, all fields arrive pre-populated with smart defaults. The interaction responds to two sources: the guest's search criteria (if they searched for Monday-Friday starting June 1, those values pre-fill) and the listing's most common successful configuration (if 80% of accepted proposals at this listing are Monday-Friday for 8 weeks, that is the fallback default). Each pre-filled field renders in a visually muted state (italic, softer color per looks-004) with a contextual label ('Based on your search' or 'Most common at this listing'). When the guest taps or clicks any field to edit, the value transitions from muted/italic to full ink/regular weight, the contextual label updates to 'Custom', and the field enters an active editing state. The interaction principle is: the guest starts at a complete, viable proposal and adjusts only what they need to, rather than building from scratch.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Defaults section",
+          "type": "book",
+          "quote": "Many people will take whatever option requires the least effort, or the path of least resistance. Recall the discussion of inertia, status quo bias, and the 'yeah, whatever' heuristic. All these forces imply that if, for a given choice, there is a default option -- an option that will prevail if the chooser does nothing -- then we can usually expect a large number of people to end up with that option.",
+          "insight": "Without defaults, the path of least resistance on a proposal form is closing the tab. With pre-filled defaults, the path of least resistance is submitting a viable proposal. The interaction pattern literally changes what 'doing nothing' produces -- from an empty form to a complete proposal."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Defaults section",
+          "type": "book",
+          "quote": "Most users do not want to have to read an incomprehensible manual to determine which arcane setting to select. When choice is complicated and difficult, people might greatly appreciate a sensible default.",
+          "insight": "A co-tenancy proposal is an 'arcane setting' problem. The guest must decide which days, how many weeks, what start date -- for an arrangement they have never configured before. Smart defaults replace the need to 'read the manual' by starting the guest at a known-good configuration."
+        },
+        {
+          "source": "Sophie Charvet - 18 April 2022.txt, 0:45-1:00",
+          "type": "guest_call",
+          "quote": "I don't think we can help you with anything, um, before like three weeks. So is that the minimum commitment we require is minimum six weeks after that? Is that something which is going to work for you?",
+          "insight": "The agent verbally performs a 'prompted choice' -- presenting the standard configuration (6 weeks, 3 weeks lead time) and asking the guest to accept or adjust. The proposal form should replicate this interaction digitally: present a default configuration and let the guest respond to it."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All proposal fields are pre-populated. Each field shows its value in ink-soft italic with a contextual label in ink-ghost below. The total estimated price (calculated from defaults) is prominently displayed in accent-colored mono type. The submit button reads 'Send proposal' and is active (not disabled) -- the default proposal is valid and submittable as-is.",
+        "loading": "If default values require an async calculation (e.g., querying the listing's most common configuration), show skeleton shimmers inside each field for a maximum of 500ms. The submit button is disabled during loading with reduced opacity. If loading exceeds 500ms, show partial defaults (the guest's search criteria) and backfill listing-derived defaults when they arrive.",
+        "empty": "If no defaults can be derived (the guest has no search history and the listing has no prior proposals), the form presents platform-wide defaults: 6-week minimum duration, starting 3 weeks from today, Monday-Friday schedule. The contextual label reads 'Platform minimum' to signal these are baseline values, not recommendations. This is the only scenario where the form may feel like a required choice -- and the defaults at least prevent the blank-form paralysis.",
+        "error": "If the guest edits a field to an invalid value (e.g., end date before start date, fewer than 6 weeks), the field border transitions to signal-warn and an inline message appears below: 'Minimum 6 weeks required -- your selection is 4 weeks.' The message is specific and corrective, not generic. The submit button becomes disabled only if the overall proposal is invalid. If only one field is invalid, the others remain editable and the price estimate updates to reflect valid fields only.",
+        "success": "On proposal submission, the entire form container transitions to a confirmation state: fields become read-only with full ink color (no longer muted), the submit button transforms to a checkmark with 'Proposal sent', and a brief summary appears: 'Your proposal for [dates] at [price] has been sent to the host.' The confirmation uses the spring easing for the checkmark animation to create a satisfying moment of closure."
+      },
+      "transition_principle": "Field state changes (default-to-edited, valid-to-invalid) should use the 'out' easing with a 200ms duration. The color shift from ink-soft italic to ink regular should feel like the text is 'waking up' -- gaining confidence as the guest takes ownership. The price recalculation on any field edit should crossfade the old number to the new number (not animate the digits) to avoid a distracting counter effect. On submission, the form-to-confirmation transition should use a 300ms container morph with staggered content reveals (form fields fade, confirmation fades in).",
+      "timing": {
+        "response_target": "200ms for field state change after edit. 400ms for price recalculation display after any field change. 300ms for submission confirmation after server response.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "200ms for field edits keeps the form feeling responsive and direct. 400ms for price recalculation allows the number crossfade to be perceptible (the guest should see the price change, not miss it). 300ms for submission confirmation balances between 'instant' (which might feel untrustworthy for a commitment) and 'slow' (which might feel uncertain)."
+      },
+      "journey_state_awareness": "During proposal_creation (first proposal for this listing), defaults lean on the listing's successful patterns. During negotiation (the host has countered), the form re-opens with the host's counter-proposal pre-filled as the new defaults, clearly labeled 'Host's counter-proposal.' The guest can see what changed by comparing the muted original values (shown as struck-through labels) against the host's new values. If the guest has submitted proposals for other listings, the form may offer their most recent proposal configuration as a 'Your usual' default alongside the listing-specific default.",
+      "edge_cases": [
+        "The guest rapidly submits without changing any defaults -- this is a valid and expected outcome. The system should not prompt 'Are you sure?' or add friction. The defaults were designed to be submittable.",
+        "The listing has only one prior proposal (insufficient data for a reliable 'most common' pattern) -- use the platform-wide defaults rather than a single-sample listing default, and label accordingly",
+        "The guest is a proxy searcher (like Sophie) who may not know the end user's exact schedule preferences -- the default labels should indicate they can be adjusted by the actual guest later: 'The person staying can adjust these after you share the proposal'",
+        "The guest changes one field that invalidates another (e.g., changing start date such that the duration is now too short) -- cascade the validation immediately and highlight all affected fields, not just the one edited",
+        "Slow network on submission -- show an optimistic UI: transition to the confirmation state immediately and roll back only if the server rejects. Display a subtle 'Sending...' indicator during the server round-trip but do not block the visual transition"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Counter-Proposal Change-Diff Feedback",
+      "journey_phases": ["negotiation"],
+      "problem": "When a host counters a guest's proposal, the guest must evaluate modified terms without clear feedback about what changed, why it changed, and what the implications are. Thaler and Sunstein warn that 'warning systems have to avoid the problem of offering so many warnings that they are ignored' and that feedback must be specific and actionable. The interaction challenge is: a counter-proposal modifies parameters the guest originally chose (or accepted as defaults), and without explicit change highlighting, the guest may miss critical differences, misinterpret the counter as a rejection, or feel overwhelmed by the full proposal being re-presented.",
+      "solution": "When a counter-proposal arrives, the notification should open a diff view that shows only what changed. Each modified parameter is displayed in a before/after format: the guest's original value on the left (struck through, muted) and the host's new value on the right (accent color, full ink). Unchanged parameters are collapsed into a single line: '3 parameters unchanged.' The total price difference is calculated and displayed prominently: 'Price change: +$200/month' or 'No price change.' The interaction responds to the guest's options: 'Accept changes', 'Modify and re-send', or 'Keep my original terms.' Each option is a clear, labeled button -- not a text link, not buried in a paragraph. The principle is: feedback about changes must be precise, comparative, and immediately actionable.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Give Feedback section",
+          "type": "book",
+          "quote": "Well-designed systems tell people when they are doing well and when they are making mistakes.",
+          "insight": "A counter-proposal is neither 'doing well' nor 'making a mistake' -- it is a negotiation signal. The feedback must characterize the counter accurately: the host wants to adjust specific terms, not reject the guest. The diff view makes this distinction visually clear by showing the negotiation as a set of specific parameter changes, not a wholesale rejection."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Give Feedback section",
+          "type": "book",
+          "quote": "Warning systems have to avoid the problem of offering so many warnings that they are ignored. If our computer constantly nags us about whether we are sure we want to open that attachment, we begin to click 'yes' without thinking about it.",
+          "insight": "The counter-proposal notification must avoid the 'warning fatigue' pattern. Instead of a generic 'You have a counter-proposal' notification that the guest must click through to understand, the notification itself should contain the most important change: 'The host adjusted your dates by 1 week -- review changes.' The signal is specific enough to be meaningful on first scan."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "Humans make mistakes. A well-designed system expects its users to err and is as forgiving as possible.",
+          "insight": "The guest may accidentally accept or decline a counter-proposal. The system should be forgiving: 'Accept changes' should have a brief undo window (5 seconds) after click, and 'Keep my original terms' should confirm before sending, since it effectively rejects the host's counter."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The diff view renders with changed parameters expanded and unchanged parameters collapsed. The before/after format is immediately visible. The three action buttons are equally weighted visually, with 'Accept changes' in accent as the primary action.",
+        "loading": "If the diff calculation requires comparing against the original proposal stored server-side, show a skeleton of the diff layout with placeholder bars where values will appear. The action buttons are disabled during loading. Target: under 300ms for the diff to assemble.",
+        "empty": "If the host's counter-proposal is identical to the guest's original (unusual but possible if the host made and undid changes), display: 'The host confirmed your original terms -- no changes.' The action simplifies to a single 'Accept' button.",
+        "error": "If the acceptance or rejection fails to send (network error), show an inline retry below the action buttons. The diff view remains visible and the guest's last-clicked action is highlighted so they can re-confirm without re-evaluating. Do not clear the diff view on error.",
+        "success": "On acceptance, the diff view transitions to a confirmed state: changed values show the accepted new values in full ink, the before values fade to ink-ghost, and a confirmation line reads 'Terms updated.' On rejection ('Keep my original terms'), the diff view reverses: original values restore to full ink, the host's values fade. Both transitions should feel like a resolution, not a dismissal."
+      },
+      "transition_principle": "The diff view should enter with staggered reveals (changed parameters first, then unchanged summary, then action buttons) at 100ms intervals using the out easing. On acceptance, the before/after values should converge visually -- the host's value slides left to replace the guest's original value, creating a sense of merging rather than replacement. The undo window after acceptance should show a subtle progress bar beneath the action button that depletes over 5 seconds, giving the guest visual feedback on the remaining undo time.",
+      "timing": {
+        "response_target": "300ms for diff view to fully render from notification click. 5000ms undo window after acceptance. 200ms for confirmation transition after undo window expires.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "300ms for diff rendering balances speed with comprehension -- the staggered reveal gives the guest time to orient before all information is present. The 5-second undo window provides error recovery without encouraging indecision. 200ms for the final confirmation ensures the resolution feels prompt once committed."
+      },
+      "journey_state_awareness": "If this is the first counter-proposal the guest has ever received (first-time user), add a brief contextual note above the diff: 'This is a normal part of the process -- the host would like to adjust some terms.' For returning users who have negotiated before, omit the contextual note. If the guest has received multiple counters on the same proposal, show a negotiation history timeline so they can see the progression of changes across rounds.",
+      "edge_cases": [
+        "The host changed every parameter (nothing unchanged to collapse) -- display all changes without a collapsed section, but add a summary at the top: 'The host suggested a significantly different arrangement'",
+        "The counter-proposal arrives while the guest is browsing other listings -- the notification should be persistent (not auto-dismiss) and include the most important change in the notification preview",
+        "The guest starts editing the counter ('Modify and re-send') but then navigates away -- auto-save their partial edits and restore them when they return",
+        "Multiple counter-proposals arrive in rapid succession (race condition if the host retracts and re-sends) -- always show the most recent counter and note 'Updated 2 minutes ago' with a link to the previous version if needed"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Postcompletion Checkpoint Forcing Flow",
+      "journey_phases": ["acceptance", "move_in"],
+      "problem": "After a proposal is accepted, the guest enters a postcompletion state where the main cognitive task (finding housing) feels finished but critical follow-up steps remain: reviewing lease terms, confirming payment, preparing for move-in. Thaler and Sunstein identify postcompletion errors as a predictable failure mode -- 'when you have finished your main task, you tend to forget things relating to previous steps.' The emotional relief of acceptance depletes attention for administrative follow-up. Without forcing functions, guests will skip lease review, miss payment details, and arrive at move-in unprepared -- generating support burden and early-tenure friction.",
+      "solution": "Structure the acceptance-to-move-in transition as a sequential checkpoint flow with forcing-function gates. The guest cannot access move-in details until they have acknowledged the lease summary; they cannot access the house manual until they have confirmed payment. Each checkpoint is a compact card (maximum 5 key points, each under 15 words) with a single acknowledge button using positive framing ('Got it, next step'). A horizontal progress bar at the top shows three clearly labeled steps: Lease Review, Payment Confirmation, Move-In Prep. Each checkpoint card appears one at a time -- the next is gated. The interaction principle is: the forcing function makes critical steps unavoidable without making them punitive. Each checkpoint should take under 60 seconds and feel like preparation, not bureaucracy.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "Leaving the gas cap behind is a special kind of mistake psychologists call a 'postcompletion' error. The idea is that when you have finished your main task, you tend to forget things relating to previous steps.",
+          "insight": "Acceptance is the 'getting your cash' moment. Lease review, payment confirmation, and move-in prep are the 'gas cap' that gets forgotten. The forcing function prevents this postcompletion error by making each step a prerequisite for the next."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Expect Error section",
+          "type": "book",
+          "quote": "Another strategy, suggested by Don Norman, is to use what he calls a 'forcing function,' meaning that in order to get what you want, you have to do something else first. So if you have to remove the card in order to get your cash, you will not forget to do so.",
+          "insight": "The ATM card-before-cash pattern maps directly: the guest must confirm lease terms (card) before receiving move-in details (cash). Each checkpoint is a forcing function that prevents the next step from being skipped."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Give Feedback section",
+          "type": "book",
+          "quote": "Well-designed systems tell people when they are doing well and when they are making mistakes.",
+          "insight": "Each checkpoint completion should deliver positive feedback -- a progress bar fill, a checkmark, a 'Done' confirmation. The guest should feel that each step is an accomplishment in their journey toward move-in, not a bureaucratic hurdle imposed by the platform."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The progress bar shows the current step highlighted and subsequent steps grayed out. The current checkpoint card is fully visible with its 5 key points and acknowledge button. Completed steps show a checkmark in accent. Upcoming steps show a lock icon in ink-ghost.",
+        "loading": "If checkpoint content requires an async fetch (e.g., generating a lease summary from the accepted terms), the card shows a skeleton state with 5 placeholder lines and a disabled acknowledge button. The progress bar still shows the current position. Target: under 500ms for content to load.",
+        "empty": "If a checkpoint has no content to present (e.g., the lease summary is not yet generated by the back office), display a holding state: 'We are preparing your lease summary -- you will be notified when it is ready.' The progress bar shows the step as 'pending' (animated border) rather than locked. The guest cannot skip this step but is not blocked from other platform activity.",
+        "error": "If the acknowledge action fails (e.g., network error when saving the confirmation), show an inline retry message below the button. The progress bar does not advance. The checkpoint card retains all content so the guest does not have to re-read on retry.",
+        "success": "On acknowledging a checkpoint, the card smoothly compresses and slides up, the progress bar step fills with accent color and shows a checkmark, and the next checkpoint card slides in from below with a brief delay. On completing all three checkpoints, the progress bar fills completely and a final confirmation card appears with a serif headline: 'Ready for move-in' on an accent-light background."
+      },
+      "transition_principle": "Checkpoint completion should feel like progress through a short, satisfying ritual. The current card compresses upward (200ms, out easing), the progress bar step fills (300ms, out easing with the checkmark using spring easing for a lively pop), and the next card enters from below (250ms, out easing). The spring easing on the checkmark creates a small moment of delight at each completion. The final 'Ready for move-in' card should enter with a longer duration (400ms) and a slightly different feel (scale from 0.95 to 1.0 with opacity) to signal that this is a culmination, not just another step.",
+      "timing": {
+        "response_target": "200ms for card compression after acknowledge. 300ms for progress bar fill. 250ms for next card entrance. Total step transition: 500ms from click to next card visible.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) for checkmark; cubic-bezier(0.16, 1, 0.3, 1) for all other transitions",
+        "rationale": "500ms total step transition is long enough to register as a meaningful progression (the guest sees their progress advance) but short enough to avoid feeling slow when the guest wants to move quickly through checkpoints. The spring easing on the checkmark adds a subtle reward at each step."
+      },
+      "journey_state_awareness": "The checkpoint flow adapts to the guest's behavior. If the guest completes all three checkpoints in one session, the flow is uninterrupted and the final confirmation is immediate. If the guest leaves after one checkpoint and returns later, the progress bar shows their saved position and the next checkpoint card is immediately visible -- no re-reading of completed steps. If move-in is more than 2 weeks away, the third checkpoint (Move-In Prep) may be gated by time rather than sequence: 'Available 5 days before your move-in date' -- because move-in instructions may not be finalized yet.",
+      "edge_cases": [
+        "The guest tries to access move-in details directly (via a deep link or bookmark) without completing earlier checkpoints -- redirect them to the earliest incomplete checkpoint with a message: 'Complete this step first to unlock your move-in details'",
+        "The guest shares the acceptance flow with a proxy (e.g., Sophie forwarding to her family member) -- the checkpoints should be completable by the actual guest, not the proxy. If the wrong person attempts to acknowledge, prompt for account verification.",
+        "The lease terms change between acceptance and the guest's checkpoint review (e.g., the host corrects an error) -- the checkpoint should flag the change: 'Updated since your acceptance -- please review the highlighted changes'",
+        "The guest completes checkpoints on mobile with an unstable connection -- each acknowledge should be queued and retried automatically, with offline-tolerant optimistic UI showing the step as complete even before server confirmation"
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Per-Stay Benefit Salience Reinforcement",
+      "journey_phases": ["active_lease"],
+      "problem": "During the active lease phase, per-stay friction tasks (uploading cleaning photos, sending arrival notifications, coordinating schedule changes) are the 'taxi meter' of co-tenancy -- highly salient costs that the guest experiences at specific, effortful moments. Meanwhile, the ongoing benefits of the arrangement (cost savings vs. solo rental, schedule flexibility, guaranteed housing) are diffuse and invisible. Thaler and Sunstein note that 'the most important modification that must be made to a standard analysis of incentives is salience. Do choosers actually notice the incentives they face?' The guest does not notice the benefits because they are chronic and backgrounded. This salience asymmetry makes the arrangement feel burdensome even when objectively advantageous, increasing dissatisfaction and dropout risk.",
+      "solution": "At every per-stay friction touchpoint, inject a compact 'benefit reinforcement strip' -- a single-line data point that makes the invisible benefit salient at the exact moment the visible cost is felt. When the guest uploads a cleaning photo, the strip shows: 'You have saved $2,340 vs. solo rental this quarter.' When the guest confirms a schedule change, the strip shows: 'You changed dates 3 times this month -- no extra cost.' The data is real, personalized, and dynamically calculated. The strip is positioned below the friction task (so the guest completes the task first and absorbs the reinforcement second). The interaction is passive -- no click required, no dismissal needed. The strip simply appears alongside the task, using the benefit reinforcement visual from looks-007.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Incentives section",
+          "type": "book",
+          "quote": "The most important modification that must be made to a standard analysis of incentives is salience. Do choosers actually notice the incentives they face?",
+          "insight": "The co-tenancy benefit is an incentive the guest does not notice because it lacks salience. The benefit strip forces salience by placing a concrete, personalized benefit number at the moment of maximum friction -- when the guest is most likely to question the value of the arrangement."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Incentives section",
+          "type": "book",
+          "quote": "Every time the family uses a taxi, the cost will be in their face, with the meter clicking every few blocks. So a behavioral analysis of the incentives of car ownership will predict that people will underweight the opportunity costs of car ownership and possibly other less salient aspects... and may overweight the very salient costs of using a taxi.",
+          "insight": "Per-stay tasks are the taxi meter of co-tenancy. Without the benefit strip, guests overweight the visible friction (cleaning photo upload) and underweight the invisible benefit (savings vs. solo rental). The strip is the visual equivalent of showing 'but your monthly car payment is $0' every time the taxi meter runs."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Incentives section",
+          "type": "book",
+          "quote": "Who chooses? Who uses? Who pays? Who profits?",
+          "insight": "During active lease, the guest uses, pays, and increasingly questions whether they profit. The benefit strip answers the 'who profits?' question at the friction point: 'You profit -- here is the exact amount.' This aligns the guest's perception of incentives with the actual incentive structure."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The benefit strip appears below each per-stay task interface (cleaning photo upload, schedule confirmation, arrival notification) as a subtle horizontal bar in accent-light background with a personalized benefit number in mono accent type and a contextual label in sans ink type.",
+        "loading": "If the benefit calculation requires real-time data (e.g., computing savings vs. current solo rental market rates), show a skeleton bar with a shimmer where the number will appear. The contextual label ('saved vs. solo rental') renders immediately to prime the guest for the benefit before the number arrives. Target: under 300ms for the number to calculate.",
+        "empty": "If the guest has just started their lease and there is not yet enough data for a meaningful benefit calculation (e.g., first stay, no savings to report), show an aspirational strip: 'After 3 months, guests like you save an average of $2,100.' Use the platform average rather than showing nothing. Label clearly: 'Based on similar guests.'",
+        "error": "If the benefit calculation fails, the strip does not appear. Absence is preferable to an error message in a reinforcement element -- the strip is optional encouragement, not required information. No error state should interrupt the friction task itself.",
+        "success": "After the guest completes the friction task (e.g., submits cleaning photos), the benefit strip brightens slightly (opacity shifts from 0.85 to 1.0) and the benefit number receives a brief scale pulse (1.0 to 1.02 and back) to acknowledge that the task completion has been registered alongside its benefit context."
+      },
+      "transition_principle": "The benefit strip should enter with a subtle fade-in (opacity 0 to 1, 300ms, out easing) that is noticeable but does not compete with the friction task for attention. The strip should never enter before the friction task interface is fully loaded -- the task comes first, the reinforcement comes second. After task completion, the brief scale pulse on the benefit number (150ms, spring easing) creates a micro-reward that links the effort of the task to the value of the arrangement.",
+      "timing": {
+        "response_target": "300ms for benefit strip to appear after friction task interface loads. 150ms for the scale pulse after task completion.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for strip entrance; cubic-bezier(0.34, 1.56, 0.64, 1) for post-completion pulse",
+        "rationale": "300ms entrance delay ensures the strip does not compete with the task interface for initial attention. The spring easing on the post-completion pulse adds a moment of physical 'bounce' that makes the benefit feel tangible and earned, not just informational."
+      },
+      "journey_state_awareness": "The benefit data adapts based on lease tenure. In months 1-2 (early lease), the strip emphasizes projected savings: 'On track to save $X this quarter.' In months 3-6 (established lease), the strip shows actual cumulative savings: 'You have saved $X since [start date].' After 6 months, the strip can compare to market alternatives: 'Your rate is $X less than the average solo rental in [area].' The strip should also rotate between different benefit types across stays -- savings one time, flexibility count the next, positive host review snippet another time -- to avoid habituation to a single number.",
+      "edge_cases": [
+        "The guest's actual savings are negative (e.g., they are paying more than a solo rental due to their specific configuration) -- do not show the savings benefit. Show an alternative benefit type: schedule flexibility, location access, or host review quote. Never present a negative benefit number.",
+        "The guest is on their final stay before lease end -- shift the strip from ongoing benefit to retention: 'You saved $X total. Renewing your lease locks in this rate.'",
+        "The benefit number is very small (e.g., '$45 saved') -- this may feel patronizing. Set a minimum threshold: only show savings if they exceed $100/quarter. Below that threshold, show a different benefit type.",
+        "Multiple friction tasks on the same screen (e.g., cleaning photos and schedule confirmation) -- show only one benefit strip per screen to avoid over-reinforcement. Choose the benefit most relevant to the task at hand.",
+        "The guest has opted out of non-essential UI elements (a hypothetical preference setting) -- respect the opt-out and do not show the strip. The benefit should be available on demand (e.g., in the dashboard) but not forced."
+      ]
+    }
+  ]
+}

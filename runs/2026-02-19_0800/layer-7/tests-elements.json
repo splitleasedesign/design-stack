@@ -1,0 +1,146 @@
+{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Smart Default Acceptance Rate Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt"],
+      "problem": "If smart defaults are poorly calibrated, hosts will either accept bad defaults (harming their outcomes and trust) or override them constantly (defeating the purpose). Both failure modes undermine the choice architecture.",
+      "solution": "A/B test default-provided vs blank-field experiences. Track: (1) Default acceptance rate per field. (2) Outcome quality for hosts who accept defaults vs those who override. (3) Time-to-completion for default-provided vs blank-field flows.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "You can often increase participation rates by 25 percent simply by shifting from an opt-in to an opt-out design.",
+          "insight": "The 25% improvement benchmark gives us a concrete target: default-provided flows should show at least 25% higher completion rates than blank-field flows."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Cohort A: Pricing field pre-filled with recommended price and comps. Cohort B: Blank pricing field with 'Enter your nightly rate' placeholder. Measure completion rate, time-to-completion, and 90-day booking rate for both cohorts.",
+      "success_criteria": "Default-provided cohort shows at least 25% higher pricing step completion rate. Hosts who accept defaults achieve booking rates within 10% of hosts who override — proving defaults are well-calibrated.",
+      "failure_meaning": "If completion improves but booking rates drop, the defaults are poorly calibrated (too high or too low). If completion doesn't improve, the defaults are not visible or compelling enough — revisit looks-002 (recommendation visual weight).",
+      "implementation_hint": "Analytics events: 'pricing_default_shown', 'pricing_default_accepted', 'pricing_default_modified', 'pricing_blank_submitted'. Track the modification delta (how far from default did the host adjust?) to improve future default calibration."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Delegated Access Adoption Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the multi-user access model is too complex, hosts will ignore it and revert to credential-sharing (the current workaround). If it's too simple, it may create security concerns.",
+      "solution": "Track adoption rate of the invite-to-view flow and compare listing completion rates for single-user vs multi-user listings.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 01:26",
+          "type": "host_call",
+          "quote": "Christiana has a split lease account and the listing is under her account currently.",
+          "insight": "The proxy pattern already exists informally. Validation must show that formalizing it increases engagement from both the account holder and the property owner."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After launching multi-user access: Track (1) number of invite links generated, (2) invite acceptance rate, (3) owner login frequency, (4) listing update frequency for multi-user vs single-user listings.",
+      "success_criteria": "At least 15% of new listings generate an owner invite within the first month. Multi-user listings show 20%+ higher photo count and 15%+ higher listing quality score than single-user listings.",
+      "failure_meaning": "If invite generation is low, the feature is not discoverable — revisit onboarding flow placement. If invites are generated but not accepted, the magic link flow has friction — revisit behaves-002.",
+      "implementation_hint": "Track: 'owner_invite_sent', 'owner_invite_accepted', 'owner_proxy_login', 'owner_action_taken' (with action type: view_listing, approve_proposal, etc.)."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Loss Aversion Response Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["evaluation", "active_lease"],
+      "problem": "If protection signals are not visible or convincing enough, premium hosts will churn due to unresolved loss aversion. If protection is over-emphasized, it may create anxiety that didn't previously exist.",
+      "solution": "Usability test with premium hosts: Show them a listing dashboard with protection signals and measure anxiety reduction via self-report and behavioral proxies.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 08:44",
+          "type": "host_call",
+          "quote": "I've got some really good art in that apartment. So I want to make sure...",
+          "insight": "Kris's anxiety is specific and visceral. The validation must show that protection signals address this specific type of concern, not just general platform anxiety."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 premium hosts (property value $3,000+/mo). Show them: (A) Current dashboard without protection signals. (B) Redesigned dashboard with protection shield, guest verification, and payment guarantee visibility. Ask: 'How comfortable are you with a guest staying in your apartment?' Score 1-10 for each version. Also track: time spent looking at protection-related elements (eye tracking or click heatmap).",
+      "success_criteria": "Comfort score increases by at least 2 points (on 10-point scale) from version A to version B. At least 80% of participants notice and can recall the protection signals without prompting.",
+      "failure_meaning": "If comfort doesn't improve, the protection signals are not addressing the right concerns — go back to feels-002 and identify what specific anxieties need addressing. If participants don't notice the signals, revisit looks-003 (protection shield visual system).",
+      "implementation_hint": "Screen recording with think-aloud protocol. Key question: 'You mentioned you have valuable items in your apartment. What on this screen addresses that concern?' Unprompted recall is more valuable than prompted recognition."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Agent Continuity Display Validation",
+      "validates_element": "communicates-003",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the call-to-platform information bridge doesn't feel personal or relevant, hosts will perceive it as generic marketing rather than genuine continuity.",
+      "solution": "Compare first-login engagement for hosts with agent call notes pre-populated vs hosts without.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 09:49",
+          "type": "host_call",
+          "quote": "I'm glad I got to talk. It's good to finally talk with you.",
+          "insight": "Kris values the personal connection. The platform must sustain it. Validation: does seeing 'Bryant noted...' on the dashboard increase engagement?"
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Cohort A: First login shows agent welcome card with call-derived data (property details, schedule, recommendations). Cohort B: First login shows standard onboarding flow. Track: session duration, listing completion rate, return visit within 7 days.",
+      "success_criteria": "Cohort A shows 30%+ higher listing completion rate within the first session. Return visit rate within 7 days is 20%+ higher for Cohort A.",
+      "failure_meaning": "If no improvement, the agent data is not meaningful enough or the display is not prominent enough. Check whether agent notes are detailed enough to create genuine personalization.",
+      "implementation_hint": "Requires agent CRM integration. After each call, agent fills a structured form (5 fields max). Platform renders this as a personalized welcome card on first host login."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Auto-Renewal Retention Impact Validation",
+      "validates_element": "works-005 and behaves-003",
+      "journey_phases": ["retention"],
+      "problem": "If auto-renewal is poorly communicated, hosts may feel trapped or surprised. If it's well-communicated but poorly timed, it may trigger reactance (the Nudge book's warning about aggressive defaults).",
+      "solution": "Track renewal rates before and after implementing auto-renewal default, and monitor opt-out rates and support complaints.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1",
+          "type": "book",
+          "quote": "They also provoked an increase in the number of riders who offered no tip at all. Some people were evidently put off by the aggressive defaults.",
+          "insight": "Auto-renewal must be communicated clearly and early (30 days notice) to avoid reactance. The validation must check for both increased retention AND any increase in negative reactions."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Phase 1 (current): Track baseline lease renewal rate (host manually opts to renew). Phase 2 (auto-renewal): Implement auto-renewal with 30-day notification. Track: (1) Renewal rate, (2) Opt-out rate (hosts who actively cancel the renewal), (3) Support tickets mentioning auto-renewal, (4) Host satisfaction survey scores.",
+      "success_criteria": "Renewal rate increases by at least 20% (from voluntary to auto-renewal). Opt-out rate stays below 15%. Support tickets mentioning auto-renewal stay below 5% of total renewals. Satisfaction scores do not decrease.",
+      "failure_meaning": "If renewal improves but satisfaction drops, the auto-renewal feels coercive — adjust notification timing and language. If opt-out rate exceeds 15%, the default is not well-calibrated to host preferences — investigate why hosts are opting out.",
+      "implementation_hint": "Analytics events: 'renewal_notification_sent', 'renewal_auto_completed', 'renewal_opt_out_initiated', 'renewal_terms_modified'. Track time-from-notification-to-opt-out to understand when in the 30-day window hosts decide to leave."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Journey-Level Validation: Delegator Host End-to-End Flow",
+      "validates_element": "All elements from this run",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Individual elements may test well in isolation but fail to create a coherent delegator-host experience end-to-end.",
+      "solution": "Conduct a longitudinal case study with 3-5 delegator-hosts (hosts who have someone else manage their listing) through the full journey.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, full transcript",
+          "type": "host_call",
+          "quote": "The entire Kris call is mediated through a proxy (Christiana) and an agent (Bryant). This is the delegator-host archetype.",
+          "insight": "Kris's journey is not a single interaction — it's a multi-week, multi-person process. Validation must cover the full arc, not just individual touchpoints."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 3-5 premium host pairs (property owner + account manager). Follow them from first agent call through first guest booking (approximately 2-4 weeks). Track: (1) Listing completion time, (2) Number of support touches, (3) Pricing accuracy (bookings within 30 days), (4) Host self-reported confidence at weeks 1, 2, and 4. Qualitative: interview at end about which elements were most/least valuable.",
+      "success_criteria": "All participants complete listing creation within 48 hours of first agent call. Average support touches per host below 3 during onboarding. Self-reported confidence increases from week 1 to week 4. At least 60% of participants report that they feel 'the platform handles everything for them.'",
+      "failure_meaning": "If completion time exceeds 48 hours, the agent-to-platform pipeline has gaps. If support touches are high, the self-service elements are failing for this persona. If confidence doesn't increase, the emotional design (feels-001) is not landing.",
+      "implementation_hint": "Partner with the agent team to identify upcoming premium host sign-ups. Pre-brief agents to use the structured post-call form. Monitor platform analytics alongside qualitative check-ins at days 1, 7, and 30."
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Action Hierarchy Click-Through Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "listing_evaluation", "proposal_creation", "acceptance"],
+      "problem": "If the single-primary-action principle is poorly implemented, guests will either not identify the primary action (too subtle) or feel pressured by competing actions (too many primaries). Both outcomes reduce conversion.",
+      "solution": "Run a first-click test on each key page: show the page to 20 new users for 5 seconds, then ask 'What would you click first?' If 70%+ identify the intended primary action, the hierarchy works.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "When you take a hierarchy-first approach to designing the actions on a page, the result is a much less busy UI.",
+          "insight": "A 'less busy UI' can be measured by click convergence — do users agree on what to do first?"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "First-click test on listing page, proposal page, and acceptance page. Show each page for 5 seconds, ask 'What would you click?', measure convergence on the intended primary action.",
+      "success_criteria": "70%+ of test participants identify the intended primary action on each page within 5 seconds.",
+      "failure_meaning": "The action hierarchy is not visually distinct enough. The primary button may be too similar to secondary buttons, or there may be competing visual weight from other elements.",
+      "implementation_hint": "Use Maze or UsabilityHub for remote first-click testing. Alternatively, implement Playwright visual regression tests that verify the primary button has the highest contrast ratio on the page."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Cleaning Protocol Visibility Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "If the cleaning protocol section is not prominent enough, guests with cleanliness concerns will bounce from the listing page without finding the information that would resolve their objection.",
+      "solution": "A/B test listing pages with and without the prominent cleaning protocol section. Measure listing-to-proposal conversion rate for first-time guests.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 4:06",
+          "type": "guest_call",
+          "quote": "Doesn't sound too good to me, sharing it with someone else.",
+          "insight": "If this objection is common (validate with other call transcripts), the cleaning section should measurably improve conversion."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control = current listing page. Variant = listing page with prominent 'How Cleanliness Works' section above the fold. Measure listing-to-proposal conversion for first-time guests over 4 weeks.",
+      "success_criteria": "15%+ improvement in listing-to-proposal conversion rate for first-time guests in the variant group.",
+      "failure_meaning": "Either cleanliness is not as widespread a concern as William's call suggests, or the section design does not effectively communicate the protocol. Check heatmaps to see if users are reading the section.",
+      "implementation_hint": "Track analytics event: 'cleaning_section_visible' when the section enters the viewport. Compare with 'proposal_created' event. Use PostHog or Mixpanel for the A/B test."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Non-Binding Language Conversion Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["proposal_creation"],
+      "problem": "If the non-binding language change is ineffective, guests will continue to hesitate at the proposal stage, and conversion will not improve.",
+      "solution": "A/B test proposal button copy: 'Submit Proposal' vs. 'Send Your Interest'. Measure proposal creation rate and time-to-click on the proposal button.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated.",
+          "insight": "The agent's framing reduced William's resistance. If the UI copy achieves the same effect, proposal rates should improve."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control = 'Submit Proposal' (solid primary button). Variant = 'Send Your Interest' (outline secondary button with 'No commitment' subtitle). Measure proposal creation rate over 4 weeks.",
+      "success_criteria": "20%+ increase in proposal creation rate. Secondary: 30%+ reduction in time from page load to button click.",
+      "failure_meaning": "Either the language change is insufficient (the button styling also matters), or the hesitation is not language-driven but price-driven. Check if guests who see pricing are more or less likely to convert.",
+      "implementation_hint": "Track 'proposal_button_hover' event to measure hesitation (hover without click). Compare hover-to-click ratio between variants."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Stays Manager Weekly Engagement Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the Stays Manager redesign fails, guests will stop visiting it weekly and revert to off-platform communication (texts, calls), losing the platform's role as the central touchpoint.",
+      "solution": "Track weekly Stays Manager visit rate before and after redesign. Monitor cleaning photo submission compliance as a secondary metric.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 3:53-4:06",
+          "type": "guest_call",
+          "quote": "That's the only thing I'm really concerned about.",
+          "insight": "If the Stays Manager successfully surfaces cleaning compliance (photos, timestamps), William's ongoing anxiety should decrease, and he will visit reliably rather than anxiously."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) Weekly active user rate on Stays Manager. (2) Average time-on-page per visit. (3) Cleaning photo submission rate. (4) Date Change Tool usage vs. off-platform communication volume. Measure for 8 weeks after redesign.",
+      "success_criteria": "85%+ of active guests visit Stays Manager at least once per week. Average time-on-page under 30 seconds (efficient task completion). Cleaning photo submission rate above 90%.",
+      "failure_meaning": "If visit rate is low, the Stays Manager is not providing enough value to justify weekly visits. If time-on-page is high (>60s), the information hierarchy is failing. If cleaning photo rate is low, the submission flow is too friction-heavy.",
+      "implementation_hint": "Instrument: page_view('stays_manager'), time_on_page(), cleaning_photo_submitted(), date_change_requested(source='stays_manager' vs 'direct_message'). Use Mixpanel retention analysis."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Spacing System Consistency Audit",
+      "validates_element": "works-004",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "If the spacing system is not consistently applied, the trust-building effect is undermined. Inconsistent spacing is invisible to developers but felt by users — the interface looks 'off' without the user being able to articulate why.",
+      "solution": "Automated visual regression testing that flags any spacing value not in the defined scale. Combined with periodic design review.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Establish a spacing and sizing system",
+          "type": "book",
+          "quote": "Painfully trialing arbitrary values one pixel at a time will drastically slow you down at best, and create ugly, inconsistent designs at worst.",
+          "insight": "Spacing consistency is a systemic property — it must be enforced systematically, not ad hoc."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Playwright or Puppeteer script that crawls all guest-facing pages and extracts computed margin, padding, and gap values from all elements. Flag any value not in the defined scale (4, 8, 12, 16, 24, 32, 48, 64, 96px).",
+      "success_criteria": "95%+ of spacing values on guest-facing pages match the defined scale. Zero off-scale values on the Stays Manager page.",
+      "failure_meaning": "Developers are overriding the spacing system with arbitrary values. Common causes: one-off fixes, component-specific overrides, third-party component injection.",
+      "implementation_hint": "Playwright script: page.evaluate(() => { const all = document.querySelectorAll('*'); const scale = [0,4,8,12,16,24,32,48,64,96]; return [...all].filter(el => { const s = getComputedStyle(el); return ![s.marginTop, s.paddingTop, s.gap].every(v => scale.includes(parseInt(v))); }); });"
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Guest Journey Emotional Arc Validation",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Individual elements may test well in isolation but create a jarring emotional arc when experienced sequentially. The transition from curiosity (discovery) to safety (listing evaluation) to confidence (proposal) must feel natural, not abrupt.",
+      "solution": "Qualitative user journey testing: recruit 5 guests to walk through the full journey (discovery to first active lease visit) while thinking aloud. Record emotional state at each phase transition. Map actual emotional arc against the designed arc.",
+      "evidence": [
+        {
+          "source": "William Romano.txt (full transcript)",
+          "type": "guest_call",
+          "quote": "William's emotional journey: curious (0:55) -> anxious (4:06) -> reassured (4:28) -> willing (8:34)",
+          "insight": "The call demonstrates a natural emotional arc. The platform journey must replicate this arc — with the reassurance coming at the right moment, not too early and not too late."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Think-aloud journey test with 5 guest personas. At each phase transition, pause and ask: 'How are you feeling right now? On a scale of 1-5, how confident are you about continuing?' Map the confidence curve and compare to the designed emotional arc.",
+      "success_criteria": "Confidence score increases monotonically from discovery to acceptance (no dips). No participant reports confusion or anxiety at phase transitions. At least 4/5 participants complete the journey without wanting to stop.",
+      "failure_meaning": "If confidence dips at a specific transition, that transition is emotionally mishandled. Check the layer outputs for that phase and compare the designed emotion against the tested emotion.",
+      "implementation_hint": "Use Lookback.io or UserTesting.com for remote think-aloud sessions. Create a standardized script with emotional check-ins at each phase boundary."
+    }
+  ]
+}

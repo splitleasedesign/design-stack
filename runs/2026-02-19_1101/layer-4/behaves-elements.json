@@ -1,0 +1,338 @@
+{
+  "lens": {
+    "guest_call": "Shomit Ghosh - 8 April 2022.txt",
+    "book_extract": "flow-enjoyment-quality.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Orientation-Gated Action Prompts",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "The platform asks guests to take action (place a bid) before they feel oriented in the decision landscape. Shomit refuses to bid three times despite being told the action is non-binding, because he has not yet surveyed all options or confirmed his own timeline. The interaction challenge is that action prompts appear at a fixed point in the page flow regardless of whether the guest has demonstrated sufficient orientation. This creates a state mismatch: the UI is in 'ready to act' state while the guest is still in 'still exploring' state. Csikszentmihalyi's paradox of control explains the mechanism -- the guest cannot exercise control without first mapping the decision space, and premature action prompts trigger retreat into protective routines ('I'll hold off').",
+      "solution": "Gate the visibility and prominence of action prompts based on the guest's demonstrated orientation state. The save button should begin in a dormant or de-emphasized state and only become visually prominent after the guest has interacted with comparison-relevant content (viewed 2+ listings, adjusted schedule filters, or spent >60 seconds in active search). The interaction principle: the UI should mirror the guest's readiness rather than pushing a fixed conversion funnel. Orientation signals include: number of listings viewed, filter interactions, time on search page, and scroll depth on listing pages.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 52",
+          "type": "guest_call",
+          "quote": "No, I want to see what the other options are. And also, I'm not sure if when I would start.",
+          "insight": "First refusal to bid. Two orientation gaps compound: what is available and when he can begin. The interaction must resolve both gaps before requesting action."
+        },
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 55",
+          "type": "guest_call",
+          "quote": "I'll still hold off. See the other ones.",
+          "insight": "Second refusal after reassurance. The guest's exploration state persists despite new information. The UI must not repeat the same prompt at the same intensity -- it should acknowledge the guest's pace."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 725-730",
+          "type": "book",
+          "quote": "what people enjoy is not the sense of being in control, but the sense of exercising control in difficult situations. It is not possible to experience a feeling of control unless one is willing to give up the safety of protective routines.",
+          "insight": "The guest will only act when they feel they have enough information to exercise control. The UI must build informational readiness before escalating action prompt prominence."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 249-252",
+          "type": "book",
+          "quote": "the experience usually occurs when we confront tasks we have a chance of completing. Second, we must be able to concentrate on what we are doing. Third and fourth, the concentration is usually possible because the task undertaken has clear goals and provides immediate feedback.",
+          "insight": "Bidding feels incompletable when the guest has not yet formed a clear goal (which property? which schedule?). Action prompts before goal formation break the flow conditions."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The action button ('Save this property') is present but visually subdued -- outlined style, secondary color weight, positioned below evaluation content. It is discoverable but does not demand attention. Before orientation is complete, the action area shows an exploratory prompt in ink-muted (#8a857e): 'Keep exploring -- you have X more properties to see.'",
+        "loading": "Not applicable at the prompt level. If listings are still loading, the action prompt is hidden entirely -- no action should be offered on content the guest has not yet seen.",
+        "empty": "If no listings match the guest's filters, show a helpful empty state ('No properties match your Mon-Thu schedule under $1,500/month. Try adjusting your nights or budget.') with filter modification suggestions. No action prompt appears in empty state.",
+        "error": "If a save/bid action fails after the guest commits to it, show inline error with retry option. Never clear the guest's input. Preserve their selection and explain what went wrong in plain language ('We could not save this property right now. Your selection is preserved -- try again in a moment.').",
+        "success": "When the guest saves a property, the button transforms to a 'Saved' confirmation state with a subtle checkmark animation. The confirmation is lightweight -- no modal, no page change, no interruption. A brief inline message confirms what happens next ('Added to your shortlist. Keep browsing or review your saved properties.')."
+      },
+      "transition_principle": "The action prompt should escalate its visual prominence gradually as the guest demonstrates orientation. First visit to a listing: outlined button, muted. Return visit to the same listing: filled button, standard weight. After the guest has viewed 3+ listings: gentle tooltip or inline nudge appears near the action button ('Ready to save your favorites?'). This graduated escalation mirrors the guest's growing readiness rather than demanding readiness upfront.",
+      "timing": {
+        "response_target": "< 100ms for button state changes (hover, focus). < 350ms for the prominence escalation animation when orientation threshold is met. Orientation marker evaluation: sub-50ms (local storage read).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Uses the 'out' easing from tokens.json for a fast initial response that settles smoothly. The escalation must feel organic and unforced, not sudden or jarring. 350ms matches the conversational beat between a completed thought and the next action."
+      },
+      "journey_state_awareness": "During search phase, the action prompt is at minimum prominence -- the guest is surveying. During listing_evaluation (guest has clicked into a specific listing), prominence increases one level. During repeated listing_evaluation (guest returns to the same listing), prominence reaches maximum. First-time guests always begin in orientation mode. Returning guests who previously completed orientation bypass the gate entirely.",
+      "edge_cases": [
+        "Guest who views 20+ listings without saving any: after significant exploration, show a non-intrusive organizational prompt ('You have viewed 15 properties. Would you like to save your top picks for easy comparison?'). This frames saving as organizational, not commitment.",
+        "Guest who saves a property and then immediately removes it: do not re-escalate the prompt. Respect the withdrawal. Return the button to its default subdued state.",
+        "Guest arriving from a direct link to a single listing (no search phase): display the action button at medium prominence but include a 'See all properties' link above it, providing an escape to the orientation phase they skipped.",
+        "Guest with prefers-reduced-motion: the button appears with an opacity fade (0 to 1 over 200ms) instead of the positional settle animation. The orientation gating logic is unchanged."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Real-Time Monthly Cost Recalculation on Schedule Interaction",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "Guests think in monthly rent but the platform prices per night. Shomit explicitly says 'I guess mainly I think of this per month and then I break it down per night' (line 65). Every schedule adjustment (changing nights, weeks, or day selection) produces a pricing change that the guest must mentally translate from per-night to monthly terms. This translation is an interaction gap: the guest acts (adjusts schedule), but the feedback they need (monthly cost impact) is not immediate or is absent entirely. The agent promises 'you can play with that on the website and it will give you all options dynamically' (line 49) -- this sets an expectation of instantaneous, game-like feedback. Csikszentmihalyi identifies immediate feedback as one of the core conditions for engagement -- without it, the guest cannot evaluate whether their action moved them closer to their budget goal.",
+      "solution": "Pre-load the pricing matrix for each listing the guest views. When the guest opens a listing page or hovers on a listing card in search, the client receives the full per-night rate table for that property. Schedule adjustments then trigger a pure client-side recalculation that updates the monthly cost display within a single animation frame. The update uses a number transition: the monthly figure counts from the old value to the new value over 300ms using the out easing, providing a visual signal that the cost changed and by how much. The direction of the count (up or down) immediately tells the guest whether adding or removing a night made it more or less expensive. If the guest's budget is known, a brief color signal appears when the new monthly cost crosses the budget threshold.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 65-68",
+          "type": "guest_call",
+          "quote": "I guess mainly I think of this per month and then I break it down per night... Probably below 2,500 a month is what I would usually spend.",
+          "insight": "The guest's feedback channel for budget evaluation is monthly. Every interaction with the schedule must produce monthly output. The number transition animation provides the immediate feedback the guest needs to evaluate affordability in their native unit."
+        },
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 48-49",
+          "type": "guest_call",
+          "quote": "you can play with that on the website and it will give you all options dynamically. So you can see that.",
+          "insight": "The agent promises dynamic, interactive pricing exploration. 'Play with' implies immediate response -- like a game, not a form submission. The interaction must deliver sub-frame response to schedule changes."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 467-469",
+          "type": "book",
+          "quote": "The reason it is possible to achieve such complete involvement in a flow experience is that goals are usually clear, and feedback immediate.",
+          "insight": "The schedule selector is a flow-enabling interaction if feedback is immediate. The guest's goal is clear (find an affordable schedule). The feedback (monthly cost) must be immediate. Any delay breaks the flow loop."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 398-400",
+          "type": "book",
+          "quote": "Enjoyment appears at the boundary between boredom and anxiety, when the challenges are just balanced with the person's capacity to act.",
+          "insight": "The schedule-price exploration is a challenge-skill activity: the guest uses their budget knowledge (skill) against the dynamic pricing landscape (challenge). Immediate feedback keeps this in the flow zone. Delayed feedback pushes it toward anxiety."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The monthly cost is displayed prominently alongside the schedule selector. It shows the current monthly cost for the currently selected schedule configuration. Per-night rate is visible as a secondary detail below. A savings comparison ('vs. $2,500/mo full lease') provides contextual anchoring.",
+        "loading": "If the pricing matrix has not yet loaded, show a shimmer placeholder matching the exact dimensions of the price display. The schedule selector remains interactive -- the guest can set preferences while pricing loads. Once the matrix arrives, the price resolves from shimmer to number with a 200ms opacity transition reflecting the guest's current selection.",
+        "empty": "If the guest has not yet selected any nights, the price field shows a placeholder prompt: 'Select your nights to see your monthly cost.' If a listing has no availability for the selected schedule: 'Not available for Mon-Thu. Try Wed-Sun for this property.'",
+        "error": "If pricing calculation fails (network error, invalid schedule), preserve the last valid price with a small inline warning: 'Price shown may not reflect your latest change. Retrying...' Auto-retry in the background. Never show a technical error message in the pricing zone.",
+        "success": "Each successful price update is its own micro-success. The number animates smoothly to its new value. If the new monthly cost is within the guest's budget range (if known), a brief accent-light (#e8f0eb) background pulse appears behind the figure for 300ms, then fades. No modal, no toast -- the feedback is embedded in the number itself."
+      },
+      "transition_principle": "Price transitions should feel like a continuous, fluid response to the guest's actions -- not like discrete page updates. The number should count smoothly from old value to new value over 300ms, so the guest perceives the magnitude and direction of change. Large changes (adding or removing multiple nights) use a slightly longer transition (300ms). Small changes (one night) use a shorter transition (200ms). The easing should feel natural and settling, not bouncy.",
+      "timing": {
+        "response_target": "Client-side recalculation: sub-16ms (single animation frame). Number transition animation: 200-300ms depending on magnitude. Pricing matrix initial load: target under 200ms (prefetched when listing card enters viewport).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Uses the 'out' easing from tokens.json. Starts fast so the guest sees the number begin to change within 50ms, then decelerates into the final value. The fast start provides 'immediate' feedback; the deceleration provides a readable landing."
+      },
+      "journey_state_awareness": "During search phase, the price update applies to all visible listing cards simultaneously when the guest changes the global schedule selector -- all cards re-sort and re-price together, maintaining the comparison frame. During listing_evaluation, the price update is focused on the single listing being evaluated, with a more prominent transition. During proposal_creation, the price is final-confirmation grade: exact to the penny, with a clear total breakdown.",
+      "edge_cases": [
+        "Guest toggles nights faster than the 300ms animation can complete: each new toggle interrupts the current animation and starts from the current displayed value to the new target. No animation queue builds up.",
+        "Guest's budget is known from onboarding: when a schedule change pushes the monthly cost above the known budget, the price number transitions to signal-warn (#c17a28) and a brief tooltip appears. When cost returns below budget, the color fades back.",
+        "Network latency causes stale pricing: if the displayed price becomes stale (older than 5 seconds relative to last schedule change), show a subtle 'Updating...' indicator and re-fetch.",
+        "Guest with prefers-reduced-motion: the number transition is replaced with a crossfade (old number fades out, new number fades in, 200ms). No counting animation."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Process Heartbeat: Proactive Status Signals During Waiting Gaps",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "The agent describes a two-to-three-week process (line 62). Shomit's response -- 'So like courtship' (line 61) -- reveals how the guest perceives this: as an uncertain, open-ended process where they do not know if the other party is still engaged. The interaction challenge is not the duration itself but the silence within the duration. After the guest places their first expression of interest, they enter a matching process with no described intermediate feedback. Each gap is a void where the guest's engagement decays and competing alternatives fill the vacuum. Csikszentmihalyi's insight about the Alpine woman watching plants grow shows that even slow processes sustain engagement when they provide incremental feedback. The current guest journey provides none between major milestones.",
+      "solution": "Implement a 'process heartbeat' system that sends a proactive status signal to the guest at a maximum interval of 48 hours during any active waiting period. The heartbeat is not a request for action -- it is a statement of status. Examples: 'Your interest in [Property] is being matched. 3 potential co-tenants are being evaluated.' or 'Your co-tenant meeting is confirmed for Thursday. Here is what to expect.' Each heartbeat includes exactly two elements: (1) what is happening right now, and (2) what happens next. The heartbeat is delivered through the guest's preferred channel (email or SMS) and mirrors on the in-platform process tracker. No heartbeat requires the guest to take action unless action is genuinely needed.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 62",
+          "type": "guest_call",
+          "quote": "It's usually takes two or three weeks to finish the process and get Lisa [lease].",
+          "insight": "A multi-week process with no intermediate feedback described. The interaction pattern must establish a rhythm (every 48 hours) that the guest can rely on, transforming an open-ended wait into a structured progression."
+        },
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 61",
+          "type": "guest_call",
+          "quote": "So like courtship.",
+          "insight": "Courtship implies mutual engagement with uncertain outcomes. If one party goes silent, the other assumes disinterest. The heartbeat ensures the platform never goes silent."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 485-492",
+          "type": "book",
+          "quote": "Certain activities require a very long time to accomplish, yet the components of goals and feedback are still extremely important to them... 'I find special satisfaction in caring for the plants: I like to see them grow day by day. It is very beautiful.'",
+          "insight": "The process heartbeat is the digital equivalent of watching plants grow. Each status update is a small signal of progress that sustains the guest's investment in the outcome."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 562-568",
+          "type": "book",
+          "quote": "The kind of feedback we work toward is in and of itself often unimportant... What makes this information valuable is the symbolic message it contains: that I have succeeded in my goal. Such knowledge creates order in consciousness.",
+          "insight": "The heartbeat's informational content may be minor but its symbolic message is significant: 'Your goal of finding housing is being actively pursued.' This symbolic feedback creates order in the guest's consciousness during the waiting period."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Between heartbeats, the in-platform process tracker shows the guest's current position with the most recent heartbeat message displayed as a subtitle under the current step. The message is timestamped ('Updated 14 hours ago') so the guest can gauge recency.",
+        "loading": "When a new heartbeat is about to be generated, no loading state is shown to the guest. Heartbeats are generated asynchronously and pushed when ready. The guest never sees a 'checking status...' indicator.",
+        "empty": "If there is genuinely nothing new to report, the heartbeat says exactly that: 'We are still working on matching you with a co-tenant for [Property]. No update yet, but we will notify you as soon as there is one.' The empty heartbeat is better than no heartbeat. Silence is the worst state.",
+        "error": "If the heartbeat system fails to send (email bounce, SMS delivery failure), the system retries via the alternate channel. If both channels fail, the platform logs the failure and an operations team member is alerted. The guest never experiences a failed heartbeat as silence.",
+        "success": "When the heartbeat carries a milestone update (match found, meeting scheduled, lease ready), the notification uses a stronger signal. The in-platform tracker animates the step completion with a spring easing (500ms). This distinguishes milestone heartbeats from routine status heartbeats."
+      },
+      "transition_principle": "Heartbeats arrive at the guest -- the guest does not have to seek them. The transition from 'no new information' to 'heartbeat received' should feel like a gentle tap on the shoulder, not a demand for attention. Email heartbeats use a calm subject line pattern: '[Property Name] - Status Update' not 'ACTION REQUIRED.' The guest reads heartbeats at their own pace.",
+      "timing": {
+        "response_target": "Maximum 48 hours between heartbeats during any active waiting period. Milestone heartbeats sent within 30 minutes of milestone occurring. Routine heartbeats sent during business hours in the guest's timezone (10am-6pm).",
+        "easing": "Routine tracker updates: cubic-bezier(0.16, 1, 0.3, 1) at 350ms. Milestone completions: cubic-bezier(0.34, 1.56, 0.64, 1) at 500ms.",
+        "rationale": "48 hours is the maximum tolerable silence before the guest begins to wonder if the process has stalled. The spring easing on milestone completions creates a feeling of forward momentum -- the slight overshoot is symbolically celebratory."
+      },
+      "journey_state_awareness": "During the matching phase (post-interest, pre-meeting), heartbeats are status-focused: 'X co-tenants are being evaluated.' During the meeting phase, heartbeats are preparation-focused: 'Your meeting is in 2 days. Here is what to expect.' During the lease phase, heartbeats are action-focused: 'Your lease is ready for review.' The heartbeat content adapts to the guest's current phase and information needs.",
+      "edge_cases": [
+        "Guest has multiple active expressions of interest: each property generates its own heartbeat stream. To prevent notification fatigue, the system batches heartbeats within the same 4-hour window into a single notification.",
+        "Guest becomes unresponsive (does not open heartbeat emails for 7+ days): after 3 consecutive unread heartbeats, the system escalates to personal outreach (phone call from the agent who conducted the initial call).",
+        "Process moves faster than expected (match found within hours): the heartbeat is sent immediately rather than waiting for the 48-hour interval. The 48-hour maximum is a ceiling, not a cadence.",
+        "Guest explicitly requests fewer notifications: frequency can be reduced to milestone-only. Zero heartbeats during an active process is not an option."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Progressive Complexity Throttle: One Novel Concept per Phase",
+      "journey_phases": ["discovery", "search", "proposal_creation", "negotiation"],
+      "problem": "During the phone call, the agent introduces at least six novel concepts in rapid succession: co-tenancy (line 13), schedule splitting (line 14), cost savings (line 15), non-binding bids (line 34), co-tenant matching (lines 56-57), Zoom meeting (line 57), and multi-week timeline (line 62). Shomit absorbs the value proposition ('this is good, right?' at line 23) but immediately signals unresolved items ('Except for like one or two things'). The agent then continues introducing more complexity rather than resolving existing concerns. By line 52, accumulated unresolved complexity manifests as blanket deferral: 'No, I want to see what the other options are.' Csikszentmihalyi's challenge-skill balance predicts this precisely: six concepts simultaneously exceeds any guest's processing capacity. The interaction challenge is to meter complexity introduction to match the guest's growing familiarity.",
+      "solution": "Each phase transition on the platform introduces exactly one novel concept, presented as a single-concept introduction with one heading, one short paragraph, and one supporting visual. No phase references concepts from future phases. The sequence: (1) Discovery: value proposition only. No mention of bids, matching, or co-tenancy details. (2) Search: schedule-price relationship only, discovered through interaction with the schedule selector, not through explanation. (3) Proposal creation: expression of interest only -- 'Save this property to start the matching process.' Matching introduced as a natural consequence of saving. (4) Negotiation: co-tenant meeting only -- 'Meet the person who uses the space on different days.' Introduced only after a match exists. Each concept enters the guest's awareness through interaction, not through upfront explanation. Concepts introduced prematurely are noise; concepts introduced at the point of action are tools.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 11-17",
+          "type": "guest_call",
+          "quote": "let me just a quick explain you how's this work... the two people who acting sort of like ghost roommates... the same space is used by different people... the cost for you is significantly less.",
+          "insight": "Three novel concepts in one block. Each requires independent processing. The interaction pattern separates them: cost savings is discovery-phase, co-tenancy is listing-evaluation-phase, schedule splitting is search-phase."
+        },
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 23",
+          "type": "guest_call",
+          "quote": "I guess like a few, this is good, right? Except for like one or two things.",
+          "insight": "The guest signals partial absorption with residual items. 'Except for one or two things' is the guest asking to pause and process. The platform must provide that pause between concepts."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 398-400",
+          "type": "book",
+          "quote": "Enjoyment appears at the boundary between boredom and anxiety, when the challenges are just balanced with the person's capacity to act.",
+          "insight": "Six concepts at once is the anxiety zone. One concept per phase transition keeps the guest at the boundary where challenge matches capacity."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 298-300",
+          "type": "book",
+          "quote": "Any activity contains a bundle of opportunities for action, or 'challenges,' that require appropriate skills to realize. For those who don't have the right skills, the activity is not challenging; it is simply meaningless.",
+          "insight": "A guest told about 'bids' before seeing any listings cannot evaluate whether bidding is meaningful. Each concept must be introduced when the guest has the experiential context to make it meaningful."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The current phase's single concept is visible in the single-concept introduction format. Prior phase concepts are accessible via the process tracker but not displayed. Future phase concepts are invisible -- not collapsed, not grayed out, not teased. The guest's cognitive environment contains only the current challenge.",
+        "loading": "When transitioning between phases, a brief shimmer placeholder holds the concept introduction area while data loads. The placeholder matches the single-concept layout dimensions to prevent layout shift.",
+        "empty": "If a phase transition is ambiguous (the guest has not clearly entered a new phase), no new concept is introduced. The system waits for an explicit signal before surfacing the next concept. Premature introduction is worse than delayed introduction.",
+        "error": "If the phase detection logic fails, the fallback is to show the most recently introduced concept. The guest never sees a concept from a future phase due to a tracking error. The error mode is conservative: show less, not more.",
+        "success": "When the guest completes a phase's core action, the phase transition triggers the next concept introduction. The transition uses a settle animation (350ms, out easing) with generous whitespace. The success state for the completed phase is a brief accent-light wash on the process tracker step, followed by the smooth reveal of the next concept."
+      },
+      "transition_principle": "Phase transitions are paced by the guest's actions, not by the platform's information needs. The platform never says 'before you proceed, you should know that later you will need to...' Instead, it says 'here is what you can do now.' The transition feels like turning a page in a well-paced book: each page contains one idea, fully developed, with no previews of the next chapter.",
+      "timing": {
+        "response_target": "Concept introduction reveal: 350ms with out easing after the phase transition trigger. The trigger itself (e.g., saving a property) has its own sub-100ms acknowledgment.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The easing matches the 'turning a page' metaphor: the content enters quickly and settles into position. Introducing one concept per phase reduces per-interaction cognitive load from approximately 6 novel ideas (phone call experience) to 1."
+      },
+      "journey_state_awareness": "Guests who received a phone call before visiting the platform may have been exposed to multiple concepts. The platform does not assume absorption. Each concept is introduced fresh on the platform. If the guest demonstrates familiarity (navigates directly to schedule selector), the concept introduction auto-collapses to a compact summary, respecting existing knowledge.",
+      "edge_cases": [
+        "Guest returns after a long absence (7+ days): show a 'Welcome back' summary of current phase and active concept, without re-introducing prior concepts.",
+        "Guest's journey is non-linear (browses listings before completing discovery): introduce concepts based on actual behavior, not a predetermined sequence.",
+        "Guest explicitly requests a full process overview: provide a single-page overview accessible from the help menu, outside the progressive disclosure system.",
+        "Guest who was verbally briefed on all concepts during the phone call: the platform still reveals concepts progressively. Verbal explanation does not equal experiential understanding."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Co-Tenancy Reveal: Phase-Timed Uncertainty Resolution",
+      "journey_phases": ["discovery", "listing_evaluation", "negotiation", "move_in", "active_lease"],
+      "problem": "Shomit's first reaction to the co-tenancy concept is a triple hedge: 'I mean, I guess that's fine. I mean, it doesn't really matter to me. Well, I guess that's fine' (line 19). This is not acceptance -- it is unresolved processing masked as acceptance. The interaction challenge is that co-tenancy information has different salience at different phases. In discovery, the guest needs only the concept. In listing evaluation, practical details. In negotiation, social preparation. At move-in, verification. Currently, the agent dumps the concept in discovery and the Zoom meeting handles negotiation. The phases in between have no structured co-tenancy interaction. When unresolved uncertainty meets a decision point (save a property? sign a lease?), it amplifies reluctance to act.",
+      "solution": "Implement phase-triggered co-tenancy information modules that activate based on the guest's journey state. (1) Discovery: show only the timeline diagram (day badges in accent color for guest, light gray for co-tenant) with a single sentence: 'You use the space Mon-Thu. Someone else uses it Fri-Sun. You never overlap.' Zero additional detail. (2) Listing evaluation: an expandable 'Shared Living Details' section showing shared vs. private zones, cleaning protocol, storage arrangements. Expands on tap with settle animation. (3) Pre-negotiation: a preparation card delivered 24-48 hours before the Zoom meeting with co-tenant profile summary, 5 suggested questions, and explicit 'You can decline after meeting' reassurance. (4) Move-in: arrival-day notification with 5-item co-tenancy FAQ addressing common first-day concerns. (5) Active lease: a structured feedback channel for co-tenancy concerns that does not require direct co-tenant confrontation. Each module is self-contained and does not reference future modules.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 18-19",
+          "type": "guest_call",
+          "quote": "Where does that other person go? ... I mean, I guess that's fine. I mean, it doesn't really matter to me. Well, I guess that's fine.",
+          "insight": "Triple hedging reveals unresolved evaluation masked as acceptance. The guest accepted the concept verbally but has not processed the practical implications. The interaction must provide resolution at the phase where implications become relevant."
+        },
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 57-58",
+          "type": "guest_call",
+          "quote": "you will meet on zoom that person, and you will talk to the tourist. So you will be able to say, I am comfortable or not comfortable.",
+          "insight": "The Zoom meeting is the only structured resolution point, but it occurs weeks after the initial uncertainty arises. The interaction pattern fills the gap with phase-appropriate information."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 291-297",
+          "type": "book",
+          "quote": "Another universally enjoyable activity is being with other people... But of course, it does [require skills]; as so many shy people know, if a person feels self-conscious, he or she will dread establishing informal contacts.",
+          "insight": "The Zoom co-tenant meeting is a social interaction requiring preparation. Without a preparation module, the guest must improvise a conversation with a stranger -- anxiety-inducing for many. The preparation module transforms this into a structured, manageable interaction."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 602-606",
+          "type": "book",
+          "quote": "these blind women stressed more than anyone else the importance of receiving clear feedback as a condition for enjoying whatever they were doing.",
+          "insight": "Guests evaluating a co-tenancy arrangement remotely are functionally 'blind' to the reality. Each phase-triggered module provides feedback appropriate to the guest's current 'blindness': conceptual, practical, social, then verification feedback."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Each co-tenancy module is in its resting state within the relevant phase. Discovery: timeline diagram visible. Listing: 'Shared Living Details' collapsed to heading with chevron. Zoom prep: unread notification in process tracker. Move-in: unread item in arrival notification.",
+        "loading": "When a co-tenancy module is being personalized (populating listing-specific details or generating co-tenant profile), a shimmer placeholder maintains layout dimensions. Loading resolves within 500ms for listing details (pre-cached) and within 2 seconds for Zoom prep content.",
+        "empty": "If co-tenancy data is incomplete for a listing (shared/private zones not yet documented), show a transparent acknowledgment: 'Details about shared spaces for this property are being prepared. Ask us anything: [contact link].' Never pretend data exists.",
+        "error": "If the Zoom prep module fails to deliver (email bounce), the system falls back to in-platform delivery with push notification. Co-tenancy information is critical-path: failure to deliver triggers escalation to the operations team.",
+        "success": "When the guest engages with a co-tenancy module (expands listing section, opens Zoom prep, reads move-in FAQ), the module marks itself as 'viewed.' The process tracker updates to reflect engagement. This tracking identifies guests avoiding co-tenancy information -- a potential dropout signal for proactive outreach."
+      },
+      "transition_principle": "Each co-tenancy module appears exactly once, at the transition into its relevant phase. It does not re-appear, remind, or nag. The guest encounters the information when most relevant and can return to it on demand. The timing of appearance is the core design -- the right information at the right moment. Visual continuity across phases is maintained: the day-badge timeline introduced at discovery reappears in the same visual style on listing pages and in Zoom prep cards.",
+      "timing": {
+        "response_target": "Discovery module: appears with first page load. Listing module expand/collapse: 350ms. Zoom prep delivery: 24-48 hours before scheduled meeting. Move-in module delivery: 24 hours before arrival date.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The settle easing ensures expanded content does not overshoot or bounce, which would feel unstable for information the guest needs to trust. 24-48 hour pre-delivery for Zoom prep gives the guest time to absorb without feeling rushed."
+      },
+      "journey_state_awareness": "Discovery: co-tenancy at its most abstract (timeline only). Listing evaluation: property-specific (this property's shared zones, cleaning protocol). Negotiation: person-specific (matched co-tenant profile, conversation guide). Move-in: experiential (what you will actually encounter on arrival day). Active lease: operational (how to raise concerns). Each phase's specificity matches the guest's increasing proximity to the lived experience.",
+      "edge_cases": [
+        "Guest expresses discomfort with co-tenancy at any phase: provide an immediate empathetic path -- 'We understand shared living is not for everyone. Would you like to see single-occupancy options instead?'",
+        "Co-tenant match falls through after Zoom (either party declines): acknowledge the situation, reassure the guest ('We will find another match'), restart matching with a specific timeline.",
+        "Guest skips directly to proposal without viewing listing co-tenancy details: surface the co-tenancy section in a lightweight inline confirmation before saving -- informative, not blocking.",
+        "Guest who never interacts with co-tenancy information: at proposal creation, surface a brief inline confirmation: 'This is a shared-use property. You will use it Mon-Thu; another guest uses it Fri-Sun.' Ensures minimum acknowledgment before commitment."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Lightweight Save: Single-Tap Expression of Interest with Instant Undo",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "Despite three explanations that bids are non-binding (lines 34, 53-54, 59), Shomit refuses each time. The interaction problem is that the action -- regardless of its name -- carries behavioral weight that contradicts its stated nature. A button labeled 'Place a Bid' that opens a form requiring schedule selection, budget entry, and confirmation creates an interaction that FEELS like binding commitment even when the text says otherwise. The behavioral weight of the interaction (multiple steps, form fields, confirmation dialog) signals 'this is significant' to the guest's System 1, overriding System 2 understanding that it is non-binding. Csikszentmihalyi's paradox of control applies: the guest will act only when the action feels like organizing options (exercising control), not entering a process (surrendering control). The interaction weight must match the actual commitment weight: near-zero.",
+      "solution": "Reduce the expression of interest to a single-tap action with instant, reversible feedback. The interaction: tap 'Save this property' (or bookmark icon). The listing card immediately shows a 'Saved' state (filled icon, accent-light background flash, 300ms). No form. No confirmation dialog. No schedule re-entry (the guest's schedule is already set from search filters). No modal. The action writes the guest's current schedule and the listing to their saved-properties list. The guest can undo with a single tap on the same icon (toggle back to unsaved). After saving, a subtle inline message: 'Saved to your shortlist. We will start finding your co-tenant match.' The entire interaction takes under 1 second and requires zero cognitive overhead beyond the decision to save.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 55",
+          "type": "guest_call",
+          "quote": "I'll still hold off. See the other ones.",
+          "insight": "After three non-binding explanations, the guest still defers. The problem is not informational but behavioral: the action's interaction weight contradicts its stated lightness. Reducing to single tap with instant undo eliminates the weight that triggers deferral."
+        },
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 33-35",
+          "type": "guest_call",
+          "quote": "a bead is not Samsung, which obligates you to lease it. It's your expression of interest for certain properties.",
+          "insight": "The agent frames the bid as 'expression of interest.' The interaction must match: an expression of interest is as simple as a bookmark. The interaction weight should be equivalent to saving an article to read later."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 725-730",
+          "type": "book",
+          "quote": "what people enjoy is not the sense of being in control, but the sense of exercising control in difficult situations. It is not possible to experience a feeling of control unless one is willing to give up the safety of protective routines.",
+          "insight": "A single-tap save with instant undo makes giving up the safety of protective routines nearly costless. The guest can save, review, and unsave moments later. This lowers the threshold for exercising control."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 329-336",
+          "type": "book",
+          "quote": "it would be a mistake to assume that only art and leisure can provide optimal experiences... one purpose of this book is to explore ways in which even routine details can be transformed into personally meaningful games that provide optimal experiences.",
+          "insight": "Saving properties can become a personally meaningful game: 'I am curating my shortlist of possible NYC homes.' The interaction must feel like curation (lightweight, reversible, personal) not application (heavyweight, irreversible, institutional)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The save action appears as an outlined button ('Save this property') or bookmark icon on the listing card. Visual weight is deliberately light (outlined, medium font weight, no shadow). Communicates 'lightweight, casual action' through visual design.",
+        "loading": "After tap, the client immediately renders saved state (optimistic UI). Server write happens asynchronously. If server confirms, nothing visible changes. If server fails, saved state rolls back to unsaved with a brief shake animation (200ms, 2px horizontal) and inline error: 'Could not save. Tap to try again.'",
+        "empty": "N/A -- the save action is binary (saved or not saved). No empty state for this interaction.",
+        "error": "Server-side failure to persist: optimistic state rolls back. Rollback animation (shake + revert) takes 400ms total. Error message appears inline for 5 seconds then fades. Guest can immediately retry. If error persists, a support contact link appears.",
+        "success": "Instant saved state: filled bookmark icon, accent-light (#e8f0eb) background flash (300ms). Inline message: 'Saved to your shortlist. We will start finding your co-tenant match.' Message uses ink-soft (#4a4640) at 13px, fades in with 200ms opacity transition, remains visible during the listing page visit."
+      },
+      "transition_principle": "The save action is optimistic and instant. The guest's tap produces an immediate visual change. Server confirmation happens invisibly. The only visible server-related transition is the error rollback, which should occur in less than 1% of interactions. The principle: acknowledge immediately, persist silently, fail gracefully.",
+      "timing": {
+        "response_target": "Visual acknowledgment of tap: sub-50ms (optimistic state render). Background flash: 300ms. Inline message fade-in: 200ms. Server persistence: target under 500ms (invisible to guest). Error rollback: 400ms total.",
+        "easing": "Background flash: cubic-bezier(0.16, 1, 0.3, 1). Error rollback shake: cubic-bezier(0.36, 0.07, 0.19, 0.97) -- sharp, attention-getting motion distinct from the smooth settle used for success.",
+        "rationale": "Sub-50ms acknowledgment is below the human perception threshold for delay. The guest perceives the save as instantaneous. The 300ms flash provides satisfying 'I did something' feedback without the weight of a celebration animation reserved for milestones."
+      },
+      "journey_state_awareness": "First-time guests see a brief tooltip after their first save: 'You can save multiple properties and compare them on your shortlist.' Returning guests who previously saved properties see no tooltip. Guests with 3+ saved properties see a subtle prompt on the next listing: 'You have X properties saved. Ready to compare?' linking to the shortlist view.",
+      "edge_cases": [
+        "Guest saves a property that is no longer available (listing removed between page load and save): optimistic save completes visually, server returns unavailability. Saved state transitions to 'No longer available' badge with suggestion: 'Similar properties in this area.'",
+        "Guest taps save accidentally: undo is the same interaction -- tap again to unsave. No confirmation dialog. Reversibility is the safety net. If unsaved within 10 seconds, no matching process is initiated.",
+        "Guest's schedule changed since search filters were set: save uses the guest's current schedule. If schedule later changes, saved properties show a notice: 'Your schedule has changed. Prices may differ. Tap to update.'",
+        "Guest saves from multiple devices: save state syncs across devices via account. Unsaving on one device unsaves everywhere."
+      ]
+    }
+  ]
+}

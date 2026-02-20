@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cross-Run Critique Report | HOST x Freud + GUEST x Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #31135D;
+      --primary-light: #4B2A8A;
+      --secondary: #4B47CE;
+      --accent: #8C68EE;
+      --accent-light: #B89EF7;
+      --accent-pale: #E8DFFE;
+      --surface: #FCF9FF;
+      --surface-warm: #F8F5FF;
+      --text-primary: #1A1033;
+      --text-secondary: #4A3F5C;
+      --text-muted: #7A6F8E;
+      --border: #E4DDF0;
+      --border-light: #F0EBF8;
+
+      --severity-critical: #DC2626;
+      --severity-critical-bg: #FEF2F2;
+      --severity-critical-border: #FECACA;
+      --severity-high: #EA580C;
+      --severity-high-bg: #FFF7ED;
+      --severity-high-border: #FED7AA;
+      --severity-medium: #D97706;
+      --severity-medium-bg: #FFFBEB;
+      --severity-medium-border: #FDE68A;
+      --severity-low: #2563EB;
+      --severity-low-bg: #EFF6FF;
+      --severity-low-border: #BFDBFE;
+
+      --coverage-strong: #059669;
+      --coverage-strong-bg: #D1FAE5;
+      --coverage-moderate: #D97706;
+      --coverage-moderate-bg: #FEF3C7;
+      --coverage-thin: #EA580C;
+      --coverage-thin-bg: #FFEDD5;
+      --coverage-absent: #DC2626;
+      --coverage-absent-bg: #FEE2E2;
+
+      --fulfillment-full: #059669;
+      --fulfillment-partial: #D97706;
+      --fulfillment-miss: #DC2626;
+
+      --shadow-sm: 0 1px 2px rgba(49, 19, 93, 0.05);
+      --shadow-md: 0 4px 12px rgba(49, 19, 93, 0.08);
+      --shadow-lg: 0 8px 24px rgba(49, 19, 93, 0.12);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--surface);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    /* --- HEADER --- */
+    .report-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 60%, var(--accent) 100%);
+      color: white;
+      padding: 56px 0 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .report-header::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(140, 104, 238, 0.12);
+    }
+    .report-header::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: 10%;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: rgba(75, 71, 206, 0.10);
+    }
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 32px;
+      position: relative;
+      z-index: 1;
+    }
+    .report-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 12px;
+    }
+    .report-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .report-subtitle {
+      font-size: 18px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.80);
+      margin-bottom: 24px;
+    }
+    .report-meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+    }
+    .report-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* --- STATS BAR --- */
+    .stats-bar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .stats-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0;
+    }
+    .stat-item {
+      padding: 20px 16px;
+      text-align: center;
+      border-right: 1px solid var(--border-light);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-number {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    /* --- MAIN CONTENT --- */
+    .main-content {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 40px 32px 80px;
+    }
+
+    /* --- SECTION --- */
+    .section {
+      margin-bottom: 48px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--accent-pale);
+    }
+    .section-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-size: 24px;
+      color: var(--primary);
+    }
+
+    /* --- CARDS --- */
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card + .card { margin-top: 16px; }
+
+    /* --- EXECUTIVE SUMMARY --- */
+    .executive-summary {
+      background: linear-gradient(135deg, var(--surface-warm) 0%, white 100%);
+      border: 1px solid var(--accent-pale);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 28px 32px;
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    .executive-summary strong {
+      color: var(--primary);
+    }
+
+    /* --- RUN CARDS --- */
+    .run-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .run-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .run-card-header {
+      padding: 16px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: white;
+    }
+    .run-card-header.host { background: var(--primary); }
+    .run-card-header.guest { background: var(--secondary); }
+    .run-card-body {
+      padding: 24px;
+    }
+    .run-card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .run-card-lens {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .run-card-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .run-stat {
+      background: var(--surface-warm);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+    }
+    .run-stat-value {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .run-stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .principle-breakdown {
+      margin-top: 16px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .principle-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--accent-pale);
+      color: var(--primary);
+    }
+
+    /* --- THEME CARDS --- */
+    .theme-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .theme-card + .theme-card { margin-top: 16px; }
+    .theme-card-header {
+      padding: 18px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-light);
+      cursor: default;
+    }
+    .theme-card-body {
+      padding: 20px 24px;
+    }
+    .strength-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .strength-strong {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+    .strength-moderate {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+    .theme-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .evidence-col {
+      background: var(--surface-warm);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .evidence-label {
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .implication {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      padding: 14px 16px;
+      background: rgba(140, 104, 238, 0.04);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    .implication strong { color: var(--primary); }
+
+    /* --- DIVERGENT --- */
+    .divergent-card {
+      border-left: 4px solid var(--severity-medium);
+    }
+    .tension-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 2px;
+      background: var(--severity-medium-bg);
+      color: var(--severity-medium);
+      border: 1px solid var(--severity-medium-border);
+    }
+    .position-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .position-col {
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .position-col.host-pos {
+      background: rgba(49, 19, 93, 0.04);
+      border: 1px solid rgba(49, 19, 93, 0.10);
+    }
+    .position-col.guest-pos {
+      background: rgba(75, 71, 206, 0.04);
+      border: 1px solid rgba(75, 71, 206, 0.10);
+    }
+    .resolution-box {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #166534;
+    }
+    .resolution-box strong { color: #14532D; }
+    .resolution-label {
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      color: #15803D;
+    }
+
+    /* --- PHASE HEATMAP --- */
+    .heatmap-container {
+      overflow-x: auto;
+    }
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: 180px repeat(4, 1fr);
+      gap: 2px;
+      min-width: 700px;
+    }
+    .heatmap-header {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      background: var(--primary);
+      color: white;
+      text-align: center;
+    }
+    .heatmap-header:first-child {
+      text-align: left;
+      border-radius: var(--radius-sm) 0 0 0;
+    }
+    .heatmap-header:last-child {
+      border-radius: 0 var(--radius-sm) 0 0;
+    }
+    .heatmap-phase {
+      font-weight: 600;
+      font-size: 13px;
+      padding: 14px 16px;
+      background: white;
+      border: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      color: var(--text-primary);
+    }
+    .heatmap-cell {
+      padding: 10px 12px;
+      font-size: 12px;
+      text-align: center;
+      border: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .heatmap-cell .cell-count {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .heatmap-cell .cell-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .coverage-strong { background: var(--coverage-strong-bg); color: var(--coverage-strong); }
+    .coverage-moderate { background: var(--coverage-moderate-bg); color: var(--coverage-moderate); }
+    .coverage-thin { background: var(--coverage-thin-bg); color: var(--coverage-thin); }
+    .coverage-absent { background: var(--coverage-absent-bg); color: var(--coverage-absent); }
+    .heatmap-combined {
+      font-weight: 700;
+    }
+
+    /* --- SEVERITY BADGES --- */
+    .severity-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .severity-critical { background: var(--severity-critical-bg); color: var(--severity-critical); border: 1px solid var(--severity-critical-border); }
+    .severity-high { background: var(--severity-high-bg); color: var(--severity-high); border: 1px solid var(--severity-high-border); }
+    .severity-medium { background: var(--severity-medium-bg); color: var(--severity-medium); border: 1px solid var(--severity-medium-border); }
+    .severity-low { background: var(--severity-low-bg); color: var(--severity-low); border: 1px solid var(--severity-low-border); }
+
+    /* --- GAP / DETAILS ACCORDION --- */
+    .gap-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .gap-item + .gap-item { margin-top: 12px; }
+    .gap-item summary {
+      padding: 16px 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      list-style: none;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .gap-item summary:hover {
+      background: var(--surface-warm);
+    }
+    .gap-item summary::-webkit-details-marker { display: none; }
+    .gap-item summary::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid var(--text-muted);
+      border-bottom: 2px solid var(--text-muted);
+      transform: rotate(-45deg);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .gap-item[open] summary::before {
+      transform: rotate(45deg);
+    }
+    .gap-item .gap-body {
+      padding: 0 24px 20px;
+    }
+    .gap-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+    .gap-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .gap-meta-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--accent-pale);
+      color: var(--primary);
+    }
+    .fix-box {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #166534;
+    }
+    .fix-box strong { color: #14532D; }
+    .fix-label {
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      color: #15803D;
+    }
+
+    /* --- ELEMENT QUALITY TABLE --- */
+    .quality-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: white;
+    }
+    .quality-table th {
+      background: var(--primary);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      text-align: left;
+    }
+    .quality-table td {
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+    .quality-table tr:last-child td { border-bottom: none; }
+    .quality-table tr:hover td { background: var(--surface-warm); }
+    .element-id-cell {
+      font-family: 'DM Sans', monospace;
+      font-weight: 600;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+    .issue-type-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--accent-pale);
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    /* --- USER STORY CHECKLIST --- */
+    .story-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .story-item:last-child { border-bottom: none; }
+    .story-status {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+    .status-full {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+    .status-partial {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+    .status-miss {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+    .story-content {
+      flex: 1;
+    }
+    .story-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .story-detail {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .story-elements {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .story-element-tag {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--accent-pale);
+      color: var(--primary);
+    }
+
+    /* --- BLIND SPOT --- */
+    .blind-spot-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--severity-high);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .blind-spot-card + .blind-spot-card { margin-top: 12px; }
+    .blind-spot-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .blind-spot-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .blind-spot-body {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+    .suggested-lens {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--secondary);
+      background: rgba(75, 71, 206, 0.06);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* --- PRIORITY LIST --- */
+    .priority-item {
+      display: flex;
+      gap: 16px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .priority-item:last-child { border-bottom: none; }
+    .priority-rank {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      margin-top: 2px;
+    }
+    .priority-rank.p1 { background: var(--severity-critical); }
+    .priority-rank.p2 { background: var(--severity-critical); }
+    .priority-rank.p3 { background: var(--severity-high); }
+    .priority-rank.p4 { background: var(--severity-high); }
+    .priority-rank.p5 { background: var(--severity-medium); }
+    .priority-rank.p6 { background: var(--severity-medium); }
+    .priority-rank.p7 { background: var(--severity-medium); }
+    .priority-rank.p8 { background: var(--severity-medium); }
+    .priority-rank.p9 { background: var(--severity-low); }
+    .priority-rank.p10 { background: var(--severity-low); }
+    .priority-content { flex: 1; }
+    .priority-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .priority-rationale {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .priority-approach {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      background: var(--surface-warm);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+    .priority-approach strong {
+      color: var(--text-secondary);
+    }
+
+    /* --- FOOTER --- */
+    .report-footer {
+      border-top: 2px solid var(--accent-pale);
+      padding: 32px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 768px) {
+      .report-title { font-size: 26px; }
+      .report-subtitle { font-size: 15px; }
+      .run-cards { grid-template-columns: 1fr; }
+      .evidence-grid, .position-grid { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: repeat(4, 1fr); }
+      .stat-item { padding: 14px 8px; }
+      .stat-number { font-size: 22px; }
+      .section-title { font-size: 20px; }
+      .main-content { padding: 24px 16px 60px; }
+      .header-inner { padding: 0 16px; }
+      .heatmap-grid { grid-template-columns: 140px repeat(4, 1fr); }
+      .quality-table { font-size: 12px; }
+      .quality-table th, .quality-table td { padding: 10px 8px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .report-meta { flex-direction: column; gap: 8px; }
+      .heatmap-grid { grid-template-columns: 120px repeat(4, 1fr); min-width: 600px; }
+    }
+
+    /* Utility */
+    .text-muted { color: var(--text-muted); }
+    .mt-8 { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-8 { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="report-header">
+    <div class="header-inner">
+      <div class="report-label">Cross-Run Critique Report</div>
+      <h1 class="report-title">HOST x Freud + GUEST x Flow</h1>
+      <p class="report-subtitle">Gap analysis, contradiction resolution, and blind spot identification across two independent design-stack pipeline runs</p>
+      <div class="report-meta">
+        <span>Run ID: 2026-02-19_2000</span>
+        <span>Source runs: 2026-02-19_1830 + 2026-02-19_1831</span>
+        <span>Generated: February 19, 2026</span>
+        <span>Process: cross-run-critique (L0 + L1 + L2)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== STATS BAR ========== -->
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-number">14</div>
+        <div class="stat-label">UI Elements</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">69</div>
+        <div class="stat-label">Principles</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">32</div>
+        <div class="stat-label">Reinforcements</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">6</div>
+        <div class="stat-label">Contradictions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Phase Gaps</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">10</div>
+        <div class="stat-label">Quality Issues</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">7</div>
+        <div class="stat-label">Blind Spots</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">10</div>
+        <div class="stat-label">Recommendations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+
+    <!-- SECTION 1: EXECUTIVE SUMMARY -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <h2 class="section-title">Executive Summary</h2>
+      </div>
+      <div class="executive-summary">
+        This report critiques two independent design-stack pipeline runs -- a <strong>HOST journey through Freud's Civilization and Its Discontents</strong> (instinctual renunciation, civilizational demands, aggression) and a <strong>GUEST journey through Csikszentmihalyi's Conditions of Flow</strong> (challenge-skill balance, feedback, goals, control) -- comparing their 14 UI elements and 69 design principles against each other, the existing 414-element library, and Rod's user stories. The strongest finding is a deep structural convergence: both unrelated theoretical frameworks independently arrive at the same prescriptions for value-before-the-ask, structured proposals as trust artifacts, and the Stays Manager as the platform's most critical surface. The Stays Manager is now validated by <strong>five independent theoretical lenses</strong> (Kahneman, Eyal, Norman, Freud, Csikszentmihalyi), making it the single most theoretically reinforced component in the entire library. The most critical gap is the complete absence of <strong>move-in phase UI elements</strong> for both journeys, and the most urgent fix is correcting a <strong>pricing arithmetic error</strong> in the Pre-Populated Proposal Builder that could undermine the platform's highest-stakes cross-activation moment.
+      </div>
+    </section>
+
+    <!-- SECTION 2: RUNS COMPARED -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <h2 class="section-title">Runs Compared</h2>
+      </div>
+      <div class="run-cards">
+        <!-- Run A: Host x Freud -->
+        <div class="run-card">
+          <div class="run-card-header host">Run A -- Host Journey</div>
+          <div class="run-card-body">
+            <div class="run-card-title">2026-02-19_1830</div>
+            <div class="run-card-lens">Freud Ch III + V: Civilization and Its Discontents -- instinctual renunciation, civilizational demands, aggression, narcissism of minor differences</div>
+            <div class="run-card-stats">
+              <div class="run-stat">
+                <div class="run-stat-value">7</div>
+                <div class="run-stat-label">UI Elements</div>
+              </div>
+              <div class="run-stat">
+                <div class="run-stat-value">33</div>
+                <div class="run-stat-label">Principles</div>
+              </div>
+            </div>
+            <div class="principle-breakdown">
+              <span class="principle-tag">Works: 6</span>
+              <span class="principle-tag">Communicates: 6</span>
+              <span class="principle-tag">Looks: 7</span>
+              <span class="principle-tag">Behaves: 7</span>
+              <span class="principle-tag">Feels: 7</span>
+            </div>
+          </div>
+        </div>
+        <!-- Run B: Guest x Flow -->
+        <div class="run-card">
+          <div class="run-card-header guest">Run B -- Guest Journey</div>
+          <div class="run-card-body">
+            <div class="run-card-title">2026-02-19_1831</div>
+            <div class="run-card-lens">Flow Ch 4: Conditions of Flow -- challenge-skill balance, feedback, goals, control, autotelic context, anomie, alienation</div>
+            <div class="run-card-stats">
+              <div class="run-stat">
+                <div class="run-stat-value">7</div>
+                <div class="run-stat-label">UI Elements</div>
+              </div>
+              <div class="run-stat">
+                <div class="run-stat-value">36</div>
+                <div class="run-stat-label">Principles</div>
+              </div>
+            </div>
+            <div class="principle-breakdown">
+              <span class="principle-tag">Works: 7</span>
+              <span class="principle-tag">Communicates: 7</span>
+              <span class="principle-tag">Looks: 7</span>
+              <span class="principle-tag">Behaves: 7</span>
+              <span class="principle-tag">Feels: 8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: CONVERGENT THEMES -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <h2 class="section-title">Convergent Themes</h2>
+      </div>
+      <p class="text-muted mb-8" style="margin-bottom: 16px; font-size: 14px;">Seven themes where two unrelated theoretical frameworks -- Freudian psychodynamics and Csikszentmihalyi's flow theory -- independently arrive at the same design prescription.</p>
+
+      <!-- Theme 1 -->
+      <div class="theme-card">
+        <div class="theme-card-header">
+          <span class="strength-badge strength-strong">Strong</span>
+          <span class="theme-title">Value before demand -- the platform must give before it takes at every phase entry</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="evidence-grid">
+            <div class="evidence-col">
+              <div class="evidence-label">Host x Freud</div>
+              works-001 (Graduate Instinctual Renunciation) prescribes that platform value must precede every disclosure demand. ds-ui-1830-001 (Discovery Earnings Estimator Card) shows earnings data before any sign-up. Freud's principle: "if the deprivation is not made good economically, one may be certain of producing serious disorders."
+            </div>
+            <div class="evidence-col">
+              <div class="evidence-label">Guest x Flow</div>
+              works-006 (Value-Before-Investment as Flow Entry Gate) prescribes showing real listings before any account creation. ds-ui-1831-001 (Progressive Density Listing Card) delivers rich search results without authentication.
+            </div>
+          </div>
+          <div class="implication">
+            <strong>Design implication:</strong> Both independent frameworks -- Freud's instinctual economics and Csikszentmihalyi's flow prerequisites -- arrive at the same prescription: <strong>zero-ask discovery</strong>. This convergence from two unrelated disciplines elevates value-before-the-ask from a UX best practice to a structurally necessary design requirement. Neither journey should ever present a gate before demonstrating concrete value.
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme 2 -->
+      <div class="theme-card">
+        <div class="theme-card-header">
+          <span class="strength-badge strength-strong">Strong</span>
+          <span class="theme-title">Structured proposals as trust-enabling artifacts that serve both sides of the marketplace</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="evidence-grid">
+            <div class="evidence-col">
+              <div class="evidence-label">Host x Freud</div>
+              works-003 + ds-ui-1830-004 (Proposal Review Card with Trust-First Architecture). A well-formed proposal demonstrates the guest has submitted to marketplace rules, reducing the host's instinctual distrust. Trust zone placed above terms zone.
+            </div>
+            <div class="evidence-col">
+              <div class="evidence-label">Guest x Flow</div>
+              works-003 + ds-ui-1831-004 (Pre-Populated Proposal Builder with Host Preview). Pre-populated fields reduce the guest's self-consciousness (a flow inhibitor) and produce higher-quality proposals that activate hosts faster.
+            </div>
+          </div>
+          <div class="implication">
+            <strong>Design implication:</strong> The proposal is the single most important cross-activation artifact. Run A reveals <strong>WHY the host needs</strong> structured proposals (stranger-threat resolution). Run B reveals <strong>WHY the guest needs</strong> pre-populated proposals (self-consciousness reduction). The proposal form and proposal review card should be designed as a matched pair.
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme 3 -->
+      <div class="theme-card">
+        <div class="theme-card-header">
+          <span class="strength-badge strength-strong">Strong</span>
+          <span class="theme-title">The Stays Manager as the platform's most critical engagement surface</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="evidence-grid">
+            <div class="evidence-col">
+              <div class="evidence-label">Host x Freud</div>
+              works-004 + ds-ui-1830-006 (Stay Cycle Ritual Card). The three-beat ritual cadence (arrival, cleaning photos, micro-review) provides Freudian order that contains the host's recurring anxiety about the stranger in their space.
+            </div>
+            <div class="evidence-col">
+              <div class="evidence-label">Guest x Flow</div>
+              works-004 + ds-ui-1831-007 (Evolving Stays Manager with Complexity Ratchet). The Stays Manager must evolve across three lifecycle phases (orientation, rhythm, reflection) to prevent boredom from setting in by mid-lease.
+            </div>
+          </div>
+          <div class="implication">
+            <strong>Design implication:</strong> Both runs converge on the Stays Manager as the highest-frequency, highest-stakes engagement surface. They prescribe complementary temporal strategies: <strong>the HOST-facing Stays Manager should be ritualistically consistent</strong> (Freud) while <strong>the GUEST-facing Stays Manager should evolve within a stable skeleton</strong> (Flow). This is not a contradiction -- it reflects the fundamentally different psychological needs of each marketplace side. The Stays Manager is now validated by five independent lenses, making it the most theoretically reinforced component in the entire library.
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme 4 -->
+      <div class="theme-card">
+        <div class="theme-card-header">
+          <span class="strength-badge strength-strong">Strong</span>
+          <span class="theme-title">Messaging as the most important intermediate action between passive evaluation and formal commitment</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="evidence-grid">
+            <div class="evidence-col">
+              <div class="evidence-label">Host x Freud</div>
+              A message from a guest is evidence of civilizational compliance -- the guest is approaching through structured channels, not as a random stranger. Trust between marketplace participants reduces the felt cost of instinctual sacrifice.
+            </div>
+            <div class="evidence-col">
+              <div class="evidence-label">Guest x Flow</div>
+              works-005 + ds-ui-1831-003 (Conversational Message Composer). Messaging is the intermediate challenge (A2-to-A3 bridge) that prevents the guest from stalling between passive evaluation and overwhelming proposal creation.
+            </div>
+          </div>
+          <div class="implication">
+            <strong>Design implication:</strong> Both runs identify messaging as the highest cross-activation story. Run A frames it from the host side (civilizational compliance evidence). Run B frames it from the guest side (flow-enabling intermediate challenge). The Conversational Message Composer is validated by both lenses as a critical marketplace component.
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme 5 -->
+      <div class="theme-card">
+        <div class="theme-card-header">
+          <span class="strength-badge strength-strong">Strong</span>
+          <span class="theme-title">Authentication and context disruption as a primary engagement destroyer</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="evidence-grid">
+            <div class="evidence-col">
+              <div class="evidence-label">Host x Freud</div>
+              Civilizational demands should be hidden until the host is already psychologically committed enough that withdrawal costs exceed compliance costs. Premature demands trigger instinctual revolt.
+            </div>
+            <div class="evidence-col">
+              <div class="evidence-label">Guest x Flow</div>
+              Concentration is one of four necessary conditions for flow, and authentication redirects are "stimulus overinclusion" that destroys the guest's flow state at moments of highest engagement.
+            </div>
+          </div>
+          <div class="implication">
+            <strong>Design implication:</strong> Both frameworks explain WHY inline authentication matters -- not just as a UX convenience but as a structural requirement. Authentication must use <strong>inline modals that preserve the current context</strong>, triggered only by high-intent actions (messaging, proposing), never by passive browsing.
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme 6 -->
+      <div class="theme-card">
+        <div class="theme-card-header">
+          <span class="strength-badge strength-moderate">Moderate</span>
+          <span class="theme-title">Pause/reversibility as a structural retention mechanism</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="evidence-grid">
+            <div class="evidence-col">
+              <div class="evidence-label">Host x Freud</div>
+              works-002 (Preserve Reversibility to Contain the Revolt Against Civilization). Freud identifies two types of freedom-seeking; pause accommodates both without forcing permanent exit.
+            </div>
+            <div class="evidence-col">
+              <div class="evidence-label">Guest x Flow</div>
+              behaves-002 (Contextual Continuity Preservation) preserves search state, scroll position, and filter selections across in-session transitions. Flow adds concentration preservation as the justification.
+            </div>
+          </div>
+          <div class="implication">
+            <strong>Design implication:</strong> Run A addresses macro-reversibility (pause vs. delete at the listing level). Run B addresses micro-reversibility (state preservation across context switches). Together: <strong>never destroy user investment at any scale</strong> -- within-session, between-sessions, or across-lifecycle.
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme 7 -->
+      <div class="theme-card">
+        <div class="theme-card-header">
+          <span class="strength-badge strength-strong">Strong</span>
+          <span class="theme-title">Dashboard urgency hierarchy as a universal platform pattern</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="evidence-grid">
+            <div class="evidence-col">
+              <div class="evidence-label">Host x Freud</div>
+              communicates-004 + ds-ui-1830-003 (Host Dashboard Urgency-First Action Panel). Three tiers: action required, status updates, background information. Fixed position every visit.
+            </div>
+            <div class="evidence-col">
+              <div class="evidence-label">Guest x Flow</div>
+              ds-ui-1831-007 (Evolving Stays Manager) uses a three-zone architecture: action band (top), main content (middle), reference footer (bottom). Action items surface first, collapsing when empty.
+            </div>
+          </div>
+          <div class="implication">
+            <strong>Design implication:</strong> Both runs independently derive a <strong>three-zone dashboard architecture with urgency at the top</strong>. This convergence from host and guest perspectives confirms three-zone urgency-first as a platform-wide design standard, not a role-specific solution.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: DIVERGENT THEMES -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">4</div>
+        <h2 class="section-title">Divergent Themes</h2>
+      </div>
+      <p class="text-muted" style="margin-bottom: 16px; font-size: 14px;">Five areas where the runs prescribe different approaches. Most are scope differences (host vs. guest), not true contradictions.</p>
+
+      <!-- Divergent 1 -->
+      <div class="theme-card divergent-card">
+        <div class="theme-card-header">
+          <span class="tension-badge">Scope Difference</span>
+          <span class="theme-title">Stays Manager temporal strategy: repetitive consistency vs. progressive evolution</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="position-grid">
+            <div class="position-col host-pos">
+              <div class="evidence-label">Host x Freud</div>
+              The host Stays Manager should use identical layout every visit. "Order is a kind of repetition-compulsion by which doubt and hesitation shall be avoided." The host needs predictability to contain recurring anxiety.
+            </div>
+            <div class="position-col guest-pos">
+              <div class="evidence-label">Guest x Flow</div>
+              The guest Stays Manager should evolve across three lifecycle phases. "One cannot enjoy doing the same thing at the same level for long." Content must change weekly within a stable skeleton.
+            </div>
+          </div>
+          <div class="resolution-box">
+            <div class="resolution-label">Resolution</div>
+            <strong>No conflict.</strong> The HOST Stays Manager should prioritize Freudian order (ritual consistency, identical layout). The GUEST Stays Manager should prioritize Flow's complexity ratchet (evolving content within a stable skeleton). Both share the stable three-zone architecture; they differ in how content within the skeleton evolves. This reflects fundamentally different psychological needs on each side of the marketplace.
+          </div>
+        </div>
+      </div>
+
+      <!-- Divergent 2 -->
+      <div class="theme-card divergent-card">
+        <div class="theme-card-header">
+          <span class="tension-badge">Emphasis Difference</span>
+          <span class="theme-title">Review frequency: per-stay micro-reviews vs. batched narrative reviews</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="position-grid">
+            <div class="position-col host-pos">
+              <div class="evidence-label">Host x Freud</div>
+              ds-ui-1830-006 includes a micro-review prompt as the third beat of every stay ritual. The review is part of the civilizational order that contains host anxiety -- regular evidence that the guest is respecting the arrangement.
+            </div>
+            <div class="position-col guest-pos">
+              <div class="evidence-label">Guest x Flow</div>
+              behaves-004 proposes one-tap micro-reviews during rhythm phase. But the existing library element (Batched Review Prompts) explicitly warns against per-stay review prompts due to fatigue. This is the highest-priority contradiction flagged by both L6 reports.
+            </div>
+          </div>
+          <div class="resolution-box">
+            <div class="resolution-label">Resolution -- Hybrid Model</div>
+            <strong>3-point narrative reviews</strong> (text-based, at weeks 4, midpoint, and final) remain the primary review mechanism for both host and guest. Add <strong>optional one-tap micro-ratings</strong> (5-point scale, no text, no expansion unless user-initiated) for the HOST's stay ritual card as anxiety containment, not engagement escalation. Guest micro-ratings during rhythm phase should be truly optional, never accumulating as unaddressed tasks. Different purposes require different mechanisms.
+          </div>
+        </div>
+      </div>
+
+      <!-- Divergent 3 -->
+      <div class="theme-card divergent-card">
+        <div class="theme-card-header">
+          <span class="tension-badge">Scope Difference</span>
+          <span class="theme-title">Phase coverage emphasis: pre-commitment vs. post-commitment</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="position-grid">
+            <div class="position-col host-pos">
+              <div class="evidence-label">Host x Freud</div>
+              Strongest at listing_creation, proposal_mgmt, active_lease, and retention. The Freud lens emphasizes the post-commitment journey -- how the host sustains civilizational participation after the initial sacrifice.
+            </div>
+            <div class="position-col guest-pos">
+              <div class="evidence-label">Guest x Flow</div>
+              Strongest at search, listing_evaluation, proposal_creation, and active_lease. The Flow lens emphasizes the pre-commitment journey -- how the guest maintains flow through the decision chain.
+            </div>
+          </div>
+          <div class="resolution-box">
+            <div class="resolution-label">Resolution</div>
+            <strong>Complementary, not contradictory.</strong> Run A fills gaps in the host post-commitment journey (retention gets the biggest upgrade). Run B fills gaps in the guest pre-commitment journey (search and listing evaluation get the richest treatment). Combined, they provide strong coverage across both journeys. The remaining gap: <strong>acceptance and move-in have thin coverage in both runs.</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divergent 4 -->
+      <div class="theme-card divergent-card">
+        <div class="theme-card-header">
+          <span class="tension-badge">Emphasis Difference</span>
+          <span class="theme-title">Negotiation framing: gatekeeping vs. collaborative game</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="position-grid">
+            <div class="position-col host-pos">
+              <div class="evidence-label">Host x Freud</div>
+              The host experiences negotiation as "vigilant gatekeeping." The counter-proposal is a controlled assertion of remaining autonomy: "I accept this stranger, but on my terms." Emphasis on host's power to modify terms.
+            </div>
+            <div class="position-col guest-pos">
+              <div class="evidence-label">Guest x Flow</div>
+              The guest should experience negotiation as collaborative agon -- "seeking together." ds-ui-1831-005 provides market calibration data and a "Suggest a change" option that transforms binary accept/reject into a skilled game.
+            </div>
+          </div>
+          <div class="resolution-box">
+            <div class="resolution-label">Resolution</div>
+            <strong>Both framings are valid for their respective sides.</strong> Present the SAME underlying data differently: the host sees "Adjust terms" as authority; the guest sees "Suggest a change" as collaboration. Market calibration data must be available to BOTH sides to prevent information asymmetry.
+          </div>
+        </div>
+      </div>
+
+      <!-- Divergent 5 -->
+      <div class="theme-card divergent-card">
+        <div class="theme-card-header">
+          <span class="tension-badge">Scope Difference</span>
+          <span class="theme-title">Token palette: purple production vs. warm neutral tokens.json</span>
+        </div>
+        <div class="theme-card-body">
+          <div class="position-grid">
+            <div class="position-col host-pos">
+              <div class="evidence-label">Host x Freud</div>
+              All 7 UI elements reference the production purple palette. L6 explicitly flags tokens.json as outdated and recommends treating production CSS as authoritative.
+            </div>
+            <div class="position-col guest-pos">
+              <div class="evidence-label">Guest x Flow</div>
+              All 7 UI elements also reference the production purple palette. L6 notes the same token drift. Both runs agree tokens.json is stale.
+            </div>
+          </div>
+          <div class="resolution-box">
+            <div class="resolution-label">Resolution</div>
+            <strong>No contradiction between runs.</strong> Both correctly follow the production style guide. The action item is external: tokens.json must be updated to match production CSS variables. Both runs reinforce this as a priority.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: PHASE COVERAGE HEAT MAP -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">5</div>
+        <h2 class="section-title">Phase Coverage Heat Map</h2>
+      </div>
+      <p class="text-muted" style="margin-bottom: 16px; font-size: 14px;">Visual grid showing host and guest UI element coverage by phase, color-coded by combined coverage strength.</p>
+      <div class="heatmap-container">
+        <div class="heatmap-grid">
+          <!-- Header row -->
+          <div class="heatmap-header">Phase</div>
+          <div class="heatmap-header">Host (Run A)</div>
+          <div class="heatmap-header">Guest (Run B)</div>
+          <div class="heatmap-header">Combined</div>
+          <div class="heatmap-header">Gap Notes</div>
+
+          <!-- Discovery -->
+          <div class="heatmap-phase">Discovery</div>
+          <div class="heatmap-cell coverage-moderate">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Element</span>
+          </div>
+          <div class="heatmap-cell coverage-absent">
+            <span class="cell-count">0</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate heatmap-combined">
+            <span class="cell-label">Moderate</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Guest discovery landing has no buildable component</div>
+
+          <!-- Evaluation -->
+          <div class="heatmap-phase">Evaluation</div>
+          <div class="heatmap-cell coverage-thin">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Extended</span>
+          </div>
+          <div class="heatmap-cell coverage-absent">
+            <span class="cell-count">0</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-thin heatmap-combined">
+            <span class="cell-label">Thin</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Weakest phase in both runs; no dedicated evaluation UI</div>
+
+          <!-- Search -->
+          <div class="heatmap-phase">Search</div>
+          <div class="heatmap-cell" style="background: #F5F3FF; color: var(--text-muted);">
+            <span class="cell-count">--</span>
+            <span class="cell-label">Host N/A</span>
+          </div>
+          <div class="heatmap-cell coverage-strong">
+            <span class="cell-count">2</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-strong heatmap-combined">
+            <span class="cell-label">Strong</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Well-covered: Listing Card + Living Map</div>
+
+          <!-- Listing Evaluation -->
+          <div class="heatmap-phase">Listing Evaluation</div>
+          <div class="heatmap-cell" style="background: #F5F3FF; color: var(--text-muted);">
+            <span class="cell-count">--</span>
+            <span class="cell-label">Host N/A</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Element</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate heatmap-combined">
+            <span class="cell-label">Moderate</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Listing page layout itself is undesigned</div>
+
+          <!-- Listing Creation -->
+          <div class="heatmap-phase">Listing Creation</div>
+          <div class="heatmap-cell coverage-moderate">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Element</span>
+          </div>
+          <div class="heatmap-cell" style="background: #F5F3FF; color: var(--text-muted);">
+            <span class="cell-count">--</span>
+            <span class="cell-label">Guest N/A</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate heatmap-combined">
+            <span class="cell-label">Moderate</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Wizard progress card only; internal steps uncovered</div>
+
+          <!-- Pricing -->
+          <div class="heatmap-phase">Pricing</div>
+          <div class="heatmap-cell coverage-thin">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Extended</span>
+          </div>
+          <div class="heatmap-cell coverage-absent">
+            <span class="cell-count">0</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-thin heatmap-combined">
+            <span class="cell-label">Thin</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">No pricing-specific element; only wizard step</div>
+
+          <!-- Proposal Mgmt -->
+          <div class="heatmap-phase">Proposal Mgmt</div>
+          <div class="heatmap-cell coverage-strong">
+            <span class="cell-count">2</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Element</span>
+          </div>
+          <div class="heatmap-cell coverage-strong heatmap-combined">
+            <span class="cell-label">Strong</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Full lifecycle: creation + review + confirmation</div>
+
+          <!-- Negotiation -->
+          <div class="heatmap-phase">Negotiation</div>
+          <div class="heatmap-cell coverage-absent">
+            <span class="cell-count">0</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Element</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate heatmap-combined">
+            <span class="cell-label">Moderate</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Guest side covered; host counter-offer UI missing</div>
+
+          <!-- Acceptance -->
+          <div class="heatmap-phase">Acceptance</div>
+          <div class="heatmap-cell coverage-absent">
+            <span class="cell-count">0</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Element</span>
+          </div>
+          <div class="heatmap-cell coverage-thin heatmap-combined">
+            <span class="cell-label">Thin</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Guest celebration exists; host confirmation missing</div>
+
+          <!-- Move-In -->
+          <div class="heatmap-phase">Move-In</div>
+          <div class="heatmap-cell coverage-absent">
+            <span class="cell-count">0</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-absent">
+            <span class="cell-count">0</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-absent heatmap-combined">
+            <span class="cell-label">Absent</span>
+          </div>
+          <div class="heatmap-cell" style="background: var(--coverage-absent-bg); text-align: left; font-size: 11px; color: var(--coverage-absent); font-weight: 600;">CRITICAL: Zero elements; biggest gap in entire library</div>
+
+          <!-- Active Lease -->
+          <div class="heatmap-phase">Active Lease</div>
+          <div class="heatmap-cell coverage-strong">
+            <span class="cell-count">2</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Element</span>
+          </div>
+          <div class="heatmap-cell coverage-strong heatmap-combined">
+            <span class="cell-label">Strong</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Strongest combined coverage in both runs</div>
+
+          <!-- Retention -->
+          <div class="heatmap-phase">Retention</div>
+          <div class="heatmap-cell coverage-moderate">
+            <span class="cell-count">1</span>
+            <span class="cell-label">Element</span>
+          </div>
+          <div class="heatmap-cell coverage-absent">
+            <span class="cell-count">0</span>
+            <span class="cell-label">Elements</span>
+          </div>
+          <div class="heatmap-cell coverage-moderate heatmap-combined">
+            <span class="cell-label">Moderate</span>
+          </div>
+          <div class="heatmap-cell" style="background: white; text-align: left; font-size: 11px; color: var(--text-muted);">Host retention covered; guest re-booking unaddressed</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: CRITICAL GAPS -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">6</div>
+        <h2 class="section-title">Critical Gaps</h2>
+      </div>
+      <p class="text-muted" style="margin-bottom: 16px; font-size: 14px;">8 phase-level gaps ranked by severity, with recommended fixes. Expand each item for full analysis.</p>
+
+      <!-- Gap 1: Move-In (Critical) -->
+      <details class="gap-item">
+        <summary>
+          <span class="severity-badge severity-critical">Critical</span>
+          Move-In Phase -- Zero UI elements for both host and guest
+        </summary>
+        <div class="gap-body">
+          <div class="gap-meta">
+            <span class="gap-meta-tag">Both journeys</span>
+            <span class="gap-meta-tag">0 elements</span>
+            <span class="gap-meta-tag">25 of 420 library elements</span>
+          </div>
+          <div class="gap-description">
+            Move-in has ZERO dedicated UI elements from either run. ds-ui-1831-006 (Acceptance Celebration) bridges toward it but does not design the move-in experience itself. The L0 comparison marks combined coverage as "absent." Run B's L6 report explicitly notes: "move-in is where the physical world interrupts the digital flow channel" and recommends a dedicated future run. Feels-006 in Run B covers both acceptance and move-in in a single element, which the L6 report flags as insufficient: "move-in deserves its own dedicated emotional element." This is the single biggest gap in the entire library.
+          </div>
+          <div class="fix-box">
+            <div class="fix-label">Recommended Fix</div>
+            Dedicated future run with a lens focused on physical-to-digital transition (e.g., Norman's "knowledge in the world" chapter or Csikszentmihalyi's everyday flow chapter). Must produce: <strong>(1)</strong> Guest Move-In Checklist Card with host contact, arrival protocol, and neighborhood orientation; <strong>(2)</strong> Host Move-In Preparation Card with guest arrival details, key exchange protocol, and first-stay expectations.
+          </div>
+        </div>
+      </details>
+
+      <!-- Gap 2: Evaluation (High) -->
+      <details class="gap-item">
+        <summary>
+          <span class="severity-badge severity-high">High</span>
+          Evaluation Phase -- No dedicated host evaluation UI element
+        </summary>
+        <div class="gap-body">
+          <div class="gap-meta">
+            <span class="gap-meta-tag">Host journey</span>
+            <span class="gap-meta-tag">Combined: thin</span>
+          </div>
+          <div class="gap-description">
+            Run A's host evaluation phase (comparing Split Lease to Craigslist/Airbnb/word-of-mouth) has no dedicated UI element. Run A's L6 coherence report explicitly flags this: "No element addresses the specific moment where the host compares Split Lease to alternatives." The Freud insight that "we should be much happier if we were to give it up and go back to primitive conditions" maps directly to this comparison moment, but no element operationalizes it.
+          </div>
+          <div class="fix-box">
+            <div class="fix-label">Recommended Fix</div>
+            A host evaluation element that addresses the cost-of-civilization calculation: "What does Split Lease give me that finding someone on my own does not?" This could be a <strong>comparison card showing platform protections</strong> (vetting, payment security, dispute resolution) against DIY risks. A behavioral economics lens (Thaler/Ariely) would ground this effectively.
+          </div>
+        </div>
+      </details>
+
+      <!-- Gap 3: Acceptance (High) -->
+      <details class="gap-item">
+        <summary>
+          <span class="severity-badge severity-high">High</span>
+          Acceptance Phase -- No host-side acceptance confirmation experience
+        </summary>
+        <div class="gap-body">
+          <div class="gap-meta">
+            <span class="gap-meta-tag">Host journey</span>
+            <span class="gap-meta-tag">Combined: thin</span>
+          </div>
+          <div class="gap-description">
+            Run B provides ds-ui-1831-006 (Acceptance Celebration and Orientation Bridge) for the guest side, but NO host-side acceptance element exists from either run. When a guest accepts a proposal, the host has no designed experience for seeing that commitment confirmed.
+          </div>
+          <div class="fix-box">
+            <div class="fix-label">Recommended Fix</div>
+            Design a <strong>Host Acceptance Confirmation Card</strong> that mirrors the guest celebration: shows the confirmed guest's trust signals, confirmed terms, and a "What happens next" timeline for the host (lease document preparation, move-in day logistics, first stay cycle expectations). The Freud lens would frame this as the moment the civilizational contract becomes real.
+          </div>
+        </div>
+      </details>
+
+      <!-- Gap 4: Pricing (Medium) -->
+      <details class="gap-item">
+        <summary>
+          <span class="severity-badge severity-medium">Medium</span>
+          Pricing Phase -- No dedicated pricing interface element
+        </summary>
+        <div class="gap-body">
+          <div class="gap-meta">
+            <span class="gap-meta-tag">Host journey</span>
+            <span class="gap-meta-tag">Combined: thin</span>
+          </div>
+          <div class="gap-description">
+            Pricing is addressed only as one step of ds-ui-1830-002 (Listing Wizard Progress Card). No element designs the pricing interface itself -- the smart defaults, the market comparison, the fee transparency. Run A's L6 coherence report identifies pricing as loaded with instinctual anxiety ("sublimation of emotional attachment into economic value") but produces no pricing-specific element.
+          </div>
+          <div class="fix-box">
+            <div class="fix-label">Recommended Fix</div>
+            A pricing-specific run with <strong>Thaler/Ariely behavioral economics lens</strong> to address the endowment effect, anchoring, and fee transparency. Must produce a Smart Pricing Card with market comparison data, fee breakdown with bidirectional framing, and a confidence-building preview.
+          </div>
+        </div>
+      </details>
+
+      <!-- Gap 5: Listing Evaluation (Medium) -->
+      <details class="gap-item">
+        <summary>
+          <span class="severity-badge severity-medium">Medium</span>
+          Listing Evaluation -- No listing detail page layout element
+        </summary>
+        <div class="gap-body">
+          <div class="gap-meta">
+            <span class="gap-meta-tag">Guest journey</span>
+            <span class="gap-meta-tag">Combined: moderate</span>
+          </div>
+          <div class="gap-description">
+            The guest-side listing detail page has no dedicated UI element from either run. ds-ui-1831-003 bridges evaluation to proposal, but no element designs the listing page layout -- photo gallery, amenity display, neighborhood context, host profile section, or trust signal placement.
+          </div>
+          <div class="fix-box">
+            <div class="fix-label">Recommended Fix</div>
+            A <strong>Listing Detail Page Layout element</strong> specifying: photo gallery with image counter, amenity grid, neighborhood context, host profile with trust signals, availability calendar, and the Message Host CTA positioned as intermediate action before proposal.
+          </div>
+        </div>
+      </details>
+
+      <!-- Gap 6: Negotiation (Medium) -->
+      <details class="gap-item">
+        <summary>
+          <span class="severity-badge severity-medium">Medium</span>
+          Negotiation -- No host-side counter-proposal creation UI
+        </summary>
+        <div class="gap-body">
+          <div class="gap-meta">
+            <span class="gap-meta-tag">Host journey</span>
+            <span class="gap-meta-tag">Combined: moderate</span>
+          </div>
+          <div class="gap-description">
+            Run B provides ds-ui-1831-005 for the guest side. Run A covers the host counter-proposal at the principle level but produces no dedicated HOST-side negotiation UI element. The host's counter-offer creation interface is uncovered.
+          </div>
+          <div class="fix-box">
+            <div class="fix-label">Recommended Fix</div>
+            Design a <strong>Host Counter-Proposal Builder</strong> with term adjustment sliders, guest-impact preview, and market calibration data. Frame counter-proposing as "adjusting terms" (authority), not "bargaining" (concession).
+          </div>
+        </div>
+      </details>
+
+      <!-- Gap 7: Guest Retention (Medium) -->
+      <details class="gap-item">
+        <summary>
+          <span class="severity-badge severity-medium">Medium</span>
+          Guest Retention -- Lease renewal and re-booking unaddressed
+        </summary>
+        <div class="gap-body">
+          <div class="gap-meta">
+            <span class="gap-meta-tag">Guest journey</span>
+            <span class="gap-meta-tag">Host retention covered by ds-ui-1830-007</span>
+          </div>
+          <div class="gap-description">
+            Run A provides ds-ui-1830-007 for host retention. Guest retention -- lease renewal, re-booking with same or different host -- is not addressed by either run.
+          </div>
+          <div class="fix-box">
+            <div class="fix-label">Recommended Fix</div>
+            Design a <strong>Guest Re-Booking Card</strong> appearing near lease end, showing cumulative stay history, review record, and a one-tap renewal or "explore new listings" path. The Flow lens frames this as the reflection-to-new-cycle transition.
+          </div>
+        </div>
+      </details>
+
+      <!-- Gap 8: Guest Discovery (Medium) -->
+      <details class="gap-item">
+        <summary>
+          <span class="severity-badge severity-medium">Medium</span>
+          Guest Discovery -- Strong principles but no buildable component
+        </summary>
+        <div class="gap-body">
+          <div class="gap-meta">
+            <span class="gap-meta-tag">Guest journey</span>
+            <span class="gap-meta-tag">Host has ds-ui-1830-001</span>
+          </div>
+          <div class="gap-description">
+            Run B covers discovery at the principle level (works-006, communicates-005, feels-001) but produces no dedicated guest discovery UI element. The host side has ds-ui-1830-001 (Discovery Earnings Estimator) but no guest equivalent exists.
+          </div>
+          <div class="fix-box">
+            <div class="fix-label">Recommended Fix</div>
+            A <strong>Guest Discovery Landing Component</strong> showing real listings, neighborhood highlights, and platform trust signals before any sign-up. Must implement Flow's "distinct world" quality -- visually different from everyday browsing.
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- SECTION 7: ELEMENT QUALITY AUDIT -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">7</div>
+        <h2 class="section-title">Element Quality Audit</h2>
+      </div>
+      <p class="text-muted" style="margin-bottom: 16px; font-size: 14px;">10 quality issues identified across the 14 UI elements, grouped by severity.</p>
+
+      <table class="quality-table">
+        <thead>
+          <tr>
+            <th>Element</th>
+            <th>Run</th>
+            <th>Issue Type</th>
+            <th>Severity</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- HIGH severity first -->
+          <tr>
+            <td class="element-id-cell">ds-ui-1831-004</td>
+            <td>Guest x Flow</td>
+            <td><span class="issue-type-tag">Weak HTML</span></td>
+            <td><span class="severity-badge severity-high">High</span></td>
+            <td>Pricing arithmetic error: "$850/night x 13 weeks = $11,050" is internally inconsistent. At $850/night for 4 nights/week, total would be $44,200. At $850/week, the "/night" label is wrong. Undermines production credibility.</td>
+          </tr>
+          <tr>
+            <td class="element-id-cell">ds-ui-1831-007</td>
+            <td>Guest x Flow</td>
+            <td><span class="issue-type-tag">Vague Spec</span></td>
+            <td><span class="severity-badge severity-high">High</span></td>
+            <td>Describes three lifecycle phases (orientation, rhythm, reflection) but only implements rhythm-phase HTML/CSS. A production team would need to design three distinct content states, not one.</td>
+          </tr>
+          <!-- MEDIUM severity -->
+          <tr>
+            <td class="element-id-cell">ds-ui-1831-002</td>
+            <td>Guest x Flow</td>
+            <td><span class="issue-type-tag">Weak HTML</span></td>
+            <td><span class="severity-badge severity-medium">Medium</span></td>
+            <td>Living Map is a static mockup using CSS gradients. Requires a real map library (Mapbox/Leaflet) in production. Pin behavior and transit labels need JavaScript handlers not included.</td>
+          </tr>
+          <tr>
+            <td class="element-id-cell">ds-ui-1831-002</td>
+            <td>Guest x Flow</td>
+            <td><span class="issue-type-tag">Vague Spec</span></td>
+            <td><span class="severity-badge severity-medium">Medium</span></td>
+            <td>Pin proximity scaling specified without mathematical function, performance budget for mousemove throttling, or touch-device fallback. Mobile described as "full-screen toggle" without interaction model.</td>
+          </tr>
+          <tr>
+            <td class="element-id-cell">ds-ui-1831-001</td>
+            <td>Guest x Flow</td>
+            <td><span class="issue-type-tag">Vague Spec</span></td>
+            <td><span class="severity-badge severity-medium">Medium</span></td>
+            <td>Save-heart icon uses --favorites-heart (#FF6B5B) coral color not in production style guide or tokens.json. L6 coherence report flags as non-canonical.</td>
+          </tr>
+          <tr>
+            <td class="element-id-cell">ds-ui-1830-006</td>
+            <td>Host x Freud</td>
+            <td><span class="issue-type-tag">Vague Spec</span></td>
+            <td><span class="severity-badge severity-medium">Medium</span></td>
+            <td>Stay Cycle Ritual Card depends on guest submitting cleaning photos but the upload/camera affordance and submission interface are never specified. Structural dependency on undesigned companion element.</td>
+          </tr>
+          <tr>
+            <td class="element-id-cell">ds-ui-1831-005</td>
+            <td>Guest x Flow</td>
+            <td><span class="issue-type-tag">Vague Spec</span></td>
+            <td><span class="severity-badge severity-medium">Medium</span></td>
+            <td>Hardcoded example values only show host shortening duration. Does not address rate changes, multi-dimension changes, or the inverse case. "Suggest a modification" guided fields are unspecified.</td>
+          </tr>
+          <!-- LOW severity -->
+          <tr>
+            <td class="element-id-cell">ds-ui-1831-001</td>
+            <td>Guest x Flow</td>
+            <td><span class="issue-type-tag">Weak HTML</span></td>
+            <td><span class="severity-badge severity-low">Low</span></td>
+            <td>Uses Unsplash placeholder URL. Expanded drawer uses position:absolute that may cause layout issues in CSS Grid context with variable card heights.</td>
+          </tr>
+          <tr>
+            <td class="element-id-cell">ds-ui-1830-005</td>
+            <td>Host x Freud</td>
+            <td><span class="issue-type-tag">Over Theoretical</span></td>
+            <td><span class="severity-badge severity-low">Low</span></td>
+            <td>Bidirectional Protection Dialog's Freudian justification ("first requisite of culture is justice") may be more theoretical decoration than evidence-grounded insight. No call transcript excerpts cited.</td>
+          </tr>
+          <tr>
+            <td class="element-id-cell">ds-ui-1830-007</td>
+            <td>Host x Freud</td>
+            <td><span class="issue-type-tag">Weak HTML</span></td>
+            <td><span class="severity-badge severity-low">Low</span></td>
+            <td>Timeline visualization with three hardcoded opacity segments does not scale to arbitrary lease counts. Opacity calculation function undefined for hosts with 1, 5, or 10 leases.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 8: USER STORY FULFILLMENT -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">8</div>
+        <h2 class="section-title">User Story Fulfillment</h2>
+      </div>
+      <p class="text-muted" style="margin-bottom: 16px; font-size: 14px;">How the combined output of both runs addresses Rod's user stories from initial analysis.</p>
+
+      <div class="card">
+        <!-- Fully addressed stories -->
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">Listing cards want more layers (richer hover states, image counters, availability indicators, neighborhood labels, quick actions)</div>
+            <div class="story-detail">Fully addressed. ds-ui-1831-001 (Progressive Density Listing Card) covers every specific request with three-tier hover system.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1831-001</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">Messaging before proposals is a natural step (park analogy -- check availability before committing)</div>
+            <div class="story-detail">Fully addressed. Conversational Message Composer with host profile, suggested questions, and response time indicator.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1831-003</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">Completion percentage is a good host nudge (visible progress indicator on listing card)</div>
+            <div class="story-detail">Fully addressed. Listing Wizard Progress Card shows 67% completion, step-by-step status with check/pending/current indicators.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1830-002</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">Pause matters more than delete (preserve work, keep the door open)</div>
+            <div class="story-detail">Fully addressed. Frictionless "Pause this listing" text link with buried Delete, plus one-action continuation at retention.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1830-002</span><span class="story-element-tag">ds-ui-1830-007</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">Urgency should surface first on the dashboard (unread proposals, pending actions, incomplete listings)</div>
+            <div class="story-detail">Fully addressed. Both runs independently derive three-zone urgency-first architecture, confirming it as a platform-wide standard.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1830-003</span><span class="story-element-tag">ds-ui-1831-007</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">Value before the ask -- always (show something useful first, offer to refine after)</div>
+            <div class="story-detail">Fully addressed. Strongest cross-run convergence: two independent theoretical frameworks (Freud + Flow) arrive at the same zero-ask discovery prescription.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1830-001</span><span class="story-element-tag">ds-ui-1831-001</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">Proposal form should pre-populate with listing details (cross-activation)</div>
+            <div class="story-detail">Fully addressed (with caveat). Pre-Populated Proposal Builder + Trust-First Proposal Review Card form a matched pair. Pricing arithmetic error needs resolution.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1831-004</span><span class="story-element-tag">ds-ui-1830-004</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">Messaging is the highest cross-activation story (two strangers begin to trust each other through the platform)</div>
+            <div class="story-detail">Fully addressed. Conversational Message Composer validated by both lenses: civilizational compliance (host) and flow-enabling intermediate challenge (guest).</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1831-003</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-full">&#10003;</div>
+          <div class="story-content">
+            <div class="story-text">The proposal itself is a cross-activation event (well-structured proposal activates the host to respond)</div>
+            <div class="story-detail">Fully addressed. Run A reveals WHY the host needs structured proposals; Run B reveals WHY the guest needs pre-populated proposals. Complete specification as a matched pair.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1831-004</span><span class="story-element-tag">ds-ui-1830-004</span></div>
+          </div>
+        </div>
+
+        <!-- Partially addressed -->
+        <div class="story-item">
+          <div class="story-status status-partial">~</div>
+          <div class="story-content">
+            <div class="story-text">The map should feel alive (transit stops, landmarks, real-time context)</div>
+            <div class="story-detail">Partially addressed. Living Map covers search phase with pin proximity scaling and neighborhood boundaries. Gaps: search-phase only, static mockup HTML, no mobile interaction model, landmarks not addressed.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1831-002</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-partial">~</div>
+          <div class="story-content">
+            <div class="story-text">Verified reviews and host credibility signals activate guests (trust infrastructure)</div>
+            <div class="story-detail">Partially addressed. Trust addressed architecturally (information hierarchy, placement) but no standalone Trust Badge or Review Display component exists as a buildable element.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1830-004</span></div>
+          </div>
+        </div>
+
+        <div class="story-item">
+          <div class="story-status status-partial">~</div>
+          <div class="story-content">
+            <div class="story-text">An experienced guest applying to a new host is cross-activation in action</div>
+            <div class="story-detail">Partially addressed. Proposal Review Card shows lease history and rating, but not designed as a first-host-specific experience where the platform actively highlights guest reputation.</div>
+            <div class="story-elements"><span class="story-element-tag">ds-ui-1830-004</span></div>
+          </div>
+        </div>
+
+        <!-- Not addressed -->
+        <div class="story-item">
+          <div class="story-status status-miss">&#10007;</div>
+          <div class="story-content">
+            <div class="story-text">Authentication should be invisible until it matters (inline auth pop-up, not full-page redirect)</div>
+            <div class="story-detail"><strong>CRITICAL GAP.</strong> Both runs identify this as structurally essential. Both L6 reports reference it. Yet NEITHER run produces a UI element for the actual inline auth modal. The most significant blind spot relative to user story explicitness.</div>
+            <div class="story-elements"><span class="story-element-tag" style="background: var(--severity-critical-bg); color: var(--severity-critical);">No covering element</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 9: BLIND SPOTS -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">9</div>
+        <h2 class="section-title">Blind Spots</h2>
+      </div>
+      <p class="text-muted" style="margin-bottom: 16px; font-size: 14px;">7 things neither run caught -- areas that are explicitly needed but have zero buildable UI components across both runs.</p>
+
+      <div class="blind-spot-card" style="border-left-color: var(--severity-critical);">
+        <div class="blind-spot-header">
+          <span class="severity-badge severity-critical">Critical</span>
+          <span class="blind-spot-title">Inline authentication modal -- the actual UI component</span>
+        </div>
+        <div class="blind-spot-body">
+          User stories explicitly state: "Authentication should be invisible until it matters." Both runs identify this as structurally critical (Freud: premature demand triggers revolt; Flow: context switch destroys concentration). Both L6 reports reference it extensively. Yet NEITHER run produces a dedicated UI element for the inline auth modal itself. The principle is embedded in multiple elements but no run designs the actual component.
+        </div>
+        <span class="suggested-lens">Suggested lens: Norman (affordances/signifiers) or Krug (Don't Make Me Think)</span>
+      </div>
+
+      <div class="blind-spot-card">
+        <div class="blind-spot-header">
+          <span class="severity-badge severity-high">High</span>
+          <span class="blind-spot-title">Trust badge / verification display component</span>
+        </div>
+        <div class="blind-spot-body">
+          User stories state: "Verified reviews and host credibility signals activate guests." Run A places trust signals above proposal terms. Run B distributes trust signals across phases. But no UI element specifically designs the review display component or the trust badge component itself -- trust is addressed architecturally but not as a standalone buildable element.
+        </div>
+        <span class="suggested-lens">Suggested lens: Cialdini (social proof / authority)</span>
+      </div>
+
+      <div class="blind-spot-card">
+        <div class="blind-spot-header">
+          <span class="severity-badge severity-high">High</span>
+          <span class="blind-spot-title">Experienced guest's history surfaced to new hosts</span>
+        </div>
+        <div class="blind-spot-body">
+          User stories state: "An experienced guest applying to a new host is cross-activation in action." ds-ui-1830-004 shows lease history and rating implicitly, but no element is designed as a first-host-specific experience where the platform actively surfaces the guest's track record as a trust accelerator.
+        </div>
+        <span class="suggested-lens">Suggested lens: Cialdini (social proof) or Cold Start Problem (network effects)</span>
+      </div>
+
+      <div class="blind-spot-card">
+        <div class="blind-spot-header">
+          <span class="severity-badge severity-medium">Medium</span>
+          <span class="blind-spot-title">Map on listing detail page (neighborhood context beyond search)</span>
+        </div>
+        <div class="blind-spot-body">
+          ds-ui-1831-002 (Living Map) addresses the alive-map story for search, but it is a search-phase component only. The listing detail page has no map/neighborhood context component. User stories imply the map should serve both search and listing evaluation.
+        </div>
+        <span class="suggested-lens">Suggested lens: Norman (knowledge in the world)</span>
+      </div>
+
+      <div class="blind-spot-card">
+        <div class="blind-spot-header">
+          <span class="severity-badge severity-medium">Medium</span>
+          <span class="blind-spot-title">Guest-side cleaning photo submission interface</span>
+        </div>
+        <div class="blind-spot-body">
+          ds-ui-1830-006 (Stay Cycle Ritual Card) shows the host viewing cleaning photos as part of the three-beat ritual. But the companion guest-side interface for submitting photos is never designed. The host-facing card cannot function without the guest-facing submission flow -- a structural dependency gap.
+        </div>
+        <span class="suggested-lens">Suggested lens: Norman (feedback/mapping)</span>
+      </div>
+
+      <div class="blind-spot-card">
+        <div class="blind-spot-header">
+          <span class="severity-badge severity-medium">Medium</span>
+          <span class="blind-spot-title">Listing wizard internal step screens</span>
+        </div>
+        <div class="blind-spot-body">
+          ds-ui-1830-002 addresses the dashboard-level progress view. But the 6-step wizard itself (Space details, Features & amenities, Lease style, Pricing, House rules, Photos) has no step screens designed. The wizard progress card is the external view; the internal experience is uncovered.
+        </div>
+        <span class="suggested-lens">Suggested lens: Krug (Don't Make Me Think) or 100 Things Every Designer Needs to Know</span>
+      </div>
+
+      <div class="blind-spot-card">
+        <div class="blind-spot-header">
+          <span class="severity-badge severity-medium">Medium</span>
+          <span class="blind-spot-title">Error states and recovery flows</span>
+        </div>
+        <div class="blind-spot-body">
+          Run B's L6 coherence report identifies a novel extension: "No existing element treats error states as flow redirection opportunities." Neither run produces an error state component (failed submission, network error, unavailable listing, auth failure). Error recovery is a blind spot across both runs.
+        </div>
+        <span class="suggested-lens">Suggested lens: Norman (error handling / constraints)</span>
+      </div>
+    </section>
+
+    <!-- SECTION 10: PRIORITY ACTION PLAN -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">10</div>
+        <h2 class="section-title">Priority Action Plan</h2>
+      </div>
+      <p class="text-muted" style="margin-bottom: 16px; font-size: 14px;">10 ranked recommendations synthesized from the gap analysis, contradiction resolution, and blind spot identification.</p>
+
+      <div class="card" style="padding: 8px 24px;">
+        <!-- Priority 1 -->
+        <div class="priority-item">
+          <div class="priority-rank p1">1</div>
+          <div class="priority-content">
+            <div class="priority-title">Fix the pricing arithmetic in ds-ui-1831-004 and establish a platform-wide pricing model</div>
+            <div class="priority-rationale">
+              The Pre-Populated Proposal Builder contains a critical arithmetic error at the single highest-stakes cross-activation moment. If the pricing model is wrong in the spec, it will be wrong in production. Additionally, the broader pricing phase has only "thin" coverage.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Clarify whether Split Lease uses nightly or weekly pricing. Update ds-ui-1831-004's copy spec. Then consider a dedicated pricing run with a behavioral economics lens (Thaler/Ariely) to address the endowment effect, anchoring, and fee transparency.
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 2 -->
+        <div class="priority-item">
+          <div class="priority-rank p2">2</div>
+          <div class="priority-content">
+            <div class="priority-title">Design the inline authentication modal as a standalone UI element</div>
+            <div class="priority-rationale">
+              The single most explicitly requested user story with zero covering elements. Both runs identify it as structurally essential. Every high-intent action (messaging, proposing) depends on it.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Context-preserving inline auth modal: overlays current view without destroying state, supports multiple auth methods, uses production purple palette, auto-dismisses on success, resumes intended action. Pure interaction design problem -- no specific psychological lens required.
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 3 -->
+        <div class="priority-item">
+          <div class="priority-rank p3">3</div>
+          <div class="priority-content">
+            <div class="priority-title">Design move-in phase UI elements for both host and guest</div>
+            <div class="priority-rationale">
+              Marked "absent" in coverage, only 25 of 420 library elements, flagged by both L6 reports. Both theoretical lenses identify it as critical (Freud: stranger enters space; Flow: physical world interrupts digital channel).
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Dedicated cross-run with Norman's "knowledge in the world" lens. Produce: Guest Move-In Checklist Card (arrival protocol, orientation), Host Move-In Preparation Card (guest details, space prep), and House Manual component.
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 4 -->
+        <div class="priority-item">
+          <div class="priority-rank p4">4</div>
+          <div class="priority-content">
+            <div class="priority-title">Resolve the review frequency contradiction with the hybrid model</div>
+            <div class="priority-rationale">
+              Highest-severity contradiction identified independently by both coherence reports. Unresolved tension will create implementation confusion if both elements are merged without a canonical resolution.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Formalize: 3-point narrative reviews (canonical, weeks 4/midpoint/final) + optional one-tap micro-ratings for host anxiety containment + optional guest micro-ratings in rhythm phase (never appearing as unaddressed tasks). Document as a platform-wide Review Strategy element.
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 5 -->
+        <div class="priority-item">
+          <div class="priority-rank p5">5</div>
+          <div class="priority-content">
+            <div class="priority-title">Design host-side acceptance and counter-proposal creation UI elements</div>
+            <div class="priority-rationale">
+              Two significant host-side gaps: no host acceptance confirmation experience and no host counter-proposal creation interface. Guest side has both mirror components; host side is missing them.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Host Acceptance Confirmation Card (mirrors ds-ui-1831-006's structure) + Host Counter-Proposal Builder (mirrors ds-ui-1831-005 but framed as authority/gatekeeping).
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 6 -->
+        <div class="priority-item">
+          <div class="priority-rank p6">6</div>
+          <div class="priority-content">
+            <div class="priority-title">Complete ds-ui-1831-007 with all three lifecycle phase states</div>
+            <div class="priority-rationale">
+              The platform's most-visited page (13+ times per lease) with the most theoretical reinforcement (five lenses). Only rhythm-phase HTML exists; orientation and reflection states are described but not implemented.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Full HTML/CSS for all three states: Orientation (weeks 1-3, checklist-focused), Rhythm (weeks 4-9, existing implementation), Reflection (weeks 10-13, cumulative stats + re-booking). Each shares stable three-zone skeleton.
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 7 -->
+        <div class="priority-item">
+          <div class="priority-rank p7">7</div>
+          <div class="priority-content">
+            <div class="priority-title">Design standalone Trust Badge and Review Display components</div>
+            <div class="priority-rationale">
+              Trust signals are addressed architecturally but no standalone component exists. Also resolves the green-vs-purple token conflict for trust badges.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Trust Badge Component (verification checkmark, member-since, credibility tier) + Review Display Card (aggregate rating, individual entries, temporal narrative). Use production purple palette with shield-check + pill pattern from L6.
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 8 -->
+        <div class="priority-item">
+          <div class="priority-rank p8">8</div>
+          <div class="priority-content">
+            <div class="priority-title">Design guest-side cleaning photo submission interface</div>
+            <div class="priority-rationale">
+              Structural dependency: ds-ui-1830-006 cannot function without the companion guest-facing submission flow. The cleaning photo beat is the second of three ritual confirmations.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Cleaning Photo Submission Card for guest Stays Manager: camera/upload affordance with 2x2 grid, instant confirmation, framed as stay cycle ritual (not surveillance). Flow lens positions it as a micro-challenge in the complexity ratchet.
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 9 -->
+        <div class="priority-item">
+          <div class="priority-rank p9">9</div>
+          <div class="priority-content">
+            <div class="priority-title">Reconcile tokens.json with the production style guide</div>
+            <div class="priority-rationale">
+              Persistent token drift flagged by both L6 reports, the L0 comparison, and MEMORY.md. All 14 UI elements correctly use production palette, but tokens.json remains stale.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Update tokens.json to match production purple palette. Deprecate green accent. Formalize seven new semantic tokens from Run A's L6. Remove proposed --accent-coral from Run B's ds-ui-1831-001, replace with existing palette color.
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority 10 -->
+        <div class="priority-item">
+          <div class="priority-rank p10">10</div>
+          <div class="priority-content">
+            <div class="priority-title">Design guest discovery landing experience as a buildable component</div>
+            <div class="priority-rationale">
+              Strong principle-level coverage from both runs (value-before-investment converges across Freud and Flow) but zero buildable UI components for the guest discovery landing.
+            </div>
+            <div class="priority-approach">
+              <strong>Approach:</strong> Guest Discovery Landing Component showing real listings (Progressive Density Card), neighborhood highlights (Living Map), and platform trust signals before sign-up. Must implement Flow's "distinct world" quality through production purple palette and immersive content.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="report-footer">
+    <div class="footer-inner">
+      <p style="margin-bottom: 8px;"><strong>Cross-Run Critique Report</strong> | Run 2026-02-19_2000</p>
+      <p>Source runs: 2026-02-19_1830 (HOST x Freud Ch III+V) + 2026-02-19_1831 (GUEST x Flow Ch 4)</p>
+      <p style="margin-top: 8px; color: var(--text-muted);">Generated by the Design Stack cross-run-critique pipeline (Layer 0: Cross-Run Comparison, Layer 1: Deep Gap Analysis, Layer 2: Report Generation)</p>
+      <p style="margin-top: 16px; font-size: 12px; color: var(--border);">Split Lease Design Stack | February 2026</p>
+    </div>
+  </footer>
+
+</body>
+</html>

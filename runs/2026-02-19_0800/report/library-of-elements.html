@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library of Elements | Run 2026-02-19_0800</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #31135D;
+      --secondary: rgb(109, 49, 194);
+      --accent: rgb(140, 104, 238);
+      --bg: #f9fafb;
+      --surface: #ffffff;
+      --text-dark: #1a1a1a;
+      --text-gray: #6b7280;
+      --text-light: #9ca3af;
+      --border: #e5e7eb;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-lg: 0 4px 16px rgba(49,19,93,0.15);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text-dark); }
+
+    .header { background: linear-gradient(135deg, #31135D 0%, #5a2d8f 100%); color: #fff; padding: 40px; }
+    .header h1 { font-family: 'DM Sans', sans-serif; font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    .header p { font-size: 14px; opacity: 0.8; }
+    .header .run-info { margin-top: 12px; display: flex; gap: 16px; font-size: 12px; opacity: 0.7; flex-wrap: wrap; }
+
+    .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 40px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
+    .search-input { padding: 8px 16px; border: 1px solid var(--border); border-radius: 20px; font-size: 14px; width: 250px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+    .search-input:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(109,49,194,0.1); }
+    .filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-group-label { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; align-self: center; }
+    .filter-btn { padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 12px; font-family: 'Inter', sans-serif; background: var(--surface); color: var(--text-gray); cursor: pointer; transition: all 0.15s; }
+    .filter-btn:hover { border-color: var(--secondary); color: var(--secondary); }
+    .filter-btn.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+    .filter-btn.all { font-weight: 600; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; padding: 32px 40px; max-width: 1440px; margin: 0 auto; }
+
+    .element-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: box-shadow 0.3s ease, transform 0.3s ease; }
+    .element-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .element-card.hidden { display: none; }
+
+    .card-preview { height: 280px; background: #f3f4f6; overflow: hidden; border-bottom: 1px solid var(--border); position: relative; }
+    .card-preview iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
+
+    .card-body { padding: 20px; }
+    .card-meta { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .priority-badge { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .priority-P0 { background: rgba(220,53,69,0.1); color: #DC3545; }
+    .priority-P1 { background: rgba(196,132,29,0.1); color: #C4841D; }
+    .priority-P2 { background: #f3f4f6; color: var(--text-gray); }
+    .category-badge { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; background: rgba(109,49,194,0.08); color: var(--secondary); }
+    .phase-badge { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; background: rgba(49,19,93,0.06); color: var(--primary); }
+
+    .card-title { font-size: 16px; font-weight: 600; color: var(--primary); margin-bottom: 8px; line-height: 1.3; }
+    .card-desc { font-size: 13px; color: var(--text-gray); line-height: 1.5; margin-bottom: 12px; }
+    .card-principles { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+    .principle-tag { padding: 1px 6px; border-radius: 4px; font-size: 10px; font-family: monospace; background: #f3f4f6; color: var(--text-gray); }
+
+    .card-details { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; }
+    .card-details summary { font-size: 12px; font-weight: 600; color: var(--secondary); cursor: pointer; }
+    .details-content { margin-top: 10px; font-size: 12px; color: var(--text-gray); line-height: 1.6; }
+    .details-content p { margin-bottom: 8px; }
+    .details-content strong { color: var(--text-dark); }
+
+    .stats-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 8px 40px; font-size: 12px; color: var(--text-gray); }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; padding: 16px; }
+      .header, .toolbar { padding-left: 16px; padding-right: 16px; }
+      .search-input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Library of Elements</h1>
+    <p>Concrete UI element specifications from the Design Stack pipeline</p>
+    <div class="run-info">
+      <span>Run: 2026-02-19_0800</span>
+      <span>Lens: kris-call.txt + nudge-choice-architecture.txt</span>
+      <span>Journey: Host</span>
+      <span>Elements: 7</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" class="search-input" placeholder="Search elements..." id="search">
+    <span class="filter-group-label">Category:</span>
+    <div class="filter-group" id="category-filters">
+      <button class="filter-btn all active" data-filter="category" data-value="all">All</button>
+      <button class="filter-btn" data-filter="category" data-value="pricing">pricing</button><button class="filter-btn" data-filter="category" data-value="dashboard">dashboard</button><button class="filter-btn" data-filter="category" data-value="onboarding">onboarding</button><button class="filter-btn" data-filter="category" data-value="notification">notification</button><button class="filter-btn" data-filter="category" data-value="form">form</button><button class="filter-btn" data-filter="category" data-value="card">card</button>
+    </div>
+    <span class="filter-group-label">Phase:</span>
+    <div class="filter-group" id="phase-filters">
+      <button class="filter-btn all active" data-filter="phase" data-value="all">All</button>
+      <button class="filter-btn" data-filter="phase" data-value="pricing">pricing</button><button class="filter-btn" data-filter="phase" data-value="active_lease">active lease</button><button class="filter-btn" data-filter="phase" data-value="onboarding">onboarding</button><button class="filter-btn" data-filter="phase" data-value="retention">retention</button><button class="filter-btn" data-filter="phase" data-value="listing_creation">listing creation</button><button class="filter-btn" data-filter="phase" data-value="evaluation">evaluation</button>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">Showing 7 of 7 elements</div>
+
+  <div class="grid" id="grid">
+    
+  <div class="element-card" data-category="pricing" data-phase="pricing" data-priority="P0" data-name="smart pricing default card">
+    <div class="card-preview">
+      <iframe srcdoc="&lt;div style=&quot;font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto;&quot;&gt;
+  &lt;style&gt;
+    .pricing-card { background: #fff; border-radius: 12px; border: 2px solid rgb(109, 49, 194); padding: 28px; box-shadow: 0 4px 16px rgba(49, 19, 93, 0.15); }
+    .pricing-badge { display: inline-block; background: rgb(109, 49, 194); color: #fff; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+    .pricing-amount { font-family: 'DM Sans', sans-serif; font-size: 48px; font-weight: 700; color: #31135D; line-height: 1.1; }
+    .pricing-unit { font-size: 16px; font-weight: 400; color: #6b7280; margin-left: 4px; }
+    .pricing-context { font-size: 14px; color: #374151; margin-top: 12px; line-height: 1.5; }
+    .pricing-context strong { color: #31135D; }
+    .pricing-comps { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+    .pricing-comps-title { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .comp-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 13px; color: #374151; }
+    .comp-price { font-weight: 600; color: #31135D; }
+    .pricing-slider-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+    .pricing-slider-label { font-size: 12px; color: #6b7280; margin-bottom: 8px; }
+    .pricing-slider { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, #e5e7eb 0%, rgb(109, 49, 194) 55%, #e5e7eb 100%); border-radius: 3px; outline: none; }
+    .pricing-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: rgb(109, 49, 194); border-radius: 50%; cursor: pointer; box-shadow: 0 2px 6px rgba(49, 19, 93, 0.3); }
+    .pricing-accept-btn { width: 100%; margin-top: 20px; padding: 14px; background: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%); color: #fff; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; border: none; border-radius: 20px; cursor: pointer; transition: opacity 0.2s ease; }
+    .pricing-accept-btn:hover { opacity: 0.9; }
+  &lt;/style&gt;
+  &lt;div class=&quot;pricing-card&quot;&gt;
+    &lt;span class=&quot;pricing-badge&quot;&gt;Recommended&lt;/span&gt;
+    &lt;div&gt;&lt;span class=&quot;pricing-amount&quot;&gt;$185&lt;/span&gt;&lt;span class=&quot;pricing-unit&quot;&gt;/ night&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;pricing-context&quot;&gt;Based on similar 1BR listings near &lt;strong&gt;57th &amp;amp; Park Ave&lt;/strong&gt;. At this rate, your estimated monthly income is &lt;strong&gt;$3,885&lt;/strong&gt; — covering 71% of your $5,500 rent.&lt;/div&gt;
+    &lt;div class=&quot;pricing-comps&quot;&gt;
+      &lt;div class=&quot;pricing-comps-title&quot;&gt;Similar listings nearby&lt;/div&gt;
+      &lt;div class=&quot;comp-item&quot;&gt;&lt;span&gt;1BR, Midtown East, furnished&lt;/span&gt;&lt;span class=&quot;comp-price&quot;&gt;$195/night&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;comp-item&quot;&gt;&lt;span&gt;1BR+office, Upper East Side&lt;/span&gt;&lt;span class=&quot;comp-price&quot;&gt;$175/night&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;comp-item&quot;&gt;&lt;span&gt;1BR, Lenox Hill, doorman&lt;/span&gt;&lt;span class=&quot;comp-price&quot;&gt;$190/night&lt;/span&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;pricing-slider-section&quot;&gt;
+      &lt;div class=&quot;pricing-slider-label&quot;&gt;Adjust if needed&lt;/div&gt;
+      &lt;input type=&quot;range&quot; class=&quot;pricing-slider&quot; min=&quot;100&quot; max=&quot;300&quot; value=&quot;185&quot;&gt;
+    &lt;/div&gt;
+    &lt;button class=&quot;pricing-accept-btn&quot;&gt;Accept Recommended Price&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="priority-badge priority-P0">P0</span>
+        <span class="category-badge">pricing</span>
+        <span class="phase-badge">pricing</span>
+      </div>
+      <h3 class="card-title">Smart Pricing Default Card</h3>
+      <p class="card-desc">A pricing recommendation card that pre-fills the nightly rate based on comparable listings, anchoring the host on a data-driven default. Shows recommended price prominently with comps support and a sl...</p>
+      <div class="card-principles"><span class="principle-tag">works-001</span><span class="principle-tag">communicates-002</span><span class="principle-tag">looks-002</span><span class="principle-tag">behaves-001</span><span class="principle-tag">feels-003</span></div>
+      <details class="card-details">
+        <summary>Behavioral Notes &amp; Test Criteria</summary>
+        <div class="details-content">
+          <p><strong>Behavior:</strong> One-tap acceptance with 5-second undo toast. Slider enables adjustment but visual weight on 'Accept Recommended' makes the default path of least resistance. Optimistic UI: price is set immediately on tap, server syncs in background.</p>
+          <p><strong>Emotion:</strong> Excitement grounded in data. The host should feel 'I'm going to earn real money' while also feeling 'this recommendation is based on real data, not a guess.'</p>
+          <p><strong>Tests:</strong> Default acceptance rate above 60%. Hosts who accept the default achieve booking rates within 10% of hosts who override. Time-to-pricing-completion under 15 seconds for default acceptors.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+  <div class="element-card" data-category="dashboard" data-phase="active_lease" data-priority="P0" data-name="property protection shield badge">
+    <div class="card-preview">
+      <iframe srcdoc="&lt;div style=&quot;font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 400px;&quot;&gt;
+  &lt;style&gt;
+    .shield-card { background: rgb(252, 250, 255); border: 1px solid #e5e7eb; border-left: 4px solid rgb(109, 49, 194); border-radius: 12px; padding: 20px; }
+    .shield-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .shield-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #31135D 0%, #5a2d8f 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .shield-icon svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .shield-title { font-size: 16px; font-weight: 600; color: #31135D; }
+    .shield-subtitle { font-size: 12px; color: rgb(109, 49, 194); font-weight: 500; }
+    .shield-items { display: flex; flex-direction: column; gap: 10px; }
+    .shield-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #374151; }
+    .shield-check { width: 18px; height: 18px; background: rgb(109, 49, 194); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .shield-check svg { width: 10px; height: 10px; fill: none; stroke: #fff; stroke-width: 2.5; }
+    .shield-item-label { font-weight: 500; }
+    .shield-item-detail { color: #6b7280; font-size: 12px; }
+    .shield-agent { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e5e7eb; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #6b7280; }
+    .shield-agent-avatar { width: 28px; height: 28px; background: #31135D; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; }
+  &lt;/style&gt;
+  &lt;div class=&quot;shield-card&quot;&gt;
+    &lt;div class=&quot;shield-header&quot;&gt;
+      &lt;div class=&quot;shield-icon&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div&gt;
+        &lt;div class=&quot;shield-title&quot;&gt;Property Protected&lt;/div&gt;
+        &lt;div class=&quot;shield-subtitle&quot;&gt;All verifications complete&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;shield-items&quot;&gt;
+      &lt;div class=&quot;shield-item&quot;&gt;
+        &lt;div class=&quot;shield-check&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div&gt;&lt;div class=&quot;shield-item-label&quot;&gt;Guest credit check: Excellent&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;shield-item&quot;&gt;
+        &lt;div class=&quot;shield-check&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div&gt;&lt;div class=&quot;shield-item-label&quot;&gt;2 landlord references verified&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;shield-item&quot;&gt;
+        &lt;div class=&quot;shield-check&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div&gt;&lt;div class=&quot;shield-item-label&quot;&gt;Payment guarantee: Active&lt;/div&gt;&lt;div class=&quot;shield-item-detail&quot;&gt;$5,500/mo rent protected&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;shield-item&quot;&gt;
+        &lt;div class=&quot;shield-check&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;polyline points=&quot;20 6 9 17 4 12&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div&gt;&lt;div class=&quot;shield-item-label&quot;&gt;High-value items noted&lt;/div&gt;&lt;div class=&quot;shield-item-detail&quot;&gt;Art collection flagged for premium vetting&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;shield-agent&quot;&gt;
+      &lt;div class=&quot;shield-agent-avatar&quot;&gt;B&lt;/div&gt;
+      &lt;span&gt;Reviewed by Bryant, your dedicated agent&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="priority-badge priority-P0">P0</span>
+        <span class="category-badge">dashboard</span>
+        <span class="phase-badge">active lease</span>
+      </div>
+      <h3 class="card-title">Property Protection Shield Badge</h3>
+      <p class="card-desc">A persistent protection status indicator for the active lease dashboard. Shows a shield icon with verification status, payment guarantee, and guest credentials at a glance. Addresses premium hosts' lo...</p>
+      <div class="card-principles"><span class="principle-tag">works-003</span><span class="principle-tag">communicates-001</span><span class="principle-tag">looks-003</span><span class="principle-tag">feels-002</span></div>
+      <details class="card-details">
+        <summary>Behavioral Notes &amp; Test Criteria</summary>
+        <div class="details-content">
+          <p><strong>Behavior:</strong> Always visible on the active lease dashboard without scrolling. The shield icon is tappable to expand to a full verification report. Protection status updates in real-time as each verification step completes. If any verification is pending, the shield shows a warning state with amber indicator.</p>
+          <p><strong>Emotion:</strong> Safety and calm. The host should glance at this card and feel 'everything is handled, my property is protected.' The specificity (credit check: Excellent, 2 references verified) creates concrete reassurance, not vague promises.</p>
+          <p><strong>Tests:</strong> 80% of premium hosts recall seeing protection signals without prompting. Comfort score increases by 2+ points (on 10-point scale) when this card is present vs absent. Support tickets about guest vetting decrease by 30%.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+  <div class="element-card" data-category="onboarding" data-phase="onboarding" data-priority="P0" data-name="agent welcome bridge card">
+    <div class="card-preview">
+      <iframe srcdoc="&lt;div style=&quot;font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 520px; margin: 0 auto;&quot;&gt;
+  &lt;style&gt;
+    .welcome-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 16px rgba(49, 19, 93, 0.12); overflow: hidden; }
+    .welcome-header { background: linear-gradient(135deg, #31135D 0%, #5a2d8f 100%); padding: 24px; display: flex; align-items: center; gap: 16px; }
+    .welcome-avatar { width: 56px; height: 56px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; font-weight: 600; flex-shrink: 0; }
+    .welcome-greeting { color: #fff; }
+    .welcome-greeting h3 { margin: 0; font-size: 18px; font-weight: 600; }
+    .welcome-greeting p { margin: 4px 0 0; font-size: 13px; opacity: 0.85; }
+    .welcome-body { padding: 24px; }
+    .welcome-section-title { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .welcome-note { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151; line-height: 1.5; }
+    .welcome-note:last-child { border-bottom: none; }
+    .welcome-note-icon { width: 20px; height: 20px; background: rgb(252, 250, 255); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .welcome-note-icon svg { width: 12px; height: 12px; stroke: rgb(109, 49, 194); fill: none; stroke-width: 2; }
+    .welcome-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .welcome-action-btn { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgb(252, 250, 255); border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-weight: 500; color: #31135D; cursor: pointer; transition: background 0.2s ease; }
+    .welcome-action-btn:hover { background: #f3f0f8; }
+    .welcome-action-arrow { color: rgb(109, 49, 194); font-size: 16px; }
+    .welcome-contact { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #6b7280; }
+    .welcome-contact a { color: rgb(109, 49, 194); text-decoration: none; font-weight: 500; }
+  &lt;/style&gt;
+  &lt;div class=&quot;welcome-card&quot;&gt;
+    &lt;div class=&quot;welcome-header&quot;&gt;
+      &lt;div class=&quot;welcome-avatar&quot;&gt;B&lt;/div&gt;
+      &lt;div class=&quot;welcome-greeting&quot;&gt;
+        &lt;h3&gt;Welcome, Kris&lt;/h3&gt;
+        &lt;p&gt;Bryant spoke with you on Feb 18. Here's what was discussed.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;welcome-body&quot;&gt;
+      &lt;div class=&quot;welcome-section-title&quot;&gt;From your call&lt;/div&gt;
+      &lt;div class=&quot;welcome-note&quot;&gt;
+        &lt;div class=&quot;welcome-note-icon&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z&quot;/&gt;&lt;circle cx=&quot;12&quot; cy=&quot;10&quot; r=&quot;3&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;span&gt;Your property at &lt;strong&gt;57th St between Park &amp;amp; Lexington&lt;/strong&gt; is listed as a premium 1BR + office&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;welcome-note&quot;&gt;
+        &lt;div class=&quot;welcome-note-icon&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;18&quot; rx=&quot;2&quot; ry=&quot;2&quot;/&gt;&lt;line x1=&quot;16&quot; y1=&quot;2&quot; x2=&quot;16&quot; y2=&quot;6&quot;/&gt;&lt;line x1=&quot;8&quot; y1=&quot;2&quot; x2=&quot;8&quot; y2=&quot;6&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;span&gt;Schedule: Available ~3 weeks/month. Next availability starts &lt;strong&gt;Feb 21&lt;/strong&gt;&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;welcome-note&quot;&gt;
+        &lt;div class=&quot;welcome-note-icon&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;&lt;line x1=&quot;12&quot; y1=&quot;1&quot; x2=&quot;12&quot; y2=&quot;23&quot;/&gt;&lt;path d=&quot;M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;span&gt;Pricing recommendation being prepared based on nearby listings&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;welcome-actions&quot;&gt;
+        &lt;div class=&quot;welcome-section-title&quot;&gt;Suggested next steps&lt;/div&gt;
+        &lt;div class=&quot;welcome-action-btn&quot;&gt;&lt;span&gt;Upload better photos of your apartment&lt;/span&gt;&lt;span class=&quot;welcome-action-arrow&quot;&gt;&amp;rarr;&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;welcome-action-btn&quot;&gt;&lt;span&gt;Review your listing details&lt;/span&gt;&lt;span class=&quot;welcome-action-arrow&quot;&gt;&amp;rarr;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;welcome-contact&quot;&gt;
+        Questions? &lt;a href=&quot;#&quot;&gt;Contact Bryant directly&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="priority-badge priority-P0">P0</span>
+        <span class="category-badge">onboarding</span>
+        <span class="phase-badge">onboarding</span>
+      </div>
+      <h3 class="card-title">Agent Welcome Bridge Card</h3>
+      <p class="card-desc">A personalized welcome card shown on first login after an agent call. Displays the agent's name and photo, key call outcomes, and pre-filled action items. Bridges human trust to digital trust by showi...</p>
+      <div class="card-principles"><span class="principle-tag">works-004</span><span class="principle-tag">communicates-003</span><span class="principle-tag">looks-004</span><span class="principle-tag">feels-001</span></div>
+      <details class="card-details">
+        <summary>Behavioral Notes &amp; Test Criteria</summary>
+        <div class="details-content">
+          <p><strong>Behavior:</strong> Shown only on first login after an agent call. Dismissible but persists in sidebar for 7 days. Action items link directly to the relevant platform section. Agent contact link opens direct messaging, not a generic support form. If no call data exists, this card is not shown (avoids generic welcome messages).</p>
+          <p><strong>Emotion:</strong> Confidence and warmth. The host should feel 'they know who I am and what we discussed.' The agent's name and specific call details transform a cold platform login into a warm continuation of a human relationship.</p>
+          <p><strong>Tests:</strong> Hosts who see this card show 30%+ higher listing completion rate within the first session. Return visit rate within 7 days is 20%+ higher than hosts without the card.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+  <div class="element-card" data-category="onboarding" data-phase="onboarding" data-priority="P1" data-name="owner invite access card">
+    <div class="card-preview">
+      <iframe srcdoc="&lt;div style=&quot;font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 400px;&quot;&gt;
+  &lt;style&gt;
+    .invite-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; }
+    .invite-title { font-size: 16px; font-weight: 600; color: #31135D; margin-bottom: 4px; }
+    .invite-desc { font-size: 13px; color: #6b7280; margin-bottom: 20px; line-height: 1.5; }
+    .invite-input-group { margin-bottom: 16px; }
+    .invite-label { font-size: 12px; font-weight: 500; color: #374151; margin-bottom: 6px; display: block; }
+    .invite-input { width: 100%; box-sizing: border-box; height: 42px; padding: 0 12px; font-family: 'Inter', sans-serif; font-size: 14px; color: #1a1a1a; border: 1px solid #e5e7eb; border-radius: 6px; outline: none; transition: border-color 0.1s ease; }
+    .invite-input:focus { border-color: rgb(109, 49, 194); box-shadow: 0 0 0 3px rgba(109, 49, 194, 0.1); }
+    .invite-input::placeholder { color: #9ca3af; }
+    .invite-perms { margin-bottom: 20px; }
+    .invite-perm-title { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .invite-perm-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #374151; padding: 4px 0; }
+    .invite-perm-check { color: rgb(109, 49, 194); font-weight: 600; }
+    .invite-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%); color: #fff; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; border: none; border-radius: 20px; cursor: pointer; transition: opacity 0.2s ease; }
+    .invite-btn:hover { opacity: 0.9; }
+    .invite-note { font-size: 11px; color: #9ca3af; margin-top: 12px; text-align: center; }
+  &lt;/style&gt;
+  &lt;div class=&quot;invite-card&quot;&gt;
+    &lt;div class=&quot;invite-title&quot;&gt;Invite Property Owner&lt;/div&gt;
+    &lt;div class=&quot;invite-desc&quot;&gt;Let the property owner view their listing, approve proposals, and see earnings — without needing a full account.&lt;/div&gt;
+    &lt;div class=&quot;invite-input-group&quot;&gt;
+      &lt;label class=&quot;invite-label&quot;&gt;Owner's name&lt;/label&gt;
+      &lt;input type=&quot;text&quot; class=&quot;invite-input&quot; placeholder=&quot;e.g., Christopher&quot; value=&quot;Christopher&quot;&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;invite-input-group&quot;&gt;
+      &lt;label class=&quot;invite-label&quot;&gt;Owner's phone number&lt;/label&gt;
+      &lt;input type=&quot;tel&quot; class=&quot;invite-input&quot; placeholder=&quot;(917) 858-8949&quot; value=&quot;(917) 858-8949&quot;&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;invite-perms&quot;&gt;
+      &lt;div class=&quot;invite-perm-title&quot;&gt;Owner can&lt;/div&gt;
+      &lt;div class=&quot;invite-perm-item&quot;&gt;&lt;span class=&quot;invite-perm-check&quot;&gt;&amp;#10003;&lt;/span&gt; View listing and photos&lt;/div&gt;
+      &lt;div class=&quot;invite-perm-item&quot;&gt;&lt;span class=&quot;invite-perm-check&quot;&gt;&amp;#10003;&lt;/span&gt; Approve or decline proposals&lt;/div&gt;
+      &lt;div class=&quot;invite-perm-item&quot;&gt;&lt;span class=&quot;invite-perm-check&quot;&gt;&amp;#10003;&lt;/span&gt; View earnings and payment history&lt;/div&gt;
+      &lt;div class=&quot;invite-perm-item&quot;&gt;&lt;span class=&quot;invite-perm-check&quot;&gt;&amp;#10003;&lt;/span&gt; See guest verification details&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button class=&quot;invite-btn&quot;&gt;Send Invite via SMS&lt;/button&gt;
+    &lt;div class=&quot;invite-note&quot;&gt;A magic link will be texted to the owner. No password needed.&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="priority-badge priority-P1">P1</span>
+        <span class="category-badge">onboarding</span>
+        <span class="phase-badge">onboarding</span>
+      </div>
+      <h3 class="card-title">Owner Invite Access Card</h3>
+      <p class="card-desc">An invite card that allows the account manager to grant the property owner view-and-approve access to a listing. Implements delegated host access via SMS magic link, enabling proxy account management ...</p>
+      <div class="card-principles"><span class="principle-tag">works-002</span><span class="principle-tag">behaves-002</span><span class="principle-tag">feels-001</span></div>
+      <details class="card-details">
+        <summary>Behavioral Notes &amp; Test Criteria</summary>
+        <div class="details-content">
+          <p><strong>Behavior:</strong> SMS magic link expires after 24 hours. Owner taps link, verifies via SMS code, and gains scoped access. The invite is shown on the listing management page for account holders who are not the property owner (detected via mismatched names or agent notes). Agent can also trigger this invite.</p>
+          <p><strong>Emotion:</strong> Confidence through simplicity. The account manager should feel 'I can easily give the owner access without making it complicated.' The owner should feel 'I can see my listing without learning a new platform.'</p>
+          <p><strong>Tests:</strong> At least 15% of new listings generate an owner invite within the first month. Invite acceptance rate above 70%. Magic link flow completion in under 60 seconds.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+  <div class="element-card" data-category="notification" data-phase="retention" data-priority="P0" data-name="auto-renewal notification card">
+    <div class="card-preview">
+      <iframe srcdoc="&lt;div style=&quot;font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto;&quot;&gt;
+  &lt;style&gt;
+    .renewal-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden; }
+    .renewal-header { background: rgb(252, 250, 255); padding: 20px 24px; border-bottom: 1px solid #e5e7eb; }
+    .renewal-badge { display: inline-block; background: rgb(109, 49, 194); color: #fff; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+    .renewal-title { font-size: 18px; font-weight: 600; color: #31135D; }
+    .renewal-subtitle { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .renewal-body { padding: 24px; }
+    .renewal-guest { display: flex; align-items: center; gap: 14px; padding: 16px; background: #f9fafb; border-radius: 10px; margin-bottom: 20px; }
+    .renewal-guest-avatar { width: 48px; height: 48px; background: #31135D; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: 600; flex-shrink: 0; }
+    .renewal-guest-info h4 { margin: 0; font-size: 15px; font-weight: 600; color: #1a1a1a; }
+    .renewal-guest-info p { margin: 2px 0 0; font-size: 12px; color: #6b7280; }
+    .renewal-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .renewal-term { padding: 12px; background: #f9fafb; border-radius: 8px; }
+    .renewal-term-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .renewal-term-value { font-size: 16px; font-weight: 600; color: #31135D; margin-top: 4px; }
+    .renewal-auto-msg { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: rgba(109, 49, 194, 0.06); border-radius: 8px; font-size: 13px; color: rgb(82, 31, 147); margin-bottom: 20px; }
+    .renewal-auto-icon { font-size: 16px; }
+    .renewal-actions { display: flex; flex-direction: column; gap: 8px; }
+    .renewal-continue-btn { padding: 14px; background: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%); color: #fff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; border: none; border-radius: 20px; cursor: pointer; transition: opacity 0.2s ease; }
+    .renewal-continue-btn:hover { opacity: 0.9; }
+    .renewal-secondary-actions { display: flex; justify-content: center; gap: 16px; margin-top: 8px; }
+    .renewal-link { font-size: 13px; color: #6b7280; text-decoration: none; cursor: pointer; transition: color 0.1s ease; }
+    .renewal-link:hover { color: #374151; }
+  &lt;/style&gt;
+  &lt;div class=&quot;renewal-card&quot;&gt;
+    &lt;div class=&quot;renewal-header&quot;&gt;
+      &lt;span class=&quot;renewal-badge&quot;&gt;Auto-renewing&lt;/span&gt;
+      &lt;div class=&quot;renewal-title&quot;&gt;Lease renews Mar 15&lt;/div&gt;
+      &lt;div class=&quot;renewal-subtitle&quot;&gt;Same guest, same terms. No action needed.&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;renewal-body&quot;&gt;
+      &lt;div class=&quot;renewal-guest&quot;&gt;
+        &lt;div class=&quot;renewal-guest-avatar&quot;&gt;M&lt;/div&gt;
+        &lt;div class=&quot;renewal-guest-info&quot;&gt;
+          &lt;h4&gt;Marcus T.&lt;/h4&gt;
+          &lt;p&gt;Guest since Jan 2026 &amp;middot; 2 successful stays &amp;middot; 4.9 rating&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;renewal-terms&quot;&gt;
+        &lt;div class=&quot;renewal-term&quot;&gt;
+          &lt;div class=&quot;renewal-term-label&quot;&gt;Nightly rate&lt;/div&gt;
+          &lt;div class=&quot;renewal-term-value&quot;&gt;$185&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;renewal-term&quot;&gt;
+          &lt;div class=&quot;renewal-term-label&quot;&gt;Next period&lt;/div&gt;
+          &lt;div class=&quot;renewal-term-value&quot;&gt;21 nights&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;renewal-term&quot;&gt;
+          &lt;div class=&quot;renewal-term-label&quot;&gt;Est. income&lt;/div&gt;
+          &lt;div class=&quot;renewal-term-value&quot;&gt;$3,885&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;renewal-term&quot;&gt;
+          &lt;div class=&quot;renewal-term-label&quot;&gt;Rent coverage&lt;/div&gt;
+          &lt;div class=&quot;renewal-term-value&quot;&gt;71%&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;renewal-auto-msg&quot;&gt;
+        &lt;span class=&quot;renewal-auto-icon&quot;&gt;&amp;#8635;&lt;/span&gt;
+        &lt;span&gt;This lease will auto-renew on Mar 15. You don't need to do anything.&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;renewal-actions&quot;&gt;
+        &lt;button class=&quot;renewal-continue-btn&quot;&gt;Looks Good&lt;/button&gt;
+        &lt;div class=&quot;renewal-secondary-actions&quot;&gt;
+          &lt;a class=&quot;renewal-link&quot;&gt;Modify terms&lt;/a&gt;
+          &lt;a class=&quot;renewal-link&quot;&gt;End lease&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="priority-badge priority-P0">P0</span>
+        <span class="category-badge">notification</span>
+        <span class="phase-badge">retention</span>
+      </div>
+      <h3 class="card-title">Auto-Renewal Notification Card</h3>
+      <p class="card-desc">A lease renewal notification that defaults to continuation with the same guest. Uses status quo bias to retain hosts: the lease auto-renews unless the host actively opts out. The visual treatment make...</p>
+      <div class="card-principles"><span class="principle-tag">works-005</span><span class="principle-tag">behaves-003</span><span class="principle-tag">feels-001</span><span class="principle-tag">feels-004</span></div>
+      <details class="card-details">
+        <summary>Behavioral Notes &amp; Test Criteria</summary>
+        <div class="details-content">
+          <p><strong>Behavior:</strong> Auto-renews if no action taken. The 'Looks Good' button is purely confirmatory (the renewal happens regardless). 'Modify terms' opens a lightweight adjustment screen. 'End lease' requires an additional confirmation step with mild friction ('Are you sure? Marcus has been a great guest for 2 months.'). Notification sent 30 days before renewal, reminder at 7 days.</p>
+          <p><strong>Emotion:</strong> Calm confidence. The host should feel 'everything is continuing smoothly — I don't need to worry about finding a new guest or re-negotiating terms.' The guest tenure signal ('Guest since Jan 2026') builds trust through history.</p>
+          <p><strong>Tests:</strong> Renewal rate increases by at least 20% vs manual renewal. Opt-out rate stays below 15%. Satisfaction scores do not decrease. Support tickets about auto-renewal below 5% of total renewals.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+  <div class="element-card" data-category="form" data-phase="listing_creation" data-priority="P1" data-name="schedule-to-income calculator">
+    <div class="card-preview">
+      <iframe srcdoc="&lt;div style=&quot;font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto;&quot;&gt;
+  &lt;style&gt;
+    .schedule-calc { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; }
+    .schedule-calc-title { font-size: 16px; font-weight: 600; color: #31135D; margin-bottom: 16px; }
+    .schedule-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .schedule-label { font-size: 13px; color: #374151; width: 120px; flex-shrink: 0; }
+    .schedule-value { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; color: #31135D; }
+    .schedule-unit { font-size: 13px; color: #6b7280; margin-left: 4px; }
+    .schedule-divider { height: 1px; background: #e5e7eb; margin: 16px 0; }
+    .schedule-income-box { background: linear-gradient(135deg, rgba(49, 19, 93, 0.04), rgba(109, 49, 194, 0.06)); border-radius: 10px; padding: 20px; text-align: center; }
+    .schedule-income-label { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .schedule-income-amount { font-family: 'DM Sans', sans-serif; font-size: 36px; font-weight: 700; color: #31135D; }
+    .schedule-income-period { font-size: 14px; color: #6b7280; }
+    .schedule-rent-bar { margin-top: 16px; }
+    .schedule-rent-label { font-size: 12px; color: #6b7280; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .schedule-rent-track { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+    .schedule-rent-fill { height: 100%; width: 71%; background: linear-gradient(90deg, rgb(109, 49, 194), rgb(140, 104, 238)); border-radius: 4px; }
+    .schedule-rent-context { font-size: 13px; color: #374151; margin-top: 8px; text-align: center; }
+    .schedule-rent-context strong { color: rgb(109, 49, 194); }
+  &lt;/style&gt;
+  &lt;div class=&quot;schedule-calc&quot;&gt;
+    &lt;div class=&quot;schedule-calc-title&quot;&gt;Your Availability = Income&lt;/div&gt;
+    &lt;div class=&quot;schedule-row&quot;&gt;
+      &lt;span class=&quot;schedule-label&quot;&gt;Away each month&lt;/span&gt;
+      &lt;span class=&quot;schedule-value&quot;&gt;3&lt;span class=&quot;schedule-unit&quot;&gt;weeks&lt;/span&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;schedule-row&quot;&gt;
+      &lt;span class=&quot;schedule-label&quot;&gt;Bookable nights&lt;/span&gt;
+      &lt;span class=&quot;schedule-value&quot;&gt;21&lt;span class=&quot;schedule-unit&quot;&gt;nights/month&lt;/span&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;schedule-row&quot;&gt;
+      &lt;span class=&quot;schedule-label&quot;&gt;Recommended rate&lt;/span&gt;
+      &lt;span class=&quot;schedule-value&quot;&gt;$185&lt;span class=&quot;schedule-unit&quot;&gt;/night&lt;/span&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;schedule-divider&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;schedule-income-box&quot;&gt;
+      &lt;div class=&quot;schedule-income-label&quot;&gt;Estimated monthly income&lt;/div&gt;
+      &lt;div class=&quot;schedule-income-amount&quot;&gt;$3,885&lt;/div&gt;
+      &lt;div class=&quot;schedule-income-period&quot;&gt;per month&lt;/div&gt;
+      &lt;div class=&quot;schedule-rent-bar&quot;&gt;
+        &lt;div class=&quot;schedule-rent-label&quot;&gt;&lt;span&gt;Rent coverage&lt;/span&gt;&lt;span&gt;71%&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;schedule-rent-track&quot;&gt;&lt;div class=&quot;schedule-rent-fill&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;schedule-rent-context&quot;&gt;Covers &lt;strong&gt;$3,885&lt;/strong&gt; of your $5,500 monthly rent&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="priority-badge priority-P1">P1</span>
+        <span class="category-badge">form</span>
+        <span class="phase-badge">listing creation</span>
+      </div>
+      <h3 class="card-title">Schedule-to-Income Calculator</h3>
+      <p class="card-desc">A schedule entry component that immediately translates the host's availability into income potential. Reframes 'time away' as 'bookable nights' and shows earnings relative to the host's rent. Uses the...</p>
+      <div class="card-principles"><span class="principle-tag">communicates-004</span><span class="principle-tag">feels-003</span></div>
+      <details class="card-details">
+        <summary>Behavioral Notes &amp; Test Criteria</summary>
+        <div class="details-content">
+          <p><strong>Behavior:</strong> Income calculation updates in real-time as the host adjusts their schedule or pricing. The rent coverage bar animates smoothly (300ms ease-out) when values change. Tapping the income amount reveals a monthly breakdown. The component appears immediately after schedule entry in the listing wizard — no intermediate steps between 'when am I available?' and 'how much will I earn?'</p>
+          <p><strong>Emotion:</strong> Excitement grounded in specifics. The host's 'weird schedule' is reframed as a clear income opportunity. The rent coverage percentage makes the income personally meaningful — it's not abstract money, it's a concrete fraction of their biggest monthly expense.</p>
+          <p><strong>Tests:</strong> Hosts who see the schedule-to-income calculator complete the listing wizard at 25%+ higher rates than those who see schedule entry without income context. Time spent on the schedule step increases by 10-15% (positive engagement, not confusion).</p>
+        </div>
+      </details>
+    </div>
+  </div>
+  <div class="element-card" data-category="card" data-phase="evaluation" data-priority="P1" data-name="premium listing badge card">
+    <div class="card-preview">
+      <iframe srcdoc="&lt;div style=&quot;font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 380px;&quot;&gt;
+  &lt;style&gt;
+    .premium-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(49, 19, 93, 0.18); }
+    .premium-card-image { height: 200px; background: linear-gradient(135deg, rgba(49, 19, 93, 0.7), rgba(109, 49, 194, 0.5)), url('data:image/svg+xml,&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;380&quot; height=&quot;200&quot;&gt;&lt;rect fill=&quot;%23ddd&quot; width=&quot;380&quot; height=&quot;200&quot;/&gt;&lt;text x=&quot;190&quot; y=&quot;100&quot; text-anchor=&quot;middle&quot; fill=&quot;%23999&quot; font-size=&quot;14&quot;&gt;Property Photo&lt;/text&gt;&lt;/svg&gt;'); background-size: cover; background-position: center; position: relative; display: flex; align-items: flex-end; padding: 16px; }
+    .premium-badge-overlay { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #31135D; }
+    .premium-badge-dot { width: 8px; height: 8px; background: #D4A853; border-radius: 50%; }
+    .premium-card-body { padding: 24px 24px 20px; }
+    .premium-card-location { font-size: 11px; font-weight: 600; color: rgb(109, 49, 194); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .premium-card-title { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 600; color: #31135D; margin-bottom: 8px; line-height: 1.3; }
+    .premium-card-features { display: flex; gap: 12px; font-size: 12px; color: #6b7280; margin-bottom: 16px; }
+    .premium-card-feature { display: flex; align-items: center; gap: 4px; }
+    .premium-card-divider { height: 1px; background: #e5e7eb; margin-bottom: 16px; }
+    .premium-card-footer { display: flex; justify-content: space-between; align-items: center; }
+    .premium-card-price { font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; color: #31135D; }
+    .premium-card-price-unit { font-size: 13px; font-weight: 400; color: #6b7280; }
+    .premium-card-agent { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #6b7280; }
+    .premium-card-agent-dot { width: 24px; height: 24px; background: #31135D; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 600; }
+  &lt;/style&gt;
+  &lt;div class=&quot;premium-card&quot;&gt;
+    &lt;div class=&quot;premium-card-image&quot;&gt;
+      &lt;span class=&quot;premium-badge-overlay&quot;&gt;&lt;span class=&quot;premium-badge-dot&quot;&gt;&lt;/span&gt;Premium Property&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;premium-card-body&quot;&gt;
+      &lt;div class=&quot;premium-card-location&quot;&gt;Midtown East, Manhattan&lt;/div&gt;
+      &lt;div class=&quot;premium-card-title&quot;&gt;Elegant 1BR + Office on 57th St&lt;/div&gt;
+      &lt;div class=&quot;premium-card-features&quot;&gt;
+        &lt;span class=&quot;premium-card-feature&quot;&gt;1 Bed + Office&lt;/span&gt;
+        &lt;span class=&quot;premium-card-feature&quot;&gt;&amp;middot;&lt;/span&gt;
+        &lt;span class=&quot;premium-card-feature&quot;&gt;11.5ft Ceilings&lt;/span&gt;
+        &lt;span class=&quot;premium-card-feature&quot;&gt;&amp;middot;&lt;/span&gt;
+        &lt;span class=&quot;premium-card-feature&quot;&gt;Rooftop&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;premium-card-divider&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;premium-card-footer&quot;&gt;
+        &lt;div class=&quot;premium-card-price&quot;&gt;$185&lt;span class=&quot;premium-card-price-unit&quot;&gt; / night&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;premium-card-agent&quot;&gt;&lt;div class=&quot;premium-card-agent-dot&quot;&gt;B&lt;/div&gt;Managed by Bryant&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="priority-badge priority-P1">P1</span>
+        <span class="category-badge">card</span>
+        <span class="phase-badge">evaluation</span>
+      </div>
+      <h3 class="card-title">Premium Listing Badge Card</h3>
+      <p class="card-desc">A premium listing card treatment that visually distinguishes high-value properties from standard listings. Uses the deep purple palette, DM Sans typography, and generous spacing to signal sophisticati...</p>
+      <div class="card-principles"><span class="principle-tag">looks-001</span><span class="principle-tag">feels-004</span></div>
+      <details class="card-details">
+        <summary>Behavioral Notes &amp; Test Criteria</summary>
+        <div class="details-content">
+          <p><strong>Behavior:</strong> Premium cards have a purple gradient overlay on the hero image. Hover/tap lifts the card with increased shadow (shadow-lg). The 'Premium Property' badge uses a gold dot to signal elevated status without adding a new color to the main palette. Agent presence ('Managed by Bryant') reinforces the trust bridge between human and platform.</p>
+          <p><strong>Emotion:</strong> Premium recognition and confidence. The host should look at this card and think 'this platform treats my property with the respect it deserves.' Guests should look at this card and think 'this is a quality space managed by professionals.'</p>
+          <p><strong>Tests:</strong> Premium listing cards receive 15%+ higher click-through rates from guests than standard listing cards in the same market. Premium hosts report higher satisfaction with how their property is presented (qualitative usability test).</p>
+        </div>
+      </details>
+    </div>
+  </div>
+  </div>
+
+  <footer style="text-align:center;padding:32px;color:var(--text-light);font-size:12px;">
+    SplitLease Design Stack v2.0 | Run 2026-02-19_0800 | Generated 2026-02-19
+  </footer>
+
+  <script>
+    const cards = document.querySelectorAll('.element-card');
+    const searchInput = document.getElementById('search');
+    const statsBar = document.getElementById('stats-bar');
+    let activeCategory = 'all';
+    let activePhase = 'all';
+
+    function filterCards() {
+      const query = searchInput.value.toLowerCase();
+      let visible = 0;
+      cards.forEach(card => {
+        const matchCategory = activeCategory === 'all' || card.dataset.category === activeCategory;
+        const matchPhase = activePhase === 'all' || card.dataset.phase === activePhase;
+        const matchSearch = !query || card.dataset.name.includes(query) || card.querySelector('.card-desc').textContent.toLowerCase().includes(query);
+        const show = matchCategory && matchPhase && matchSearch;
+        card.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      statsBar.textContent = 'Showing ' + visible + ' of ' + cards.length + ' elements';
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filterType = btn.dataset.filter;
+        const value = btn.dataset.value;
+
+        if (filterType === 'category') {
+          activeCategory = value;
+          document.querySelectorAll('[data-filter=category]').forEach(b => b.classList.remove('active'));
+        } else {
+          activePhase = value;
+          document.querySelectorAll('[data-filter=phase]').forEach(b => b.classList.remove('active'));
+        }
+        btn.classList.add('active');
+        filterCards();
+      });
+    });
+
+    searchInput.addEventListener('input', filterCards);
+  </script>
+</body>
+</html>

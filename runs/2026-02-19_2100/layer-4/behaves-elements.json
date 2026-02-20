@@ -1,0 +1,266 @@
+{
+  "lens": {
+    "guest_call": "user-stories-initial-analysis.md",
+    "book_extract": "sapiens-tree-of-knowledge.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Progressive Value Reveal on Discovery",
+      "journey_phases": ["discovery"],
+      "problem": "The guest arriving at the platform is a stranger encountering an imagined reality for the first time. If the first interaction demands input (signup, preferences, AI prompt) before revealing value, the guest has no evidence the fiction is worth believing. The interaction pattern must deliver value proactively before requesting any participation.",
+      "solution": "On page load, immediately render a curated grid of real listings without requiring any user action. Scroll triggers progressive loading of additional listings, neighborhood clusters, and social proof sections. The search bar is available but not required — the guest can browse passively before choosing to refine. Filter interactions happen inline (chips, dropdowns) without page navigation, preserving the browsing context at all times.",
+      "evidence": [
+        {
+          "source": "sapiens-tree-of-knowledge.txt",
+          "type": "book_extract",
+          "quote": "Large numbers of strangers can cooperate successfully by believing in common myths.",
+          "insight": "The interaction pattern must establish the common myth (active marketplace, real listings, other believers) through passive exposure before demanding active participation. The myth must be witnessed, not explained."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them. Show something useful first. Offer to refine after.",
+          "insight": "The interaction sequence is show-then-ask, never ask-then-show. Every interaction that precedes value delivery is a dropout opportunity."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Curated listing grid loaded with 8-12 listings, search bar empty but accessible, social proof visible in hero area. No modals, no signup prompts, no empty states.",
+        "loading": "Skeleton cards with shimmer animation in listing grid positions. Social proof numbers animate from 0 to actual values with a counting-up effect. Map loads tile layer immediately, pins populate progressively.",
+        "empty": "Should not occur on discovery — the platform always has something to show. If zero listings match a location, show nearest available neighborhoods with distance context: 'No listings in [area] yet. Nearest: [neighborhood], 3 miles away.'",
+        "error": "Network error: warm-toned error card in the listing grid position with retry button. Copy: 'We could not load listings right now. Try again.' No full-page error screens — preserve whatever content already loaded.",
+        "success": "N/A for discovery — the success state is the guest engaging deeper (clicking a listing, applying a filter, opening the map). These are tracked as funnel progression, not explicit success states."
+      },
+      "transition_principle": "Content streams in progressively — never a blank-then-full page flash. Skeleton states transition to real content with a 150ms fade using easing.out. Each listing card enters the viewport with a staggered 50ms delay per card for a 'populating' feel.",
+      "timing": {
+        "response_target": "First meaningful paint (listing grid visible) within 1.5 seconds. Full grid populated within 3 seconds. Social proof visible within 2 seconds.",
+        "easing": "tokens.easing.out (cubic-bezier(0.16, 1, 0.3, 1)) for content entry transitions. No spring easing on content load — reserve spring for interactive responses.",
+        "rationale": "Fast initial content delivery establishes the myth's reality — the guest sees a living marketplace immediately. Staggered card entry creates a sense of activity and population without feeling jarring."
+      },
+      "journey_state_awareness": "First-visit guests see a featured/curated grid. Returning guests see recently viewed listings and saved searches surfaced above the main grid. The interaction adapts to commitment level without requiring explicit input.",
+      "edge_cases": [
+        "Guest on extremely slow connection (3G): show a single-column listing layout with smaller images to ensure first content within 3 seconds",
+        "Guest arriving from a deep link to a specific listing: listing detail loads directly with a 'back to search' breadcrumb, not a discovery interstitial",
+        "Guest with JavaScript disabled: server-rendered listing grid with basic pagination, no progressive loading",
+        "Guest in a market with zero listings: redirect to a waitlist landing page, not an empty search grid"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Hover-Reveal Gossip Layer on Listing Cards",
+      "journey_phases": ["search"],
+      "problem": "The guest scanning a search grid needs a way to access secondary trust information (availability, host response time, image count) without the costly interaction of clicking through to a full listing page. The current card provides insufficient gossip bandwidth in its resting state. Without a hover layer, the guest must open many listings to perform stranger-assessment, creating fatigue and abandonment.",
+      "solution": "On desktop hover (or mobile long-press), the listing card transitions to an expanded state that reveals a secondary information row: availability indicator (green dot + 'Available from [date]'), host response badge ('Responds within 2 hours'), photo count, and a save/bookmark quick action. The card elevates with shadow-md and the background shifts to surface-warm, creating a clear visual distinction between resting and engaged states. Hover exit reverses the transition smoothly.",
+      "evidence": [
+        {
+          "source": "sapiens-tree-of-knowledge.txt",
+          "type": "book_extract",
+          "quote": "Reliable information about who could be trusted meant that small bands could expand into larger bands, and Sapiens could develop tighter and more sophisticated types of cooperation.",
+          "insight": "The hover layer increases gossip bandwidth — the amount of trust-relevant information the guest can process per unit time. Higher bandwidth means faster stranger-assessment and quicker progression to cooperation (proposal)."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions — all without leaving the search grid.",
+          "insight": "The hover interaction is explicitly called out as a high-value enhancement. It respects the guest's browsing context while increasing the information available for trust-assessment."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Card at resting elevation (shadow-sm), showing photo, price, neighborhood, and one trust badge. No secondary information visible.",
+        "loading": "N/A — secondary info is pre-loaded with the card data, so hover reveal is instant. If data is delayed, show the card in default state without hover enhancement until data arrives.",
+        "empty": "If host has no response-time data or availability data, the hover state still activates (elevation + background shift) but the secondary row shows only the photo count and save action — graceful degradation, never an empty hover.",
+        "error": "N/A — hover reveal uses already-loaded data. If the card itself failed to load, it shows the error state from behaves-001.",
+        "success": "Guest clicks the card after hovering — the hover state is 'successful' when it provides enough gossip for the guest to commit to a full listing evaluation."
+      },
+      "transition_principle": "Hover-in: 200ms transition using easing.out for elevation (shadow-sm to shadow-md) and background (surface to surface-warm). Secondary row slides in from bottom with 150ms delay. Hover-out: 300ms reverse transition — slightly slower exit to prevent flickering on accidental hover breaks. Mobile long-press: 300ms hold triggers the expanded state; tap outside dismisses.",
+      "timing": {
+        "response_target": "Hover state fully visible within 200ms of cursor entry. Secondary row content visible within 350ms (200ms transition + 150ms delay for stagger). No perceived lag.",
+        "easing": "tokens.easing.out for elevation and background transitions. Secondary row uses easing.out for slide-in. No spring easing on hover — spring is reserved for deliberate user actions (clicks, submissions).",
+        "rationale": "The hover must feel responsive but not jumpy. The slight delay on the secondary row creates a layered reveal that feels intentional rather than instant, matching the three-layer gossip architecture."
+      },
+      "journey_state_awareness": "Cards the guest has previously viewed show a subtle 'viewed' indicator (reduced opacity on the photo or a small dot) so the guest does not re-evaluate listings they have already assessed. Saved listings show a filled bookmark icon in the default state.",
+      "edge_cases": [
+        "Guest rapidly mousing across multiple cards: debounce hover activation to 100ms to prevent rapid fire state changes",
+        "Guest on touch device: long-press activates hover state; a second tap on the expanded card navigates to listing detail; tap outside dismisses",
+        "Card in a narrow grid (2-column mobile): hover state is replaced by a persistent compact secondary row visible in default state, since hover is not available",
+        "Host has no photos beyond the primary: photo count indicator hidden, not shown as '1 photo'"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Inline Authentication at High-Intent Moments",
+      "journey_phases": ["proposal_creation", "listing_evaluation"],
+      "problem": "Authentication is the platform's identity verification ritual — necessary for cooperation to proceed, but destructive if it breaks the guest's commitment momentum. A full-page redirect to a login/signup flow destroys the intersubjective context the guest has built (the listing they were evaluating, the proposal they were composing) and forces them to rebuild their mental state after returning. This is the digital equivalent of interrupting Harari's incorporation ritual to verify the lawyer's identity — it breaks the spell.",
+      "solution": "Authentication triggers only on high-intent actions (message host, create proposal) as an inline modal overlay. The overlay appears centered over the current page, which dims but remains visible underneath. The auth flow is minimal: email + magic link or social login, maximum 2 steps. On successful authentication, the overlay dismisses and the guest returns to exactly where they were — the message compose or proposal form — with all context preserved. The guest never leaves the page.",
+      "evidence": [
+        {
+          "source": "sapiens-tree-of-knowledge.txt",
+          "type": "book_extract",
+          "quote": "When in 1896 Armand Peugeot wanted to create his company, he paid a lawyer to go through all these sacred procedures. Once the lawyer had performed all the right rituals and pronounced all the necessary spells and oaths, millions of upright French citizens behaved as if the Peugeot company really existed.",
+          "insight": "The ritual must flow without interruption. Authentication is a necessary step in the cooperation ritual, but it must be woven into the flow, not imposed as a detour that breaks the guest's commitment arc."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context. High-intent actions trigger it — messaging, proposing — nothing else.",
+          "insight": "The user stories explicitly identify inline authentication as critical. The interaction pattern must preserve the guest's mental context across the auth boundary."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Guest is browsing unauthenticated. No auth prompts, no banners, no login nudges. The guest can browse listings, view details, and interact with the map without any auth friction.",
+        "loading": "After the guest submits auth credentials, a spinner appears within the auth modal. The background page remains dimmed but visible. Loading state lasts maximum 5 seconds before timeout.",
+        "empty": "N/A — auth modal always has content (input fields or social login buttons).",
+        "error": "Auth failure: error message appears within the modal (red text below the input field). Copy: 'We could not verify that email. Please try again.' The modal does not close — the guest can retry without re-triggering the flow. After 3 failures, offer 'Try a different method' link.",
+        "success": "Auth modal dismisses with a 300ms fade-out. The underlying page returns to full opacity. The action that triggered auth (message compose or proposal form) activates immediately — no additional click required. A brief toast notification ('Signed in as [name]') appears for 3 seconds."
+      },
+      "transition_principle": "Modal entrance: 200ms fade-in of overlay backdrop (rgba overlay), then 250ms slide-up of modal content using easing.out. Modal exit on success: 300ms fade-out of both modal and backdrop simultaneously. The underlying page content is never removed from the DOM — only dimmed via opacity. This ensures zero context loss.",
+      "timing": {
+        "response_target": "Modal fully visible within 250ms of trigger action. Auth verification response within 3 seconds. Post-auth transition back to original context within 300ms.",
+        "easing": "tokens.easing.out for modal entrance and exit. No spring easing — auth is a serious, trust-building moment that should feel smooth and assured, not playful.",
+        "rationale": "The auth modal must feel light and non-disruptive — a brief verification pause within the cooperation ritual, not a detour to a separate system. Speed is critical: every second in the auth flow is a second the guest's commitment is at risk."
+      },
+      "journey_state_awareness": "If the guest is already authenticated, high-intent actions proceed without any auth step. If the guest's session has expired, the auth modal pre-fills their email address if available from the previous session. The modal adapts: new users see signup-first; returning users see login-first.",
+      "edge_cases": [
+        "Guest triggers auth on mobile with an on-screen keyboard: modal positions above the keyboard, not behind it",
+        "Guest's magic link arrives after they have navigated away: the link returns them to the listing/proposal context they were in when auth was triggered, not to a generic dashboard",
+        "Guest has ad blockers that interfere with social login iframes: fallback to email-only auth with clear messaging",
+        "Guest accidentally dismisses the auth modal: the trigger action (message/propose button) remains available for re-triggering without any cooldown"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Pre-Populated Proposal Form with Live Price",
+      "journey_phases": ["proposal_creation"],
+      "problem": "The proposal form requires the guest to formalize their cooperation intent into specific terms (dates, duration, schedule, price). If the form starts empty, the guest faces a blank-page problem — they must reconstruct information they already know from the listing detail. This redundant effort breaks the ritual's momentum and increases abandonment. Additionally, if the price is not visible until form completion, the guest cannot make informed decisions as they adjust terms.",
+      "solution": "When the guest opens the proposal form, all listing-derived fields are pre-populated: listing name, suggested date range (from availability calendar), default schedule structure, and base price. The guest's role is to adjust, not to fill. A live price breakdown panel updates in real-time as the guest modifies dates, duration, or schedule — every change immediately reflects in the total, with line items visible (base rate, platform fee, total). The form uses a single-scroll layout, not multi-step pages.",
+      "evidence": [
+        {
+          "source": "sapiens-tree-of-knowledge.txt",
+          "type": "book_extract",
+          "quote": "If a certified lawyer followed all the proper liturgy and rituals, wrote all the required spells and oaths on a wonderfully decorated piece of paper, and affixed his ornate signature to the bottom of the document, then hocus pocus — a new company was incorporated.",
+          "insight": "The proposal ritual should feel like 'signing a prepared document,' not 'drafting a contract from scratch.' Pre-population means the guest is confirming and customizing, not creating — lowering the cognitive burden of the ritual act."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "A well-structured proposal — clear dates, schedule, pricing, intent — activates the host to respond. A vague or incomplete one creates friction. Stories that push toward more structured, pre-populated proposal forms aren't just about UX, they're about making the cross-activation moment as clean as possible.",
+          "insight": "Pre-population is not a convenience feature — it is a structural requirement for cross-activation. A well-formed proposal activates the host; an incomplete one creates friction."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Form loaded with pre-populated fields. Price breakdown panel visible on the right (desktop) or below the form (mobile). All fields editable. Submit button disabled until the guest has reviewed or modified at least one field (scroll-past or field-focus triggers enablement).",
+        "loading": "After submit: the submit button shows an inline spinner, fields become read-only, and the price breakdown dims slightly. The form does not navigate away — it waits for server confirmation in-place.",
+        "empty": "If pre-population fails (listing data unavailable), show the form with placeholder text in each field describing what to enter, plus a prominent warning: 'We could not pre-fill details for this listing. Please enter your preferred terms.' This is a degraded fallback, not the expected state.",
+        "error": "Validation errors appear inline below the relevant field in signal-danger color. If server submission fails, a banner appears above the form: 'Your proposal could not be sent. Your entries are saved — please try again.' No data loss on error.",
+        "success": "Form transitions to the ceremonial confirmation overlay (see looks-004). The success state is the full-viewport confirmation moment: 'Your proposal has been sent to [Host Name].' After 2 seconds, auto-transitions to proposal status view."
+      },
+      "transition_principle": "Form fields populate with a staggered 50ms fade-in per field on initial load, creating a sense of the form 'assembling itself' from listing data. Price panel updates use a 150ms number-morph animation (old value fades, new value fades in) using easing.out. Submit triggers a linear progress bar along the submit button's bottom edge.",
+      "timing": {
+        "response_target": "Form fully loaded and pre-populated within 1 second of 'Create Proposal' click. Price panel updates within 100ms of any field change. Submission response within 3 seconds.",
+        "easing": "tokens.easing.out for field population and price updates. Submit button progress uses linear timing (not eased) to convey steady processing. Success overlay entrance uses tokens.easing.spring for a celebratory feel.",
+        "rationale": "Instant price feedback removes uncertainty — the guest always knows what they are committing to. The staggered field population creates a reassuring sense that the platform 'knows' this listing and has prepared the ritual for the guest."
+      },
+      "journey_state_awareness": "If the guest has previously drafted a proposal for this listing (abandoned form), restore the draft with a notification: 'We saved your previous draft.' If the guest has an active proposal with another listing, show a subtle awareness banner: 'You have 1 active proposal.' No blocking — just context.",
+      "edge_cases": [
+        "Listing becomes unavailable between detail view and proposal form: show an inline alert at the top of the form with clear messaging and a link back to search",
+        "Guest modifies dates to a range that exceeds listing availability: price panel shows a warning state with signal-warn color and the message 'Some dates may not be available'",
+        "Guest's session expires mid-form: inline auth modal triggers (behaves-003) without losing form data — all entries persist across the auth boundary",
+        "Host updates listing price while the guest is composing: if the change is greater than 5%, show a notification bar; if less, update silently in the price panel"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Contact-Host Message Overlay",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "The guest wants to gossip directly with the host before formalizing cooperation — to test responsiveness, ask a specific question, or assess tone. Without a low-commitment messaging option, the guest's only path forward is the proposal, which feels premature for someone who is still evaluating. The absence of messaging creates a 'cooperation vacuum' — the guest has interest but no low-stakes way to act on it.",
+      "solution": "A 'Contact Host' button on the listing detail page triggers a slide-up overlay (not a full page) containing: the host's name and photo, a text input with a placeholder suggesting common questions ('Ask about availability, house rules, or the neighborhood...'), and a send button. If the guest is not authenticated, the inline auth modal (behaves-003) triggers before the message overlay. After sending, the overlay confirms delivery and offers a 'View your messages' link. The listing detail page remains fully accessible behind the overlay.",
+      "evidence": [
+        {
+          "source": "sapiens-tree-of-knowledge.txt",
+          "type": "book_extract",
+          "quote": "The new linguistic skills that modern Sapiens acquired about seventy millennia ago enabled them to gossip for hours on end. Reliable information about who could be trusted meant that small bands could expand into larger bands.",
+          "insight": "Messaging is the platform's gossip channel — direct, interpersonal, and trust-building. The overlay interaction must feel like starting a conversation, not filing a support ticket."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "The park analogy holds — you check availability before committing. A message action reduces abandonment when someone isn't ready for a proposal. Having the option is better than having no action at all.",
+          "insight": "The message overlay provides a lower-commitment alternative to the proposal — it lets the guest test the waters before diving in, which matches the natural progression of trust between strangers."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "'Contact Host' button visible on listing detail page, positioned near the proposal CTA but with secondary visual weight (outline button vs. filled button for proposal).",
+        "loading": "After send: the send button shows an inline spinner. The text input becomes read-only. The overlay does not close until confirmation.",
+        "empty": "Overlay opens with an empty text input and placeholder text. The send button is disabled until the guest types at least 10 characters (prevents accidental empty messages).",
+        "error": "Message send failure: error text appears below the input ('Your message could not be sent. Please try again.'). The guest's text is preserved — no data loss. Retry is immediate.",
+        "success": "The input area is replaced by a confirmation message: 'Message sent to [Host Name]. They usually respond within [response time].' A 'View your messages' link appears. The overlay auto-dismisses after 4 seconds, or the guest can dismiss manually."
+      },
+      "transition_principle": "Overlay entrance: 250ms slide-up from the bottom of the viewport using easing.out, with a dimmed backdrop fading in simultaneously. Overlay exit: 200ms slide-down. The listing detail page is never removed — it remains interactive behind the dimmed backdrop (scroll locked during overlay).",
+      "timing": {
+        "response_target": "Overlay fully visible within 250ms of button click. Message delivery confirmation within 2 seconds. Success state visible for 4 seconds before auto-dismiss.",
+        "easing": "tokens.easing.out for overlay entrance and exit. Send button spinner uses linear rotation. Success confirmation text fades in with 200ms ease.",
+        "rationale": "The overlay must feel lightweight and conversational — it is a gossip channel, not a formal form. Quick transitions reinforce the low-commitment nature of the action."
+      },
+      "journey_state_awareness": "If the guest has already messaged this host, the overlay opens with the conversation thread visible above the new message input. If the host has a known response time, it is displayed in the overlay header ('Usually responds within 2 hours'). If the guest has a pending proposal with this host, the overlay notes this context.",
+      "edge_cases": [
+        "Guest is not authenticated: auth modal (behaves-003) triggers first; on success, the message overlay opens automatically with no additional click required",
+        "Guest types a very long message (500+ characters): text input expands vertically with a character counter; no hard limit but a soft suggestion at 500 characters",
+        "Host has messaging disabled: 'Contact Host' button is hidden; a note appears in its place: 'This host accepts proposals directly'",
+        "Guest opens overlay then navigates back to search without sending: the draft is not saved (low-commitment interaction, no persistence needed)"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Acceptance Ritual Confirmation Sequence",
+      "journey_phases": ["acceptance"],
+      "problem": "The acceptance moment is where a negotiable fiction (the proposal) becomes a binding agreement (the lease). If the interaction pattern treats this like any other button click, the guest does not feel the weight of the commitment — and may later dispute terms they did not fully register. Conversely, if the confirmation is too heavy (multiple confirmation dialogs, legal text walls), it creates anxiety that leads to last-moment abandonment.",
+      "solution": "The acceptance flow is a deliberate two-step sequence: (1) The guest reviews a clear summary card showing all agreed terms (dates, schedule, price, host name) with a prominent 'Accept Terms' button. (2) A confirmation dialog appears with the explicit question 'Confirm your agreement with [Host Name]?' and a 'Yes, Proceed' button. On confirmation, the binding-action animation plays (ceremonial confirmation from looks-004) and the guest transitions to the active lease dashboard. The two-step pattern provides enough friction for informed consent without creating anxiety.",
+      "evidence": [
+        {
+          "source": "sapiens-tree-of-knowledge.txt",
+          "type": "book_extract",
+          "quote": "Seeing that the priest had properly and assiduously observed all the procedures, millions of devout French Catholics behaved as if God really existed in the consecrated bread and wine.",
+          "insight": "The confirmation sequence is the platform's 'liturgy' — the proper procedures that, when followed correctly, make both parties behave as if the lease agreement really exists. The two-step pattern ensures the ritual is observed properly."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "When a guest messages a host, that's not just UX convenience — it's the moment two strangers begin to trust each other through the platform.",
+          "insight": "Every interaction between guest and host is a trust-building moment. The acceptance confirmation is the culminating trust moment — the two strangers are formalizing their cooperation. The interaction must honor this significance."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Terms summary card displayed with all agreed details. 'Accept Terms' button in primary position. 'Counter' and 'Decline' buttons in secondary positions. The guest can scroll through all terms before acting.",
+        "loading": "After 'Yes, Proceed': the confirmation dialog shows a progress indicator. The summary card behind the dialog dims. Loading state lasts maximum 5 seconds before timeout with retry option.",
+        "empty": "N/A — the acceptance view always has terms to display (they come from the negotiation history).",
+        "error": "Acceptance processing failure: the confirmation dialog shows an error message: 'We could not finalize your agreement. Your acceptance has been saved — we will retry automatically.' No data loss. The guest does not need to re-confirm.",
+        "success": "Confirmation dialog dismisses. The ceremonial success overlay (looks-004) plays for 2 seconds with the message 'Agreement confirmed with [Host Name].' Auto-transitions to the active lease dashboard with the House Manual accessible."
+      },
+      "transition_principle": "Step 1 to Step 2: the summary card remains visible as the confirmation dialog slides up from the bottom (250ms, easing.out). The dialog backdrop dims the summary card but keeps it readable. Step 2 to Success: the dialog and backdrop fade out (300ms) while the success overlay fades in simultaneously, creating a seamless transition from question to confirmation.",
+      "timing": {
+        "response_target": "Confirmation dialog visible within 250ms of 'Accept Terms' click. Acceptance processing within 3 seconds. Success overlay visible for 2 seconds before dashboard transition.",
+        "easing": "tokens.easing.out for dialog entrance. tokens.easing.spring for the success check animation — the only spring-eased element in the acceptance flow, marking the moment of positive resolution. Dashboard transition uses easing.out.",
+        "rationale": "The two-step timing creates a deliberate pace — the guest pauses, confirms, and then experiences a moment of celebration. The spring easing on the success check is the only 'playful' moment in an otherwise serious flow, marking the shift from tension to relief."
+      },
+      "journey_state_awareness": "The summary card shows the full negotiation history: original proposal terms, host counter-terms (if any), and final agreed terms — so the guest can see the complete arc of their cooperation in one view. If this is the guest's first lease on the platform, the success overlay includes a brief welcome message: 'Welcome to Split Lease — your lease with [Host Name] is now active.'",
+      "edge_cases": [
+        "Host withdraws offer while guest is viewing the acceptance screen: the 'Accept Terms' button is replaced by a status message: 'This offer is no longer available. The host may have updated their terms.'",
+        "Guest's payment method fails during acceptance processing: error state within the dialog with a 'Update payment' link that opens inline, not a redirect",
+        "Guest accidentally double-clicks 'Yes, Proceed': the second click is debounced; only one acceptance request is sent",
+        "Guest closes the browser during acceptance processing: on return, they see either the success state (if processed) or the summary card with 'Accept Terms' still available (if not processed)"
+      ]
+    }
+  ]
+}

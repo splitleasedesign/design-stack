@@ -1,0 +1,399 @@
+{
+  "run_id": "2026-02-19_1831",
+  "process_type": "design-stack",
+  "date": "2026-02-19",
+  "journey_type": "guest",
+  "lens": {
+    "host_call": "user-stories-initial-analysis.md",
+    "book_extract": "flow-conditions-of-flow.txt"
+  },
+  "summary": "The user-stories analysis crossed with Csikszentmihalyi's Conditions of Flow reveals that the guest journey systematically violates all four flow prerequisites -- clear goals, immediate feedback, challenge-skill balance, and sense of control -- at every phase transition. Discovery lacks the 'distinct world' quality that separates flow activities from everyday browsing. Search cards offer flat, static information that bores guests whose skills outgrow them. The gap between listing evaluation and proposal creation has no intermediate challenge (messaging) to bridge anxiety. The proposal form maximizes self-consciousness through blank fields. Negotiation reduces a collaborative agon to a binary verdict. And the Stays Manager -- visited 13+ times per lease -- has no complexity ratchet to prevent mid-lease boredom. These seven UI elements address each structural flow failure with buildable components that synthesize works-layer process patterns, communicates-layer information architecture, looks-layer visual grammar, behaves-layer interaction timing, and feels-layer emotional design into production-ready specifications.",
+  "element_count": 7,
+  "elements": [
+    {
+      "id": "ds-ui-1831-001",
+      "name": "Progressive Density Listing Card",
+      "category": "card",
+      "source_elements": ["works-001", "works-002", "communicates-001", "looks-001", "behaves-001", "behaves-003", "feels-002"],
+      "journey_phases": ["search", "listing_evaluation"],
+      "priority": "high",
+      "description": "A three-tier listing card that reveals progressively richer information as the guest interacts, implementing Csikszentmihalyi's complexity ratchet at the search level. Tier 1 (default) shows photo, price, location, and an availability dot. Tier 2 (hover) lifts the card and reveals neighborhood name, image count, host response time, and a save icon. Tier 3 (expanded drawer) slides up transit proximity, a mini availability strip, and a Message Host quick-action. This prevents the A2 boredom zone by matching growing search skill with escalating card complexity, as the user stories demand: 'richer hover states, image counters, availability indicators -- all without leaving the search grid.'",
+      "visual_spec": {
+        "layout": "Vertical card, 280px width on desktop grid. Hero photo at full bleed top (aspect 3:2). Content area below with 12px internal padding. Hover content appears as an overlay band at photo bottom. Expanded drawer slides up from card bottom edge, max 64px height.",
+        "background": "var(--bg-white, #ffffff); card surface uses var(--bg-off-white, rgb(252,250,255)) on hover for warmth",
+        "border": "1px solid var(--border-color, #e5e7eb)",
+        "border_radius": "var(--rounded-xl, 12px)",
+        "typography": {
+          "price": "var(--font-inter), var(--text-md, 16px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "location": "var(--font-inter), var(--text-sm, 12px), var(--font-weight-normal, 400), var(--text-gray, #6b7280)",
+          "hover_labels": "var(--font-inter), var(--text-xs, 11px), var(--font-weight-medium, 500), var(--text-gray, #6b7280)",
+          "neighborhood": "var(--font-inter), var(--text-sm, 12px), var(--font-weight-medium, 500), var(--text-dark, #1a1a1a)"
+        },
+        "spacing": {
+          "card_padding": "var(--spacing-md, 12px)",
+          "hover_content_gap": "var(--spacing-xs, 4px)",
+          "between_cards": "var(--spacing-lg, 16px)"
+        },
+        "color_usage": {
+          "availability_green": "#22c55e for available dot",
+          "availability_amber": "#f59e0b for limited",
+          "availability_red": "#ef4444 for unavailable",
+          "hover_shadow": "var(--shadow-purple-md, 0 4px 8px rgba(49,19,93,0.15))",
+          "save_heart": "var(--favorites-heart, #FF6B5B)"
+        }
+      },
+      "interaction_spec": {
+        "load_behavior": "Cards fade in from opacity 0 to 1 over 200ms ease-out as they enter viewport. Staggered by 50ms per card for a wave effect.",
+        "hover": "Card lifts via transform translateY(-2px) and shadow transitions from --shadow-sm to --shadow-purple-md over 0.2s ease-in-out. Tier 2 content fades in simultaneously. Image count badge appears top-right of photo in a frosted pill. Save heart icon appears top-left at 80% opacity, brightens to 100% on icon hover.",
+        "reduced_motion": "All transforms and opacity transitions resolve instantly. Card gains a 2px solid var(--secondary-purple) border instead of lift effect."
+      },
+      "copy_spec": {
+        "price_format": "$[amount]/night",
+        "location_format": "[Neighborhood], near the [transit]",
+        "hover_response_time": "Responds in [X]hrs",
+        "hover_image_count": "[N] photos",
+        "drawer_cta": "Message Host",
+        "availability_label": "Available this week",
+        "dont": ["Use generic 'View Listing' CTA", "Show 'Rooms for rent' as category label", "Display full address before listing click", "Show lease terms on the card"]
+      },
+      "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.pd-card{width:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:transform 0.2s ease-in-out,box-shadow 0.2s ease-in-out;font-family:'Inter',sans-serif;position:relative;cursor:pointer}.pd-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(49,19,93,0.15);background:rgb(252,250,255)}.pd-photo-wrap{position:relative;width:100%;aspect-ratio:3/2;overflow:hidden;background:#f3f4f6}.pd-photo-wrap img{width:100%;height:100%;object-fit:cover}.pd-avail-dot{position:absolute;bottom:8px;left:8px;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px #fff}.pd-save{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s ease;cursor:pointer;border:none;padding:0}.pd-card:hover .pd-save{opacity:0.8}.pd-save:hover{opacity:1!important}.pd-save svg{width:16px;height:16px;fill:none;stroke:#FF6B5B;stroke-width:2}.pd-img-badge{position:absolute;bottom:8px;right:8px;background:rgba(255,255,255,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:500;color:#1a1a1a;opacity:0;transition:opacity 0.2s ease}.pd-card:hover .pd-img-badge{opacity:1}.pd-content{padding:12px}.pd-price{font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 2px}.pd-location{font-size:12px;color:#6b7280;margin:0 0 4px}.pd-hover-row{display:flex;align-items:center;gap:8px;opacity:0;max-height:0;overflow:hidden;transition:opacity 0.2s ease,max-height 0.2s ease}.pd-card:hover .pd-hover-row{opacity:1;max-height:24px;margin-top:6px}.pd-micro{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:500;color:#6b7280}.pd-micro svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}.pd-drawer{position:absolute;bottom:0;left:0;right:0;background:rgb(252,250,255);border-top:1px solid #e5e7eb;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;transform:translateY(100%);transition:transform 0.25s ease-out;font-size:11px}.pd-card:hover .pd-drawer{transform:translateY(0)}.pd-transit{display:flex;align-items:center;gap:4px;color:#6b7280;font-weight:500}.pd-transit svg{width:14px;height:14px;stroke:#6b7280;fill:none;stroke-width:2}.pd-msg-btn{background:rgb(109,49,194);color:#fff;border:none;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background 0.1s ease}.pd-msg-btn:hover{background:rgb(140,104,238)}@media(prefers-reduced-motion:reduce){.pd-card,.pd-card:hover{transform:none;transition:none}.pd-card:hover{border-color:rgb(109,49,194);border-width:2px}.pd-hover-row,.pd-img-badge,.pd-save,.pd-drawer{transition:none}}</style><div class=\"pd-card\"><div class=\"pd-photo-wrap\"><img src=\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=267&fit=crop\" alt=\"Bright living room\"><div class=\"pd-avail-dot\"></div><button class=\"pd-save\" aria-label=\"Save listing\"><svg viewBox=\"0 0 24 24\"><path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"></path></svg></button><span class=\"pd-img-badge\">1/8</span></div><div class=\"pd-content\"><p class=\"pd-price\">$850<span style=\"font-size:12px;font-weight:400;color:#6b7280\">/night</span></p><p class=\"pd-location\">Williamsburg, near the L</p><div class=\"pd-hover-row\"><span class=\"pd-micro\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline></svg>Responds in 2hrs</span><span class=\"pd-micro\"><svg viewBox=\"0 0 24 24\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg>4.8 stars</span></div></div><div class=\"pd-drawer\"><span class=\"pd-transit\"><svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"4\" y1=\"11\" x2=\"20\" y2=\"11\"></line></svg>3 min to L train</span><button class=\"pd-msg-btn\">Message Host</button></div></div>",
+      "implements_principles": ["works-001", "works-002", "communicates-001", "looks-001", "behaves-001", "behaves-003", "feels-002"],
+      "effort": "medium",
+      "problem_it_solves": "Guests whose search skills outgrow flat listing cards enter Csikszentmihalyi's boredom zone (A2) and disengage. Progressive density keeps growing-skill guests in the flow channel by matching their readiness with escalating visual and informational complexity, all without leaving the search grid."
+    },
+    {
+      "id": "ds-ui-1831-002",
+      "name": "Living Map with Proximity Feedback",
+      "category": "dashboard",
+      "source_elements": ["works-002", "communicates-002", "looks-002", "behaves-001", "feels-002"],
+      "journey_phases": ["search"],
+      "priority": "high",
+      "description": "A map component that responds to every guest interaction with contextual visual feedback, implementing Flow's feedback condition at the spatial exploration level. Pins scale based on cursor proximity, neighborhood boundaries fade in on dwell, and price labels appear at zoom thresholds. The user stories demand a map that 'feels alive' with 'the feeling that something is happening' -- this component delivers that aliveness through continuous micro-responses that transform passive map browsing into an active discovery flow activity.",
+      "visual_spec": {
+        "layout": "Full-height map panel beside the listing grid (50/50 split on desktop, full-screen toggle on mobile). Map occupies right half with floating controls.",
+        "background": "Map tiles with standard cartographic styling",
+        "border": "1px solid var(--border-color, #e5e7eb) on left edge separating from grid",
+        "border_radius": "0 (flush with layout edge)",
+        "typography": {
+          "neighborhood_label": "var(--font-inter), var(--text-sm, 12px), var(--font-weight-semibold, 600), var(--text-dark, #1a1a1a)",
+          "price_label": "var(--font-inter), var(--text-xs, 11px), var(--font-weight-semibold, 600), var(--text-dark, #1a1a1a)",
+          "transit_label": "var(--font-inter), var(--text-xs, 11px), var(--font-weight-medium, 500), var(--text-gray, #6b7280)"
+        },
+        "spacing": {
+          "price_pill_padding": "2px 6px",
+          "neighborhood_pill_padding": "4px 10px",
+          "pin_to_label_offset": "var(--spacing-sm, 8px)"
+        },
+        "color_usage": {
+          "pin_rest": "var(--primary-purple, #31135D) at 60% opacity",
+          "pin_proximity": "var(--primary-purple, #31135D) at 100% opacity",
+          "pin_active_glow": "var(--shadow-purple-sm, 0 2px 4px rgba(49,19,93,0.2))",
+          "neighborhood_fill": "rgba(49,19,93,0.08)",
+          "neighborhood_stroke": "rgba(75,71,206,0.40)",
+          "price_pill_bg": "var(--bg-white, #ffffff)"
+        }
+      },
+      "interaction_spec": {
+        "load_behavior": "Pins appear with scale animation (0.8 to 1.0) over 200ms ease-out as map loads. Pins within viewport render first, off-screen pins load on pan.",
+        "hover": "Pins scale based on cursor proximity: 8px at rest, 12px within 60px radius, 16px at cursor nearest. Scaling uses transition 0.1s ease. On 500ms+ dwell in a neighborhood zone, translucent boundary fades in with floating label. Price labels appear at zoom level 14+.",
+        "reduced_motion": "All pin scaling resolves instantly. Neighborhood boundaries appear without fade. Price labels appear without animation."
+      },
+      "copy_spec": {
+        "neighborhood_label": "[Neighborhood Name]",
+        "price_label": "$[amount]",
+        "transit_tooltip": "[Line] - [X] min walk",
+        "empty_area": "Pan to explore more neighborhoods",
+        "dont": ["Show exact addresses on pins", "Display listing details in map tooltips beyond price", "Use color alone to differentiate pin states", "Add marketing copy to the map surface"]
+      },
+      "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');.lm-wrap{width:100%;max-width:560px;height:380px;background:#e8e4df;border-radius:12px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;border:1px solid #e5e7eb}.lm-bg{width:100%;height:100%;background:linear-gradient(135deg,#f0ede8 0%,#e4e0da 50%,#ece8e3 100%);position:relative}.lm-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.03) 1px,transparent 1px);background-size:40px 40px}.lm-pin{position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(49,19,93,0.6);transition:width 0.1s ease,height 0.1s ease,margin 0.1s ease,box-shadow 0.1s ease;cursor:pointer;z-index:2}.lm-pin:hover{width:16px;height:16px;margin-left:-4px;margin-top:-4px;background:#31135D;box-shadow:0 2px 4px rgba(49,19,93,0.3)}.lm-pin.near{width:12px;height:12px;margin-left:-2px;margin-top:-2px;background:rgba(49,19,93,0.85)}.lm-price{position:absolute;background:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;color:#1a1a1a;box-shadow:0 1px 3px rgba(0,0,0,0.1);white-space:nowrap;z-index:3;pointer-events:none;opacity:0;transition:opacity 0.2s ease}.lm-wrap:hover .lm-price{opacity:1}.lm-neighborhood{position:absolute;border:1px dashed rgba(75,71,206,0.4);background:rgba(49,19,93,0.06);border-radius:16px;opacity:0;transition:opacity 0.3s ease;pointer-events:none;z-index:1;display:flex;align-items:flex-start;justify-content:center;padding-top:6px}.lm-wrap:hover .lm-neighborhood{opacity:1}.lm-hood-label{background:rgba(255,255,255,0.92);backdrop-filter:blur(4px);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;color:#1a1a1a;white-space:nowrap}.lm-transit{position:absolute;display:flex;align-items:center;gap:3px;font-size:10px;font-weight:500;color:#6b7280;opacity:0;transition:opacity 0.2s ease;z-index:2}.lm-wrap:hover .lm-transit{opacity:0.7}.lm-transit-icon{width:14px;height:14px;border-radius:50%;background:#31135D;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}@media(prefers-reduced-motion:reduce){.lm-pin,.lm-price,.lm-neighborhood,.lm-transit{transition:none}}</style><div class=\"lm-wrap\"><div class=\"lm-bg\"><div class=\"lm-grid\"></div><div class=\"lm-neighborhood\" style=\"top:40px;left:30px;width:220px;height:140px\"><span class=\"lm-hood-label\">Williamsburg</span></div><div class=\"lm-neighborhood\" style=\"top:200px;left:260px;width:200px;height:130px\"><span class=\"lm-hood-label\">Bushwick</span></div><div class=\"lm-pin\" style=\"top:80px;left:90px\"></div><div class=\"lm-price\" style=\"top:66px;left:106px\">$850</div><div class=\"lm-pin near\" style=\"top:110px;left:150px\"></div><div class=\"lm-price\" style=\"top:96px;left:166px\">$780</div><div class=\"lm-pin\" style=\"top:70px;left:200px\"></div><div class=\"lm-price\" style=\"top:56px;left:216px\">$920</div><div class=\"lm-pin\" style=\"top:240px;left:310px\"></div><div class=\"lm-price\" style=\"top:226px;left:326px\">$680</div><div class=\"lm-pin near\" style=\"top:270px;left:380px\"></div><div class=\"lm-price\" style=\"top:256px;left:396px\">$720</div><div class=\"lm-pin\" style=\"top:260px;left:440px\"></div><div class=\"lm-price\" style=\"top:246px;left:456px\">$695</div><div class=\"lm-pin\" style=\"top:140px;left:120px\"></div><div class=\"lm-transit\" style=\"top:155px;left:60px\"><span class=\"lm-transit-icon\">L</span>Bedford Ave - 3 min</div><div class=\"lm-transit\" style=\"top:295px;left:290px\"><span class=\"lm-transit-icon\">M</span>Myrtle-Wyckoff - 5 min</div></div></div>",
+      "implements_principles": ["works-002", "communicates-002", "looks-002", "behaves-001", "feels-002"],
+      "effort": "high",
+      "problem_it_solves": "A static map with unresponsive pins violates Flow's feedback condition -- the guest explores spatially but receives no signal that exploration is productive. This component makes the map 'feel alive' by responding to every interaction with contextual richness, transforming passive pin-scanning into active neighborhood discovery."
+    },
+    {
+      "id": "ds-ui-1831-003",
+      "name": "Conversational Message Composer",
+      "category": "modal",
+      "source_elements": ["works-001", "works-005", "communicates-002", "communicates-003", "looks-003", "behaves-003", "behaves-005", "feels-003"],
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "priority": "high",
+      "description": "A message composer that transforms the highest cross-activation moment into a social flow activity by showing the host's profile alongside the compose area. It implements Csikszentmihalyi's insight that social interactions are the most powerful flow generators. The host's photo, name, response time, and suggested questions reduce the self-consciousness that destroys flow, while the contextual framing ('Ask Jessica about the room in Williamsburg') turns a form submission into a conversation starter. This is the intermediate challenge between evaluation and proposal that the user stories identify: 'Once someone messages a host, the path to a proposal gets shorter, not longer.'",
+      "visual_spec": {
+        "layout": "Slide-up panel from bottom of listing page (mobile) or side panel 380px width (desktop). Two-column internal: host profile strip (left/top) + compose area (right/bottom).",
+        "background": "var(--bg-white, #ffffff)",
+        "border": "1px solid var(--border-color, #e5e7eb); top border-radius var(--rounded-2xl, 16px) on mobile",
+        "border_radius": "var(--rounded-2xl, 16px) top corners on mobile; var(--rounded-xl, 12px) on desktop panel",
+        "typography": {
+          "host_name": "var(--font-dm), var(--text-lg, 18px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "response_time": "var(--font-inter), var(--text-xs, 11px), var(--font-weight-medium, 500), var(--text-gray, #6b7280)",
+          "prompt": "var(--font-inter), var(--text-sm, 12px), var(--font-weight-normal, 400), var(--text-gray, #6b7280)",
+          "textarea": "var(--font-inter), var(--text-base, 14px), var(--font-weight-normal, 400), var(--text-dark, #1a1a1a)",
+          "send_button": "var(--font-inter), var(--text-base, 14px), var(--font-weight-semibold, 600), var(--white, #ffffff)"
+        },
+        "spacing": {
+          "panel_padding": "var(--spacing-2xl, 24px)",
+          "host_profile_gap": "var(--spacing-md, 12px)",
+          "suggestions_gap": "var(--spacing-sm, 8px)"
+        },
+        "color_usage": {
+          "host_avatar_border": "2px solid var(--accent-purple, rgb(140,104,238))",
+          "suggestion_pill_bg": "var(--bg-light-gray, #f3f4f6)",
+          "suggestion_pill_text": "var(--text-gray, #6b7280)",
+          "send_button_bg": "var(--secondary-purple, rgb(109,49,194))",
+          "send_button_hover": "var(--accent-purple, rgb(140,104,238))",
+          "online_indicator": "#22c55e"
+        }
+      },
+      "interaction_spec": {
+        "load_behavior": "Panel slides up from bottom over 300ms ease-out. Host profile photo loads first (from cache), response time data populates within 500ms. Suggested question pills fade in staggered by 50ms.",
+        "hover": "Suggestion pills darken background on hover. Send button shows subtle scale pulse (0.97 to 1.0) on click. After send, button transitions to checkmark icon with brief purple pulse confirmation.",
+        "reduced_motion": "Panel appears instantly without slide. All micro-animations resolve instantly. Confirmation uses color change instead of animation."
+      },
+      "copy_spec": {
+        "header": "Ask [Host Name] about this space",
+        "response_indicator": "Usually responds in [X] hours",
+        "suggestion_pills": ["Is this available [dates]?", "What is the neighborhood like?", "Are the house rules flexible?"],
+        "placeholder": "Write your message...",
+        "send_button": "Send message",
+        "post_send": "Message sent. [Host Name] usually replies within [X] hours.",
+        "next_action": "While you wait, explore similar rooms nearby",
+        "dont": ["Use 'Submit inquiry' or 'Send contact request'", "Show Subject field -- this is a conversation, not an email", "Leave guest in a void after sending with no estimated reply time", "Add pressure like 'Hosts prefer detailed messages with dates and budget'"]
+      },
+      "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.mc-panel{width:380px;background:#fff;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 4px 16px rgba(49,19,93,0.15);font-family:'Inter',sans-serif;overflow:hidden}.mc-host{display:flex;align-items:center;gap:12px;padding:20px 24px 16px;border-bottom:1px solid #f3f4f6}.mc-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgb(140,104,238);flex-shrink:0}.mc-host-info{flex:1}.mc-host-name{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:#1a1a1a;margin:0}.mc-response{font-size:11px;font-weight:500;color:#6b7280;margin:2px 0 0;display:flex;align-items:center;gap:4px}.mc-online{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}.mc-body{padding:16px 24px}.mc-prompt{font-size:12px;color:#6b7280;margin:0 0 10px}.mc-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.mc-pill{background:#f3f4f6;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;color:#6b7280;font-family:'Inter',sans-serif;cursor:pointer;transition:background 0.1s ease,color 0.1s ease}.mc-pill:hover{background:#e5e7eb;color:#1a1a1a}.mc-textarea{width:100%;min-height:80px;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a1a;resize:vertical;outline:none;transition:border-color 0.1s ease;box-sizing:border-box}.mc-textarea:focus{border-color:rgb(109,49,194);box-shadow:0 0 0 3px rgba(109,49,194,0.1)}.mc-textarea::placeholder{color:#9ca3af}.mc-footer{padding:12px 24px 20px;display:flex;justify-content:flex-end}.mc-send{background:rgb(109,49,194);color:#fff;border:none;border-radius:20px;padding:10px 24px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.1s ease,transform 0.1s ease}.mc-send:hover{background:rgb(140,104,238)}.mc-send:active{transform:scale(0.97)}@media(prefers-reduced-motion:reduce){.mc-send,.mc-pill,.mc-textarea{transition:none}.mc-send:active{transform:none}}</style><div class=\"mc-panel\"><div class=\"mc-host\"><img class=\"mc-avatar\" src=\"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=face\" alt=\"Jessica\"><div class=\"mc-host-info\"><p class=\"mc-host-name\">Jessica</p><p class=\"mc-response\"><span class=\"mc-online\"></span>Usually responds in 3 hours</p></div></div><div class=\"mc-body\"><p class=\"mc-prompt\">Curious about this room in Williamsburg?</p><div class=\"mc-suggestions\"><button class=\"mc-pill\">Is this available Mar 15 - Jun 15?</button><button class=\"mc-pill\">What's the neighborhood like?</button><button class=\"mc-pill\">House rules?</button></div><textarea class=\"mc-textarea\" placeholder=\"Write your message...\"></textarea></div><div class=\"mc-footer\"><button class=\"mc-send\">Send message</button></div></div>",
+      "implements_principles": ["works-001", "works-005", "communicates-002", "communicates-003", "looks-003", "behaves-003", "behaves-005", "feels-003"],
+      "effort": "medium",
+      "problem_it_solves": "The gap between listing evaluation and proposal creation is the widest emotional chasm in the guest journey -- the guest desires the space but the proposal feels too final. Messaging provides the intermediate Flow challenge that builds confidence and connection, transforming a solitary evaluator into a social participant and making the path to proposal shorter, not longer."
+    },
+    {
+      "id": "ds-ui-1831-004",
+      "name": "Pre-Populated Proposal Builder with Host Preview",
+      "category": "form",
+      "source_elements": ["works-001", "works-002", "works-003", "communicates-002", "communicates-005", "looks-004", "behaves-002", "behaves-005", "feels-004"],
+      "journey_phases": ["proposal_creation"],
+      "priority": "high",
+      "description": "A proposal form that arrives pre-populated with listing data, implements real-time price feedback, and shows a host-view preview before submission. This directly addresses Csikszentmihalyi's warning that self-consciousness permanently excludes people from enjoyment. Instead of blank fields that maximize anxiety, the guest sees their proposal assembling itself from known data -- transforming 'figure out and fill in' into 'review and confirm.' The staggered pre-population animation communicates 'the system prepared this for you,' and the host-view preview replaces the worry 'will this look right?' with the knowledge 'this is what it looks like.'",
+      "visual_spec": {
+        "layout": "Single column form, max-width 520px, centered below listing content. Listing summary card at top (photo thumbnail + address + price), form fields in middle, host-view preview card + submit button at bottom.",
+        "background": "var(--bg-white, #ffffff); pre-populated fields use var(--bg-light, #f9fafb)",
+        "border": "Form sections separated by 1px solid var(--border-color, #e5e7eb)",
+        "border_radius": "var(--rounded-xl, 12px) for outer container; var(--rounded-lg, 8px) for preview card",
+        "typography": {
+          "section_heading": "var(--font-dm), var(--text-md, 16px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "field_label": "var(--font-inter), var(--text-sm, 12px), var(--font-weight-medium, 500), var(--text-gray, #6b7280)",
+          "field_value": "var(--font-inter), var(--text-base, 14px), var(--font-weight-medium, 500), var(--text-dark, #1a1a1a)",
+          "total_price": "var(--font-inter), var(--text-xl, 20px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "reassurance": "var(--font-inter), var(--text-xs, 11px), var(--font-weight-normal, 400), var(--text-gray, #6b7280)"
+        },
+        "spacing": {
+          "form_padding": "var(--spacing-2xl, 24px)",
+          "field_gap": "var(--spacing-lg, 16px)",
+          "section_gap": "var(--spacing-2xl, 24px)"
+        },
+        "color_usage": {
+          "prefill_bg": "var(--bg-light, #f9fafb)",
+          "price_highlight_pulse": "var(--secondary-purple, rgb(109,49,194))",
+          "submit_gradient": "var(--gradient-purple-button, linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%))",
+          "preview_border": "var(--border-color, #e5e7eb)",
+          "trust_icon": "var(--secondary-purple, rgb(109,49,194))"
+        }
+      },
+      "interaction_spec": {
+        "load_behavior": "Form expands downward from listing content (height 0 to auto, 300ms ease-out). Pre-populated fields fill in with 50ms stagger animation -- each value appears sequentially, creating a 'being prepared for you' effect. Price total calculates and appears last with a brief purple highlight pulse.",
+        "hover": "Date fields show calendar picker on focus. Price total updates in real-time as dates change with 400ms highlight pulse. Submit button shows scale pulse (0.97) on click, transitions to progress indicator, then checkmark on success.",
+        "reduced_motion": "Form appears instantly. Pre-populated fields appear simultaneously. Price updates without color pulse. Submit resolves to checkmark without animation."
+      },
+      "copy_spec": {
+        "section_heading": "Your proposal to [Host Name]",
+        "date_label": "Your dates",
+        "schedule_label": "Your schedule",
+        "price_summary": "$[rate]/night x [weeks] weeks = $[total] total",
+        "message_label": "Add a note (optional)",
+        "message_placeholder": "Introduce yourself or ask a question...",
+        "preview_heading": "This is what [Host Name] will see",
+        "submit_button": "Send proposal",
+        "reassurance_text": "You can modify this before [Host Name] accepts.",
+        "trust_micro": "Payment held securely until 48hrs after move-in",
+        "post_submit": "Your proposal is on its way to [Host Name]. Hosts typically respond within 24 hours.",
+        "dont": ["Use 'Submit' or 'Commit to Lease' on the button", "Show legal disclaimers before the form content", "Leave fields blank with robotic placeholders like 'MM/DD/YYYY'", "Add 'Reason for stay' or 'Employment status' fields"]
+      },
+      "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.pb-form{width:100%;max-width:520px;background:#fff;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);font-family:'Inter',sans-serif;overflow:hidden}.pb-listing{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid #e5e7eb;background:#f9fafb}.pb-listing img{width:64px;height:48px;border-radius:8px;object-fit:cover}.pb-listing-info{flex:1}.pb-listing-addr{font-size:14px;font-weight:600;color:#1a1a1a;margin:0}.pb-listing-price{font-size:12px;color:#6b7280;margin:2px 0 0}.pb-body{padding:24px}.pb-heading{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 20px}.pb-field{margin-bottom:16px}.pb-label{font-size:12px;font-weight:500;color:#6b7280;margin:0 0 6px;display:block}.pb-value{width:100%;height:42px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:0 12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#1a1a1a;display:flex;align-items:center;box-sizing:border-box;transition:border-color 0.1s ease}.pb-value:focus-within{border-color:rgb(109,49,194);box-shadow:0 0 0 3px rgba(109,49,194,0.1)}.pb-total{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0;border-top:1px solid #e5e7eb;margin-top:8px}.pb-total-label{font-size:14px;font-weight:500;color:#6b7280}.pb-total-amount{font-size:20px;font-weight:700;color:#1a1a1a;transition:color 0.4s ease}.pb-note textarea{width:100%;min-height:60px;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a1a;resize:vertical;box-sizing:border-box;outline:none;transition:border-color 0.1s ease}.pb-note textarea:focus{border-color:rgb(109,49,194);box-shadow:0 0 0 3px rgba(109,49,194,0.1)}.pb-note textarea::placeholder{color:#9ca3af}.pb-preview{background:rgb(252,250,255);border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0 16px}.pb-preview-heading{font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px}.pb-preview-card{display:flex;gap:10px;align-items:center}.pb-preview-avatar{width:36px;height:36px;border-radius:50%;background:#e5e7eb;overflow:hidden}.pb-preview-avatar img{width:100%;height:100%;object-fit:cover}.pb-preview-text{flex:1;font-size:12px;color:#1a1a1a;line-height:1.4}.pb-preview-text strong{font-weight:600}.pb-footer{padding:0 24px 24px}.pb-submit{width:100%;padding:14px;background:linear-gradient(135deg,#4B47CE 0%,#7C3AED 100%);color:#fff;border:none;border-radius:20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.1s ease,transform 0.1s ease}.pb-submit:hover{opacity:0.9}.pb-submit:active{transform:scale(0.97)}.pb-trust{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:12px}.pb-trust svg{width:14px;height:14px;stroke:rgb(109,49,194);fill:none;stroke-width:2}.pb-trust-text{font-size:11px;color:#6b7280}@media(prefers-reduced-motion:reduce){.pb-submit,.pb-value,.pb-total-amount,.pb-note textarea{transition:none}.pb-submit:active{transform:none}}</style><div class=\"pb-form\"><div class=\"pb-listing\"><img src=\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=128&h=96&fit=crop\" alt=\"Room\"><div class=\"pb-listing-info\"><p class=\"pb-listing-addr\">Bright Room in Williamsburg</p><p class=\"pb-listing-price\">$850/night &middot; Near the L train</p></div></div><div class=\"pb-body\"><h3 class=\"pb-heading\">Your proposal to Jessica</h3><div class=\"pb-field\"><label class=\"pb-label\">Your dates</label><div class=\"pb-value\">Mar 15 - Jun 15, 2026</div></div><div class=\"pb-field\"><label class=\"pb-label\">Your schedule</label><div class=\"pb-value\">Thursday - Sunday (4 nights/week)</div></div><div class=\"pb-field\"><label class=\"pb-label\">Duration</label><div class=\"pb-value\">13 weeks</div></div><div class=\"pb-total\"><span class=\"pb-total-label\">$850/night &times; 13 weeks</span><span class=\"pb-total-amount\">$11,050</span></div><div class=\"pb-field pb-note\"><label class=\"pb-label\">Add a note (optional)</label><textarea placeholder=\"Introduce yourself or ask a question...\"></textarea></div><div class=\"pb-preview\"><p class=\"pb-preview-heading\">This is what Jessica will see</p><div class=\"pb-preview-card\"><div class=\"pb-preview-avatar\"><img src=\"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=72&h=72&fit=crop&crop=face\" alt=\"Guest\"></div><div class=\"pb-preview-text\"><strong>Alex M.</strong> wants to stay Thu-Sun for 13 weeks starting Mar 15.<br>Total: $11,050</div></div></div></div><div class=\"pb-footer\"><button class=\"pb-submit\">Send proposal</button><div class=\"pb-trust\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path></svg><span class=\"pb-trust-text\">You can modify this before Jessica accepts. Payment held securely until 48hrs after move-in.</span></div></div></div>",
+      "implements_principles": ["works-001", "works-002", "works-003", "communicates-002", "communicates-005", "looks-004", "behaves-002", "behaves-005", "feels-004"],
+      "effort": "medium",
+      "problem_it_solves": "Blank proposal forms maximize the self-consciousness that Csikszentmihalyi identifies as a permanent bar to enjoyment. The guest worries about 'creating the wrong impression' when every field demands content they must generate from scratch. Pre-populated fields, real-time price feedback, and a host-view preview replace anxiety with confidence, transforming proposal creation from a scary form into a guided assembly."
+    },
+    {
+      "id": "ds-ui-1831-005",
+      "name": "Collaborative Negotiation Comparison Card",
+      "category": "card",
+      "source_elements": ["works-005", "communicates-006", "behaves-005", "feels-005"],
+      "journey_phases": ["negotiation"],
+      "priority": "high",
+      "description": "A side-by-side comparison interface that transforms negotiation from a binary accept/reject verdict into a collaborative agon (Csikszentmihalyi's term for competitive games where opponents 'seek together'). Changed elements are highlighted with pre-calculated financial impact, market calibration data provides context for evaluating reasonableness, and a 'Suggest a modification' option gives the guest agency beyond yes or no. This prevents the alienation Csikszentmihalyi describes as being 'constrained by the social system to act in ways that go against their goals.'",
+      "visual_spec": {
+        "layout": "Full-width card with two-column comparison: 'Your proposal' (left) vs 'Jessica's adjustment' (right). Changed values highlighted. Financial impact summary below. Three action buttons at bottom.",
+        "background": "var(--bg-white, #ffffff)",
+        "border": "1px solid var(--border-color, #e5e7eb)",
+        "border_radius": "var(--rounded-xl, 12px)",
+        "typography": {
+          "heading": "var(--font-dm), var(--text-lg, 18px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "column_header": "var(--font-inter), var(--text-sm, 12px), var(--font-weight-semibold, 600), var(--text-gray, #6b7280)",
+          "value_unchanged": "var(--font-inter), var(--text-base, 14px), var(--font-weight-normal, 400), var(--text-dark, #1a1a1a)",
+          "value_changed": "var(--font-inter), var(--text-base, 14px), var(--font-weight-semibold, 600), var(--text-dark, #1a1a1a)",
+          "impact": "var(--font-inter), var(--text-md, 16px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "market_context": "var(--font-inter), var(--text-xs, 11px), var(--font-weight-normal, 400), var(--text-gray, #6b7280)"
+        },
+        "spacing": {
+          "card_padding": "var(--spacing-2xl, 24px)",
+          "column_gap": "var(--spacing-lg, 16px)",
+          "row_gap": "var(--spacing-md, 12px)"
+        },
+        "color_usage": {
+          "change_highlight_bg": "rgba(109,49,194,0.06)",
+          "change_highlight_border": "rgba(109,49,194,0.2)",
+          "original_strikethrough": "var(--text-light-gray, #9ca3af)",
+          "accept_button": "var(--gradient-purple-button)",
+          "modify_button_bg": "var(--bg-light-gray, #f3f4f6)",
+          "modify_button_text": "var(--text-dark, #1a1a1a)",
+          "decline_text": "var(--text-gray, #6b7280)",
+          "market_bar_bg": "var(--bg-light-gray, #f3f4f6)",
+          "market_bar_fill": "var(--secondary-purple, rgb(109,49,194))"
+        }
+      },
+      "interaction_spec": {
+        "load_behavior": "Card slides in alongside the original proposal context over 300ms ease-out. Changed elements pulse briefly with an amber highlight that settles to the purple tint background. Financial impact number counts up over 500ms.",
+        "hover": "Action buttons show standard hover states. 'Suggest a modification' expands to reveal guided fields for which elements to adjust. Market context tooltip appears on hover over the context bar.",
+        "reduced_motion": "Card appears instantly. Changed elements show highlight without pulse. Financial impact number appears without count animation."
+      },
+      "copy_spec": {
+        "heading": "Jessica adjusted the terms",
+        "your_column": "Your proposal",
+        "host_column": "Jessica's adjustment",
+        "impact_label": "Net impact",
+        "impact_value": "$[amount] [more/less] total",
+        "market_context": "Similar rooms in this area: $[low]-$[high]/night",
+        "accept_button": "Accept these terms",
+        "modify_button": "Suggest a change",
+        "decline_button": "Decline with a note",
+        "host_pattern": "Jessica has accepted modifications in [X] of [Y] past negotiations",
+        "dont": ["Use 'Counter-offer received' as adversarial framing", "Present only Accept/Decline without a modify path", "Force the guest to calculate differences mentally", "Add urgency pressure like 'Expires in 24 hours'"]
+      },
+      "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.nc-card{width:100%;max-width:560px;background:#fff;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);font-family:'Inter',sans-serif;overflow:hidden}.nc-header{padding:20px 24px 16px;border-bottom:1px solid #e5e7eb}.nc-heading{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:#1a1a1a;margin:0}.nc-sub{font-size:12px;color:#6b7280;margin:4px 0 0}.nc-compare{padding:20px 24px}.nc-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}.nc-col-head{font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}.nc-val{font-size:14px;color:#1a1a1a;padding:8px 12px;border-radius:6px;background:#f9fafb}.nc-val.changed{background:rgba(109,49,194,0.06);border:1px solid rgba(109,49,194,0.2);font-weight:600}.nc-val.original{color:#9ca3af;text-decoration:line-through;background:transparent}.nc-label{font-size:11px;font-weight:500;color:#6b7280;margin-bottom:4px}.nc-impact{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid #e5e7eb;background:rgb(252,250,255)}.nc-impact-label{font-size:14px;font-weight:500;color:#6b7280}.nc-impact-val{font-size:16px;font-weight:700;color:#1a1a1a}.nc-market{padding:8px 24px 16px;font-size:11px;color:#6b7280}.nc-market-bar{height:4px;background:#f3f4f6;border-radius:2px;margin-top:6px;position:relative;overflow:hidden}.nc-market-fill{height:100%;background:rgb(109,49,194);border-radius:2px;width:65%}.nc-pattern{font-size:11px;color:#6b7280;font-style:italic;padding:0 24px 12px}.nc-actions{display:flex;gap:10px;padding:16px 24px 24px;flex-wrap:wrap}.nc-accept{flex:1;padding:12px;background:linear-gradient(135deg,#4B47CE 0%,#7C3AED 100%);color:#fff;border:none;border-radius:20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.1s ease}.nc-accept:hover{opacity:0.9}.nc-modify{flex:1;padding:12px;background:#f3f4f6;color:#1a1a1a;border:none;border-radius:20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.1s ease}.nc-modify:hover{background:#e5e7eb}.nc-decline{width:100%;padding:10px;background:transparent;color:#6b7280;border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:color 0.1s ease;text-decoration:underline}.nc-decline:hover{color:#1a1a1a}@media(prefers-reduced-motion:reduce){.nc-accept,.nc-modify,.nc-decline{transition:none}}</style><div class=\"nc-card\"><div class=\"nc-header\"><h3 class=\"nc-heading\">Jessica adjusted the terms</h3><p class=\"nc-sub\">Here is what changed and your options</p></div><div class=\"nc-compare\"><div class=\"nc-row\"><div><div class=\"nc-col-head\">Your proposal</div></div><div><div class=\"nc-col-head\">Jessica's adjustment</div></div></div><div class=\"nc-row\"><div><p class=\"nc-label\">Duration</p><div class=\"nc-val original\">16 weeks</div></div><div><p class=\"nc-label\">Duration</p><div class=\"nc-val changed\">10 weeks</div></div></div><div class=\"nc-row\"><div><p class=\"nc-label\">Rate</p><div class=\"nc-val\">$850/night</div></div><div><p class=\"nc-label\">Rate</p><div class=\"nc-val\">$850/night</div></div></div><div class=\"nc-row\"><div><p class=\"nc-label\">Total</p><div class=\"nc-val original\">$13,600</div></div><div><p class=\"nc-label\">Total</p><div class=\"nc-val changed\">$8,500</div></div></div></div><div class=\"nc-impact\"><span class=\"nc-impact-label\">Net impact</span><span class=\"nc-impact-val\">$5,100 less total (6 fewer weeks)</span></div><div class=\"nc-market\">Similar rooms in Williamsburg average $800-$950/night for 10-week stays<div class=\"nc-market-bar\"><div class=\"nc-market-fill\"></div></div></div><p class=\"nc-pattern\">Jessica has accepted modifications in 3 of 4 past negotiations</p><div class=\"nc-actions\"><button class=\"nc-accept\">Accept these terms</button><button class=\"nc-modify\">Suggest a change</button><button class=\"nc-decline\">Decline with a note</button></div></div>",
+      "implements_principles": ["works-005", "communicates-006", "behaves-005", "feels-005"],
+      "effort": "medium",
+      "problem_it_solves": "A binary accept/reject negotiation interface creates what Csikszentmihalyi calls alienation: the guest is constrained to act against their goals. Without calibration data, the guest experiences anomie -- they cannot tell if the counter is fair. This component resolves both by providing market context, pre-calculated impact, and a modification path that transforms negotiation from a verdict into collaborative skill-stretching."
+    },
+    {
+      "id": "ds-ui-1831-006",
+      "name": "Acceptance Celebration and Orientation Bridge",
+      "category": "banner",
+      "source_elements": ["works-007", "communicates-005", "looks-003", "behaves-006", "feels-006"],
+      "journey_phases": ["acceptance", "move_in"],
+      "priority": "medium",
+      "description": "A two-beat acceptance experience that first celebrates the guest's completed journey (acknowledging their transformation from searcher to resident) and then immediately orients them toward move-in preparation. Csikszentmihalyi warns that A4 (the peak flow state after acceptance) 'does not represent a stable situation either' -- without a new challenge, engagement collapses into post-decision anxiety. The celebration beat rewards psychic energy invested; the orientation beat channels it into the next flow activity. This prevents the post-acceptance vacuum where worry accumulates between confirmation and move-in.",
+      "visual_spec": {
+        "layout": "Full-width confirmation card centered on page. Top section: listing photo (large), host name, confirmed terms rendered as a welcome summary. Bottom section: 'What happens next' timeline with 3-4 steps. Max-width 600px.",
+        "background": "var(--bg-off-white, rgb(252,250,255)) for outer area; var(--bg-white, #ffffff) for card",
+        "border": "1px solid var(--border-color, #e5e7eb)",
+        "border_radius": "var(--rounded-2xl, 16px)",
+        "typography": {
+          "celebration_heading": "var(--font-dm), var(--text-2xl, 28px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "confirmation_detail": "var(--font-inter), var(--text-md, 16px), var(--font-weight-normal, 400), var(--text-description, #374151)",
+          "timeline_heading": "var(--font-dm), var(--text-md, 16px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "timeline_step": "var(--font-inter), var(--text-sm, 12px), var(--font-weight-medium, 500), var(--text-dark, #1a1a1a)",
+          "timeline_detail": "var(--font-inter), var(--text-xs, 11px), var(--font-weight-normal, 400), var(--text-gray, #6b7280)"
+        },
+        "spacing": {
+          "card_padding": "var(--spacing-4xl, 32px)",
+          "section_gap": "var(--spacing-2xl, 24px)",
+          "timeline_step_gap": "var(--spacing-lg, 16px)"
+        },
+        "color_usage": {
+          "glow_ring": "var(--shadow-purple-lg, 0 6px 20px rgba(109,49,194,0.35))",
+          "timeline_dot_active": "var(--secondary-purple, rgb(109,49,194))",
+          "timeline_dot_future": "var(--bg-light-gray, #f3f4f6)",
+          "timeline_line": "var(--border-color, #e5e7eb)",
+          "cta_button": "var(--gradient-purple-button)"
+        }
+      },
+      "interaction_spec": {
+        "load_behavior": "Card expands from center over 400ms ease-out. Listing photo scales gently from 0.95 to 1.0. A single subtle purple glow ring pulses once around the card (800ms) and fades. Timeline steps appear staggered by 100ms after the celebration section settles.",
+        "hover": "Timeline steps highlight on hover with left-border color shift to purple. CTA buttons show standard hover states.",
+        "reduced_motion": "Card appears instantly without animation. Glow ring uses opacity change (0 to 0.3 to 0) instead of shadow pulse. Timeline steps appear simultaneously."
+      },
+      "copy_spec": {
+        "celebration_heading": "Your room in [Neighborhood] is confirmed",
+        "confirmation_line": "You and [Host Name] agreed on [duration] at $[rate]/night starting [date].",
+        "timeline_heading": "What happens next",
+        "step_1": "Today: Lease documents arrive via email",
+        "step_2": "This week: Access your House Manual",
+        "step_3": "[Date]: Move in and meet [Host Name]",
+        "cta_button": "Explore your House Manual",
+        "journey_acknowledgment": "After exploring [N] rooms and messaging [N] hosts, you found your place.",
+        "dont": ["Reduce to 'Proposal accepted. Transaction ID: 48291'", "Use legal language in the celebration moment", "Leave the guest without a next step after 'Congratulations!'", "Add friction like 'Complete your profile to unlock House Manual'"]
+      },
+      "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.ac-wrap{width:100%;max-width:600px;margin:0 auto;font-family:'Inter',sans-serif}.ac-card{background:#fff;border-radius:16px;border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(109,49,194,0.12);overflow:hidden}.ac-hero{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}.ac-hero img{width:100%;height:100%;object-fit:cover}.ac-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(49,19,93,0.7) 0%,transparent 60%);display:flex;align-items:flex-end;padding:24px}.ac-hero-text{color:#fff}.ac-hero-text h2{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;margin:0;line-height:1.2}.ac-hero-text p{font-size:14px;margin:6px 0 0;opacity:0.9}.ac-details{padding:24px 32px;border-bottom:1px solid #e5e7eb}.ac-confirm{display:flex;align-items:center;gap:12px}.ac-host-thumb{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgb(140,104,238)}.ac-confirm-text{font-size:16px;color:#374151;line-height:1.5}.ac-confirm-text strong{color:#1a1a1a;font-weight:600}.ac-journey-note{font-size:11px;color:#6b7280;margin-top:12px;font-style:italic}.ac-timeline{padding:24px 32px}.ac-timeline h3{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 16px}.ac-step{display:flex;gap:12px;margin-bottom:16px;position:relative}.ac-step:last-child{margin-bottom:0}.ac-dot-col{display:flex;flex-direction:column;align-items:center;width:20px;flex-shrink:0}.ac-dot{width:10px;height:10px;border-radius:50%;background:rgb(109,49,194);flex-shrink:0}.ac-dot.future{background:#f3f4f6;border:2px solid #e5e7eb}.ac-line{width:2px;flex:1;background:#e5e7eb;margin-top:4px}.ac-step-content{flex:1;padding-bottom:4px}.ac-step-title{font-size:13px;font-weight:600;color:#1a1a1a;margin:0}.ac-step-detail{font-size:11px;color:#6b7280;margin:2px 0 0}.ac-footer{padding:16px 32px 28px;display:flex;justify-content:center}.ac-cta{background:linear-gradient(135deg,#4B47CE 0%,#7C3AED 100%);color:#fff;border:none;border-radius:20px;padding:12px 32px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.1s ease}.ac-cta:hover{opacity:0.9}@media(prefers-reduced-motion:reduce){.ac-cta{transition:none}}</style><div class=\"ac-wrap\"><div class=\"ac-card\"><div class=\"ac-hero\"><img src=\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=338&fit=crop\" alt=\"Your new room\"><div class=\"ac-hero-overlay\"><div class=\"ac-hero-text\"><h2>Your room in Williamsburg is confirmed</h2><p>Jessica is expecting you March 15</p></div></div></div><div class=\"ac-details\"><div class=\"ac-confirm\"><img class=\"ac-host-thumb\" src=\"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face\" alt=\"Jessica\"><div class=\"ac-confirm-text\">You and <strong>Jessica</strong> agreed on <strong>10 weeks</strong> at <strong>$850/night</strong>, starting <strong>March 15</strong>.</div></div><p class=\"ac-journey-note\">After exploring 12 rooms and messaging 3 hosts, you found your place.</p></div><div class=\"ac-timeline\"><h3>What happens next</h3><div class=\"ac-step\"><div class=\"ac-dot-col\"><div class=\"ac-dot\"></div><div class=\"ac-line\"></div></div><div class=\"ac-step-content\"><p class=\"ac-step-title\">Today: Lease documents arrive</p><p class=\"ac-step-detail\">Check your email for the lease agreement to review and sign.</p></div></div><div class=\"ac-step\"><div class=\"ac-dot-col\"><div class=\"ac-dot future\"></div><div class=\"ac-line\"></div></div><div class=\"ac-step-content\"><p class=\"ac-step-title\">This week: Access your House Manual</p><p class=\"ac-step-detail\">House rules, check-in procedures, and neighborhood tips.</p></div></div><div class=\"ac-step\"><div class=\"ac-dot-col\"><div class=\"ac-dot future\"></div></div><div class=\"ac-step-content\"><p class=\"ac-step-title\">March 15: Move in</p><p class=\"ac-step-detail\">Jessica will greet you. The nearest subway is the L at Bedford Ave.</p></div></div></div><div class=\"ac-footer\"><button class=\"ac-cta\">Explore your House Manual</button></div></div></div>",
+      "implements_principles": ["works-007", "communicates-005", "looks-003", "behaves-006", "feels-006"],
+      "effort": "low",
+      "problem_it_solves": "The current acceptance experience reduces a multi-phase journey culmination to a confirmation dialog. Csikszentmihalyi says flow activities 'transformed the self by making it more complex' -- acceptance should honor that transformation. Without immediate orientation toward move-in, the guest's elevated engagement collapses into post-decision anxiety as A4 becomes unstable without a new challenge."
+    },
+    {
+      "id": "ds-ui-1831-007",
+      "name": "Evolving Stays Manager with Complexity Ratchet",
+      "category": "dashboard",
+      "source_elements": ["works-004", "works-007", "communicates-004", "looks-005", "behaves-004", "feels-007"],
+      "journey_phases": ["active_lease"],
+      "priority": "high",
+      "description": "A Stays Manager page design that evolves across three lifecycle phases (orientation, rhythm, reflection) within a stable layout skeleton, implementing Csikszentmihalyi's complexity ratchet for the platform's highest-frequency touchpoint. Visited 13+ times per lease, this is where flow must be sustained longest. The skeleton has three fixed zones: action band (top), main content (middle), reference footer (bottom). Content within each zone evolves weekly: orientation checklists become stay timelines become cumulative summaries. A 'what changed since last visit' indicator ensures every return visit offers discovery. This prevents the mid-lease boredom that the Shushwap village metaphor describes: 'the world became too predictable and the challenge began to go out of life.'",
+      "visual_spec": {
+        "layout": "Single-column page with three persistent zones: (1) Action band at top, max 3 items, collapses when empty. (2) Main content area with current-week focus + engagement prompt. (3) Reference footer with lease terms, House Manual, host contact. Max-width 680px centered.",
+        "background": "var(--bg-light, #f9fafb) page background; var(--bg-white, #ffffff) for zone cards",
+        "border": "1px solid var(--border-color, #e5e7eb) for zone cards",
+        "border_radius": "var(--rounded-xl, 12px) for zone cards",
+        "typography": {
+          "week_heading": "var(--font-dm), var(--text-xl, 20px), var(--font-weight-bold, 700), var(--text-dark, #1a1a1a)",
+          "section_label": "var(--font-inter), var(--text-sm, 12px), var(--font-weight-semibold, 600), var(--text-gray, #6b7280)",
+          "stay_detail": "var(--font-inter), var(--text-base, 14px), var(--font-weight-normal, 400), var(--text-dark, #1a1a1a)",
+          "review_prompt": "var(--font-inter), var(--text-md, 16px), var(--font-weight-medium, 500), var(--text-dark, #1a1a1a)",
+          "milestone": "var(--font-inter), var(--text-xs, 11px), var(--font-weight-medium, 500), var(--text-gray, #6b7280)"
+        },
+        "spacing": {
+          "zone_gap": "var(--spacing-lg, 16px)",
+          "zone_padding": "var(--spacing-2xl, 24px)",
+          "timeline_segment_width": "24px"
+        },
+        "color_usage": {
+          "timeline_filled": "var(--secondary-purple, rgb(109,49,194))",
+          "timeline_upcoming": "var(--bg-light-gray, #f3f4f6)",
+          "timeline_current_glow": "var(--shadow-purple-sm, 0 2px 4px rgba(49,19,93,0.2))",
+          "new_content_indicator": "var(--secondary-purple, rgb(109,49,194))",
+          "checklist_complete": "var(--secondary-purple, rgb(109,49,194))",
+          "checklist_pending": "var(--text-light-gray, #9ca3af)",
+          "action_badge_message": "var(--secondary-purple, rgb(109,49,194))",
+          "action_badge_date": "var(--status-warning, #C4841D)",
+          "review_card_bg": "var(--bg-off-white, rgb(252,250,255))"
+        }
+      },
+      "interaction_spec": {
+        "load_behavior": "Page skeleton renders in under 200ms. Dynamic content (stay details, review prompts, action items) populates within 500ms. New-since-last-visit indicators pulse gently (opacity 1.0 to 0.6, 2s cycle) on sections with fresh content.",
+        "hover": "Timeline segments show tooltip with week details on hover. Checklist items show checkmark animation (scale 0 to 1.1 to 1.0, 300ms spring) on completion. Review prompt card expands on tap to reveal rating interface.",
+        "reduced_motion": "New-content pulse uses solid indicator dot instead of animation. Checklist uses instant state change. Timeline tooltip appears without delay."
+      },
+      "copy_spec": {
+        "week_heading": "Week [N] of [Total]",
+        "orientation_intro": "Welcome to your new space. Here is what to do this week.",
+        "rhythm_intro": "Your [Day]-to-[Day] rhythm is locked in.",
+        "reflection_intro": "You have been here [N] weeks. Here is what you have built.",
+        "checklist_items": ["Review House Manual", "Confirm arrival time", "Send first message to Jessica"],
+        "review_prompt": "How was this week?",
+        "milestone_text": "You have completed [N] of [Total] stay cycles",
+        "cumulative_stat": "[N] nights stayed. [N] reviews shared.",
+        "empty_visit": "No new updates this week. Explore the neighborhood guide.",
+        "dont": ["Use the same headline on every visit", "Lead with 'Payment due in 3 days' when there are more engaging items", "Present review prompts as demands: 'You MUST submit a review'", "Show empty state with just 'No updates'"]
+      },
+      "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.sm-page{width:100%;max-width:680px;margin:0 auto;font-family:'Inter',sans-serif;display:flex;flex-direction:column;gap:16px}.sm-zone{background:#fff;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.05);overflow:hidden}.sm-action-band{padding:16px 24px;display:flex;gap:10px;flex-wrap:wrap}.sm-badge{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.1s ease;border:none;font-family:'Inter',sans-serif}.sm-badge.msg{background:rgba(109,49,194,0.08);color:rgb(109,49,194)}.sm-badge.msg:hover{background:rgba(109,49,194,0.15)}.sm-badge.date{background:rgba(196,132,29,0.08);color:#C4841D}.sm-badge.date:hover{background:rgba(196,132,29,0.15)}.sm-badge-dot{width:6px;height:6px;border-radius:50%}.sm-badge.msg .sm-badge-dot{background:rgb(109,49,194)}.sm-badge.date .sm-badge-dot{background:#C4841D}.sm-main{padding:24px}.sm-week-head{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;color:#1a1a1a;margin:0 0 4px}.sm-week-sub{font-size:13px;color:#6b7280;margin:0 0 20px}.sm-timeline{display:flex;align-items:center;gap:4px;margin-bottom:20px}.sm-seg{width:24px;height:24px;border-radius:6px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#9ca3af;transition:background 0.2s ease;cursor:default}.sm-seg.done{background:rgb(109,49,194);color:#fff}.sm-seg.current{background:rgb(109,49,194);color:#fff;box-shadow:0 2px 4px rgba(49,19,93,0.3)}.sm-milestone{font-size:11px;font-weight:500;color:#6b7280;margin:0 0 16px}.sm-review-card{background:rgb(252,250,255);border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:16px}.sm-review-q{font-size:16px;font-weight:500;color:#1a1a1a;margin:0 0 12px}.sm-stars{display:flex;gap:6px}.sm-star{width:32px;height:32px;border-radius:50%;border:2px solid #e5e7eb;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.1s ease,border-color 0.1s ease;font-size:14px}.sm-star:hover{border-color:rgb(109,49,194);background:rgba(109,49,194,0.06)}.sm-star.filled{border-color:rgb(109,49,194);background:rgb(109,49,194);color:#fff}.sm-stay-info{display:flex;gap:16px;font-size:13px;color:#374151}.sm-stay-item{display:flex;align-items:center;gap:6px}.sm-stay-item svg{width:16px;height:16px;stroke:#6b7280;fill:none;stroke-width:2}.sm-ref{padding:16px 24px}.sm-ref-label{font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px}.sm-ref-links{display:flex;gap:12px;flex-wrap:wrap}.sm-ref-link{font-size:13px;font-weight:500;color:rgb(109,49,194);text-decoration:none;transition:color 0.1s ease}.sm-ref-link:hover{color:rgb(140,104,238)}@media(prefers-reduced-motion:reduce){.sm-seg,.sm-badge,.sm-star,.sm-ref-link{transition:none}}</style><div class=\"sm-page\"><div class=\"sm-zone\"><div class=\"sm-action-band\"><button class=\"sm-badge msg\"><span class=\"sm-badge-dot\"></span>1 new message from Jessica</button><button class=\"sm-badge date\"><span class=\"sm-badge-dot\"></span>Date change confirmed</button></div></div><div class=\"sm-zone\"><div class=\"sm-main\"><h2 class=\"sm-week-head\">Week 6 of 13</h2><p class=\"sm-week-sub\">Your Thursday-to-Sunday rhythm is locked in. Halfway there.</p><div class=\"sm-timeline\"><div class=\"sm-seg done\">1</div><div class=\"sm-seg done\">2</div><div class=\"sm-seg done\">3</div><div class=\"sm-seg done\">4</div><div class=\"sm-seg done\">5</div><div class=\"sm-seg current\">6</div><div class=\"sm-seg\">7</div><div class=\"sm-seg\">8</div><div class=\"sm-seg\">9</div><div class=\"sm-seg\">10</div><div class=\"sm-seg\">11</div><div class=\"sm-seg\">12</div><div class=\"sm-seg\">13</div></div><p class=\"sm-milestone\">5 of 13 stay cycles completed &middot; 20 nights stayed</p><div class=\"sm-review-card\"><p class=\"sm-review-q\">How was this week?</p><div class=\"sm-stars\"><div class=\"sm-star filled\">1</div><div class=\"sm-star filled\">2</div><div class=\"sm-star filled\">3</div><div class=\"sm-star filled\">4</div><div class=\"sm-star\">5</div></div></div><div class=\"sm-stay-info\"><div class=\"sm-stay-item\"><svg viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"></line><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"></line><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"></line></svg>Next stay: Thu Mar 19 - Sun Mar 22</div><div class=\"sm-stay-item\"><svg viewBox=\"0 0 24 24\"><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"23\"></line><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"></path></svg>Next payment: Mar 22</div></div></div></div><div class=\"sm-zone\"><div class=\"sm-ref\"><p class=\"sm-ref-label\">Quick access</p><div class=\"sm-ref-links\"><a href=\"#\" class=\"sm-ref-link\">House Manual</a><a href=\"#\" class=\"sm-ref-link\">Lease Terms</a><a href=\"#\" class=\"sm-ref-link\">Message Jessica</a><a href=\"#\" class=\"sm-ref-link\">Date Change Tool</a></div></div></div></div>",
+      "implements_principles": ["works-004", "works-007", "communicates-004", "looks-005", "behaves-004", "feels-007"],
+      "effort": "high",
+      "problem_it_solves": "A static Stays Manager visited 13+ times guarantees Csikszentmihalyi's boredom zone by mid-lease: 'One cannot enjoy doing the same thing at the same level for long.' The complexity ratchet -- stable skeleton with evolving content across orientation, rhythm, and reflection phases -- prevents the guest from emotionally abandoning the platform while physically remaining in the lease, preserving the on-platform engagement that drives reviews, communication, and retention."
+    }
+  ]
+}

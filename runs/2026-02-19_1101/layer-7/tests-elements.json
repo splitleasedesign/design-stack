@@ -1,0 +1,618 @@
+{
+  "lens": {
+    "guest_call": "Shomit Ghosh - 8 April 2022.txt",
+    "book_extract": "flow-enjoyment-quality.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Orientation-Gated Action Prompt Validation",
+      "validates_element": "works-001 (Information Landscape Before Action Request)",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the save/bid prompt appears before the guest has surveyed multiple listings, guests will defer or abandon ('I'll hold off' pattern). If the gating logic is too aggressive, engaged guests who are ready to act early will be frustrated by hidden prompts.",
+      "solution": "Measure the relationship between pre-action orientation (listings viewed, filters used, time on search page) and save conversion rate. Validate that the orientation gate increases saves without increasing abandonment.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 52, 55",
+          "type": "guest_call",
+          "quote": "No, I want to see what the other options are... I'll still hold off.",
+          "insight": "Triple refusal to bid is the target behavior this pattern eliminates. Success means guests who view 2+ listings save at a higher rate than guests who see save prompts on their first listing."
+        },
+        {
+          "source": "flow-enjoyment-quality.txt, lines 725-730",
+          "type": "book",
+          "quote": "what people enjoy is not the sense of being in control, but the sense of exercising control in difficult situations.",
+          "insight": "Validated by whether guests who complete orientation report higher perceived control in post-action surveys."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two cohorts: (A) save button visible immediately on every listing, (B) save button begins subdued and escalates prominence after the guest views 2+ listings or interacts with filters. Measure: save conversion rate, time to first save, search abandonment rate, and post-save satisfaction rating.",
+      "success_criteria": "Cohort B shows equal or higher save conversion rate compared to Cohort A, with lower search-phase abandonment (guests who leave during search without saving anything). Secondary: time-to-first-save may increase slightly in Cohort B but total saves per session should be equal or higher.",
+      "failure_meaning": "If Cohort B shows lower save conversion without reducing abandonment, the gating logic is too restrictive or the orientation threshold (2+ listings) is miscalibrated. Revisit the threshold: try 1 listing, or use time-on-page (60 seconds) instead of listing count. If both conversion AND abandonment are worse, the principle itself may not apply to all guest segments.",
+      "implementation_hint": "Track orientation markers in local storage: listing_views_count, filter_interactions_count, search_page_time_ms. When any marker exceeds threshold, set orientation_complete=true. The save button component reads this flag to determine its visual prominence level. Playwright test: assert that the save button has class 'subdued' before visiting 2 listings, and class 'prominent' after."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Mental Model Translation Effectiveness Validation",
+      "validates_element": "works-002 (Mental Model Translation for Pricing and Schedule)",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the monthly-equivalent pricing is confusing, inaccurate, or not prominent enough, guests will still perform mental arithmetic and experience the cognitive burden the pattern is designed to eliminate. If the savings comparison anchor is wrong (guest's actual full-time lease cost differs from the assumed $2,500), the comparison feels irrelevant.",
+      "solution": "Measure whether guests who see monthly-equivalent pricing make faster, more confident listing evaluations and ask fewer pricing-related questions to agents.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 65-68",
+          "type": "guest_call",
+          "quote": "I guess mainly I think of this per month and then I break it down per night.",
+          "insight": "Success means eliminating the 'break it down' mental step. The guest should never need to compute their monthly cost."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track two metrics after implementing monthly-equivalent pricing: (1) agent-handled pricing questions per guest (before vs. after), (2) time spent on listing cards before clicking into full listing (proxy for evaluation speed). Secondary: survey a cohort of new guests asking 'How easy was it to understand the pricing?' on a 1-5 scale.",
+      "success_criteria": "40% reduction in agent-handled pricing questions. Average time on listing card before first click decreases by 15% or more (indicating faster evaluation). Survey average above 4.0/5 for pricing clarity.",
+      "failure_meaning": "If pricing questions do not decrease, the monthly figure may not be prominent enough or may not be computing correctly for the guest's specific schedule. If time-on-card increases, the dual display (monthly + per-night) may be adding confusion rather than clarity. Investigate whether guests are comparing the two numbers rather than using the monthly figure as primary.",
+      "implementation_hint": "Log event: pricing_question_to_agent with timestamp and guest_id. Log event: listing_card_dwell_time_ms with listing_id and schedule_config. Compute monthly cost server-side to ensure accuracy: nightly_rate * nights_per_week * 4.33 (average weeks per month). Display with 2 decimal places in IBM Plex Mono to signal precision."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Co-Tenancy Uncertainty Resolution Validation",
+      "validates_element": "works-003 (Co-Tenancy Uncertainty Resolution Across Phases)",
+      "journey_phases": ["discovery", "listing_evaluation", "negotiation", "move_in", "active_lease"],
+      "problem": "If co-tenancy information is insufficient, incorrectly timed, or too detailed at early phases, it will either fail to resolve uncertainty or create new anxiety. If the progressive disclosure cadence is wrong, guests will encounter co-tenancy details when they are not relevant, creating noise.",
+      "solution": "Measure co-tenancy concern resolution across the journey using a combination of agent question tracking, Zoom meeting completion rates, and post-move-in satisfaction scores.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 18-19",
+          "type": "guest_call",
+          "quote": "Where does that other person go? ... I mean, I guess that's fine.",
+          "insight": "The triple hedge is the baseline behavior. Success means guests who encounter the progressive co-tenancy disclosure express genuine resolution rather than hedged acceptance."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Conduct moderated usability tests with 8-10 prospective guests. Walk them through the full guest journey from discovery to Zoom meeting. At each phase, present the co-tenancy information module and observe: (1) do they read/engage with it, (2) what questions do they have after, (3) how do they describe the co-tenancy arrangement in their own words. Score comprehension and comfort on a 1-5 scale at each phase.",
+      "success_criteria": "By the negotiation phase (pre-Zoom), at least 80% of participants can accurately describe the co-tenancy arrangement without prompting. Comfort score averages above 3.5/5 at listing evaluation and above 4.0/5 at pre-Zoom. Co-tenancy-related questions to agents decrease by 50% compared to baseline.",
+      "failure_meaning": "If comprehension is low at listing evaluation, the listing co-tenancy section is not concrete enough -- may need richer visuals (photos of shared/private zones). If comfort is low at pre-Zoom despite high comprehension, the social anxiety of the meeting itself is the issue, not the information -- invest more in the Zoom preparation module. If questions persist after progressive disclosure, the modules may be answering the wrong questions.",
+      "implementation_hint": "Usability test script: At each phase transition, ask the participant to explain the co-tenancy arrangement in their own words. Record verbatim. Look for hedging language ('I guess', 'I think', 'probably') as signals of unresolved uncertainty. Track question count per phase. Compare to baseline recordings of current call-only onboarding."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Process Feedback Gap Closure Validation",
+      "validates_element": "works-004 (Immediate Feedback at Every Process Gap)",
+      "journey_phases": ["discovery", "search", "proposal_creation", "negotiation", "acceptance"],
+      "problem": "If the process heartbeat is too frequent, guests feel spammed. If the content is too generic, it fails to provide symbolic feedback value. If heartbeat delivery is unreliable, silences still occur.",
+      "solution": "Measure guest engagement retention across the multi-week process, comparing guests who receive the heartbeat system against a historical baseline of guests who did not.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 62",
+          "type": "guest_call",
+          "quote": "It's usually takes two or three weeks to finish the process.",
+          "insight": "Success means the 2-3 week process retains more guests through to lease signing, with fewer permanent dropouts during waiting periods."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Implement the heartbeat system and track: (1) guest active rate during matching period (percentage who log in or respond to communication), (2) median time from first save to lease signing, (3) permanent dropout rate during matching (guests who never respond again). Compare to historical baselines from the pre-heartbeat period.",
+      "success_criteria": "Guest active rate during matching period increases to above 60% (from estimated current baseline of 30-40%). Permanent dropout rate during matching decreases by at least 25%. Median time from save to lease signing decreases (faster response to matching outcomes means faster overall process).",
+      "failure_meaning": "If active rate does not improve, heartbeat content may lack relevance or guests may not be reading the messages. Check open rates. If dropout rate does not decrease, the cause of dropout may be unrelated to feedback gaps (e.g., pricing, co-tenancy concerns, competing alternatives). If time-to-lease increases, heartbeats may be creating unnecessary back-and-forth rather than streamlining the process.",
+      "implementation_hint": "Heartbeat scheduler: cron job runs every 12 hours, queries active processes with last_heartbeat_sent > 48 hours ago, generates status message from current process state, sends via guest's preferred channel. Track: heartbeat_sent, heartbeat_opened, heartbeat_clicked events. Alert on: heartbeat_delivery_failed."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Physical Verification Path Validation",
+      "validates_element": "works-005 (Physical Verification Path Before Commitment)",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "acceptance"],
+      "problem": "If the verification option is available but not used, it does not reduce the trust gap. If in-person visits are logistically difficult to arrange, the option creates a new friction point (guest wants to visit but scheduling is hard).",
+      "solution": "Measure verification engagement rate and its impact on conversion and post-move-in satisfaction.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 29",
+          "type": "guest_call",
+          "quote": "is it possible to see the unit? Is that allowed?",
+          "insight": "Success means guests no longer need to ask this question -- the option is proactively visible. Secondary success: guests who verify (visit or virtual tour) convert at a higher rate and report higher post-move-in satisfaction."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) percentage of guests who engage with the verification section on listing pages (click 'Schedule Visit' or 'Take Virtual Tour'), (2) conversion rate for guests who verify vs. those who do not, (3) post-move-in satisfaction score for 'property matched expectations' for verified vs. unverified guests.",
+      "success_criteria": "At least 30% of guests engage with the verification section. Guests who complete verification (visit or virtual tour) show a conversion rate at least 20% higher than those who do not. Post-move-in 'property matched expectations' score above 4.2/5 for verified guests.",
+      "failure_meaning": "If engagement is below 30%, the section may not be prominent enough or the options may not match guest needs (e.g., virtual tour quality is too low). If conversion is not higher for verified guests, verification may not be the trust bottleneck -- other concerns (co-tenancy, pricing, timing) may dominate. If satisfaction scores are equal, the listing representations are already accurate enough that verification adds little value.",
+      "implementation_hint": "Track events: verification_section_viewed, verification_visit_scheduled, verification_tour_started, verification_tour_completed. Compare conversion funnels for verified vs. unverified cohorts. For virtual tours, track completion rate (started vs. finished) as a quality proxy."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Progressive Complexity Throttle Validation",
+      "validates_element": "works-006 (Challenge-Skill Balance in Process Complexity)",
+      "journey_phases": ["discovery", "search", "proposal_creation", "negotiation"],
+      "problem": "If the single-concept-per-phase approach is too slow, sophisticated guests may feel patronized. If the concepts are not self-contained enough, guests may reach a phase needing context they were not given because it was deferred.",
+      "solution": "Measure first-session completion rate (guests who browse listings within their first session) and concept comprehension at each phase transition.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 23",
+          "type": "guest_call",
+          "quote": "this is good, right? Except for like one or two things.",
+          "insight": "Partial absorption with residual items is the baseline. Success means each phase introduction resolves fully before the next phase adds new information."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Moderated usability test with 6-8 guests. Present the progressive disclosure version (one concept per phase) and the current version (full process explained upfront). Measure: (1) self-reported confidence at each phase, (2) ability to correctly describe what to do next, (3) time to first meaningful action (browse listings, save property).",
+      "success_criteria": "Progressive disclosure cohort reports higher confidence at each phase transition (4+ on 1-5 scale). They correctly describe the next step at least 90% of the time. Time to first meaningful action is equal to or faster than the full-disclosure cohort.",
+      "failure_meaning": "If confidence is lower, the single-concept introductions may be too sparse -- guests may feel they are missing context. If 'describe next step' accuracy is lower, the concept introductions may not be providing sufficient orientation. If time-to-action is slower, the progressive approach may create unnecessary friction for guests who want to move fast. Consider a 'show me everything' option for power users.",
+      "implementation_hint": "Usability test includes a 'teach-back' task at each phase transition: 'In your own words, what would you do next?' Score accuracy on a binary scale (correct/incorrect). Record confidence ratings on a 1-5 Likert scale immediately after each phase introduction."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Monthly-Equivalent Pricing Visual Hierarchy Validation",
+      "validates_element": "communicates-001 (Monthly-Equivalent Pricing as Primary Display) + looks-001 (Monthly Cost as Visual Anchor)",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "If the monthly figure is visually dominant but guests still look at the per-night rate first (due to habit from other platforms), the visual hierarchy does not match scanning behavior. If the savings comparison distracts from the monthly figure, it adds cognitive load rather than reducing it.",
+      "solution": "Eye-tracking or click-heatmap study to confirm guests fixate on the monthly figure first and evaluate affordability faster than with per-night-only display.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 65-68",
+          "type": "guest_call",
+          "quote": "I guess mainly I think of this per month.",
+          "insight": "Validated when the guest's first fixation on a listing card is the monthly cost figure, confirming visual hierarchy matches the guest's mental model."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "5-second test with 12-15 participants: show a listing card for 5 seconds, then hide it. Ask: 'How much would this listing cost you per month?' and 'Does this fit a $1,500/month budget?' Measure recall accuracy and response time. Compare two versions: (A) per-night primary, (B) monthly primary. If eye-tracking is available, measure first fixation point on the pricing area.",
+      "success_criteria": "Version B (monthly primary): at least 85% of participants recall the monthly cost correctly. Response time for 'does this fit my budget?' under 3 seconds. Version A (per-night primary): expected baseline of 40-50% correct monthly recall (requires mental math). If eye-tracking: first fixation on monthly figure for 80%+ of participants in Version B.",
+      "failure_meaning": "If monthly recall is not significantly better in Version B, the visual hierarchy is not strong enough -- increase size differential between monthly and per-night figures. If budget-fit response time is equal, the savings comparison line may be doing the affordability evaluation work rather than the monthly figure -- which is acceptable but worth understanding.",
+      "implementation_hint": "5-second test can be run via UsabilityHub or Maze. Create two listing card mockups: Version A (per-night primary at 28px, monthly secondary at 14px) and Version B (monthly primary at 28px, per-night secondary at 14px). Randomize assignment. Post-exposure questionnaire captures recall and budget-fit judgment."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Progressive Co-Tenancy Disclosure Comprehension Validation",
+      "validates_element": "communicates-002 (Progressive Co-Tenancy Disclosure Across Phases)",
+      "journey_phases": ["discovery", "listing_evaluation", "negotiation"],
+      "problem": "If the progressive disclosure delivers too little at early phases, guests carry unresolved uncertainty. If it delivers too much too early, it creates the anxiety the pattern is designed to prevent.",
+      "solution": "Measure co-tenancy comprehension and comfort at each phase using structured interviews at phase transitions during usability testing.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 18-19",
+          "type": "guest_call",
+          "quote": "I mean, I guess that's fine. I mean, it doesn't really matter to me. Well, I guess that's fine.",
+          "insight": "Baseline: triple hedge indicating unresolved processing. Success: participants at each phase describe the co-tenancy arrangement with specific, concrete language rather than hedged acceptance."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8 participants unfamiliar with Split Lease. Walk through the journey with progressive co-tenancy disclosure. At each phase transition, ask: 'Tell me about the other person who uses this space.' Code responses for: (1) specificity (concrete details vs. vague), (2) hedging language ('I guess', 'I think', 'probably'), (3) unanswered questions the participant raises.",
+      "success_criteria": "By listing evaluation: 70%+ of participants provide concrete descriptions (schedule days, shared/private zones). By pre-Zoom: 90%+ describe the arrangement without hedging language. Unanswered questions decrease from phase to phase (each module answers the questions the prior phase generated).",
+      "failure_meaning": "If hedging persists through listing evaluation, the listing co-tenancy section is not concrete enough. If new questions appear at later phases that should have been answered earlier, the disclosure sequence is mis-ordered. If participants express annoyance at repeated co-tenancy information, the modules are too redundant -- each must feel like a genuine new layer, not a repetition.",
+      "implementation_hint": "Code interview transcripts for hedging markers: 'I guess', 'I think', 'maybe', 'probably', 'I assume', 'I hope'. Count per phase. A downward trend across phases indicates progressive resolution. An upward trend indicates escalating uncertainty."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Process Progress Tracker Engagement Validation",
+      "validates_element": "communicates-003 (Process Progress Visibility) + looks-002 (Progressive Process Tracker)",
+      "journey_phases": ["search", "proposal_creation", "negotiation", "acceptance"],
+      "problem": "If the process tracker is too subtle, guests ignore it and still feel lost. If it is too prominent, it communicates 'this is a long, complex process' rather than providing reassurance.",
+      "solution": "Measure tracker interaction rate and its correlation with process completion.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 61",
+          "type": "guest_call",
+          "quote": "So like courtship.",
+          "insight": "The tracker should change the perceived experience from 'uncertain courtship' to 'structured progression.' Validated by asking guests to describe the process after using the tracker-enabled version."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After implementing the tracker, measure: (1) tracker interaction rate (expand/click), (2) return visit rate during matching period (do guests come back to check progress?), (3) qualitative: ask 10 guests post-process 'How would you describe the experience of waiting for your match?' Compare responses to historical feedback from pre-tracker guests.",
+      "success_criteria": "Tracker interaction rate above 40% (at least 40% of guests interact with the tracker at least once per session). Return visit rate during matching period increases by 20% (guests come back to check progress rather than waiting passively). Qualitative feedback shifts from uncertainty/abandonment language to progression/waiting language.",
+      "failure_meaning": "If interaction is below 40%, the tracker is too subtle or positioned incorrectly. Try elevating it in the visual hierarchy. If return visits do not increase, the tracker's status updates may not provide enough new information to justify a return visit -- add richer status content. If qualitative feedback does not shift, the tracker may be providing structural feedback without emotional reassurance -- add warmer copy to status messages.",
+      "implementation_hint": "Track events: tracker_viewed (impression), tracker_expanded (click), tracker_step_clicked. Measure session return rate for guests with active processes. For qualitative: add a one-question intercept survey at lease signing: 'How would you describe your experience during the matching period?' Free text."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Comparison-First Search Architecture Validation",
+      "validates_element": "communicates-004 (Comparison-First Search Results) + looks-004 (Comparison Grid with Aligned Data Points)",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "If the comparison grid is too rigid (only 4 data points per card), guests who care about amenities or photos may feel the cards lack information. If the 'Compare' function is not discoverable, guests will still compare from memory.",
+      "solution": "Measure search behavior: number of listings viewed per session, use of the compare function, and time to first save.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 52",
+          "type": "guest_call",
+          "quote": "No, I want to see what the other options are.",
+          "insight": "Success means the guest can survey multiple options quickly. The compare function should be used by at least a meaningful minority. More importantly, guests should view more listings before their first save (indicating they surveyed the landscape)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) average listings viewed per search session, (2) compare function usage rate, (3) median time from first search to first save, (4) save-to-lease conversion rate. Compare to baseline metrics from the pre-comparison-grid interface.",
+      "success_criteria": "Average listings viewed per session increases by 30% (guests survey more options). Compare function used by at least 15% of searching guests. Time-to-first-save may increase slightly (more thorough evaluation) but save-to-lease conversion rate should increase (better-informed saves lead to more committed follow-through).",
+      "failure_meaning": "If listings viewed does not increase, the grid layout may not be scannable enough or the data points may not match what guests use to differentiate listings. If compare function usage is below 15%, it is not discoverable -- add a contextual prompt after the guest views 3+ listings. If conversion rate does not improve, better comparison may lead to analysis paralysis rather than confident action.",
+      "implementation_hint": "Track: search_listings_viewed (count per session), compare_initiated, compare_listings_selected (which listings), save_from_compare vs. save_from_listing_page. A/B test the comparison grid against the current layout with a minimum 2-week test period."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Action Reframing ('Bid' to 'Save') Validation",
+      "validates_element": "communicates-007 (Action Reframing) + looks-005 (Low-Commitment Action Button) + behaves-006 (Lightweight Save)",
+      "journey_phases": ["proposal_creation"],
+      "problem": "If changing the label from 'bid' to 'save' increases initial saves but decreases follow-through (guests treat saves as casual bookmarks with no intent to proceed), the reframing may increase top-of-funnel activity while decreasing bottom-of-funnel conversion.",
+      "solution": "A/B test the full reframing (label + visual weight + interaction weight) against the current bid flow, measuring both save/bid rate AND downstream conversion.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 55",
+          "type": "guest_call",
+          "quote": "I'll still hold off.",
+          "insight": "The baseline is repeated refusal. Success means the 'I'll hold off' response rate drops significantly. But success also requires that saves lead to leases at an acceptable rate -- not just that the label change produces more clicks."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: (A) current flow ('Place Bid', solid button, multi-step form), (B) reframed flow ('Save this property', outlined button, single tap with instant undo). Measure: (1) initial action rate (bid/save per listing view), (2) matching process entry rate (saves that proceed to matching), (3) lease signing rate per initial action. Run for minimum 4 weeks to capture full funnel.",
+      "success_criteria": "Cohort B initial action rate at least 50% higher than Cohort A. Matching process entry rate: Cohort B may be lower per-save (more casual saves) but total matching entries should be equal or higher. Lease signing rate per initial action: Cohort B should be within 80% of Cohort A (some dilution acceptable if total leases increase).",
+      "failure_meaning": "If initial action rate does not increase, the resistance may not be label-based but structural (guests genuinely are not ready regardless of label). If matching entries are significantly lower, the lightweight save is too casual and does not communicate that matching is a consequence. If lease signing rate per save drops below 80% of per-bid rate, the funnel dilution is too severe -- consider an intermediate confirmation step between save and matching entry.",
+      "implementation_hint": "Implement feature flag: action_reframing_enabled. When true: button text = 'Save this property', button style = outlined, interaction = single tap + optimistic UI. When false: current bid flow. Track full funnel: listing_view -> action_taken (bid or save) -> matching_entered -> zoom_scheduled -> lease_signed. Minimum sample: 200 guests per cohort."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Co-Tenancy Visual Diagram Comprehension Validation",
+      "validates_element": "looks-003 (Co-Tenancy Visual Explanation Through Spatial Diagrams)",
+      "journey_phases": ["discovery", "listing_evaluation"],
+      "problem": "If the day-badge timeline diagram is not immediately comprehensible, it adds a new layer of visual complexity rather than reducing textual complexity. If color choices are not accessible (color blindness), the temporal split may not be visually clear.",
+      "solution": "5-second comprehension test to validate that the diagram communicates the co-tenancy arrangement faster than text alone.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 18",
+          "type": "guest_call",
+          "quote": "Where does that other person go?",
+          "insight": "A spatial question requires a spatial answer. Success means participants who see the diagram can answer 'which days are mine?' within 3 seconds without any text explanation."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show the day-badge co-tenancy diagram to 15 participants for 5 seconds. Ask: (1) 'Which days would you use the apartment?' (2) 'Does someone else use the apartment? When?' (3) 'Would you ever be in the apartment at the same time as the other person?' Measure accuracy and response time. Test with and without text label for comparison. Include 2-3 participants with color vision deficiency.",
+      "success_criteria": "90%+ accurately identify their days within 5 seconds. 85%+ correctly identify the co-tenant's days. 95%+ correctly answer 'no' to the overlap question. Color-vision-deficient participants achieve the same accuracy (the day badges use shape/position as well as color). Diagram-only version performs within 10% of diagram+text version (indicating the visual carries the information load).",
+      "failure_meaning": "If day identification accuracy is below 90%, the color contrast between guest days and co-tenant days is insufficient or the labels are unclear. If overlap question accuracy is below 95%, the visual does not effectively communicate temporal separation -- add a visible divider or 'no overlap' indicator. If color-blind participants score lower, the purple/gray distinction fails accessibility -- add pattern fills or day-number labels inside badges.",
+      "implementation_hint": "Build the diagram as an SVG component with ARIA labels for accessibility. Each badge has aria-label='Monday - Your night' or 'Friday - Other guest's night.' Render at 32px badge size on desktop, 28px on mobile. Test with Sim Daltonism or similar color blindness simulator before user testing."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Single-Concept Phase Introduction Clarity Validation",
+      "validates_element": "communicates-006 (Single-Concept Phase Introduction) + looks-007 (Single-Concept Phase Introductions with Visual Breathing Room) + behaves-004 (Progressive Complexity Throttle)",
+      "journey_phases": ["discovery", "search", "proposal_creation", "negotiation"],
+      "problem": "If the single-concept approach makes the platform feel slow, sparse, or insufficiently informative for guests who want to understand the full process before engaging, it may increase dropout for information-seeking guests while helping exploration-oriented guests.",
+      "solution": "Segment-aware usability test comparing single-concept progressive disclosure against full-process disclosure, measuring both task completion and self-reported satisfaction across guest segments.",
+      "evidence": [
+        {
+          "source": "flow-enjoyment-quality.txt, lines 398-400",
+          "type": "book",
+          "quote": "Enjoyment appears at the boundary between boredom and anxiety, when the challenges are just balanced with the person's capacity to act.",
+          "insight": "The boundary between boredom (too simple, patronizing) and anxiety (too complex, overwhelming) differs by guest. The test must detect whether the single-concept approach lands in the flow zone for most guests or overcorrects toward boredom for some."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 12 participants: 6 with no shared-housing experience (novice), 6 with extensive rental experience (expert, like Shomit). Present the single-concept progressive disclosure version. At each phase, measure: (1) self-reported 'I understand what to do next' (1-5), (2) self-reported 'I feel I have enough information' (1-5), (3) unprompted requests for more information. Compare novice vs. expert segments.",
+      "success_criteria": "Both segments average above 3.5 on 'understand what to do next.' Novice segment averages above 3.5 on 'enough information.' Expert segment: if 'enough information' drops below 3.0, add a 'Show full process overview' escape hatch for power users. Unprompted information requests decrease from phase to phase (indicating each concept introduction is resolving the phase's key question).",
+      "failure_meaning": "If experts consistently request more information, the pattern needs a 'power user' bypass (optional full-process view accessible from a help menu). If novices score below 3.5 on 'understand what to do next', the single-concept introductions are too terse -- add one more supporting detail per introduction. If information requests increase across phases, the progressive disclosure is creating accumulating confusion rather than progressive clarity.",
+      "implementation_hint": "Usability session includes a think-aloud protocol. Record moments where participants say 'I don't understand' or 'what happens after this?' or 'can you tell me the whole process?' Code these as information_request events. Map to phase to identify where progressive disclosure breaks down."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Orientation-Gated Action Prompt Interaction Behavior Validation",
+      "validates_element": "behaves-001 (Orientation-Gated Action Prompts)",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the graduated escalation of action prompt prominence is not perceptible to guests, they may not notice when the platform signals readiness. If the escalation feels manipulative (the button getting bigger as I browse), it may erode trust.",
+      "solution": "A/B test the graduated escalation against a static button, measuring save rate and post-save sentiment.",
+      "evidence": [
+        {
+          "source": "flow-enjoyment-quality.txt, lines 249-252",
+          "type": "book",
+          "quote": "the task undertaken has clear goals and provides immediate feedback.",
+          "insight": "The graduated escalation is a form of feedback: the UI mirrors the guest's growing readiness. But if the feedback is not perceived or feels manipulative, it fails."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: (A) static save button (always same visual weight), (B) graduated escalation (subdued on first listing, standard on return visit, nudge after 3+ listings). Measure: (1) save conversion rate, (2) post-save survey: 'The save option appeared at the right time' (1-5 agree/disagree), (3) abandonment rate.",
+      "success_criteria": "Cohort B save conversion rate equal to or higher than Cohort A. Post-save timing satisfaction above 3.5 in Cohort B. Abandonment rate equal or lower in Cohort B. If Cohort B performs worse on any metric, the graduated escalation adds complexity without benefit.",
+      "failure_meaning": "If save rate is lower in Cohort B, the subdued initial state is hiding the action too effectively -- guests who are ready to save early cannot find the button. Raise the baseline visibility of the subdued state. If timing satisfaction is below 3.5, guests perceive the escalation as manipulative -- remove the nudge at 3+ listings and rely on visual prominence change alone.",
+      "implementation_hint": "Feature flag: action_escalation_enabled. Track: orientation_markers at time of save (listings_viewed, filters_used, time_elapsed). This data reveals the natural orientation curve, which can calibrate the escalation threshold."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Real-Time Cost Recalculation Responsiveness Validation",
+      "validates_element": "behaves-002 (Real-Time Monthly Cost Recalculation on Schedule Interaction)",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "If the client-side recalculation introduces perceptible lag (even 200ms+), the 'play with it' promise breaks and the guest perceives the schedule selector as a form, not a game. If the number transition animation is distracting, it draws attention to the change rather than enabling flow.",
+      "solution": "Performance testing and user perception testing of the schedule-price interaction.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 48-49",
+          "type": "guest_call",
+          "quote": "you can play with that on the website and it will give you all options dynamically.",
+          "insight": "The agent promises dynamic, game-like interaction. Performance must deliver sub-frame response to validate this promise."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated performance test: load a listing page with the schedule selector. Programmatically toggle each night (add, remove) and measure: (1) time from click event to DOM update of the monthly cost figure, (2) frame rate during the number transition animation, (3) behavior under rapid toggling (5 clicks in 1 second). Additionally, test with 3G throttled connection to verify the pricing matrix is pre-loaded.",
+      "success_criteria": "DOM update within 16ms of click event (single animation frame). Number transition animation maintains 60fps. Rapid toggling produces no animation queue buildup (each new toggle interrupts the current animation). On 3G throttled connection, the first price display resolves within 2 seconds of page load (pricing matrix prefetch).",
+      "failure_meaning": "If DOM update exceeds 16ms, the recalculation is hitting the server instead of running client-side -- verify pricing matrix is fully prefetched. If animation drops below 60fps, the transition may be triggering layout recalculation -- use transform/opacity-only animations. If rapid toggling builds a queue, the animation interrupt logic is missing -- implement cancel-on-new-input.",
+      "implementation_hint": "Playwright test: page.click('[data-night=\"wednesday\"]'). Immediately query page.evaluate(() => document.querySelector('.monthly-cost').textContent). Assert value changed within 50ms. Performance.mark before click, Performance.mark after DOM update. Assert delta < 16ms. Use requestAnimationFrame loop to measure frame rate during transition."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Process Heartbeat Engagement Validation",
+      "validates_element": "behaves-003 (Process Heartbeat: Proactive Status Signals)",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "If heartbeats are too frequent or too generic, they become notification noise. If they arrive at wrong times (middle of night, during work hours), they feel intrusive. If the heartbeat fails to send, the promise of companionship is broken.",
+      "solution": "Measure heartbeat engagement (open rate, click rate) and its impact on guest re-engagement during waiting periods.",
+      "evidence": [
+        {
+          "source": "flow-enjoyment-quality.txt, lines 485-492",
+          "type": "book",
+          "quote": "I find special satisfaction in caring for the plants: I like to see them grow day by day.",
+          "insight": "The heartbeat's value is symbolic: 'your process is advancing.' Validated when guests who receive heartbeats return to the platform more frequently than those who do not."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track heartbeat delivery metrics: (1) send rate (are heartbeats being generated every 48 hours?), (2) email/SMS open rate, (3) click-through rate (guest clicks to the platform from the heartbeat), (4) platform return rate within 24 hours of heartbeat delivery. Track unsubscribe rate as a negative signal.",
+      "success_criteria": "Email open rate above 50% (heartbeats should be anticipated, not ignored). Click-through rate above 15%. Platform return rate within 24 hours of heartbeat above 30%. Unsubscribe rate below 5%. Zero delivery gaps exceeding 48 hours for active processes.",
+      "failure_meaning": "If open rate is below 50%, subject lines may not convey value -- test alternatives. If click-through is below 15%, the heartbeat content does not motivate platform return -- add richer content (new listing matches, co-tenant update). If unsubscribe is above 5%, frequency is too high or content is too generic -- reduce to 72 hours or add more personalization. If delivery gaps exceed 48 hours, the heartbeat scheduler has a reliability issue -- add monitoring and alerting.",
+      "implementation_hint": "Use email service provider's open/click tracking. Create a dashboard: active_processes with last_heartbeat_sent. Alert when any active process has last_heartbeat_sent > 50 hours (buffer before the 48-hour deadline). Track: heartbeat_sent, heartbeat_opened, heartbeat_clicked, heartbeat_unsubscribed."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Co-Tenancy Phase-Timed Reveal Interaction Validation",
+      "validates_element": "behaves-005 (Co-Tenancy Reveal: Phase-Timed Uncertainty Resolution)",
+      "journey_phases": ["discovery", "listing_evaluation", "negotiation", "move_in"],
+      "problem": "If the phase-timed modules do not appear at the right moment, they either come too early (creating anxiety) or too late (the guest has already carried unresolved uncertainty through a decision point). If the Zoom prep module is not read, the meeting is unstructured.",
+      "solution": "Track co-tenancy module engagement at each phase and its correlation with Zoom meeting outcomes.",
+      "evidence": [
+        {
+          "source": "flow-enjoyment-quality.txt, lines 291-297",
+          "type": "book",
+          "quote": "if a person feels self-conscious, he or she will dread establishing informal contacts.",
+          "insight": "The Zoom prep module specifically addresses social anxiety. Success means guests who engage with the prep module report higher comfort during and after the meeting."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) co-tenancy module engagement rate at each phase (view, expand, time spent), (2) Zoom meeting completion rate for guests who engaged with prep module vs. those who did not, (3) post-Zoom comfort rating ('How comfortable did you feel during the meeting?' 1-5), (4) co-tenancy-related agent questions per phase (before vs. after implementing phase-timed modules).",
+      "success_criteria": "Module engagement above 60% at listing evaluation, above 80% for Zoom prep. Zoom meeting completion rate at least 15% higher for prep-engaged guests. Post-Zoom comfort above 3.5/5 for prep-engaged guests. Co-tenancy agent questions decrease by 40% overall.",
+      "failure_meaning": "If engagement is below target at listing evaluation, the expandable section may not be prominent enough or the heading may not signal relevance. If Zoom prep engagement is below 80%, the delivery timing or channel may be wrong -- try SMS in addition to email. If comfort scores do not improve despite prep engagement, the prep content may not address the actual anxieties -- conduct qualitative interviews to identify the real concerns.",
+      "implementation_hint": "Track events: cotenancy_module_viewed (phase), cotenancy_module_expanded, cotenancy_module_time_ms, zoom_prep_opened, zoom_prep_read_time_ms. Correlate with zoom_meeting_completed and post_zoom_comfort_score. A/B test if needed: prep module vs. no prep module."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Lightweight Save Interaction Weight Validation",
+      "validates_element": "behaves-006 (Lightweight Save: Single-Tap with Instant Undo)",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the optimistic UI save creates data inconsistency (save appears to succeed but server rejects it), the guest may believe they saved a property that is not actually in their shortlist. If the instant undo is not discoverable, accidental saves cannot be reversed.",
+      "solution": "Measure save reliability, undo usage, and the relationship between save interaction weight and downstream conversion.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 55",
+          "type": "guest_call",
+          "quote": "I'll still hold off.",
+          "insight": "The current multi-step bid flow produces holdoff behavior. The single-tap save should eliminate it. Validated when the 'hold off' rate (guests who view 3+ listings without any action) decreases."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated tests: (1) Save reliability: programmatically save 100 listings and verify server persistence within 2 seconds. Introduce network failures at 10% rate and verify optimistic UI rollback fires correctly. (2) Undo test: save, then immediately tap again to unsave. Verify server state matches UI state. (3) Performance: measure time from tap to visual acknowledgment (should be sub-50ms).",
+      "success_criteria": "Save persistence rate: 99.5%+ (0.5% failure with correct rollback). Undo correctly reverses both UI and server state 100% of the time. Visual acknowledgment within 50ms of tap. Rollback animation completes within 400ms of server rejection.",
+      "failure_meaning": "If persistence rate is below 99.5%, the optimistic UI is creating trust issues -- guests believe they saved but the save did not persist. Add a server-confirmed indicator (subtle checkmark upgrade from optimistic to confirmed). If undo fails to sync, there is a race condition between the save and unsave requests -- implement request cancellation for rapid toggles. If visual acknowledgment exceeds 50ms, the component is waiting for server response instead of using optimistic UI.",
+      "implementation_hint": "Playwright test: page.click('[data-action=\"save\"]'). Assert button class changes within 50ms (use performance.now() timestamps). Wait 2 seconds, verify server state via API call. Simulate network failure: page.route('**/api/saves', route => route.abort()). Verify rollback animation fires and button returns to unsaved state."
+    },
+    {
+      "id": "tests-019",
+      "type": "validation_strategy",
+      "title": "Orientation Mastery Emotional State Validation",
+      "validates_element": "feels-001 (Orientation Mastery Before Action Confidence)",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the emotional design produces confidence but not action (the guest feels oriented but still does not save), the emotional arc is incomplete. If the patient tone is perceived as the platform not caring about the guest's urgency, it backfires for guests with time pressure.",
+      "solution": "Qualitative sentiment analysis of guest language during and after the search phase.",
+      "evidence": [
+        {
+          "source": "flow-enjoyment-quality.txt, lines 725-730",
+          "type": "book",
+          "quote": "the sense of exercising control in difficult situations.",
+          "insight": "The target emotion is confidence. Validated when guests describe their search experience using control-language ('I chose', 'I decided', 'I found') rather than pressure-language ('I had to', 'they wanted me to', 'I felt pushed')."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Collect post-save feedback from 20 guests using an open-ended prompt: 'Describe your experience searching for and saving your first property.' Code responses for: (1) control language vs. pressure language, (2) mentions of 'enough options' or 'saw what was available' vs. 'limited choices' or 'rushed', (3) emotional valence (positive, neutral, negative).",
+      "success_criteria": "70%+ of responses contain control language. Fewer than 15% contain pressure language. Emotional valence: 60%+ positive, 30% neutral, fewer than 10% negative. Mentions of 'enough options' or 'thorough' appear in at least 40% of responses.",
+      "failure_meaning": "If control language is below 70%, the guest does not feel empowered during search -- the orientation tools may not be creating the mastery the emotional design intends. If pressure language exceeds 15%, there are urgency signals in the UI that contradict the patient tone -- audit for hidden urgency elements (countdown timers, competitive signals, 'limited availability' badges). If negative valence exceeds 10%, something in the experience is actively unpleasant -- investigate through follow-up interviews.",
+      "implementation_hint": "Add a one-question intercept after first save: 'In a few words, how did your search feel?' Free text, optional. Collect for 30 days. Code responses using a simple rubric: control_language (boolean), pressure_language (boolean), valence (positive/neutral/negative). Report monthly."
+    },
+    {
+      "id": "tests-020",
+      "type": "validation_strategy",
+      "title": "Budget Clarity Emotional Relief Validation",
+      "validates_element": "feels-002 (Instant Budget Clarity as Emotional Relief)",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "If the monthly cost display creates sticker shock (the number is higher than expected even though it is actually lower than full-time rent), the relief effect is inverted. If the savings comparison uses the wrong anchor (guest's actual full-time lease cost differs), it feels irrelevant.",
+      "solution": "Measure the emotional response to pricing through micro-sentiment indicators.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 70",
+          "type": "guest_call",
+          "quote": "I would say approximately one 50 or less I would be happy with.",
+          "insight": "Shomit has a specific happiness threshold ($1,500/month). When a listing shows $1,056/month, the relief should be immediate. Validated by measuring how many guests who see a within-budget listing proceed to save it."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) save rate for listings displayed as within-budget vs. above-budget (using the guest's stated or inferred budget), (2) time from listing card view to listing page click for within-budget vs. above-budget listings (proxy for evaluation speed), (3) if budget is captured during onboarding, measure how many guests see at least one within-budget listing in their first search (the 'relief opportunity').",
+      "success_criteria": "Within-budget listings are saved at 3x+ the rate of above-budget listings. Time from listing card view to click is 20% faster for within-budget listings (immediate recognition of affordability). At least 80% of guests see one or more within-budget listings in their first search session.",
+      "failure_meaning": "If within-budget save rate is not significantly higher, budget clarity is not the primary decision driver -- other factors (location, schedule fit) may dominate. If evaluation speed is not faster, the monthly display may not be prominent or clear enough to create the instant 'this fits' recognition. If fewer than 80% see within-budget options, the search is surfacing unaffordable listings first -- adjust default sort order.",
+      "implementation_hint": "Capture guest_budget during onboarding call or first search filter interaction. Tag each listing impression as within_budget (monthly_cost <= guest_budget) or above_budget. Track: listing_card_dwell_ms, listing_card_clicked, listing_saved. Segment all metrics by budget_fit."
+    },
+    {
+      "id": "tests-021",
+      "type": "validation_strategy",
+      "title": "Co-Tenancy Emotional Normalization Validation",
+      "validates_element": "feels-003 (Co-Tenancy Normalization Through Calm Transparency)",
+      "journey_phases": ["discovery", "listing_evaluation", "negotiation"],
+      "problem": "If the calm transparency tone comes across as dismissive ('of course this is normal, why would you worry?'), it invalidates the guest's legitimate concerns rather than addressing them. If the concrete spatial language is too detailed too early, it creates anxiety through premature specificity.",
+      "solution": "Qualitative testing of the emotional response to co-tenancy messaging at each phase.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, lines 18-19",
+          "type": "guest_call",
+          "quote": "I mean, I guess that's fine. I mean, it doesn't really matter to me. Well, I guess that's fine.",
+          "insight": "The triple hedge is the baseline emotional response. Success means the replacement messaging produces genuine acceptance (clear, specific language without hedging) rather than performed acceptance (hedged language indicating unresolved concern)."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Present 10 participants with the co-tenancy messaging at each phase. After each exposure, ask: (1) 'How do you feel about sharing the space with another person?' (record verbatim), (2) 'Rate your comfort with this arrangement' (1-5), (3) 'What questions do you still have about the other person?' Code verbal responses for hedging markers and genuine acceptance markers.",
+      "success_criteria": "Hedging markers decrease from discovery to listing evaluation to negotiation. Comfort rating increases across phases (discovery: 3.0+, listing evaluation: 3.5+, negotiation: 4.0+). Residual questions decrease from phase to phase. Zero participants describe the arrangement using the word 'ghost' or express surprise at the co-tenancy concept by the listing evaluation phase.",
+      "failure_meaning": "If hedging does not decrease, the messaging is not progressively resolving uncertainty -- each phase's module may be repeating rather than deepening understanding. If comfort does not increase, the content may be too matter-of-fact and not sufficiently reassuring -- add a social proof element ('Over 200 professionals share space this way'). If participants still have questions after all three phases, the modules are not answering the right questions -- conduct a card sort to identify which co-tenancy concerns are most important to guests.",
+      "implementation_hint": "Code verbal responses using a hedging rubric: 'I guess' = hedge, 'I think' = hedge, 'I'm not sure but' = hedge, 'probably' = hedge. Genuine acceptance markers: 'That makes sense', 'I understand', 'That works for me', specific references to the arrangement details. Track marker counts per phase."
+    },
+    {
+      "id": "tests-022",
+      "type": "validation_strategy",
+      "title": "Process Companionship Emotional Sustenance Validation",
+      "validates_element": "feels-004 (Process Companionship During Extended Waiting)",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "If the warm, specific status updates feel automated (despite being designed to feel personal), they fail to provide the companionship effect. If the cadence is wrong (too frequent = spam, too infrequent = abandonment), the emotional arc is disrupted.",
+      "solution": "Measure the emotional impact of status updates through post-process interviews.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 61",
+          "type": "guest_call",
+          "quote": "So like courtship.",
+          "insight": "The courtship metaphor reveals the guest's emotional frame. Success means post-process interviews describe the waiting period using progression language ('I could see it moving forward') rather than abandonment language ('I didn't hear anything for days')."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "After lease signing, interview 10 guests with a structured protocol: (1) 'Describe the waiting period between your first save and lease signing.' (2) 'How often did you hear from the platform during that time?' (3) 'Did the updates make you feel like things were progressing?' Code responses for progression language vs. abandonment language.",
+      "success_criteria": "70%+ of responses contain progression language ('moving forward', 'getting closer', 'knew what was happening'). Fewer than 15% contain abandonment language ('forgot about it', 'wondered if it was still happening', 'had to chase them'). 80%+ report hearing from the platform 'regularly' or 'often enough.'",
+      "failure_meaning": "If progression language is below 70%, the heartbeat content is not conveying forward movement -- the status messages may be too generic ('processing') rather than specific ('evaluating 3 co-tenant matches'). If abandonment language exceeds 15%, there are gaps in the heartbeat delivery -- audit the heartbeat scheduler for missed sends. If hearing frequency is reported as insufficient, the 48-hour maximum may be too long for some phases -- reduce to 24 hours during the matching phase.",
+      "implementation_hint": "Post-lease interview template: 5 questions, 15 minutes, recorded. Schedule within 7 days of lease signing. Code transcripts using progression/abandonment rubric. Report monthly. Cross-reference with heartbeat delivery logs to verify that guests who report hearing 'regularly' actually received heartbeats at the 48-hour cadence."
+    },
+    {
+      "id": "tests-023",
+      "type": "validation_strategy",
+      "title": "Progressive Simplicity Emotional Calibration Validation",
+      "validates_element": "feels-005 (Gradual Comprehension Through Progressive Simplicity)",
+      "journey_phases": ["discovery", "search", "proposal_creation"],
+      "problem": "If the progressive simplicity makes the platform feel like it is withholding information, trust erodes. If guests feel they are being managed or patronized ('they're only showing me one thing at a time because they think I can't handle more'), the emotional design backfires.",
+      "solution": "Measure whether guests feel informed and in control vs. managed and restricted.",
+      "evidence": [
+        {
+          "source": "flow-enjoyment-quality.txt, lines 298-300",
+          "type": "book",
+          "quote": "For those who don't have the right skills, the activity is not challenging; it is simply meaningless.",
+          "insight": "The design must create a sense of 'this is simple and I'm in control' not 'this is simple because they're hiding things.' Success is measured by the absence of suspicion and the presence of calm."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "After completing the journey through proposal creation, ask 10 participants: (1) 'Did you feel you had enough information to make decisions at each step?' (1-5), (2) 'Did you feel the platform was withholding information?' (yes/no + explain), (3) 'How would you describe the complexity of the process?' (free text). Code responses for trust language vs. suspicion language.",
+      "success_criteria": "Average above 3.5 on 'enough information.' Fewer than 20% answer 'yes' to 'withholding information.' Process complexity descriptions cluster around 'simple', 'straightforward', 'easy' rather than 'confusing', 'unclear', or 'they didn't tell me.'",
+      "failure_meaning": "If 'enough information' is below 3.5, the single-concept introductions are too sparse. Add one more supporting detail per phase. If 'withholding' exceeds 20%, the progressive disclosure feels like concealment -- add a visible 'Learn more about the full process' link at each phase that provides optional depth without disrupting the single-concept flow. If complexity descriptions are negative, the progressive approach is not achieving its simplification goal -- the concepts themselves may be inherently complex regardless of pacing.",
+      "implementation_hint": "Post-task interview, 10 minutes. Record and transcribe. Code for trust markers: 'clear', 'simple', 'made sense', 'step by step.' Code for suspicion markers: 'hidden', 'didn't tell me', 'surprised later', 'should have said earlier.' Report trust/suspicion ratio."
+    },
+    {
+      "id": "tests-024",
+      "type": "validation_strategy",
+      "title": "Verification Pathway Emotional Trust Validation",
+      "validates_element": "feels-006 (Physical Verification as Trust Anchor) + looks-006 (Verification Pathway Visual Prominence)",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the verification section is prominent but the actual verification quality is low (blurry video tour, outdated photos, visit scheduling is slow), the trust anchor backfires -- the guest feels the platform promises transparency but delivers poor execution.",
+      "solution": "Measure verification quality perception and its impact on conversion confidence.",
+      "evidence": [
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 29",
+          "type": "guest_call",
+          "quote": "is it possible to see the unit? Is that allowed?",
+          "insight": "The guest's uncertainty about whether viewing is allowed is the baseline. Success means no guest ever needs to ask this question -- the option is proactively visible and the experience delivers genuine trust."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 8 participants a listing page with the 'Verify This Space' section. Have them interact with the virtual tour and/or schedule a visit. Post-interaction, ask: (1) 'After seeing the verification options, how confident are you that this property matches the listing?' (1-5), (2) 'Would you save this property without a visit/tour?' (yes/no), (3) 'Did the verification section change your impression of the platform?' (free text).",
+      "success_criteria": "Post-verification confidence above 4.0/5. At least 50% of participants would save without an in-person visit after completing a virtual tour (indicating the virtual tour provides sufficient trust). Free text responses contain trust-building language ('transparent', 'honest', 'showed me the real thing').",
+      "failure_meaning": "If confidence is below 4.0, the virtual tour quality is insufficient -- invest in higher-quality video production or 360-degree photography. If fewer than 50% would save after virtual tour only, in-person visits may be essential for this guest segment -- prioritize making visit scheduling frictionless. If free text contains skepticism ('staged', 'old photos', 'not the real condition'), the verification content is not authentic enough -- use timestamped, unedited photos taken between guest transitions.",
+      "implementation_hint": "Virtual tour quality checklist: 1080p minimum, all rooms visible, natural lighting, actual lived-in condition (not staged), timestamp visible in metadata. Track: verification_section_viewed, virtual_tour_started, virtual_tour_completed, visit_scheduled, save_after_verification."
+    },
+    {
+      "id": "tests-025",
+      "type": "validation_strategy",
+      "title": "Lightweight Action Emotional Empowerment Validation",
+      "validates_element": "feels-007 (Lightweight Action as Empowerment, Not Commitment)",
+      "journey_phases": ["proposal_creation"],
+      "problem": "If the save action feels so lightweight that guests do not perceive it as meaningful, they may save carelessly and disengage from the matching process that follows. The emotional goal is empowerment ('I'm curating my options'), not triviality ('I'm clicking buttons').",
+      "solution": "Measure whether the save action produces the target emotion (excitement about curating options) vs. unintended emotions (indifference, anxiety).",
+      "evidence": [
+        {
+          "source": "flow-enjoyment-quality.txt, lines 329-336",
+          "type": "book",
+          "quote": "even routine details can be transformed into personally meaningful games that provide optimal experiences.",
+          "insight": "The save should feel like personal curation -- a meaningful micro-game. Validated when guests describe their saved properties with ownership language ('my shortlist', 'my favorites') rather than system language ('my bids', 'my applications')."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "After guests have saved 2+ properties, present a one-question intercept: 'How would you describe what you just did?' Free text. Code responses for: (1) curation language ('saved my favorites', 'picked the ones I like', 'shortlisted'), (2) commitment language ('placed bids', 'applied', 'submitted interest'), (3) indifference language ('clicked the button', 'bookmarked', 'just looking').",
+      "success_criteria": "50%+ use curation language. Fewer than 20% use commitment language (indicating the reframing succeeded). Fewer than 15% use indifference language (indicating the action feels meaningful, not trivial). If 'indifference' exceeds 15%, the action may be too lightweight -- add a brief 'what happens next' confirmation that signals the save initiated something real.",
+      "failure_meaning": "If commitment language dominates, the reframing has not landed -- the visual and interaction design still signals commitment despite the label change. Audit the full save flow for residual commitment signals (confirmation modals, legal language, competitive indicators). If indifference language dominates, the save is too casual and guests are not connecting it to the matching process -- add a brief inline message after save that previews the next step.",
+      "implementation_hint": "Intercept after second save: 'Quick question: how would you describe what you just did?' Free text input, dismiss button. Collect for 30 days. Code using the three-category rubric. Report weekly."
+    },
+    {
+      "id": "tests-026",
+      "type": "validation_strategy",
+      "title": "End-to-End Guest Journey Emotional Arc Validation",
+      "validates_element": "Journey-level validation (all layers)",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance"],
+      "problem": "Individual elements may validate well in isolation but the overall journey may still feel disjointed, overwhelming, or emotionally inconsistent. The emotional arc (curiosity -> confidence -> relief -> excitement -> safety -> momentum) must hold together across phases, not just within them.",
+      "solution": "End-to-end journey walkthrough with emotional state tracking at each phase transition.",
+      "evidence": [
+        {
+          "source": "flow-enjoyment-quality.txt, lines 398-400",
+          "type": "book",
+          "quote": "Enjoyment appears at the boundary between boredom and anxiety, when the challenges are just balanced with the person's capacity to act.",
+          "insight": "The journey-level test validates that the guest stays in the flow zone across the entire pre-commitment journey. Each phase should feel manageable and forward-moving, never overwhelming or stalled."
+        },
+        {
+          "source": "Shomit Ghosh - 8 April 2022.txt, line 61",
+          "type": "guest_call",
+          "quote": "So like courtship.",
+          "insight": "The courtship metaphor reveals how the entire journey feels to the guest. Success means the post-implementation metaphor shifts from 'courtship' (uncertain, one-sided) to something more like 'guided house-hunting' (structured, collaborative, forward-moving)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Conduct 5 full-journey walkthroughs (discovery through simulated acceptance) with real prospective guests. At each phase transition, pause and ask the participant to: (1) rate their emotional state on 3 dimensions (confident-anxious, informed-confused, eager-reluctant) using 1-5 scales, (2) describe in one sentence how they feel right now, (3) state what they expect to happen next. Track emotional trajectories across the full journey.",
+      "success_criteria": "Confident-anxious: averages above 3.5 at every phase, with an upward trend from discovery to acceptance. Informed-confused: averages above 3.5 at every phase, never dropping below 3.0 at any single transition. Eager-reluctant: averages above 3.0 at every phase, with peaks at search (exploring) and proposal creation (curating). Free-text descriptions contain no mentions of confusion, pressure, or abandonment. 'What happens next' accuracy above 80% at every phase (indicating the process is predictable).",
+      "failure_meaning": "If confident-anxious drops below 3.0 at any phase, that specific phase transition is anxiety-producing -- investigate which element (pricing, co-tenancy, action prompt, process gap) is the cause. If informed-confused drops below 3.0, the progressive disclosure is not providing enough information at that phase -- add supporting details. If 'what happens next' accuracy drops below 80%, the process tracker is not effectively communicating the next step. If free-text mentions confusion at a specific phase, that phase needs targeted investigation.",
+      "implementation_hint": "Journey walkthrough protocol: 2-hour session per participant. Use a clickable prototype if full implementation is not available. Emotion tracking worksheet: 3 Likert scales + free text at each of 6 phase transitions = 18 data points per participant. Plot emotional trajectories as line charts. Identify phases where any dimension drops below threshold."
+    }
+  ]
+}

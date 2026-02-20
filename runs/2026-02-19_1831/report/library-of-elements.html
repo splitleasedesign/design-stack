@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Elements Library — Run 2026-02-19_1831</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #31135D;
+      --secondary: #4B47CE;
+      --accent: rgb(109,49,194);
+      --accent-light: rgba(109,49,194,0.08);
+      --accent-lighter: rgb(252,250,255);
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --ink: #1a1a1a;
+      --ink-soft: #374151;
+      --ink-muted: #6b7280;
+      --ink-ghost: #9ca3af;
+      --border: #e5e7eb;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 30px rgba(49,19,93,0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .lib-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 40px 40px 32px;
+    }
+    .lib-header h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .lib-header .subtitle {
+      font-size: 14px;
+      opacity: 0.7;
+      font-weight: 400;
+    }
+    .lib-header .run-meta {
+      margin-top: 16px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      opacity: 0.6;
+      font-family: monospace;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 40px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-sm);
+    }
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      max-width: 360px;
+      padding: 8px 14px 8px 36px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s ease;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 12px center no-repeat;
+    }
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(109,49,194,0.1);
+    }
+    .filter-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      align-self: center;
+      margin-right: 2px;
+    }
+    .filter-btn {
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      background: var(--surface);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .result-count {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-left: auto;
+    }
+
+    /* Card Grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+      padding: 32px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Element Card */
+    .el-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+    .el-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    .el-card.hidden {
+      display: none;
+    }
+
+    /* Preview iframe */
+    .el-preview {
+      width: 100%;
+      height: 280px;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: #fafafa;
+      pointer-events: none;
+    }
+
+    /* Card body */
+    .el-body {
+      padding: 16px 20px 20px;
+    }
+    .el-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .el-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .badge {
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-category {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .badge-priority-high {
+      background: #fde8e8;
+      color: #b83a3a;
+    }
+    .badge-priority-medium {
+      background: #fef3e2;
+      color: #c17a28;
+    }
+    .badge-priority-low {
+      background: var(--bg-deep);
+      color: var(--ink-muted);
+    }
+    .badge-effort {
+      background: #e8f0fa;
+      color: #2d5a8a;
+    }
+    .el-phases {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .phase-tag {
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 10px;
+      font-weight: 500;
+      font-family: monospace;
+      background: var(--accent-lighter);
+      color: var(--secondary);
+      border: 1px solid rgba(75,71,206,0.15);
+    }
+    .el-description {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .el-problem {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #fde8e8;
+      border-left: 3px solid #b83a3a;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 12px;
+      color: var(--ink-soft);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,23,20,0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(49,19,93,0.25);
+      animation: modalIn 0.25s ease-out;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-close {
+      position: sticky;
+      top: 0;
+      float: right;
+      margin: 16px 16px 0 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-deep);
+      color: var(--ink-soft);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: background 0.15s ease;
+    }
+    .modal-close:hover {
+      background: var(--border);
+    }
+    .modal-preview {
+      width: 100%;
+      height: 420px;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: #fafafa;
+    }
+    .modal-body {
+      padding: 24px 32px 32px;
+    }
+    .modal-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .modal-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .modal-phases {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .modal-description {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* Spec sections in modal */
+    .spec-section {
+      margin-bottom: 20px;
+    }
+    .spec-section h4 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 6px 12px;
+      font-size: 13px;
+    }
+    .spec-label {
+      font-weight: 600;
+      color: var(--ink-muted);
+      font-size: 12px;
+    }
+    .spec-value {
+      color: var(--ink-soft);
+    }
+    .spec-problem {
+      padding: 14px 16px;
+      background: #fde8e8;
+      border-left: 4px solid #b83a3a;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .spec-copy-list {
+      list-style: none;
+      padding: 0;
+    }
+    .spec-copy-list li {
+      padding: 4px 0;
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+    .spec-copy-list li::before {
+      content: "\2022";
+      color: var(--accent);
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .spec-dont-list {
+      list-style: none;
+      padding: 0;
+    }
+    .spec-dont-list li {
+      padding: 4px 0;
+      font-size: 13px;
+      color: #b83a3a;
+    }
+    .spec-dont-list li::before {
+      content: "\2717";
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .spec-implements {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .spec-impl-tag {
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-family: monospace;
+      background: var(--bg-deep);
+      color: var(--ink-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .lib-header, .toolbar, .card-grid { padding-left: 16px; padding-right: 16px; }
+      .card-grid { grid-template-columns: 1fr; }
+      .modal-body { padding: 16px 20px 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .el-card, .modal { transition: none; animation: none; }
+      .el-card:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="lib-header">
+    <h1>UI Elements Library</h1>
+    <div class="subtitle">Run 2026-02-19_1831 &mdash; Guest Journey &mdash; Flow: Conditions of Flow</div>
+    <div class="run-meta">
+      <span>7 elements</span>
+      <span>36 principles</span>
+      <span>lens: user-stories-initial-analysis.md + flow-conditions-of-flow.txt</span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search elements by name...">
+    <div class="filter-group">
+      <label>Category:</label>
+      <button class="filter-btn active" data-filter="category" data-value="all">All</button>
+      <button class="filter-btn" data-filter="category" data-value="card">Card</button>
+      <button class="filter-btn" data-filter="category" data-value="dashboard">Dashboard</button>
+      <button class="filter-btn" data-filter="category" data-value="modal">Modal</button>
+      <button class="filter-btn" data-filter="category" data-value="form">Form</button>
+      <button class="filter-btn" data-filter="category" data-value="banner">Banner</button>
+    </div>
+    <div class="filter-group">
+      <label>Priority:</label>
+      <button class="filter-btn active" data-filter="priority" data-value="all">All</button>
+      <button class="filter-btn" data-filter="priority" data-value="high">High</button>
+      <button class="filter-btn" data-filter="priority" data-value="medium">Medium</button>
+    </div>
+    <span class="result-count" id="resultCount">7 elements</span>
+  </div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <iframe class="modal-preview" id="modalPreview"></iframe>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const elements = [
+      {
+        "id": "ds-ui-1831-001",
+        "name": "Progressive Density Listing Card",
+        "category": "card",
+        "journey_phases": ["search", "listing_evaluation"],
+        "priority": "high",
+        "effort": "medium",
+        "description": "A three-tier listing card that reveals progressively richer information as the guest interacts, implementing Csikszentmihalyi\u2019s complexity ratchet at the search level. Tier 1 (default) shows photo, price, location, and an availability dot. Tier 2 (hover) lifts the card and reveals neighborhood name, image count, host response time, and a save icon. Tier 3 (expanded drawer) slides up transit proximity, a mini availability strip, and a Message Host quick-action.",
+        "problem_it_solves": "Guests whose search skills outgrow flat listing cards enter Csikszentmihalyi\u2019s boredom zone (A2) and disengage. Progressive density keeps growing-skill guests in the flow channel by matching their readiness with escalating visual and informational complexity, all without leaving the search grid.",
+        "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.pd-card{width:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:transform 0.2s ease-in-out,box-shadow 0.2s ease-in-out;font-family:'Inter',sans-serif;position:relative;cursor:pointer}.pd-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(49,19,93,0.15);background:rgb(252,250,255)}.pd-photo-wrap{position:relative;width:100%;aspect-ratio:3/2;overflow:hidden;background:#f3f4f6}.pd-photo-wrap img{width:100%;height:100%;object-fit:cover}.pd-avail-dot{position:absolute;bottom:8px;left:8px;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px #fff}.pd-save{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s ease;cursor:pointer;border:none;padding:0}.pd-card:hover .pd-save{opacity:0.8}.pd-save:hover{opacity:1!important}.pd-save svg{width:16px;height:16px;fill:none;stroke:#FF6B5B;stroke-width:2}.pd-img-badge{position:absolute;bottom:8px;right:8px;background:rgba(255,255,255,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:500;color:#1a1a1a;opacity:0;transition:opacity 0.2s ease}.pd-card:hover .pd-img-badge{opacity:1}.pd-content{padding:12px}.pd-price{font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 2px}.pd-location{font-size:12px;color:#6b7280;margin:0 0 4px}.pd-hover-row{display:flex;align-items:center;gap:8px;opacity:0;max-height:0;overflow:hidden;transition:opacity 0.2s ease,max-height 0.2s ease}.pd-card:hover .pd-hover-row{opacity:1;max-height:24px;margin-top:6px}.pd-micro{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:500;color:#6b7280}.pd-micro svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}.pd-drawer{position:absolute;bottom:0;left:0;right:0;background:rgb(252,250,255);border-top:1px solid #e5e7eb;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;transform:translateY(100%);transition:transform 0.25s ease-out;font-size:11px}.pd-card:hover .pd-drawer{transform:translateY(0)}.pd-transit{display:flex;align-items:center;gap:4px;color:#6b7280;font-weight:500}.pd-transit svg{width:14px;height:14px;stroke:#6b7280;fill:none;stroke-width:2}.pd-msg-btn{background:rgb(109,49,194);color:#fff;border:none;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background 0.1s ease}.pd-msg-btn:hover{background:rgb(140,104,238)}@media(prefers-reduced-motion:reduce){.pd-card,.pd-card:hover{transform:none;transition:none}.pd-card:hover{border-color:rgb(109,49,194);border-width:2px}.pd-hover-row,.pd-img-badge,.pd-save,.pd-drawer{transition:none}}</style><div class=\"pd-card\"><div class=\"pd-photo-wrap\"><img src=\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=267&fit=crop\" alt=\"Bright living room\"><div class=\"pd-avail-dot\"></div><button class=\"pd-save\" aria-label=\"Save listing\"><svg viewBox=\"0 0 24 24\"><path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"></path></svg></button><span class=\"pd-img-badge\">1/8</span></div><div class=\"pd-content\"><p class=\"pd-price\">$850<span style=\"font-size:12px;font-weight:400;color:#6b7280\">/night</span></p><p class=\"pd-location\">Williamsburg, near the L</p><div class=\"pd-hover-row\"><span class=\"pd-micro\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline></svg>Responds in 2hrs</span><span class=\"pd-micro\"><svg viewBox=\"0 0 24 24\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg>4.8 stars</span></div></div><div class=\"pd-drawer\"><span class=\"pd-transit\"><svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"4\" y1=\"11\" x2=\"20\" y2=\"11\"></line></svg>3 min to L train</span><button class=\"pd-msg-btn\">Message Host</button></div></div>",
+        "source_elements": ["works-001", "works-002", "communicates-001", "looks-001", "behaves-001", "behaves-003", "feels-002"],
+        "implements_principles": ["works-001", "works-002", "communicates-001", "looks-001", "behaves-001", "behaves-003", "feels-002"],
+        "visual_spec": {
+          "layout": "Vertical card, 280px width on desktop grid. Hero photo at full bleed top (aspect 3:2). Content area below with 12px internal padding.",
+          "color_usage": { "availability_green": "#22c55e", "hover_shadow": "0 4px 8px rgba(49,19,93,0.15)" }
+        },
+        "interaction_spec": {
+          "load_behavior": "Cards fade in from opacity 0 to 1 over 200ms ease-out as they enter viewport. Staggered by 50ms per card.",
+          "hover": "Card lifts via transform translateY(-2px) and shadow transitions.",
+          "reduced_motion": "All transforms resolve instantly. Card gains a 2px solid border instead of lift."
+        },
+        "copy_spec": {
+          "price_format": "$[amount]/night",
+          "location_format": "[Neighborhood], near the [transit]",
+          "dont": ["Use generic 'View Listing' CTA", "Show 'Rooms for rent' as category label", "Display full address before listing click", "Show lease terms on the card"]
+        }
+      },
+      {
+        "id": "ds-ui-1831-002",
+        "name": "Living Map with Proximity Feedback",
+        "category": "dashboard",
+        "journey_phases": ["search"],
+        "priority": "high",
+        "effort": "high",
+        "description": "A map component that responds to every guest interaction with contextual visual feedback, implementing Flow\u2019s feedback condition at the spatial exploration level. Pins scale based on cursor proximity, neighborhood boundaries fade in on dwell, and price labels appear at zoom thresholds.",
+        "problem_it_solves": "A static map with unresponsive pins violates Flow\u2019s feedback condition \u2014 the guest explores spatially but receives no signal that exploration is productive. This component makes the map 'feel alive' by responding to every interaction with contextual richness.",
+        "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');.lm-wrap{width:100%;max-width:560px;height:380px;background:#e8e4df;border-radius:12px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;border:1px solid #e5e7eb}.lm-bg{width:100%;height:100%;background:linear-gradient(135deg,#f0ede8 0%,#e4e0da 50%,#ece8e3 100%);position:relative}.lm-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.03) 1px,transparent 1px);background-size:40px 40px}.lm-pin{position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(49,19,93,0.6);transition:width 0.1s ease,height 0.1s ease,margin 0.1s ease,box-shadow 0.1s ease;cursor:pointer;z-index:2}.lm-pin:hover{width:16px;height:16px;margin-left:-4px;margin-top:-4px;background:#31135D;box-shadow:0 2px 4px rgba(49,19,93,0.3)}.lm-pin.near{width:12px;height:12px;margin-left:-2px;margin-top:-2px;background:rgba(49,19,93,0.85)}.lm-price{position:absolute;background:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;color:#1a1a1a;box-shadow:0 1px 3px rgba(0,0,0,0.1);white-space:nowrap;z-index:3;pointer-events:none;opacity:0;transition:opacity 0.2s ease}.lm-wrap:hover .lm-price{opacity:1}.lm-neighborhood{position:absolute;border:1px dashed rgba(75,71,206,0.4);background:rgba(49,19,93,0.06);border-radius:16px;opacity:0;transition:opacity 0.3s ease;pointer-events:none;z-index:1;display:flex;align-items:flex-start;justify-content:center;padding-top:6px}.lm-wrap:hover .lm-neighborhood{opacity:1}.lm-hood-label{background:rgba(255,255,255,0.92);backdrop-filter:blur(4px);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;color:#1a1a1a;white-space:nowrap}.lm-transit{position:absolute;display:flex;align-items:center;gap:3px;font-size:10px;font-weight:500;color:#6b7280;opacity:0;transition:opacity 0.2s ease;z-index:2}.lm-wrap:hover .lm-transit{opacity:0.7}.lm-transit-icon{width:14px;height:14px;border-radius:50%;background:#31135D;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}@media(prefers-reduced-motion:reduce){.lm-pin,.lm-price,.lm-neighborhood,.lm-transit{transition:none}}</style><div class=\"lm-wrap\"><div class=\"lm-bg\"><div class=\"lm-grid\"></div><div class=\"lm-neighborhood\" style=\"top:40px;left:30px;width:220px;height:140px\"><span class=\"lm-hood-label\">Williamsburg</span></div><div class=\"lm-neighborhood\" style=\"top:200px;left:260px;width:200px;height:130px\"><span class=\"lm-hood-label\">Bushwick</span></div><div class=\"lm-pin\" style=\"top:80px;left:90px\"></div><div class=\"lm-price\" style=\"top:66px;left:106px\">$850</div><div class=\"lm-pin near\" style=\"top:110px;left:150px\"></div><div class=\"lm-price\" style=\"top:96px;left:166px\">$780</div><div class=\"lm-pin\" style=\"top:70px;left:200px\"></div><div class=\"lm-price\" style=\"top:56px;left:216px\">$920</div><div class=\"lm-pin\" style=\"top:240px;left:310px\"></div><div class=\"lm-price\" style=\"top:226px;left:326px\">$680</div><div class=\"lm-pin near\" style=\"top:270px;left:380px\"></div><div class=\"lm-price\" style=\"top:256px;left:396px\">$720</div><div class=\"lm-pin\" style=\"top:260px;left:440px\"></div><div class=\"lm-price\" style=\"top:246px;left:456px\">$695</div><div class=\"lm-pin\" style=\"top:140px;left:120px\"></div><div class=\"lm-transit\" style=\"top:155px;left:60px\"><span class=\"lm-transit-icon\">L</span>Bedford Ave - 3 min</div><div class=\"lm-transit\" style=\"top:295px;left:290px\"><span class=\"lm-transit-icon\">M</span>Myrtle-Wyckoff - 5 min</div></div></div>",
+        "source_elements": ["works-002", "communicates-002", "looks-002", "behaves-001", "feels-002"],
+        "implements_principles": ["works-002", "communicates-002", "looks-002", "behaves-001", "feels-002"],
+        "visual_spec": {
+          "layout": "Full-height map panel beside the listing grid (50/50 split on desktop).",
+          "color_usage": { "pin_rest": "rgba(49,19,93,0.6)", "pin_proximity": "#31135D" }
+        },
+        "interaction_spec": {
+          "load_behavior": "Pins appear with scale animation (0.8 to 1.0) over 200ms ease-out.",
+          "hover": "Pins scale based on cursor proximity. Neighborhood boundaries fade in on 500ms dwell.",
+          "reduced_motion": "All pin scaling resolves instantly."
+        },
+        "copy_spec": {
+          "neighborhood_label": "[Neighborhood Name]",
+          "dont": ["Show exact addresses on pins", "Display listing details in map tooltips beyond price", "Use color alone to differentiate pin states"]
+        }
+      },
+      {
+        "id": "ds-ui-1831-003",
+        "name": "Conversational Message Composer",
+        "category": "modal",
+        "journey_phases": ["listing_evaluation", "proposal_creation"],
+        "priority": "high",
+        "effort": "medium",
+        "description": "A message composer that transforms the highest cross-activation moment into a social flow activity by showing the host\u2019s profile alongside the compose area. The host\u2019s photo, name, response time, and suggested questions reduce the self-consciousness that destroys flow.",
+        "problem_it_solves": "The gap between listing evaluation and proposal creation is the widest emotional chasm in the guest journey \u2014 the guest desires the space but the proposal feels too final. Messaging provides the intermediate Flow challenge that builds confidence and connection.",
+        "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.mc-panel{width:380px;background:#fff;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 4px 16px rgba(49,19,93,0.15);font-family:'Inter',sans-serif;overflow:hidden}.mc-host{display:flex;align-items:center;gap:12px;padding:20px 24px 16px;border-bottom:1px solid #f3f4f6}.mc-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgb(140,104,238);flex-shrink:0}.mc-host-info{flex:1}.mc-host-name{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:#1a1a1a;margin:0}.mc-response{font-size:11px;font-weight:500;color:#6b7280;margin:2px 0 0;display:flex;align-items:center;gap:4px}.mc-online{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block}.mc-body{padding:16px 24px}.mc-prompt{font-size:12px;color:#6b7280;margin:0 0 10px}.mc-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.mc-pill{background:#f3f4f6;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;color:#6b7280;font-family:'Inter',sans-serif;cursor:pointer;transition:background 0.1s ease,color 0.1s ease}.mc-pill:hover{background:#e5e7eb;color:#1a1a1a}.mc-textarea{width:100%;min-height:80px;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a1a;resize:vertical;outline:none;transition:border-color 0.1s ease;box-sizing:border-box}.mc-textarea:focus{border-color:rgb(109,49,194);box-shadow:0 0 0 3px rgba(109,49,194,0.1)}.mc-textarea::placeholder{color:#9ca3af}.mc-footer{padding:12px 24px 20px;display:flex;justify-content:flex-end}.mc-send{background:rgb(109,49,194);color:#fff;border:none;border-radius:20px;padding:10px 24px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.1s ease,transform 0.1s ease}.mc-send:hover{background:rgb(140,104,238)}.mc-send:active{transform:scale(0.97)}@media(prefers-reduced-motion:reduce){.mc-send,.mc-pill,.mc-textarea{transition:none}.mc-send:active{transform:none}}</style><div class=\"mc-panel\"><div class=\"mc-host\"><img class=\"mc-avatar\" src=\"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=face\" alt=\"Jessica\"><div class=\"mc-host-info\"><p class=\"mc-host-name\">Jessica</p><p class=\"mc-response\"><span class=\"mc-online\"></span>Usually responds in 3 hours</p></div></div><div class=\"mc-body\"><p class=\"mc-prompt\">Curious about this room in Williamsburg?</p><div class=\"mc-suggestions\"><button class=\"mc-pill\">Is this available Mar 15 - Jun 15?</button><button class=\"mc-pill\">What's the neighborhood like?</button><button class=\"mc-pill\">House rules?</button></div><textarea class=\"mc-textarea\" placeholder=\"Write your message...\"></textarea></div><div class=\"mc-footer\"><button class=\"mc-send\">Send message</button></div></div>",
+        "source_elements": ["works-001", "works-005", "communicates-002", "communicates-003", "looks-003", "behaves-003", "behaves-005", "feels-003"],
+        "implements_principles": ["works-001", "works-005", "communicates-002", "communicates-003", "looks-003", "behaves-003", "behaves-005", "feels-003"],
+        "visual_spec": {
+          "layout": "Slide-up panel from bottom (mobile) or side panel 380px width (desktop).",
+          "color_usage": { "host_avatar_border": "2px solid rgb(140,104,238)", "send_button_bg": "rgb(109,49,194)" }
+        },
+        "interaction_spec": {
+          "load_behavior": "Panel slides up from bottom over 300ms ease-out.",
+          "hover": "Suggestion pills darken on hover. Send button shows scale pulse on click.",
+          "reduced_motion": "Panel appears instantly without slide."
+        },
+        "copy_spec": {
+          "header": "Ask [Host Name] about this space",
+          "dont": ["Use 'Submit inquiry'", "Show Subject field", "Leave guest in a void after sending", "Add pressure like 'Hosts prefer detailed messages'"]
+        }
+      },
+      {
+        "id": "ds-ui-1831-004",
+        "name": "Pre-Populated Proposal Builder with Host Preview",
+        "category": "form",
+        "journey_phases": ["proposal_creation"],
+        "priority": "high",
+        "effort": "medium",
+        "description": "A proposal form that arrives pre-populated with listing data, implements real-time price feedback, and shows a host-view preview before submission. Instead of blank fields that maximize anxiety, the guest sees their proposal assembling itself from known data.",
+        "problem_it_solves": "Blank proposal forms maximize the self-consciousness that Csikszentmihalyi identifies as a permanent bar to enjoyment. Pre-populated fields, real-time price feedback, and a host-view preview replace anxiety with confidence.",
+        "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.pb-form{width:100%;max-width:520px;background:#fff;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);font-family:'Inter',sans-serif;overflow:hidden}.pb-listing{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid #e5e7eb;background:#f9fafb}.pb-listing img{width:64px;height:48px;border-radius:8px;object-fit:cover}.pb-listing-info{flex:1}.pb-listing-addr{font-size:14px;font-weight:600;color:#1a1a1a;margin:0}.pb-listing-price{font-size:12px;color:#6b7280;margin:2px 0 0}.pb-body{padding:24px}.pb-heading{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 20px}.pb-field{margin-bottom:16px}.pb-label{font-size:12px;font-weight:500;color:#6b7280;margin:0 0 6px;display:block}.pb-value{width:100%;height:42px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:0 12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#1a1a1a;display:flex;align-items:center;box-sizing:border-box;transition:border-color 0.1s ease}.pb-value:focus-within{border-color:rgb(109,49,194);box-shadow:0 0 0 3px rgba(109,49,194,0.1)}.pb-total{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0;border-top:1px solid #e5e7eb;margin-top:8px}.pb-total-label{font-size:14px;font-weight:500;color:#6b7280}.pb-total-amount{font-size:20px;font-weight:700;color:#1a1a1a;transition:color 0.4s ease}.pb-note textarea{width:100%;min-height:60px;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a1a;resize:vertical;box-sizing:border-box;outline:none;transition:border-color 0.1s ease}.pb-note textarea:focus{border-color:rgb(109,49,194);box-shadow:0 0 0 3px rgba(109,49,194,0.1)}.pb-note textarea::placeholder{color:#9ca3af}.pb-preview{background:rgb(252,250,255);border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0 16px}.pb-preview-heading{font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px}.pb-preview-card{display:flex;gap:10px;align-items:center}.pb-preview-avatar{width:36px;height:36px;border-radius:50%;background:#e5e7eb;overflow:hidden}.pb-preview-avatar img{width:100%;height:100%;object-fit:cover}.pb-preview-text{flex:1;font-size:12px;color:#1a1a1a;line-height:1.4}.pb-preview-text strong{font-weight:600}.pb-footer{padding:0 24px 24px}.pb-submit{width:100%;padding:14px;background:linear-gradient(135deg,#4B47CE 0%,#7C3AED 100%);color:#fff;border:none;border-radius:20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.1s ease,transform 0.1s ease}.pb-submit:hover{opacity:0.9}.pb-submit:active{transform:scale(0.97)}.pb-trust{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:12px}.pb-trust svg{width:14px;height:14px;stroke:rgb(109,49,194);fill:none;stroke-width:2}.pb-trust-text{font-size:11px;color:#6b7280}@media(prefers-reduced-motion:reduce){.pb-submit,.pb-value,.pb-total-amount,.pb-note textarea{transition:none}.pb-submit:active{transform:none}}</style><div class=\"pb-form\"><div class=\"pb-listing\"><img src=\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=128&h=96&fit=crop\" alt=\"Room\"><div class=\"pb-listing-info\"><p class=\"pb-listing-addr\">Bright Room in Williamsburg</p><p class=\"pb-listing-price\">$850/night &middot; Near the L train</p></div></div><div class=\"pb-body\"><h3 class=\"pb-heading\">Your proposal to Jessica</h3><div class=\"pb-field\"><label class=\"pb-label\">Your dates</label><div class=\"pb-value\">Mar 15 - Jun 15, 2026</div></div><div class=\"pb-field\"><label class=\"pb-label\">Your schedule</label><div class=\"pb-value\">Thursday - Sunday (4 nights/week)</div></div><div class=\"pb-field\"><label class=\"pb-label\">Duration</label><div class=\"pb-value\">13 weeks</div></div><div class=\"pb-total\"><span class=\"pb-total-label\">$850/night &times; 13 weeks</span><span class=\"pb-total-amount\">$11,050</span></div><div class=\"pb-field pb-note\"><label class=\"pb-label\">Add a note (optional)</label><textarea placeholder=\"Introduce yourself or ask a question...\"></textarea></div><div class=\"pb-preview\"><p class=\"pb-preview-heading\">This is what Jessica will see</p><div class=\"pb-preview-card\"><div class=\"pb-preview-avatar\"><img src=\"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=72&h=72&fit=crop&crop=face\" alt=\"Guest\"></div><div class=\"pb-preview-text\"><strong>Alex M.</strong> wants to stay Thu-Sun for 13 weeks starting Mar 15.<br>Total: $11,050</div></div></div></div><div class=\"pb-footer\"><button class=\"pb-submit\">Send proposal</button><div class=\"pb-trust\"><svg viewBox=\"0 0 24 24\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path></svg><span class=\"pb-trust-text\">You can modify this before Jessica accepts. Payment held securely until 48hrs after move-in.</span></div></div></div>",
+        "source_elements": ["works-001", "works-002", "works-003", "communicates-002", "communicates-005", "looks-004", "behaves-002", "behaves-005", "feels-004"],
+        "implements_principles": ["works-001", "works-002", "works-003", "communicates-002", "communicates-005", "looks-004", "behaves-002", "behaves-005", "feels-004"],
+        "visual_spec": {
+          "layout": "Single column form, max-width 520px, centered.",
+          "color_usage": { "submit_gradient": "linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%)" }
+        },
+        "interaction_spec": {
+          "load_behavior": "Form expands downward with staggered pre-population animation.",
+          "hover": "Date fields show calendar picker. Price updates in real-time.",
+          "reduced_motion": "Form appears instantly. Pre-populated fields appear simultaneously."
+        },
+        "copy_spec": {
+          "section_heading": "Your proposal to [Host Name]",
+          "dont": ["Use 'Submit' or 'Commit to Lease'", "Show legal disclaimers before form content", "Leave fields blank with robotic placeholders"]
+        }
+      },
+      {
+        "id": "ds-ui-1831-005",
+        "name": "Collaborative Negotiation Comparison Card",
+        "category": "card",
+        "journey_phases": ["negotiation"],
+        "priority": "high",
+        "effort": "medium",
+        "description": "A side-by-side comparison interface that transforms negotiation from a binary accept/reject verdict into a collaborative agon. Changed elements are highlighted with pre-calculated financial impact, market calibration data provides context.",
+        "problem_it_solves": "A binary accept/reject negotiation interface creates what Csikszentmihalyi calls alienation: the guest is constrained to act against their goals. This component provides market context, pre-calculated impact, and a modification path that transforms negotiation into collaborative skill-stretching.",
+        "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.nc-card{width:100%;max-width:560px;background:#fff;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);font-family:'Inter',sans-serif;overflow:hidden}.nc-header{padding:20px 24px 16px;border-bottom:1px solid #e5e7eb}.nc-heading{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:#1a1a1a;margin:0}.nc-sub{font-size:12px;color:#6b7280;margin:4px 0 0}.nc-compare{padding:20px 24px}.nc-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}.nc-col-head{font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}.nc-val{font-size:14px;color:#1a1a1a;padding:8px 12px;border-radius:6px;background:#f9fafb}.nc-val.changed{background:rgba(109,49,194,0.06);border:1px solid rgba(109,49,194,0.2);font-weight:600}.nc-val.original{color:#9ca3af;text-decoration:line-through;background:transparent}.nc-label{font-size:11px;font-weight:500;color:#6b7280;margin-bottom:4px}.nc-impact{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid #e5e7eb;background:rgb(252,250,255)}.nc-impact-label{font-size:14px;font-weight:500;color:#6b7280}.nc-impact-val{font-size:16px;font-weight:700;color:#1a1a1a}.nc-market{padding:8px 24px 16px;font-size:11px;color:#6b7280}.nc-market-bar{height:4px;background:#f3f4f6;border-radius:2px;margin-top:6px;position:relative;overflow:hidden}.nc-market-fill{height:100%;background:rgb(109,49,194);border-radius:2px;width:65%}.nc-pattern{font-size:11px;color:#6b7280;font-style:italic;padding:0 24px 12px}.nc-actions{display:flex;gap:10px;padding:16px 24px 24px;flex-wrap:wrap}.nc-accept{flex:1;padding:12px;background:linear-gradient(135deg,#4B47CE 0%,#7C3AED 100%);color:#fff;border:none;border-radius:20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.1s ease}.nc-accept:hover{opacity:0.9}.nc-modify{flex:1;padding:12px;background:#f3f4f6;color:#1a1a1a;border:none;border-radius:20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.1s ease}.nc-modify:hover{background:#e5e7eb}.nc-decline{width:100%;padding:10px;background:transparent;color:#6b7280;border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:color 0.1s ease;text-decoration:underline}.nc-decline:hover{color:#1a1a1a}@media(prefers-reduced-motion:reduce){.nc-accept,.nc-modify,.nc-decline{transition:none}}</style><div class=\"nc-card\"><div class=\"nc-header\"><h3 class=\"nc-heading\">Jessica adjusted the terms</h3><p class=\"nc-sub\">Here is what changed and your options</p></div><div class=\"nc-compare\"><div class=\"nc-row\"><div><div class=\"nc-col-head\">Your proposal</div></div><div><div class=\"nc-col-head\">Jessica's adjustment</div></div></div><div class=\"nc-row\"><div><p class=\"nc-label\">Duration</p><div class=\"nc-val original\">16 weeks</div></div><div><p class=\"nc-label\">Duration</p><div class=\"nc-val changed\">10 weeks</div></div></div><div class=\"nc-row\"><div><p class=\"nc-label\">Rate</p><div class=\"nc-val\">$850/night</div></div><div><p class=\"nc-label\">Rate</p><div class=\"nc-val\">$850/night</div></div></div><div class=\"nc-row\"><div><p class=\"nc-label\">Total</p><div class=\"nc-val original\">$13,600</div></div><div><p class=\"nc-label\">Total</p><div class=\"nc-val changed\">$8,500</div></div></div></div><div class=\"nc-impact\"><span class=\"nc-impact-label\">Net impact</span><span class=\"nc-impact-val\">$5,100 less total (6 fewer weeks)</span></div><div class=\"nc-market\">Similar rooms in Williamsburg average $800-$950/night for 10-week stays<div class=\"nc-market-bar\"><div class=\"nc-market-fill\"></div></div></div><p class=\"nc-pattern\">Jessica has accepted modifications in 3 of 4 past negotiations</p><div class=\"nc-actions\"><button class=\"nc-accept\">Accept these terms</button><button class=\"nc-modify\">Suggest a change</button><button class=\"nc-decline\">Decline with a note</button></div></div>",
+        "source_elements": ["works-005", "communicates-006", "behaves-005", "feels-005"],
+        "implements_principles": ["works-005", "communicates-006", "behaves-005", "feels-005"],
+        "visual_spec": {
+          "layout": "Full-width card with two-column comparison.",
+          "color_usage": { "change_highlight_bg": "rgba(109,49,194,0.06)", "accept_button": "gradient purple" }
+        },
+        "interaction_spec": {
+          "load_behavior": "Card slides in over 300ms. Changed elements pulse briefly.",
+          "hover": "Action buttons show standard hover states.",
+          "reduced_motion": "Card appears instantly."
+        },
+        "copy_spec": {
+          "heading": "Jessica adjusted the terms",
+          "dont": ["Use 'Counter-offer received'", "Present only Accept/Decline", "Force guest to calculate differences mentally"]
+        }
+      },
+      {
+        "id": "ds-ui-1831-006",
+        "name": "Acceptance Celebration and Orientation Bridge",
+        "category": "banner",
+        "journey_phases": ["acceptance", "move_in"],
+        "priority": "medium",
+        "effort": "low",
+        "description": "A two-beat acceptance experience that first celebrates the guest\u2019s completed journey and then immediately orients them toward move-in preparation. The celebration beat rewards psychic energy invested; the orientation beat channels it into the next flow activity.",
+        "problem_it_solves": "The current acceptance experience reduces a multi-phase journey culmination to a confirmation dialog. Without immediate orientation toward move-in, the guest\u2019s elevated engagement collapses into post-decision anxiety.",
+        "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.ac-wrap{width:100%;max-width:600px;margin:0 auto;font-family:'Inter',sans-serif}.ac-card{background:#fff;border-radius:16px;border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(109,49,194,0.12);overflow:hidden}.ac-hero{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}.ac-hero img{width:100%;height:100%;object-fit:cover}.ac-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(49,19,93,0.7) 0%,transparent 60%);display:flex;align-items:flex-end;padding:24px}.ac-hero-text{color:#fff}.ac-hero-text h2{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;margin:0;line-height:1.2}.ac-hero-text p{font-size:14px;margin:6px 0 0;opacity:0.9}.ac-details{padding:24px 32px;border-bottom:1px solid #e5e7eb}.ac-confirm{display:flex;align-items:center;gap:12px}.ac-host-thumb{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgb(140,104,238)}.ac-confirm-text{font-size:16px;color:#374151;line-height:1.5}.ac-confirm-text strong{color:#1a1a1a;font-weight:600}.ac-journey-note{font-size:11px;color:#6b7280;margin-top:12px;font-style:italic}.ac-timeline{padding:24px 32px}.ac-timeline h3{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 16px}.ac-step{display:flex;gap:12px;margin-bottom:16px;position:relative}.ac-step:last-child{margin-bottom:0}.ac-dot-col{display:flex;flex-direction:column;align-items:center;width:20px;flex-shrink:0}.ac-dot{width:10px;height:10px;border-radius:50%;background:rgb(109,49,194);flex-shrink:0}.ac-dot.future{background:#f3f4f6;border:2px solid #e5e7eb}.ac-line{width:2px;flex:1;background:#e5e7eb;margin-top:4px}.ac-step-content{flex:1;padding-bottom:4px}.ac-step-title{font-size:13px;font-weight:600;color:#1a1a1a;margin:0}.ac-step-detail{font-size:11px;color:#6b7280;margin:2px 0 0}.ac-footer{padding:16px 32px 28px;display:flex;justify-content:center}.ac-cta{background:linear-gradient(135deg,#4B47CE 0%,#7C3AED 100%);color:#fff;border:none;border-radius:20px;padding:12px 32px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.1s ease}.ac-cta:hover{opacity:0.9}@media(prefers-reduced-motion:reduce){.ac-cta{transition:none}}</style><div class=\"ac-wrap\"><div class=\"ac-card\"><div class=\"ac-hero\"><img src=\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=338&fit=crop\" alt=\"Your new room\"><div class=\"ac-hero-overlay\"><div class=\"ac-hero-text\"><h2>Your room in Williamsburg is confirmed</h2><p>Jessica is expecting you March 15</p></div></div></div><div class=\"ac-details\"><div class=\"ac-confirm\"><img class=\"ac-host-thumb\" src=\"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face\" alt=\"Jessica\"><div class=\"ac-confirm-text\">You and <strong>Jessica</strong> agreed on <strong>10 weeks</strong> at <strong>$850/night</strong>, starting <strong>March 15</strong>.</div></div><p class=\"ac-journey-note\">After exploring 12 rooms and messaging 3 hosts, you found your place.</p></div><div class=\"ac-timeline\"><h3>What happens next</h3><div class=\"ac-step\"><div class=\"ac-dot-col\"><div class=\"ac-dot\"></div><div class=\"ac-line\"></div></div><div class=\"ac-step-content\"><p class=\"ac-step-title\">Today: Lease documents arrive</p><p class=\"ac-step-detail\">Check your email for the lease agreement to review and sign.</p></div></div><div class=\"ac-step\"><div class=\"ac-dot-col\"><div class=\"ac-dot future\"></div><div class=\"ac-line\"></div></div><div class=\"ac-step-content\"><p class=\"ac-step-title\">This week: Access your House Manual</p><p class=\"ac-step-detail\">House rules, check-in procedures, and neighborhood tips.</p></div></div><div class=\"ac-step\"><div class=\"ac-dot-col\"><div class=\"ac-dot future\"></div></div><div class=\"ac-step-content\"><p class=\"ac-step-title\">March 15: Move in</p><p class=\"ac-step-detail\">Jessica will greet you. The nearest subway is the L at Bedford Ave.</p></div></div></div><div class=\"ac-footer\"><button class=\"ac-cta\">Explore your House Manual</button></div></div></div>",
+        "source_elements": ["works-007", "communicates-005", "looks-003", "behaves-006", "feels-006"],
+        "implements_principles": ["works-007", "communicates-005", "looks-003", "behaves-006", "feels-006"],
+        "visual_spec": {
+          "layout": "Full-width confirmation card centered on page, max-width 600px.",
+          "color_usage": { "glow_ring": "0 6px 20px rgba(109,49,194,0.35)", "cta_button": "gradient purple" }
+        },
+        "interaction_spec": {
+          "load_behavior": "Card expands from center over 400ms. Subtle purple glow ring pulses once.",
+          "hover": "Timeline steps highlight on hover. CTA shows standard hover states.",
+          "reduced_motion": "Card appears instantly."
+        },
+        "copy_spec": {
+          "celebration_heading": "Your room in [Neighborhood] is confirmed",
+          "dont": ["Reduce to 'Proposal accepted. Transaction ID: 48291'", "Use legal language in the celebration moment"]
+        }
+      },
+      {
+        "id": "ds-ui-1831-007",
+        "name": "Evolving Stays Manager with Complexity Ratchet",
+        "category": "dashboard",
+        "journey_phases": ["active_lease"],
+        "priority": "high",
+        "effort": "high",
+        "description": "A Stays Manager page design that evolves across three lifecycle phases (orientation, rhythm, reflection) within a stable layout skeleton. Visited 13+ times per lease, this is where flow must be sustained longest. Content within each zone evolves weekly: orientation checklists become stay timelines become cumulative summaries.",
+        "problem_it_solves": "A static Stays Manager visited 13+ times guarantees Csikszentmihalyi\u2019s boredom zone by mid-lease. The complexity ratchet \u2014 stable skeleton with evolving content \u2014 prevents the guest from emotionally abandoning the platform while physically remaining in the lease.",
+        "html_css": "<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap');.sm-page{width:100%;max-width:680px;margin:0 auto;font-family:'Inter',sans-serif;display:flex;flex-direction:column;gap:16px}.sm-zone{background:#fff;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.05);overflow:hidden}.sm-action-band{padding:16px 24px;display:flex;gap:10px;flex-wrap:wrap}.sm-badge{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.1s ease;border:none;font-family:'Inter',sans-serif}.sm-badge.msg{background:rgba(109,49,194,0.08);color:rgb(109,49,194)}.sm-badge.msg:hover{background:rgba(109,49,194,0.15)}.sm-badge.date{background:rgba(196,132,29,0.08);color:#C4841D}.sm-badge.date:hover{background:rgba(196,132,29,0.15)}.sm-badge-dot{width:6px;height:6px;border-radius:50%}.sm-badge.msg .sm-badge-dot{background:rgb(109,49,194)}.sm-badge.date .sm-badge-dot{background:#C4841D}.sm-main{padding:24px}.sm-week-head{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;color:#1a1a1a;margin:0 0 4px}.sm-week-sub{font-size:13px;color:#6b7280;margin:0 0 20px}.sm-timeline{display:flex;align-items:center;gap:4px;margin-bottom:20px}.sm-seg{width:24px;height:24px;border-radius:6px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#9ca3af;transition:background 0.2s ease;cursor:default}.sm-seg.done{background:rgb(109,49,194);color:#fff}.sm-seg.current{background:rgb(109,49,194);color:#fff;box-shadow:0 2px 4px rgba(49,19,93,0.3)}.sm-milestone{font-size:11px;font-weight:500;color:#6b7280;margin:0 0 16px}.sm-review-card{background:rgb(252,250,255);border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:16px}.sm-review-q{font-size:16px;font-weight:500;color:#1a1a1a;margin:0 0 12px}.sm-stars{display:flex;gap:6px}.sm-star{width:32px;height:32px;border-radius:50%;border:2px solid #e5e7eb;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.1s ease,border-color 0.1s ease;font-size:14px}.sm-star:hover{border-color:rgb(109,49,194);background:rgba(109,49,194,0.06)}.sm-star.filled{border-color:rgb(109,49,194);background:rgb(109,49,194);color:#fff}.sm-stay-info{display:flex;gap:16px;font-size:13px;color:#374151}.sm-stay-item{display:flex;align-items:center;gap:6px}.sm-stay-item svg{width:16px;height:16px;stroke:#6b7280;fill:none;stroke-width:2}.sm-ref{padding:16px 24px}.sm-ref-label{font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px}.sm-ref-links{display:flex;gap:12px;flex-wrap:wrap}.sm-ref-link{font-size:13px;font-weight:500;color:rgb(109,49,194);text-decoration:none;transition:color 0.1s ease}.sm-ref-link:hover{color:rgb(140,104,238)}@media(prefers-reduced-motion:reduce){.sm-seg,.sm-badge,.sm-star,.sm-ref-link{transition:none}}</style><div class=\"sm-page\"><div class=\"sm-zone\"><div class=\"sm-action-band\"><button class=\"sm-badge msg\"><span class=\"sm-badge-dot\"></span>1 new message from Jessica</button><button class=\"sm-badge date\"><span class=\"sm-badge-dot\"></span>Date change confirmed</button></div></div><div class=\"sm-zone\"><div class=\"sm-main\"><h2 class=\"sm-week-head\">Week 6 of 13</h2><p class=\"sm-week-sub\">Your Thursday-to-Sunday rhythm is locked in. Halfway there.</p><div class=\"sm-timeline\"><div class=\"sm-seg done\">1</div><div class=\"sm-seg done\">2</div><div class=\"sm-seg done\">3</div><div class=\"sm-seg done\">4</div><div class=\"sm-seg done\">5</div><div class=\"sm-seg current\">6</div><div class=\"sm-seg\">7</div><div class=\"sm-seg\">8</div><div class=\"sm-seg\">9</div><div class=\"sm-seg\">10</div><div class=\"sm-seg\">11</div><div class=\"sm-seg\">12</div><div class=\"sm-seg\">13</div></div><p class=\"sm-milestone\">5 of 13 stay cycles completed &middot; 20 nights stayed</p><div class=\"sm-review-card\"><p class=\"sm-review-q\">How was this week?</p><div class=\"sm-stars\"><div class=\"sm-star filled\">1</div><div class=\"sm-star filled\">2</div><div class=\"sm-star filled\">3</div><div class=\"sm-star filled\">4</div><div class=\"sm-star\">5</div></div></div><div class=\"sm-stay-info\"><div class=\"sm-stay-item\"><svg viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"></line><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"></line><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"></line></svg>Next stay: Thu Mar 19 - Sun Mar 22</div><div class=\"sm-stay-item\"><svg viewBox=\"0 0 24 24\"><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"23\"></line><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"></path></svg>Next payment: Mar 22</div></div></div></div><div class=\"sm-zone\"><div class=\"sm-ref\"><p class=\"sm-ref-label\">Quick access</p><div class=\"sm-ref-links\"><a href=\"#\" class=\"sm-ref-link\">House Manual</a><a href=\"#\" class=\"sm-ref-link\">Lease Terms</a><a href=\"#\" class=\"sm-ref-link\">Message Jessica</a><a href=\"#\" class=\"sm-ref-link\">Date Change Tool</a></div></div></div></div>",
+        "source_elements": ["works-004", "works-007", "communicates-004", "looks-005", "behaves-004", "feels-007"],
+        "implements_principles": ["works-004", "works-007", "communicates-004", "looks-005", "behaves-004", "feels-007"],
+        "visual_spec": {
+          "layout": "Single-column page with three persistent zones, max-width 680px.",
+          "color_usage": { "timeline_filled": "rgb(109,49,194)", "new_content_indicator": "rgb(109,49,194)" }
+        },
+        "interaction_spec": {
+          "load_behavior": "Page skeleton renders in under 200ms. Dynamic content populates within 500ms.",
+          "hover": "Timeline segments show tooltip. Checklist items show checkmark animation.",
+          "reduced_motion": "New-content pulse uses solid indicator dot."
+        },
+        "copy_spec": {
+          "week_heading": "Week [N] of [Total]",
+          "dont": ["Use the same headline on every visit", "Lead with 'Payment due'", "Present review prompts as demands"]
+        }
+      }
+    ];
+
+    // Render cards
+    const grid = document.getElementById('cardGrid');
+    const resultCount = document.getElementById('resultCount');
+
+    function escapeForSrcdoc(html) {
+      return html.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+    }
+
+    function renderCards(filtered) {
+      grid.innerHTML = '';
+      filtered.forEach((el, idx) => {
+        const card = document.createElement('div');
+        card.className = 'el-card';
+        card.dataset.id = el.id;
+        card.dataset.category = el.category;
+        card.dataset.priority = el.priority;
+        card.dataset.name = el.name.toLowerCase();
+        card.dataset.phases = el.journey_phases.join(' ');
+
+        const srcdoc = '<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fafafa;overflow:hidden;}</style></head><body>' + el.html_css + '</body></html>';
+
+        card.innerHTML = `
+          <iframe class="el-preview" srcdoc="${escapeForSrcdoc(srcdoc)}" sandbox="allow-same-origin" loading="lazy"></iframe>
+          <div class="el-body">
+            <div class="el-name">${el.name}</div>
+            <div class="el-badges">
+              <span class="badge badge-category">${el.category}</span>
+              <span class="badge badge-priority-${el.priority}">${el.priority}</span>
+              <span class="badge badge-effort">${el.effort} effort</span>
+            </div>
+            <div class="el-phases">
+              ${el.journey_phases.map(p => `<span class="phase-tag">${p.replace(/_/g, ' ')}</span>`).join('')}
+            </div>
+            <div class="el-description">${el.description}</div>
+            <div class="el-problem">${el.problem_it_solves}</div>
+          </div>
+        `;
+
+        card.addEventListener('click', () => openModal(el));
+        grid.appendChild(card);
+      });
+      resultCount.textContent = `${filtered.length} element${filtered.length !== 1 ? 's' : ''}`;
+    }
+
+    // Filtering
+    let activeFilters = { category: 'all', priority: 'all' };
+    let searchTerm = '';
+
+    function applyFilters() {
+      let filtered = elements;
+      if (activeFilters.category !== 'all') {
+        filtered = filtered.filter(el => el.category === activeFilters.category);
+      }
+      if (activeFilters.priority !== 'all') {
+        filtered = filtered.filter(el => el.priority === activeFilters.priority);
+      }
+      if (searchTerm) {
+        filtered = filtered.filter(el => el.name.toLowerCase().includes(searchTerm));
+      }
+      renderCards(filtered);
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.dataset.filter;
+        const value = btn.dataset.value;
+        activeFilters[group] = value;
+        document.querySelectorAll(`.filter-btn[data-filter="${group}"]`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchTerm = e.target.value.toLowerCase().trim();
+      applyFilters();
+    });
+
+    // Modal
+    const overlay = document.getElementById('modalOverlay');
+    const modal = document.getElementById('modal');
+    const modalPreview = document.getElementById('modalPreview');
+    const modalBody = document.getElementById('modalBody');
+
+    function openModal(el) {
+      const srcdoc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fafafa;overflow:auto;}</style></head><body>' + el.html_css + '</body></html>';
+      modalPreview.srcdoc = srcdoc;
+
+      let specHtml = '';
+
+      // Visual spec
+      if (el.visual_spec) {
+        specHtml += `<div class="spec-section"><h4>Visual Spec</h4><div class="spec-grid">`;
+        if (el.visual_spec.layout) specHtml += `<span class="spec-label">Layout</span><span class="spec-value">${el.visual_spec.layout}</span>`;
+        if (el.visual_spec.color_usage) {
+          Object.entries(el.visual_spec.color_usage).forEach(([k,v]) => {
+            specHtml += `<span class="spec-label">${k.replace(/_/g, ' ')}</span><span class="spec-value">${v}</span>`;
+          });
+        }
+        specHtml += `</div></div>`;
+      }
+
+      // Interaction spec
+      if (el.interaction_spec) {
+        specHtml += `<div class="spec-section"><h4>Interaction Spec</h4><div class="spec-grid">`;
+        Object.entries(el.interaction_spec).forEach(([k,v]) => {
+          specHtml += `<span class="spec-label">${k.replace(/_/g, ' ')}</span><span class="spec-value">${v}</span>`;
+        });
+        specHtml += `</div></div>`;
+      }
+
+      // Copy spec
+      if (el.copy_spec) {
+        specHtml += `<div class="spec-section"><h4>Copy Spec</h4>`;
+        const entries = Object.entries(el.copy_spec).filter(([k]) => k !== 'dont');
+        if (entries.length) {
+          specHtml += `<div class="spec-grid">`;
+          entries.forEach(([k,v]) => {
+            specHtml += `<span class="spec-label">${k.replace(/_/g, ' ')}</span><span class="spec-value">${Array.isArray(v) ? v.join(', ') : v}</span>`;
+          });
+          specHtml += `</div>`;
+        }
+        if (el.copy_spec.dont?.length) {
+          specHtml += `<ul class="spec-dont-list" style="margin-top:10px;">`;
+          el.copy_spec.dont.forEach(d => { specHtml += `<li>${d}</li>`; });
+          specHtml += `</ul>`;
+        }
+        specHtml += `</div>`;
+      }
+
+      // Implements principles
+      if (el.implements_principles?.length) {
+        specHtml += `<div class="spec-section"><h4>Implements Principles</h4><div class="spec-implements">`;
+        el.implements_principles.forEach(p => {
+          specHtml += `<span class="spec-impl-tag">${p}</span>`;
+        });
+        specHtml += `</div></div>`;
+      }
+
+      // Source elements
+      if (el.source_elements?.length) {
+        specHtml += `<div class="spec-section"><h4>Source Elements</h4><div class="spec-implements">`;
+        el.source_elements.forEach(s => {
+          specHtml += `<span class="spec-impl-tag">${s}</span>`;
+        });
+        specHtml += `</div></div>`;
+      }
+
+      modalBody.innerHTML = `
+        <div class="modal-name">${el.name}</div>
+        <div class="modal-badges">
+          <span class="badge badge-category">${el.category}</span>
+          <span class="badge badge-priority-${el.priority}">${el.priority}</span>
+          <span class="badge badge-effort">${el.effort} effort</span>
+          <span style="font-size:12px;font-family:monospace;color:var(--ink-muted);align-self:center;">${el.id}</span>
+        </div>
+        <div class="modal-phases">
+          ${el.journey_phases.map(p => `<span class="phase-tag">${p.replace(/_/g, ' ')}</span>`).join('')}
+        </div>
+        <div class="modal-description">${el.description}</div>
+        <div class="spec-problem">${el.problem_it_solves}</div>
+        ${specHtml}
+      `;
+
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      modalPreview.srcdoc = '';
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Initial render
+    renderCards(elements);
+  </script>
+</body>
+</html>

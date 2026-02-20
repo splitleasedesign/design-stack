@@ -1,0 +1,122 @@
+{
+  "lens": {
+    "guest_call": "Theodore Matthews.txt",
+    "book_extract": "articulatingdesign-severity-framework.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Contextual Reframing Tooltips — Anticipatory Objection Resolution",
+      "journey_phases": ["listing_evaluation", "acceptance"],
+      "problem": "Theodore objected to signing before seeing the apartment (04:07). The agent resolved it in real-time. The UI cannot have real-time conversations, so it must anticipate the objection and present the reframe at exactly the right moment — when the guest encounters the unfamiliar process. Current tooltip/popover patterns are informational, not persuasive.",
+      "solution": "Implement contextual reframing tooltips that trigger at known objection points: (1) When the guest first encounters '24-hour inspection' language, show a non-modal tooltip anchored to the term with the Airbnb reframe. (2) Tooltip appears on first encounter, then auto-collapses to an info icon on return visits. (3) The tooltip should feel like a conversation, not a help article: 'Think about it like Airbnb — nobody sees the apartment before booking. But with us, you get 24 hours and your money back if it's not right.' (4) Dismissing the tooltip marks the objection as resolved — it won't reappear.",
+      "evidence": [
+        {
+          "source": "Theodore Matthews.txt, 04:17-04:50",
+          "type": "host_call",
+          "quote": "No, no, not before you signed the lease... When you rent your apartment over Airbnb, does anybody come?",
+          "insight": "The objection-reframe-acceptance cycle took 30 seconds verbally. The tooltip must achieve the same in 5 seconds visually."
+        },
+        {
+          "source": "articulatingdesign-severity-framework.txt, Ch 3",
+          "type": "book",
+          "quote": "Anticipate Reactions... Do a Dress Rehearsal.",
+          "insight": "Greever says anticipating reactions is preparation for the meeting. In UI terms, contextual tooltips are dress rehearsals for every guest objection."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Info icon (small circle-i) next to the triggering term, subtle --text-light-gray color",
+        "loading": "Not applicable — content is pre-loaded",
+        "empty": "Not applicable — reframing content is static",
+        "error": "Not applicable — no network dependency",
+        "success": "After reading, icon changes to a check — 'Got it' state. Tooltip collapses to icon only on subsequent visits."
+      },
+      "transition_principle": "Tooltip appears with a gentle fade-in (300ms, ease-out) from below the anchor point. Feels like someone leaning in to explain, not a popup demanding attention.",
+      "timing": {
+        "response_target": "0ms — tooltip content is pre-loaded, no fetch required",
+        "easing": "ease-out",
+        "rationale": "Instant appearance with gentle settle. The reframe must be available at the exact moment of confusion, not after a loading delay."
+      },
+      "journey_state_awareness": "First-time visitors see the tooltip auto-expanded. Return visitors see only the info icon. Guests who have already submitted a proposal never see the tooltip again — the objection is resolved.",
+      "edge_cases": ["Guest on mobile: tooltip must be full-width bottom sheet, not a floating popup", "Guest who signed up via agent: may not need the reframe — check if agent call is logged", "Multiple objection points on the same page: stagger tooltips, never show more than 1 at a time"]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Proposal Status Live Tracker — Ambient Progress During Matching Wait",
+      "journey_phases": ["negotiation"],
+      "problem": "After submitting a bid, Theodore enters a 2-3 week void with zero feedback (08:40). The matching process is batched weekly, meaning real updates happen in bursts separated by days of silence. The UI must fill this void with meaningful status without fabricating progress. Greever's 'follow up fast' principle (Ch 9) applies: any communication is better than silence.",
+      "solution": "Create a live tracker that combines real events with contextual information: (1) Default state shows the pipeline at 'Agent Review' with timestamp of last activity. (2) When batched matching runs, update to 'Scanning hosts with compatible schedules...' (3) Show partial results as they emerge: '3 potential matches found — your agent is reviewing compatibility.' (4) Include estimated next update time: 'Next matching batch: Monday.' (5) Between batches, show contextual content: 'While you wait: 4 new listings in Manhattan match your weekend pattern.' This keeps the page alive without fabricating progress.",
+      "evidence": [
+        {
+          "source": "Theodore Matthews.txt, 09:06-09:25",
+          "type": "host_call",
+          "quote": "All the bids submitted on one week goes through the matching process next week.",
+          "insight": "The batched nature of matching means updates are infrequent. The tracker must bridge the gaps with honest, contextual information."
+        },
+        {
+          "source": "articulatingdesign-severity-framework.txt, Ch 9",
+          "type": "book",
+          "quote": "Follow Up Fast... Do Something, Even If It's Wrong.",
+          "insight": "Greever's urgency about post-meeting communication applies: any feedback during the wait period reduces dropout risk."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Pipeline visualization showing current stage (e.g., 'Agent Review'), last activity timestamp, next estimated update",
+        "loading": "Subtle pulse animation on the current pipeline node when a batch is processing",
+        "empty": "Never truly empty — if no matches yet, show: 'Expanding search to additional neighborhoods' with contextual listings",
+        "error": "If matching takes longer than expected: 'Your weekend pattern is taking a bit longer to match — Robert is actively searching. Updated ETA: [date]'",
+        "success": "Match found! Card transforms to show host preview with CTA: 'Your agent found a match — review the introduction'"
+      },
+      "transition_principle": "Pipeline updates animate left-to-right (nodes filling in sequence). New matches appear with a gentle slide-down from the pipeline. The overall feel is 'things are progressing' without urgency or anxiety.",
+      "timing": {
+        "response_target": "Pipeline loads instantly from cached state. Real-time updates (if websocket connected) appear within 1 second. Fallback: poll every 30 minutes.",
+        "easing": "ease-in-out for pipeline transitions",
+        "rationale": "The tracker exists between sessions — it must load instantly when the guest checks their status. Updates between visits are stored and revealed on load."
+      },
+      "journey_state_awareness": "Tracker adapts based on pattern type: weekend patterns show longer estimated timelines with an explanation. Weekday patterns show shorter estimates. If the guest has multiple active proposals, tracker shows a summary view with expandable details.",
+      "edge_cases": ["Guest checks status multiple times per day with no new updates — show 'No new activity since [time]' honestly, don't re-animate old events", "Match found but guest doesn't log in for 3 days — send push notification/email with match preview", "All proposals rejected by hosts — show 'We're submitting your interest to new hosts' rather than a dead-end state"]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Savings Counter Animation — Value Reinforcement on Every Weekly Action",
+      "journey_phases": ["active_lease"],
+      "problem": "Theodore's 40% discount requires weekly cleaning and flexibility compliance. Without tangible feedback on each action's value, the discount becomes invisible — the guest only notices the effort, not the reward. Current UI patterns show cleaning photo submission as a task completion, not a value-generating action.",
+      "solution": "After every cleaning photo submission, animate a savings counter that shows the concrete dollar impact: (1) Photo submitted → brief processing animation (300ms). (2) Counter increments with an odometer-style number roll: '+$X saved this week.' (3) Cumulative total updates with a subtle grow animation: 'Total savings: $X.' (4) Comparison line appears: 'Equivalent Airbnb cost for this week: $Y.' The animation sequence: upload → acknowledge → calculate → reveal savings → celebrate. Total sequence: 1.5 seconds.",
+      "evidence": [
+        {
+          "source": "Theodore Matthews.txt, 12:07-12:55",
+          "type": "host_call",
+          "quote": "Did you sign up for the 40% discount? Okay, good.",
+          "insight": "Theodore signed up eagerly. The enthusiasm must be maintained through visible value on every weekly action."
+        },
+        {
+          "source": "articulatingdesign-severity-framework.txt, Ch 1",
+          "type": "book",
+          "quote": "Being Articulate Means Success... Expresses confidence.",
+          "insight": "The savings animation articulates the platform's value proposition with each weekly interaction — confidence through demonstration, not just claiming."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Savings summary card showing cumulative total and this week's status (pending/confirmed)",
+        "loading": "Photo upload progress bar with percentage. Once uploaded: 'Confirming your Space Care...'",
+        "empty": "Before first cleaning submission: 'Submit your first Space Care photos to activate your weekly savings tracker'",
+        "error": "Photo upload failed: 'Upload didn't complete — try again to keep your savings active this week' with retry button",
+        "success": "Savings counter increments with odometer animation. Brief confetti particle effect (3 particles, 0.5s, then disappear — restraint per taste model)"
+      },
+      "transition_principle": "The savings reveal should feel like opening an envelope — anticipation → reveal → satisfaction. Not a progress bar, not a loading spinner, but a moment of discovery.",
+      "timing": {
+        "response_target": "Photo upload: standard network time. Savings calculation: instant (client-side). Animation sequence: 1.5s total.",
+        "easing": "ease-out for counter increment, ease-in-out for comparison line appearance",
+        "rationale": "The animation must be fast enough to feel responsive but slow enough to feel like a moment — this is the weekly 'reward' in the behavioral loop."
+      },
+      "journey_state_awareness": "Week 1: more enthusiastic animation and explanation. Week 5+: more subtle, just the number increment. Week 10+: cumulative total gets a 'milestone' badge if it crosses $500/$1000.",
+      "edge_cases": ["Guest submits photos but misses the animation (backgrounded app): show savings update on next app open", "Guest is behind on cleaning (missed last week): show 'Catch up to keep your streak' rather than punitive messaging", "Discount tier changes mid-lease: recalculate and show adjusted savings transparently"]
+    }
+  ]
+}

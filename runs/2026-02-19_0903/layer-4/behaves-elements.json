@@ -1,0 +1,339 @@
+{
+  "lens": {
+    "guest_call": "Steven Mariscal - 21 April 2022.txt",
+    "book_extract": "zerotoone-monopoly-secrets.txt",
+    "lens_summary": "Interaction patterns for a casual-discovery guest navigating a novel time-shared living model, analyzed through Thiel's monopoly-building framework. Steven's call reveals that every critical state change in the guest journey — from first search to weekly stay cycle — either reinforces or undermines the platform's monopoly differentiation. The interaction layer must ensure that state transitions, loading behaviors, empty states, and error recoveries all communicate '0-to-1 category creator' rather than '1-to-n commodity marketplace.' When the platform behaves like Craigslist (static, silent, transactional), the guest evaluates it as Craigslist. When it behaves like a proprietary system that understands temporal matching, three-way coordination, and compounding trust, the guest perceives the 10x advantage that justifies commitment."
+  },
+  "elements": [
+    {
+      "id": "ds-behaves-0903-001",
+      "type": "interaction_pattern",
+      "title": "Schedule-First Search with Instant Temporal Filtering",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "Steven's core search need is temporal — 'Monday afternoon, Friday morning, four nights' (02:46) — but standard marketplace search interactions treat location as the primary input and show a full-page loading state while fetching results. If the guest enters a schedule and experiences a standard spinner-then-results flow, the interaction feels identical to any room-finding site. L1 (ds-ui-0903-003) establishes the temporal-match-first search architecture; L2 (ds-ui-0903-007) defines the listing card hierarchy; L3 (ds-ui-0903-L3-001) provides the visual badge system. The missing layer is: how should the search respond to user input in real time? The interaction must make temporal filtering feel instantaneous and proprietary — reinforcing Thiel's 10x principle by making the guest feel that no other platform could respond this way to their schedule input.",
+      "solution": "Implement an optimistic, progressive temporal filtering interaction. When the guest selects days of the week (Mon-Fri toggle), results begin streaming in before the guest finishes selecting all filters. Each day toggle immediately updates the visible listing count and re-sorts results by temporal compatibility. The schedule badge on each listing card (L3-001) animates from a neutral state to 'Perfect Match' or 'Partial Match' as the guest's schedule input refines. The savings calculation recalculates live as the night count changes. This progressive-disclosure-through-interaction creates the sensation that the platform is reading the guest's mind — it understands their schedule before they finish articulating it. Steven said 'I'm very flexible' (04:12) about location but not about schedule; the interaction must reflect this priority by making schedule changes feel instant and location changes feel secondary.",
+      "evidence": [
+        {
+          "source": "Steven Mariscal call, 02:46-02:57",
+          "type": "guest_call",
+          "quote": "Ideal arrive in Monday afternoon, Friday morning. That means that you need four nights.",
+          "insight": "The guest articulates schedule before anything else. The search interaction should respond to schedule input with the fastest perceived response time — faster than location or price changes — to signal that temporal matching is the platform's primary capability."
+        },
+        {
+          "source": "Zero to One, Ch 5 (Proprietary Technology)",
+          "type": "book",
+          "quote": "Proprietary technology must be at least 10 times better than its closest substitute in some important dimension to lead to a real monopolistic advantage.",
+          "insight": "Instant temporal filtering IS the 10x interaction advantage. No other platform responds to schedule input by immediately re-sorting listings by temporal compatibility. The instant response makes the proprietary advantage tangible through interaction speed."
+        },
+        {
+          "source": "Steven Mariscal call, 04:53-05:07",
+          "type": "guest_call",
+          "quote": "$1200 for 16 nights... so we're talking about $75 bucks a day.",
+          "insight": "The savings calculation must update live as the guest adjusts their schedule. When Steven toggles from 4 nights to 3, the monthly total recalculates instantly. This real-time financial feedback makes the economic model tangible through interaction."
+        },
+        {
+          "source": "tokens.json — easing",
+          "type": "data",
+          "quote": "out: cubic-bezier(0.16, 1, 0.3, 1), spring: cubic-bezier(0.34, 1.56, 0.64, 1)",
+          "insight": "The spring easing for schedule badge animations and the out easing for list reordering — both create the sensation of responsive, physical interaction that distinguishes this from a commodity search."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Search page shows all available listings sorted by default relevance. Day-of-week toggles are unselected. Listing cards show generic availability labels rather than temporal-match badges.",
+        "loading": "No full-page loading state. Each day-of-week toggle triggers a micro-loading indicator on the listing count badge ('23 matches' briefly pulses as count updates). Individual listing cards show a subtle shimmer on the schedule badge area while the match status recalculates. The rest of the card remains stable — only the schedule badge and savings calculation update. This prevents the jarring full-page-refresh pattern that commodity sites use.",
+        "empty": "If the guest's schedule produces zero matches, do not show a generic 'No results' page. Instead, show: 'No perfect Mon-Fri matches right now. 3 listings have partial matches (3 of 4 nights available). Would you like to see those?' Below that: 'Your schedule is popular — new listings matching Mon-Fri appear about twice per week. Get notified?' This transforms an empty state into a network-effect signal: the platform knows the market dynamics for your specific schedule.",
+        "error": "If the search request fails (network error, timeout), do not clear the existing results. Show an inline toast: 'Connection interrupted — showing your last results. Trying again...' with an auto-retry. The guest's schedule selections persist through the error. A commodity site would show a generic error page; a monopoly platform preserves context through failures.",
+        "success": "When the guest's schedule produces perfect matches, the listing count badge briefly scales up (spring easing, 200ms) and the text updates from 'N listings' to 'N perfect schedule matches.' The first listing card's temporal badge pulses once (the L3-003 signature animation) to draw the eye. Success is celebrated subtly — the platform is confident in its results."
+      },
+      "transition_principle": "Schedule filter changes should feel like a direct manipulation of the results, not a query-and-wait pattern. The interaction metaphor is a physical slider that instantly reorganizes cards, not a form submission that triggers a server round-trip. Use client-side filtering with pre-fetched temporal data where possible. When server calls are needed, use optimistic updates with a shimmer-on-badge-only pattern to maintain perceived instantaneity.",
+      "timing": {
+        "response_target": "Under 100ms for client-side filter updates (day toggle to badge update). Under 300ms for server-augmented results (new listings appearing). Under 50ms for savings recalculation.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) for badge state changes (spring — conveys physical responsiveness). cubic-bezier(0.16, 1, 0.3, 1) for list reordering (out — smooth deceleration).",
+        "rationale": "Sub-100ms for filter toggles makes the interaction feel like direct manipulation rather than a database query. The spring easing on badges creates a 'snap' that communicates 'the system understood your input' — a tactile signal of proprietary intelligence."
+      },
+      "journey_state_awareness": "First-time searchers see the schedule toggles with a brief tooltip: 'Start with your schedule — we will find spaces that match.' Returning searchers see their previous schedule pre-loaded: 'Your usual Mon-Fri search.' During the active lease phase, search is repurposed for re-lease exploration with the current schedule pre-populated and a label: 'Looking for your next lease? Same schedule, new options.'",
+      "edge_cases": [
+        "Guest selects all 7 days — show a message: 'Looking for full-time? You may want a traditional rental. Or select your actual nights to save up to 40%.'",
+        "Guest selects only 1 night — show: 'For single nights, check our weekend-only options (filler rate, 40% savings).'",
+        "Guest changes schedule multiple times rapidly — debounce server calls at 200ms but update client-side badge predictions immediately",
+        "Guest has no schedule preference yet — allow location-first search but show a prompt: 'Know your schedule? Adding it shows you matches and savings.'"
+      ]
+    },
+    {
+      "id": "ds-behaves-0903-002",
+      "type": "interaction_pattern",
+      "title": "Zero-Obligation Bid Placement with Confidence Scaffolding",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "The agent repeatedly emphasizes that bidding is non-binding: 'it is not no obligation. So if you place a bead for a property, it doesn't mean that to you' (06:15-06:23). This zero-obligation framing is the correct acquisition strategy (Thiel Ch 5: network-effect products must be valuable to first users), but the interaction around bid placement must match this promise. If the bid button feels heavy (multi-step form, confirmation dialogs, legal language), the interaction contradicts the verbal promise. If it feels too light (a single click with no feedback), the guest questions whether anything happened. L1 (ds-ui-0903-004) defines the matching transparency process; L2 (ds-ui-0903-009) provides the pipeline dashboard IA. The interaction pattern must make the act of bidding feel simultaneously easy (matching the no-obligation promise) and meaningful (triggering visible platform activity).",
+      "solution": "Design the bid interaction as a two-tap optimistic flow with immediate visible consequences. Tap 1: 'Express Interest' button on the listing card (not 'Submit Bid' — language matters). The button uses the primary-purple CTA styling from L3. Tap 2: A compact confirmation sheet slides up from the bottom (mobile) or appears as a popover (desktop) showing: the guest's pre-filled schedule, the estimated monthly cost, and a single 'Confirm' button. No additional form fields — the platform already knows the schedule from the search filters. After Tap 2, the interaction immediately transitions to an optimistic success state: the listing card's badge changes to 'Interest Expressed,' the matching pipeline (L2-009, L3-003) appears with Stage 1 ('Bid Received') already checked, and a lightweight toast confirms 'Bryant will start matching you within 48 hours.' The pipeline dashboard becomes the guest's new home screen. If the server confirmation fails (rare), the UI gracefully rolls back with: 'Could not record your interest — try again?' No data is lost.",
+      "evidence": [
+        {
+          "source": "Steven Mariscal call, 06:15-06:23",
+          "type": "guest_call",
+          "quote": "Again, I repeat, it is not no obligation. So if you place a bead for a property, it doesn't mean that to you.",
+          "insight": "The verbal promise is zero-obligation. The interaction must deliver on this: two taps maximum, no form filling beyond what the platform already knows, and immediate reversibility. If the bid flow has more steps than the promise suggests, the guest's trust in the platform breaks."
+        },
+        {
+          "source": "Zero to One, Ch 5 (Network Effects)",
+          "type": "book",
+          "quote": "Network effects can be powerful, but you'll never reap them unless your product is valuable to its very first users when the network is necessarily small.",
+          "insight": "The bid is the guest's first contribution to the network. The interaction must make this contribution feel valuable immediately — not through a 'thank you' message, but through visible platform activity (pipeline dashboard, agent notification). The guest should see the system come alive in response to their action."
+        },
+        {
+          "source": "Steven Mariscal call, 06:44-06:56",
+          "type": "guest_call",
+          "quote": "This is not two-way matchmaking, but three-way matchmaking — two guests and the landlord. So it's a little bit more complicated. That's why we encourage our guests to do more bids.",
+          "insight": "Multiple bids are encouraged. The interaction for the second and third bids should be even easier than the first (one-tap 'Express Interest Again' with the same schedule) to reduce friction for multi-bid behavior that improves matching odds."
+        },
+        {
+          "source": "Steven Mariscal call, 14:06-14:24",
+          "type": "guest_call",
+          "quote": "Hopefully tomorrow, mid week... I mean, next week. So next week I'll send you something to consider.",
+          "insight": "The post-bid state must immediately give the guest a timeline and a progress structure. The pipeline dashboard appearing right after bid placement replaces the vague 'next week' with a named 5-stage process. The interaction transforms a moment of uncertainty into a moment of orientation."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The 'Express Interest' button is visible on every listing card that matches the guest's schedule. Button uses primary-purple background, white text, full-width within the card. An icon hint (arrow or calendar) reinforces that this is a lightweight action, not a contract.",
+        "loading": "After Tap 2 (Confirm), the button transitions to a purple spinner within the same button footprint — no modal, no page transition. The confirmation sheet remains visible with a subtle shimmer on the 'Confirm' button text ('Confirming...'). Duration: typically under 1 second. If the server takes longer than 2 seconds, the interaction switches to optimistic: show success state and reconcile in the background.",
+        "empty": "If the guest has no bids placed, the 'My Matches' section shows a warm empty state: 'No bids yet. Browse listings that match your Mon-Fri schedule and express interest to start the matching process. It is completely free and non-binding.' This mirrors the agent's verbal reassurance.",
+        "error": "If the bid fails server-side, the optimistic success state gracefully rolls back. The pipeline dashboard fades out (200ms, ease-out) and is replaced by an inline error within the listing card: 'We could not record your interest right now. Your details are saved — tap to try again.' The guest's schedule and listing context are preserved. No data entry is lost. A retry button appears in the same position as the original 'Express Interest' button.",
+        "success": "The confirmation sheet morphs into a compact success card: 'Interest expressed. Bryant will start matching you within 48 hours.' Below: a mini version of the pipeline dashboard showing Stage 1 checked. A CTA: 'View your matching progress' navigates to the full pipeline dashboard. For subsequent bids: a more compact success toast: 'Added to your matches. You now have N active bids.' The pipeline dashboard updates to show multiple tracked bids."
+      },
+      "transition_principle": "The bid flow should feel like a conversation, not a form submission. The confirmation sheet slides up with spring easing (like a response to a question), the success state transforms in-place (the sheet morphs into the success card), and the pipeline dashboard appears as a natural next step (not a page redirect). Every transition maintains spatial continuity — the guest always knows where they are.",
+      "timing": {
+        "response_target": "Under 200ms from Tap 2 to optimistic success state. Under 1000ms for server confirmation. Rollback (on error): 300ms fade transition.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) for confirmation sheet slide-up (spring — inviting, physical). cubic-bezier(0.16, 1, 0.3, 1) for success state morph (out — smooth completion). cubic-bezier(0.16, 1, 0.3, 1) for error rollback (out — gentle retreat).",
+        "rationale": "200ms optimistic response ensures the bid feels instant — matching the zero-obligation promise with zero-wait interaction. Spring easing on the confirmation sheet makes it feel like a friendly question ('just confirming'), not a legal gate."
+      },
+      "journey_state_awareness": "First-time bidders see the full confirmation sheet with schedule recap and cost summary. Returning bidders (second or third bid) see a streamlined single-tap confirmation: 'Same schedule, different listing. Confirm?' Active-lease guests exploring re-lease see: 'Express interest for your next lease term' with their current schedule pre-loaded and end-date pre-set to the day after their current lease expires.",
+      "edge_cases": [
+        "Guest tries to bid on a listing with no schedule compatibility — show inline warning: 'This listing has no available nights matching your Mon-Fri schedule. Would you like to adjust your schedule for this listing?'",
+        "Guest places more than 5 simultaneous bids — show encouragement, not limitation: 'Great — 6 active bids. More bids increase your matching speed.'",
+        "Guest bids, then immediately tries to withdraw — allow instant one-tap withdrawal from the pipeline dashboard: 'Withdraw interest? No obligation — you can re-bid anytime.'",
+        "Network failure during bid — queue the bid locally and show: 'Your interest is saved. We will submit it when your connection returns.'"
+      ]
+    },
+    {
+      "id": "ds-behaves-0903-003",
+      "type": "interaction_pattern",
+      "title": "Pipeline Stage Progression with Live Agent Activity Signals",
+      "journey_phases": ["negotiation", "acceptance"],
+      "problem": "After bid placement, the guest enters a 5-7 day matching period. L2 (ds-ui-0903-009) defines the pipeline stages; L3 (ds-ui-0903-L3-003) provides the visual stepper. But the interaction challenge is: how does the pipeline dashboard behave over time? Static pipelines that show the same state for days feel abandoned. The agent said 'hopefully tomorrow, mid week... next week' (14:06-14:24) — the guest expects updates within days, not weeks. The pipeline must behave as a living system that signals activity even when no stage transition has occurred. Thiel (Ch 4): 'If you can recognize competition as a destructive force... you're already more sane than most.' During the matching wait, the guest's attention is unoccupied and available for competitive alternatives. The pipeline's interactive behavior must occupy that attention with progressive signals of effort.",
+      "solution": "Design the pipeline dashboard as a living document with three interactive behaviors that signal ongoing activity: (1) The 'last checked' timestamp updates every time the system or agent reviews the bid — not just when a stage advances. This means the guest sees '2 hours ago' become '30 minutes ago,' even if the stage hasn't changed. The timestamp update triggers a subtle pulse on the agent avatar (L3-006) to signal that a human reviewed and the system is active. (2) The live-update badge within the active stage shows a count of matches reviewed: '3 potential matches reviewed so far' increments to '5 potential matches reviewed.' Each increment triggers a brief badge animation (slide-in from right, 300ms, ease-out). This micro-interaction communicates effort without requiring a stage transition. (3) When the pipeline advances to a new stage, the transition is a deliberate, celebratory moment: the completed stage's marker fills with purple (300ms, ease-out), the connector line segment fills (200ms delay, then 400ms fill animation), and the new active stage's marker pulses once (L3-003's signature animation). The guest receives a push notification: 'Your match is progressing — Stage 3: Co-Tenant Identified.' Each stage transition is the platform's strongest retention signal during the most vulnerable dropout window.",
+      "evidence": [
+        {
+          "source": "Steven Mariscal call, 14:06-14:24",
+          "type": "guest_call",
+          "quote": "But if you start this today, hopefully tomorrow, mid week tomorrow... I mean, next week.",
+          "insight": "The agent promises updates within days. The pipeline must deliver visible activity signals at least every 48 hours. The 'last checked' timestamp and match-reviewed counter ensure the guest sees evidence of work even before a stage transition occurs."
+        },
+        {
+          "source": "Zero to One, Ch 4 (The Ideology of Competition)",
+          "type": "book",
+          "quote": "If you can recognize competition as a destructive force instead of a sign of value, you're already more sane than most.",
+          "insight": "During the matching wait, competitive alternatives are the destructive force. The pipeline's live signals occupy the guest's attention with matching progress, reducing the cognitive space available for evaluating competitors. Activity signals are an anti-competition mechanism."
+        },
+        {
+          "source": "Zero to One, Ch 2 (inverted lesson 2)",
+          "type": "book",
+          "quote": "A bad plan is better than no plan.",
+          "insight": "The pipeline's interactive behavior transforms 'waiting' into 'progressing through a plan.' Each timestamp update, each match-reviewed increment, and each stage transition is a micro-signal that the guest is inside a plan, not abandoned in silence."
+        },
+        {
+          "source": "Steven Mariscal call, 13:12-13:35",
+          "type": "guest_call",
+          "quote": "I will be your concierge service. You can contact me at any time... the best is texting me.",
+          "insight": "The agent avatar pulse on the pipeline dashboard transfers the concierge's liveness to the platform. The guest sees 'Bryant reviewed your matches 30 minutes ago' — this is the digital equivalent of the text-me-anytime promise, without requiring the guest to actually text."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Pipeline dashboard shows the current stage highlighted (L3-003 active state), completed stages with purple checkmarks, future stages at reduced opacity. The 'last checked' timestamp and match-reviewed counter reflect the latest data. The agent avatar and name are visible at the top.",
+        "loading": "When the guest manually refreshes the pipeline (pull-to-refresh on mobile, refresh button on desktop), the 'last checked' timestamp briefly shows a spinner icon, then updates. Individual stage data loads progressively — the structure appears immediately, and the live-update badge fills in within 200ms. No full-page skeleton screen; the pipeline structure is the skeleton.",
+        "empty": "If the guest has withdrawn all bids, the pipeline dashboard shows: 'No active matches. You can express interest in new listings anytime — it is free and non-binding.' Below: a shortcut to the search page with their saved schedule. The empty state preserves the schedule context — the platform remembers who the guest is even when they have no active bids.",
+        "error": "If the pipeline data fails to load, show the last known state with a banner: 'Showing your last known progress. Reconnecting...' Auto-retry every 30 seconds. The guest should never see a blank pipeline — the last cached state is always available. If the stage transition notification fails to deliver, show it as a banner on next app open: 'While you were away: your match progressed to Stage 3.'",
+        "success": "Stage transitions are the primary success moments. When a stage completes: (1) completed marker fills purple with checkmark, (2) connector segment fills purple with 200ms delay, (3) new active stage marker pulses once, (4) push notification delivered, (5) the match-reviewed counter resets for the new stage. The Zoom Introduction stage (Stage 4) has an additional success behavior: a scheduling widget appears inline, allowing the guest to pick a Zoom time without leaving the pipeline dashboard."
+      },
+      "transition_principle": "Stage transitions should feel like forward momentum — the purple line growing down the stepper is a visual metaphor for progress that the guest can track over days. Between transitions, the micro-signals (timestamp updates, match count increments) create a sense of steady, background activity. The pipeline should never feel static for more than 48 hours. If no real update exists, the system should still show 'reviewed, no update yet' to prevent the appearance of abandonment.",
+      "timing": {
+        "response_target": "Under 500ms for pipeline data refresh. Stage transition animation: 900ms total (300ms marker fill + 200ms delay + 400ms connector fill). Match-reviewed badge increment: 300ms slide-in. Timestamp update pulse: 200ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for all stage transition animations (out — smooth, deliberate progression). cubic-bezier(0.34, 1.56, 0.64, 1) for active stage marker pulse (spring — attention-drawing). cubic-bezier(0.16, 1, 0.3, 1) for badge slide-in (out — entering from right).",
+        "rationale": "900ms for the full stage transition creates a moment of celebration — slow enough to be noticed and appreciated, fast enough to not feel sluggish. The deliberate pacing communicates that progress is meaningful, not trivial."
+      },
+      "journey_state_awareness": "During the first bid's matching process, the pipeline is the guest's primary dashboard — prominently positioned. For guests with multiple active bids, each bid has its own pipeline tracker, accessible via tabs. During the Zoom Introduction stage, the pipeline integrates scheduling tools. After the lease is signed, the pipeline transitions to a 'completed' commemorative state: 'Your matching journey — from bid to lease in N days' with all stages shown as completed.",
+      "edge_cases": [
+        "Match fails at Stage 3 (no compatible co-tenant found) — do not show a generic failure. Show: 'We reviewed N potential co-tenants but none were a strong schedule match. We are continuing to search. Estimated new matches: 3-5 business days.'",
+        "Guest's bid is outcompeted by another filler — show: 'Another guest was a closer schedule match for this listing. Your other bids are still active. We recommend adding interest in similar listings.' Provide direct links.",
+        "Agent goes offline for 48+ hours — the system should auto-generate a 'system check' timestamp to prevent stale timestamps. Show: 'Automated check: your bid is active and in the matching queue.'",
+        "Guest reaches Stage 4 (Zoom) but the co-tenant is unresponsive — show: 'Your co-tenant hasn't confirmed the Zoom yet. Bryant is following up. You will hear back within 24 hours.'"
+      ]
+    },
+    {
+      "id": "ds-behaves-0903-004",
+      "type": "interaction_pattern",
+      "title": "First-Night Verification as Guided Onboarding Walkthrough",
+      "journey_phases": ["move_in", "active_lease"],
+      "problem": "L1 (ds-ui-0903-005) establishes move-in as active product delivery; L2 (ds-ui-0903-010) provides the verification checklist IA; L3 (ds-ui-0903-L3-004) defines the warm visual language. The interaction challenge is: how does the checklist behave as the guest works through it? A static checklist (all items visible, check them in any order) misses the opportunity to guide the guest's first-night experience. The agent explained cleaning obligations (10:00-10:43), deposit protection (16:17-16:48), and the 24-hour window (15:32-16:06) during a call that happened weeks ago. The checklist must re-introduce these concepts through interaction — revealing information at the moment it becomes relevant, not dumping it all at once. The verification flow is the guest's first interaction with the Stays Manager; it sets the behavioral pattern for every subsequent weekly stay.",
+      "solution": "Design the verification as a stepped, progressive walkthrough rather than a flat checklist. The guest moves through four sections sequentially, with each section expanding as the previous one completes: (1) Space Verification: Opens first. Guest sees the listing photos alongside a camera button. When they tap 'Space matches listing photos' or take an arrival photo, the section collapses with a green checkmark and the next section expands. (2) Essentials: Checkboxes for key, Wi-Fi, bathroom, kitchen. Each tap provides a micro-haptic feedback (on supported devices) and a brief purple fill animation on the checkbox. When all essentials are checked, this section collapses and the next expands. (3) Co-Tenant Information: Not a checkbox — it is a read-and-confirm section. The co-tenant's name, schedule, and cleaning protocol are displayed. A single 'Got it' button confirms. This section exists because the guest may have forgotten these details since the call. (4) 24-Hour Window: The warm amber alert (L3-004) appears last — after the guest has already confirmed that things look good. This sequencing is intentional: showing the cancellation window first would create anxiety; showing it after positive confirmations frames it as a safety net, not a warning. After all four sections: the CTA button ('Everything looks good — activate my lease') transitions from disabled (greyed) to active (deep purple). Tapping it triggers a brief celebration: the button morphs into a checkmark with a success message, and the Stays Manager homepage loads behind a 500ms fade transition.",
+      "evidence": [
+        {
+          "source": "Steven Mariscal call, 15:32-16:06",
+          "type": "guest_call",
+          "quote": "You would have 24 hours to give the apartment and say, oh yeah, everything is as it was advertised.",
+          "insight": "The 24-hour window is positioned as a safety net, not a threat. The interaction must mirror this: the window information appears last, after the guest has already confirmed positive items. This sequencing transforms 'you have 24 hours to complain' into 'you confirmed everything is great, and here is your safety net just in case.'"
+        },
+        {
+          "source": "Zero to One, Ch 2 (inverted lesson 4)",
+          "type": "book",
+          "quote": "Sales matters just as much as product.",
+          "insight": "The verification walkthrough IS the sales moment for the physical product. Each section is a 'sale' of a different aspect: the space (photos match), the basics (everything works), the co-tenant (you know who shares the space), the safety (you are protected). The progressive reveal makes each sale manageable."
+        },
+        {
+          "source": "Steven Mariscal call, 10:00-10:43",
+          "type": "guest_call",
+          "quote": "That person must tidy up, use it and then do it again. So by the time you're alive ever so nice and clean.",
+          "insight": "Cleaning expectations were explained verbally weeks ago. The co-tenant section of the walkthrough re-surfaces this: 'At each departure, take cleaning photos showing the space is tidy.' The interaction introduces the cleaning-photo ritual during the first night, before the guest's first departure creates the obligation."
+        },
+        {
+          "source": "tokens.json — easing",
+          "type": "data",
+          "quote": "spring: cubic-bezier(0.34, 1.56, 0.64, 1)",
+          "insight": "The section expand/collapse transitions use the spring easing to feel welcoming and physical — like opening a card, not loading a page. The final CTA button activation uses this same spring to create a micro-celebration when the guest is ready to confirm."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The walkthrough appears in the Stays Manager on the guest's first check-in day. Section 1 (Space Verification) is expanded; sections 2-4 are collapsed and visually muted. The CTA button at the bottom is visible but disabled (grey). The overall framing is warm: 'Welcome to Your First Stay' heading with the soft subtitle.",
+        "loading": "When the guest takes an arrival photo, a brief upload spinner appears within the photo button (not a modal or overlay). The spinner is within the button's footprint. Once uploaded, a small thumbnail replaces the button. Upload time target: under 3 seconds for a compressed mobile photo. If upload fails, show: 'Photo saved locally — we will upload when your connection is better.'",
+        "empty": "If the guest skips the walkthrough entirely (doesn't complete it within 24 hours), the Stays Manager shows a persistent but non-intrusive banner: 'You haven't completed your first-stay verification. Tap to finish.' The banner uses the warm amber treatment (not red). After 48 hours, the verification is marked as 'accepted by default' but the guest's completion rate is noted internally.",
+        "error": "If any verification item reveals a problem (guest unchecks 'Space matches listing photos' or reports an issue), the flow branches to an issue-reporting mode: a text input appears below the item with a camera button for evidence photos. The CTA changes from 'Everything looks good' to 'Report an issue to Bryant.' The issue is routed immediately to both the agent and a resolution protocol. The 24-hour window timer is shown prominently: 'You have N hours remaining to resolve this.'",
+        "success": "After the CTA tap, the button morphs into a purple circle with a white checkmark (300ms, spring easing), then the message: 'Your lease is fully active. Welcome home.' After 1 second, the Stays Manager homepage fades in behind, showing the guest's first-week schedule and the cumulative value dashboard (L3-005) at zero ('0 stays completed, $0 saved'). This zero-state is intentional — it establishes the baseline that will grow with every subsequent stay."
+      },
+      "transition_principle": "Section transitions use an accordion pattern: the completing section collapses upward (200ms, ease-out) while the next section expands downward (300ms, spring). Only one section is expanded at a time. This creates a focused, step-by-step feel that prevents information overload. The guest always knows exactly what to do next because only one section demands their attention.",
+      "timing": {
+        "response_target": "Checkbox tap to visual confirmation: under 50ms. Section collapse/expand: 500ms total (200ms collapse + 300ms expand). Photo upload: under 3 seconds. CTA success animation: 300ms morph + 1000ms display before homepage transition.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) for section expansion and CTA morph (spring — welcoming). cubic-bezier(0.16, 1, 0.3, 1) for section collapse and homepage fade (out — smooth completion).",
+        "rationale": "The spring expansion makes each new section feel like an invitation, not a demand. The 1-second pause on the success state gives the guest a moment to absorb 'Your lease is fully active' before the dashboard appears. This pause is the emotional bridge between the provisional state (verification) and the committed state (active lease)."
+      },
+      "journey_state_awareness": "This walkthrough appears only on the first check-in. Subsequent check-ins show the standard Stays Manager with the arrival notification flow. If the guest's lease includes a room change (rare), a modified verification flow appears for the new room. The cleaning-photo protocol introduced in this walkthrough becomes a recurring interaction on every departure — the walkthrough teaches the pattern that the Stays Manager then repeats weekly.",
+      "edge_cases": [
+        "Guest arrives late at night and wants to skip the walkthrough — allow deferral: 'Complete this tomorrow morning? You have 24 hours.' The walkthrough reappears at next app open.",
+        "Guest completes the walkthrough but flags an issue — the 24-hour timer becomes prominently visible and the pipeline dashboard shows a new 'Resolution' stage with the agent's name and expected response time.",
+        "Guest's phone has no camera access — the photo step shows: 'Camera not available. You can still verify by checking the box. We recommend taking photos with your regular camera app and keeping them for your records.'",
+        "Co-tenant section shows a co-tenant the guest didn't meet via Zoom (edge case where Zoom was skipped) — add a note: 'You haven't met your co-tenant yet. Here is their profile. Would you like Bryant to arrange an introduction?'"
+      ]
+    },
+    {
+      "id": "ds-behaves-0903-005",
+      "type": "interaction_pattern",
+      "title": "Weekly Stay Cycle Micro-Review with One-Tap Accumulation",
+      "journey_phases": ["active_lease"],
+      "problem": "Steven's 5-6 month lease creates 20-24 weekly stay cycles, each ending with departure cleaning photos and potentially a review. L1 (ds-ui-0903-006) establishes the compounding retention engine; L2 (ds-ui-0903-011) provides the cumulative value dashboard; L3 (ds-ui-0903-L3-005) defines the visual treatment. The interaction challenge is: how should the weekly stay-end ritual behave? Traditional post-checkout reviews (multi-paragraph text boxes) fail for recurring stays because (a) they are too heavy for a weekly ritual, (b) by stay 10, the guest has nothing new to say, and (c) mandatory reviews feel like chores. Thiel (Ch 5): 'Most of a tech company's value will come at least 10 to 15 years in the future.' For a lease, most retention value comes in the second half — the weekly interaction must get easier and more rewarding over time, not harder.",
+      "solution": "Design the stay-end interaction as a three-part ritual that takes under 30 seconds total: (1) Cleaning photo: A single camera button with a ghost overlay showing what a clean state looks like (based on the listing photos). One tap captures, one tap confirms. (2) One-tap micro-review: Five emoji-style icons (five stars, or five mood states) that the guest taps once. No text required. Optional: a 10-word text field appears only if the guest taps 3 stars or below ('What could be better?'). This 3-star trigger surfaces issues early without burdening happy guests. (3) Cumulative value update: After the micro-review, the value dashboard (L3-005) briefly animates its updates: the stays-completed counter increments (spring easing), the savings amount ticks up by the weekly increment (e.g., '$4,800' becomes '$5,200'), the progress bar fills slightly, and the reliability score recalculates. The animation sequence takes 2 seconds and is the weekly reward — the guest sees their investment in the arrangement growing. By stay 15, this ritual is muscle memory: photo, tap, watch the numbers grow. The interaction compounds the guest's psychological investment with each cycle, making departure increasingly costly.",
+      "evidence": [
+        {
+          "source": "Steven Mariscal call, 02:57 and 03:48",
+          "type": "guest_call",
+          "quote": "Four nights... five to six months.",
+          "insight": "24 weekly cycles means 24 repetitions of this ritual. The interaction must be optimized for repetition: fast enough to not feel burdensome on stay 24, but rewarding enough to not feel ignored on stay 1. The under-30-second total respects the guest's time while maintaining engagement."
+        },
+        {
+          "source": "Zero to One, Ch 5 (Last Mover Advantage — Durability)",
+          "type": "book",
+          "quote": "If you focus on near-term growth above all else, you miss the most important question: will this business still be around a decade from now?",
+          "insight": "The weekly micro-review builds durability data that no single post-checkout review could provide. Over 24 stays, the temporal review narrative shows: whether the co-tenant relationship improved or deteriorated, which weeks had issues, and how satisfaction evolved. This is proprietary data that makes the platform's matching algorithm smarter — Thiel's network effects applied to individual lease intelligence."
+        },
+        {
+          "source": "Zero to One, Ch 5 (Network Effects)",
+          "type": "book",
+          "quote": "Network effects make a product more useful as more people use it.",
+          "insight": "Each micro-review is a data point in the internal network. Over 24 stays, the guest has contributed 24 signals about the co-tenant, the space, and the arrangement. This data makes the platform smarter for the next match. The cumulative value dashboard makes this contribution visible: 'Your reliability score: 98%' is built from 24 weeks of consistent behavior."
+        },
+        {
+          "source": "Steven Mariscal call, 10:28-10:43",
+          "type": "guest_call",
+          "quote": "In exchange for this less flexibility and doing those chores, that person pays discounted rate 40% less.",
+          "insight": "The cumulative savings tick-up after each stay reinforces the economic rationale for the arrangement. '$5,200 saved' after 13 stays is more compelling than '$400/month saved' stated once. The interaction makes the abstract savings concrete and growing."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "On departure day (e.g., Friday morning for Steven's Mon-Fri schedule), the Stays Manager shows the departure flow prominently: 'Heading out? Complete your stay in 30 seconds.' The three-part ritual is visible as a compact card with the photo area, the star rating, and a preview of the value dashboard updates.",
+        "loading": "Cleaning photo upload: inline spinner within the photo capture area. The micro-review and dashboard update proceed independently — the guest can rate while the photo uploads. If upload takes more than 5 seconds, show: 'Photo uploading in the background — you are all set to go.' The guest is never blocked from leaving because of a slow upload.",
+        "empty": "If the guest skips the departure ritual entirely, the Stays Manager shows a gentle reminder on their next arrival: 'You missed last stay's checkout. Want to do a quick review now? It helps your reliability score.' No penalty for skipping, but the reliability score shows '23 of 24 stays reviewed' to create a gentle completionism incentive.",
+        "error": "Photo upload failure: 'Photo saved locally — we will upload when your connection is better. Your checkout is complete.' Review submission failure: the one-tap rating is cached locally and submitted on next connection. The guest is never told 'your review failed' — the system handles retries silently.",
+        "success": "After the micro-review tap, the cumulative value dashboard animates: (1) stays counter increments with a spring bounce, (2) savings number ticks up over 800ms like a counter, (3) progress bar fills with a smooth ease-out, (4) reliability score recalculates (if unchanged, a subtle green pulse; if improved, a brief +1% badge). At milestone stays (5, 10, 15, 20), an additional celebration appears: 'Stay #10! You and your co-tenant have shared 40 nights smoothly.' Milestone celebrations use a brief confetti-style particle animation (under 1.5 seconds, subtle, using purple particles matching the brand palette)."
+      },
+      "transition_principle": "The departure ritual should feel like a natural end-of-stay bookmark, not a chore. The three parts flow in sequence: photo (physical evidence) then rating (emotional summary) then dashboard update (reward). Each part transitions into the next with a 200ms delay and a subtle slide-up, creating a rhythmic flow that becomes faster with familiarity. By stay 10, the guest's muscle memory completes the ritual in under 15 seconds.",
+      "timing": {
+        "response_target": "Photo capture to confirmation: under 2 seconds. Rating tap to dashboard animation start: under 100ms. Full dashboard animation sequence: 2 seconds. Milestone celebration: under 1.5 seconds. Total ritual: under 30 seconds on first use, under 15 seconds by stay 10.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1) for counter increments and milestone celebrations (spring — rewarding). cubic-bezier(0.16, 1, 0.3, 1) for progress bar fill and dashboard fade-in (out — smooth accumulation). Counter tick-up: linear for the number increment itself (creates a counting feel).",
+        "rationale": "The 2-second dashboard animation is calibrated to be long enough to notice and appreciate (the guest sees their savings grow) but short enough to not delay departure. The spring easing on counter increments creates a satisfying 'pop' that makes the number feel earned, not static."
+      },
+      "journey_state_awareness": "Early stays (1-4): the departure flow includes brief hints: 'Your cleaning photos help build your reliability score.' Mid-lease (5-15): hints are removed; the ritual is bare and fast. Late lease (16+): the departure flow adds a re-lease nudge: 'Stay #20 of 24. Would you like to extend your lease? Same schedule, same space.' Final stay: a special completion flow: 'Your last stay. 24 weeks, $9,600 saved. Thank you for being a Split Lease resident. Re-lease for your next term?'",
+      "edge_cases": [
+        "Guest departs early (e.g., Thursday instead of Friday) — trigger the departure flow when the guest manually indicates early departure, not on a fixed schedule",
+        "Guest forgets cleaning photos — send a reminder 2 hours before scheduled departure: 'Don't forget your departure photos. Quick tap to capture.'",
+        "Co-tenant reports a cleaning issue — the next arrival shows: 'Your co-tenant noted the kitchen needed attention last week. Here is what they saw: [photo]. Any thoughts?' This surfaces issues gently rather than accumulating invisible grievances",
+        "Guest rates 1 or 2 stars — immediately show an issue-reporting flow: 'We're sorry this stay was difficult. What happened?' with category buttons (space issue, co-tenant issue, scheduling issue, other). Route to agent within 1 hour."
+      ]
+    },
+    {
+      "id": "ds-behaves-0903-006",
+      "type": "interaction_pattern",
+      "title": "Agent Trust Bridge Fade-to-Platform Interaction Gradient",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "active_lease"],
+      "problem": "L1 (ds-ui-0903-002) identifies the concierge-to-platform trust transfer as a critical process gap; L3 (ds-ui-0903-L3-006) provides the visual components (welcome card, persistent badge, FAB). The interaction challenge is: how should the agent's digital presence behave over the course of the guest's journey? If the agent presence is always maximum (full welcome card on every visit), the platform never establishes its own authority. If it disappears too quickly (welcome card dismissed, badge removed), the guest feels abandoned. Thiel (Ch 5): 'A monopoly business gets stronger as it gets bigger: the fixed costs of creating a product can be spread out over ever greater quantities of sales.' The agent-to-platform interaction gradient is the mechanism by which the fixed cost of human concierge is gradually spread across the platform's scalable capabilities.",
+      "solution": "Design a four-phase interaction gradient where the agent's digital presence evolves based on the guest's demonstrated platform fluency: Phase 1 (First 2 visits): Full welcome card at the top of every page. Agent FAB in bottom-right, pulsing gently once on load. Every system message is attributed: 'Bryant: Your search is set up for Mon-Fri.' The guest feels Bryant is present on the platform. Phase 2 (Visits 3-5): Welcome card auto-dismisses after 3 seconds with a slide-up. Agent badge persists in the header. FAB is present but not pulsing. System messages still attributed to agent but with platform co-branding: 'Bryant via Split Lease: Your match progressed to Stage 3.' Phase 3 (Visits 6-10): No welcome card. Agent badge in header persists but is smaller (24px avatar instead of 28px). FAB minimizes to a smaller dot (32px instead of 48px) positioned less prominently. System messages are platform-branded with agent available: 'Split Lease: Your match progressed. Bryant is available if you have questions.' Phase 4 (Visit 11+, active lease): Agent badge is hidden by default but accessible through a 'Contact' menu item. FAB is removed. System messages are fully platform-attributed. The agent is available through a dedicated messaging interface, not an ambient presence. The platform has earned the guest's trust through consistent, reliable behavior across 10+ interactions.",
+      "evidence": [
+        {
+          "source": "Steven Mariscal call, 13:12-13:35",
+          "type": "guest_call",
+          "quote": "I will be your concierge service. You can contact me at any time... the best is texting me.",
+          "insight": "Phase 1 delivers on this promise digitally: the agent is always present, always attributed. Phase 4 evolves past it: the platform has proven reliable enough that the guest trusts it independently. The interaction gradient is the mechanism for this evolution."
+        },
+        {
+          "source": "Zero to One, Ch 5 (Economies of Scale)",
+          "type": "book",
+          "quote": "A monopoly business gets stronger as it gets bigger: the fixed costs of creating a product can be spread out over ever greater quantities of sales. Software startups can enjoy especially dramatic economies of scale.",
+          "insight": "The human concierge has zero economies of scale. Each phase of the gradient shifts more trust to the platform (which has near-infinite scale) and less to the human (who serves one guest at a time). The gradient is the scaling mechanism."
+        },
+        {
+          "source": "Steven Mariscal call, 11:28-11:47",
+          "type": "guest_call",
+          "quote": "I'll preset you on our website and you will receive a link to your account. It will give you the ability to start searching.",
+          "insight": "The first platform touchpoint is introduced as a utility ('start searching'). Phase 1 of the gradient transforms this from a utility handoff into a relational continuation: 'Bryant set up your search' makes the platform feel like an extension of the conversation, not a different system."
+        },
+        {
+          "source": "tokens.json — easing",
+          "type": "data",
+          "quote": "out: cubic-bezier(0.16, 1, 0.3, 1)",
+          "insight": "The welcome card auto-dismiss uses the out easing — the agent presence gently recedes rather than abruptly disappearing. The FAB minimization also uses out easing. Every gradient transition should feel like a natural evolution, not a removal."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The agent presence level is determined by the guest's visit count (tracked via local storage or backend). On each page load, the appropriate phase's components render: Phase 1 shows full welcome card + FAB. Phase 4 shows no ambient agent presence but maintains the Contact menu item.",
+        "loading": "Agent presence components load with the page — they are part of the shell, not lazy-loaded content. This ensures the welcome card appears immediately on page load, not after a content flash. The agent avatar can use a placeholder (light grey circle) until the actual image loads.",
+        "empty": "If the agent is reassigned (rare — e.g., Bryant leaves the company), the system handles this transparently: 'Your new concierge is [Name]. They have your full history.' The welcome card reappears once (Phase 1 behavior) to introduce the new agent, then resumes the gradient from the guest's current phase.",
+        "error": "If the agent attribution data fails to load, show platform-branded messages by default: 'Split Lease: Your match progressed.' Agent-specific features (FAB, badge) degrade gracefully to generic 'Contact Support' links. The guest's experience is never broken by agent data failures.",
+        "success": "The ultimate success state is Phase 4: the guest trusts the platform enough to not need ambient agent presence. This is measured by the guest's behavior — if they stop tapping the FAB, stop looking for the agent badge, and engage with platform features directly, the gradient has succeeded. The agent remains one tap away for exceptional situations."
+      },
+      "transition_principle": "Phase transitions should be invisible to the guest. The welcome card auto-dismiss in Phase 2 is the most noticeable transition — it should feel like the card naturally receding because the guest is already familiar, not like a feature being removed. The FAB minimization between Phase 2 and Phase 3 should happen between sessions (the guest returns and the FAB is simply smaller), not during a session. No phase transition should feel like a loss — each should feel like the platform growing more competent.",
+      "timing": {
+        "response_target": "Welcome card auto-dismiss (Phase 2): 3 seconds after page load, then 500ms slide-up. FAB pulse (Phase 1): single 1.5-second animation on page load. Agent badge render: immediate (part of shell).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for all gradient transitions (out — natural recession). cubic-bezier(0.34, 1.56, 0.64, 1) for Phase 1 FAB pulse (spring — attention-drawing, single iteration).",
+        "rationale": "The 3-second auto-dismiss window in Phase 2 is long enough for the guest to register the agent's presence but short enough to signal 'you don't need to read this anymore.' The smooth out easing makes the dismissal feel like a natural fade rather than a timeout."
+      },
+      "journey_state_awareness": "The gradient resets if the guest enters a high-anxiety journey moment (e.g., approaching the 24-hour move-in window, reporting an issue, or reaching lease renewal). In these moments, the agent presence escalates to Phase 1 regardless of the guest's current phase, ensuring human support is visible when stakes are highest. After the anxiety moment resolves, the gradient resumes from the guest's normal phase.",
+      "edge_cases": [
+        "Guest explicitly requests human contact at Phase 4 — escalate to Phase 2 for the next 3 visits, then resume Phase 4 gradient. The guest's request signals that the platform lost trust temporarily.",
+        "New guest who never had a phone call (signed up directly online) — start at Phase 2 rather than Phase 1, since there is no pre-existing human relationship to bridge. The agent is introduced as a platform feature, not a personal contact.",
+        "Guest contacts the agent outside the platform (text, phone) — the platform should reflect this: 'Bryant spoke with you on [date] about [topic]. Here is the summary.' This brings external conversations into the platform, encouraging the guest to use the platform as the primary channel.",
+        "Phase transitions during an active issue — freeze the gradient at the current or elevated phase until the issue is resolved. Never reduce agent visibility while the guest has an open complaint."
+      ]
+    }
+  ]
+}

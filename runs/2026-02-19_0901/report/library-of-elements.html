@@ -1,0 +1,2983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library of Elements — Design Stack v2 | Run 2026-02-19_0901</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary-purple:#31135D;
+  --secondary-purple:rgb(109,49,194);
+  --accent-purple:rgb(140,104,238);
+  --bg-white:#ffffff;
+  --bg-light:#f9fafb;
+  --bg-light-gray:#f3f4f6;
+  --bg-off-white:rgb(252,250,255);
+  --text-dark:#1a1a1a;
+  --text-gray:#6b7280;
+  --text-light-gray:#9ca3af;
+  --text-description:#374151;
+  --border-color:#e5e7eb;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md:0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg:0 4px 16px rgba(0,0,0,0.1);
+  --shadow-purple-md:0 4px 8px rgba(49,19,93,0.15);
+  --rounded-sm:4px;--rounded-md:6px;--rounded-lg:8px;--rounded-xl:12px;--rounded-2xl:16px;--rounded-pill:20px;
+  --font-inter:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-dm:'DM Sans',sans-serif;
+  --transition-fast:0.15s;--transition-base:0.2s;--transition-slow:0.3s;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-inter);background:var(--bg-light);color:var(--text-dark);line-height:1.5;-webkit-font-smoothing:antialiased}
+.lib-header{background:linear-gradient(135deg,#31135D 0%,#4a1f8a 50%,#5a2d8f 100%);padding:48px 32px 40px;position:relative;overflow:hidden}
+.lib-header::before{content:'';position:absolute;top:-60%;right:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(140,104,238,0.15) 0%,transparent 70%);pointer-events:none}
+.lib-header__inner{max-width:1320px;margin:0 auto;position:relative;z-index:1}
+.lib-header__badge{display:inline-block;background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:11px;font-weight:600;padding:4px 12px;border-radius:var(--rounded-pill);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;backdrop-filter:blur(4px)}
+.lib-header__title{font-size:36px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-0.5px}
+.lib-header__sub{font-family:var(--font-dm);font-size:16px;color:rgba(255,255,255,0.7);max-width:600px;line-height:1.6}
+.lib-header__meta{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.lib-header__meta-item{font-size:12px;color:rgba(255,255,255,0.55);font-family:var(--font-dm)}
+.lib-header__meta-item strong{color:rgba(255,255,255,0.85);font-weight:600}
+.lib-toolbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color);padding:12px 32px;transition:box-shadow var(--transition-base)}
+.lib-toolbar.scrolled{box-shadow:var(--shadow-md)}
+.lib-toolbar__inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lib-search{position:relative;flex:1;min-width:220px;max-width:400px}
+.lib-search__input{width:100%;padding:9px 14px 9px 36px;border:1px solid var(--border-color);border-radius:var(--rounded-lg);font-family:var(--font-inter);font-size:13px;background:var(--bg-white);color:var(--text-dark);transition:border-color var(--transition-fast);outline:none}
+.lib-search__input:focus{border-color:var(--secondary-purple)}
+.lib-search__icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-light-gray);font-size:14px;pointer-events:none}
+.lib-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lib-filter-group{position:relative}
+.lib-filter-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:1px solid var(--border-color);border-radius:var(--rounded-lg);background:var(--bg-white);font-family:var(--font-inter);font-size:12px;font-weight:500;color:var(--text-gray);cursor:pointer;transition:border-color var(--transition-fast),color var(--transition-fast);white-space:nowrap}
+.lib-filter-btn:hover,.lib-filter-btn.active{border-color:var(--secondary-purple);color:var(--secondary-purple)}
+.lib-filter-btn .arrow{font-size:10px;margin-left:2px;transition:transform var(--transition-fast)}
+.lib-filter-btn.active .arrow{transform:rotate(180deg)}
+.lib-filter-dropdown{position:absolute;top:calc(100% + 4px);left:0;min-width:200px;background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-lg);box-shadow:var(--shadow-lg);padding:6px 0;display:none;z-index:200}
+.lib-filter-dropdown.open{display:block}
+.lib-filter-option{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:12px;color:var(--text-dark);cursor:pointer;transition:background var(--transition-fast)}
+.lib-filter-option:hover{background:var(--bg-light)}
+.lib-filter-option input[type=checkbox]{accent-color:var(--secondary-purple)}
+.lib-count{font-size:12px;color:var(--text-light-gray);font-family:var(--font-dm);margin-left:auto;white-space:nowrap}
+.lib-grid-wrap{max-width:1320px;margin:0 auto;padding:24px 32px 64px}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+.lib-empty{grid-column:1/-1;text-align:center;padding:80px 24px;color:var(--text-light-gray);font-size:15px}
+.lib-card{background:var(--bg-white);border:1px solid var(--border-color);border-radius:var(--rounded-xl);overflow:hidden;transition:box-shadow var(--transition-base),border-color var(--transition-base),transform var(--transition-base);cursor:pointer;display:flex;flex-direction:column}
+.lib-card:hover{box-shadow:var(--shadow-purple-md);border-color:rgba(109,49,194,0.25);transform:translateY(-2px)}
+.lib-card__preview{width:100%;height:220px;border-bottom:1px solid var(--border-color);background:var(--bg-light);position:relative;overflow:hidden}
+.lib-card__preview iframe{width:100%;height:100%;border:none;pointer-events:none;transform-origin:top left}
+.lib-card__body{padding:16px 18px;flex:1;display:flex;flex-direction:column}
+.lib-card__top-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.lib-card__cat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:3px 9px;border-radius:var(--rounded-pill);background:rgba(109,49,194,0.08);color:var(--secondary-purple)}
+.lib-card__id{font-size:10px;color:var(--text-light-gray);margin-left:auto;font-family:var(--font-dm)}
+.lib-card__name{font-size:16px;font-weight:700;color:var(--text-dark);margin-bottom:6px;line-height:1.3}
+.lib-card__desc{font-family:var(--font-dm);font-size:13px;color:var(--text-gray);line-height:1.5;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+.lib-card__phases{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.lib-card__phase{font-size:10px;padding:2px 8px;border-radius:var(--rounded-sm);background:var(--bg-light-gray);color:var(--text-gray);font-weight:500}
+.lib-card__sources{font-size:10px;color:var(--text-light-gray);font-family:var(--font-dm);border-top:1px solid var(--border-color);padding-top:10px;margin-top:auto}
+.lib-card__sources strong{color:var(--text-gray);font-weight:600}
+.lib-overlay{position:fixed;inset:0;background:rgba(49,19,93,0.5);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:40px 24px;overflow-y:auto;backdrop-filter:blur(4px);animation:fadeIn var(--transition-base) ease}
+.lib-overlay.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.lib-modal{background:var(--bg-white);border-radius:var(--rounded-2xl);width:100%;max-width:900px;box-shadow:0 24px 64px rgba(49,19,93,0.3);animation:slideUp var(--transition-slow) ease;margin-bottom:40px}
+.lib-modal__preview{width:100%;min-height:300px;max-height:450px;border-radius:var(--rounded-2xl) var(--rounded-2xl) 0 0;overflow:hidden;background:var(--bg-light);border-bottom:1px solid var(--border-color);position:relative}
+.lib-modal__preview iframe{width:100%;height:400px;border:none}
+.lib-modal__close{position:absolute;top:14px;right:14px;z-index:10;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.9);border:1px solid var(--border-color);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:var(--text-dark);transition:background var(--transition-fast)}
+.lib-modal__close:hover{background:var(--bg-white)}
+.lib-modal__content{padding:28px 32px 32px}
+.lib-modal__header{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.lib-modal__title{font-size:24px;font-weight:800;color:var(--text-dark);flex:1;min-width:200px}
+.lib-modal__desc{font-family:var(--font-dm);font-size:14px;color:var(--text-description);line-height:1.7;margin-bottom:24px}
+.lib-modal__section{margin-bottom:24px}
+.lib-modal__section-title{font-size:13px;font-weight:700;color:var(--primary-purple);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid rgba(109,49,194,0.1)}
+.lib-modal__phases-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.lib-modal__sources-row{font-size:12px;color:var(--text-gray);font-family:var(--font-dm)}
+.lib-modal__sources-row code{background:var(--bg-light-gray);padding:2px 6px;border-radius:var(--rounded-sm);font-size:11px;color:var(--secondary-purple);margin:0 2px}
+@media(max-width:768px){
+  .lib-header{padding:32px 20px}.lib-header__title{font-size:26px}
+  .lib-toolbar{padding:10px 16px}.lib-grid-wrap{padding:16px 16px 48px}
+  .lib-grid{grid-template-columns:1fr;gap:16px}
+  .lib-modal__content{padding:20px}.lib-modal{max-width:100%}.lib-overlay{padding:20px 12px}
+}
+</style>
+</head>
+<body>
+<header class="lib-header">
+  <div class="lib-header__inner">
+    <span class="lib-header__badge">Design Stack v2 &middot; Layer 8 Element Factory</span>
+    <h1 class="lib-header__title">Library of Elements</h1>
+    <p class="lib-header__sub">Browsable catalog of production-ready UI elements for the Split Lease guest journey. Each element includes live preview and design specs.</p>
+    <div class="lib-header__meta">
+      <span class="lib-header__meta-item"><strong>Run:</strong> 2026-02-19_0901</span>
+      <span class="lib-header__meta-item"><strong>Journey:</strong> Guest</span>
+      <span class="lib-header__meta-item"><strong>Elements:</strong> 7</span>
+      <span class="lib-header__meta-item"><strong>Style:</strong> Split Lease Purple Palette</span>
+    </div>
+  </div>
+</header>
+
+<div class="lib-toolbar" id="toolbar">
+  <div class="lib-toolbar__inner">
+    <div class="lib-search">
+      <span class="lib-search__icon">&#128269;</span>
+      <input class="lib-search__input" type="text" id="searchInput" placeholder="Search elements by name or description...">
+    </div>
+    <div class="lib-filters">
+      <div class="lib-filter-group">
+        <button class="lib-filter-btn" data-filter="phase">Phase <span class="arrow">&#9662;</span></button>
+        <div class="lib-filter-dropdown" data-filter-for="phase">
+          <label class="lib-filter-option"><input type="checkbox" value="active_lease"> active lease</label>
+          <label class="lib-filter-option"><input type="checkbox" value="application"> application</label>
+          <label class="lib-filter-option"><input type="checkbox" value="discovery"> discovery</label>
+          <label class="lib-filter-option"><input type="checkbox" value="evaluation"> evaluation</label>
+          <label class="lib-filter-option"><input type="checkbox" value="move_in"> move in</label>
+          <label class="lib-filter-option"><input type="checkbox" value="onboarding"> onboarding</label>
+        </div>
+      </div>
+    </div>
+    <span class="lib-count" id="resultCount">7 elements</span>
+  </div>
+</div>
+
+<div class="lib-grid-wrap">
+  <div class="lib-grid" id="elementGrid"></div>
+</div>
+
+<div class="lib-overlay" id="modalOverlay">
+  <div class="lib-modal" id="modalContent"></div>
+</div>
+
+<script>
+const ELEMENTS = [
+  {
+      id: "ds-ui-0901-001",
+      name: "Agent-Curated Listing Card with Criteria Match Summary",
+      category: "card",
+      source_elements: ["works-001","works-004","works-005","communicates-001","communicates-002","looks-001","looks-002","looks-003","behaves-001","feels-001","feels-002"],
+      journey_phases: ["discovery","evaluation"],
+      priority: "high",
+      description: "A listing card component that appears when a guest taps a link shared by their agent via text. Features an agent context bar at the top ('Bryant picked this for you'), followed by a four-criterion match summary using icon-plus-value pairs (budget match, location, roommate gender, schedule compatibility). Monthly price is displayed as the primary figure in the guest's budget frame. Designed for ESL guests who need recognition-based evaluation rather than text-heavy reading.",
+      html_css_snippet: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent-Curated Listing Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-purple: #31135D;
+  --primary-purple-hover: #251047;
+  --secondary-purple: rgb(109, 49, 194);
+  --accent-purple: rgb(140, 104, 238);
+  --text-dark: #1a1a1a;
+  --text-gray: #6b7280;
+  --text-light-gray: #9ca3af;
+  --bg-white: #ffffff;
+  --bg-light: #f9fafb;
+  --bg-light-gray: #f3f4f6;
+  --bg-off-white: rgb(252, 250, 255);
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+  --gradient-purple-primary: linear-gradient(135deg, #31135D 0%, #5a2d8f 100%);
+  --gradient-purple-button: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  --favorites-purple-light: #F0EBFF;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-inter);
+  background: var(--bg-light);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.listing-card {
+  max-width: 400px;
+  width: 100%;
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+/* Agent Context Bar */
+.agent-bar {
+  background: var(--bg-off-white);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--bg-light-gray);
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.agent-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gradient-purple-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+  border: 2px solid var(--secondary-purple);
+}
+
+.agent-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dark);
+  line-height: 1.3;
+}
+
+.agent-text span {
+  color: var(--secondary-purple);
+  font-weight: 600;
+}
+
+/* Listing Photo */
+.listing-photo {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, #e8e0f0 0%, #d4c8e8 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listing-photo svg {
+  width: 48px;
+  height: 48px;
+  color: var(--accent-purple);
+  opacity: 0.5;
+}
+
+.photo-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(49, 19, 93, 0.85);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* Criteria Match Summary */
+.match-summary {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.match-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg-light);
+  border-radius: 8px;
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.match-item:nth-child(1) { animation-delay: 0.1s; }
+.match-item:nth-child(2) { animation-delay: 0.175s; }
+.match-item:nth-child(3) { animation-delay: 0.25s; }
+.match-item:nth-child(4) { animation-delay: 0.325s; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.match-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.match-icon.match { background: #E8F5E9; }
+.match-icon.match svg { color: #2E7D32; }
+.match-icon.info { background: var(--favorites-purple-light); }
+.match-icon.info svg { color: var(--secondary-purple); }
+
+.match-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.match-label {
+  font-size: 11px;
+  color: var(--text-light-gray);
+  line-height: 1.2;
+}
+
+.match-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  line-height: 1.2;
+}
+
+/* Price Section */
+.price-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.price-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.price-amount {
+  font-family: var(--font-dm);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-purple);
+}
+
+.price-period {
+  font-size: 14px;
+  color: var(--text-gray);
+  font-weight: 400;
+}
+
+.budget-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--favorites-purple-light);
+  color: var(--secondary-purple);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.budget-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.price-secondary {
+  font-size: 12px;
+  color: var(--text-light-gray);
+  margin-top: 4px;
+}
+
+/* Listing Details */
+.listing-details {
+  padding: 16px;
+}
+
+.listing-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.listing-subtitle {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-bottom: 16px;
+}
+
+/* CTA Button */
+.cta-button {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--gradient-purple-button);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(75, 71, 206, 0.3);
+}
+
+.cta-button:active {
+  transform: translateY(0);
+}
+
+.cta-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 380px) {
+  .match-summary { grid-template-columns: 1fr; }
+  .price-amount { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="listing-card">
+  <!-- Agent Context Bar -->
+  <div class="agent-bar">
+    <div class="agent-avatar">B</div>
+    <div class="agent-text"><span>Bryant</span> picked this for you</div>
+  </div>
+
+  <!-- Listing Photo -->
+  <div class="listing-photo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <div class="photo-badge">4 photos</div>
+  </div>
+
+  <!-- Criteria Match Summary -->
+  <div class="match-summary">
+    <div class="match-item">
+      <div class="match-icon match">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div>
+        <div class="match-label">Budget</div>
+        <div class="match-value">\$680/mo</div>
+      </div>
+    </div>
+    <div class="match-item">
+      <div class="match-icon match">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div>
+        <div class="match-label">Location</div>
+        <div class="match-value">Astoria</div>
+      </div>
+    </div>
+    <div class="match-item">
+      <div class="match-icon match">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div>
+        <div class="match-label">Roommate</div>
+        <div class="match-value">Female</div>
+      </div>
+    </div>
+    <div class="match-item">
+      <div class="match-icon info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div>
+        <div class="match-label">Schedule</div>
+        <div class="match-value">Flexible</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price Section -->
+  <div class="price-section">
+    <div class="price-primary">
+      <span class="price-amount">\$680</span>
+      <span class="price-period">/mo est.</span>
+      <span class="budget-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Within budget
+      </span>
+    </div>
+    <div class="price-secondary">from \$40/night &middot; based on your weekday schedule</div>
+  </div>
+
+  <!-- Listing Details -->
+  <div class="listing-details">
+    <div class="listing-title">Private Room in Astoria, Queens</div>
+    <div class="listing-subtitle">Shared apartment &middot; Female host &middot; Near N/W trains</div>
+    <button class="cta-button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Tell Bryant I'm interested
+    </button>
+  </div>
+</div>
+</body>
+</html>`
+    },
+  {
+      id: "ds-ui-0901-002",
+      name: "Flexible-Duration Proposal Creator with Smart Schedule Configuration",
+      category: "card",
+      source_elements: ["works-003","works-007","communicates-004","looks-004","behaves-002","behaves-003","feels-003"],
+      journey_phases: ["application"],
+      priority: "high",
+      description: "A proposal creation interface designed for guests with uncertain duration and complex schedules. Features a pre-selected 'Flexible' duration option, a two-step schedule configuration (weekdays block + every-other-weekend question), and a 4-week visual preview strip with color-coded week types. Monthly cost updates in real-time. Designed to prevent the configuration errors Weinschenk Ch. 88 predicts and to accommodate Walaa's explicit inability to commit to a fixed duration.",
+      html_css_snippet: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flexible Proposal Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-purple: #31135D;
+  --primary-purple-hover: #251047;
+  --secondary-purple: rgb(109, 49, 194);
+  --accent-purple: rgb(140, 104, 238);
+  --text-dark: #1a1a1a;
+  --text-gray: #6b7280;
+  --text-light-gray: #9ca3af;
+  --bg-white: #ffffff;
+  --bg-light: #f9fafb;
+  --bg-light-gray: #f3f4f6;
+  --bg-off-white: rgb(252, 250, 255);
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+  --gradient-purple-button: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  --favorites-purple-light: #F0EBFF;
+  --protocol-surface: #F7F2FA;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-inter);
+  background: var(--bg-light);
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  min-height: 100vh;
+}
+
+.proposal-card {
+  max-width: 400px;
+  width: 100%;
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.card-header {
+  background: var(--bg-off-white);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.card-header p {
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+/* Duration Section */
+.section {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.duration-options {
+  display: flex;
+  gap: 8px;
+}
+
+.duration-btn {
+  flex: 1;
+  padding: 10px 8px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--bg-white);
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-gray);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.duration-btn:hover {
+  border-color: var(--accent-purple);
+  color: var(--secondary-purple);
+}
+
+.duration-btn.selected {
+  background: var(--favorites-purple-light);
+  border-color: var(--secondary-purple);
+  color: var(--primary-purple);
+  font-weight: 600;
+  animation: gentlePulse 2s ease-in-out;
+}
+
+@keyframes gentlePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(109, 49, 194, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(109, 49, 194, 0.1); }
+}
+
+.flexibility-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg-off-white);
+  border-radius: 8px;
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.flexibility-note svg {
+  width: 16px;
+  height: 16px;
+  color: var(--secondary-purple);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.flexibility-note p {
+  font-size: 12px;
+  color: var(--text-gray);
+  line-height: 1.5;
+}
+
+/* Schedule Section */
+.schedule-blocks {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.schedule-block {
+  flex: 1;
+  padding: 14px 12px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-white);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.schedule-block:hover {
+  border-color: var(--accent-purple);
+}
+
+.schedule-block.selected {
+  border-color: var(--secondary-purple);
+  background: var(--favorites-purple-light);
+}
+
+.block-icon {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.block-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.block-days {
+  font-size: 11px;
+  color: var(--text-gray);
+}
+
+/* Weekend Frequency */
+.weekend-freq {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--bg-light);
+  border-radius: 8px;
+  animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; max-height: 0; padding: 0 12px; }
+  to { opacity: 1; max-height: 100px; padding: 12px; }
+}
+
+.weekend-freq p {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.freq-options {
+  display: flex;
+  gap: 8px;
+}
+
+.freq-btn {
+  flex: 1;
+  padding: 8px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--bg-white);
+  font-family: var(--font-inter);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-gray);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.freq-btn.selected {
+  background: var(--favorites-purple-light);
+  border-color: var(--secondary-purple);
+  color: var(--primary-purple);
+  font-weight: 600;
+}
+
+/* 4-Week Preview Strip */
+.preview-strip {
+  margin-top: 16px;
+}
+
+.preview-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-light-gray);
+  margin-bottom: 8px;
+}
+
+.week-cards {
+  display: flex;
+  gap: 8px;
+}
+
+.week-card {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1.5px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.week-card.short {
+  background: var(--favorites-purple-light);
+  border-color: var(--favorites-purple-light);
+}
+
+.week-card.full {
+  background: var(--protocol-surface);
+  border-color: var(--protocol-surface);
+}
+
+.week-card.current {
+  border-color: var(--primary-purple);
+  border-width: 2px;
+}
+
+.week-type-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin: 0 auto 4px;
+}
+
+.week-card.short .week-type-icon {
+  background: conic-gradient(var(--accent-purple) 0deg 180deg, transparent 180deg 360deg);
+}
+
+.week-card.full .week-type-icon {
+  background: var(--secondary-purple);
+}
+
+.week-dates {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-gray);
+  line-height: 1.3;
+}
+
+.week-nights {
+  font-family: var(--font-dm);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-top: 2px;
+}
+
+/* Cost Summary */
+.cost-summary {
+  padding: 16px 20px;
+  background: var(--bg-off-white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cost-label {
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+.cost-value {
+  font-family: var(--font-dm);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-purple);
+}
+
+.cost-detail {
+  font-size: 11px;
+  color: var(--text-light-gray);
+  text-align: right;
+}
+
+/* Submit */
+.submit-section {
+  padding: 20px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gradient-purple-button);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(75, 71, 206, 0.3);
+}
+
+.submit-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.submit-note {
+  font-size: 11px;
+  color: var(--text-light-gray);
+  text-align: center;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="proposal-card">
+  <div class="card-header">
+    <h2>Create Your Proposal</h2>
+    <p>Private Room in Astoria &middot; Maria's place</p>
+  </div>
+
+  <!-- Duration Section -->
+  <div class="section">
+    <div class="section-label">How long do you need?</div>
+    <div class="duration-options">
+      <button class="duration-btn selected">Flexible</button>
+      <button class="duration-btn">1 month</button>
+      <button class="duration-btn">2 months</button>
+      <button class="duration-btn">3 months</button>
+    </div>
+    <div class="flexibility-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <p>Stay as long as you need. Renews monthly. You're in control &mdash; 2 weeks notice to end.</p>
+    </div>
+  </div>
+
+  <!-- Schedule Section -->
+  <div class="section">
+    <div class="section-label">Your schedule</div>
+    <div class="schedule-blocks">
+      <div class="schedule-block selected">
+        <div class="block-icon">&#127769;</div>
+        <div class="block-title">Weekdays</div>
+        <div class="block-days">Mon - Thu nights</div>
+      </div>
+      <div class="schedule-block selected">
+        <div class="block-icon">&#127774;</div>
+        <div class="block-title">Weekends</div>
+        <div class="block-days">Fri - Sun nights</div>
+      </div>
+    </div>
+
+    <div class="weekend-freq">
+      <p>How often do you need weekends?</p>
+      <div class="freq-options">
+        <button class="freq-btn">Every weekend</button>
+        <button class="freq-btn selected">Every other</button>
+        <button class="freq-btn">No weekends</button>
+      </div>
+    </div>
+
+    <!-- 4-Week Preview -->
+    <div class="preview-strip">
+      <div class="preview-label">Your 4-week pattern</div>
+      <div class="week-cards">
+        <div class="week-card full current">
+          <div class="week-type-icon"></div>
+          <div class="week-dates">Feb 24</div>
+          <div class="week-nights">7n</div>
+        </div>
+        <div class="week-card short">
+          <div class="week-type-icon"></div>
+          <div class="week-dates">Mar 3</div>
+          <div class="week-nights">4n</div>
+        </div>
+        <div class="week-card full">
+          <div class="week-type-icon"></div>
+          <div class="week-dates">Mar 10</div>
+          <div class="week-nights">7n</div>
+        </div>
+        <div class="week-card short">
+          <div class="week-type-icon"></div>
+          <div class="week-dates">Mar 17</div>
+          <div class="week-nights">4n</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost Summary -->
+  <div class="cost-summary">
+    <div>
+      <div class="cost-label">Est. monthly cost</div>
+      <div class="cost-detail">~22 nights/month avg</div>
+    </div>
+    <div>
+      <div class="cost-value">\$680</div>
+      <div class="cost-detail">\$31/night</div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-section">
+    <button class="submit-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Send to Bryant
+    </button>
+    <div class="submit-note">Bryant will negotiate the best terms with Maria</div>
+  </div>
+</div>
+</body>
+</html>`
+    },
+  {
+      id: "ds-ui-0901-003",
+      name: "Stays Manager Weekly Dashboard with Three-Zone Architecture",
+      category: "card",
+      source_elements: ["works-002","works-006","communicates-005","looks-004","looks-005","behaves-004","feels-005"],
+      journey_phases: ["active_lease"],
+      priority: "high",
+      description: "The Stays Manager weekly view for active lease guests. Implements a fixed three-zone architecture: Zone 1 (This Week action card with week-type color coding and single action button), Zone 2 (horizontal progress bar showing lease completion), Zone 3 (scrollable history feed with emoji micro-reviews). Designed for 13+ weekly visits with absolute layout consistency to enable habit formation per Weinschenk Ch. 42 and Ch. 60. This is the most critical recurring touchpoint in the guest journey.",
+      html_css_snippet: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stays Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-purple: #31135D;
+  --secondary-purple: rgb(109, 49, 194);
+  --accent-purple: rgb(140, 104, 238);
+  --text-dark: #1a1a1a;
+  --text-gray: #6b7280;
+  --text-light-gray: #9ca3af;
+  --bg-white: #ffffff;
+  --bg-light: #f9fafb;
+  --bg-light-gray: #f3f4f6;
+  --bg-off-white: rgb(252, 250, 255);
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+  --gradient-purple-button: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  --favorites-purple-light: #F0EBFF;
+  --protocol-surface: #F7F2FA;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-inter);
+  background: var(--bg-light);
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  min-height: 100vh;
+}
+
+.stays-manager {
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Header */
+.sm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.sm-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.sm-subtitle {
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+.sm-host {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.host-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--protocol-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--secondary-purple);
+}
+
+.host-name {
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+/* Zone 1: This Week Card */
+.zone-1 {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.week-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.week-type-badge.full {
+  background: var(--protocol-surface);
+  color: var(--secondary-purple);
+}
+
+.week-type-badge.short {
+  background: var(--favorites-purple-light);
+  color: var(--accent-purple);
+}
+
+.week-type-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.full .week-type-dot { background: var(--secondary-purple); }
+.short .week-type-dot { background: var(--accent-purple); }
+
+.change-dates-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--secondary-purple);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font-inter);
+  font-weight: 500;
+}
+
+.change-dates-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.week-details {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.week-dates-display {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.week-nights-count {
+  font-family: var(--font-dm);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-purple);
+}
+
+.week-status {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-bottom: 16px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gradient-purple-button);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+  min-height: 48px;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(75, 71, 206, 0.3);
+}
+
+.action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Zone 2: Progress */
+.zone-2 {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.progress-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-gray);
+}
+
+.progress-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary-purple);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-light-gray);
+  border-radius: 3px;
+  position: relative;
+  overflow: visible;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--secondary-purple);
+  border-radius: 3px;
+  width: 61.5%;
+  transition: width 0.4s ease-out;
+  position: relative;
+}
+
+.progress-dot {
+  position: absolute;
+  right: -4px;
+  top: -3px;
+  width: 12px;
+  height: 12px;
+  background: var(--primary-purple);
+  border-radius: 50%;
+  border: 2px solid var(--bg-white);
+}
+
+/* Zone 3: History */
+.zone-3 {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.history-header {
+  padding: 12px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--bg-light-gray);
+  min-height: 56px;
+}
+
+.history-item:last-child { border-bottom: none; }
+
+.history-week-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.history-week-icon.full { background: var(--secondary-purple); }
+.history-week-icon.short { background: var(--accent-purple); }
+
+.history-info {
+  flex: 1;
+}
+
+.history-dates {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.history-detail {
+  font-size: 11px;
+  color: var(--text-light-gray);
+}
+
+.history-review {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.history-payment {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #2E7D32;
+}
+
+.history-payment svg {
+  width: 14px;
+  height: 14px;
+}
+</style>
+</head>
+<body>
+<div class="stays-manager">
+  <!-- Header -->
+  <div class="sm-header">
+    <div>
+      <div class="sm-title">Your Stay</div>
+      <div class="sm-subtitle">Astoria, Queens</div>
+    </div>
+    <div class="sm-host">
+      <div class="host-avatar">M</div>
+      <div class="host-name">Maria</div>
+    </div>
+  </div>
+
+  <!-- Zone 1: This Week -->
+  <div class="zone-1">
+    <div class="week-header">
+      <div class="week-type-badge full">
+        <div class="week-type-dot"></div>
+        Full week
+      </div>
+      <button class="change-dates-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Adjust dates
+      </button>
+    </div>
+    <div class="week-details">
+      <span class="week-dates-display">Mar 10 - Mar 16</span>
+      <span class="week-nights-count">7 nights</span>
+    </div>
+    <div class="week-status">Arriving Monday &middot; Week 8 of your stay</div>
+    <button class="action-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Confirm arrival
+    </button>
+  </div>
+
+  <!-- Zone 2: Progress -->
+  <div class="zone-2">
+    <div class="progress-label">
+      <span class="progress-text">Week 8 of 13</span>
+      <span class="progress-count">5 reviews</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill">
+        <div class="progress-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone 3: History -->
+  <div class="zone-3">
+    <div class="history-header">Recent weeks</div>
+    <div class="history-item">
+      <div class="history-week-icon short"></div>
+      <div class="history-info">
+        <div class="history-dates">Mar 3 - Mar 6</div>
+        <div class="history-detail">4 nights &middot; Short week</div>
+      </div>
+      <div class="history-review">&#128522;</div>
+      <div class="history-payment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Paid
+      </div>
+    </div>
+    <div class="history-item">
+      <div class="history-week-icon full"></div>
+      <div class="history-info">
+        <div class="history-dates">Feb 24 - Mar 2</div>
+        <div class="history-detail">7 nights &middot; Full week</div>
+      </div>
+      <div class="history-review">&#128513;</div>
+      <div class="history-payment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Paid
+      </div>
+    </div>
+    <div class="history-item">
+      <div class="history-week-icon short"></div>
+      <div class="history-info">
+        <div class="history-dates">Feb 17 - Feb 20</div>
+        <div class="history-detail">4 nights &middot; Short week</div>
+      </div>
+      <div class="history-review">&#128522;</div>
+      <div class="history-payment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Paid
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>`
+    },
+  {
+      id: "ds-ui-0901-004",
+      name: "Post-Checkout Emoji Micro-Review Bottom Sheet",
+      category: "card",
+      source_elements: ["works-006","looks-006","behaves-005","feels-005"],
+      journey_phases: ["active_lease"],
+      priority: "high",
+      description: "A bottom sheet overlay that appears 2-4 hours after predicted checkout, enabling one-tap weekly micro-reviews. Features 5 on-brand purple-outlined emoji faces as the review scale, with an optional single-line text field. Tapping any face immediately submits the review. Includes a variable reward mechanism where the host's reciprocal rating is occasionally revealed. Designed for 13+ weekly uses to accumulate temporal review narratives rather than single post-lease reviews. Addresses Weinschenk Ch. 24 (memory reconstruction) by capturing feedback when memory is freshest.",
+      html_css_snippet: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Micro-Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-purple: #31135D;
+  --secondary-purple: rgb(109, 49, 194);
+  --accent-purple: rgb(140, 104, 238);
+  --text-dark: #1a1a1a;
+  --text-gray: #6b7280;
+  --text-light-gray: #9ca3af;
+  --bg-white: #ffffff;
+  --bg-light: #f9fafb;
+  --bg-light-gray: #f3f4f6;
+  --border-color: #e5e7eb;
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-purple-sm: 0 2px 4px rgba(49, 19, 93, 0.2);
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-inter);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 0;
+}
+
+.bottom-sheet {
+  max-width: 420px;
+  width: 100%;
+  background: var(--bg-white);
+  border-radius: 16px 16px 0 0;
+  box-shadow: var(--shadow-lg);
+  padding: 24px 20px 32px;
+  animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--bg-light-gray);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.sheet-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.sheet-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.sheet-subtitle {
+  font-size: 12px;
+  color: var(--text-light-gray);
+}
+
+/* Emoji Scale */
+.emoji-scale {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.emoji-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  background: var(--bg-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.emoji-btn:hover {
+  border-color: var(--accent-purple);
+  transform: scale(1.08);
+}
+
+.emoji-btn.selected {
+  border-color: var(--secondary-purple);
+  background: var(--bg-white);
+  transform: scale(1.2);
+  box-shadow: var(--shadow-purple-sm);
+}
+
+.emoji-face {
+  width: 28px;
+  height: 28px;
+}
+
+/* Purple-outlined SVG emoji faces */
+.emoji-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+.emoji-btn svg circle,
+.emoji-btn svg path,
+.emoji-btn svg line {
+  stroke: var(--primary-purple);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.emoji-btn:hover svg circle,
+.emoji-btn:hover svg path,
+.emoji-btn:hover svg line {
+  stroke: var(--secondary-purple);
+}
+
+.emoji-btn.selected svg circle,
+.emoji-btn.selected svg path,
+.emoji-btn.selected svg line {
+  stroke: var(--secondary-purple);
+}
+
+/* Optional Text */
+.optional-text {
+  margin-bottom: 20px;
+}
+
+.text-input {
+  width: 100%;
+  height: 42px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  color: var(--text-dark);
+  background: var(--bg-white);
+  transition: border-color 0.15s ease;
+}
+
+.text-input::placeholder {
+  color: var(--text-light-gray);
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--secondary-purple);
+  box-shadow: 0 0 0 3px rgba(109, 49, 194, 0.1);
+}
+
+/* Variable Reward */
+.variable-reward {
+  text-align: center;
+  padding: 12px;
+  background: var(--bg-light);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  animation: rewardFade 0.5s ease-out;
+}
+
+@keyframes rewardFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reward-text {
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+.reward-emoji {
+  font-size: 20px;
+  margin-left: 4px;
+}
+
+/* States display */
+.state-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.state-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bg-light-gray);
+}
+
+.state-dot.active {
+  background: var(--secondary-purple);
+}
+
+/* Success State */
+.success-overlay {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-overlay.show {
+  display: block;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.success-check {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--secondary-purple);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.success-check svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.success-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.success-sub {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+<div class="bottom-sheet">
+  <div class="sheet-handle"></div>
+
+  <!-- Review Content -->
+  <div id="reviewContent">
+    <div class="sheet-header">
+      <div class="sheet-title">How was this week?</div>
+      <div class="sheet-subtitle">Mar 3 - Mar 6 &middot; 4 nights with Maria</div>
+    </div>
+
+    <!-- 5 Emoji Faces -->
+    <div class="emoji-scale">
+      <button class="emoji-btn" aria-label="Terrible">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14"/><circle cx="11" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><circle cx="21" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><path d="M10 22c1.5-2.5 4-4 6-4s4.5 1.5 6 4" stroke-width="2" fill="none"/></svg>
+      </button>
+      <button class="emoji-btn" aria-label="Not great">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14"/><circle cx="11" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><circle cx="21" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><path d="M11 21c1.5-1.5 3-2 5-2s3.5.5 5 2" stroke-width="2" fill="none"/></svg>
+      </button>
+      <button class="emoji-btn" aria-label="Okay">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14"/><circle cx="11" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><circle cx="21" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><line x1="10" y1="20" x2="22" y2="20" stroke-width="2"/></svg>
+      </button>
+      <button class="emoji-btn" aria-label="Good">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14"/><circle cx="11" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><circle cx="21" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><path d="M11 19c1.5 1.5 3 2 5 2s3.5-.5 5-2" stroke-width="2" fill="none"/></svg>
+      </button>
+      <button class="emoji-btn selected" aria-label="Great">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14"/><circle cx="11" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><circle cx="21" cy="13" r="1.5" fill="var(--primary-purple)" stroke="none"/><path d="M9 18c2 3 4.5 4.5 7 4.5s5-1.5 7-4.5" stroke-width="2" fill="none"/></svg>
+      </button>
+    </div>
+
+    <!-- Optional Text -->
+    <div class="optional-text">
+      <input type="text" class="text-input" placeholder="Anything to mention? (optional)">
+    </div>
+
+    <!-- Variable Reward (shown occasionally) -->
+    <div class="variable-reward">
+      <span class="reward-text">Maria rated your last week</span>
+      <span class="reward-emoji">&#11088;</span>
+      <span class="reward-emoji">&#11088;</span>
+      <span class="reward-emoji">&#11088;</span>
+      <span class="reward-emoji">&#11088;</span>
+      <span class="reward-emoji">&#11088;</span>
+    </div>
+  </div>
+
+  <!-- Week indicator -->
+  <div class="state-indicator">
+    <div class="state-dot"></div>
+    <div class="state-dot"></div>
+    <div class="state-dot"></div>
+    <div class="state-dot active"></div>
+    <div class="state-dot"></div>
+    <div class="state-dot"></div>
+  </div>
+</div>
+</body>
+</html>`
+    },
+  {
+      id: "ds-ui-0901-005",
+      name: "Icon-Grid House Manual for Recognition-Based Wayfinding",
+      category: "card",
+      source_elements: ["works-001","communicates-006","looks-001","feels-002","feels-004"],
+      journey_phases: ["move_in","active_lease"],
+      priority: "high",
+      description: "A 6-tile icon-grid House Manual designed for ESL guests who navigate by visual recognition rather than text comprehension. Each tile uses a universally recognizable icon with a one-word label. Wi-Fi password is displayed directly on the tile surface (no tap required). Other tiles tap to reveal a photo-based detail view with 1-3 short instructions. Addresses Weinschenk Ch. 22 (recognition over recall) and Ch. 7 (visual affordances) for Walaa's language-constrained context.",
+      html_css_snippet: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-purple: #31135D;
+  --secondary-purple: rgb(109, 49, 194);
+  --accent-purple: rgb(140, 104, 238);
+  --text-dark: #1a1a1a;
+  --text-gray: #6b7280;
+  --text-light-gray: #9ca3af;
+  --bg-white: #ffffff;
+  --bg-light: #f9fafb;
+  --bg-light-gray: #f3f4f6;
+  --bg-off-white: rgb(252, 250, 255);
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+  --favorites-purple-light: #F0EBFF;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-inter);
+  background: var(--bg-light);
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  min-height: 100vh;
+}
+
+.manual-container {
+  max-width: 400px;
+  width: 100%;
+}
+
+.manual-header {
+  margin-bottom: 20px;
+}
+
+.manual-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.manual-header p {
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+/* Icon Grid */
+.icon-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.grid-tile {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+}
+
+.grid-tile:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-purple);
+  transform: translateY(-2px);
+}
+
+.grid-tile:active {
+  transform: translateY(0);
+}
+
+.tile-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--primary-purple);
+}
+
+.tile-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.tile-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-gray);
+}
+
+/* Wi-Fi tile special treatment */
+.grid-tile.wifi {
+  background: var(--favorites-purple-light);
+  border-color: var(--favorites-purple-light);
+}
+
+.wifi-password {
+  font-family: var(--font-dm);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-purple);
+  letter-spacing: 0.5px;
+  background: var(--bg-white);
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-top: 2px;
+}
+
+/* Emergency tile */
+.grid-tile.emergency {
+  border-color: #FDE8E8;
+}
+
+.grid-tile.emergency .tile-icon {
+  color: #C53030;
+}
+
+/* Detail Panel (shown when tile is tapped) */
+.detail-panel {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detail-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--primary-purple);
+}
+
+.detail-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.detail-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-light-gray);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-gray);
+  transition: background 0.15s ease;
+}
+
+.detail-close:hover {
+  background: var(--border-color);
+}
+
+.detail-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.detail-photo {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, #e8e0f0 0%, #d4c8e8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-photo svg {
+  width: 40px;
+  height: 40px;
+  color: var(--accent-purple);
+  opacity: 0.4;
+}
+
+.detail-instructions {
+  padding: 16px 20px;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bg-light-gray);
+}
+
+.instruction-item:last-child {
+  border-bottom: none;
+}
+
+.instruction-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--favorites-purple-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary-purple);
+  flex-shrink: 0;
+}
+
+.instruction-text {
+  font-size: 14px;
+  color: var(--text-dark);
+  line-height: 1.5;
+}
+
+@media (max-width: 340px) {
+  .icon-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="manual-container">
+  <div class="manual-header">
+    <h1>House Manual</h1>
+    <p>Maria's place &middot; Astoria, Queens</p>
+  </div>
+
+  <!-- Icon Grid -->
+  <div class="icon-grid">
+    <!-- Wi-Fi (special: password on surface) -->
+    <div class="grid-tile wifi">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <div class="tile-label">Wi-Fi</div>
+      <div class="wifi-password">Maria2024!</div>
+    </div>
+
+    <!-- Keys -->
+    <div class="grid-tile">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      </div>
+      <div class="tile-label">Keys</div>
+    </div>
+
+    <!-- Trash -->
+    <div class="grid-tile">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </div>
+      <div class="tile-label">Trash</div>
+    </div>
+
+    <!-- Rules -->
+    <div class="grid-tile">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="tile-label">Rules</div>
+    </div>
+
+    <!-- Emergency -->
+    <div class="grid-tile emergency">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <div class="tile-label">Emergency</div>
+    </div>
+
+    <!-- Neighborhood -->
+    <div class="grid-tile">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="tile-label">Area</div>
+    </div>
+  </div>
+
+  <!-- Detail Panel (Keys example) -->
+  <div class="detail-panel">
+    <div class="detail-header">
+      <div class="detail-header-left">
+        <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        <span class="detail-title">Keys & Access</span>
+      </div>
+      <button class="detail-close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="detail-photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <div class="detail-instructions">
+      <div class="instruction-item">
+        <div class="instruction-num">1</div>
+        <div class="instruction-text">Lockbox is on the left side of the front door</div>
+      </div>
+      <div class="instruction-item">
+        <div class="instruction-num">2</div>
+        <div class="instruction-text">Code: <strong>4829</strong></div>
+      </div>
+      <div class="instruction-item">
+        <div class="instruction-num">3</div>
+        <div class="instruction-text">Your key is the silver one. Please return it to the lockbox when you leave</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>`
+    },
+  {
+      id: "ds-ui-0901-006",
+      name: "Acceptance Confirmation with Post-Commitment Emotional Decompression",
+      category: "card",
+      source_elements: ["works-003","works-005","communicates-004","behaves-002","feels-003","feels-006"],
+      journey_phases: ["onboarding"],
+      priority: "high",
+      description: "The post-acceptance confirmation screen designed to provide immediate emotional relief after the commitment moment. Features an instant optimistic confirmation (no loading spinner), the guest's terms reflected back in her own budget frame ($680/mo), a brief welcome card with host info and agent continuity (Bryant is here if you need anything), and a single guest testimonial for emotional reassurance. Addresses Weinschenk Ch. 83 (people feel most negative DURING an event) by minimizing the acceptance-to-relief gap to under 100ms.",
+      html_css_snippet: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking Confirmed</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-purple: #31135D;
+  --secondary-purple: rgb(109, 49, 194);
+  --accent-purple: rgb(140, 104, 238);
+  --text-dark: #1a1a1a;
+  --text-gray: #6b7280;
+  --text-light-gray: #9ca3af;
+  --bg-white: #ffffff;
+  --bg-light: #f9fafb;
+  --bg-light-gray: #f3f4f6;
+  --bg-off-white: rgb(252, 250, 255);
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+  --gradient-purple-primary: linear-gradient(135deg, #31135D 0%, #5a2d8f 100%);
+  --gradient-purple-button: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  --favorites-purple-light: #F0EBFF;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-inter);
+  background: var(--bg-light);
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  min-height: 100vh;
+}
+
+.confirmation {
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Success Header */
+.success-header {
+  text-align: center;
+  padding: 32px 20px 24px;
+  animation: settleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes settleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.check-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--secondary-purple);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  animation: checkPop 0.3s ease-out 0.1s both;
+}
+
+@keyframes checkPop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.check-circle svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+.success-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.success-subtitle {
+  font-size: 14px;
+  color: var(--text-gray);
+}
+
+/* Terms Summary Card */
+.terms-card {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  padding: 20px;
+  margin-bottom: 12px;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.terms-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bg-light-gray);
+}
+
+.terms-row:last-child { border-bottom: none; }
+
+.terms-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-gray);
+}
+
+.terms-label svg {
+  width: 18px;
+  height: 18px;
+  color: var(--accent-purple);
+}
+
+.terms-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.terms-value.price {
+  font-family: var(--font-dm);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-purple);
+}
+
+.terms-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--favorites-purple-light);
+  color: var(--secondary-purple);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  margin-left: 6px;
+}
+
+/* Welcome Card */
+.welcome-card {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.welcome-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.welcome-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.welcome-avatar.host {
+  background: var(--favorites-purple-light);
+  color: var(--secondary-purple);
+}
+
+.welcome-avatar.agent {
+  background: var(--gradient-purple-primary);
+  color: white;
+}
+
+.welcome-avatar.manual {
+  background: var(--bg-light-gray);
+  color: var(--text-gray);
+}
+
+.welcome-avatar svg {
+  width: 18px;
+  height: 18px;
+}
+
+.welcome-text {
+  font-size: 13px;
+  color: var(--text-dark);
+  line-height: 1.4;
+}
+
+.welcome-text strong {
+  font-weight: 600;
+}
+
+/* Testimonial */
+.testimonial {
+  background: var(--bg-off-white);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+.testimonial-quote {
+  font-size: 13px;
+  color: var(--text-gray);
+  font-style: italic;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.testimonial-author {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light-gray);
+}
+
+/* Action */
+.action-section {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+}
+
+.view-manual-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gradient-purple-button);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+  min-height: 48px;
+}
+
+.view-manual-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(75, 71, 206, 0.3);
+}
+
+.view-manual-btn svg {
+  width: 18px;
+  height: 18px;
+}
+</style>
+</head>
+<body>
+<div class="confirmation">
+  <!-- Success Header -->
+  <div class="success-header">
+    <div class="check-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">You're all set, Walaa</div>
+    <div class="success-subtitle">Your stay starts Feb 24</div>
+  </div>
+
+  <!-- Terms Summary -->
+  <div class="terms-card">
+    <div class="terms-row">
+      <div class="terms-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Monthly cost
+      </div>
+      <div>
+        <span class="terms-value price">\$680</span>
+        <span class="terms-badge">Within budget</span>
+      </div>
+    </div>
+    <div class="terms-row">
+      <div class="terms-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Location
+      </div>
+      <div class="terms-value">Astoria, Queens</div>
+    </div>
+    <div class="terms-row">
+      <div class="terms-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Duration
+      </div>
+      <div class="terms-value">Renews monthly</div>
+    </div>
+    <div class="terms-row">
+      <div class="terms-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Schedule
+      </div>
+      <div class="terms-value">Weekdays + alt. weekends</div>
+    </div>
+  </div>
+
+  <!-- Welcome Card -->
+  <div class="welcome-card">
+    <div class="welcome-item">
+      <div class="welcome-avatar host">M</div>
+      <div class="welcome-text"><strong>Maria</strong> is your host. She'll be ready for you on Feb 24.</div>
+    </div>
+    <div class="welcome-item">
+      <div class="welcome-avatar agent">B</div>
+      <div class="welcome-text"><strong>Bryant</strong> is here if you need anything.</div>
+    </div>
+    <div class="welcome-item">
+      <div class="welcome-avatar manual">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      </div>
+      <div class="welcome-text">Your <strong>House Manual</strong> is ready to save.</div>
+    </div>
+  </div>
+
+  <!-- Testimonial -->
+  <div class="testimonial">
+    <div class="testimonial-quote">"I was nervous at first, but Maria made everything so easy. The place was exactly like the photos."</div>
+    <div class="testimonial-author">Sarah, Queens guest</div>
+  </div>
+
+  <!-- Action -->
+  <div class="action-section">
+    <button class="view-manual-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      View House Manual
+    </button>
+  </div>
+</div>
+</body>
+</html>`
+    },
+  {
+      id: "ds-ui-0901-007",
+      name: "Date Change Tool with Optimistic Autonomy-Preserving UI",
+      category: "card",
+      source_elements: ["works-003","works-007","communicates-004","behaves-006","feels-003","feels-005"],
+      journey_phases: ["active_lease"],
+      priority: "high",
+      description: "A bottom sheet Date Change Tool that enables guests to adjust their weekly schedule with immediate visual feedback. Features tappable date cells that glow purple when added and fade when removed, a live-updating cost adjustment, and a pattern-vs-one-off distinction ('Just this week?' or 'Every week going forward?'). Uses optimistic UI so changes appear instant. Framed as 'Adjust your schedule' rather than 'Request a date change' to preserve autonomy per Weinschenk Ch. 62. Critical for Walaa's unstable work situation where schedule flexibility is more important than price flexibility.",
+      html_css_snippet: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adjust Your Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary-purple: #31135D;
+  --secondary-purple: rgb(109, 49, 194);
+  --accent-purple: rgb(140, 104, 238);
+  --text-dark: #1a1a1a;
+  --text-gray: #6b7280;
+  --text-light-gray: #9ca3af;
+  --bg-white: #ffffff;
+  --bg-light: #f9fafb;
+  --bg-light-gray: #f3f4f6;
+  --bg-off-white: rgb(252, 250, 255);
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+  --gradient-purple-button: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  --favorites-purple-light: #F0EBFF;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-inter);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.bottom-sheet {
+  max-width: 420px;
+  width: 100%;
+  background: var(--bg-white);
+  border-radius: 16px 16px 0 0;
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+  animation: sheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--bg-light-gray);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.sheet-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sheet-title svg {
+  width: 20px;
+  height: 20px;
+  color: var(--secondary-purple);
+}
+
+.sheet-week {
+  font-size: 12px;
+  color: var(--text-gray);
+  font-weight: 500;
+}
+
+/* Day Calendar Strip */
+.day-strip {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.day-cell {
+  flex: 1;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.day-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-light-gray);
+  margin-bottom: 6px;
+}
+
+.day-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  border: 2px solid transparent;
+}
+
+.day-cell.selected .day-num {
+  background: var(--secondary-purple);
+  color: white;
+  border-color: var(--secondary-purple);
+}
+
+.day-cell.available .day-num {
+  background: var(--bg-white);
+  color: var(--text-dark);
+  border-color: var(--border-color);
+}
+
+.day-cell.available:hover .day-num {
+  border-color: var(--accent-purple);
+  background: var(--favorites-purple-light);
+}
+
+.day-cell.removed .day-num {
+  background: var(--bg-light-gray);
+  color: var(--text-light-gray);
+  border-color: var(--bg-light-gray);
+  text-decoration: line-through;
+}
+
+.day-cell.unavailable .day-num {
+  background: var(--bg-light);
+  color: var(--text-light-gray);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.day-cell.unavailable {
+  cursor: not-allowed;
+}
+
+/* Modification indicator */
+.day-cell.modified .day-num {
+  position: relative;
+}
+
+.day-cell.modified .day-num::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-purple);
+  border: 2px solid var(--bg-white);
+}
+
+/* Cost Adjustment */
+.cost-adjust {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--bg-off-white);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.cost-adjust-label {
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+.cost-adjust-value {
+  font-family: var(--font-dm);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--secondary-purple);
+}
+
+.cost-adjust-detail {
+  font-size: 11px;
+  color: var(--text-light-gray);
+  text-align: right;
+}
+
+/* Scope Selection */
+.scope-section {
+  margin-bottom: 20px;
+}
+
+.scope-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-gray);
+  margin-bottom: 8px;
+}
+
+.scope-options {
+  display: flex;
+  gap: 8px;
+}
+
+.scope-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--bg-white);
+  font-family: var(--font-inter);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-gray);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.scope-btn.selected {
+  background: var(--favorites-purple-light);
+  border-color: var(--secondary-purple);
+  color: var(--primary-purple);
+  font-weight: 600;
+}
+
+.scope-btn:hover {
+  border-color: var(--accent-purple);
+}
+
+/* Save Button */
+.save-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gradient-purple-button);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+  min-height: 48px;
+  margin-bottom: 8px;
+}
+
+.save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(75, 71, 206, 0.3);
+}
+
+.save-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.save-note {
+  font-size: 11px;
+  color: var(--text-light-gray);
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="bottom-sheet">
+  <div class="sheet-handle"></div>
+
+  <div class="sheet-header">
+    <div class="sheet-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Adjust your schedule
+    </div>
+    <div class="sheet-week">Week of Mar 10</div>
+  </div>
+
+  <!-- Day Calendar Strip -->
+  <div class="day-strip">
+    <div class="day-cell selected">
+      <div class="day-name">Mon</div>
+      <div class="day-num">10</div>
+    </div>
+    <div class="day-cell selected">
+      <div class="day-name">Tue</div>
+      <div class="day-num">11</div>
+    </div>
+    <div class="day-cell selected">
+      <div class="day-name">Wed</div>
+      <div class="day-num">12</div>
+    </div>
+    <div class="day-cell selected">
+      <div class="day-name">Thu</div>
+      <div class="day-num">13</div>
+    </div>
+    <div class="day-cell selected modified">
+      <div class="day-name">Fri</div>
+      <div class="day-num">14</div>
+    </div>
+    <div class="day-cell selected modified">
+      <div class="day-name">Sat</div>
+      <div class="day-num">15</div>
+    </div>
+    <div class="day-cell selected modified">
+      <div class="day-name">Sun</div>
+      <div class="day-num">16</div>
+    </div>
+  </div>
+
+  <!-- Cost Adjustment -->
+  <div class="cost-adjust">
+    <div>
+      <div class="cost-adjust-label">This week's cost</div>
+      <div class="cost-adjust-detail">7 nights &times; \$31</div>
+    </div>
+    <div>
+      <div class="cost-adjust-value">\$217</div>
+      <div class="cost-adjust-detail">+\$93 vs. 4 nights</div>
+    </div>
+  </div>
+
+  <!-- Scope Selection -->
+  <div class="scope-section">
+    <div class="scope-label">Apply change to:</div>
+    <div class="scope-options">
+      <button class="scope-btn selected">Just this week</button>
+      <button class="scope-btn">Every week going forward</button>
+    </div>
+  </div>
+
+  <!-- Save -->
+  <button class="save-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    Save changes
+  </button>
+  <div class="save-note">Maria will be notified of this change</div>
+</div>
+</body>
+</html>`
+    }
+];
+
+function createSrcdoc(snippet) {
+  return snippet;
+}
+
+function renderCards() {
+  const grid = document.getElementById('elementGrid');
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const checkedPhases = Array.from(document.querySelectorAll('[data-filter-for="phase"] input:checked')).map(c => c.value);
+
+  let filtered = ELEMENTS.filter(el => {
+    if (search && !el.name.toLowerCase().includes(search) && !el.description.toLowerCase().includes(search)) return false;
+    if (checkedPhases.length && !el.journey_phases.some(p => checkedPhases.includes(p))) return false;
+    return true;
+  });
+
+  document.getElementById('resultCount').textContent = filtered.length + ' element' + (filtered.length !== 1 ? 's' : '');
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="lib-empty">No elements match your filters.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map((el, i) => {
+    const phases = el.journey_phases.map(p => '<span class="lib-card__phase">' + p.replace(/_/g, ' ') + '</span>').join('');
+    const sources = el.source_elements.map(s => '<code>' + s + '</code>').join(' ');
+    return '<div class="lib-card" data-idx="' + ELEMENTS.indexOf(el) + '">' +
+      '<div class="lib-card__preview"><iframe srcdoc="' + escapeAttr(el.html_css_snippet) + '" loading="lazy" sandbox="allow-same-origin"></iframe></div>' +
+      '<div class="lib-card__body">' +
+        '<div class="lib-card__top-row"><span class="lib-card__cat">UI Element</span><span class="lib-card__id">' + el.id + '</span></div>' +
+        '<div class="lib-card__name">' + el.name + '</div>' +
+        '<div class="lib-card__desc">' + el.description + '</div>' +
+        '<div class="lib-card__phases">' + phases + '</div>' +
+        '<div class="lib-card__sources"><strong>Sources:</strong> ' + sources + '</div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function escapeAttr(s) {
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function openModal(idx) {
+  const el = ELEMENTS[idx];
+  const overlay = document.getElementById('modalOverlay');
+  const modal = document.getElementById('modalContent');
+  const phases = el.journey_phases.map(p => '<span class="lib-card__phase" style="font-size:12px;padding:4px 10px;">' + p.replace(/_/g, ' ') + '</span>').join('');
+  const sources = el.source_elements.map(s => '<code>' + s + '</code>').join(' ');
+
+  modal.innerHTML =
+    '<div class="lib-modal__preview"><iframe srcdoc="' + escapeAttr(el.html_css_snippet) + '" sandbox="allow-same-origin"></iframe><button class="lib-modal__close" onclick="closeModal()">&times;</button></div>' +
+    '<div class="lib-modal__content">' +
+      '<div class="lib-modal__header"><h2 class="lib-modal__title">' + el.name + '</h2></div>' +
+      '<p class="lib-modal__desc">' + el.description + '</p>' +
+      '<div class="lib-modal__section"><div class="lib-modal__section-title">Journey Phases</div><div class="lib-modal__phases-row">' + phases + '</div></div>' +
+      '<div class="lib-modal__section"><div class="lib-modal__section-title">Source Elements</div><div class="lib-modal__sources-row">' + sources + '</div></div>' +
+    '</div>';
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('input', renderCards);
+document.querySelectorAll('.lib-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const dropdown = btn.nextElementSibling;
+    dropdown.classList.toggle('open');
+    btn.classList.toggle('active');
+  });
+});
+document.querySelectorAll('.lib-filter-dropdown input').forEach(cb => {
+  cb.addEventListener('change', renderCards);
+});
+document.getElementById('elementGrid').addEventListener('click', e => {
+  const card = e.target.closest('.lib-card');
+  if (card) openModal(parseInt(card.dataset.idx));
+});
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+window.addEventListener('scroll', () => {
+  document.getElementById('toolbar').classList.toggle('scrolled', window.scrollY > 10);
+});
+
+// Initial render
+renderCards();
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "One-Tap Default Acceptance with Undo Safety Net",
+      "journey_phases": ["pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Every decision point on the platform currently requires explicit multi-step confirmation: review options, select one, confirm, possibly re-confirm. For a delegator-host like Kris who wants to accept defaults, this interaction cost is a tax on the behavior the platform should encourage. The Nudge book shows that making the right choice easy (one button click) dramatically increases adoption. But pure one-tap risks accidental actions. The solution is optimistic action with undo — accept the default instantly, provide a brief undo window for errors.",
+      "solution": "Implement an optimistic acceptance pattern for defaults and recommendations. (1) Default acceptance is one tap: 'Accept recommended price' or 'Accept proposal' — single button, immediate confirmation. (2) After acceptance, show a 5-second toast notification with 'Undo' button. The toast uses --secondary-purple background with white text. (3) After the undo window closes, the action is committed. No additional confirmation modal. (4) For high-stakes actions (accepting a guest for the first time), extend the undo window to 30 seconds and add a brief summary of what was accepted. (5) The undo button is visually prominent: white text on purple, right-aligned in the toast, minimum 48px touch target.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 04:12-04:50",
+          "type": "host_call",
+          "quote": "How much do you think I should rent this place for?... We can kind of get a price estimate.",
+          "insight": "Kris wants a recommendation to accept, not a decision to make. The interaction pattern should match: one tap to accept the recommendation, with safety net for errors."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Anchoring — Taxi Tips",
+          "type": "book",
+          "quote": "Just clicking one of the buttons is easy! ... the more you ask for, the more you tend to get.",
+          "insight": "Taxi tip screens succeed because one tap selects the default. The platform's recommendation acceptance should match this simplicity. Friction reduces adoption of good defaults."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Recommendation displayed with prominent 'Accept' button. Alternative options visible but visually secondary. Accept button uses --gradient-purple-button.",
+        "loading": "On tap, button shows a brief checkmark animation (200ms). No spinner — the action feels instant (optimistic UI).",
+        "empty": "If no recommendation is available (no comps, new market), show 'Set your own price' with a guided wizard instead of a blank field.",
+        "error": "If the acceptance fails server-side, reverse the optimistic UI: toast changes to error state (--status-error background), show 'Something went wrong — your previous settings are restored.' Automatic rollback.",
+        "success": "Toast notification: 'Price set to $X/night. Undo (5s)' then transitions to a persistent confirmation: 'Your listing is priced at $X/night. Based on similar listings in your area.'"
+      },
+      "transition_principle": "Optimistic: the UI reflects the accepted state immediately upon tap. Rollback only if the server reports failure. The user's perception is that their action was instant.",
+      "timing": {
+        "response_target": "< 100ms for visual confirmation (checkmark animation). Server sync in background.",
+        "easing": "ease-out for confirmation animation (--easing-ease-out). The motion should feel 'settled' — no bounce.",
+        "rationale": "Delegator-hosts like Kris value speed and finality. The interaction must feel decisive, not tentative."
+      },
+      "journey_state_awareness": "For first-time hosts, extend the undo window and add a brief explanatory tooltip: 'You can change this anytime in Settings.' For returning hosts with established patterns, shorten or eliminate the undo window.",
+      "edge_cases": ["Network failure mid-acceptance: show 'Saving...' state, retry 3 times, then show error with manual retry option.", "Double-tap on accept: idempotent — second tap has no effect.", "Undo tapped after server commit: show 'Reverting...' and issue a correction API call."]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Proxy Login Flow: Seamless Multi-User Access",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "Christiana's account is the only way to access Kris's listing. When Kris needs to see something, Bryant must send login credentials via text. This is a broken interaction flow: manual credential sharing, no role separation, and a single point of failure. The Nudge book's principle that 'there is no such thing as a neutral design' applies — the platform's single-user login IS a design choice, and it excludes multi-person host operations.",
+      "solution": "Create a lightweight proxy access flow. (1) The account holder (Christiana) can generate a 'View & Approve' link for the property owner (Kris). One tap sends a magic link via SMS. (2) Kris taps the link, authenticates via phone number (SMS code — no password required), and sees a simplified dashboard: listing preview, pending proposals, earnings summary, and protection status. (3) The proxy view is read-heavy, action-light: Kris can approve/decline proposals and view but not edit the listing. Editing remains with the account holder. (4) The proxy session expires after 24 hours but can be refreshed with a new magic link. (5) Agent Bryant gets a permanent role — no magic link needed, just dashboard access scoped to the listings he manages.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 04:02",
+          "type": "host_call",
+          "quote": "Let me send over a, I'll send over the email and then the temporary password that was made.",
+          "insight": "Bryant manually creates a proxy access workaround — sending temporary credentials via text. This is the interaction pattern the platform should automate and secure."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "If you create the forms or the website that new employees use to choose among various employee benefits, you are a choice architect.",
+          "insight": "The login form IS choice architecture. A form that requires email + password excludes Kris. A form that accepts phone number + SMS code includes him. The design of the access flow determines who can participate."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Account holder sees 'Invite Property Owner' button on listing management page. Owner invitation is pending until accepted.",
+        "loading": "Magic link generation shows a sending animation (phone icon with pulse). SMS delivery confirmed with checkmark.",
+        "empty": "No property owner linked: Show suggestion card — 'Does someone else own this property? Invite them to view and approve proposals.'",
+        "error": "SMS delivery failure: Show error with retry option. Invalid phone number: Show format correction hint.",
+        "success": "Owner linked: Show green confirmation toast. Dashboard updates to show 'Kris can view this listing.' Owner sees: 'Connected to your listing via Christiana's account.'"
+      },
+      "transition_principle": "Magic link flow should feel as simple as sharing a link in a messaging app. No forms, no passwords, no setup wizards. One tap to invite, one tap to access.",
+      "timing": {
+        "response_target": "Magic link SMS delivery: under 10 seconds. SMS code verification: under 5 seconds. Dashboard load after verification: under 2 seconds.",
+        "easing": "ease-in-out for the transition from SMS code entry to dashboard (--easing-ease-in-out). The transition should feel like 'arriving' at your destination.",
+        "rationale": "Kris is self-employed and reachable by phone. SMS is his preferred communication channel. The interaction must match his modality."
+      },
+      "journey_state_awareness": "First invitation: show onboarding tour explaining the proxy view. Subsequent visits: skip tour, go directly to dashboard. If the owner hasn't visited in 30+ days: send a reminder SMS with listing performance summary.",
+      "edge_cases": ["Owner's phone number changes: Account holder can update via settings.", "Multiple properties under one account with different owners: Each listing can have a different owner invite.", "Owner tries to edit listing: Show clear message 'Editing is managed by [Christiana]. Contact her or your agent.'"]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Auto-Renewal Default with Opt-Out Friction Gradient",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "Lease renewal currently requires active decision-making from both host and guest. For Kris, who wants 'one or two regular' guests, this forced re-decision at each lease end fights his natural status quo bias. The Nudge book's pension study shows that when the default is 'continue,' the median number of changes is zero. The platform should harness this by making renewal the default, requiring action only to change or stop.",
+      "solution": "Design a status-quo-preserving renewal flow. (1) Default behavior: 30 days before lease end, send a notification: 'Your lease with [Guest] renews on [date] at the same terms. No action needed.' (2) If both parties take no action, the lease auto-renews. (3) To change terms, the host taps 'Modify terms' — which opens a lightweight adjustment screen (slider for price, date picker for schedule changes). (4) To end the lease, the host must tap 'End lease' which triggers a brief confirmation: 'Are you sure? [Guest] has been a great tenant for [N] months.' This is deliberate friction for the non-default choice. (5) The visual treatment: 'Renews automatically' is shown in calm, confident purple. 'End lease' is shown in muted gray, de-emphasized.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 05:13",
+          "type": "host_call",
+          "quote": "If I have someone who's someone regular, cause obviously they'll get a discount because I'd prefer to work with one or two.",
+          "insight": "Kris explicitly wants recurring arrangements. Auto-renewal is his preferred default. Forcing him to re-decide each cycle is an interaction pattern that fights his stated preference."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Status Quo Bias",
+          "type": "book",
+          "quote": "The median number of changes in the asset allocation over a lifetime was zero. Many married participants who were single when they joined the plan still had their mothers listed as their beneficiaries!",
+          "insight": "If people don't change pension beneficiaries, they certainly won't actively renew a lease that's working well. Make the working arrangement the default and watch retention compound."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Active lease card shows 'Auto-renews on [date]' in --text-purple with a small renewal icon. No action required from host.",
+        "loading": "If host initiates modification, show inline form load with skeleton screen (200ms).",
+        "empty": "Not applicable — there is always an active lease in this state.",
+        "error": "If auto-renewal fails (guest declined, payment issue): Alert host immediately with clear next steps. 'Your renewal with [Guest] needs attention — [Guest] has not confirmed. Contact your agent.'",
+        "success": "Auto-renewal confirmed: Brief toast — 'Lease renewed with [Guest]. Same terms through [new end date].' No further action needed."
+      },
+      "transition_principle": "The renewal transition should be invisible for hosts who want continuity. The only visible transition is the date update on the lease card. For hosts who want to change, the transition from default to modification should feel reversible — 'You can always go back to the default.'",
+      "timing": {
+        "response_target": "Notification 30 days before renewal. Second notification 7 days before. Auto-renewal happens at midnight on renewal date — no mid-day interruption.",
+        "easing": "No animation for auto-renewal — it should feel like nothing happened (because the right thing is nothing). Modification forms use ease-in-out for open/close.",
+        "rationale": "The best interaction for status quo bias is no interaction at all. The platform should do the right thing silently."
+      },
+      "journey_state_awareness": "First renewal: Include a brief explainer in the notification — 'We auto-renew so you don't have to think about it.' Second+ renewals: Skip explainer, just show the date update. If host has modified terms in the past: Show 'Based on your previous preferences' with adjusted defaults.",
+      "edge_cases": ["Guest wants to leave but host wants to renew: Notify host immediately, offer to match with a new guest.", "Host's schedule changes: Allow schedule modification without canceling the lease.", "Price market shift: Suggest price adjustment to host before renewal, but keep current price as default."]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Photo Upload by Proxy: Agent-Assisted Content Pipeline",
+      "journey_phases": ["listing_creation", "active_lease"],
+      "problem": "Kris's photos are bad ('not really good pictures, darling'). He will send better ones. But to whom? And how do they get onto the listing? Currently, this requires: Kris emails photos to Bryant, Bryant downloads them, Bryant logs into Christiana's account (using credentials sent via text), Bryant uploads them manually. This multi-step proxy chain is fragile, slow, and untraceable. The interaction pattern must formalize agent-mediated content upload.",
+      "solution": "Create a direct photo pipeline from host to listing via agent. (1) Host sends photos via SMS/email to a listing-specific address (e.g., photos-[listing-id]@splitlease.com or a unique SMS number). (2) Photos arrive in an agent review queue with the listing context pre-loaded. (3) Agent can one-tap approve-and-upload: the photo goes directly to the listing without needing to log into the host's account. (4) Host receives a notification: 'Bryant added 3 photos to your listing. Tap to preview.' (5) If the host has proxy access, they can reorder or remove photos from their simplified view.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 08:21-08:27",
+          "type": "host_call",
+          "quote": "When you texted me, why don't you send me your email so I can forward you those pictures?... Yeah, that would be great.",
+          "insight": "The current workflow is email-to-agent. The platform should formalize this: make the agent's inbox the listing's inbox, with direct-to-listing upload capability."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 5 Choice Architecture",
+          "type": "book",
+          "quote": "Choosers are human, so designers should make life as easy as possible. Send reminders and then try to minimize the costs imposed on those who, despite your best efforts, space out.",
+          "insight": "Kris's path of least resistance is email. The platform should meet him there, not force him into a different modality."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Listing photo section shows current photos with 'Add photos' CTA and 'Email photos to photos-[id]@splitlease.com' alternative.",
+        "loading": "Agent-uploaded photos show 'Processing...' thumbnail with progress indicator. Typically under 3 seconds.",
+        "empty": "No photos: Prominent 'Your listing needs photos' card with email/SMS upload instructions and agent-assisted option.",
+        "error": "Photo too large or wrong format: Auto-resize if possible, notify agent if not. Host never sees the error.",
+        "success": "Photo added: Thumbnail appears in listing with 'Added by Bryant' attribution. Host notification: 'New photo added to your listing.'"
+      },
+      "transition_principle": "The photo pipeline should be asynchronous and invisible to the host. Kris sends an email; photos appear on the listing. The complexity is handled by the agent and platform, not by the host.",
+      "timing": {
+        "response_target": "Photo processing: under 5 seconds. Agent review queue notification: immediate. Host notification after agent approval: under 1 minute.",
+        "easing": "Photo thumbnail fade-in: 300ms ease-out (--transition-slow --easing-ease-out). Feels like the photo 'settling into place.'",
+        "rationale": "Asynchronous workflow means timing is measured in minutes, not milliseconds. The critical timing is agent response time, not UI animation."
+      },
+      "journey_state_awareness": "New listings with no photos: Aggressive prompting — agent should proactively request photos. Listings with some photos: Suggest improvements — 'Your listing would benefit from a rooftop photo.' Mature listings: Occasional photo refresh prompts — 'Your photos are 6 months old — time for an update?'",
+      "edge_cases": ["Host sends photos but no agent is assigned: Route to a general review queue.", "Multiple people send photos for the same listing: Queue all, let agent curate.", "Host sends non-photo attachments: Reject gracefully with 'We received your file but it doesn't appear to be a photo.'"]
+    }
+  ]
+}

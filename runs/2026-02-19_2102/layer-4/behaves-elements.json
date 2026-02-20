@@ -1,0 +1,303 @@
+{
+  "lens": {
+    "guest_call": "user-stories-initial-analysis.md",
+    "book_extract": "kahneman-part5-two-selves.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Welcome Card Progressive Reveal at Move-In Peak Moment",
+      "journey_phases": ["move_in"],
+      "problem": "Move-in is the peak-probability moment -- the guest's experiencing self is at maximum sensitivity. Kahneman Ch 38: 'Adaptation to a new situation consists in large part of thinking less and less about it.' Within days, the guest will adapt. The welcome card must capitalize on this narrow window of full attention. But the interaction pattern for the welcome card determines whether the guest actually engages with the peak content or skips past it. If the welcome card appears as a static dashboard element alongside operational notifications (payment confirmed, lease documents ready), it competes for attention with administrative noise and may not be registered as the peak moment it is designed to be. The user stories confirm: 'Any flow that requires users to give information before seeing results will lose most of them.' If the welcome card asks for anything (acknowledge rules, confirm arrival) before delivering the welcome warmth, the peak is contaminated by a task.",
+      "solution": "Design the welcome card as a full-screen takeover that appears once -- the first time the guest opens the app or dashboard after their check-in time. The takeover is not a modal; it is a full-screen card that occupies the entire viewport, centering the guest's attention exclusively on the welcome experience. (1) First frame (0ms): the listing's hero photo fades in, filling the viewport. The guest sees their space. (2) Second frame (800ms): the host's welcome message slides up from the bottom over the photo, using the peak-moment visual treatment (Instrument Serif opening line, surface-warm card with lg shadow). The guest reads a personal message. (3) Third frame (on scroll or tap): the neighborhood essentials appear below the message (coffee, grocery, transit -- three items with walking times). (4) Fourth frame (on scroll): a 'How does the space feel?' prompt with three options: Great / Good / Something's off. This is the peak capture mechanism -- the guest's first impression is recorded at the moment of maximum sensitivity. The takeover can be dismissed at any point by scrolling past the prompt or tapping 'Done.' After dismissal, the welcome card persists on the dashboard as a standard (non-takeover) card for 48 hours, accessible but not dominant. The key interaction principle: the welcome experience is the guest's FIRST interaction post-check-in, not competing with anything else. It commands full attention because it commands the full screen.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 38 (Focusing Illusion)",
+          "type": "book",
+          "quote": "Nothing in life is as important as you think it is when you are thinking about it.",
+          "insight": "The full-screen takeover ensures the guest is thinking about exactly one thing: the welcome. The focusing illusion amplifies whatever commands attention. By giving the welcome card the entire screen at the peak-sensitivity moment, the platform ensures the focusing illusion works in its favor -- the welcome IS the guest's reality at that moment."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "guest_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them. Show something useful first. Offer to refine after.",
+          "insight": "The welcome card shows value (hero photo, host message, neighborhood essentials) across three frames before asking anything (the 'How does the space feel?' prompt in frame four). The ask comes after three consecutive value deliveries, following Rod's principle exactly."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Peak-end rule)",
+          "type": "book",
+          "quote": "If the objective is to reduce patients' memory of pain, lowering the peak intensity of pain could be more important than minimizing the duration of the procedure.",
+          "insight": "The full-screen takeover maximizes the peak intensity of the welcome experience by eliminating competing visual elements. A dashboard card that shares screen space with notifications produces a diluted peak. A full-screen experience that commands the entire viewport produces a vivid peak that the remembering self stores at full intensity."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Before check-in time: no welcome card is visible. The dashboard shows the upcoming stay card with check-in instructions. The welcome card is staged server-side, waiting for the check-in time to trigger.",
+        "loading": "The hero photo uses a progressive loading pattern: a bg-deep (#eae7e1) placeholder fills the viewport first, then the photo fades in over 400ms. This prevents a blank screen at the peak moment. If the photo is slow to load, the host's welcome message appears on the placeholder background.",
+        "empty": "If the host did not provide a welcome message (edge case -- the platform prompts hosts 48 hours before, but some do not respond): the welcome card omits the message frame and leads with the neighborhood essentials after the hero photo. A platform-generated welcome replaces the host message: 'Welcome to [neighborhood]. Here is what is nearby.' The peak is preserved, though at lower emotional intensity.",
+        "error": "If the welcome card fails to load: the dashboard reverts to the standard stay card view with a small inline prompt: 'Your welcome guide is loading.' When connectivity is restored, the welcome card appears as a dashboard card (not a takeover), preserving the content if not the full-screen experience.",
+        "success": "After the guest engages with the 'How does the space feel?' prompt, the takeover transitions to a brief confirmation: 'Got it. Enjoy your stay.' This confirmation persists for 2 seconds, then the takeover dissolves (300ms fade-out) to reveal the standard dashboard. If the guest selected 'Something's off,' the confirmation includes: 'We will check in with you shortly' -- and a platform intervention is triggered."
+      },
+      "transition_principle": "The welcome card takeover should feel like arriving at a place, not opening an app. The hero photo fade-in is slow and cinematic (400ms ease-in). The host message slides up gently (500ms ease-out), as if being offered. The neighborhood essentials appear with a stagger (100ms between items, 200ms each). The entire sequence takes about 2 seconds to fully load, which matches the real-world tempo of stepping into a new space and looking around. Nothing snaps or jumps. The guest should feel: 'this is my space now.'",
+      "timing": {
+        "response_target": "Welcome card triggers at check-in time (or first app open after check-in time). Hero photo renders within 400ms. Host message appears 800ms after photo. Full sequence completes in under 2 seconds.",
+        "easing": "Hero photo: ease-in, 400ms fade. Host message: ease-out, 500ms slide-up from bottom. Neighborhood essentials: ease-out, 200ms per item, 100ms stagger. Dismissal: ease-in, 300ms fade-out.",
+        "rationale": "The timing is deliberately slower than standard UI transitions (which are typically 150-250ms) because the welcome card is not a UI element -- it is a designed experience. The remembering self stores experiences that feel significant, and significance is partly a function of temporal weight. A 2-second reveal sequence feels more important than a 200ms pop-up."
+      },
+      "journey_state_awareness": "For first-time guests (no prior Split Lease stays): the welcome card includes a brief contextual note: 'This is your first stay with Split Lease. Your host [name] prepared this welcome for you.' For returning guests (prior stays at other listings): the note adapts: 'Welcome back to Split Lease. [Host name] has prepared your space.' For returning guests at the same listing: 'Welcome back to [address]. [Host name] remembers you.' Each adaptation creates a more personalized peak for the remembering self.",
+      "edge_cases": [
+        "Guest opens the app before check-in time: the welcome card does not trigger. The dashboard shows the standard 'Upcoming stay' card with check-in time and access instructions. The welcome card waits for the check-in window.",
+        "Guest does not open the app on check-in day: the welcome card triggers on first app open, regardless of how many days have passed. After 72 hours post-check-in, the takeover format downgrades to a standard dashboard card (still with the host message and neighborhood essentials, but not full-screen).",
+        "Host message contains inappropriate content: the platform reviews host messages before surfacing. If flagged, a platform-generated welcome replaces the host's message.",
+        "Guest has seen the takeover and wants to reference the welcome content later: the welcome card persists on the dashboard for 48 hours as a standard card, then moves to a 'Your stay info' section accessible from the nav."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Lease-End Gratitude Sequence with Graduated Emotional Arc",
+      "journey_phases": ["active_lease"],
+      "problem": "Kahneman Ch 35's colonoscopy study showed that 'gradual relief may be preferable to abrupt relief if patients retain a better memory when the pain at the end of the procedure is relatively mild.' Applied to the lease ending: an abrupt end (last stay, done, silence) produces a flat or negative ending memory. A gradual, emotionally ascending ending produces a positive one. The platform currently has no designed interaction sequence for the lease ending. The guest's last interaction is a per-stay checkout (cleaning photos, possibly a review). This is operationally identical to every other weekly checkout, which means the ending does not feel like AN ending. The peak-end rule requires the ending to be emotionally distinct -- the guest must recognize that this is the conclusion of a story, not just another weekly cycle. The interaction behavior must create this emotional distinction through a sequence that gradually increases warmth and narrative significance over the final week.",
+      "solution": "Design a three-phase interaction sequence that creates a graduated emotional arc over the final 7 days. Phase 1 -- Reflection (7 days before final stay): a 'Lease Summary' card appears on the dashboard with a gentle slide-in animation (300ms ease-out). The card shows total stays, duration, and neighborhood. An optional prompt: 'What will you remember most?' with a text field. The guest can engage or ignore. The card persists until Phase 2. Interaction: passive (the card appears, the guest reads, optionally responds). Phase 2 -- Farewell (during final stay): the card evolves. The host's closing message appears (triggered by the host's response to the platform's 48-hour prompt). The neighborhood essentials from move-in are re-surfaced below the message with a farewell label: 'Your spots in [neighborhood].' A 'Make it count' prompt invites the guest to take a photo of their favorite feature. Interaction: the card updates in place (no navigation required), the host message slides in (300ms ease-out), and the photo prompt is a single-tap action that opens the camera. Phase 3 -- Gratitude (24 hours after final departure): the card transforms into its final state: a full-width narrative card showing the complete lease story. The guest's own memory response and photo (if captured) are displayed alongside the host's message and the lease summary. A rebooking prompt appears at the bottom: 'Stay in [neighborhood]?' with a single-tap action to browse available listings in the same area. Interaction: the gratitude card uses the peak-moment visual treatment (lg shadow, serif opening, hero photo). It commands visual emphasis on the dashboard for 72 hours before transitioning to a 'Past leases' archive.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Cold-hand experiment)",
+          "type": "book",
+          "quote": "Fully 80% of the participants who reported that their pain diminished during the final phase of the longer episode opted to repeat it.",
+          "insight": "A gradually improving ending produces a preference for repeating the experience. The three-phase lease-end sequence creates this gradient: from reflection (neutral-positive) to farewell (warm) to gratitude (peak positive). The emotional trajectory slopes upward, mimicking the gradually improving final phase that caused 80% of Kahneman's subjects to choose to repeat the experience."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "guest_call",
+          "quote": "When a guest messages a host, that's not just UX convenience -- it's the moment two strangers begin to trust each other through the platform.",
+          "insight": "The host's closing message is the final cross-activation event. It creates a human warmth peak at the ending. The interaction design ensures the message arrives during the final stay (Phase 2), giving the guest time to absorb it before the full gratitude moment (Phase 3). The emotional arc: neutral (lease summary) > warm (host farewell) > peak (narrative closure + rebooking)."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 36 (Amnesic Vacations)",
+          "type": "book",
+          "quote": "The intentions for future vacations were entirely determined by the final evaluation -- even when that score did not accurately represent the quality of the experience described in the diaries.",
+          "insight": "The Phase 3 gratitude card IS the final evaluation's interaction surface. If it is warm, narrative, and human (host message + guest memory + hero photo), the final evaluation is positive and rebooking intent follows. The rebooking prompt is positioned at this peak emotional moment, not in a cold re-engagement email weeks later."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "During the active lease (before the final 7 days): the lease-end sequence is dormant. The dashboard shows the standard stay cycle cards. No lease-end elements are visible. The guest has no awareness of the upcoming sequence until it triggers.",
+        "loading": "Phase 1 card: slides in on the dashboard with a 300ms ease-out animation. If the host's closing message is not yet submitted (Phase 2): the card shows a placeholder: 'A message from [host name] is on its way.' Phase 3 transformation: the card cross-fades from its Phase 2 state to the full gratitude layout over 400ms.",
+        "empty": "If the host does not submit a closing message: the lease-end card omits the host message and leads with the lease summary and neighborhood farewell. A platform-generated note replaces the message: 'Thank you for staying in [neighborhood] with [host name].' If the guest did not respond to the memory prompt or photo prompt: the gratitude card shows the lease summary and host message without guest content.",
+        "error": "If Phase 3 fails to render (connectivity issue): the Phase 2 card persists with a note: 'Your lease summary is being prepared.' When connectivity is restored, the full Phase 3 card appears. The gratitude content is stored server-side and will render correctly on the next app open.",
+        "success": "Phase 3 complete: the gratitude card persists on the dashboard for 72 hours with the rebooking prompt. After 72 hours, it transitions to a 'Past leases' section (a gentle opacity reduction to 70% and a relocation below active content). The guest can always access past lease cards from the archive. If the guest taps 'Stay in [neighborhood]?': the search results page opens pre-filtered to the same neighborhood, with the listing they previously stayed at featured at the top (if available)."
+      },
+      "transition_principle": "Each phase transition should feel like a chapter turning, not a card updating. Phase 1 to Phase 2: the card does not reload; the host's message slides into the existing card from the bottom (300ms ease-out), creating the feeling that new warmth has arrived. Phase 2 to Phase 3: the card cross-fades (400ms ease-in-out) from its farewell state to the full gratitude state, with the hero photo fading in first, then the narrative text. The transitions mirror the emotional arc: gentle arrival (Phase 1), warm addition (Phase 2), full resolution (Phase 3).",
+      "timing": {
+        "response_target": "Phase 1 triggers exactly 7 days before the final stay. Phase 2 triggers when the host's closing message is submitted (prompted 48 hours before final stay). Phase 3 triggers 24 hours after the guest's final departure confirmation. Each phase card appears within 1000ms of its trigger.",
+        "easing": "Phase 1 slide-in: ease-out, 300ms. Phase 2 message slide-in: ease-out, 300ms. Phase 3 cross-fade: ease-in-out, 400ms. Photo fade-in within Phase 3: ease-in, 350ms. Rebooking prompt appearance: ease-out, 250ms (200ms after the cross-fade completes).",
+        "rationale": "The timing creates a rhythm that the guest can anticipate but not rush. Seven days is long enough to begin the reflective process without creating premature nostalgia. The host's message arrival during the final stay creates a surprise warmth peak. The 24-hour delay before Phase 3 gives the guest time to physically depart and emotionally settle before the narrative closure is offered."
+      },
+      "journey_state_awareness": "For first-time guests: the Phase 3 gratitude card includes: 'This was your first Split Lease stay. How did it go?' with a more detailed feedback mechanism (3-question mini-survey, not just a rating). For returning guests: the card includes: 'Your [Nth] stay with Split Lease. You have spent [total weeks] in [neighborhoods].' For guests rebooking with the same host: Phase 3 includes a 'Rebook with [host name]' shortcut alongside the general neighborhood search.",
+      "edge_cases": [
+        "Guest departs early (before the scheduled final stay): Phase 3 triggers 24 hours after the early departure, using the actual dates instead of the scheduled dates. The lease summary reflects reality ('Stayed [actual] of [planned] weeks'), with no judgment.",
+        "Host does not submit a closing message despite the 48-hour prompt: Phase 2 proceeds without it. A second prompt is sent to the host. If no response within 24 hours, the platform-generated farewell fills the gap.",
+        "Guest dismisses or ignores all three phases: the gratitude card (Phase 3) still appears and persists for 72 hours. It is passive -- no push notifications, no email nagging. The rebooking prompt remains accessible but does not escalate.",
+        "Lease ends due to early termination or dispute: the gratitude sequence is suppressed entirely. Instead, a neutral 'Lease concluded' card appears with a link to support. No narrative closure is attempted when the ending was not positive.",
+        "Multiple leases ending simultaneously (guest with stays at two listings): each lease gets its own gratitude sequence, staggered by 24 hours to prevent overlap."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Listing Card Carousel Interaction for Search Peak Generation",
+      "journey_phases": ["search"],
+      "problem": "The search session is governed by Kahneman Ch 35: 'System 1 represents sets by averages, norms, and prototypes, not by sums.' The entire session will be represented by one prototypical listing card. The interaction design of the listing card determines how many peak opportunities each card provides. A single static photo provides one chance for a visual peak. A carousel that the guest can swipe or that auto-advances on hover provides multiple chances. The user stories prescribe 'each listing card to show a photo carousel with navigation arrows so that I preview multiple images without leaving search results.' The interaction challenge is: how should the carousel behave to maximize peak probability without creating interaction fatigue? Aggressive auto-advance (too fast) overwhelms. Passive (requires manual interaction) under-serves guests who are scanning quickly. The interaction must match the natural tempo of search browsing -- the guest is scanning a grid, pausing briefly on interesting cards, and moving on.",
+      "solution": "Design the carousel with a dual-behavior interaction model that adapts to the guest's engagement level. (1) Passive scanning (no hover/focus): the card shows the first photo with a subtle image counter badge ('1/5') in the bottom-right. Navigation dots appear at the bottom of the photo area, showing the total image count. The guest can see at a glance that more photos exist without any interaction. (2) Active exploration (hover or focus): the carousel auto-advances one image every 2.5 seconds. The transition uses a crossfade (250ms ease-in-out) rather than a slide (crossfade is smoother for ambient viewing and does not create a 'slideshow' feel). Each auto-advance is a new peak opportunity -- the second photo might be the one that creates the positive moment the remembering self stores. The guest can interrupt auto-advance at any point by clicking a navigation dot, which stops auto-advance and gives manual control. (3) Touch interaction (mobile): swipe to advance, with a snapping gesture that aligns each photo precisely. Swipe velocity determines whether the gesture advances one photo (slow swipe) or skips ahead (fast swipe). On mobile, there is no auto-advance -- the guest controls the tempo entirely. (4) The carousel interaction is bounded: it does not loop. After the last photo, a final state shows a subtle 'View listing' prompt overlaid on a dimmed version of the last photo. This creates a natural end to the card interaction and a clear path to the listing detail page.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Listing cards section",
+          "type": "guest_call",
+          "quote": "As a guest, I want each listing card to show a photo carousel with navigation arrows so that I preview multiple images without leaving search results.",
+          "insight": "The user story specifies the feature; the Two Selves lens explains the interaction design. The carousel must auto-advance to create peaks for guests who are passively scanning (hover without intent to interact), while also supporting manual control for guests who are actively exploring a specific card."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Two Selves)",
+          "type": "book",
+          "quote": "System 1 represents sets by averages, norms, and prototypes, not by sums.",
+          "insight": "Each photo in the carousel is a prototype candidate. The more photos the guest sees, the higher the probability that one of them registers as a vivid positive moment. The auto-advance mechanism ensures the guest sees 2-3 photos during a typical hover (5-7 seconds), tripling the peak probability compared to a single static photo."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 36 (Amnesic Vacations)",
+          "type": "book",
+          "quote": "The frenetic picture taking of many tourists suggests that storing memories is often an important goal, which shapes both the plans for the vacation and the experience of it.",
+          "insight": "The carousel invites the guest to 'browse memories' of a space they have not yet visited. Each photo is a prospective memory -- the guest imagines themselves in the scene. The crossfade transition between photos creates a dreamlike quality that supports this prospective memory formation, making the search experience itself more memorable."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "First photo visible with image counter badge ('1/5') and navigation dots. No auto-advance. The card is in its passive state, waiting for interaction.",
+        "loading": "If photos are slow to load (poor connectivity): the first photo uses a blurred placeholder derived from the photo's dominant color. Subsequent photos load progressively -- the guest can hover and see photos loading in real-time as they advance.",
+        "empty": "If a listing has only one photo: the image counter badge does not appear. No navigation dots. The single photo is displayed at full size. The card still functions but with reduced peak probability. The platform should flag single-photo listings to hosts with a prompt: 'Listings with 4+ photos get 3x more views.'",
+        "error": "If a photo fails to load during auto-advance: the carousel skips the failed photo and advances to the next. No error indicator is shown -- a missing photo in a carousel is invisible to the guest. If all photos fail: the card shows a subtle bg-deep (#eae7e1) placeholder with the listing title and neighborhood label. The card remains functional but the visual peak opportunity is lost.",
+        "success": "After the final photo: the carousel shows a 'View listing' overlay on the dimmed last photo. If the guest clicked a navigation dot (active exploration): the carousel remains at the selected photo until the guest moves to another card. If the guest's hover produced auto-advance through all photos: the 'View listing' prompt appears as a natural endpoint."
+      },
+      "transition_principle": "Photo transitions must feel like looking around a room, not flipping through a slideshow. The crossfade (250ms) creates a dissolve effect where both photos are briefly visible simultaneously -- this produces a layered visual impression that feels spatial rather than sequential. The transition is slow enough to be perceptible (the guest registers that the image changed) but fast enough to not feel like waiting. On mobile, the swipe snap is immediate (150ms) because the guest's finger is controlling the tempo.",
+      "timing": {
+        "response_target": "Hover-to-auto-advance: 800ms delay before first auto-advance begins (the guest must hover for nearly a second before the carousel starts -- this prevents accidental activation from mouse movement). Auto-advance interval: 2500ms between photos. Manual navigation dot click: 0ms (immediate response).",
+        "easing": "Auto-advance crossfade: ease-in-out, 250ms. Navigation dot click: ease-out, 200ms crossfade. Mobile swipe snap: ease-out, 150ms. 'View listing' overlay appearance: ease-in, 300ms fade.",
+        "rationale": "The 800ms hover delay prevents the carousel from activating every time the mouse passes over a card in the grid (which would be visually chaotic). The 2500ms interval allows the guest to absorb each photo -- faster intervals create a frantic slideshow, slower intervals lose the attention of scanning guests. The crossfade easing creates the spatial, dreamlike quality that supports prospective memory formation."
+      },
+      "journey_state_awareness": "For guests who have previously saved or messaged about a listing: the card shows a small 'Saved' or 'Messaged' indicator in the top-right corner of the photo area, persisting across all carousel photos. This contextual memory (the guest's own history with this listing) adds a personal peak dimension to the search session. For guests with search filters active: cards that match all filters show the availability signal ('Available your dates') more prominently, increasing the peak probability for highly relevant results.",
+      "edge_cases": [
+        "Guest hovers on a card, auto-advance starts, guest moves mouse away: auto-advance stops immediately. The card freezes on the current photo. On re-hover, auto-advance resumes from the current position.",
+        "Grid re-renders while a carousel is active (infinite scroll loads new cards): active carousel state is preserved for the card the guest is hovering on. New cards below load in their default (first photo) state.",
+        "Carousel images are different aspect ratios: all carousel images are cropped to a consistent aspect ratio (3:2 landscape) within the card frame. The cropping is centered, ensuring the most relevant portion of each photo is visible.",
+        "Accessibility: keyboard navigation uses arrow keys to advance the carousel. Focus on a card immediately starts a slower auto-advance (4000ms interval) to give screen-reader-adjacent users time to process each image. Each photo has an alt text derived from the listing's description."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Inline Authentication at the Human Connection Moment",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "Messaging is the highest cross-activation moment in the guest journey -- it is where 'two strangers begin to trust each other through the platform.' It is also a peak-generating interaction that the remembering self stores as evidence of human connection. But messaging requires authentication, and authentication is the interaction where many platforms create negative peaks. The user stories are explicit: 'Authentication should be invisible until it matters. Inline auth pop-up, not a full-page redirect. Users don't lose search context.' Kahneman Ch 38: 'Nothing in life is as important as you think it is when you are thinking about it.' At the moment the guest decides to message a host, they are thinking about one thing: connecting with this person about this space. A full-page redirect to a registration screen replaces the 'connection' thought with a 'bureaucracy' thought. The focusing illusion snaps from the listing to the platform, and the positive peak (human impulse to connect) is replaced by a negative peak (institutional demand for credentials). The impulse dies; the guest leaves.",
+      "solution": "Design authentication as an inline overlay that preserves the listing context and feels like a brief pause in the conversation, not a detour. (1) Trigger: the guest taps 'Message Host.' If unauthenticated, a compact overlay slides up from the bottom of the screen (not a modal that obscures the listing). The overlay is positioned below the message compose area, so the listing and the host's photo remain visible above. (2) Overlay content: minimal. 'Sign in to message [host name]' with two options: Continue with Google (single tap) and Continue with email (email field + 'Send code' button -- passwordless). The overlay uses the surface-warm background and accent CTA styling to match the listing page's warmth, not the cold white/gray of a typical auth form. (3) Seamless continuation: after authentication completes (Google: 2-3 seconds, email code: 10-15 seconds), the overlay dissolves (200ms fade-out) and the message compose area is now active. The guest is in the same viewport position, looking at the same listing, with the cursor blinking in the message field. The context was never lost. The interaction was a brief pause, not a journey detour. (4) Authentication state: once authenticated, the guest is authenticated for the session. Subsequent actions (messaging other hosts, creating proposals) do not re-trigger auth. The auth overlay never appears again.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible' section",
+          "type": "guest_call",
+          "quote": "Authentication should be invisible until it matters. Inline auth pop-up, not a full-page redirect. Users don't lose search context. High-intent actions trigger it -- messaging, proposing -- nothing else.",
+          "insight": "Rod's prescription is exact: inline, not full-page; triggered by high-intent actions, not by passive browsing. The Two Selves lens adds the mechanism: the full-page redirect kills the human connection peak by replacing the 'I want to message this host' thought with the 'I have to create an account' thought. The focusing illusion shifts from positive (connection) to negative (bureaucracy)."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 38 (Focusing Illusion)",
+          "type": "book",
+          "quote": "Nothing in life is as important as you think it is when you are thinking about it.",
+          "insight": "At the messaging moment, the guest is thinking about the host and the space. A full-page auth redirect changes what the guest is thinking about -- from the human connection to the institutional requirement. The inline overlay keeps the host's photo and the listing visible, ensuring the guest continues thinking about the connection throughout the auth process."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 36 (Life as a Story)",
+          "type": "book",
+          "quote": "A story is about significant events and memorable moments, not about time passing.",
+          "insight": "The messaging attempt is a significant event in the guest's booking story: the moment they decided to reach out. A full-page auth redirect inserts a bureaucratic chapter into this story. An inline overlay preserves the narrative flow: decided to message > briefly signed in > sent the message. The story has no bureaucratic interruption."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The 'Message Host' button is visible and active regardless of authentication state. Unauthenticated guests see no indication that auth is required until they tap the button. This follows the principle that auth should be invisible until it matters.",
+        "loading": "After the guest initiates Google auth or enters an email code: a subtle progress indicator (a thin accent-colored bar across the top of the auth overlay) shows that authentication is processing. The listing remains fully visible above the overlay. The guest can continue reading the listing while auth processes.",
+        "empty": "Not applicable -- the auth overlay only appears when triggered by a specific action.",
+        "error": "If authentication fails (Google error, invalid email code): the overlay shows a warm error message within the same inline surface: 'That did not work -- try again or use a different method.' No page redirect, no loss of context. The error is contained within the overlay. The guest can retry or dismiss.",
+        "success": "Auth succeeds: the overlay dissolves (200ms fade-out), the message compose area activates with a cursor ready, and the guest's newly created account inherits any prior actions (saved listings, search history from the anonymous session). The transition from auth to compose is seamless -- the guest feels like they just paused briefly, not like they just created an account."
+      },
+      "transition_principle": "The auth overlay must feel like a brief aside in a conversation, not a gate between the guest and the host. The slide-up entrance (250ms ease-out from bottom) is gentle and positioned to preserve the listing context above. The dissolve exit (200ms fade-out) returns the guest to exactly where they were. The entire auth interaction should feel like taking a breath between deciding to speak and actually speaking.",
+      "timing": {
+        "response_target": "Auth overlay appears within 200ms of the 'Message Host' tap. Google auth completion: 2-3 seconds (dependent on Google's response). Email code delivery: 5-10 seconds. Email code verification: immediate (0ms perceived). Overlay dissolution after auth: 200ms.",
+        "easing": "Overlay slide-up: ease-out, 250ms. Progress bar: linear, continuous. Overlay dissolution: ease-in, 200ms. Message compose area activation: immediate (no transition needed -- the field was always there, just inactive).",
+        "rationale": "Every millisecond the auth overlay is visible is a millisecond where the guest is thinking about authentication instead of the host. The overlay must appear quickly (200ms), process quickly (auth providers), and disappear quickly (200ms). The total auth interruption should feel like 3-5 seconds -- brief enough to preserve the connection impulse."
+      },
+      "journey_state_awareness": "For guests arriving from a saved-listing notification or a shared link: auth may be their first interaction with the platform. The overlay includes a brief tagline: 'Split Lease connects you with hosts for flexible stays.' This provides minimal context without becoming an onboarding flow. For guests who previously authenticated but whose session expired: the overlay shows 'Welcome back' and pre-fills their email, reducing the interaction to a single tap.",
+      "edge_cases": [
+        "Guest taps 'Message Host,' auth overlay appears, guest changes mind: the overlay has a small 'x' dismiss button in the top-right corner. Dismissing returns the listing to its pre-auth state with no side effects.",
+        "Guest authenticates via the messaging trigger, then navigates to create a proposal: no re-authentication required. The session persists.",
+        "Guest is on a slow connection and auth takes more than 10 seconds: the overlay shows a reassuring message: 'Still connecting...' The listing remains visible. After 30 seconds with no response, the overlay offers: 'Try a different sign-in method.'",
+        "Guest's browser blocks third-party cookies (affecting Google auth): the overlay detects this and highlights the email option with a note: 'Email is the fastest option on your browser.'",
+        "Accessibility: the auth overlay traps keyboard focus. Tab navigates between Google button, email field, and dismiss button. ESC dismisses the overlay. Screen readers announce: 'Sign in to message [host name].'"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Mid-Lease Narrative Check-In for Duration Neglect Mitigation",
+      "journey_phases": ["active_lease"],
+      "problem": "Duration neglect (Kahneman Ch 35) means the middle of the lease is mnemonically invisible. The experiencing self lives through it; the remembering self discards it. A 16-week lease produces the same retrospective evaluation as a 4-week lease because 'duration had no effect whatsoever on the ratings.' The platform needs to create memorable moments during the middle that the remembering self can store -- moments that break the adaptation monotony (Ch 38: 'adaptation consists of thinking less and less about it'). The L1 (works-006) prescribes mid-lease check-ins and milestone celebrations. The L2 (communicates-005) prescribes a narrative information layer. The interaction challenge is: how should the check-in feel? If it feels like a survey ('Rate your experience 1-5'), it is experienced as extraction and produces a negative micro-peak. If it feels like a personal reflection ('What has been the best part?'), it is experienced as attention and produces a positive micro-peak. The interaction design determines which.",
+      "solution": "Design the mid-lease check-in as a brief, warm, reflective interaction that feels like a friend asking how things are going. (1) Trigger: the check-in card appears on the dashboard at the lease midpoint (calculated from total stays). It uses the milestone visual treatment (surface-warm background, Instrument Serif headline, accent-light left border). Headline: 'Halfway through.' Subtext: '[X] stays complete in [neighborhood].' (2) Interaction: a single prompt: 'What has been the best part so far?' with three response modes -- a text field (for guests who want to write), three quick-tap options ('The space' / 'The neighborhood' / 'The routine'), or a dismiss text link ('Skip'). The quick-tap options require zero typing and create a micro-moment of positive reflection. The text field is optional and expandable. (3) Response acknowledgment: after the guest responds, the card briefly shows a warm acknowledgment: 'Glad to hear it. [X] stays to go.' Then it transitions to a persisted state (dimmed, moved to the narrative section of the dashboard). The response is stored and surfaced in the Phase 3 gratitude card at lease end, creating a narrative through-line from the middle to the ending. (4) If the guest selects a quick-tap option or writes a positive response, no further action. If the guest writes a negative response or taps 'Something could be better' (a fourth option that appears only in the text field mode), the platform triggers a quiet escalation: the guest's agent or support team receives a flag. The guest sees: 'Thanks for sharing. We will look into this.'",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Duration neglect)",
+          "type": "book",
+          "quote": "Duration of the procedure had no effect whatsoever on the ratings of total pain.",
+          "insight": "The mid-lease check-in creates a memorable moment in the duration that would otherwise be discarded. The guest pauses, reflects positively, and the remembering self stores this reflection as a data point. Without it, the middle weeks produce zero data for the retrospective evaluation."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "guest_call",
+          "quote": "Show something useful first. Offer to refine after.",
+          "insight": "The check-in shows something first (progress summary: halfway, X stays, neighborhood name) before asking anything (the reflection prompt). The value delivery (seeing your progress summarized) precedes the ask (sharing your experience). This follows Rod's principle and ensures the check-in feels like attention, not extraction."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 38 (Focusing Illusion and adaptation)",
+          "type": "book",
+          "quote": "Adaptation to a new situation, whether good or bad, consists in large part of thinking less and less about it.",
+          "insight": "The check-in interrupts adaptation by directing the guest's attention back to their lease experience. This moment of renewed attention is itself the peak -- the guest thinks about their situation, evaluates it (typically positively, because they are still there), and the remembering self stores this positive evaluation as a mid-lease data point."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Before the lease midpoint: no check-in card visible. The dashboard shows the standard stay cycle cards. After the midpoint trigger: the check-in card appears with a 300ms slide-in animation in the narrative section of the dashboard.",
+        "loading": "Not applicable -- the check-in card is pre-rendered and requires no data fetching beyond the lease metadata (stays completed, neighborhood), which is already cached on the client.",
+        "empty": "If the guest dismisses ('Skip'): the card transitions to its persisted state immediately (opacity dims to 60%, moves to past-moments section). No follow-up prompt is sent. The check-in does not reappear for this lease.",
+        "error": "Not applicable -- the check-in is a client-side interaction with no server dependency until the response is submitted. If response submission fails: the card shows 'Saved on your device -- we will sync when you are back online.' The response is preserved in local storage.",
+        "success": "After response: the card shows the acknowledgment ('Glad to hear it. [X] stays to go.') for 3 seconds, then transitions to its persisted state. The response is stored and linked to this lease for later surfacing in the gratitude card."
+      },
+      "transition_principle": "The check-in card should feel like a gentle tap on the shoulder, not an interruption. The 300ms slide-in brings it into view without displacing existing content (it appears in its own section, not pushing operational cards down). The quick-tap response produces an immediate visual acknowledgment (the selected option highlights in accent-light for 200ms). The post-response transition is a quiet settling -- the card dims and moves, not a celebratory animation.",
+      "timing": {
+        "response_target": "Check-in card trigger: calculated as the midpoint of total scheduled stays (e.g., stay 8 of 16). Card appears on the first dashboard view after the midpoint stay is completed. Quick-tap response: immediate (0ms). Text field submission: on 'Done' tap, immediate (0ms perceived, background sync). Acknowledgment display: 3000ms. Transition to persisted state: 300ms ease-out.",
+        "easing": "Card slide-in: ease-out, 300ms. Quick-tap highlight: ease-in-out, 200ms. Acknowledgment appearance: fade-in, 200ms. Persisted-state transition: ease-in, 300ms (opacity 100% to 60% + position shift).",
+        "rationale": "The check-in must feel lightweight. The 300ms slide-in is quick enough to not feel like loading, slow enough to be noticed as a new element. The 3-second acknowledgment display gives the guest time to read the response but does not linger. The entire interaction, from card appearance to persisted state, should take under 15 seconds."
+      },
+      "journey_state_awareness": "For guests on short leases (4-6 weeks): the check-in triggers at week 3, not the strict midpoint, to ensure it appears before the lease-end sequence begins. For guests on long leases (16+ weeks): a second, lighter check-in can appear at the 75% mark with a different prompt: 'Almost there. What is something you will miss about this space?' For guests who previously reported an issue during the check-in: the lease-end gratitude card references the resolution: 'You mentioned [issue] -- we hope that was resolved.'",
+      "edge_cases": [
+        "Guest has no app installed and uses only web: the check-in card appears on the web dashboard using the same visual treatment and interaction pattern. No push notification is sent for the check-in -- it waits for the guest to visit the dashboard.",
+        "Guest is on a lease that was extended mid-way (duration changed from 8 to 16 weeks): the check-in recalculates the midpoint based on the new total. If the guest already saw a check-in at the original midpoint (week 4 of 8), a second check-in does not appear.",
+        "Guest responds with a negative text response: the platform support team is notified within 1 hour. The guest sees the standard 'Thanks for sharing. We will look into this.' No automated remediation -- human follow-up only."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Counter-Proposal Interaction with Common-Ground Anchoring",
+      "journey_phases": ["negotiation"],
+      "problem": "Kahneman's loss aversion predicts that the guest will experience a counter-proposal as a loss. If the guest proposed 16 weeks and the host countered with 10, the guest feels the loss of 6 weeks more intensely than the gain of securing the stay. The remembering self stores the negotiation as defined by its peak moment. If the peak is the shock of seeing reduced terms, the narrative is 'they rejected me.' If the peak is a warm message from the host explaining the adjustment, the narrative is 'we worked it out.' The interaction design of the counter-proposal view determines which peak the remembering self captures. Currently, counter-proposals arrive as parameter changes -- numbers that have shifted. The guest scans for what changed, finds what was lost, and experiences loss aversion. The interaction pattern must redirect the guest's first attention from the loss (changed terms) to the preserved relationship (host's message and common ground).",
+      "solution": "Design the counter-proposal interaction to lead with the human element and common ground before revealing parameter changes. (1) Notification: the guest receives a notification: '[Host name] responded to your proposal.' Not 'Your proposal was counter-proposed.' The language frames the counter as a conversation, not a rejection. (2) First view: the counter-proposal card opens with the host's personal message at the top (Instrument Serif opening, matching the peak-moment visual treatment). The guest reads the host's explanation before seeing any numbers. (3) Second view (on scroll or auto-reveal after 2 seconds): the 'Where you agree' section (accent-light background, accent text) showing unchanged terms. Then the 'Adjusted terms' section showing the comparison (original | suggested) in neutral ink color, no red, no strikethrough. (4) Action options: 'Accept [host's] terms' (primary, accent CTA), 'Suggest a change' (secondary outline), 'Message [host name]' (tertiary text link). The 'Message' option ensures the guest can continue the conversation if neither accepting nor countering feels right. The interaction flow is: human warmth > preserved agreement > neutral change > guest agency. Each step is designed to prevent the loss-aversion peak by anchoring the guest's attention in the positive before revealing the neutral.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Two Selves)",
+          "type": "book",
+          "quote": "The experiencing self does not have a voice. The remembering self is sometimes wrong, but it is the one that keeps score and governs what we learn from living, and it is the one that makes decisions.",
+          "insight": "The guest's decision to accept, adjust, or walk away is made by the remembering self. The peak of the negotiation -- whether it is the host's warm message or the shock of changed numbers -- determines this decision. The interaction must ensure the warm message is experienced first, becoming the peak that the remembering self stores."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "guest_call",
+          "quote": "When a guest messages a host, that's not just UX convenience -- it's the moment two strangers begin to trust each other through the platform.",
+          "insight": "The host's message within the counter-proposal IS the trust moment. If it arrives without human warmth (bare parameter changes), trust erodes. If it arrives with explanation and acknowledgment, trust deepens. The interaction design must ensure the human message is always present and always first."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 38 (Focusing Illusion)",
+          "type": "book",
+          "quote": "Any aspect of life to which attention is directed will loom large in a global evaluation.",
+          "insight": "The 'Where you agree' section directs attention to common ground before the guest attends to changes. This focusing-illusion management ensures the guest's global evaluation of the counter-proposal is anchored in agreement, not loss."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Before a counter-proposal is received: the guest's proposal shows 'Waiting for [host name]' status. No counter-proposal elements are visible.",
+        "loading": "When the counter-proposal notification is tapped: the host's message renders first (fastest element -- plain text). The common-ground and comparison sections render 200ms later (require calculation against original terms). If the comparison is slow to render, the host's message is fully readable while the terms load.",
+        "empty": "If the host did not include a personal message with the counter (the platform prompts but does not require): the counter-proposal card leads with the 'Where you agree' section instead, and a platform-generated note: '[Host name] has suggested some changes to your proposal.' The common-ground-first hierarchy is preserved even without the human message.",
+        "error": "If the counter-proposal fails to load: the notification text provides a fallback: '[Host name] responded. Tap to view when connected.' The counter-proposal content is stored server-side and renders on the next successful connection.",
+        "success": "Guest taps 'Accept': optimistic transition -- the card immediately shows 'Accepted' with a green check and the agreed terms. The host is notified. Guest taps 'Suggest a change': the card transitions to an inline editing mode where the guest can adjust the host's suggested terms. Guest taps 'Message': the compose field appears inline, below the counter-proposal card, preserving the full negotiation context."
+      },
+      "transition_principle": "The counter-proposal view must feel like receiving a letter, not processing a form. The host's message appears with a gentle fade-in (300ms). The common-ground section slides in from the left (250ms ease-out), creating the visual metaphor of 'what we share.' The changes section follows (200ms later) from the same direction. The staggered entrance ensures the guest processes warmth, then agreement, then adjustment -- in that order.",
+      "timing": {
+        "response_target": "Notification delivery: within seconds of host submission. Counter-proposal card render: host message in 200ms, common ground in 400ms, changes in 600ms. Accept action: 0ms perceived (optimistic). Message compose: 200ms slide-in.",
+        "easing": "Host message fade-in: ease-in, 300ms. Common-ground slide-in: ease-out, 250ms. Changes slide-in: ease-out, 200ms. Accept optimistic transition: ease-out, 200ms.",
+        "rationale": "The staggered rendering (200ms, 400ms, 600ms) creates a natural reading rhythm that mirrors the emotional arc: warmth first, agreement second, details third. The 600ms total render time is fast enough to feel responsive but slow enough to establish the processing order."
+      },
+      "journey_state_awareness": "For first-time guests receiving their first counter-proposal: a brief contextual note appears below the host's message: 'Counter-proposals are normal -- most leases involve a round or two of adjustments.' For guests with prior Split Lease experience: the note is omitted (they know the process). If the guest previously messaged this host before proposing: the counter-proposal card references the prior conversation: 'You and [host name] have been chatting since [date].' This narrative continuity strengthens the human connection anchor.",
+      "edge_cases": [
+        "Host sends a counter-proposal while the guest is offline: the counter-proposal card appears on the next app open, with the host's message timestamp visible so the guest knows when it was sent.",
+        "Guest receives counter-proposals from multiple hosts simultaneously (rare -- guest proposed to several listings): each counter-proposal gets its own card, sorted by receipt time. No comparison between different hosts' counters is surfaced -- each negotiation is its own narrative.",
+        "Host counter-proposes with no changes (accepts the guest's terms exactly): this should not happen in the system, but if it does, the card shows: '[Host name] accepted your proposal as-is.' with the host's message and a direct 'Proceed' CTA.",
+        "Guest dismisses the counter-proposal card without acting: the card persists in the action-required section of the dashboard with a gentle amber badge: 'Waiting for your response.' It does not escalate beyond this badge. After 7 days without action, a single notification: '[Host name] is still waiting. Their terms are saved for you.'"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,451 @@
+{
+  "lens": {
+    "host_call": "jason-call.txt",
+    "book_extract": "inspired-product-discovery.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Proactive Data Readiness Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "If the platform fails to pre-assemble host evaluation data packets, agents will be unable to answer predictable host questions in real time, causing deferral and engagement decay during competitive evaluation windows.",
+      "solution": "Measure unanswered question rate during agent calls and time-to-data-availability on the platform, comparing against the element's 5-second response target.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14-06:38",
+          "type": "host_call",
+          "quote": "What's a total income between both of them? ... I'd have to look that up. I don't have it handy with me right now.",
+          "insight": "The income question went unanswered in real time, demonstrating the exact failure mode this element aims to prevent. Validation must confirm this failure mode is eliminated."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track every host evaluation call. Before each call, verify whether the agent's screen contains complete data for the 5-7 predictable host questions (combined income, individual income, employment status, credit status, previous landlord references, desired term, move-in date). After each call, log any questions the agent could not answer immediately. Calculate the unanswered question rate.",
+      "success_criteria": "Unanswered question rate below 5% across all host evaluation calls. Time from first host interaction to complete data availability on the platform under 1 hour for 90% of matches.",
+      "failure_meaning": "A failure rate above 5% means the tenant data pipeline is not completing before host calls are scheduled, indicating either a data collection bottleneck on the guest side or a workflow failure in assembling data packets before agent interactions. The fix is upstream: ensure guest vetting completes before agent outreach begins.",
+      "implementation_hint": "Create a pre-call checklist dashboard for agents that shows data completeness per match: green for all 7 fields populated, yellow for 5-6, red for fewer than 5. Block call scheduling when completeness is below yellow threshold. Log each call interaction with a boolean per predicted question: answered_immediately true/false."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Conversion Runway Compression Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "If the time between first contact and first commitment action is too long, hosts with active traditional alternatives (Craigslist, showings) will fill their vacancy through competing channels before the platform converts them.",
+      "solution": "Measure first-contact-to-first-commitment elapsed time and correlate with conversion outcome. Compare hosts who committed within 24 hours vs. those who took longer.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 13:20-13:31",
+          "type": "host_call",
+          "quote": "They're considering other places as well, right? Yes. ... I had done six total showings.",
+          "insight": "Both sides have active alternatives, creating a narrow mutual commitment window. If the platform does not compress the timeline, competing alternatives will capture one or both parties."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "For every host sourced from a competitive channel (Craigslist, traditional listing), track: (1) timestamp of first agent call, (2) timestamp of first platform link delivery, (3) timestamp of first host action on the platform (view proposal, express interest, request showing), (4) conversion outcome (host proceeded or dropped). Segment by time-to-first-action buckets: under 1 hour, 1-4 hours, 4-24 hours, over 24 hours.",
+      "success_criteria": "First-contact-to-first-commitment time under 24 hours for 70% of hosts. Conversion rate for hosts who take first platform action within 1 hour should be at least 2x the rate for hosts who take action after 24 hours.",
+      "failure_meaning": "If the 24-hour target is not met for 70% of hosts, the process has too many asynchronous handoffs. If the conversion rate does not correlate with speed, the bottleneck is not timing but content quality (the proposal itself is not compelling, regardless of when it arrives). Differentiate between timing failures and content failures before optimizing.",
+      "implementation_hint": "Add event tracking: call_started, link_sent, link_opened, first_action_taken, conversion_completed. Build a funnel dashboard showing drop-off between each event. Alert when link_sent to link_opened exceeds 4 hours."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Traditional Landlord Mental Model Accommodation Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt", "retention"],
+      "problem": "If hosts from traditional rental channels encounter platform process divergences (no showings, platform-mediated vetting) without adequate bridging, their objections will escalate and they will drop out at the evaluation phase.",
+      "solution": "Track objection resolution rates for traditional landlord concerns (showings, income verification, face-to-face contact) and correlate with continuation to onboarding.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 10:50 and 12:35-12:52",
+          "type": "host_call",
+          "quote": "I've been doing showings. It sounds a bit odd ... A lot of people are like, this just sounds weird to me that they want to sign a lease without seeing it.",
+          "insight": "Jason's concern escalated from mild to structural across two mentions. The validation must confirm that the bridging mechanism prevents this escalation."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Conduct moderated usability tests with 8-10 traditional landlords (sourced from Craigslist or broker networks, with active listings). Present them with a prototype evaluation screen that includes the mental model bridge callouts (communicates-002 / looks-002). For each divergence point (no showing option, platform vetting format, digital lease), record: (1) whether the host notices the bridge, (2) whether their concern is resolved after reading it, (3) whether they proceed past the divergence point. Also record unprompted objections using the same language Jason used ('odd', 'weird', 'unusual') as a signal of unresolved divergence.",
+      "success_criteria": "Above 60% of hosts who raise a traditional expectation objection during evaluation still proceed to onboarding. Repeat objection rate (same concern raised more than once) below 20%. At least 7 of 10 test participants should notice and engage with the bridge callout at the showing divergence point.",
+      "failure_meaning": "If hosts notice the bridge but still object, the bridge content is inadequate -- it acknowledges but does not convince or accommodate. If hosts do not notice the bridge, it is visually too subtle (looks-002 needs increased prominence). If hosts who read the bridge still repeat the concern, the accommodation offered is insufficient -- the platform may need to actually facilitate showings rather than just explain why they are not standard.",
+      "implementation_hint": "Prototype in Figma with three divergence screens: (1) proposal with no 'Schedule Showing' button + bridge callout, (2) vetting display using platform format + bridge callout, (3) digital lease signing + bridge callout. Record screen with audio. Code each participant's reaction per divergence as: noticed/not_noticed, resolved/unresolved, proceeded/abandoned."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Offline Operational Knowledge Capture Validation",
+      "validates_element": "works-004",
+      "journey_phases": ["listing_creation", "active_lease", "retention"],
+      "problem": "If the platform fails to capture the host's operational knowledge (parking, building rules, furniture conditions), guests will arrive uninformed, leading to avoidable complaints and host dissatisfaction that undermines retention.",
+      "solution": "Measure operational knowledge completeness rates across listings and correlate with guest inquiry rates and host satisfaction scores.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 03:15-05:14",
+          "type": "host_call",
+          "quote": "Parking battery park city, the parking is quite tough because it's the business district... street cleaning once a week...",
+          "insight": "Jason spent 3 minutes -- nearly a quarter of the call -- sharing parking expertise. If the platform captures this, it prevents the same 3-minute conversation from happening with every guest."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "After implementing the operational knowledge prompts (communicates-004 / behaves-006), track: (1) completion rate per knowledge category (parking, building access, furniture, neighborhood, rules), (2) average word count per completed prompt, (3) guest inquiry rate about topics covered vs. not covered in the host's operational knowledge, (4) host satisfaction with 'guest preparedness' on a post-lease survey.",
+      "success_criteria": "Above 50% of listings have at least 3 of 5 operational knowledge fields populated. Guest inquiry rate about covered topics is 40% lower than inquiry rate about uncovered topics. Host satisfaction with guest preparedness scores at least 4/5 for listings with complete operational knowledge.",
+      "failure_meaning": "If completion rate is below 50%, the prompts are not compelling enough or appear at the wrong moment in the listing flow. If completion is high but guest inquiries do not decrease, the captured knowledge is not being surfaced effectively to guests pre-arrival. If host satisfaction does not improve, the knowledge captured is not the knowledge that actually matters -- the prompts may be targeting the wrong categories.",
+      "implementation_hint": "A/B test the operational knowledge prompts: variant A shows them inline during listing creation, variant B surfaces them as a separate 'Help Your Guests' section after listing publication. Track completion rates and downstream guest inquiry rates for both variants."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Configurable Listing State Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "If the listing forces binary furniture choices (furnished: yes/no) instead of supporting configurable states, expectation mismatches will surface during proposal negotiation or after move-in, causing friction and disputes.",
+      "solution": "Measure post-match furniture/condition dispute rates before and after implementing the three-state furniture inventory, and track configurable attribute usage rates.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 11:52",
+          "type": "host_call",
+          "quote": "There's actually too many tables. So I can just move out a couple of the tables.",
+          "insight": "Jason is willing to customize but has no mechanism to express this. The validation must confirm that the three-state model captures this flexibility and reduces post-match misunderstandings."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two listing formats for furnished properties: (A) current binary furnished/unfurnished checkbox, (B) three-state furniture inventory with item-level included/available/removable toggles and condition notes. Track: (1) listing completion rate, (2) post-match communication about furniture between host and guest, (3) post-move-in furniture-related complaints or disputes, (4) time from proposal to agreement.",
+      "success_criteria": "Post-match furniture/condition dispute rate below 10% in variant B (vs. baseline in variant A). Configurable attribute usage rate above 30% of furnished listings. Listing completion rate in variant B within 5% of variant A (the additional complexity should not reduce completion).",
+      "failure_meaning": "If dispute rate does not decrease, the three-state model is not reducing ambiguity -- either hosts are not using condition notes, or guests are not reading them. If listing completion drops significantly, the furniture inventory adds too much friction to the listing flow and needs simplification. If usage rate is below 30%, hosts prefer binary simplicity and the configurable model should be optional, not default.",
+      "implementation_hint": "Implement variant B as an expandable section within the listing wizard 'Features' step. Default to collapsed with a summary line ('Furnished: 5 items'). Expanding reveals the item-level grid. Track interaction with each state toggle and condition note field."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Post-Call Engagement Gap Elimination Validation",
+      "validates_element": "works-006",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the transition from phone call to platform remains asynchronous (email sent 'shortly' after call), the host's engagement momentum built during the call will decay and competing alternatives will capture them.",
+      "solution": "Measure same-session activation rate: the percentage of hosts who open the platform link during or within 15 minutes of the phone call.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 09:27-10:01 and 13:59",
+          "type": "host_call",
+          "quote": "Could I get your email, send over some information to you after this call? ... I'll follow up with an email shortly.",
+          "insight": "The entire onboarding hinges on a future email with no specific timeline. The validation must confirm that synchronous link delivery during the call produces higher activation rates."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two post-call workflows: (A) current process -- agent sends follow-up email within 1-2 hours after call, (B) synchronous activation -- agent sends SMS link during the last 2 minutes of the call. Track: (1) time from call end to first platform view, (2) percentage of hosts who view the proposal within 15 minutes, 1 hour, 4 hours, 24 hours, (3) overall conversion rate from call to first commitment action.",
+      "success_criteria": "Same-session activation rate above 50% in variant B. Time from call end to first platform action: median under 30 minutes in variant B vs. baseline in variant A. Overall conversion rate in variant B at least 20% higher than variant A.",
+      "failure_meaning": "If activation rate is below 50% despite SMS delivery, hosts are not opening links during calls -- the link may arrive too late in the conversation, or the host's phone behavior during calls does not include checking texts. If activation is high but conversion does not improve, the first-touch screen content is not compelling enough to convert attention into action -- the problem shifts from timing (works-006) to content (communicates-006).",
+      "implementation_hint": "Build an agent-side 'Send Proposal Link' button that generates and sends an SMS with a unique tracking URL. The URL should resolve to a pre-populated proposal view (no login required). Track: sms_sent, link_clicked, proposal_viewed, first_action_taken. Use Playwright for automated smoke tests: verify the link loads within 2 seconds and displays property address, guest names, and financial summary."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Trust-Signal-First Hierarchy Validation",
+      "validates_element": "communicates-001",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "If the host evaluation screen does not lead with financial trust signals (income, credit, employment) in the traditional landlord's vocabulary, hosts will spend cognitive energy searching for the data they instinctively need, slowing evaluation and reducing confidence.",
+      "solution": "Conduct eye-tracking or click-tracking usability tests on the evaluation screen to verify that hosts locate and process financial trust signals within 5 seconds.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14",
+          "type": "host_call",
+          "quote": "What's a total income between both of them?",
+          "insight": "Jason's first question is about combined income. The screen hierarchy must put this data where his eye naturally lands first."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Present 8-10 landlords with a prototype evaluation screen (looks-001 visual pattern). Give them a task: 'You received a match. Evaluate whether these guests can afford your apartment.' Measure: (1) time to first fixation on combined income figure, (2) time to verbalize a financial viability assessment ('they can/cannot afford it'), (3) scan path -- does the eye follow the intended hierarchy (combined income, individual income, verification badges, then logistics)?",
+      "success_criteria": "Time to first fixation on combined income: under 2 seconds for 8 of 10 participants. Time to financial viability assessment: under 5 seconds. Scan path follows intended hierarchy for at least 7 of 10 participants.",
+      "failure_meaning": "If fixation time exceeds 2 seconds, the combined income figure is not visually prominent enough -- the mono typography may need to be larger or the surrounding whitespace may need to increase. If the scan path does not follow the hierarchy, competing visual elements (guest photos, platform badges, marketing copy) are drawing attention away from the financial data. Reduce visual noise in the financial zone.",
+      "implementation_hint": "Use Maze or UserTesting.com with a Figma prototype. Record screen + webcam. For a lighter-weight version: use Hotjar click-tracking on a live prototype and measure first-click location as a proxy for first fixation."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Mental Model Bridge Effectiveness Validation",
+      "validates_element": "communicates-002",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "If the three-part bridge callout (acknowledge, explain, protect) fails to resolve host concerns at process divergence points, objections will compound and hosts will perceive the platform as deficient rather than innovative.",
+      "solution": "Test bridge callout comprehension and concern resolution with traditional landlords encountering each divergence point for the first time.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 12:35-12:52",
+          "type": "host_call",
+          "quote": "A lot of people are like, this just sounds weird to me that they want to sign a lease without seeing it.",
+          "insight": "Jason's escalated objection demonstrates what happens when a divergence is not bridged at first encounter. The validation must confirm the bridge prevents this escalation."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 8-10 traditional landlords a prototype evaluation screen with three process divergence points: (1) no showing option with bridge callout, (2) platform vetting display with bridge callout, (3) digital lease signing with bridge callout. For each, ask: 'What do you think about this?' Record: (a) whether they read the bridge, (b) whether their language shifts from concern to understanding (not 'odd'/'weird' but 'okay, that makes sense'), (c) whether they would proceed. Also test a control group without bridges to measure the baseline objection rate.",
+      "success_criteria": "Bridge read rate above 80% (the bridge must be noticed). Concern resolution rate above 70% (after reading the bridge, the host says they understand or would proceed). Control group objection rate should be at least 2x the bridge group objection rate. No participant should use escalating language ('weird', 'odd') after reading the bridge.",
+      "failure_meaning": "If bridge read rate is below 80%, the visual treatment (looks-002) is too subtle -- increase the accent border width or add a subtle background tint. If read rate is high but resolution is low, the bridge content is inadequate: it acknowledges but does not convince. Test alternative content that leads with accommodation ('we can arrange a showing') rather than explanation ('here is why we don't do showings'). If the control group also shows low objection rates, the divergence may not be as concerning as Jason's call suggests.",
+      "implementation_hint": "Figma prototype with two variants: (A) evaluation screen with bridge callouts at each divergence, (B) same screen without bridges. Randomly assign participants. Use think-aloud protocol. Code responses on a 3-point scale: objection (concern language), neutral (no reaction), resolution (understanding language)."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Progressive Proposal Disclosure Validation",
+      "validates_element": "communicates-003",
+      "journey_phases": ["proposal_mgmt", "evaluation"],
+      "problem": "If the proposal screen presents all information at equal visual weight instead of following the host's decision sequence (financials, terms, operational), hosts will spend extra time cognitively triaging information, slowing decision-making and increasing dropout.",
+      "solution": "Compare decision speed and confidence between a flat proposal layout and a progressive proposal layout structured by the host's decision tree.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14 then 06:43 then 07:55 then 10:18",
+          "type": "host_call",
+          "quote": "Income question [06:14] ... term question [06:43] ... furnished question [07:55] ... showing question [10:18]",
+          "insight": "Jason's question sequence reveals a strict decision tree: money, time, stuff, trust. The proposal must mirror this sequence."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two proposal layouts: (A) flat layout with all information visible at equal weight, (B) progressive layout with three visually gated sections (looks-003 pattern). Track: (1) time from proposal view to first action (express interest, request changes, decline), (2) scroll depth and section engagement time, (3) host-reported clarity rating ('How clear was this proposal?' 1-5 scale), (4) conversion rate from proposal view to commitment.",
+      "success_criteria": "Time to first action in variant B at least 20% shorter than variant A. Clarity rating in variant B at least 0.5 points higher than variant A. Conversion rate in variant B at least 10% higher than variant A. Section 1 (financial) should receive the most engagement time; Section 3 (operational) should receive the least.",
+      "failure_meaning": "If decision time does not decrease, the visual weight cascade may not be strong enough to guide the eye -- the surface tone differences between sections may be too subtle. If clarity does not improve, the section headings and contextual connectors may not be communicating the purpose of each section. If conversion does not improve, the decision bottleneck is content (missing data, unresolved concerns) not structure.",
+      "implementation_hint": "Build both variants in the live platform behind a feature flag. Route 50% of new proposals to each variant. Track with analytics events: proposal_viewed, section_1_scrolled, section_2_scrolled, section_3_scrolled, action_taken. Use Playwright to verify correct rendering of both variants."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Financial Trust Signal Typography Validation",
+      "validates_element": "looks-001",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "If the financial typography hierarchy (mono for income, sans for labels, serif for headings) does not create a distinct enough visual register, financial data will blend into the general visual field and hosts will not locate it within the 5-second target.",
+      "solution": "Test the typographic hierarchy's scannability with landlords who have never seen the platform before, measuring time to locate and comprehend key financial data.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14-06:38",
+          "type": "host_call",
+          "quote": "What's a total income between both of them? ... I'd have to look that up.",
+          "insight": "Income is the most urgent data point. The visual treatment must ensure it is the first thing the host's eye encounters, eliminating the 'I'd have to look that up' failure mode on-screen."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show participants a screen with the proposal financial section using the looks-001 typography hierarchy (IBM Plex Mono for income figures, Outfit for labels, Instrument Serif for headings). Ask: 'What is the combined income of these guests?' Measure time to answer. Then show a variant using uniform typography (all Outfit). Compare answer times across variants. Also test WCAG contrast compliance using automated tools on the implemented design.",
+      "success_criteria": "Time to locate combined income: under 3 seconds with the three-register hierarchy. At least 30% faster than the uniform-typography control. All financial data achieves AAA contrast (7:1 minimum) as specified in looks-001.",
+      "failure_meaning": "If the three-register hierarchy does not produce faster scan times, the visual distinction between mono and sans may not be perceptible enough at the specified sizes. Consider increasing the size differential (28px mono vs. 14px sans instead of 24px vs. 14px). If contrast requirements are not met, adjust background or text colors before production.",
+      "implementation_hint": "Create a Figma prototype with three financial section variants: (A) mono/sans/serif hierarchy, (B) all sans at varying weights, (C) all mono. Test with 5 participants per variant in rapid unmoderated tests via Maze."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Synchronous Activation First-Touch Screen Validation",
+      "validates_element": "looks-004",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the first-touch mobile screen is not scannable in under 10 seconds while the host is on a phone call (divided attention), the synchronous activation pattern fails and the host defers to the asynchronous email follow-up.",
+      "solution": "Test the first-touch screen with participants in a simulated divided-attention scenario (listening to a recording while scanning the screen).",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 13:31",
+          "type": "host_call",
+          "quote": "I had done six total showings, but four of them were like a month ago... recently I only did about two showings.",
+          "insight": "Jason has active alternatives. The first-touch screen must capture his attention faster than the mental pull of his existing showing pipeline. Divided-attention scannability is the test."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Simulate the call-to-link scenario: play participants an audio recording of an agent describing a guest match. Midway through, send them a text message with the first-touch link. Measure: (1) time from link tap to recognition ('this is about my place'), (2) whether they can identify the property address, guest names, and financial summary within 10 seconds, (3) whether they tap the CTA button while the audio is still playing. Test on mobile devices only (iPhone and Android).",
+      "success_criteria": "Recognition time under 3 seconds for 8 of 10 participants. All three data points (address, names, financial summary) identified within 10 seconds for 7 of 10 participants. At least 5 of 10 participants tap the CTA while audio is still playing. Zero scroll required to see all five elements on all tested devices.",
+      "failure_meaning": "If recognition takes longer than 3 seconds, the property address is not prominent enough as the recognition anchor. If participants cannot identify all three data points in 10 seconds, the screen has too many elements or the typography is too small for mobile. If no one taps the CTA during the audio, the divided-attention scenario may be too demanding -- consider whether the CTA is needed during the call or only after.",
+      "implementation_hint": "Build a functional HTML page (not a Figma prototype) that loads from an SMS short link. Test on real devices in a quiet room with audio playing through the phone speaker. Record screen captures via a mirroring tool."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Optimistic Proposal Link Delivery Reliability Validation",
+      "validates_element": "behaves-001",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the SMS proposal link delivery fails (delivery error, slow generation, broken link) during the live call, the host experiences a broken promise that is worse than no promise, because the agent explicitly said 'check your phone.'",
+      "solution": "Measure SMS delivery success rate, link generation time, and page load time under production conditions.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 09:27-10:01",
+          "type": "host_call",
+          "quote": "Could I get your email, send over some information to you after this call?",
+          "insight": "The commitment signal (sharing contact info) is the trigger for link generation. The system must respond within seconds of this trigger, during a live call where any delay is perceptible."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Automated end-to-end test: (1) Trigger proposal link generation via the agent dashboard, (2) verify SMS delivery to a test phone number within 3 seconds, (3) tap the received link and verify the proposal page loads within 2 seconds, (4) verify the page displays the correct property address, guest names, and financial summary, (5) verify the CTA button is functional. Run this test on every deployment and as a scheduled health check every 4 hours.",
+      "success_criteria": "SMS delivery within 3 seconds for 99% of sends. Page load within 2 seconds for 95% of link taps. Correct data displayed in 100% of cases. CTA functional in 100% of cases. Zero broken links in production over any 30-day window.",
+      "failure_meaning": "SMS delivery failures indicate a carrier or API issue -- implement fallback to email with immediate priority (within 5 minutes, not 'shortly'). Page load failures indicate the proposal generation pipeline is too slow -- pre-generate proposal pages for all active matches so the link resolves to a cached page. Data display failures indicate a data pipeline issue between the match system and the proposal page.",
+      "implementation_hint": "Playwright test script: navigate to agent dashboard, click 'Send Proposal Link' for a test match, verify SMS receipt via Twilio API callback, open the link in a mobile viewport, assert property address text, guest names text, financial summary text, and CTA button visibility. Run in CI/CD pipeline."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Progressive Data Readiness State Transitions Validation",
+      "validates_element": "behaves-002",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "If the three-state data field pattern (confirmed/pending/unavailable) is not implemented correctly, hosts will see blank fields instead of transparent pending states, or confirmed data will display as pending, creating confusion about what has been verified.",
+      "solution": "Automated testing of all data field state transitions, plus manual review of the visual treatment at each state.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14-06:38",
+          "type": "host_call",
+          "quote": "I know it was both of them were making over 80,000.",
+          "insight": "Approximate data exists but exact data does not. The pending state must show the approximation with a clear resolution timeline, not a blank field."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Automated test suite covering all data field states: (1) Render proposal with all fields confirmed -- verify all show solid text and verification badges. (2) Render with income pending -- verify it shows approximate value with 'confirming within 24 hours' label. (3) Render with employment unavailable -- verify it shows clear explanation. (4) Simulate data resolution (pending to confirmed) -- verify animation triggers and completeness indicator updates. (5) Simulate error state -- verify non-alarming signal-info treatment. Run in both desktop and mobile viewports.",
+      "success_criteria": "All five state scenarios render correctly in all viewports. No blank fields in any state. Pending-to-confirmed animation fires within 500ms of backend confirmation. Completeness indicator accurately reflects the count of confirmed fields. All state labels are accurate and use non-alarming language.",
+      "failure_meaning": "Rendering failures indicate component bugs. Animation timing failures indicate the real-time data pipeline is too slow. Incorrect completeness counts indicate a state management bug. Any blank field in any state is a critical failure -- it tells the host nothing about what is happening.",
+      "implementation_hint": "Use Storybook to create isolated stories for each data field state. Use Playwright to test the full proposal page with mocked data in each state configuration. Use visual regression testing (Percy or Chromatic) to catch unintended visual changes to state indicators."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Configurable Furniture Negotiation Flow Validation",
+      "validates_element": "behaves-004",
+      "journey_phases": ["listing_creation", "proposal_mgmt"],
+      "problem": "If the bidirectional furniture configuration negotiation fails technically (conflicting changes, lost state, slow syncing) or experientially (confusing UI, unclear state indicators), the collaborative promise of the pattern breaks down into frustration.",
+      "solution": "End-to-end functional testing of the configuration flow plus usability testing of the negotiation experience with host-guest pairs.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 11:52 and 08:19",
+          "type": "host_call",
+          "quote": "I can just move out a couple of the tables... It can be flipped on, but it's not the highest quality.",
+          "insight": "The configuration must support both item removal requests and condition notes. Both directions of the negotiation (host sets defaults, guest requests changes, host confirms) must work seamlessly."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Pair test: recruit 5 host-guest pairs. The host creates a furnished listing using the configurable inventory grid. The guest views the listing and requests 2 changes (remove an item, note a preference about a condition-noted item). The host receives and responds to the requests. Measure: (1) time for host to complete initial inventory setup, (2) time for guest to submit configuration requests, (3) time for host to review and confirm, (4) total time from request to confirmed agreement, (5) both parties' understanding of the final agreed configuration (ask each to describe what furniture will be there).",
+      "success_criteria": "Initial inventory setup under 3 minutes. Guest request submission under 2 minutes. Host confirmation under 1 minute. Total negotiation under 10 minutes. Both parties' description of the final configuration matches in 4 of 5 pairs. No participant reports confusion about what was agreed.",
+      "failure_meaning": "If setup time exceeds 3 minutes, the grid has too many items or the state toggles are not intuitive. If the negotiation takes too long, the notification/review flow has too many steps. If configuration descriptions do not match, the visual state indicators (included/available/removable dots) are not communicating clearly. The three-state model may need clearer labeling.",
+      "implementation_hint": "Recruit via UserTesting.com using their 'two-participant' test format. Use a live prototype or staging environment. Provide both participants with separate links and have them complete the flow asynchronously within a 24-hour window."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Competitive Context Timeline Neutrality Validation",
+      "validates_element": "behaves-005",
+      "journey_phases": ["proposal_mgmt", "evaluation"],
+      "problem": "If the competitive context timeline badge is perceived as pressure marketing rather than neutral information, it will erode trust instead of informing decision-making. The line between 'helpful transparency' and 'urgency manipulation' is narrow.",
+      "solution": "Test host emotional response to the timeline badge across multiple content and visual variants to find the treatment that informs without pressuring.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 13:20-13:26",
+          "type": "host_call",
+          "quote": "They're considering other places as well, right? Yes.",
+          "insight": "Jason proactively asks for competitive context -- he wants this information. The validation must confirm the platform's delivery matches the neutral, factual register in which Jason asked for it."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Present 10 landlords with four proposal screen variants: (A) no competitive context, (B) neutral timeline badge per looks-006 ('Ariel and Amber plan to decide by March 5'), (C) urgent treatment with countdown timer and red text, (D) social proof treatment ('12 other hosts responded within 24 hours'). For each variant, ask: 'How does this make you feel?' and 'Does this information help you make a decision?' Code responses as: informed, neutral, pressured, or manipulated.",
+      "success_criteria": "Variant B should produce 'informed' or 'neutral' responses from at least 8 of 10 participants. Variant B should produce zero 'manipulated' responses. Variant C and D should produce 'pressured' or 'manipulated' responses from at least 6 of 10, confirming that the neutral treatment is correctly differentiated from urgency tactics.",
+      "failure_meaning": "If variant B produces 'pressured' responses, the date-based timeline is still too urgent for some hosts -- consider removing the specific date and showing only proposal age ('Sent 2 days ago'). If variant A (no context) produces the same decision quality as variant B, competitive context may not be needed at all. If all variants produce similar responses, the timeline information is not salient enough to matter.",
+      "implementation_hint": "Run as an unmoderated remote test. Present each variant as a screenshot with the question overlay. Use a multiple-choice emotional response + open-text explanation. No Figma interaction needed -- static screenshots suffice for emotional response testing."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Validated Expertise Recognition Emotional Response Validation",
+      "validates_element": "feels-001",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "If the platform uses proprietary metrics (TrustScores, vetting algorithms) instead of traditional landlord evaluation criteria (income, credit, references), hosts will feel their expertise is being invalidated rather than recognized, triggering defensiveness that kills conversion.",
+      "solution": "Compare host emotional responses between a platform-vocabulary evaluation screen and a landlord-vocabulary evaluation screen.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14",
+          "type": "host_call",
+          "quote": "What's a total income between both of them?",
+          "insight": "Jason's first question uses pure landlord vocabulary. The emotional validation confirms whether matching this vocabulary produces the intended confidence response."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Present 10 landlords with two evaluation screen variants: (A) platform vocabulary -- 'TrustScore: 87/100, Vetting Status: Approved, Guest Profile: Premium', (B) landlord vocabulary -- 'Combined Income: $162,400, Employment: Verified, Credit: Approved, Previous Landlord: Positive Reference'. Ask both groups: 'How confident do you feel about these guests?' (1-5 scale) and 'Does this platform understand what landlords need?' (1-5 scale).",
+      "success_criteria": "Confidence score for variant B at least 1.0 point higher than variant A. 'Platform understands landlords' score for variant B at least 1.5 points higher than variant A. At least 8 of 10 participants in variant B should be able to make a proceed/decline decision within 30 seconds.",
+      "failure_meaning": "If both variants produce similar scores, landlords may be more flexible in vocabulary than assumed, and the platform vocabulary may not be alienating after all. If variant B scores high on confidence but low on 'understands landlords,' the data is right but the overall screen design still feels foreign. If variant A unexpectedly scores higher, proprietary metrics may signal sophistication rather than alienation for some host segments.",
+      "implementation_hint": "Static screenshot test -- no interaction needed. Present each variant as a proposal screen crop showing only the guest evaluation section. Collect responses via Typeform or Google Forms embedded after each screenshot."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Momentum Preservation at Call-to-Digital Handoff Emotional Validation",
+      "validates_element": "feels-002",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the first digital touchpoint feels like a system-generated message rather than a continuation of the human conversation, the emotional warmth built during the call will reset and the host will evaluate the platform as a stranger.",
+      "solution": "Compare emotional engagement between a warm, conversation-referencing first-touch message and a generic platform welcome message.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 13:59",
+          "type": "host_call",
+          "quote": "Thanks a lot. Have a good rest of your weekend.",
+          "insight": "Jason's closing is warm and personal. The first digital touchpoint must match this warmth to preserve the conversational tone."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Play participants a 2-minute audio excerpt of a host call ending warmly. Then show them one of two follow-up messages: (A) 'Jason -- here is the proposal for your Battery Park City apartment. Ariel and Amber's details are below, just like Bryant mentioned.', (B) 'Welcome to Split Lease! You have been matched with potential guests. Log in to view your dashboard and manage your listing.' Ask: 'Does this feel like a continuation of the conversation you just heard?' (1-5 scale) and 'How likely would you be to open this?' (1-5 scale).",
+      "success_criteria": "Continuation score for variant A at least 2.0 points higher than variant B. Likelihood-to-open score for variant A at least 1.5 points higher. At least 9 of 10 participants should rate variant A above 3 on the continuation scale.",
+      "failure_meaning": "If variant A does not score significantly higher on continuation, the audio-to-text emotional transfer may not work as expected in a test setting (the real effect may be stronger when the host actually had the conversation). If both variants score similarly on likelihood-to-open, the emotional warmth of the message may matter less than the content (proposal details). Run a follow-up test with both warm and cold messages containing the same content to isolate the warmth variable.",
+      "implementation_hint": "Run as an A/B unmoderated remote test. Use a real audio clip (with names changed for privacy) followed by a screenshot of the SMS/first-touch screen. Collect 5-point Likert responses and open-text emotional descriptions."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Precision-Backed Financial Calm Validation",
+      "validates_element": "feels-004",
+      "journey_phases": ["evaluation", "pricing", "proposal_mgmt"],
+      "problem": "If financial data is presented with approximations ('over $80,000') or qualitative descriptions ('strong financial profile') instead of precise figures, hosts will remain in evaluative anxiety rather than reaching the calm decisiveness needed for commitment.",
+      "solution": "Compare host emotional state (anxiety vs. calm) and decision speed between precise and approximate financial presentations.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14-06:38",
+          "type": "host_call",
+          "quote": "I know it was both of them were making over 80,000.",
+          "insight": "The approximate answer left Jason's evaluation incomplete. The test must confirm that precise figures produce the calm, decisive state the element targets."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Present 10 landlords with two financial summary variants: (A) precise -- 'Combined income: $162,400 (Guest A: $81,200 + Guest B: $81,200). Rent-to-income ratio: 22%. Both employment-verified. Credit: approved.', (B) approximate -- 'Both guests have strong financial profiles. Combined income is above $160,000. Our team has verified their employment and credit standing.' Ask: 'How comfortable do you feel about these guests' ability to pay?' (1-5 scale) and 'Would you proceed based on this information alone?' (yes/no). Measure time to answer the proceed question.",
+      "success_criteria": "Comfort score for variant A at least 1.0 point higher than variant B. 'Proceed' rate for variant A at least 30% higher than variant B. Decision time for variant A at least 20% shorter. At least 8 of 10 participants should answer the proceed question within 10 seconds for variant A.",
+      "failure_meaning": "If comfort scores are similar, hosts may be less sensitive to precision than expected -- the approximate language may be 'good enough' for an initial evaluation. If decision time is similar, the bottleneck may not be data precision but data completeness (hosts may want additional data points, not more precise versions of the same points). If precise data does not increase proceed rate, the financial gate may not be the primary conversion driver for this host segment.",
+      "implementation_hint": "Static screenshot comparison test. No prototype interaction needed. The key measurement is emotional response difference between the two presentations, which can be captured via survey."
+    },
+    {
+      "id": "tests-019",
+      "type": "validation_strategy",
+      "title": "Journey-Level Emotional Arc Coherence Validation",
+      "validates_element": "feels-001 through feels-007 (journey-level)",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "Individual elements may each succeed in isolation but fail when experienced sequentially across the journey. The emotional arc (curiosity to confidence to momentum to pride to clarity) may produce dissonance if transitions between emotions feel abrupt or contradictory.",
+      "solution": "Walk a small group of landlords through the full journey in a simulated end-to-end experience, measuring emotional state at each phase transition.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, full transcript",
+          "type": "host_call",
+          "quote": "Jason's emotional trajectory across the 14-minute call: neutral curiosity (00:00), engaged evaluation (06:14), mild concern (10:50), escalated alienation (12:35), noncommittal warmth (13:59).",
+          "insight": "The call demonstrates that emotional states shift across phases and that unresolved negative emotions in one phase contaminate subsequent phases. The journey-level test must verify that the designed emotional arc prevents this contamination."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 3",
+          "type": "book",
+          "quote": "Nothing else matters until you invent a strong product that meets initial market needs.",
+          "insight": "Cagan's product/market fit requirement applies to the emotional experience: the emotional journey must feel coherent and progressive, not fragmented, or the product fails to meet the host's emotional needs regardless of its functional capabilities."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5 traditional landlords for a 45-minute moderated session. Walk each through a simulated journey: (1) listen to a call excerpt where the agent describes a match, (2) receive the first-touch SMS link and scan the proposal summary, (3) view the full proposal screen with progressive disclosure, (4) encounter a mental model bridge at a divergence point, (5) configure furniture using the inventory grid. At each transition, ask: 'How are you feeling about this right now?' and note the emotional word used. Map the emotional trajectory against the designed arc: curiosity > confidence > momentum > ownership.",
+      "success_criteria": "At least 3 of 5 participants show an emotional trajectory that broadly matches the designed arc (no regression to negative states after a positive state is achieved). Zero participants should use alienation or distrust language at any phase after the mental model bridge is encountered. At least 4 of 5 participants should report a positive or neutral emotional state at the end of the journey walk-through.",
+      "failure_meaning": "If emotional trajectories diverge from the designed arc at the same phase for multiple participants, that phase has a systematic emotional design failure. If participants show positive emotions at individual phases but report overall confusion or fatigue, the transitions between phases are jarring and need smoother emotional connectors. If the mental model bridge does not prevent alienation language, the bridge content needs to be strengthened or the accommodation needs to be more concrete.",
+      "implementation_hint": "Moderated in-person or video session. Use a structured emotional check-in at each transition (a simple card sort where participants pick from emotion words: curious, confident, calm, proud, confused, skeptical, pressured, etc.). Record audio for qualitative analysis. This is the most resource-intensive test but provides the highest-value signal about the overall design system's coherence."
+    }
+  ]
+}

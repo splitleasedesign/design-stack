@@ -1,0 +1,1198 @@
+{
+  "run_id": "2026-02-19_0902",
+  "layer": 7,
+  "layer_name": "Test Designer",
+  "lens": {
+    "host_call": "robbie-call.txt",
+    "book_extract": "leanux-hypothesis-driven-design.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-0902-001",
+      "validates_element": "ds-ui-0902-001",
+      "element_title": "Hypothesis-Test Every Payment Comprehension Touchpoint Before Scaling",
+      "journey_phases": ["evaluation", "onboarding", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "The platform explains delayed payment release verbally and textually, but Robbie's call proves this hypothesis fails: three explanations, three re-asks (03:17, 04:06, 06:14). No mechanism exists to detect or measure whether hosts comprehend the payment flow after any explanation attempt.",
+      "solution": "Run a payment comprehension validation at each phase where payment is mentioned. Present the visual payment timeline MVP to hosts during evaluation follow-up, then call 48 hours later and ask: 'When does your first payment arrive?' Record whether the host answers correctly. Repeat the test at onboarding (after document review) and at proposal acceptance (after viewing the payment calendar).",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 03:17-06:14",
+          "detail": "Three verbal explanations produced three re-asks. This is the benchmark for the failed hypothesis. Any alternative (visual timeline, plain-language summary) must beat this benchmark."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Hypotheses",
+          "detail": "Gothelf: 'We believe [this statement is true]. We will know we're [right/wrong] when we see the following feedback from the market.' The payment comprehension test is a direct application of the Lean UX hypothesis format."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "moderated_comprehension_test",
+      "test_description": "Recruit 10 hosts who have completed the evaluation call. Five receive the current follow-up (control: verbal explanation only). Five receive the visual payment timeline MVP (treatment). 48 hours after follow-up, call each host and ask: 'Can you tell me when your first payment would arrive?' Record: (1) whether the host answers correctly (payment arrives after the first night of the booking), (2) whether the host re-asks about payment timing during the call, (3) the host's confidence level (self-rated 1-5). Compare control vs. treatment groups.",
+      "success_criteria": [
+        "Treatment group correct-answer rate exceeds 70% (vs. control benchmark predicted at ~30% based on Robbie's 0/3 comprehension rate)",
+        "Treatment group re-ask rate below 20% during the follow-up call",
+        "Treatment group average confidence rating above 3.5/5"
+      ],
+      "failure_meaning": "If the visual timeline does not improve comprehension above 70%, the timeline design itself needs iteration. Check: are the four nodes clear? Is the dollar amount prominent enough? Is the language too complex? Run a think-aloud session with 3 hosts viewing the timeline to identify where comprehension breaks down.",
+      "implementation_hint": "Build the visual timeline as a static image first (lowest-fidelity MVP). Email it to treatment-group hosts as an embedded image in the post-call follow-up. This tests the information architecture without requiring any frontend development. If the static image passes, build the interactive version (behaves-0902-001)."
+    },
+    {
+      "id": "tests-0902-002",
+      "validates_element": "ds-ui-0902-002",
+      "element_title": "Bridge Agent-Mediated Trust to Self-Service Platform via Personalized Post-Call MVP",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation"],
+      "problem": "Hosts acquired by agents (like Bryant) trust the person, not the platform. The transition from human interaction to digital interface is the highest-risk moment for dropout. No data exists on whether personalization in the follow-up email affects click-through or conversion.",
+      "solution": "A/B test two versions of the post-call follow-up email: (A) the current generic follow-up from a system address, and (B) a personalized landing page sent from the agent's email with host name, property details, guest names, and payment timeline embedded.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 07:10-07:25",
+          "detail": "Robbie expects a personal email from Bryant. The test measures whether delivering on this expectation (personalized from Bryant) produces measurably higher engagement than the generic alternative."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 5 MVPs",
+          "detail": "The personalized landing page is the smallest testable version of the trust-bridge hypothesis."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "ab_test",
+      "test_description": "For the next 20 agent-acquired hosts, randomly assign 10 to receive the current follow-up (Group A: generic system email with agreement PDFs attached) and 10 to receive the personalized landing page (Group B: email from agent's address, links to a page with host name, property details, guest names, payment timeline, and document links). Track: (1) email open rate, (2) click-through rate, (3) time-to-first-platform-action (e.g., document download, account creation), (4) 7-day onboarding completion rate.",
+      "success_criteria": [
+        "Group B click-through rate exceeds 60% (vs. current baseline -- measure Group A as benchmark)",
+        "Group B click-to-first-action conversion exceeds 40%",
+        "Group B 7-day onboarding completion rate is at least 20 percentage points higher than Group A"
+      ],
+      "failure_meaning": "If personalization does not improve click-through above 60%, the landing page content may not contain the right recognition signals. Review: does the page show the correct property details? Is Bryant's name and photo sufficiently prominent? Is there a registration gate blocking content? If click-through is high but conversion is low, the content recognition works but the action request needs adjustment.",
+      "implementation_hint": "The personalized landing page can be prototyped as a simple static HTML page generated per host with mail-merge fields (agent name, host name, property address, rent, guest names). No database or CMS required for the MVP. Host the page on a unique URL and track visits via UTM parameters or simple server logs."
+    },
+    {
+      "id": "tests-0902-003",
+      "validates_element": "ds-ui-0902-003",
+      "element_title": "Accept the Host's Existing Work as Input Instead of Demanding Re-Creation",
+      "journey_phases": ["listing_creation", "pricing", "onboarding"],
+      "problem": "Hosts who have existing listings on other platforms (Craigslist, Zillow) are forced to recreate their listing from scratch through a 6-step wizard. No alternative import path exists, and no data shows what percentage of hosts abandon the wizard because they feel their existing work is being wasted.",
+      "solution": "Build a minimal import-and-verify prototype and measure listing creation speed and completion rate against the existing wizard path.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 01:42 and 02:49",
+          "detail": "Robbie offers his existing listing link twice in two minutes, demonstrating strong reuse preference."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Removing Waste",
+          "detail": "Gothelf: forcing re-creation of existing content is waste that does not contribute to improved outcomes."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "task_timing_comparison",
+      "test_description": "Recruit 10 hosts who have existing listings on other platforms. Five use the current 6-step wizard (control). Five use the import-and-verify prototype: they paste a URL or upload photos, the system generates a draft listing, and they verify/correct the pre-populated fields. Measure: (1) time-to-published-listing, (2) completion rate, (3) number of fields the host had to manually fill, (4) post-task satisfaction rating (1-5). For the import group, also track: did the host use URL paste, photo upload, or text paste? How many corrections did they make?",
+      "success_criteria": [
+        "Import-path median time-to-published under 3 minutes (vs. expected 5+ minutes for wizard path)",
+        "Import-path completion rate at least 20 percentage points higher than wizard path",
+        "Import-path hosts fill fewer than 3 fields manually (70%+ of data auto-populated)",
+        "Import-path satisfaction rating at least 0.5 points higher than wizard path"
+      ],
+      "failure_meaning": "If import-path time is not under 3 minutes, the extraction/auto-population is not working well enough. Check: what percentage of fields were successfully populated? If the auto-population is poor (<50%), the extraction algorithm needs improvement before the path is viable. If time is fast but satisfaction is low, the verification UX may feel confusing rather than helpful.",
+      "implementation_hint": "For the MVP, the 'import' can be human-assisted: the host uploads photos or a URL, and an agent (or Claude) extracts the data and populates the draft within minutes. This Wizard-of-Oz approach tests whether verification-is-cheaper-than-creation as a concept, without requiring a fully automated extraction pipeline."
+    },
+    {
+      "id": "tests-0902-004",
+      "validates_element": "ds-ui-0902-004",
+      "element_title": "Design Onboarding Documents as Standalone Comprehension MVPs, Not Legal Artifacts",
+      "journey_phases": ["onboarding", "evaluation", "proposal_mgmt"],
+      "problem": "Hosts receive legal agreements that they may not fully understand, especially non-native English speakers. Robbie could not describe the documents after a 7-minute call (07:10). No plain-language summary exists, and no mechanism measures whether hosts comprehend the agreements before signing.",
+      "solution": "Create a one-page plain-language summary answering the host's three core questions (When paid? Who pays? What if missed?) and test whether hosts who receive the summary can correctly describe the agreements.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 07:10",
+          "detail": "Robbie: 'they didn't know what, uh, how many, something of the agreement you're talking about.' After a full call, he cannot describe the documents."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Getting Out of the Deliverables Business",
+          "detail": "Documents do not solve customer problems -- products do. The summary is a product designed for comprehension, measured by whether the host understands."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "comprehension_quiz_with_control",
+      "test_description": "For the next 10 hosts entering onboarding, randomly assign: (A) 5 hosts receive agreements only (current flow), (B) 5 hosts receive the one-page plain-language summary BEFORE the agreements. 48 hours after document delivery, call each host and ask three questions: (1) 'When does your first payment arrive?' (2) 'How many agreements will you sign, and what are they for?' (3) 'What happens if a guest misses a payment?' Score each answer as correct/partially-correct/incorrect. Also ask the host to rate their confidence in understanding the documents (1-5).",
+      "success_criteria": [
+        "Group B correctly answers question 1 (payment timing) at 70%+ rate (vs. expected ~30% for Group A based on Robbie's call)",
+        "Group B correctly identifies both documents and their purposes at 60%+ rate",
+        "Group B confidence rating averages 3.5+ (vs. Group A baseline)"
+      ],
+      "failure_meaning": "If the summary does not improve Q1 (payment timing) comprehension above 70%, the summary language is still too complex or the visual timeline is not prominent enough. If Q2 (document identification) remains low, the two-document structure needs clearer differentiation in the summary. Run a think-aloud with 3 hosts reading the summary to identify specific sentences or concepts that cause confusion.",
+      "implementation_hint": "The summary is a single printed page or a single email section. It can be created in 30 minutes: three questions from Robbie's call, three answers in plain language, and two document descriptions. No design or development required -- test it as plain text in an email before investing in visual design."
+    },
+    {
+      "id": "tests-0902-005",
+      "validates_element": "ds-ui-0902-005",
+      "element_title": "Translate Between Monthly and Nightly at Every Price Display",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "Hosts think in monthly rent ($1,600) but the platform uses nightly pricing. No evidence exists on whether showing dual-format pricing (monthly + nightly) reduces confusion or pricing support tickets compared to nightly-only display.",
+      "solution": "Implement dual-format pricing display on the listing creation page and measure pricing support ticket rate and first-payment surprise rate before and after deployment.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 02:22",
+          "detail": "Robbie states '$1,600 a month' as a fixed fact. Any display not anchored to this number triggers distrust."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Benchmarks",
+          "detail": "Gothelf: metrics are meaningless without a pre-deployment benchmark. Measure current ticket rate before deploying dual-format."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "before_after_benchmark",
+      "test_description": "Phase 1 (benchmark): For 30 days, track: (1) pricing-related support tickets per 100 listings, (2) percentage of hosts whose first payment differs from their stated monthly rent by >5%, (3) number of hosts who contact support about unexpected payment amounts. Phase 2 (treatment): Deploy dual-format pricing (monthly primary, nightly secondary, inline fee disclosure) on listing creation and proposal acceptance pages. Track the same three metrics for the next 30 days. Compare.",
+      "success_criteria": [
+        "Pricing support ticket rate decreases by at least 40% (target: 50%)",
+        "First-payment surprise rate drops below 5% (vs. benchmark)",
+        "Zero hosts report 'unexpected payment amount' as a support reason in the treatment period"
+      ],
+      "failure_meaning": "If ticket rate does not decrease by 40%, the dual-format display may not be prominent enough, or the fee disclosure may be creating new confusion. If first-payment surprise rate remains high, the nightly-to-monthly calculation may have rounding issues that produce a different number than the host expected. Audit: does '$1,600/month = ~$53/night' actually produce $1,590 over 30 nights? If so, the rounding discrepancy needs to be addressed.",
+      "implementation_hint": "The simplest MVP is a text line below the existing nightly rate input: 'That is approximately $[X]/month.' Calculate dynamically as the host types. This can be implemented as a frontend-only change (JavaScript calculation) with no backend modifications, deployable in a single sprint."
+    },
+    {
+      "id": "tests-0902-006",
+      "validates_element": "ds-ui-0902-006",
+      "element_title": "Measure Outcome (Payment Confidence) Not Output (Payment Processed)",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "The platform measures payment processing accuracy (output) but not host payment confidence (outcome). No data exists on how often hosts check the Leases page for payment status, how many contact support about payments, or whether payment anxiety correlates with retention.",
+      "solution": "Instrument the Leases page to track payment-checking behavior and correlate it with support contacts and retention decisions.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06",
+          "detail": "Robbie demands immediate confirmation three times. His behavior predicts high payment-checking frequency during active lease."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Progress = Outcomes, Not Output",
+          "detail": "Lean UX measures progress in outcomes (host feels confident) not outputs (payment was processed)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "behavioral_instrumentation",
+      "test_description": "For all active lease hosts over a 60-day period, track: (1) Leases page visits per host per month, specifically visits to the payment section, (2) time spent on the payment section per visit, (3) payment-related support contacts per host per month, (4) whether the host's lease was renewed or the host relisted. After 60 days, calculate: average payment-page checks per month, correlation between check frequency and support contacts, correlation between check frequency and retention (relist rate). This establishes the baseline for the proactive notification system (behaves-0902-005).",
+      "success_criteria": [
+        "Baseline data collected for at least 20 active lease hosts",
+        "Payment-checking frequency correlates with support contact frequency (r > 0.3)",
+        "Hosts who check 3+ times per month before payment release have lower relist rates than hosts who check 0-1 times",
+        "Data is sufficient to set the pre-notification timing (currently hypothesized at T-48 hours)"
+      ],
+      "failure_meaning": "If check frequency does not correlate with support contacts or retention, payment anxiety may not be as significant a driver as Robbie's call suggests, or hosts may be checking for other reasons (curiosity, bookkeeping). Conduct 5 brief interviews with high-frequency checkers to understand their motivation. If the correlation is present but weak, the proactive notification system may still be valuable but should be prioritized lower than other interventions.",
+      "implementation_hint": "This test requires only analytics instrumentation -- no UI changes. Add event tracking to the Leases page payment section: page_view, time_on_section, and scroll_depth. Cross-reference with existing support ticket data and lease renewal records. Can be implemented in 1-2 days with any standard analytics tool."
+    },
+    {
+      "id": "tests-0902-007",
+      "validates_element": "ds-ui-0902-007",
+      "element_title": "Design for the Language-Barrier Multiplier: Test Every Critical Interface with Non-Native Speakers",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "The platform assumes all hosts are fluent in English. No test data exists on task completion rates or comprehension accuracy for non-native English speakers across critical flows.",
+      "solution": "Conduct usability testing with non-native English speakers on the three highest-commitment flows: onboarding document review, listing creation, and proposal acceptance.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06, 06:14, 07:10",
+          "detail": "Robbie's fragmented English throughout the call reveals comprehension difficulty that will be amplified on a self-service platform."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 GOOB",
+          "detail": "Gothelf: test with the actual users who might fail, not the ones you assume will succeed."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test_with_segmentation",
+      "test_description": "Recruit 10 hosts: 5 native English speakers and 5 non-native English speakers (varying proficiency levels). Ask each to complete three tasks on the current platform: (1) Review onboarding documents and describe the payment flow, (2) Create a listing from provided photos and details, (3) Review and accept a proposal. Measure per task: time-to-complete, errors, comprehension accuracy (can they explain what they agreed to?), and self-rated difficulty (1-5). Compare native vs. non-native groups.",
+      "success_criteria": [
+        "Non-native task completion rates are within 15 percentage points of native rates across all three tasks",
+        "Non-native comprehension accuracy on the payment flow question is above 60%",
+        "Non-native average difficulty rating is below 3.5/5 for all tasks",
+        "If current interfaces fail these thresholds, specific failure points are identified for remediation"
+      ],
+      "failure_meaning": "If non-native completion rates lag by more than 15 points, the current interface language is a barrier. Analyze the failure points: which screens, which sentences, which concepts caused the most difficulty? Prioritize remediation by impact: the screen where the most non-native participants failed or took the longest is the first screen to receive language-accessible redesign. If non-native speakers succeed on visual-heavy screens but fail on text-heavy screens, the L3 icon-first system (looks-0902-007) is validated as the correct design direction.",
+      "implementation_hint": "This test requires no development work -- it uses the existing platform. The only cost is participant recruitment and moderator time. Five non-native participants can be recruited from the existing host pipeline (screen for language during intake calls). Each session takes 45-60 minutes. Total test time: 2-3 days."
+    },
+    {
+      "id": "tests-0902-008",
+      "validates_element": "communicates-0902-001",
+      "element_title": "Hypothesis-Validated Payment Timeline: Visual Sequence vs. Verbal Claim",
+      "journey_phases": ["evaluation", "onboarding", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "The four-node visual timeline (Agreements Signed > Guest Moves In > First Night Completed > Your $1,600 Released) is designed to replace the failed verbal payment explanation. No evidence exists on whether this specific visual layout achieves sub-5-second comprehension.",
+      "solution": "Run a 5-second comprehension test: show the timeline to hosts for 5 seconds, then remove it and ask what they remember.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 06:37",
+          "detail": "Bryant's final verbal explanation used 'pre-authorized' -- jargon that a non-native speaker may not parse. The timeline uses only concrete labels."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Making over Analysis",
+          "detail": "Build the visual and test it -- do not debate whether it is clear enough."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "five_second_test",
+      "test_description": "Create a static mockup of the payment timeline per the L3 specification (looks-0902-001). Show it to 10 participants (5 native, 5 non-native English speakers) for exactly 5 seconds. Remove the image. Ask: (1) 'What was this diagram about?' (2) 'What is the last thing that happens?' (3) 'How much money was shown?' Record answers. Score: correct identification of payment flow, correct identification of payment as the final step, correct recall of $1,600.",
+      "success_criteria": [
+        "At least 8/10 participants correctly identify the diagram as about the payment flow",
+        "At least 8/10 correctly identify payment release as the final step",
+        "At least 7/10 correctly recall the $1,600 amount",
+        "Non-native speakers perform within 1 answer of native speakers on all three questions"
+      ],
+      "failure_meaning": "If fewer than 8/10 identify the payment flow, the timeline nodes are not clear enough -- the icons or labels may be ambiguous. If the dollar amount is not recalled by 7+, it is not visually dominant enough (increase size or add contrast). If non-native speakers perform significantly worse, the labels may contain vocabulary barriers -- simplify to one word per node if necessary.",
+      "implementation_hint": "This test requires only a static image. Create the timeline mockup in Figma or as an HTML page using the token specifications from looks-0902-001. The test can be run remotely via screen-share or using a tool like UsabilityHub. Total setup time: 2 hours. Total test time: 30 minutes per participant."
+    },
+    {
+      "id": "tests-0902-009",
+      "validates_element": "communicates-0902-002",
+      "element_title": "Agent-Attributed Landing Page: Continue the Conversation, Not Start a New One",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation"],
+      "problem": "The landing page's information hierarchy (agent greeting > property > guests > timeline > documents) is designed to transfer trust from the human agent to the digital platform. No evidence validates that this specific content ordering achieves recognition within the first viewport.",
+      "solution": "Run a first-viewport recognition test: load the landing page for a host who just completed a call and measure time-to-recognition and emotional response.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 00:18",
+          "detail": "Bryant's personal narrative dominates the call. The landing page must feel like a continuation of that narrative."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Shared Understanding",
+          "detail": "Shared understanding between Bryant and Robbie must transfer to the digital interface."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "time_to_recognition_test",
+      "test_description": "After 5 agent-acquired hosts complete their evaluation call, send them the personalized landing page within 2 hours. Track: (1) time from email open to first page scroll (measures engagement), (2) time from page load to first click/tap on any content, (3) scroll depth, (4) which section received the first interaction. Follow up within 24 hours with a brief call: 'What was the first thing you noticed on the page?' 'Did it feel like it was from [agent name]?' 'Was there anything confusing?' Record verbatim responses.",
+      "success_criteria": [
+        "At least 4/5 hosts open the email and click through to the landing page (80% click-through)",
+        "At least 4/5 hosts identify agent name or property details as the first thing they noticed",
+        "At least 4/5 hosts confirm the page felt like it was from their agent, not from a generic system",
+        "Average scroll depth exceeds 75% of the page (hosts consume most of the content)"
+      ],
+      "failure_meaning": "If click-through is below 80%, the email subject line or sender name may not be compelling enough -- test alternative subject lines referencing the call ('Following up on your East Village studio'). If recognition is low, the agent's name and photo may not be prominent enough in the first viewport -- increase size or move to the absolute top of the page. If scroll depth is low, the content below the fold may not be engaging -- check whether the payment timeline and document links are compelling enough to scroll to.",
+      "implementation_hint": "For the MVP, the landing page can be a single HTML file hosted on a simple server, with mail-merge fields populated per host. Use a URL shortener with click tracking to measure click-through. Follow-up calls take 5 minutes each. Total test effort: 3-4 hours including page creation and calls."
+    },
+    {
+      "id": "tests-0902-010",
+      "validates_element": "communicates-0902-003",
+      "element_title": "Plain-Language Summary Layer: Answer the Three Questions Before Legal Documents",
+      "journey_phases": ["onboarding", "evaluation", "proposal_mgmt"],
+      "problem": "The Q&A format (When paid? Who pays? What if missed?) is derived from Robbie's specific call. The hypothesis is that these three questions are universal for hosts with traditional landlord mental models, not just Robbie-specific.",
+      "solution": "Validate the three-question hypothesis by analyzing the next 10 host evaluation calls for recurring payment-related questions, then test the summary's comprehension impact.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 03:17, 06:14, 07:10",
+          "detail": "Robbie's three questions map to: when (03:17), guarantee (06:14), and document structure (07:10)."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Assumptions",
+          "detail": "Every assumption must be stated and tested. The assumption that these three questions are universal is testable."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "call_transcript_analysis_plus_comprehension_test",
+      "test_description": "Phase 1 (question validation): Review the next 10 host evaluation call recordings or transcripts. For each call, identify: which payment-related questions does the host ask? Code them into categories (timing, amount, guarantee, document, other). Calculate: do at least 7/10 hosts ask about payment timing? Do at least 5/10 ask about the guarantee? Do at least 5/10 express confusion about the documents? Phase 2 (summary test): if the three questions are validated, send the Q&A summary to the next 5 hosts before their agreements. Call 48 hours later and ask: 'What are the two agreements you received?' 'When does your first payment arrive?' Measure comprehension.",
+      "success_criteria": [
+        "Phase 1: At least 7/10 hosts ask about payment timing (validating Q1)",
+        "Phase 1: At least 5/10 hosts ask about the guarantee or express payment security concerns (validating Q3)",
+        "Phase 2: At least 4/5 hosts correctly identify both agreements after receiving the summary",
+        "Phase 2: At least 4/5 hosts correctly state when their first payment arrives"
+      ],
+      "failure_meaning": "If Phase 1 reveals that fewer than 7/10 hosts ask about payment timing, the three-question framework may not be universal -- different host profiles may have different top concerns. Revise the Q&A to include the actual top-3 questions from the transcripts. If Phase 2 comprehension remains low despite the summary, the summary language is too complex -- simplify further and re-test.",
+      "implementation_hint": "Phase 1 requires only access to call recordings/transcripts (already collected). A single person can code 10 calls in 2-3 hours. Phase 2 requires creating the Q&A summary (30 minutes of writing) and 5 follow-up calls (5 minutes each). Total effort: 1 day."
+    },
+    {
+      "id": "tests-0902-011",
+      "validates_element": "communicates-0902-004",
+      "element_title": "Import-and-Verify Listing Path: Accept Existing Work Instead of Demanding Re-Creation",
+      "journey_phases": ["listing_creation", "pricing", "onboarding"],
+      "problem": "The import path's information architecture (import input zone > auto-generated draft > correction fields) assumes that verification is cognitively cheaper than creation for all hosts. This assumption has not been tested.",
+      "solution": "Run a cognitive load comparison: measure task-load scores for import-and-verify versus create-from-scratch across matched host pairs.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 01:42, 02:49",
+          "detail": "Robbie's twice-repeated offer to share his existing listing indicates strong preference for reuse."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Small Batch Size",
+          "detail": "The import path is a small batch -- accept one input, produce one output."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "cognitive_load_comparison",
+      "test_description": "Recruit 8 hosts who have existing listings. Assign 4 to the import-and-verify prototype and 4 to the standard wizard. After completing the task, administer the NASA-TLX (Task Load Index) questionnaire, which measures perceived mental demand, physical demand, temporal demand, performance, effort, and frustration. Also record: (1) number of pauses >10 seconds (hesitation signals), (2) number of times the host asked for help or expressed confusion, (3) errors in the final listing (fields that need correction after publishing).",
+      "success_criteria": [
+        "Import group NASA-TLX overall score is at least 15 points lower than wizard group (scale 0-100)",
+        "Import group has fewer pauses >10 seconds per session",
+        "Import group has fewer post-publish errors requiring correction",
+        "Import group self-rated effort and frustration subscales are both lower than wizard group"
+      ],
+      "failure_meaning": "If the import group's cognitive load is not meaningfully lower, the draft may be too inaccurate (requiring extensive corrections) or the verification interface may be confusing (unclear which fields are editable, unclear what needs attention). Analyze: which specific fields caused the most hesitation or errors in the import group? If the auto-populated data was frequently wrong, the extraction needs improvement. If the verification interface caused confusion, the edit affordances need clearer visual cues.",
+      "implementation_hint": "For the cognitive load comparison, the import prototype can be a wizard-of-oz: a researcher manually pre-populates a listing draft from the host's photos and call data, then presents it as if the system generated it. The host verifies and corrects. This tests the verification experience without requiring automated extraction."
+    },
+    {
+      "id": "tests-0902-012",
+      "validates_element": "communicates-0902-005",
+      "element_title": "Dual-Format Price Display: Always Show Monthly Income Alongside Nightly Rate",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "The dual-format display hierarchy (monthly primary, nightly secondary, fee inline) has not been tested for whether hosts perceive the monthly figure as their actual income or as a decorative label.",
+      "solution": "Show hosts a pricing screen mockup with dual-format display and ask them to state their expected monthly income. Measure whether the monthly figure is what they cite.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 02:22",
+          "detail": "Robbie's anchor is $1,600/month. The test checks whether the display successfully communicates this anchor."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Outcomes",
+          "detail": "The outcome is 'host confident in monthly income,' not 'host fills nightly rate field.'"
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "mockup_comprehension_test",
+      "test_description": "Create two pricing screen mockups: (A) current nightly-only display ('$53/night'), (B) dual-format display ('Your Monthly Income: $1,600 = ~$53/night'). Show each to 5 hosts (10 total). After viewing for 10 seconds, ask: 'How much would you earn per month from this listing?' Also ask: 'Are there any fees?' and 'What would you earn over 3 months?' Compare accuracy between groups.",
+      "success_criteria": [
+        "Group B: at least 5/5 hosts correctly state $1,600/month (100% accuracy)",
+        "Group A: predicted accuracy below 80% (hosts may calculate incorrectly from nightly rate)",
+        "Group B: at least 4/5 correctly identify fee implications (if shown)",
+        "Group B: at least 4/5 correctly calculate 3-month total ($4,800)"
+      ],
+      "failure_meaning": "If Group B accuracy is below 100%, the monthly figure is not prominent enough or the visual hierarchy does not clearly establish it as 'your income.' Increase font size, add a label, or move the monthly figure to an even more dominant position. If hosts in Group B cannot identify fees, the fee disclosure is too subtle -- consider a more prominent fee callout with a distinct background color.",
+      "implementation_hint": "Mockups can be created in Figma or as HTML screenshots. The test is a remote card-sort or survey format -- show image, ask questions. Tools like Maze or UserTesting.com can automate this. Total time: 1-2 hours to create mockups, 30 minutes per participant."
+    },
+    {
+      "id": "tests-0902-013",
+      "validates_element": "communicates-0902-006",
+      "element_title": "Proactive Payment Assurance Loop: Notify Before the Host Needs to Check",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "The three-part notification cycle (T-48 pre-notification, T+0 confirmation, immediate next-payment preview) has not been tested for whether it actually reduces payment-checking behavior.",
+      "solution": "Implement the notification cycle for a cohort of active-lease hosts and compare their Leases page checking behavior against a control group that receives only the standard day-of payment notification.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06, 06:14",
+          "detail": "Robbie's repeated payment demands predict high checking frequency. The notification cycle targets this specific behavior."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Continuous Discovery",
+          "detail": "Monitor host behavior as continuous discovery for whether confidence is being achieved."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "cohort_comparison_with_behavioral_tracking",
+      "test_description": "For 20 hosts entering a new active lease, randomly assign: (A) 10 hosts receive the standard notification (day-of payment email only), (B) 10 hosts receive the full three-part cycle (T-48 pre-notification, T+0 confirmation with next-payment preview). Track for 3 monthly payment cycles: (1) Leases page payment section visits between T-72 and T+0, (2) payment-related support contacts, (3) email open rates for each notification type. After 3 cycles, survey both groups: 'How confident are you that your payments will arrive on time?' (1-5).",
+      "success_criteria": [
+        "Group B averages fewer than 1 Leases page check between T-48 pre-notification and T+0 confirmation (vs. Group A baseline)",
+        "Group B has zero payment-related support contacts over 3 cycles (vs. Group A baseline)",
+        "Group B confidence rating averages 4.0+ (vs. Group A baseline)",
+        "Pre-notification email open rate exceeds 80%"
+      ],
+      "failure_meaning": "If Group B still checks frequently despite pre-notifications, the T-48 timing may be too late -- hosts may start wondering at T-72. Adjust timing based on when Group B checks occur. If email open rate is below 80%, the notification channel is wrong -- test push notifications or SMS instead. If confidence ratings are similar between groups, the notifications may be reaching hosts but not affecting their emotional state -- review notification copy and content.",
+      "implementation_hint": "Pre-notifications and confirmations can be automated email sequences triggered by the payment schedule calendar. Use any email marketing tool (Sendgrid, Mailchimp) with scheduled sends at T-48 and T+0. Page tracking uses the same analytics instrumentation from tests-0902-006. No new frontend development required."
+    },
+    {
+      "id": "tests-0902-014",
+      "validates_element": "communicates-0902-007",
+      "element_title": "Language-Accessible Information Design: Maximum 8-Word Sentences",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "The 8-word sentence rule and visual-alongside-financial-concept requirement have been specified but not tested against the existing interface copy to determine how much revision is needed or whether the constraint improves comprehension.",
+      "solution": "Audit the current interface copy against the 8-word rule and test revised copy with non-native English speakers.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06",
+          "detail": "Robbie's fragmented speech reveals processing difficulty with complex English sentences."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Assumptions",
+          "detail": "The assumption that all hosts are fluent English readers must be explicitly tested."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "copy_audit_plus_ab_comprehension",
+      "test_description": "Phase 1 (audit): Review all critical-path interface screens (onboarding, listing wizard, pricing, proposal acceptance). Count sentences exceeding 8 words. Identify the 10 longest/most complex sentences. Rewrite each following the 8-word rule. Phase 2 (test): Show 5 non-native English speakers both versions of each sentence (original and rewritten) in random order. Ask: 'What does this sentence mean?' Score comprehension accuracy. Also time how long they take to read each version.",
+      "success_criteria": [
+        "Phase 1: At least 10 sentences identified that exceed 8 words in critical paths",
+        "Phase 2: Rewritten versions achieve at least 20% higher comprehension accuracy than originals",
+        "Phase 2: Rewritten versions are read at least 30% faster than originals",
+        "Phase 2: No participant rates a rewritten version as 'patronizing' or 'too simple' (ensuring native speakers are not alienated)"
+      ],
+      "failure_meaning": "If rewritten versions are not significantly more comprehensible, the 8-word constraint alone is insufficient -- the vocabulary or concept complexity may be the barrier, not sentence length. In that case, test visual-only versions (icons + numbers, no sentences) for the most critical screens. If participants find rewritten versions patronizing, the 8-word constraint may be too strict -- test 12-word maximum as a compromise.",
+      "implementation_hint": "Phase 1 is a manual copy audit that a copywriter can complete in 2-3 hours. Phase 2 is a simple A/B comprehension test that can be run via screen-share or an online survey tool. Total effort: 1 day."
+    },
+    {
+      "id": "tests-0902-015",
+      "validates_element": "looks-0902-001",
+      "element_title": "Payment Timeline Visual: Four Nodes, One Glance, Zero Ambiguity",
+      "journey_phases": ["evaluation", "onboarding", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "The visual design of the payment timeline (40px/56px nodes, --secondary-purple fills, icon set, glow shadow on final node) has specific contrast ratios and visual hierarchy rules that need validation on real screens and with real hosts.",
+      "solution": "Build a pixel-accurate mockup and test it across devices, screen sizes, and lighting conditions for visual hierarchy and accessibility compliance.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 03:17-06:14",
+          "detail": "The timeline replaces a failed verbal explanation. It must work visually on the first encounter."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Making over Analysis",
+          "detail": "Build the first version and test it rather than debating design specifications."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "visual_hierarchy_eye_tracking_or_first_click",
+      "test_description": "Create the timeline as a production-fidelity mockup using exact token specifications. Test on 3 devices (desktop, tablet, mobile). For each device: (1) Run a first-click/first-fixation test with 5 participants -- show the timeline and ask 'Where does your money appear?' Record which element they click/fixate on first. (2) Verify WCAG contrast ratios with an automated tool (axe or Lighthouse). (3) Test the mobile vertical layout: does the dollar amount remain the visual anchor when the timeline rotates? (4) Test at 200% zoom for accessibility.",
+      "success_criteria": [
+        "At least 4/5 participants on each device click/fixate on the final node ($1,600) first",
+        "All contrast ratios pass WCAG AA (verified by automated audit)",
+        "Mobile vertical layout: the final node with dollar amount is the last (bottom) element and remains visually dominant",
+        "200% zoom: no element truncation, overlap, or unreadable text"
+      ],
+      "failure_meaning": "If the final node is not the first fixation target, the glow shadow or size differential (40px vs 56px) is insufficient. Increase the size ratio or add more contrast (e.g., all other nodes in outline, final node solid-filled). If WCAG fails on any element, adjust the specific color combination. If mobile layout breaks at 200% zoom, the responsive CSS needs revision.",
+      "implementation_hint": "Build the mockup as a reusable HTML/CSS component per the L3 specifications. Use Chrome DevTools for device emulation and the axe browser extension for accessibility audit. First-click testing can be done with Maze, Optimal Workshop, or simply screen-sharing and asking 'tap where your money is.'"
+    },
+    {
+      "id": "tests-0902-016",
+      "validates_element": "looks-0902-002",
+      "element_title": "Agent-Attributed Landing Page Visual: Bryant's Face Before the Brand",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation"],
+      "problem": "The visual treatment inverts standard SaaS onboarding (brand-first) to agent-first. This inversion needs validation that it does not confuse hosts into thinking the page is a personal email rather than a platform interaction.",
+      "solution": "Show the landing page mockup to hosts who just completed a call and measure trust signals and brand recognition.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 07:10-07:25",
+          "detail": "Robbie expects a personal follow-up. The visual must deliver this while maintaining enough brand presence for credibility."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 5 MVPs",
+          "detail": "The landing page is the visual MVP for the trust bridge. Test whether it achieves trust transfer."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "trust_perception_test",
+      "test_description": "Show the landing page mockup to 5 hosts who recently completed an agent call. Ask: (1) 'Who is this page from?' (target: agent name, not 'Split Lease'), (2) 'Do you trust this page? Why or why not?', (3) 'What would you do next after seeing this page?', (4) 'Does this look like a legitimate company or could it be a scam?' The final question tests whether the agent-first approach undermines institutional credibility. Also show a control version (brand-first standard SaaS onboarding) to a separate group of 5 hosts and compare trust ratings.",
+      "success_criteria": [
+        "At least 4/5 hosts in the agent-first group identify the page as from their agent (not from the company)",
+        "At least 4/5 hosts in the agent-first group express trust and willingness to proceed",
+        "Agent-first group does not have lower legitimacy perception than brand-first group (both groups rate legitimacy at 4+ on 1-5 scale)",
+        "At least 3/5 hosts in the agent-first group spontaneously mention a specific property detail or guest name when describing what they see"
+      ],
+      "failure_meaning": "If hosts do not recognize the agent, the avatar and greeting are not prominent enough. If legitimacy concerns arise (hosts think it could be a scam), the whisper-quiet brand header may need to be slightly more visible -- test a version with a small Split Lease logo next to the agent's photo. The goal is personal but credible, not personal at the expense of trust.",
+      "implementation_hint": "Create two mockup pages: agent-first (per L3 spec) and brand-first (standard logo header, feature hero, generic CTA). Both can be static HTML or Figma prototypes. Show via screen-share and record verbal responses. 30 minutes per participant, 5 hours total."
+    },
+    {
+      "id": "tests-0902-017",
+      "validates_element": "looks-0902-003",
+      "element_title": "Plain-Language Summary Card: Three Questions, Three Answers, Zero Jargon",
+      "journey_phases": ["onboarding", "evaluation", "proposal_mgmt"],
+      "problem": "The Q&A card visual design (purple left border, highlighted key terms, bullet circles) is intended to visually distinguish the summary from legal documents. This distinction needs validation -- hosts must perceive 'this is the explanation' not 'this is page one of the contract.'",
+      "solution": "Show hosts the summary card alongside a sample agreement page and ask them to identify which is which and which they would read first.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 07:10",
+          "detail": "Robbie does not know what documents he will receive. The visual distinction between summary and agreement must be unmistakable."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Getting Out of the Deliverables Business",
+          "detail": "The summary is a product (designed for comprehension), the agreement is a deliverable (legal compliance). They must look different."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "visual_differentiation_test",
+      "test_description": "Create side-by-side mockups: (A) the Q&A summary card per L3 spec, (B) the first page of a standard rental agreement. Show both to 8 hosts (4 native, 4 non-native). Ask: (1) 'Which of these would you read first?' (2) 'What is the difference between these two documents?' (3) 'Which one tells you when you get paid?' Time how long it takes each host to answer Q3.",
+      "success_criteria": [
+        "At least 7/8 hosts say they would read the summary card first",
+        "At least 7/8 correctly identify one as an explanation/summary and the other as a legal agreement",
+        "At least 7/8 correctly point to the summary card when asked 'which tells you when you get paid?'",
+        "Average time to answer Q3 is under 5 seconds (hosts immediately recognize the summary's purpose)"
+      ],
+      "failure_meaning": "If hosts cannot distinguish the summary from the agreement, the visual differentiation (purple left border, warm background, Q&A format) is insufficient. Consider stronger differentiation: add a header icon (light bulb or question mark), add a colored background for the entire card, or add a label 'Read this first' in prominent text. If hosts choose the agreement first, the summary may not be positioned prominently enough in the email/page layout.",
+      "implementation_hint": "Create both mockups as screenshots or printed pages. This test can be run in person or via screen-share. No development required. 15 minutes per participant, 2 hours total."
+    },
+    {
+      "id": "tests-0902-018",
+      "validates_element": "looks-0902-004",
+      "element_title": "Import-and-Verify Listing Draft: Verification Is Cheaper Than Creation",
+      "journey_phases": ["listing_creation", "pricing", "onboarding"],
+      "problem": "The import-and-verify visual design (drop zone, pre-populated preview, checkmark vs amber fields) assumes hosts will understand the visual language of 'green checkmark = imported, amber highlight = needs your input.' This visual grammar has not been tested.",
+      "solution": "Show hosts a pre-populated listing draft and measure whether they correctly identify which fields are complete and which need attention.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 01:42",
+          "detail": "Robbie's instinct to reuse content validates the concept; the test validates the visual implementation."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Removing Waste",
+          "detail": "The visual must make clear which work is done and which work remains."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "visual_grammar_comprehension_test",
+      "test_description": "Create a mockup of a pre-populated listing draft with 5 fields imported (checkmark icons) and 3 fields needing attention (amber highlight, 'Needed' label). Show to 8 hosts. Ask: (1) 'How many fields are already filled in?' (2) 'How many fields do you need to complete?' (3) 'How would you edit a field that is already filled in?' (4) 'What does the yellow/amber highlight mean?' Record accuracy for each question.",
+      "success_criteria": [
+        "At least 7/8 correctly identify the number of pre-filled fields",
+        "At least 7/8 correctly identify the number of fields needing attention",
+        "At least 6/8 correctly identify how to edit a pre-filled field (tap the pencil icon or tap the field)",
+        "At least 7/8 correctly interpret the amber highlight as 'needs your input' or equivalent"
+      ],
+      "failure_meaning": "If hosts cannot distinguish pre-filled from needs-attention fields, the visual contrast between checkmark/calm and amber/labeled is insufficient. Consider: larger 'Needed' labels, a count at the top ('3 fields need your attention'), or animated attention (subtle pulse on amber fields). If the edit affordance is unclear, add 'Tap to edit' text on hover/focus.",
+      "implementation_hint": "Static Figma mockup with realistic data (East Village studio, $1,600, Robbie's scenario). Test via screen-share. 10 minutes per participant. Total: 90 minutes."
+    },
+    {
+      "id": "tests-0902-019",
+      "validates_element": "looks-0902-005",
+      "element_title": "Dual-Format Price Display: Monthly Income Dominates, Nightly Rate Derives",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "The two-tier number stack (28px bold purple monthly, 14px gray nightly) has a specific size ratio designed to make the monthly figure unmistakably dominant. This visual hierarchy needs validation across screen sizes.",
+      "solution": "Test the price display mockup on desktop, tablet, and mobile to confirm the monthly figure is always the first number the eye resolves.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 02:22",
+          "detail": "Robbie's $1,600 anchor must be the first number he sees on any pricing screen."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Outcomes",
+          "detail": "The outcome is confidence in monthly income, achieved when the monthly figure dominates visually."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "cross_device_first_number_test",
+      "test_description": "Create the dual-format price display as a responsive component. Test on 3 devices (desktop 1440px, tablet 768px, mobile 375px). For each device, show 5 participants the pricing screen and ask: 'What is the first number you see?' Also ask: 'How much would you earn per month?' and 'How much per night?' Record which number they cite first and whether both answers are correct.",
+      "success_criteria": [
+        "On all 3 devices, at least 4/5 participants cite the monthly figure ($1,600) as the first number they see",
+        "100% accuracy on the monthly income question across all participants",
+        "At least 80% accuracy on the nightly rate question (host can read the derivation)",
+        "On mobile, the monthly figure remains larger than the nightly figure (no CSS responsive issues)"
+      ],
+      "failure_meaning": "If the nightly rate is cited first on any device, the size differential (28px vs 14px) may be compressed on that screen size. Increase the ratio on smaller screens. If the monthly figure is not 100% accurate, the label may be unclear -- add or adjust the 'YOUR MONTHLY INCOME' uppercase label. If mobile layout compresses both numbers to similar sizes, use a min-font-size constraint for the monthly figure.",
+      "implementation_hint": "Build as an HTML/CSS component with responsive breakpoints per L3 token specs. Test using Chrome DevTools device emulation for quick iterations, then validate on real devices. Total: 2 hours for build + 1 hour for testing."
+    },
+    {
+      "id": "tests-0902-020",
+      "validates_element": "looks-0902-006",
+      "element_title": "Proactive Payment Notification: Amount and Date in One Glance",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "The notification card design (inline bold-purple dollar amounts, calendar/checkmark icons, guarantee badge) must work across notification channels: push notification, email, and in-app. Each channel has different visual constraints that may compromise the design.",
+      "solution": "Test the notification design across all three channels to ensure the dollar amount and date are always the first two pieces of information the host perceives.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06",
+          "detail": "Robbie demands immediate confirmation. The notification must deliver that confirmation at a glance, in whatever channel the host uses."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Progress = Outcomes, Not Output",
+          "detail": "The notification is the output; host confidence is the outcome. The notification must achieve confidence in under 3 seconds of viewing."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "multi_channel_glance_test",
+      "test_description": "Create the payment notification in three formats: (1) push notification preview (title + subtitle, ~60 characters), (2) email (full card design per L3 spec), (3) in-app notification card. Show each format to 3 hosts for 3 seconds, then ask: 'How much were you paid?' and 'When?' Also test: does the push notification preview contain enough information that the host does NOT need to open it? Record per-channel answer accuracy.",
+      "success_criteria": [
+        "Push notification: at least 2/3 correctly identify amount AND date from the preview alone (without opening)",
+        "Email: at least 3/3 correctly identify amount and date within 3 seconds of viewing",
+        "In-app: at least 3/3 correctly identify amount and date",
+        "All channels: guarantee badge is noticed by at least 2/3 participants when asked 'Was there anything else you noticed?'"
+      ],
+      "failure_meaning": "If push notification fails (hosts cannot identify amount + date from the preview), the notification title must be restructured to lead with '$1,600 released [date]' rather than 'Payment update.' Push notifications have ~60-character previews -- every character counts. If the guarantee badge is not noticed, it may be too small or too similar in color to the surrounding content.",
+      "implementation_hint": "Push notification previews can be mocked up as screenshot overlays on a phone screen image. Email and in-app versions use the L3 HTML/CSS specifications. Test by showing screenshots to participants and timing their responses. 10 minutes per participant, 30 minutes total per channel."
+    },
+    {
+      "id": "tests-0902-021",
+      "validates_element": "looks-0902-007",
+      "element_title": "Language-Accessible Visual System: Icons Lead, Short Sentences Follow",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "The icon-primary visual system relies on icons being universally recognizable across cultures and language proficiencies. Icons that seem obvious to designers may be ambiguous to users, especially for abstract concepts like 'move in' (door icon) or 'first night' (moon icon).",
+      "solution": "Run an icon recognition test with both native and non-native English speakers to validate the icon vocabulary.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06, 06:14",
+          "detail": "Robbie's language difficulties mean icons must carry meaning independently of text."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 GOOB",
+          "detail": "Test the icon system with the users it is designed for -- non-native speakers."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "icon_recognition_test",
+      "test_description": "Present each icon from the visual system (pen, dollar, calendar, door, moon, checkmark, upload, document, home) to 10 participants (5 native, 5 non-native) WITHOUT any text label. For each icon, ask: 'What does this icon mean?' and 'What action would this icon represent on a website?' Score: (1) correct concept identification (pen = sign/agreement), (2) correct action identification (pen = 'I should sign something'). Calculate recognition rates per icon and per participant group.",
+      "success_criteria": [
+        "At least 7/10 participants correctly identify the concept for each icon",
+        "At least 6/10 correctly identify the expected action for each icon",
+        "Non-native speaker recognition rates are within 20% of native speaker rates for all icons",
+        "Any icon with below 60% recognition across both groups is flagged for replacement"
+      ],
+      "failure_meaning": "If specific icons fail (e.g., 'door' for 'move in' is not recognized), replace with a more universally recognized icon (e.g., a moving truck, a key, or a house with an arrow). If non-native speakers perform significantly worse, the icons may be culturally specific. Consider testing alternative icon sets (Phosphor vs. Lucide vs. Material) to find the most universally recognized options.",
+      "implementation_hint": "Export icons from the chosen icon library at 24px, presented on a white background with no labels. Show via screen-share or printed cards. 15 minutes per participant. Can be combined with the non-native speaker usability test (tests-0902-007) to save recruitment effort."
+    },
+    {
+      "id": "tests-0902-022",
+      "validates_element": "behaves-0902-001",
+      "element_title": "Payment Timeline Stepper: Progressive Node Activation",
+      "journey_phases": ["evaluation", "onboarding", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "The progressive activation state machine (default > node_completing > all_complete > monthly_reset) introduces a monthly reset where nodes 2-4 return to inactive state. This reset may cause anxiety ('my progress disappeared') rather than confidence ('the cycle is starting again').",
+      "solution": "Test the monthly reset with hosts who have seen the full cycle complete at least once, and measure whether the reset triggers anxiety or confidence.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 03:17-06:14",
+          "detail": "Robbie needs to experience the sequence, not just hear about it. The progressive activation provides this experience."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Making over Analysis",
+          "detail": "Build the interactive version and test it rather than debating whether the reset will cause anxiety."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "interactive_prototype_walkthrough",
+      "test_description": "Build an interactive prototype of the payment timeline that can be advanced through states manually. Walk 5 hosts through the full cycle: (1) Show default state, explain each node, (2) Advance to agreements signed, (3) Advance to guest moved in, (4) Advance to first night, (5) Show payment released with celebratory pulse, (6) Show monthly reset with 'Month 2 of 3' label. After each state change, ask: 'How does this make you feel?' After the monthly reset specifically, ask: 'The timeline just reset for month 2. Does this worry you or reassure you? Why?' Record emotional responses.",
+      "success_criteria": [
+        "At least 4/5 hosts report positive emotion (reassured, confident, satisfied) after seeing the full cycle complete",
+        "At least 3/5 hosts report positive or neutral emotion after the monthly reset (not worried or anxious)",
+        "At least 4/5 hosts correctly understand that the reset means 'the cycle repeats for month 2' rather than 'my progress was lost'",
+        "The 'Month 2 of 3' label and 'same path, same guarantee' copy is identified by at least 4/5 as reassuring"
+      ],
+      "failure_meaning": "If the monthly reset triggers anxiety in 3+ hosts, the reset animation and copy need revision. Options: do not reset nodes 2-4 (keep them completed and add a 'Month 2' label above), use a different visual (a second timeline row below the first, showing month 1 complete and month 2 in progress), or add a transition animation that explicitly shows the cycle concept (circular arrow, 'cycle 2 of 3'). The core insight: hosts may prefer to see accumulation rather than reset.",
+      "implementation_hint": "Build the prototype in Figma with interactive components or as a simple JavaScript page where clicking 'advance' moves to the next state. The prototype does not need backend data -- it is manually advanced by the researcher during the walkthrough. 20 minutes per participant, 2 hours total."
+    },
+    {
+      "id": "tests-0902-023",
+      "validates_element": "behaves-0902-002",
+      "element_title": "Agent-to-Platform Trust Handoff: Recognition Before Registration",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation"],
+      "problem": "The token-authenticated URL that eliminates registration gates is a security-sensitive design decision. The hypothesis is that deferring registration until after content consumption improves conversion without creating security risks. Neither the conversion benefit nor the security implications have been tested.",
+      "solution": "Test the deferred-registration flow against the current registration-first flow and audit the security implications of token-authenticated URLs.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 07:10",
+          "detail": "Robbie said 'just send it to me and let me see' -- he wants to see content before committing. Registration-first blocks this."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 5 MVPs",
+          "detail": "The token-authenticated URL is the MVP for testing whether deferred registration improves conversion."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "conversion_funnel_comparison_plus_security_review",
+      "test_description": "Phase 1 (conversion test): For 20 hosts, randomly assign: (A) 10 hosts receive a link that requires registration before showing content (current flow), (B) 10 hosts receive a token-authenticated link that shows all personalized content without registration (registration deferred to bottom of page). Track: email click-through, page view duration, content scroll depth, registration completion within 7 days, first platform action within 14 days. Phase 2 (security review): Document the risks of token-authenticated URLs: link sharing, link forwarding, data exposure, token expiration policy. Propose mitigations for each risk.",
+      "success_criteria": [
+        "Group B email click-through rate exceeds Group A by at least 20 percentage points",
+        "Group B average page view duration is at least 2x Group A (hosts stay longer because content is immediately visible)",
+        "Group B 7-day registration rate is at least equal to Group A (deferred registration does not reduce total registrations)",
+        "Security review identifies no critical risks that cannot be mitigated by token expiration (30 days) and single-use tokens"
+      ],
+      "failure_meaning": "If Group B click-through is not higher, the email content (subject line, sender name) may be the bottleneck rather than the landing page. If Group B registration rate is lower than Group A, some hosts may consume the content without ever registering -- consider adding a soft prompt ('Ready to move forward? Create your account') that appears after the host has scrolled past all content. If security review identifies critical risks, consider a middle ground: show agent name + property address without registration, but require registration to see financial details and documents.",
+      "implementation_hint": "Token-authenticated URLs can be generated as unique hash strings mapped to host records. Implement with a simple key-value store (host_token -> host_data). Token expires after 30 days. The landing page renders per-host data from the token lookup. No login library required. Security: rate-limit token lookups, log all accesses, expire tokens on registration."
+    },
+    {
+      "id": "tests-0902-024",
+      "validates_element": "behaves-0902-003",
+      "element_title": "Hesitation-Detected Retreat: Simplify the Request When the Host Stalls",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "The hesitation detection thresholds (45s idle, 20s field focus without typing, back-button hover) are calibrated from Robbie's call patterns but have not been tested against real platform usage patterns. The thresholds may trigger too early (interrupting careful review) or too late (after the host has already decided to leave).",
+      "solution": "Implement hesitation detection with logging-only mode first, then analyze real usage data to calibrate thresholds before showing the retreat card.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 07:10",
+          "detail": "Robbie's verbal retreat ('just send it to me') is the model behavior. The digital retreat must trigger at a similar cognitive-overload moment."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Permission to Fail",
+          "detail": "The host needs permission to partially engage without losing progress."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "silent_logging_then_threshold_calibration",
+      "test_description": "Phase 1 (silent logging, 30 days): Add invisible event tracking to the listing wizard, pricing page, and proposal acceptance page. Log: idle duration, field focus without typing, back-button proximity, scroll-to-top events, tab switches. For each session, also log: did the host complete the flow? Did they abandon? At what step? Phase 2 (analysis): For abandoned sessions, identify the median idle duration before abandonment. For completed sessions, identify the median idle duration during careful review. Set the retreat threshold at a value that captures 80% of pre-abandonment idle periods while excluding 80% of careful-review idle periods. Phase 3 (deployment): Activate the retreat card at the calibrated threshold for a test group of 20 hosts and measure retreat acceptance rate and subsequent completion rate.",
+      "success_criteria": [
+        "Phase 1: Sufficient data collected (at least 50 wizard sessions with idle events)",
+        "Phase 2: Clear separation between pre-abandonment idle and careful-review idle (threshold can be set with <20% overlap)",
+        "Phase 3: At least 25% of hosts who would have abandoned accept the retreat",
+        "Phase 3: At least 40% of hosts who accept the retreat eventually complete the full version within 7 days"
+      ],
+      "failure_meaning": "If Phase 2 shows no clear separation between abandonment and review idle times, the simple idle-duration threshold is insufficient. Consider combining signals: idle + scroll-to-top + back-button hover as a composite trigger. If Phase 3 retreat acceptance is below 25%, the retreat card copy or timing may feel intrusive -- test alternative messages and longer cooldown periods. If follow-through is below 40%, the retreat may be capturing disinterested hosts rather than overwhelmed ones.",
+      "implementation_hint": "Phase 1 is pure analytics: add event listeners for idle time, field focus, and navigation signals. Use a session-recording tool (Hotjar, FullStory) for qualitative backup. Phase 2 is data analysis. Phase 3 requires building the retreat card component and the threshold logic. The retreat card itself is a single HTML/CSS component with a slide-up animation."
+    },
+    {
+      "id": "tests-0902-025",
+      "validates_element": "behaves-0902-004",
+      "element_title": "Import-Then-Verify Listing Flow: Three-Phase Interaction",
+      "journey_phases": ["listing_creation", "pricing", "onboarding"],
+      "problem": "The three-phase import interaction (Input > Process > Verify) includes a graceful degradation for dead URLs (fallback to photo upload + call data). The dead-URL scenario is common for Craigslist hosts (listings are removed after renting). The fallback path has not been tested for whether it maintains the host's engagement after the primary import fails.",
+      "solution": "Simulate the dead-URL scenario with hosts and measure whether the fallback preserves engagement or triggers abandonment.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 01:42",
+          "detail": "Robbie mentions his listing link but notes his pictures are missing. Dead URLs are a real scenario for agent-acquired hosts."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Small Batch Size",
+          "detail": "The fallback is a smaller batch: accept photos + call data when the URL fails."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "failure_scenario_walkthrough",
+      "test_description": "Recruit 5 hosts who have existing listing content. Ask each to paste a URL (provide a dead Craigslist URL for the test). When the URL fails, observe: (1) Does the host notice the fallback message? (2) Do they switch to photo upload or leave? (3) How long does the transition from URL failure to alternative input take? (4) After uploading photos and seeing the draft, do they express frustration about the dead URL or relief about the fallback? Record emotional responses and timing.",
+      "success_criteria": [
+        "At least 4/5 hosts notice and engage with the fallback message within 10 seconds of URL failure",
+        "At least 4/5 hosts switch to photo upload rather than abandoning",
+        "Transition time (URL failure to alternative input started) is under 30 seconds",
+        "At least 3/5 express relief or neutral emotion about the fallback, not frustration"
+      ],
+      "failure_meaning": "If hosts do not notice the fallback, the error message and alternative path are not prominent enough. Consider: animating the URL input to slide left while the photo upload slides in from the right (per L4 spec), adding a larger call-to-action for the alternative path, or auto-opening the photo upload interface. If hosts express frustration, the error copy may be too blame-oriented -- revise to 'That link is no longer available. Your photos will work just as well.'",
+      "implementation_hint": "The dead-URL scenario can be simulated with any non-resolving URL. Build a prototype of the import zone that shows the error state and fallback. Can be a clickable Figma prototype or a simple HTML page. 15 minutes per participant."
+    },
+    {
+      "id": "tests-0902-026",
+      "validates_element": "behaves-0902-005",
+      "element_title": "Proactive Payment Notification Cycle: Three-Phase Timing",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "The T-48 hour pre-notification timing is hypothesized but not validated against actual host payment-checking patterns. The optimal pre-notification timing should be based on when hosts actually start wondering about payment, not on a fixed assumption.",
+      "solution": "Use the behavioral data from tests-0902-006 to determine the optimal pre-notification timing, then validate with a pilot deployment.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06",
+          "detail": "Robbie demands confirmation 'immediately.' The pre-notification must arrive before the host's anxiety begins."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Continuous Discovery",
+          "detail": "The notification timing is a hypothesis to be continuously refined based on observed host behavior."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "data_driven_timing_optimization",
+      "test_description": "Prerequisite: complete tests-0902-006 (behavioral instrumentation) to establish when hosts check payment status. Analysis: identify the median time before payment release when hosts first check the Leases page (e.g., if most hosts first check at T-72 hours, the pre-notification should arrive at T-72 or earlier). Pilot: for 10 hosts in the next active lease cycle, send the pre-notification at the data-driven time. Track: (1) Did the host check the Leases page between pre-notification and payment release? (2) Did the host open the pre-notification email? (3) Support contacts. Compare to the 10 hosts from tests-0902-013 who received T-48 pre-notifications.",
+      "success_criteria": [
+        "Data-driven timing group has fewer Leases page checks than the T-48 group",
+        "Data-driven timing group pre-notification open rate exceeds 80%",
+        "Data-driven timing group has zero payment-related support contacts",
+        "The optimal timing is identified to within a 12-hour window (e.g., T-60 to T-72)"
+      ],
+      "failure_meaning": "If the data-driven timing group still checks frequently, the timing alone is not sufficient -- the notification content may need enrichment (e.g., include a real-time guarantee status, link to the live timeline). If open rates are low at any timing, the host may not perceive the email as urgent enough to open -- test push notifications or SMS as the primary channel.",
+      "implementation_hint": "This test depends on completing tests-0902-006 first. The timing adjustment is a configuration change in the email scheduling system (change the trigger from T-48 to T-[data-driven value]). No development work beyond the initial email automation from tests-0902-013."
+    },
+    {
+      "id": "tests-0902-027",
+      "validates_element": "behaves-0902-006",
+      "element_title": "Dual-Format Price Input: Accept Monthly, Calculate Nightly",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "The monthly-first input with real-time nightly derivation (150ms debounce) has specific interaction timing that needs validation. The derivation must feel 'instant' without flickering during typing. The mismatch detection (entered amount differs from call data) must feel helpful, not corrective.",
+      "solution": "Build the monthly-first input as an interactive prototype and test with hosts who have varying typing speeds and call data.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 02:22",
+          "detail": "Robbie states $1,600 as a fact. The input must accept this smoothly."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Outcomes",
+          "detail": "The outcome is confidence in monthly income, tested by whether the host cites $1,600 after interacting with the pricing interface."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "interactive_input_test",
+      "test_description": "Build the monthly-first input as a functional HTML/JS component. Test with 6 hosts: (1) Ask each to 'set their monthly rent.' Observe: do they understand the single input field? Do they search for a nightly rate field? (2) After typing, check: does the nightly derivation appear smoothly? Is the 150ms debounce perceptible? (3) For 3 hosts, pre-fill the call data amount ($1,600) and have them type a different number ($1,800). Observe: do they notice the mismatch advisory? Do they perceive it as helpful or controlling? (4) Ask each host to state their expected monthly income after completing the interaction.",
+      "success_criteria": [
+        "At least 5/6 hosts type their monthly rent without looking for a nightly input field",
+        "At least 5/6 hosts confirm the nightly derivation appeared smoothly (no flicker complaints)",
+        "At least 2/3 hosts who trigger the mismatch advisory perceive it as helpful (not controlling)",
+        "6/6 hosts correctly state their expected monthly income after the interaction"
+      ],
+      "failure_meaning": "If hosts look for a nightly input, the monthly label is not clear enough -- add 'This is the only price you need to set' helper text. If the debounce causes visible flicker, increase to 200ms. If the mismatch advisory feels controlling, soften the copy: change from 'Would you like to use $1,600?' to 'Bryant noted $1,600 during your call. Use that amount?' with a dismiss option.",
+      "implementation_hint": "Build as a standalone HTML page with JavaScript for the real-time calculation and mismatch detection. No backend required -- the call data amount can be hardcoded for the test. Total development: 1-2 hours. Total testing: 1.5 hours (15 minutes per participant)."
+    },
+    {
+      "id": "tests-0902-028",
+      "validates_element": "behaves-0902-007",
+      "element_title": "Language-Accessible Icon-First Interaction: Every Critical Action Without Reading",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "The icon-first interaction system (tooltips on hover/long-press, icon-based progress tracker, icon-paired buttons) assumes hosts will discover tooltip functionality and that the progress tracker icons are sufficient navigation cues. Neither assumption has been tested.",
+      "solution": "Test the icon-first interaction system with non-native English speakers performing a multi-step flow, measuring whether they can navigate using icons alone.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06, 06:14",
+          "detail": "Robbie's word-level processing errors mean text labels may not be sufficient. Icons must carry the interaction independently."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 GOOB",
+          "detail": "Test the icon system with the users it is designed for."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "icon_only_task_completion",
+      "test_description": "Build a prototype of the listing creation flow with icon-based progress tracker and icon-paired buttons. Test with 5 non-native English speakers. For the first attempt, cover all text labels with gray blocks (only icons visible). Ask each host to complete the listing flow using only icons and numbers. Record: (1) Can they identify each step from the icon alone? (2) Can they complete each step? (3) Where do they get stuck? For the second attempt, reveal text labels and ask: 'Did the text help? Which icons were confusing without the text?'",
+      "success_criteria": [
+        "At least 3/5 hosts complete the full listing flow using icons only (no text visible)",
+        "At least 4/5 hosts correctly identify what each progress tracker icon represents",
+        "After text labels are revealed, hosts report that at least 5/7 icons were clear without text",
+        "Any icon that fewer than 3/5 hosts recognized is flagged for replacement"
+      ],
+      "failure_meaning": "If fewer than 3/5 complete the flow with icons only, the icon vocabulary is not universal enough for the target audience. Priority: identify which specific icons failed and test alternatives. The most likely failures are abstract concepts (door = move in, moon = first night). Consider replacing with more concrete icons (key = move in, bed = first night) or adding micro-illustrations instead of simple line icons.",
+      "implementation_hint": "Build the prototype in Figma with clickable icon-only screens. For the text-hidden version, add a gray overlay on each label that can be toggled on/off. 20 minutes per participant. Can be combined with tests-0902-021 (icon recognition) for efficiency."
+    },
+    {
+      "id": "tests-0902-029",
+      "validates_element": "feels-0902-001",
+      "element_title": "Payment Certainty as a Continuous Emotional State",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "The emotional design principle (each payment touchpoint must leave the host feeling MORE certain than before) has not been validated. The certainty account metaphor assumes additive emotional accumulation, but real hosts may not experience certainty as cumulative -- each interaction may reset their emotional baseline.",
+      "solution": "Measure host certainty at multiple points across the journey to determine whether it accumulates or resets.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06, 06:14",
+          "detail": "Robbie's certainty did not accumulate during the call -- each explanation was followed by a re-assertion of his own model. Does the digital experience break this pattern?"
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Progress = Outcomes, Not Output",
+          "detail": "Certainty is the outcome to be measured. Multiple measurement points reveal the accumulation pattern."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "longitudinal_certainty_survey",
+      "test_description": "For 10 hosts entering the platform, administer a single-question certainty survey at five journey points: (1) after the evaluation call, (2) after receiving onboarding documents, (3) after listing creation, (4) after accepting a proposal, (5) after the first payment is released. The question: 'How confident are you that you will receive your expected monthly payment on time? Rate 1-5.' Track the trajectory: is each rating higher than the previous? Is the trajectory upward, flat, or volatile?",
+      "success_criteria": [
+        "Average certainty rating increases from point 1 to point 5 (overall upward trajectory)",
+        "At least 7/10 hosts show a non-decreasing trajectory (each rating equal to or higher than the previous)",
+        "The largest certainty jump occurs either at point 2 (onboarding, where the visual timeline and summary are introduced) or point 5 (first payment, where the promise is fulfilled)",
+        "Average certainty at point 5 (post-first-payment) is 4.0 or higher"
+      ],
+      "failure_meaning": "If certainty does not accumulate (flat trajectory), the visual timeline, plain-language summary, and proactive notifications are not adding emotional value at each phase -- they may be addressing comprehension without building confidence. If certainty drops at any point, identify which phase causes the drop and diagnose: is it the proposal acceptance phase where delayed payment conflicts with the host's mental model? If certainty at point 5 is below 4.0, even a successful first payment does not fully resolve the anxiety -- the emotional design for months 2+ needs different approaches.",
+      "implementation_hint": "The certainty survey is a single question sent via email or SMS at each journey milestone. Use a tool like Typeform or a simple Google Form. Automated triggers can be set based on CRM events (call completed, documents sent, listing published, proposal accepted, payment released). Total per-host effort: 5 questions x 10 seconds = under 1 minute of host time."
+    },
+    {
+      "id": "tests-0902-030",
+      "validates_element": "feels-0902-002",
+      "element_title": "Recognition Before Demand: Make the Host Feel Known",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation"],
+      "problem": "The recognition-before-demand emotional sequence (recognition > confirmation > comfort > action) has not been tested for whether it creates a measurably different emotional response than the standard demand-first onboarding sequence (register > explore > personalize).",
+      "solution": "Compare emotional responses between two onboarding experiences: recognition-first and demand-first.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 00:18, 07:10",
+          "detail": "Robbie's trust is personal (Bryant). The recognition-first experience extends that personal trust to digital."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Shared Understanding",
+          "detail": "Shared understanding must transfer from the call to the digital touchpoint."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "emotional_response_comparison",
+      "test_description": "Recruit 8 hosts who recently completed evaluation calls. Randomly assign: (A) 4 hosts receive the recognition-first landing page (agent name, property details, guest names visible before any action request), (B) 4 hosts receive the demand-first experience (registration screen with generic welcome message). After viewing for 60 seconds, ask each host: (1) 'How does this page make you feel?' (open-ended), (2) 'Do you trust this page?' (1-5), (3) 'Would you take the next step on this page?' (yes/no), (4) 'Does this feel like a continuation of your phone call?' (yes/no).",
+      "success_criteria": [
+        "Group A trust rating averages at least 1.0 point higher than Group B",
+        "At least 3/4 in Group A answer 'yes' to 'continuation of your phone call' vs. at most 1/4 in Group B",
+        "At least 3/4 in Group A would take the next step vs. at most 2/4 in Group B",
+        "Group A open-ended responses include recognition-specific words (e.g., 'personal,' 'they know me,' references to agent name or property)"
+      ],
+      "failure_meaning": "If trust ratings are similar between groups, the personalization may not be perceived as meaningful -- the host may treat both versions as 'just another website.' Check: are the recognition signals (agent photo, property address, guest names) specific enough? Generic personalization ('Hi Robbie') may not be sufficient; the property-specific details (East Village studio, $1,600) may be the critical differentiator. If 'continuation of call' is low even in Group A, the landing page may not echo enough call-specific language.",
+      "implementation_hint": "Group A landing page is the same static HTML page from tests-0902-002. Group B is any existing registration or onboarding page. The test is purely comparative -- no development required for Group B. 15 minutes per participant."
+    },
+    {
+      "id": "tests-0902-031",
+      "validates_element": "feels-0902-003",
+      "element_title": "Graceful Retreat: Offer Simplicity, Not Pressure",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "The retreat card's emotional tone ('This is a lot to take in. How about we start with just the basics?') has not been tested for whether hosts perceive it as supportive or patronizing. Non-native speakers may interpret the simplified offer differently than native speakers.",
+      "solution": "Show the retreat card copy to hosts who are not currently stalled and ask for their emotional interpretation before testing in context.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 07:10",
+          "detail": "Robbie's verbal retreat was met by Bryant with matching simplification. The digital retreat must achieve the same emotional match."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Permission to Fail",
+          "detail": "Permission to fail must feel like empowerment, not condescension."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "copy_perception_test",
+      "test_description": "Create 3 versions of the retreat card copy: (A) current version: 'This is a lot to take in. How about we start with just the basics?' (B) direct version: 'Too much? Start simple.' (C) agent-referenced version: 'No rush. Bryant can help with the rest later.' Show all three to 9 hosts (3 per version, mix of native and non-native). Ask: (1) 'How does this message make you feel?' (2) 'Does this feel helpful or patronizing?' (3) 'Would you accept this offer if you were stuck?' (4) 'Which version would you prefer?' (show all three after individual evaluation).",
+      "success_criteria": [
+        "At least 2/3 hosts per version rate their version as 'helpful' (not patronizing)",
+        "The winning version (preferred by the most hosts across all 9) is identified",
+        "No version is rated as patronizing by more than 1/9 hosts",
+        "Non-native speakers do not rate any version as significantly more patronizing than native speakers do"
+      ],
+      "failure_meaning": "If any version is widely perceived as patronizing (3+ hosts), the tone needs revision. Consider testing versions that lead with agency rather than acknowledgment: 'Want to save this and finish later?' removes the implication that the task is difficult and puts the host in control. If non-native speakers find versions more patronizing than native speakers, the simplified language may be perceived as language-targeting rather than helpfulness.",
+      "implementation_hint": "This is a pure copy test requiring no development. Show the three versions as text on screen or printed cards. 10 minutes per participant. Can be run remotely via video call."
+    },
+    {
+      "id": "tests-0902-032",
+      "validates_element": "feels-0902-004",
+      "element_title": "Reuse, Not Recreate: Honor the Host's Existing Work",
+      "journey_phases": ["listing_creation", "pricing", "onboarding"],
+      "problem": "The emotional principle that 'reuse feels like respect and recreation feels like bureaucracy' has not been validated. The import path may produce functional improvement (faster completion) without the emotional benefit (feeling respected). The two must be measured separately.",
+      "solution": "Measure the emotional response of hosts using the import path versus the wizard path, in addition to the functional metrics from tests-0902-003.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 01:42, 02:49",
+          "detail": "Robbie offers to reuse his existing work twice. The emotional test measures whether honoring this offer feels meaningfully different."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Removing Waste",
+          "detail": "Waste removal is emotionally valuable only if the host perceives it as the platform respecting their time."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "post_task_emotional_interview",
+      "test_description": "After the task completion comparison from tests-0902-003, conduct a brief emotional interview with each participant. Ask: (1) 'How did creating your listing make you feel?' (open-ended), (2) 'Did the platform respect the work you had already done?' (1-5), (3) 'Did this feel like starting from scratch or building on what you already had?' (binary choice), (4) 'Would you recommend this listing process to another host?' (1-5). Compare import group vs. wizard group.",
+      "success_criteria": [
+        "Import group 'respect for existing work' rating averages at least 4.0/5 (vs. wizard group baseline)",
+        "At least 4/5 import group hosts select 'building on what I already had' (vs. 'starting from scratch')",
+        "Import group 'recommend to another host' rating is at least 1.0 point higher than wizard group",
+        "Import group open-ended responses include respect/efficiency words ('easy,' 'they already had my info,' 'didn't have to redo')"
+      ],
+      "failure_meaning": "If the import group does not report significantly higher respect ratings, the import path may be functionally better but emotionally neutral. This could mean: the acknowledgment copy is missing ('we built this from your photos' is not prominent enough), or the draft has too many errors (verification feels like correction rather than confirmation). Add explicit acknowledgment: 'We got 70% of your listing from your photos. Just verify the rest.'",
+      "implementation_hint": "This test piggybacks on tests-0902-003 -- it adds 5 minutes of interview to each session. No additional development or recruitment required."
+    },
+    {
+      "id": "tests-0902-033",
+      "validates_element": "feels-0902-005",
+      "element_title": "Translate, Do Not Transfer: Platform Does the Math, Host Gets the Answer",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "The emotional principle that 'the host should never encounter a number they cannot immediately verify against their $1,600 anchor' has not been tested across all screens where pricing appears. There may be screens in the current platform that show a nightly rate without the monthly equivalent.",
+      "solution": "Audit all platform screens where pricing appears and test whether hosts can verify their expected monthly income from each screen.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 02:22, 05:03-05:37",
+          "detail": "Robbie's $1,600 anchor was reinforced by Bryant. Every screen must validate this anchor."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Benchmarks",
+          "detail": "Benchmark each screen against the host's anchor number."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "pricing_anchor_audit",
+      "test_description": "Phase 1 (audit): Identify every screen in the platform that displays a pricing number (listing creation, listing preview, proposal view, Leases page, payment history, notifications). For each screen, record: is the monthly figure shown? Is it the primary/largest number? Is the nightly rate shown? Is the relationship between the two explicit? Phase 2 (test): Show each screen to 5 hosts and ask: 'How much do you earn per month from this listing?' Record accuracy per screen. Any screen where fewer than 4/5 hosts answer correctly is flagged for redesign.",
+      "success_criteria": [
+        "Phase 1: Every screen that shows pricing also shows the monthly equivalent",
+        "Phase 2: At least 4/5 hosts correctly identify their monthly income from every screen",
+        "No screen shows a nightly rate without the monthly equivalent within the same viewport",
+        "Fee disclosure is present on every screen where the price is shown (if fees apply)"
+      ],
+      "failure_meaning": "If any screen shows nightly-only pricing, it is a gap that will cause the specific anxiety Robbie exhibited. Priority: the Leases page and payment notifications are the highest-impact screens because they are viewed monthly during active lease. If hosts cannot identify their monthly income from a screen, the monthly figure is either missing, too small, or not labeled clearly enough.",
+      "implementation_hint": "Phase 1 is a manual walkthrough of the platform by a designer or PM, taking screenshots and annotating pricing displays. Phase 2 uses those screenshots as test stimuli. Total effort: 3-4 hours for the audit, 1 hour for the test."
+    },
+    {
+      "id": "tests-0902-034",
+      "validates_element": "feels-0902-006",
+      "element_title": "Comprehension Through Simplicity: Plain Language as Emotional Inclusion",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "The emotional framing of plain language as 'inclusion' rather than 'simplification' is a design philosophy that has not been tested for whether hosts actually feel included by plain language or whether they feel spoken down to.",
+      "solution": "Test whether hosts perceive plain-language interfaces as inclusive, professional, or patronizing.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 04:06, 06:14",
+          "detail": "Robbie's effort to communicate in English is visible. Plain language should reciprocate this effort."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 3 Assumptions",
+          "detail": "The assumption that plain language is perceived positively by all hosts must be tested."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "perception_survey_across_proficiency_levels",
+      "test_description": "Show two versions of the same interface screen (e.g., proposal acceptance) to 12 hosts (4 native fluent, 4 native casual, 4 non-native). Version A: current complex copy ('Upon acceptance of this booking proposal, the guaranteed rental income disbursement schedule shall commence...'). Version B: plain-language copy ('Accept this proposal. You earn $1,600/month. First payment after the first night.'). For each version, ask: (1) 'Does this sound professional?' (1-5), (2) 'Does this make you feel confident?' (1-5), (3) 'Is this written for someone like you?' (1-5), (4) 'Which version would you prefer on a real website?' (A or B).",
+      "success_criteria": [
+        "Version B 'written for someone like me' rating is higher than Version A across all three proficiency groups",
+        "Version B 'confident' rating is at least equal to Version A (plain language does not reduce confidence)",
+        "Version B 'professional' rating is no more than 0.5 points lower than Version A (plain language does not undermine professionalism)",
+        "At least 10/12 hosts prefer Version B when asked which they would want on a real website"
+      ],
+      "failure_meaning": "If Version B is perceived as less professional, the plain language may be too informal for certain host profiles. Test a middle ground: professional but clear ('When you accept, your $1,600 monthly income begins. Payment released after the first night.'). If native fluent speakers prefer Version A, consider using plain language as the default with an expandable 'detailed version' for hosts who want formal language.",
+      "implementation_hint": "This is a side-by-side copy comparison. No development required. Show as text on screen or as annotated screenshots. 10 minutes per participant. Can be run as an online survey for scale."
+    },
+    {
+      "id": "tests-0902-035",
+      "validates_element": "feels-0902-007",
+      "element_title": "Cumulative Promise Fulfillment: Every Kept Promise Compounds Trust for Retention",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "The retention hypothesis (hosts who experience cumulative promise fulfillment will relist at higher rates) cannot be tested until hosts complete full lease cycles. However, leading indicators of retention intent can be measured earlier.",
+      "solution": "Measure retention intent at lease midpoint and lease end, correlating with the number of promises the host perceived as kept.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt, 00:03",
+          "detail": "Robbie has alternatives (Craigslist demand). Retention requires proving the platform is demonstrably better."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Learning over Growth",
+          "detail": "Learn whether the experience retains hosts before scaling acquisition."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "retention_intent_survey_with_promise_tracking",
+      "test_description": "For 10 hosts in active leases, track 'promises kept' over the lease duration: (1) was each payment on time? (2) was each payment the expected amount? (3) did the host receive proactive notifications? (4) were support contacts resolved promptly? At lease midpoint and lease end, send a brief survey: 'How likely are you to list your space with Split Lease again?' (1-5) and 'What was the best part of your experience?' (open-ended). Correlate the retention intent score with the number of promises kept.",
+      "success_criteria": [
+        "Hosts with 100% promises kept (all payments on time, correct amount, proactive notifications) average 4.0+ retention intent",
+        "Retention intent increases from midpoint to lease end (accumulation effect)",
+        "Open-ended responses reference specific promise-fulfillment moments ('payments were always on time,' 'I was notified before every payment')",
+        "Hosts who experienced the lifetime earnings summary rate it as 'very helpful' for their relist decision at 4.0+ on a 1-5 scale"
+      ],
+      "failure_meaning": "If retention intent does not correlate with promises kept, other factors may dominate (guest quality, property maintenance issues, competitive pricing). Survey the low-intent hosts to identify the true retention drivers. If retention intent does not increase from midpoint to end, the cumulative effect is not working -- consider adding a midpoint 'progress report' that explicitly shows promises kept so far.",
+      "implementation_hint": "Promise tracking uses existing payment records and notification delivery logs. The survey is two questions sent at month 3 and month 6 (for a 6-month lease). Total host burden: 2 surveys x 1 minute each. Analysis requires correlating survey data with operational data."
+    },
+    {
+      "id": "tests-0902-036",
+      "validates_element": "journey_level",
+      "element_title": "End-to-End Journey Coherence: From Evaluation Call to First Payment",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "Individual elements have been tested in isolation, but the full journey from evaluation call through first payment involves 6+ phases, 35 elements, and multiple handoffs. The coherence of the full experience -- whether the emotional arc actually descends from anxiety to certainty as designed -- can only be validated end-to-end.",
+      "solution": "Shadow 3 real hosts through their complete journey from evaluation call to first payment, documenting every touchpoint and measuring emotional state at each transition.",
+      "evidence": [
+        {
+          "source_type": "host_call",
+          "source": "robbie-call.txt (entire call)",
+          "detail": "Robbie's call reveals the starting emotional state (anxious, confused, eager to defer). The end-to-end test measures whether the platform transforms this into confidence by the first payment."
+        },
+        {
+          "source_type": "book",
+          "source": "leanux-hypothesis-driven-design.txt, Ch 2 Continuous Discovery",
+          "detail": "Gothelf: engage the customer throughout the process. Shadowing hosts through their real journey is the ultimate continuous discovery."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "longitudinal_journey_shadowing",
+      "test_description": "Identify 3 agent-acquired hosts entering the platform (Robbie-profile: traditional landlord, strong payment concerns). With their consent, shadow their journey: (1) Listen to or read the evaluation call transcript. Note initial concerns. (2) Review the follow-up email/landing page they receive. Note: did it address their call concerns? (3) Observe their onboarding interaction (document review, summary comprehension). (4) Observe listing creation (import vs. wizard, time, stalls). (5) Observe proposal acceptance (payment calendar, concerns expressed). (6) Monitor active lease (notification delivery, Leases page checks, support contacts). At each phase transition, send the certainty survey from tests-0902-029. At the end, conduct a 15-minute interview: 'Walk me through your experience from the first call to today.'",
+      "success_criteria": [
+        "All 3 hosts complete the journey from call to first payment without unresolved payment confusion",
+        "Certainty ratings increase across the journey for all 3 hosts",
+        "Zero hosts contact support about payment timing or amount during the shadowed period",
+        "The end-of-journey interview reveals no major friction points that were not anticipated by the L1-L5 elements",
+        "At least 2/3 hosts describe the experience as better than their previous platform (Craigslist, etc.)"
+      ],
+      "failure_meaning": "If any host's certainty rating decreases at a phase transition, that transition is a break point requiring redesign. If hosts contact support about payments despite the visual timeline and proactive notifications, the interventions are not reaching the host effectively -- check channel (email may not be opened), timing (notifications may arrive too late), or content (the specific dollar amount or date may be missing). If the end-of-journey interview reveals friction not anticipated by L1-L5 elements, new elements may be needed for discovered gaps (e.g., guest communication during active lease, unexpected property issues).",
+      "implementation_hint": "Journey shadowing requires coordination with the sales/agent team to identify incoming hosts who fit the Robbie profile. The shadowing itself is observational -- no platform modifications required. Use a journey map template to record observations at each phase. The certainty survey from tests-0902-029 provides quantitative data points. The final interview is the qualitative capstone. Total effort per host: ~4 hours of observation over 2-6 weeks (spread across the lease timeline)."
+    }
+  ],
+  "element_count": 36,
+  "coverage_summary": {
+    "layer_1_elements_tested": {
+      "ds-ui-0902-001": "tests-0902-001 (payment comprehension validation)",
+      "ds-ui-0902-002": "tests-0902-002 (trust bridge A/B test)",
+      "ds-ui-0902-003": "tests-0902-003 (import path timing comparison)",
+      "ds-ui-0902-004": "tests-0902-004 (document comprehension quiz)",
+      "ds-ui-0902-005": "tests-0902-005 (dual-format pricing benchmark)",
+      "ds-ui-0902-006": "tests-0902-006 (behavioral instrumentation for payment confidence)",
+      "ds-ui-0902-007": "tests-0902-007 (non-native speaker usability test)"
+    },
+    "layer_2_elements_tested": {
+      "communicates-0902-001": "tests-0902-008 (five-second comprehension test for visual timeline)",
+      "communicates-0902-002": "tests-0902-009 (time-to-recognition test for landing page)",
+      "communicates-0902-003": "tests-0902-010 (call transcript analysis + comprehension test for Q&A summary)",
+      "communicates-0902-004": "tests-0902-011 (cognitive load comparison for import path)",
+      "communicates-0902-005": "tests-0902-012 (mockup comprehension test for dual-format pricing)",
+      "communicates-0902-006": "tests-0902-013 (cohort comparison for notification cycle)",
+      "communicates-0902-007": "tests-0902-014 (copy audit + A/B comprehension for 8-word rule)"
+    },
+    "layer_3_elements_tested": {
+      "looks-0902-001": "tests-0902-015 (visual hierarchy first-click test for payment timeline)",
+      "looks-0902-002": "tests-0902-016 (trust perception test for agent landing page)",
+      "looks-0902-003": "tests-0902-017 (visual differentiation test for summary card vs. legal documents)",
+      "looks-0902-004": "tests-0902-018 (visual grammar comprehension for import draft)",
+      "looks-0902-005": "tests-0902-019 (cross-device first-number test for pricing display)",
+      "looks-0902-006": "tests-0902-020 (multi-channel glance test for payment notifications)",
+      "looks-0902-007": "tests-0902-021 (icon recognition test across cultures)"
+    },
+    "layer_4_elements_tested": {
+      "behaves-0902-001": "tests-0902-022 (interactive prototype walkthrough for progressive timeline)",
+      "behaves-0902-002": "tests-0902-023 (conversion funnel comparison for deferred registration)",
+      "behaves-0902-003": "tests-0902-024 (silent logging + threshold calibration for hesitation detection)",
+      "behaves-0902-004": "tests-0902-025 (failure scenario walkthrough for dead-URL import)",
+      "behaves-0902-005": "tests-0902-026 (data-driven timing optimization for notification cycle)",
+      "behaves-0902-006": "tests-0902-027 (interactive input test for monthly-first pricing)",
+      "behaves-0902-007": "tests-0902-028 (icon-only task completion for accessibility)"
+    },
+    "layer_5_elements_tested": {
+      "feels-0902-001": "tests-0902-029 (longitudinal certainty survey across journey)",
+      "feels-0902-002": "tests-0902-030 (emotional response comparison for recognition-first vs demand-first)",
+      "feels-0902-003": "tests-0902-031 (copy perception test for retreat card tone)",
+      "feels-0902-004": "tests-0902-032 (post-task emotional interview for import path dignity)",
+      "feels-0902-005": "tests-0902-033 (pricing anchor audit across all screens)",
+      "feels-0902-006": "tests-0902-034 (perception survey for plain language as inclusion)",
+      "feels-0902-007": "tests-0902-035 (retention intent survey with promise tracking)"
+    },
+    "journey_level": {
+      "end_to_end": "tests-0902-036 (longitudinal journey shadowing from evaluation to first payment)"
+    }
+  },
+  "test_priority_order": [
+    {
+      "tier": "immediate",
+      "tests": ["tests-0902-001", "tests-0902-002", "tests-0902-004", "tests-0902-008"],
+      "rationale": "These tests require no development -- they use static mockups, existing call transcripts, and email-based interventions. They validate the most critical hypotheses: does the payment timeline achieve comprehension (001), does the personalized landing page achieve click-through (002), does the summary achieve document comprehension (004), and is the timeline visually scannable in 5 seconds (008)? All can be run in the first week with minimal effort."
+    },
+    {
+      "tier": "first_sprint",
+      "tests": ["tests-0902-005", "tests-0902-006", "tests-0902-007", "tests-0902-010", "tests-0902-013", "tests-0902-015", "tests-0902-024", "tests-0902-029"],
+      "rationale": "These tests require either analytics instrumentation (005, 006, 024), modest prototype development (013, 015), or participant recruitment of specific profiles (007, 029). They validate the pricing dual-format (005), establish behavioral baselines (006), test with non-native speakers (007), validate the Q&A universality (010), begin the notification cycle test (013), confirm visual hierarchy (015), begin hesitation threshold calibration (024), and start measuring certainty accumulation (029). All achievable within 2-3 weeks."
+    },
+    {
+      "tier": "second_sprint",
+      "tests": ["tests-0902-003", "tests-0902-009", "tests-0902-011", "tests-0902-012", "tests-0902-014", "tests-0902-016", "tests-0902-017", "tests-0902-018", "tests-0902-019", "tests-0902-020", "tests-0902-021", "tests-0902-022", "tests-0902-023", "tests-0902-025", "tests-0902-026", "tests-0902-027", "tests-0902-028"],
+      "rationale": "These tests require more developed prototypes, larger participant pools, or depend on data from earlier tests. The import path (003, 011, 018, 025), interactive prototypes (022, 027, 028), and cross-device/cross-channel tests (019, 020) need more preparation time. The deferred-registration security review (023) and timing optimization (026) depend on data from Tier 2 tests."
+    },
+    {
+      "tier": "ongoing",
+      "tests": ["tests-0902-030", "tests-0902-031", "tests-0902-032", "tests-0902-033", "tests-0902-034", "tests-0902-035", "tests-0902-036"],
+      "rationale": "These tests measure emotional and longitudinal outcomes that require hosts to progress through multiple journey phases. The journey shadowing (036), retention intent tracking (035), and emotional comparison studies (030, 031, 032, 034) are continuous discovery activities that inform iterations across all layers. They should run in parallel with product development, not gate it."
+    }
+  ],
+  "methodology_notes": "36 validation strategies mapped 1:1 to the 35 elements from L1-L5, plus one journey-level end-to-end test. Every test follows the Lean UX hypothesis format: each specifies what is being tested, how it will be measured, what success looks like, and what failure means for the next iteration. Tests are ordered by priority and grouped into implementation tiers based on effort and dependencies. The Lean UX lens shapes every test: (1) tests are small-batch (5-10 participants, not 100), (2) tests use the lowest-fidelity artifact that can validate the hypothesis (static images before prototypes, prototypes before production code), (3) every test has a 'failure meaning' that specifies the next experiment rather than treating failure as a dead end, (4) tests are designed to produce learning, not statistical significance -- directional signal from 5 hosts is sufficient to iterate. The test suite is divided into four tiers: immediate (no development, run this week), first sprint (light instrumentation, run within 3 weeks), second sprint (prototypes and larger tests, run within 6 weeks), and ongoing (longitudinal measurement integrated into product operations). The journey-level test (tests-0902-036) is the capstone that validates whether the individual element tests translate into a coherent end-to-end experience."
+}

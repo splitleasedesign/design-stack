@@ -1,0 +1,136 @@
+{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "looks-001",
+      "type": "visual_pattern",
+      "title": "Three-Tier Button Hierarchy Across the Guest Journey",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation", "acceptance"],
+      "problem": "The guest journey has actions at different commitment levels — browsing (low), proposing (medium), accepting (high) — but buttons are styled uniformly with the same solid purple treatment. This visual uniformity makes the non-binding proposal feel as weighty as the binding acceptance, causing hesitation at the wrong moment and insufficient gravity at the right moment. The book states: 'When you take a hierarchy-first approach to designing the actions on a page, the result is a much less busy UI that communicates more clearly.'",
+      "solution": "Implement a three-tier button system that visually communicates commitment level: PRIMARY (binding actions: Accept Terms, Confirm Payment): solid background using gradient-purple-button, white text, full border-radius pill shape. SECONDARY (non-binding actions: Create Proposal, Express Interest): outline style with secondary-purple border, purple text, transparent background. TERTIARY (exploratory: View Details, Learn More): no border, text-purple color, underline on hover. Apply consistently across the journey so the guest develops visual literacy — they learn to associate solid purple with 'this counts' and outline with 'this is reversible'.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "Primary actions should be obvious. Solid, high contrast background colors work great here. Secondary actions should be clear but not prominent. Outline styles or lower contrast background colors are great options. Tertiary actions should be discoverable but unobtrusive.",
+          "insight": "This is the exact visual prescription. The guest journey has all three levels; the design system must reflect them."
+        },
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated.",
+          "insight": "A non-binding proposal styled like a binding commitment creates visual-verbal disconnect. The secondary button treatment (outline) visually communicates what the agent said verbally: 'This doesn't lock you in.'"
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--secondary-purple (rgb(109,49,194)) for primary fill", "--primary-purple (#31135D) for primary hover", "--secondary-purple for secondary border/text", "--text-purple for tertiary text"],
+        "typography": ["Inter 600 (semibold) for primary and secondary", "Inter 500 (medium) for tertiary"],
+        "spacing": ["--spacing-sm (8px) vertical padding", "--spacing-2xl (24px) horizontal padding for primary/secondary", "--spacing-lg (16px) horizontal padding for tertiary"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "Primary: white text on secondary-purple background = ~7:1 contrast ratio (exceeds WCAG AA). Secondary: secondary-purple text on white = ~4.6:1 (meets WCAG AA). Tertiary: text-purple on white = ~6.5:1 (exceeds WCAG AA).",
+      "visual_hierarchy_rule": "On any given page, the primary button is the most prominent element after the page headline. Secondary buttons are clearly less prominent than primary but more prominent than body text. Tertiary buttons blend with text but are identifiable by color.",
+      "brand_alignment": "The purple palette conveys sophistication and trust (Style-guide.md). The three-tier system adds depth to the brand: solid purple = confidence, outline purple = invitation, text purple = guidance. This aligns with the taste model's 'Confident, not flashy' principle."
+    },
+    {
+      "id": "looks-002",
+      "type": "visual_pattern",
+      "title": "Generous White Space as Visual Cleanliness Signal",
+      "journey_phases": ["search", "listing_evaluation", "active_lease"],
+      "problem": "William's core anxiety is physical cleanliness. The visual presentation of the platform is a proxy for the physical experience he will have. A cramped, tight interface subconsciously signals 'this is not a clean, organized operation.' Refactoring UI's white space principles state that developers add the minimum space to not look bad, when they should start with too much and remove. The current platform follows the add-minimum pattern, creating a visually dense experience that works against the trust-building needed for an anxious guest.",
+      "solution": "Redefine spacing defaults to be 50% more generous than current: (1) Card padding: increase from 16px to 24px (--spacing-2xl). (2) Section spacing: increase from 24px to 32px (--spacing-4xl). (3) Listing cards in search: increase gap from 16px to 24px. (4) Form field vertical spacing: increase from 16px to 24px between groups. (5) Stays Manager content padding: 24px minimum. The visual effect: every page feels 'clean' — which is exactly what the anxious guest needs to see.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Start with too much white space",
+          "type": "book",
+          "quote": "A better approach is to start by giving something way too much space, then remove it until you're happy with the result.",
+          "insight": "The default should be generous. For guests whose primary concern is cleanliness, white space IS cleanliness in the digital realm."
+        },
+        {
+          "source": "William Romano.txt, 4:06",
+          "type": "guest_call",
+          "quote": "Doesn't sound too good to me, sharing it with someone else.",
+          "insight": "Visual breathing room counters the 'cramped sharing' anxiety. A spacious UI implies a spacious, well-managed living arrangement."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--bg-white (#ffffff) for card surfaces", "--bg-light (#f9fafb) for page backgrounds", "--bg-off-white (rgb(252,250,255)) for subtle section differentiation"],
+        "typography": [],
+        "spacing": ["--spacing-2xl (24px) as new default card padding", "--spacing-4xl (32px) as section separation", "--gap-xl (1.5rem) as listing card gap"],
+        "new_tokens_needed": ["--spacing-comfortable: 24px (alias for default generous spacing)"]
+      },
+      "contrast_requirements": "N/A — this pattern is about space, not color contrast. Background color differences between bg-white and bg-light must be perceptible (>= 3% luminance difference).",
+      "visual_hierarchy_rule": "White space itself creates hierarchy. Sections with more surrounding space appear more important. The cleaning protocol section should have the most generous spacing on the listing page, signaling its importance.",
+      "brand_alignment": "Taste model: 'Premium-accessible. Feels high quality without feeling exclusive.' Generous white space is the primary mechanism for this — it costs nothing but communicates quality instantly."
+    },
+    {
+      "id": "looks-003",
+      "type": "visual_pattern",
+      "title": "Constrained Content Width for Focused Scanning",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "On wide screens, content stretches to fill available space, creating long line lengths and scattered attention. The listing page, proposal form, and Stays Manager all suffer from this. Refactoring UI states: 'If you only need 600px, use 600px. Spreading things out or making things unnecessarily wide just makes an interface harder to interpret.' For a guest evaluating a listing, wide content means more eye movement, slower scanning, and increased cognitive load.",
+      "solution": "Constrain primary content to optimal widths based on content type: (1) Listing text content: max-width 680px (45-75 characters per line at 16px). (2) Proposal form: max-width 520px (narrow enough for focused input). (3) Stays Manager main column: max-width 640px. (4) Pricing summaries: max-width 400px (compact data presentation). When the content area is narrower than the viewport, center it with generous margins. Supporting content (photos, maps) can extend wider. Apply the book's column-thinking principle: on wide screens, break into columns rather than stretching a single column.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, You don't have to fill the whole screen",
+          "type": "book",
+          "quote": "If you only need 600px, use 600px. Spreading things out or making things unnecessarily wide just makes an interface harder to interpret.",
+          "insight": "Content width should be optimized for readability, not for filling the viewport."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Keep your line length in check",
+          "type": "book",
+          "quote": "For the best reading experience, make your paragraphs wide enough to fit between 45 and 75 characters per line.",
+          "insight": "At 16px font size, 45-75 characters = ~500-680px. This is the target range for text content."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": [],
+        "typography": [],
+        "spacing": ["--container-sm (640px) for Stays Manager", "--container-md (900px) for listing pages with sidebar"],
+        "new_tokens_needed": ["--content-width-narrow: 520px (for forms)", "--content-width-text: 680px (for readable text blocks)"]
+      },
+      "contrast_requirements": "N/A — layout pattern, not color pattern.",
+      "visual_hierarchy_rule": "Narrower content feels more important and focused. The proposal form being narrower than the listing page signals 'this requires your focused attention'. The Stays Manager being narrower than the search page signals 'this is your personal space, not a marketplace'.",
+      "brand_alignment": "Taste model: 'Confident, not flashy.' Constrained width communicates confidence — the design does not try to fill every pixel, it occupies exactly the space it needs."
+    },
+    {
+      "id": "looks-004",
+      "type": "visual_pattern",
+      "title": "Type Scale for Trust and Clarity",
+      "journey_phases": ["discovery", "listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "The platform uses too many font sizes without a systematic relationship. Refactoring UI warns: 'Most interfaces use way too many font sizes... it leads to annoying inconsistencies.' For a guest journey where trust must be built progressively, inconsistent typography signals carelessness — the same signal as an unkempt apartment.",
+      "solution": "Implement a constrained type scale aligned with the style guide: 11, 12, 14, 16, 18, 20, 28, 32, 36px. Use px or rem units only (never em). Apply consistently: (1) Page headlines: 28px (--text-2xl) Inter bold. (2) Section headlines: 20px (--text-xl) Inter semibold. (3) Body text: 14px (--text-base) Inter normal. (4) Supporting/secondary text: 12px (--text-sm) Inter normal. (5) Pricing figures: 20-28px (--text-xl to --text-2xl) Inter bold. (6) Labels and badges: 11px (--text-xs) Inter semibold, uppercase with letter-spacing.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Establish a type scale",
+          "type": "book",
+          "quote": "Choosing font sizes without a system is a bad idea for two reasons: 1. It leads to annoying inconsistencies in your designs. 2. It slows down your workflow.",
+          "insight": "A systematic type scale creates the visual consistency that builds trust. Every inconsistency is a micro-erosion of credibility."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Avoid em units",
+          "type": "book",
+          "quote": "Stick to px or rem units — it's the only way to guarantee you're actually sticking to the system.",
+          "insight": "Em units cause computed sizes to drift from the scale. For trust-critical interfaces, predictable sizing is essential."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--text-dark (#1a1a1a) for headlines and primary text", "--text-gray (#6b7280) for secondary text", "--text-light-gray (#9ca3af) for tertiary text"],
+        "typography": ["Inter 700 at 28px for page headlines", "Inter 600 at 20px for section headlines", "Inter 400 at 14px for body", "Inter 600 at 11px uppercase for labels"],
+        "spacing": ["--line-height-tight (1.2) for headlines", "--line-height-normal (1.5) for body"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "WCAG AA: --text-dark on --bg-white = 16.1:1 (exceeds AAA). --text-gray on --bg-white = 4.6:1 (meets AA). --text-light-gray on --bg-white = 2.6:1 (fails AA for body text — use only for decorative/non-critical text).",
+      "visual_hierarchy_rule": "Font size creates the primary hierarchy. Price figures must be at least 20px to signal importance. Body text at 14px is the baseline — everything else is relative to it.",
+      "brand_alignment": "Style guide specifies Inter for primary UI and DM Sans as alternative display font. This pattern uses Inter exclusively for consistency. DM Sans reserved for marketing/brand pages outside the product journey."
+    }
+  ]
+}

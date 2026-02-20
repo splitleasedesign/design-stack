@@ -1,0 +1,302 @@
+{
+  "lens": {
+    "host_call": "john-call.txt",
+    "book_extract": "cialdini-social-proof.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Peer Proof Injection Before Norm-Deviating State Change",
+      "journey_phases": ["evaluation", "onboarding", "pricing", "proposal_mgmt"],
+      "problem": "When the UI transitions to a state that presents a norm-breaking term (payment after first night, deposit matching, non-standard lease structure), the host's immediate reaction is a social proof search: 'do landlords like me accept this?' Currently, the norm-breaking information appears cold -- the state change loads the term without any preceding social evidence. John heard 'payment after first night' at minute 5:56 with zero peer validation, and his response was instant rejection anchored in 12 years of NYC landlord norms: 'what we do in New York city as when you sign the lease, you give the checks.' The interaction pattern fails because the state that displays the deviation does not first load the social evidence that would make the deviation feel familiar.",
+      "solution": "Before any UI state that reveals a norm-deviating term, inject a peer proof loading sequence: (1) The screen transitions to a brief peer proof card (looks-001) showing a similar host's acceptance of the same term, animated in with the easing-out token. (2) After a 400ms dwell, the norm-deviating term fades in below or alongside the proof card. (3) The interaction sequence is: trigger -> proof appears -> brief dwell -> term appears. This ensures the host's first perception at the new state is social evidence, not the deviation itself. The proof card must be pre-fetched so the sequence feels instant -- no loading spinner between the proof and the term.",
+      "evidence": [
+        {
+          "source": "john-call.txt, 05:56-06:34",
+          "type": "host_call",
+          "quote": "For the first month, rent that would get paid to you the day after the first night that they stayed, and for the security deposit, that's something split lease matches the security deposit.",
+          "insight": "The payment timing was introduced without any preceding social evidence. John had no peer proof to process before encountering the deviation. The interaction pattern must ensure that social evidence precedes the term in the rendering sequence, not follows it as a rebuttal."
+        },
+        {
+          "source": "john-call.txt, 07:44-08:08",
+          "type": "host_call",
+          "quote": "No, it wasn't no work. Like I said, you know, I've been in this business for a while and what we do in New York city as when you sign the lease, you give the checks.",
+          "insight": "John's rejection is a social proof statement -- he cites collective NYC landlord behavior. The interaction must counter a collective norm with collective evidence, not with platform assertions. The peer proof card activates before the term so the host processes 'others like me accepted this' before processing 'this is different from what I do.'"
+        },
+        {
+          "source": "cialdini-social-proof.txt, Monkey Me Monkey Do section",
+          "type": "book",
+          "quote": "The principle of social proof operates most powerfully when we are observing the behavior of people just like us. It is the conduct of such people that gives us the greatest insight into what constitutes correct behavior for ourselves.",
+          "insight": "Similarity-matched proof must arrive before the deviation, not after. Cialdini's wallet experiment showed 70% compliance with a similar model vs. 33% with a dissimilar one. The interaction sequence -- proof first, term second -- leverages automatic social proof processing before deliberate norm comparison begins."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The UI section for the norm-deviating term is not yet visible. The host is in a prior interaction state (e.g., reviewing tenant details). The proof card data has been pre-fetched and cached.",
+        "loading": "If proof data is not yet available, show a compact skeleton loader in the proof card position using surface-warm background with a subtle pulse animation (easing-out, 1200ms cycle). Never show the norm-deviating term while its proof is still loading -- the term waits for the proof.",
+        "empty": "If no similarity-matched peer proof exists for this host profile, display a platform-level aggregate ('NYC hosts on Split Lease receive payment within 24 hours of check-in') in the proof card position. This is weaker than a matched testimonial but still provides social framing before the term appears. Log the empty state for the social proof collection system to prioritize.",
+        "error": "If the proof fetch fails, proceed to show the term without the proof card but flag the interaction in analytics as 'unprimed norm deviation.' Do not block the flow -- the host should never see a broken state. The term renders normally; the opportunity for social priming is lost but the experience remains functional.",
+        "success": "The proof card renders smoothly (easing-out, 300ms), dwells for 400ms, then the norm-deviating term fades in below (easing-out, 250ms). The host sees proof, then term, in a sequence that takes approximately 950ms total. The proof card remains visible alongside the term -- it does not disappear after serving as an intro."
+      },
+      "transition_principle": "The transition must feel like a natural reveal, not a staged sales sequence. The proof card enters with the same easing as all other content transitions (easing-out) at the same speed. The 400ms dwell is short enough to feel seamless but long enough to ensure the proof registers before the term appears. The term's fade-in is slightly faster (250ms vs. 300ms) because it is joining an already-established context, not introducing a new one.",
+      "timing": {
+        "response_target": "950ms total sequence (300ms proof entrance + 400ms dwell + 250ms term entrance). Pre-fetch proof data during the prior interaction state so the sequence can begin instantly on trigger.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The easing-out curve from tokens.json produces a fast start with a gentle settle, which makes the proof card feel like it slides into place confidently rather than floating in. The 400ms dwell matches the typical saccade-and-fixation time for reading a short text block, ensuring the host's eye has time to land on and process the similarity markers before the term appears."
+      },
+      "journey_state_awareness": "During discovery and early evaluation, when the host has not yet formed strong expectations about platform terms, the proof injection can be lighter -- a single line reference rather than a full card. During pricing and proposal management, where the host has committed to their norm framework, the full proof card sequence is critical. The pattern intensifies as the host's commitment to their existing norms deepens through the journey.",
+      "edge_cases": [
+        "Host scrolls past the proof card before the term appears -- the term should render immediately without waiting for the dwell, since the proof is already in the viewport even if not focused.",
+        "Multiple norm-deviating terms appear on the same screen (payment timing AND deposit matching) -- show one proof card that addresses both terms rather than sequencing two separate proof injections, to avoid the interaction feeling scripted.",
+        "The proof card references a host in the same city but different property tier -- still display it but without the matched-badge treatment (looks-007), so the host sees peer evidence without a false similarity claim.",
+        "The host has already seen this proof card in a prior session -- track seen proofs and rotate to a different matched testimonial on return visits. Seeing the same proof twice reduces its effectiveness."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Two-Phase Evaluation Gate with Confirmation Checkpoint",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "Hosts evaluate tenant quality and platform terms through fundamentally different trust frameworks. John was cooperative when evaluating Ariel and Amber (employment, credit, bedroom compatibility) from 02:12 to 03:50, but became resistant when platform payment terms arrived at 05:40. The current interaction flow presents both evaluations as a continuous stream, so a negative reaction to platform terms retroactively poisons the positive tenant assessment. The interaction pattern lacks a structural checkpoint between these two evaluations -- there is no moment where the host's positive tenant impression is explicitly acknowledged and preserved before the potentially contentious platform terms are introduced.",
+      "solution": "Implement a two-phase evaluation interaction with an explicit confirmation gate between them. Phase A (Tenant Evaluation): Present tenant details -- names, employment, credit status, bedroom compatibility, duration. Allow the host to interact with this information (expand details, ask questions, view profiles). Phase B (Platform Terms): Only accessible after the host has positively engaged with Phase A. The gate is a confirmation checkpoint: a summary bar (using accent-light background from looks-002) that asks the host to acknowledge the tenant match before proceeding. The interaction is: host reviews tenants -> host confirms interest -> confirmation is visually banked -> platform terms appear on the new surface (bg-deep from looks-002). The checkpoint prevents premature exposure to platform terms and preserves the positive tenant evaluation as a separate, completed interaction.",
+      "evidence": [
+        {
+          "source": "john-call.txt, 02:12-03:50",
+          "type": "host_call",
+          "quote": "And do they have a job here in New York city? [...] If you had the two different persons, I have one, a king sized bed and have another one, like a full size bed. So you could just run the individual.",
+          "insight": "John's behavior from 02:12 to 03:50 is a textbook positive evaluation: asking qualifying questions, mapping his apartment to the tenants' needs, volunteering information. This positive assessment was an asset that the interaction should have captured and preserved before introducing the payment model."
+        },
+        {
+          "source": "john-call.txt, 05:40-07:44",
+          "type": "host_call",
+          "quote": "They cannot pay just three months upfront [...] No, it wasn't no work. Like I said, you know, I've been in this business for a while.",
+          "insight": "The behavioral shift at 05:40 is abrupt and total. Positive tenant evaluation disappears entirely once payment terms arrive. A confirmation checkpoint at the transition would have created a psychological commitment to the positive tenant assessment that is harder to abandon when platform terms create friction."
+        },
+        {
+          "source": "cialdini-social-proof.txt, Truths Are Us section",
+          "type": "book",
+          "quote": "We view a behavior as more correct in a given situation to the degree that we see others performing it.",
+          "insight": "Tenant evaluation uses the host's existing social proof framework (employment checks and credit checks are standard landlord behaviors). Platform terms require unfamiliar social proof. The confirmation gate separates these two frameworks so each can be supported by its appropriate evidence type, and the positive evaluation in the familiar framework creates momentum into the unfamiliar one."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Phase A (Tenant Evaluation) is visible and interactive. Phase B (Platform Terms) is not rendered -- it does not exist in the DOM until the gate is passed. The host sees only tenant information. The confirmation gate is visible as a subtle prompt at the bottom of Phase A: 'Does this look like a good match for your space?'",
+        "loading": "If tenant data is still loading (credit check results, employment verification), show structured skeleton loaders in the tenant card positions. The confirmation gate is disabled (grayed out) until all tenant data has loaded. Never allow the gate to be passed with incomplete tenant information -- the host must evaluate complete data.",
+        "empty": "If tenant details are sparse (missing employment letter, credit check pending), show the available data with clear status indicators in mono font (looks-003): 'Credit check: pending' in ink-muted. The confirmation gate adjusts its prompt: 'Interested so far? We will share the remaining details as they are confirmed.' The host can express preliminary interest without full data, but the gate records this as conditional.",
+        "error": "If tenant data fails to load, show an error state in the Phase A container with a retry action. Do not reveal Phase B or the confirmation gate. The error message uses signal-danger-bg with a clear retry button. The host's experience is: 'we could not load the tenant details -- please try again,' never 'here are the platform terms for tenants you have not reviewed.'",
+        "success": "The host taps the confirmation gate. The gate animates into a completed-state summary bar (accent-light background, checkmark icon in accent green) that persists at the top of the screen as Phase B slides in below on the bg-deep surface. The summary bar reads: 'Match confirmed: Ariel & Amber, employed in Manhattan, credit verified.' This summary remains visible throughout Phase B, anchoring the positive evaluation as context for the platform terms discussion."
+      },
+      "transition_principle": "The transition from Phase A to Phase B must feel like a progression, not a mode switch. The confirmation gate's animation (easing-out, 300ms) transforms it from a prompt into a summary bar, which then persists as a header. Phase B slides in from below (easing-out, 350ms) on the bg-deep surface, creating a clear visual layer change (looks-002) that signals 'different type of information' without breaking the host's flow. The total transition takes approximately 650ms and the host never sees a blank screen between phases.",
+      "timing": {
+        "response_target": "650ms total (300ms gate confirmation animation + 350ms Phase B entrance). Tenant data should load within 1000ms of the phase beginning. Gate interaction response: under 100ms tactile feedback.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The easing-out curve provides a swift, confident transition that signals forward progress. The 300ms gate animation is fast enough to feel responsive but slow enough for the host to see their confirmation become a persistent summary. The 350ms Phase B entrance is slightly slower because the host's eye needs time to adjust to the new surface color and content type."
+      },
+      "journey_state_awareness": "For first-time hosts (discovery/evaluation phase), the confirmation gate includes additional context: 'Based on your property at East 56th St, here is who we matched.' For returning hosts in proposal management, the gate can be lighter -- a simple 'Confirm match' button -- because they already understand the two-phase pattern. For hosts who previously rejected platform terms but returned, the gate should remind them of their prior positive tenant evaluation: 'Last time, you confirmed interest in tenants like Ariel & Amber.'",
+      "edge_cases": [
+        "Host tries to scroll past Phase A to find pricing information -- Phase B is not rendered, so there is nothing to scroll to. A subtle indicator at the bottom of Phase A reads 'Confirm your interest to see how this works.'",
+        "Host confirms interest in tenants but then navigates away before seeing platform terms -- save the confirmed state so that on return, Phase A shows as completed and Phase B is immediately visible.",
+        "Host evaluates tenants negatively (not interested) -- the gate offers a different path: 'Not the right match? We can find other candidates for your space.' No platform terms are shown, and the host is routed to a re-matching flow.",
+        "Multiple proposals exist for the same property -- each proposal gets its own Phase A evaluation. The host should not see platform terms until they have positively evaluated at least one set of tenants."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Directed Closure Card with Countdown Timer on Unresolved States",
+      "journey_phases": ["onboarding", "proposal_mgmt"],
+      "problem": "When a host interaction reaches an impasse that cannot be resolved immediately, the current pattern defaults to a vague handoff: 'I'll talk to our team.' This creates a dead-end state where no timer, no responsible party, and no host action is defined. John's call ended with Bryant saying 'I can talk to our team and see if that's something we can make an exception for' -- zero structure, zero urgency, zero next-step clarity. Cialdini's bystander effect research demonstrates that diffused responsibility produces inaction. In UI terms, when a flow ends without resolution and no structured follow-up state is visible, the host's mental model categorizes the interaction as 'dead' and defaults to their established alternatives.",
+      "solution": "Every unresolved interaction state must terminate with a Directed Closure Card (looks-004) that contains three mandatory fields: WHO (named agent), WHAT (specific action), WHEN (date and time). The card also includes a live countdown element showing time remaining until the promised follow-up. The host is assigned a reciprocal micro-action (confirm availability, review sent email) that keeps them engaged. The interaction pattern is: unresolved state detected -> closure card renders as a persistent sticky footer -> countdown begins -> host receives a reciprocal action prompt. The countdown creates urgency on the platform side (the agent sees the same timer) and certainty on the host side (they know exactly when to expect resolution).",
+      "evidence": [
+        {
+          "source": "john-call.txt, 08:08-08:33",
+          "type": "host_call",
+          "quote": "Okay, I understand I can, when I'm going to do, I can talk to our team and see if that's something we can make an exception for. Like I said, I think Ariel and Amber's really interested in your space.",
+          "insight": "This closure has zero interaction structure: no named person, no timeline, no host action. The UI equivalent would be a page that says 'We will get back to you' with no specifics. The directed closure card replaces this dead-end with a structured, time-bound commitment."
+        },
+        {
+          "source": "cialdini-social-proof.txt, Devictimizing Yourself section",
+          "type": "book",
+          "quote": "Stare, speak, and point directly at that person and no one else: 'You, sir, in the blue jacket, I need help. Call an ambulance.'",
+          "insight": "Cialdini's directed-action principle translates directly to interaction design: the closure card 'points at' a specific agent with a specific task and a specific deadline. The countdown timer is the visual equivalent of 'staring directly at that person' -- it creates accountability that generic handoffs lack."
+        },
+        {
+          "source": "cialdini-social-proof.txt, Cause of Death: Uncertainty section",
+          "type": "book",
+          "quote": "When we are unsure of ourselves, when the situation is unclear or ambiguous, when uncertainty reigns, we are most likely to look to and accept the actions of others as correct.",
+          "insight": "An unresolved state without a deadline is pure uncertainty. The countdown timer eliminates temporal uncertainty entirely -- the host knows exactly how long they will wait. During that wait, they are less likely to default to their existing alternatives because the platform has made a specific, time-bound commitment."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "No unresolved items exist. The closure card is not visible. The host's flow is complete or progressing normally.",
+        "loading": "The closure card is being populated by the agent (entering who/what/when details after the call). The host sees a transitional state: 'Bryant is preparing your next steps...' with a subtle animation. This state should last no more than 5 minutes after a call ends -- if the agent has not completed the card, the system prompts them.",
+        "empty": "The agent failed to create a closure card after an unresolved interaction. The system generates a fallback card with the agent's name, a generic action ('follow up on your outstanding question'), and a 24-hour default deadline. This is a degraded state -- it provides some structure but lacks the specificity of a properly completed card. Flag in analytics for agent coaching.",
+        "error": "The countdown expires without the promised follow-up occurring. The card transitions to an overdue state: background shifts from signal-info-bg to signal-warn-bg, the countdown text changes to 'Overdue by [duration]', and an automatic escalation is triggered to the agent's supervisor. The host sees that the system is aware of the missed commitment. A new action appears: 'We missed our deadline. [Supervisor name] will contact you within 2 hours.'",
+        "success": "The agent completes the follow-up before the countdown expires. The card transitions to a completed state: background shifts to accent-light, a checkmark replaces the countdown, and the resolution summary appears. The host sees: 'Bryant proposed a payment structure -- review it here.' The card becomes a link to the next interaction state."
+      },
+      "transition_principle": "State changes on the closure card must be noticeable but not alarming. The default-to-active transition (card appearing) uses easing-out at 350ms with a slide-up from the bottom of the viewport. The active-to-overdue transition uses a color fade (signal-info-bg to signal-warn-bg, 500ms) that is slow enough to register as a meaningful change. The active-to-success transition uses easing-spring for the checkmark animation (200ms) to create a brief moment of satisfaction. The card never disappears abruptly -- every removal is a 300ms fade-out.",
+      "timing": {
+        "response_target": "Card appearance: 350ms slide-up after unresolved state is detected. Countdown update: every 60 seconds (not every second -- per-second countdown creates anxiety rather than confidence). Overdue state transition: 500ms color change. Success transition: 200ms spring animation for checkmark.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for entrance and exit. cubic-bezier(0.34, 1.56, 0.64, 1) for the success checkmark (spring easing from tokens.json).",
+        "rationale": "The easing-out curve for the card entrance makes it feel like a natural part of the page emerging, not a pop-up. Per-minute countdown updates signal 'we are tracking this' without creating the anxious urgency of a per-second timer. The spring easing on the success checkmark adds a micro-celebration that reinforces the platform's reliability."
+      },
+      "journey_state_awareness": "For hosts in early onboarding (first interaction), the closure card includes extra context: 'Here is what happens next with Split Lease.' For hosts in proposal management who have used the platform before, the card can be more compact -- just the three fields and the countdown, without explanatory text. For hosts who have previously experienced an overdue state, the card should show a slightly shorter deadline to demonstrate improved responsiveness.",
+      "edge_cases": [
+        "Host has multiple unresolved items from different interactions -- show the most urgent closure card (closest deadline) as the primary, with a count indicator: '2 pending items.' Tapping reveals all closure cards stacked.",
+        "Agent resolves the issue informally (phone call, text) but does not update the card -- the countdown continues visibly. The system must allow agents to mark cards as resolved from their dashboard, and the host's card must update in real time.",
+        "Host dismisses the closure card (swipes away) -- the card minimizes to a compact indicator in the header (signal-info dot) rather than disappearing entirely. It remains accessible because the unresolved state still exists.",
+        "The promised follow-up requires a decision from the host (accept or reject a modified payment structure) -- the success state includes an inline action: 'Review and respond' button that opens the next interaction without navigating away."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Payment Model Progressive Disclosure Across Session States",
+      "journey_phases": ["discovery", "evaluation", "onboarding"],
+      "problem": "The payment model -- the most consequential piece of information for norm-driven hosts -- appears as a single, late-stage reveal that creates maximum surprise and resistance. In John's call, Bryant mentioned 'guaranteed payments' at 01:31 without timing detail, then revealed the actual mechanism at 05:56. The four-minute gap allowed John to map 'guaranteed' onto his existing framework (upfront at signing), so the actual timing contradicted an expectation he had already formed. In a digital flow, the equivalent is a landing page that says 'guaranteed payments' followed by a detail page that says 'after first night' -- the second state contradicts the first because the first was underspecified. The interaction pattern must distribute payment model information across multiple session states so the host's mental model evolves incrementally rather than being contradicted.",
+      "solution": "Distribute payment model information across three interaction states, each progressively more detailed, with visual consistency across states (looks-006). State 1 (First Touch): A data pill in mono font on accent-light background reads: 'Guaranteed payment within 24 hours of check-in.' This appears in the initial email, landing page, or first screen. The timing is included from the start -- never say 'guaranteed' without the mechanism. State 2 (Post-Tenant Evaluation): After the host has positively evaluated tenants through the Phase A gate (behaves-002), a medium-density card expands the payment model with social norm framing and a peer proof card. The data pill from State 1 reappears inside this card, creating visual recognition. State 3 (Full Detail): The complete three-tier payment section (looks-005) with social norm header, peer proof, and financial details. The data pill and proof card from States 1 and 2 reappear, so nothing in State 3 looks new. Each state builds on the previous one; nothing contradicts.",
+      "evidence": [
+        {
+          "source": "john-call.txt, 01:31",
+          "type": "host_call",
+          "quote": "We create the custom rental agreement and guaranteed payments to you as the landlord.",
+          "insight": "Bryant's early mention of 'guaranteed payments' omitted the timing, allowing John to fill in his default assumption (upfront). The State 1 data pill prevents this by including the timing from the first interaction: 'Guaranteed payment within 24 hours of check-in.' The host's mental model starts correct rather than being corrected later."
+        },
+        {
+          "source": "john-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "For the first month, rent that would get paid to you the day after the first night that they stayed.",
+          "insight": "This reveal four minutes later contradicted John's formed expectation. In the progressive disclosure pattern, this detail appears in State 2 -- but by then the host has already encountered the timing in State 1's data pill, so it is a deepening of known information, not a contradiction of assumed information."
+        },
+        {
+          "source": "cialdini-social-proof.txt, Cause of Death: Uncertainty section",
+          "type": "book",
+          "quote": "When we are unsure of ourselves, when the situation is unclear or ambiguous, when uncertainty reigns, we are most likely to look to and accept the actions of others as correct.",
+          "insight": "Late surprise disclosure maximizes uncertainty at the worst moment. Progressive disclosure distributes uncertainty across multiple lower-stakes moments. Each state reduces uncertainty incrementally: State 1 establishes the concept, State 2 adds social evidence, State 3 provides full detail. The host never faces a single high-uncertainty reveal."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "State 1 is visible: the data pill ('Guaranteed payment within 24 hours of check-in') appears in first-touch materials. The host has encountered the timing mechanism but not the full detail. States 2 and 3 are not yet rendered.",
+        "loading": "When transitioning from State 1 to State 2, the data pill from State 1 remains visible while the surrounding card content loads. The host sees the familiar pill anchoring the new content, ensuring continuity. If State 2's peer proof data is loading, the proof card position shows a skeleton loader while the data pill and social norm header are already visible.",
+        "empty": "If the host reaches State 2 without having seen State 1 (direct link, returning from a different entry point), the system renders State 1's data pill as the first element of State 2, adding a 500ms dwell before the rest of State 2 loads. This ensures the progressive disclosure sequence is preserved even when the host's entry point is non-linear.",
+        "error": "If any state fails to load, fall back to the previous state's content. If State 3 fails, the host sees State 2 with a 'See full details' retry link. If State 2 fails, the host sees State 1 with a 'Learn more about payment' link. The host never sees a broken payment information flow -- they see the most complete version that successfully loaded.",
+        "success": "Each state transition completes smoothly: the data pill from the prior state animates into its new position within the expanded content (easing-out, 300ms). The host recognizes the pill as familiar while the surrounding context grows. At State 3 completion, all financial details are visible within the full three-tier layout, and the host has built understanding incrementally over three encounters with the same core information."
+      },
+      "transition_principle": "The visual through-line is the mono data pill. It must appear in the exact same typographic treatment (IBM Plex Mono, weight 500, text-sm, accent on accent-light) across all three states. When transitioning from State N to State N+1, the pill animates from its current position to its new position within the expanded layout (easing-out, 300ms). This shared element creates recognition continuity -- the host's eye finds the familiar pill and then explores the new context surrounding it. No state should introduce a piece of payment information that was not at least previewed in a prior state.",
+      "timing": {
+        "response_target": "State transitions: 300ms for the data pill reposition animation. New content around the pill: 250ms fade-in after the pill settles. Total state transition: 550ms. State 1 data pill should be visible within the first 2 seconds of first-touch materials loading.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The easing-out curve ensures the data pill repositions smoothly without overshoot, maintaining the sense of a controlled, intentional reveal. The 250ms fade-in for surrounding content is slightly faster than the pill movement because the new content should feel like it is joining the pill, not the other way around."
+      },
+      "journey_state_awareness": "For hosts entering from a cold email (no prior platform interaction), State 1 must appear in the email itself -- not deferred to the first platform screen. For hosts who have been on a call and are now seeing the platform for the first time, State 2 should reference the call: 'As Bryant mentioned, payment arrives within 24 hours of check-in.' For returning hosts who abandoned at a prior pricing discussion, resume at the state where they left off rather than restarting from State 1.",
+      "edge_cases": [
+        "Host sees State 1 in an email but does not visit the platform for weeks -- when they eventually arrive, State 1's data pill must appear on the first screen as a refresh before State 2 expands, even if significant time has passed.",
+        "Host's norm is so strong that State 1's data pill itself triggers rejection (they stop reading the email) -- the email subject line and first line must establish property-specific relevance before the payment pill appears, so the host is engaged before encountering the timing mechanism.",
+        "Host encounters States 1 and 2 in one session and State 3 in another -- track which states the host has seen and resume at the appropriate depth. Never re-show State 1 after the host has completed State 2.",
+        "Agent on a phone call deviates from the progressive sequence (mentions detailed pricing before tenant evaluation) -- the digital flow cannot fix a verbal misstep, but it can reinforce the correct sequence on the follow-up screen by leading with tenant details and the confirmation gate."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Social Norm Reframing on Financial Data Hover/Expand States",
+      "journey_phases": ["pricing", "proposal_mgmt"],
+      "problem": "When hosts interact with financial data elements (deposit amounts, payment schedules, fee calculations), the current interaction reveals more financial detail on hover or expand -- drilling deeper into numbers. But John revealed that payment is a trust signal ('I give him my apartment completely. I trust him and they get, trust me too'), not a financial calculation. When the host expands a financial element, showing more numbers drives them deeper into the financial evaluation channel where their existing norm dominates. The interaction pattern should instead use expand/hover states to reveal social context, not more math.",
+      "solution": "When a host interacts with a financial data element (hovers, taps, expands), the expanded state surfaces social norm context rather than deeper financial detail. (1) Hover on '$6,000 deposit held' shows a tooltip: 'NYC hosts typically hold double the standard deposit through Split Lease' -- social framing, not calculation. (2) Expanding the payment timeline reveals a mini peer proof card showing a similar host's experience, not a step-by-step payment schedule. (3) Financial detail is available but one level deeper -- a 'See full breakdown' link within the social context expansion. The interaction hierarchy is: first interaction -> social context, second interaction -> financial detail. This reverses the current pattern where the first interaction produces more numbers.",
+      "evidence": [
+        {
+          "source": "john-call.txt, 07:13",
+          "type": "host_call",
+          "quote": "Yeah. That's because, you know, I give him my apartment completely. I trust him and they get, trust me too.",
+          "insight": "Payment is a trust exchange, not a financial transaction. When John encounters financial data, his processing channel is trust and reciprocity, not arithmetic. The expand state should feed the trust channel (what similar hosts experienced) rather than the arithmetic channel (payment schedules and deposit calculations)."
+        },
+        {
+          "source": "john-call.txt, 06:34-06:51",
+          "type": "host_call",
+          "quote": "Okay. Now you said that after the first night you got, I got to receive the payments. [...] Yeah, unfortunately, you know, I've been renting my apartment almost 12 years.",
+          "insight": "John's first interaction with the payment timing immediately triggered his norm framework. If his first 'expand' interaction had shown social context ('NYC hosts report receiving payment within 18 hours on average') instead of more timing detail, his processing channel might have shifted from norm-comparison to peer-evidence evaluation."
+        },
+        {
+          "source": "cialdini-social-proof.txt, Truths Are Us section (canned laughter)",
+          "type": "book",
+          "quote": "Experiments have found that the use of canned merriment causes an audience to laugh longer and more often when humorous material is presented. In addition, some evidence indicates that canned laughter is most effective for poor jokes.",
+          "insight": "Social proof is most effective for the weakest propositions. The payment-after-first-night model is the platform's weakest proposition from the host's perspective. The expand interaction on this specific element must deliver the strongest social framing. Leading with more financial detail on the weakest proposition is the worst possible interaction pattern."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Financial data elements display their primary value in mono font (looks-003): '$6,000 deposit held,' '$5,000/mo guaranteed,' 'Payment within 24 hours.' No social context is visible. A subtle interaction affordance (slight shadow lift on hover, or expand chevron) indicates the element is interactive.",
+        "loading": "When the host triggers the expand, the social context loads. Show a single-line skeleton loader in the expand area for no more than 300ms. If peer proof data takes longer, show the social norm framing text first ('How NYC hosts describe this') while the specific proof card loads below it.",
+        "empty": "If no similarity-matched peer data exists for the expanded element, display a platform-level social framing: 'Hosts on Split Lease receive their payment within an average of 18 hours of check-in.' This is weaker than a matched testimonial but still reframes the financial data in social terms rather than adding more arithmetic.",
+        "error": "If the social context fails to load, fall back to the traditional financial detail expansion. The host gets the deeper numbers they would have gotten in the old pattern. This is a degraded but functional state -- the opportunity for social reframing is lost, but the interaction still provides useful information.",
+        "success": "The expand animation (easing-out, 250ms) reveals a social context block: a one-line social norm statement, a compact peer proof reference, and a 'See full breakdown' link for hosts who want the financial detail. The expanded state is taller than a pure financial expansion because it contains richer information, but the visual density is lower -- warm backgrounds, serif font for the social statement, breathing room."
+      },
+      "transition_principle": "The expand interaction should feel like opening a window onto a richer context, not drilling into a spreadsheet. The expand animation uses easing-out (250ms) and the expanded content uses surface-warm background to create warmth rather than the clinical feel of a data table. The financial detail link ('See full breakdown') animates in 100ms after the social context settles, positioned as a secondary action rather than the primary expansion content.",
+      "timing": {
+        "response_target": "Expand animation: 250ms. Social context render: within 300ms of trigger. Financial detail link appearance: 100ms after social context settles. Total interaction to full expand: 350ms. Collapse: 200ms (faster than expand, to feel responsive).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The easing-out curve produces a fast start that immediately responds to the host's interaction, with a gentle settle that gives the eye time to find the new content. The collapse is faster (200ms) because closing an element is a decision already made -- no dwell time is needed."
+      },
+      "journey_state_awareness": "For hosts in early evaluation who have not yet encountered platform terms in detail, the expand state should be heavier on social context (larger proof card, fuller social framing) because this may be their first deep interaction with the financial data. For hosts in proposal management who are comparing multiple proposals, the expand can be lighter (one-line social reference) because they have already encountered the social framing in earlier stages. For hosts returning after a rejection (like John), the expand should lead with new or different peer proof than what they previously saw.",
+      "edge_cases": [
+        "Host rapidly expands and collapses the same element -- debounce the animation at 100ms to prevent visual stutter. After the first expand, cache the social context so re-expansion is instant.",
+        "Host expands multiple financial elements simultaneously (deposit AND payment timing) -- each expanded element shows its own social context independently. Do not combine them into a single block, as the host may be comparing specific terms.",
+        "Host clicks 'See full breakdown' immediately without reading the social context -- track this interaction pattern. If a host consistently skips the social layer, consider surfacing a more compact social reference inline with the financial detail rather than as a separate layer.",
+        "Touch devices where hover is not available -- use tap-to-expand rather than hover-reveal. The first tap opens the social context; a second tap on 'See full breakdown' reveals the financial detail. This two-tap pattern preserves the social-first hierarchy on mobile."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Reciprocal Commitment Micro-Action After Every Host Investment",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "John framed the landlord-tenant relationship as reciprocal: 'I give him my apartment completely. I trust him and they get, trust me too' and 'It depends if they like it, you know, I liked them. Because it's both ways.' This reveals that experienced hosts expect a symmetry of commitment -- when they invest (sharing property details, confirming availability, reviewing proposals), they expect a visible reciprocal investment from the platform. Currently, host actions often produce asymmetric responses: the host gives information and receives a generic acknowledgment. This asymmetry erodes trust incrementally, making the host feel like a data source rather than a partner in a reciprocal relationship.",
+      "solution": "After every meaningful host action (sharing property details, confirming availability, reviewing tenant profiles, accepting terms), the UI must respond with a visible reciprocal commitment from the platform. The pattern is: host action -> platform reciprocal action, rendered within 2 seconds. (1) Host shares property details -> platform responds with 'Matching tenants to your East 56th St space' with a progress indicator showing real work being done. (2) Host confirms availability -> platform responds with 'Your March 15 availability has been shared with Ariel and Amber -- they will confirm within 24 hours.' (3) Host reviews a proposal -> platform responds with 'We are preparing the employment letters you requested.' Each reciprocal action is specific to what the host just did and names a specific deliverable with a timeline. The interaction creates a visible back-and-forth rhythm that mirrors the reciprocal trust John expects.",
+      "evidence": [
+        {
+          "source": "john-call.txt, 07:13",
+          "type": "host_call",
+          "quote": "Yeah. That's because, you know, I give him my apartment completely. I trust him and they get, trust me too.",
+          "insight": "John's trust model is explicitly reciprocal. He gives his apartment; they give payment. The platform must mirror this reciprocity in every interaction: the host gives information or confirmation; the platform gives a visible, specific commitment in return. Generic acknowledgments ('Thanks for your information!') fail the reciprocity test."
+        },
+        {
+          "source": "john-call.txt, 05:30",
+          "type": "host_call",
+          "quote": "It depends if they like it, you know, I liked them. Yeah. Because it's both ways.",
+          "insight": "John evaluates relationships bidirectionally. The interaction pattern must make the platform's investment visible after every host investment, creating the 'both ways' dynamic John expects. If the host feels they are investing more than the platform is showing in return, the asymmetry triggers the same distrust that an unreturned payment would."
+        },
+        {
+          "source": "cialdini-social-proof.txt, Devictimizing Yourself section (car accident)",
+          "type": "book",
+          "quote": "Not only was this help rapid and solicitous, it was infectious. After drivers entering the intersection from the other direction saw cars stopping for me, they stopped and began tending to the other victim.",
+          "insight": "Reciprocal action is infectious. When the platform visibly reciprocates after a host action, it establishes a pattern that makes the host more likely to invest further. Each reciprocal exchange builds momentum, just as the car accident helpers created a cascade of assistance. The pattern must start from the very first host action to establish the norm of mutual commitment."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The host has just completed an action. The reciprocal commitment zone (a designated area below or adjacent to the host's action) is ready to receive the platform's response.",
+        "loading": "The platform is preparing its reciprocal commitment. Show a brief, purposeful loading state: 'Preparing your [specific deliverable]...' with a subtle progress animation (easing-out, 1200ms cycle). The loading message must reference the host's specific action -- never show a generic loader.",
+        "empty": "The platform has no specific reciprocal action to display (the host's action does not trigger a matching platform commitment). Show a minimal acknowledgment that still references the host's action: 'Your availability has been saved. We will notify you when a matching inquiry arrives.' This is the weakest form of reciprocity -- it acknowledges but does not commit. Use sparingly.",
+        "error": "The platform's reciprocal action fails (e.g., matching engine is down after host shares details). Show the acknowledgment of the host's action ('Your property details are saved') plus a specific commitment to follow up: 'We will send your matched tenant profiles to john.villa@gmail.com within 4 hours.' The error state must still provide a reciprocal commitment, even if delayed.",
+        "success": "The reciprocal commitment renders within 2 seconds of the host's action: a compact card with the platform's specific response, the deliverable, and the timeline. The card uses accent-light background with accent text for the commitment, and mono font for any timeline ('Within 24 hours'). The card animates in with easing-out (250ms) and persists until the host scrolls past it or a new interaction begins."
+      },
+      "transition_principle": "The reciprocal commitment must feel immediate -- a response, not a delayed notification. The 250ms entrance animation (easing-out) is fast enough to feel connected to the host's action. The card appears in the natural reading position below or adjacent to the host's action, not in a separate notification area. The spatial proximity reinforces the cause-and-effect relationship: 'I did this, and the platform did that in response.'",
+      "timing": {
+        "response_target": "Reciprocal commitment visible within 2000ms of the host's action. Animation entrance: 250ms. If the commitment requires server-side processing (matching, verification), show the loading state within 500ms and the final commitment within 5000ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 2-second target ensures the reciprocal commitment feels like a response, not a separate event. The easing-out curve creates a confident entrance that mirrors the host's decisive action. The 5-second maximum for server-processed commitments prevents the reciprocal exchange from feeling disconnected."
+      },
+      "journey_state_awareness": "For hosts in early onboarding (first-time interactions), reciprocal commitments should be more verbose and explicit: 'You shared your property details. We are now matching tenants to your East 56th St space -- here is what happens next.' For hosts in active lease management who are familiar with the platform, commitments can be more compact: icon + one line. For hosts who have previously abandoned the journey, reciprocal commitments should emphasize the platform's investment: 'We have been holding Ariel and Amber's interest in your space since [date].'",
+      "edge_cases": [
+        "Host takes multiple actions in rapid succession (fills out several form fields) -- batch the reciprocal commitment into a single response that acknowledges all actions, rather than showing multiple individual commitments that feel like spam.",
+        "The platform's reciprocal action is already complete before the host acts (e.g., credit check was already run) -- still show the commitment as a response to the host's action: 'Credit check already completed for Ariel and Amber -- verified and passed.' The host should feel the platform invested even if the work was pre-done.",
+        "Host's action is passive (viewing a page, reading content) rather than active (submitting data, confirming) -- do not show a reciprocal commitment for passive actions. Reserve the pattern for deliberate host investments to maintain its signal value.",
+        "The reciprocal commitment requires host follow-up (e.g., 'We will send employment letters -- please confirm they meet your requirements') -- include a clear call-to-action within the commitment card, maintaining the back-and-forth rhythm."
+      ]
+    }
+  ]
+}

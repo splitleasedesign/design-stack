@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library of Elements - Run 2026-02-19_0801</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #31135D;
+  --secondary: rgb(109,49,194);
+  --accent: rgb(140,104,238);
+  --bg: #f9fafb;
+  --surface: #ffffff;
+  --text: #1a1a1a;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border: #e5e7eb;
+  --radius: 12px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); }
+.header { background:var(--primary); color:#fff; padding:32px 40px; }
+.header h1 { font-family:'DM Sans',sans-serif; font-size:28px; font-weight:700; margin-bottom:4px; }
+.header p { font-size:14px; color:rgba(255,255,255,0.7); }
+.controls { padding:16px 40px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:center; flex-wrap:wrap; position:sticky; top:0; z-index:10; }
+.controls input, .controls select { height:40px; padding:0 12px; border:1px solid var(--border); border-radius:8px; font-family:'Inter',sans-serif; font-size:13px; }
+.controls input { flex:1; min-width:200px; }
+.controls select { min-width:140px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(440px,1fr)); gap:24px; padding:24px 40px; }
+.lib-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); transition:box-shadow 0.2s ease; }
+.lib-card:hover { box-shadow:0 4px 16px rgba(49,19,93,0.12); }
+.lib-card__preview { height:320px; overflow:hidden; border-bottom:1px solid var(--border); background:#f3f4f6; }
+.lib-card__preview iframe { width:118%; height:118%; border:none; transform:scale(0.85); transform-origin:top left; pointer-events:none; }
+.lib-card__info { padding:20px; }
+.lib-card__badges { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.badge { padding:3px 10px; border-radius:100px; font-size:11px; font-weight:600; }
+.badge--category { background:rgba(109,49,194,0.1); color:var(--secondary); }
+.badge--phase { background:#f3f4f6; color:var(--text-secondary); }
+.badge--priority { font-weight:700; }
+.badge--P0 { background:rgba(220,53,69,0.1); color:#DC3545; }
+.badge--P1 { background:rgba(193,122,40,0.1); color:#C4841D; }
+.badge--P2 { background:#f3f4f6; color:var(--text-muted); }
+.lib-card__title { font-size:18px; font-weight:700; color:var(--primary); margin-bottom:4px; }
+.lib-card__id { font-size:11px; color:var(--text-muted); font-family:monospace; margin-bottom:10px; }
+.lib-card__desc { font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:12px; }
+.lib-card__principles { font-size:12px; color:var(--text-muted); margin-bottom:12px; }
+.lib-card__principles .label { font-weight:600; color:var(--text-secondary); }
+.lib-card__details { font-size:13px; color:var(--text-secondary); }
+.lib-card__details summary { cursor:pointer; font-weight:600; color:var(--secondary); padding:8px 0; }
+.lib-card__details p { margin:8px 0; line-height:1.6; }
+.stats { padding:16px 40px; display:flex; gap:16px; flex-wrap:wrap; }
+.stat { padding:12px 20px; background:var(--surface); border:1px solid var(--border); border-radius:8px; text-align:center; }
+.stat__value { font-size:24px; font-weight:700; color:var(--primary); }
+.stat__label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; }
+.hidden { display:none !important; }
+@media(max-width:600px) { .grid { grid-template-columns:1fr; padding:16px; } .header,.controls,.stats { padding-left:16px; padding-right:16px; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Library of Elements</h1>
+  <p>Run 2026-02-19_0801 | Guest Journey | William Romano + Refactoring UI | 7 UI Elements</p>
+</div>
+<div class="stats">
+  <div class="stat"><div class="stat__value">7</div><div class="stat__label">Elements</div></div>
+  <div class="stat"><div class="stat__value">5</div><div class="stat__label">P0 Critical</div></div>
+  <div class="stat"><div class="stat__value">2</div><div class="stat__label">P1 Important</div></div>
+  <div class="stat"><div class="stat__value">5</div><div class="stat__label">Categories</div></div>
+</div>
+<div class="controls">
+  <input type="text" id="search" placeholder="Search elements..." />
+  <select id="filter-category"><option value="">All Categories</option><option value="form">form</option><option value="card">card</option><option value="dashboard">dashboard</option><option value="pricing">pricing</option><option value="onboarding">onboarding</option></select>
+  <select id="filter-phase"><option value="">All Phases</option><option value="listing_evaluation">listing evaluation</option><option value="proposal_creation">proposal creation</option><option value="active_lease">active lease</option><option value="discovery">discovery</option></select>
+  <select id="filter-priority"><option value="">All Priorities</option><option value="P0">P0 Critical</option><option value="P1">P1 Important</option><option value="P2">P2 Nice-to-have</option></select>
+</div>
+<div class="grid" id="grid">
+
+  <div class="lib-card" data-category="form" data-phase="listing_evaluation" data-priority="P0" data-name="three-tier button system">
+    <div class="lib-card__preview">
+      <iframe srcdoc="&lt;style&gt;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=DM+Sans:wght@400;500;700&amp;display=swap');
+
+.btn-system-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+  background: #f9fafb;
+  font-family: 'Inter', sans-serif;
+  border-radius: 12px;
+  max-width: 400px;
+}
+
+.btn-system-demo h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px 0;
+}
+
+.btn-primary-sl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(49, 19, 93, 0.25);
+}
+
+.btn-primary-sl:hover {
+  background: linear-gradient(135deg, #5B2AA5 0%, #6D28D9 100%);
+  box-shadow: 0 4px 12px rgba(49, 19, 93, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-secondary-sl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 28px;
+  background: transparent;
+  color: rgb(109, 49, 194);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid rgb(109, 49, 194);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-sl:hover {
+  background: rgba(109, 49, 194, 0.06);
+  border-color: #31135D;
+  color: #31135D;
+}
+
+.btn-secondary-sl .btn-subtitle {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.btn-tertiary-sl {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 4px;
+  background: none;
+  color: rgb(82, 31, 147);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-decoration: none;
+}
+
+.btn-tertiary-sl:hover {
+  text-decoration: underline;
+  color: #31135D;
+}
+&lt;/style&gt;
+&lt;div class=&quot;btn-system-demo&quot;&gt;
+  &lt;h3&gt;Primary (Binding)&lt;/h3&gt;
+  &lt;div&gt;&lt;button class=&quot;btn-primary-sl&quot;&gt;Accept Terms &amp; Pay&lt;/button&gt;&lt;/div&gt;
+  &lt;h3&gt;Secondary (Non-binding)&lt;/h3&gt;
+  &lt;div&gt;
+    &lt;button class=&quot;btn-secondary-sl&quot;&gt;
+      Send Your Interest
+      &lt;span class=&quot;btn-subtitle&quot;&gt;No commitment — withdraw anytime&lt;/span&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;h3&gt;Tertiary (Exploratory)&lt;/h3&gt;
+  &lt;div&gt;&lt;a href=&quot;#&quot; class=&quot;btn-tertiary-sl&quot;&gt;View cleaning standards &amp;rarr;&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="lib-card__info">
+      <div class="lib-card__badges">
+        <span class="badge badge--category">form</span>
+        <span class="badge badge--phase">listing evaluation</span>
+        <span class="badge badge--priority badge--P0">P0</span>
+      </div>
+      <h3 class="lib-card__title">Three-Tier Button System</h3>
+      <p class="lib-card__id">ds-ui-0801-001</p>
+      <p class="lib-card__desc">A systematic button hierarchy with three visual tiers: Primary (solid gradient for binding actions like Accept Terms), Secondary (outline for non-binding actions like Send Interest), and Tertiary (text-link style for exploratory actions like Learn More). Ensures the guest instantly understands the commitment level of each action.</p>
+      <div class="lib-card__principles">
+        <span class="label">Implements:</span> works-001, works-003, looks-001, feels-002, behaves-003
+      </div>
+      <details class="lib-card__details">
+        <summary>Behavioral Notes &amp; Emotional Intent</summary>
+        <p><strong>Behavior:</strong> Primary buttons trigger full confirmation modals (acceptance stage only). Secondary buttons show inline confirmation with no modal. Tertiary links navigate without confirmation. Button state transitions use ease-out at 200ms.</p>
+        <p><strong>Emotion:</strong> Primary: gravity and commitment. Secondary: invitation and safety. Tertiary: curiosity and exploration. The visual weight gradient mirrors the emotional weight of each action.</p>
+        <p><strong>Test:</strong> First-click test: 70%+ of users identify the primary action within 5 seconds. A/B test: 20%+ increase in proposal creation with secondary styling vs. primary styling for the proposal button.</p>
+      </details>
+    </div>
+  </div>
+  <div class="lib-card" data-category="card" data-phase="listing_evaluation" data-priority="P0" data-name="cleaning protocol card">
+    <div class="lib-card__preview">
+      <iframe srcdoc="&lt;style&gt;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+
+.cleaning-card {
+  background: #ffffff;
+  border: 1.5px solid #E7E0EC;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 520px;
+  font-family: 'Inter', sans-serif;
+}
+
+.cleaning-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.cleaning-card__icon-badge {
+  width: 36px;
+  height: 36px;
+  background: #F7F2FA;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.cleaning-card__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #31135D;
+  margin: 0;
+}
+
+.cleaning-card__items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cleaning-card__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cleaning-card__item-icon {
+  width: 28px;
+  height: 28px;
+  background: #F7F2FA;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: rgb(109, 49, 194);
+  margin-top: 1px;
+}
+
+.cleaning-card__item-text {
+  flex: 1;
+}
+
+.cleaning-card__item-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 2px 0;
+}
+
+.cleaning-card__item-desc {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cleaning-card__link {
+  display: inline-block;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgb(82, 31, 147);
+  text-decoration: none;
+  width: 100%;
+}
+
+.cleaning-card__link:hover {
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;div class=&quot;cleaning-card&quot;&gt;
+  &lt;div class=&quot;cleaning-card__header&quot;&gt;
+    &lt;div class=&quot;cleaning-card__icon-badge&quot;&gt;&amp;#10024;&lt;/div&gt;
+    &lt;h3 class=&quot;cleaning-card__title&quot;&gt;How Cleanliness Works&lt;/h3&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;cleaning-card__items&quot;&gt;
+    &lt;div class=&quot;cleaning-card__item&quot;&gt;
+      &lt;div class=&quot;cleaning-card__item-icon&quot;&gt;&amp;#128716;&lt;/div&gt;
+      &lt;div class=&quot;cleaning-card__item-text&quot;&gt;
+        &lt;p class=&quot;cleaning-card__item-label&quot;&gt;Separate Linens&lt;/p&gt;
+        &lt;p class=&quot;cleaning-card__item-desc&quot;&gt;Your linens are labeled and stored separately. You never share sheets or towels.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cleaning-card__item&quot;&gt;
+      &lt;div class=&quot;cleaning-card__item-icon&quot;&gt;&amp;#128248;&lt;/div&gt;
+      &lt;div class=&quot;cleaning-card__item-text&quot;&gt;
+        &lt;p class=&quot;cleaning-card__item-label&quot;&gt;Photo Verification&lt;/p&gt;
+        &lt;p class=&quot;cleaning-card__item-desc&quot;&gt;Your co-tenant submits cleaning photos before each of your stays. You see proof before you arrive.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;cleaning-card__item&quot;&gt;
+      &lt;div class=&quot;cleaning-card__item-icon&quot;&gt;&amp;#128274;&lt;/div&gt;
+      &lt;div class=&quot;cleaning-card__item-text&quot;&gt;
+        &lt;p class=&quot;cleaning-card__item-label&quot;&gt;Secure Storage&lt;/p&gt;
+        &lt;p class=&quot;cleaning-card__item-desc&quot;&gt;Your personal items are stored in a designated, secure area during your co-tenant's stays.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;a href=&quot;#&quot; class=&quot;cleaning-card__link&quot;&gt;View full cleaning standards &amp;rarr;&lt;/a&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="lib-card__info">
+      <div class="lib-card__badges">
+        <span class="badge badge--category">card</span>
+        <span class="badge badge--phase">listing evaluation</span>
+        <span class="badge badge--priority badge--P0">P0</span>
+      </div>
+      <h3 class="lib-card__title">Cleaning Protocol Card</h3>
+      <p class="lib-card__id">ds-ui-0801-002</p>
+      <p class="lib-card__desc">A prominent, standalone content block on the listing page that proactively addresses cleanliness concerns. Shows three key facts (separate linens, cleaning responsibilities, photo verification) with icons. Positioned above the fold, after photos, before pricing. Resolves the #1 guest objection about shared living hygiene.</p>
+      <div class="lib-card__principles">
+        <span class="label">Implements:</span> works-002, communicates-001, looks-002, feels-001
+      </div>
+      <details class="lib-card__details">
+        <summary>Behavioral Notes &amp; Emotional Intent</summary>
+        <p><strong>Behavior:</strong> Card appears with a subtle fade-in (200ms ease-out) when it enters the viewport during scroll. No interaction required to view all three items. The 'View full cleaning standards' link opens an expandable detail section, not a new page.</p>
+        <p><strong>Emotion:</strong> Safety and reassurance. The card resolves the guest's deepest anxiety (hygiene) with specific, sensory language and visual proof references. The purple-tinted icons and clean layout signal 'we take this seriously.'</p>
+        <p><strong>Test:</strong> A/B test: 15%+ improvement in listing-to-proposal conversion when this card is visible above the fold vs. cleaning info buried in description.</p>
+      </details>
+    </div>
+  </div>
+  <div class="lib-card" data-category="form" data-phase="proposal_creation" data-priority="P0" data-name="proposal interest form">
+    <div class="lib-card__preview">
+      <iframe srcdoc="&lt;style&gt;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+
+.proposal-form {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 480px;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.proposal-form__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #31135D;
+  margin: 0 0 4px 0;
+}
+
+.proposal-form__subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  height: 42px;
+  padding: 0 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.1s ease;
+}
+
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: rgb(109, 49, 194);
+  box-shadow: 0 0 0 3px rgba(109, 49, 194, 0.1);
+}
+
+.form-section-divider {
+  border: none;
+  border-top: 1px solid #f3f4f6;
+  margin: 24px 0;
+}
+
+.day-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.day-chip {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.day-chip.active {
+  background: rgb(75, 71, 206);
+  border-color: rgb(75, 71, 206);
+  color: #ffffff;
+}
+
+.price-summary {
+  background: rgb(252, 250, 255);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.price-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.price-summary__row:last-child {
+  margin-bottom: 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(109, 49, 194, 0.15);
+}
+
+.price-summary__label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.price-summary__value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.price-summary__total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #31135D;
+}
+
+.proposal-form .btn-secondary-sl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 28px;
+  background: transparent;
+  color: rgb(109, 49, 194);
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid rgb(109, 49, 194);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.proposal-form .btn-secondary-sl:hover {
+  background: rgba(109, 49, 194, 0.06);
+}
+
+.proposal-form .btn-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #9ca3af;
+  margin-top: 3px;
+}
+
+.proposal-form__reassurance {
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 12px;
+}
+&lt;/style&gt;
+&lt;div class=&quot;proposal-form&quot;&gt;
+  &lt;h2 class=&quot;proposal-form__title&quot;&gt;Your Interest&lt;/h2&gt;
+  &lt;p class=&quot;proposal-form__subtitle&quot;&gt;Let the host know your preferred terms&lt;/p&gt;
+
+  &lt;div class=&quot;form-group&quot;&gt;
+    &lt;label&gt;Move-in Date&lt;/label&gt;
+    &lt;input type=&quot;date&quot; value=&quot;2026-05-16&quot; /&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;form-group&quot;&gt;
+    &lt;label&gt;Duration&lt;/label&gt;
+    &lt;select&gt;
+      &lt;option&gt;4 weeks&lt;/option&gt;
+      &lt;option selected&gt;8 weeks&lt;/option&gt;
+      &lt;option&gt;12 weeks&lt;/option&gt;
+      &lt;option&gt;16 weeks&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;form-group&quot;&gt;
+    &lt;label&gt;Days per Week&lt;/label&gt;
+    &lt;div class=&quot;day-selector&quot;&gt;
+      &lt;div class=&quot;day-chip active&quot;&gt;M&lt;/div&gt;
+      &lt;div class=&quot;day-chip active&quot;&gt;T&lt;/div&gt;
+      &lt;div class=&quot;day-chip active&quot;&gt;W&lt;/div&gt;
+      &lt;div class=&quot;day-chip active&quot;&gt;Th&lt;/div&gt;
+      &lt;div class=&quot;day-chip&quot;&gt;F&lt;/div&gt;
+      &lt;div class=&quot;day-chip&quot;&gt;Sa&lt;/div&gt;
+      &lt;div class=&quot;day-chip&quot;&gt;Su&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;hr class=&quot;form-section-divider&quot; /&gt;
+
+  &lt;div class=&quot;price-summary&quot;&gt;
+    &lt;div class=&quot;price-summary__row&quot;&gt;
+      &lt;span class=&quot;price-summary__label&quot;&gt;Nightly rate&lt;/span&gt;
+      &lt;span class=&quot;price-summary__value&quot;&gt;$85&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;price-summary__row&quot;&gt;
+      &lt;span class=&quot;price-summary__label&quot;&gt;4 nights/wk &amp;times; 8 weeks&lt;/span&gt;
+      &lt;span class=&quot;price-summary__value&quot;&gt;32 nights&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;price-summary__row&quot;&gt;
+      &lt;span class=&quot;price-summary__label&quot;&gt;Estimated total&lt;/span&gt;
+      &lt;span class=&quot;price-summary__total&quot;&gt;$2,720&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;button class=&quot;btn-secondary-sl&quot;&gt;
+    Send Your Interest
+    &lt;span class=&quot;btn-subtitle&quot;&gt;No commitment — withdraw anytime&lt;/span&gt;
+  &lt;/button&gt;
+  &lt;p class=&quot;proposal-form__reassurance&quot;&gt;You can modify or cancel before the host responds&lt;/p&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="lib-card__info">
+      <div class="lib-card__badges">
+        <span class="badge badge--category">form</span>
+        <span class="badge badge--phase">proposal creation</span>
+        <span class="badge badge--priority badge--P0">P0</span>
+      </div>
+      <h3 class="lib-card__title">Proposal Interest Form</h3>
+      <p class="lib-card__id">ds-ui-0801-003</p>
+      <p class="lib-card__desc">A focused proposal form with clear field grouping (dates, duration, day selection) and unambiguous spacing. Uses secondary button styling for the non-binding 'Send Your Interest' action, with visible reassurance text. Progressive price calculation updates live as the guest configures terms.</p>
+      <div class="lib-card__principles">
+        <span class="label">Implements:</span> works-003, communicates-002, communicates-004, behaves-001, feels-002
+      </div>
+      <details class="lib-card__details">
+        <summary>Behavioral Notes &amp; Emotional Intent</summary>
+        <p><strong>Behavior:</strong> Price summary updates live within 100ms as the guest changes any input (date, duration, days). A subtle scale pulse (1.0 to 1.05, 200ms) on the total when it changes. No confirmation modal on submit -- inline success message replaces the form. Optimistic UI: success shown immediately.</p>
+        <p><strong>Emotion:</strong> Confidence and low pressure. The outline button, 'No commitment' subtitle, and reassurance text all communicate: this is an invitation, not a contract. The guest feels in control throughout.</p>
+        <p><strong>Test:</strong> A/B test: 20%+ increase in proposal creation rate with 'Send Your Interest' (outline) vs. 'Submit Proposal' (solid primary). Time-to-click under 5 seconds from form render.</p>
+      </details>
+    </div>
+  </div>
+  <div class="lib-card" data-category="dashboard" data-phase="active_lease" data-priority="P0" data-name="stays manager command center">
+    <div class="lib-card__preview">
+      <iframe srcdoc="&lt;style&gt;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+
+.stays-manager {
+  max-width: 640px;
+  font-family: 'Inter', sans-serif;
+  background: #f9fafb;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.sm-status {
+  background: #31135D;
+  color: #ffffff;
+  padding: 24px;
+}
+
+.sm-status__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.65);
+  margin: 0 0 8px 0;
+}
+
+.sm-status__headline {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+}
+
+.sm-status__meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.sm-status__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+}
+
+.sm-status__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(75, 71, 206, 0.35);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.sm-status__badge--verified {
+  background: rgba(75, 200, 130, 0.3);
+}
+
+.sm-action {
+  padding: 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.sm-action__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.sm-action__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(49, 19, 93, 0.25);
+}
+
+.sm-action__btn:hover {
+  box-shadow: 0 4px 12px rgba(49, 19, 93, 0.35);
+  transform: translateY(-1px);
+}
+
+.sm-action__helper {
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: center;
+  margin: 8px 0 0 0;
+}
+
+.sm-action__secondary-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.sm-action__secondary-link {
+  font-size: 13px;
+  color: rgb(82, 31, 147);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.sm-action__secondary-link:hover {
+  text-decoration: underline;
+}
+
+.sm-history {
+  padding: 24px;
+}
+
+.sm-history__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px 0;
+}
+
+.sm-history__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.sm-history__item:last-child {
+  border-bottom: none;
+}
+
+.sm-history__item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sm-history__item-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4B47CE;
+  flex-shrink: 0;
+}
+
+.sm-history__item-dot--completed {
+  background: #9ca3af;
+}
+
+.sm-history__item-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.sm-history__item-date {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 2px 0 0 0;
+}
+
+.sm-history__item-status {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4B47CE;
+  padding: 3px 10px;
+  background: #F7F2FA;
+  border-radius: 100px;
+}
+
+.sm-history__item-status--done {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+&lt;/style&gt;
+&lt;div class=&quot;stays-manager&quot;&gt;
+  &lt;div class=&quot;sm-status&quot;&gt;
+    &lt;p class=&quot;sm-status__label&quot;&gt;Stay 7 of 13&lt;/p&gt;
+    &lt;h2 class=&quot;sm-status__headline&quot;&gt;Next stay: Thursday, Mar 12&lt;/h2&gt;
+    &lt;div class=&quot;sm-status__meta&quot;&gt;
+      &lt;div class=&quot;sm-status__meta-item&quot;&gt;
+        &lt;span class=&quot;sm-status__badge sm-status__badge--verified&quot;&gt;&amp;#10003; Cleaned&lt;/span&gt;
+        Marcus submitted photos 3h ago
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;sm-action&quot;&gt;
+    &lt;p class=&quot;sm-action__label&quot;&gt;Your Next Step&lt;/p&gt;
+    &lt;button class=&quot;sm-action__btn&quot;&gt;
+      &amp;#128247; Submit Cleaning Photos
+    &lt;/button&gt;
+    &lt;p class=&quot;sm-action__helper&quot;&gt;Take 2–3 photos showing the space is clean&lt;/p&gt;
+    &lt;div class=&quot;sm-action__secondary-links&quot;&gt;
+      &lt;a href=&quot;#&quot; class=&quot;sm-action__secondary-link&quot;&gt;Change dates&lt;/a&gt;
+      &lt;a href=&quot;#&quot; class=&quot;sm-action__secondary-link&quot;&gt;Message host&lt;/a&gt;
+      &lt;a href=&quot;#&quot; class=&quot;sm-action__secondary-link&quot;&gt;House manual&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;sm-history&quot;&gt;
+    &lt;p class=&quot;sm-history__label&quot;&gt;Recent Stays&lt;/p&gt;
+    &lt;div class=&quot;sm-history__item&quot;&gt;
+      &lt;div class=&quot;sm-history__item-left&quot;&gt;
+        &lt;div class=&quot;sm-history__item-dot&quot;&gt;&lt;/div&gt;
+        &lt;div&gt;
+          &lt;p class=&quot;sm-history__item-title&quot;&gt;Stay 6&lt;/p&gt;
+          &lt;p class=&quot;sm-history__item-date&quot;&gt;Mar 5 – Mar 8&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;span class=&quot;sm-history__item-status&quot;&gt;Reviewed&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;sm-history__item&quot;&gt;
+      &lt;div class=&quot;sm-history__item-left&quot;&gt;
+        &lt;div class=&quot;sm-history__item-dot sm-history__item-dot--completed&quot;&gt;&lt;/div&gt;
+        &lt;div&gt;
+          &lt;p class=&quot;sm-history__item-title&quot;&gt;Stay 5&lt;/p&gt;
+          &lt;p class=&quot;sm-history__item-date&quot;&gt;Feb 26 – Mar 1&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;span class=&quot;sm-history__item-status sm-history__item-status--done&quot;&gt;Complete&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="lib-card__info">
+      <div class="lib-card__badges">
+        <span class="badge badge--category">dashboard</span>
+        <span class="badge badge--phase">active lease</span>
+        <span class="badge badge--priority badge--P0">P0</span>
+      </div>
+      <h3 class="lib-card__title">Stays Manager Command Center</h3>
+      <p class="lib-card__id">ds-ui-0801-004</p>
+      <p class="lib-card__desc">The guest's weekly command center for their active lease. Three-zone layout: STATUS (current state + cleaning verification), ACTION (context-aware single primary action), HISTORY (past stays + payments). Constrained width (640px max), generous spacing, and a context-aware primary action that changes based on stay lifecycle state.</p>
+      <div class="lib-card__principles">
+        <span class="label">Implements:</span> works-005, communicates-003, looks-002, looks-003, behaves-004, feels-003
+      </div>
+      <details class="lib-card__details">
+        <summary>Behavioral Notes &amp; Emotional Intent</summary>
+        <p><strong>Behavior:</strong> The primary action button changes based on stay lifecycle state (pre-arrival: Confirm Arrival; post-stay: Submit Cleaning Photos; between stays: Review Last Stay). Crossfade transition (200ms) when the action changes. Status zone updates in real-time when the co-tenant submits cleaning photos. Helper text reduces after 3+ stays (the guest learns the rhythm).</p>
+        <p><strong>Emotion:</strong> Confidence and calm efficiency. The dark purple status zone creates a sense of authority and control. The single primary action removes decision fatigue. The cleaning verification badge provides immediate safety reassurance. Weekly visits should feel like a quick check-in, not a chore.</p>
+        <p><strong>Test:</strong> 85%+ weekly engagement rate among active guests. Average time-on-page under 30 seconds. Cleaning photo submission rate above 90%.</p>
+      </details>
+    </div>
+  </div>
+  <div class="lib-card" data-category="pricing" data-phase="listing_evaluation" data-priority="P1" data-name="progressive price summary">
+    <div class="lib-card__preview">
+      <iframe srcdoc="&lt;style&gt;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+
+.price-card {
+  background: rgb(252, 250, 255);
+  border: 1px solid #E7E0EC;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 360px;
+  font-family: 'Inter', sans-serif;
+}
+
+.price-card__header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px 0;
+}
+
+.price-card__nightly {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.price-card__nightly-amount {
+  font-size: 32px;
+  font-weight: 700;
+  color: #31135D;
+  line-height: 1;
+}
+
+.price-card__nightly-label {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.price-card__breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(109, 49, 194, 0.12);
+  margin-bottom: 16px;
+}
+
+.price-card__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.price-card__row-label {
+  color: #6b7280;
+}
+
+.price-card__row-value {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.price-card__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.price-card__total-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.price-card__total-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #31135D;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.price-card__total-amount.pulse {
+  animation: pricePulse 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pricePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.price-card__compare {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.price-card__compare strong {
+  color: #4B47CE;
+  font-weight: 600;
+}
+&lt;/style&gt;
+&lt;div class=&quot;price-card&quot;&gt;
+  &lt;p class=&quot;price-card__header&quot;&gt;Pricing Estimate&lt;/p&gt;
+  &lt;div class=&quot;price-card__nightly&quot;&gt;
+    &lt;span class=&quot;price-card__nightly-amount&quot;&gt;$85&lt;/span&gt;
+    &lt;span class=&quot;price-card__nightly-label&quot;&gt;/ night&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;price-card__breakdown&quot;&gt;
+    &lt;div class=&quot;price-card__row&quot;&gt;
+      &lt;span class=&quot;price-card__row-label&quot;&gt;4 nights/week&lt;/span&gt;
+      &lt;span class=&quot;price-card__row-value&quot;&gt;Mon – Thu&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;price-card__row&quot;&gt;
+      &lt;span class=&quot;price-card__row-label&quot;&gt;Duration&lt;/span&gt;
+      &lt;span class=&quot;price-card__row-value&quot;&gt;8 weeks&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;price-card__row&quot;&gt;
+      &lt;span class=&quot;price-card__row-label&quot;&gt;Total nights&lt;/span&gt;
+      &lt;span class=&quot;price-card__row-value&quot;&gt;32 nights&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;price-card__total&quot;&gt;
+    &lt;span class=&quot;price-card__total-label&quot;&gt;Estimated total&lt;/span&gt;
+    &lt;span class=&quot;price-card__total-amount&quot;&gt;$2,720&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class=&quot;price-card__compare&quot;&gt;Similar Airbnb in this area: ~&lt;strong&gt;$145/night&lt;/strong&gt;&lt;/p&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="lib-card__info">
+      <div class="lib-card__badges">
+        <span class="badge badge--category">pricing</span>
+        <span class="badge badge--phase">listing evaluation</span>
+        <span class="badge badge--priority badge--P1">P1</span>
+      </div>
+      <h3 class="lib-card__title">Progressive Price Summary</h3>
+      <p class="lib-card__id">ds-ui-0801-005</p>
+      <p class="lib-card__desc">A live-updating price summary that recalculates within 100ms as the guest adjusts listing terms. Shows nightly rate, calculated nights, and total. Uses a subtle purple-tinted background to differentiate it from the rest of the listing page. Scale-pulse animation on the total when it changes.</p>
+      <div class="lib-card__principles">
+        <span class="label">Implements:</span> communicates-002, behaves-001, looks-004
+      </div>
+      <details class="lib-card__details">
+        <summary>Behavioral Notes &amp; Emotional Intent</summary>
+        <p><strong>Behavior:</strong> Recalculates within 100ms of any term change. The total amount triggers a scale-pulse animation (pricePulse) when the value changes. If server validation is needed, the client-calculated price shows immediately with a shimmer overlay until confirmed. Error states replace the total with an inline message.</p>
+        <p><strong>Emotion:</strong> Clarity and control. The guest discovers price progressively, never feeling surprised or trapped. The Airbnb comparison anchors the value positively. The live-updating behavior communicates: 'You are in control of the terms.'</p>
+        <p><strong>Test:</strong> 100% of price updates render within 100ms of input change (automated performance test). Guest reports 'price was clear' in post-proposal survey at 90%+ rate.</p>
+      </details>
+    </div>
+  </div>
+  <div class="lib-card" data-category="form" data-phase="active_lease" data-priority="P0" data-name="cleaning photo submission card">
+    <div class="lib-card__preview">
+      <iframe srcdoc="&lt;style&gt;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+
+.photo-submit {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  font-family: 'Inter', sans-serif;
+}
+
+.photo-submit__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.photo-submit__icon {
+  width: 36px;
+  height: 36px;
+  background: #F7F2FA;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.photo-submit__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #31135D;
+  margin: 0;
+}
+
+.photo-submit__subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 2px 0 0 0;
+}
+
+.photo-submit__preview {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.photo-submit__thumb {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.photo-submit__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-submit__thumb-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(109, 49, 194, 0.3);
+}
+
+.photo-submit__thumb-progress-bar {
+  height: 100%;
+  background: rgb(109, 49, 194);
+  width: 75%;
+  border-radius: 0 3px 3px 0;
+  transition: width 0.3s ease;
+}
+
+.photo-submit__add-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  border: 2px dashed #e5e7eb;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  color: #9ca3af;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.photo-submit__add-btn:hover {
+  border-color: rgb(109, 49, 194);
+  color: rgb(109, 49, 194);
+  background: #F7F2FA;
+}
+
+.photo-submit__send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(49, 19, 93, 0.25);
+}
+
+.photo-submit__send:hover {
+  box-shadow: 0 4px 12px rgba(49, 19, 93, 0.35);
+}
+
+.photo-submit__success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: #F7F2FA;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4B47CE;
+}
+
+.photo-submit__success-check {
+  width: 20px;
+  height: 20px;
+  background: #4B47CE;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+&lt;/style&gt;
+&lt;div class=&quot;photo-submit&quot;&gt;
+  &lt;div class=&quot;photo-submit__header&quot;&gt;
+    &lt;div class=&quot;photo-submit__icon&quot;&gt;&amp;#128247;&lt;/div&gt;
+    &lt;div&gt;
+      &lt;h3 class=&quot;photo-submit__title&quot;&gt;Cleaning Photos&lt;/h3&gt;
+      &lt;p class=&quot;photo-submit__subtitle&quot;&gt;Take 2–3 photos showing the space is clean&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;photo-submit__preview&quot;&gt;
+    &lt;div class=&quot;photo-submit__thumb&quot;&gt;
+      &lt;div style=&quot;width:100%;height:100%;background:linear-gradient(135deg,#e8e5f0,#d4cfe8);display:flex;align-items:center;justify-content:center;font-size:28px;&quot;&gt;&amp;#127970;&lt;/div&gt;
+      &lt;div class=&quot;photo-submit__thumb-progress&quot;&gt;
+        &lt;div class=&quot;photo-submit__thumb-progress-bar&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;photo-submit__thumb&quot;&gt;
+      &lt;div style=&quot;width:100%;height:100%;background:linear-gradient(135deg,#f0ede8,#e0dcd4);display:flex;align-items:center;justify-content:center;font-size:28px;&quot;&gt;&amp;#128722;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button class=&quot;photo-submit__add-btn&quot;&gt;+&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;button class=&quot;photo-submit__send&quot;&gt;&amp;#10003; Send Photos&lt;/button&gt;
+
+  &lt;div style=&quot;margin-top:16px;&quot;&gt;
+    &lt;div class=&quot;photo-submit__success&quot;&gt;
+      &lt;div class=&quot;photo-submit__success-check&quot;&gt;&amp;#10003;&lt;/div&gt;
+      Photos submitted &amp;middot; 2:34 PM
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="lib-card__info">
+      <div class="lib-card__badges">
+        <span class="badge badge--category">form</span>
+        <span class="badge badge--phase">active lease</span>
+        <span class="badge badge--priority badge--P0">P0</span>
+      </div>
+      <h3 class="lib-card__title">Cleaning Photo Submission Card</h3>
+      <p class="lib-card__id">ds-ui-0801-006</p>
+      <p class="lib-card__desc">A one-tap cleaning photo capture and submission flow embedded in the Stays Manager. Opens the native camera directly, shows a preview with a single Send button, and uses optimistic UI for instant feedback. Designed to achieve near-100% cleaning compliance by minimizing friction.</p>
+      <div class="lib-card__principles">
+        <span class="label">Implements:</span> works-002, behaves-002, feels-001
+      </div>
+      <details class="lib-card__details">
+        <summary>Behavioral Notes &amp; Emotional Intent</summary>
+        <p><strong>Behavior:</strong> Camera opens within 200ms of button tap. Photo preview appears within 100ms of capture. Upload begins immediately with no confirm step. Progress bar shows upload status. Optimistic UI: success shown as soon as photos are captured, with background upload. If upload fails, a retry button replaces the progress bar.</p>
+        <p><strong>Emotion:</strong> Effortless compliance. The flow should feel as easy as sending a photo in a messaging app. The success confirmation provides a small moment of satisfaction: 'I did the right thing, it took 10 seconds.' This builds the weekly rhythm that converts initial cleaning anxiety into habitual confidence.</p>
+        <p><strong>Test:</strong> Cleaning photo submission rate above 90% of all stay completions. Average time from button tap to submission under 15 seconds. Zero-friction path: camera > capture > send in 3 taps maximum.</p>
+      </details>
+    </div>
+  </div>
+  <div class="lib-card" data-category="onboarding" data-phase="discovery" data-priority="P1" data-name="discovery landing hero">
+    <div class="lib-card__preview">
+      <iframe srcdoc="&lt;style&gt;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=DM+Sans:wght@500;700&amp;display=swap');
+
+.hero-landing {
+  max-width: 640px;
+  font-family: 'Inter', sans-serif;
+  padding: 48px 32px;
+  text-align: center;
+}
+
+.hero-landing__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #F7F2FA;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(109, 49, 194);
+  margin-bottom: 20px;
+}
+
+.hero-landing__headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #31135D;
+  line-height: 1.2;
+  margin: 0 0 12px 0;
+}
+
+.hero-landing__sub {
+  font-size: 16px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-landing__trust {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.hero-landing__trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-landing__trust-icon {
+  width: 40px;
+  height: 40px;
+  background: #F7F2FA;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.hero-landing__trust-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.hero-landing__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 36px;
+  background: linear-gradient(135deg, #4B47CE 0%, #7C3AED 100%);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(49, 19, 93, 0.3);
+}
+
+.hero-landing__cta:hover {
+  box-shadow: 0 6px 20px rgba(49, 19, 93, 0.4);
+  transform: translateY(-2px);
+}
+
+.hero-landing__note {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 12px;
+}
+&lt;/style&gt;
+&lt;div class=&quot;hero-landing&quot;&gt;
+  &lt;div class=&quot;hero-landing__badge&quot;&gt;&amp;#10024; Referred by Split Lease Team&lt;/div&gt;
+  &lt;h1 class=&quot;hero-landing__headline&quot;&gt;Flexible shared housing,&lt;br&gt;matched to your schedule&lt;/h1&gt;
+  &lt;p class=&quot;hero-landing__sub&quot;&gt;Find a verified space near you for the days you need it. Separate linens, secure storage, background-checked hosts.&lt;/p&gt;
+
+  &lt;div class=&quot;hero-landing__trust&quot;&gt;
+    &lt;div class=&quot;hero-landing__trust-item&quot;&gt;
+      &lt;div class=&quot;hero-landing__trust-icon&quot;&gt;&amp;#128274;&lt;/div&gt;
+      &lt;span class=&quot;hero-landing__trust-label&quot;&gt;Verified Listings&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;hero-landing__trust-item&quot;&gt;
+      &lt;div class=&quot;hero-landing__trust-icon&quot;&gt;&amp;#10024;&lt;/div&gt;
+      &lt;span class=&quot;hero-landing__trust-label&quot;&gt;Clean Guarantee&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;hero-landing__trust-item&quot;&gt;
+      &lt;div class=&quot;hero-landing__trust-icon&quot;&gt;&amp;#128100;&lt;/div&gt;
+      &lt;span class=&quot;hero-landing__trust-label&quot;&gt;Screened Hosts&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;button class=&quot;hero-landing__cta&quot;&gt;Browse Listings Near You &amp;rarr;&lt;/button&gt;
+  &lt;p class=&quot;hero-landing__note&quot;&gt;No account needed to browse&lt;/p&gt;
+&lt;/div&gt;" sandbox="allow-same-origin" scrolling="no" loading="lazy"></iframe>
+    </div>
+    <div class="lib-card__info">
+      <div class="lib-card__badges">
+        <span class="badge badge--category">onboarding</span>
+        <span class="badge badge--phase">discovery</span>
+        <span class="badge badge--priority badge--P1">P1</span>
+      </div>
+      <h3 class="lib-card__title">Discovery Landing Hero</h3>
+      <p class="lib-card__id">ds-ui-0801-007</p>
+      <p class="lib-card__desc">The first screen a guest sees when arriving at Split Lease (often from Craigslist or email link). Answers 'What is this?' in one sentence, resolves 'Is this legitimate?' with three trust signals, and provides a single primary action to browse listings. No sign-up gate. Personalized when referral source is known.</p>
+      <div class="lib-card__principles">
+        <span class="label">Implements:</span> works-001, feels-004, looks-002, looks-004
+      </div>
+      <details class="lib-card__details">
+        <summary>Behavioral Notes &amp; Emotional Intent</summary>
+        <p><strong>Behavior:</strong> Above-fold content renders immediately -- no loading animations or skeleton screens for the hero. If the guest arrived from a specific listing link, replace the general CTA with 'View [Listing Name] on the Upper East Side'. If location is known, personalize: 'Listings near 67th & First'. No sign-up required to browse.</p>
+        <p><strong>Emotion:</strong> Curiosity and trust. The headline answers 'What is this?' instantly. The three trust icons address the top three guest concerns (verification, cleanliness, host screening) in under 2 seconds of scanning. The 'No account needed' note removes the barrier to exploration.</p>
+        <p><strong>Test:</strong> First-click test: 80%+ of new visitors click 'Browse Listings' within 10 seconds. Bounce rate under 40% for guests arriving from Craigslist links. Identity confusion: 0 participants in usability testing ask 'What is this website?'</p>
+      </details>
+    </div>
+  </div>
+</div>
+<footer style="text-align:center;padding:32px;color:var(--text-muted);font-size:12px;">
+  SplitLease Design Stack v2.0 | Run 2026-02-19_0801 | Generated 2026-02-19
+</footer>
+<script>
+const searchEl = document.getElementById('search');
+const catEl = document.getElementById('filter-category');
+const phaseEl = document.getElementById('filter-phase');
+const prioEl = document.getElementById('filter-priority');
+const cards = document.querySelectorAll('.lib-card');
+function filter() {
+  const q = searchEl.value.toLowerCase();
+  const cat = catEl.value;
+  const phase = phaseEl.value;
+  const prio = prioEl.value;
+  cards.forEach(card => {
+    const matchSearch = !q || card.dataset.name.includes(q) || card.textContent.toLowerCase().includes(q);
+    const matchCat = !cat || card.dataset.category === cat;
+    const matchPhase = !phase || card.dataset.phase === phase;
+    const matchPrio = !prio || card.dataset.priority === prio;
+    card.classList.toggle('hidden', !(matchSearch && matchCat && matchPhase && matchPrio));
+  });
+}
+searchEl.addEventListener('input', filter);
+catEl.addEventListener('change', filter);
+phaseEl.addEventListener('change', filter);
+prioEl.addEventListener('change', filter);
+</script>
+</body>
+</html>

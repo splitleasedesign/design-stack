@@ -1,0 +1,178 @@
+{
+  "lens": {
+    "host_call": "dana-call.txt",
+    "book_extract": "refactoringui-hierarchy-spacing-color.txt"
+  },
+  "elements": [
+    {
+      "id": "communicates-001",
+      "type": "info_architecture",
+      "title": "Occupancy Pattern as Primary Information in Guest Cards",
+      "journey_phases": ["proposal_mgmt", "active_lease"],
+      "problem": "The current guest card / proposal view likely follows a conventional layout: guest name, photo, dates, pricing — treating all data points with near-equal visual weight. For Dana, the critical information is the guest's weekly occupancy pattern (Mon-Thu vs. full-week) and address status (secondary vs. primary). These are the data points that determine her accept/reject decision in seconds. Presenting them at equal weight with dates and pricing forces Dana to scan the entire card to find what matters, violating Refactoring UI's core hierarchy principle: 'when everything in an interface is competing for attention, it feels noisy and chaotic.'",
+      "solution": "Restructure the guest card information hierarchy so occupancy pattern is primary, personal context is secondary, and logistics are tertiary. Apply Refactoring UI's three-tier text color system: dark color for primary content (occupancy pattern), grey for secondary content (guest bio, work type), lighter grey for tertiary content (exact dates, per-night pricing). Use the 'labels are a last resort' principle: show the occupancy pattern as a visual day-badge row (M T W T highlighted, F S S dim) rather than a labeled field. Combine label and value per the book's guidance: instead of 'Stay Type: Part-week', show '4 nights/week · Mon-Thu' as a single integrated phrase.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 02:38",
+          "type": "host_call",
+          "quote": "He was looking just to be for the workweek, Monday to Thursday.",
+          "insight": "This is the first substantive information Dana receives about the guest, and it's the information she engages with most. The information architecture must reflect this natural priority."
+        },
+        {
+          "source": "refactoringui, Size isn't everything",
+          "type": "book",
+          "quote": "Try and stick to two or three colors: a dark color for primary content, a grey for secondary content, a lighter grey for tertiary content.",
+          "insight": "The three-tier color system maps directly to guest card hierarchy: occupancy pattern in dark, guest context in grey, logistics in lighter grey."
+        },
+        {
+          "source": "refactoringui, Labels are a last resort — Combine labels and values",
+          "type": "book",
+          "quote": "Instead of 'Bedrooms: 3' you could simply write '3 bedrooms'. When you're able to combine labels and values into a single unit, it's much easier to give each piece of data meaningful styling.",
+          "insight": "Transform 'Occupancy: Mon-Thu' into '4 nights/week · Mon-Thu' — a scannable phrase that communicates without a separate label."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Primary: occupancy pattern (day badges + integrated phrase). Secondary: guest context (work type, primary city, secondary address badge). Tertiary: logistics (exact dates, pricing, lease duration). This reverses the conventional marketplace hierarchy where dates and pricing lead.",
+      "disclosure_pattern": "Show the occupancy pattern and secondary-address badge on the proposal card in the list view (no tap required). Show guest context (work type, why they need the space) on first tap into the proposal detail. Show full logistics (exact dates, pricing breakdown, lease terms) in the detail view below the fold.",
+      "cognitive_load_constraint": "The proposal card in list view should show no more than 4 data points: (1) guest name, (2) day-badge row showing weekly pattern, (3) secondary address badge, (4) duration summary (e.g., '10 weeks'). Everything else deferred to detail view.",
+      "scan_order": ["Day-badge row showing weekly occupancy pattern", "Secondary address badge or primary city", "Guest name and photo", "Duration and pricing summary"],
+      "exclude": ["Detailed pricing breakdown on the card level", "Guest bio/description on the card level", "Platform fee information on the card level", "Cancellation policy details on the card level"]
+    },
+    {
+      "id": "communicates-002",
+      "type": "info_architecture",
+      "title": "Progressive Disclosure for Overwhelmed Hosts",
+      "journey_phases": ["onboarding", "listing_creation", "pricing"],
+      "problem": "Dana is dealing with a family emergency, working night shifts, and has her phone overwhelmed with notifications. She cannot absorb dense information screens. The listing creation wizard (6 steps) and pricing configuration present all information at once within each step. Refactoring UI warns: 'you don't have to fill the whole screen' and 'grids are overrated.' For cognitively overloaded hosts, every piece of information that isn't essential to the current decision is noise that competes with the signal.",
+      "solution": "Apply aggressive progressive disclosure across all multi-step host flows. Each screen should present exactly one decision with supporting context, using Refactoring UI's spacing principles to create breathing room. (1) For listing creation: each wizard step should show one question with smart defaults pre-selected, not a form with multiple fields. Use the 'start with too much white space' principle to prevent the screen from feeling dense. (2) For pricing: show only the host's take-home number first (visually dominant, large, dark text). Show the calculation breakdown only on request (expandable section, lighter text). (3) For onboarding follow-up materials: show one call-to-action per screen. Not 'Here's Split Lease, here's how it works, here's what to do next' — just 'Your listing is ready to import. Tap to review.' (4) Apply Refactoring UI's 'avoid ambiguous spacing' principle: clear visual separation between what's being asked now and what context is provided for the decision.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 05:56-06:46",
+          "type": "host_call",
+          "quote": "I'm a flight attendant... my parents accidentally burnt down their house... I have to go to work tonight... All my folders and blown up nonstop.",
+          "insight": "Three concurrent sources of cognitive overload: work, family emergency, phone notifications. Any platform screen that asks for more than one decision at a time will be abandoned."
+        },
+        {
+          "source": "refactoringui, You don't have to fill the whole screen",
+          "type": "book",
+          "quote": "Just because you have the space doesn't mean you need to use it. If you only need 600px, that's fine. Spreading things out or making things unnecessarily wide just makes an interface harder to interpret.",
+          "insight": "For overwhelmed hosts, constrained content width (600px max) forces information focus and prevents the eye from wandering."
+        },
+        {
+          "source": "refactoringui, Avoid ambiguous spacing",
+          "type": "book",
+          "quote": "Whenever you're relying on spacing to connect a group of elements, always make sure there's more space around the group than there is within it.",
+          "insight": "Clear spacing groups allow Dana to parse each section independently: 'This is what I need to decide. This is context for that decision. This is navigation.'"
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Each screen has exactly one focal point: the decision or action required. Supporting information uses lighter visual weight. Navigation (back/next/skip) uses tertiary visual weight. Nothing else appears.",
+      "disclosure_pattern": "Layer 1: The decision (what you need to do now). Layer 2: Context for the decision (why, what happens if). Layer 3: Details (how this connects to other decisions, edge cases). Each layer requires an explicit action (scroll, tap, expand) to reveal the next.",
+      "cognitive_load_constraint": "Maximum 1 decision per screen. Maximum 3 data points supporting that decision. Maximum 50 words of body text visible without scrolling. Any additional context behind an 'expand' or 'learn more' affordance.",
+      "scan_order": ["The question or action being asked (headline)", "The pre-selected default answer (if applicable)", "The primary action button (confirm, continue)", "Supporting context (if needed)"],
+      "exclude": ["Multiple questions on one screen", "Feature explanations during decision flows", "Marketing language in operational screens", "FAQ or help links in primary viewport (defer to footer or menu)"]
+    },
+    {
+      "id": "communicates-003",
+      "type": "info_architecture",
+      "title": "Status-First Dashboard Architecture",
+      "journey_phases": ["active_lease", "proposal_mgmt"],
+      "problem": "Flight attendant hosts check their dashboards in the brief window between landing and their next obligation. The current dashboard architecture likely follows a conventional layout: navigation header, listing cards, recent activity feed, and possibly marketing/tips sections. For Dana, only one thing matters when she opens the app: 'Is anything urgent?' Refactoring UI's 'separate visual hierarchy from document hierarchy' principle applies: the status information might semantically be an h3 under 'Your Listings,' but visually it should be the most prominent element on the entire page.",
+      "solution": "Restructure the host dashboard into a status-first architecture with three visual tiers: (1) Status Bar (top, visually dominant): Shows the single most important status — 'Allen arrives Monday' or 'Proposal waiting for your review' or 'All clear — no action needed.' Uses Refactoring UI's weight and contrast principles: bold text, dark color, generous spacing. (2) Action Queue (second tier): Any items requiring host action, sorted by deadline. Each item shows what's needed and when, using the 'combine labels and values' pattern: 'Review Allen's proposal · 2 days left' instead of 'Type: Proposal Review. Deadline: February 20.' (3) Activity Feed (third tier, below fold): Historical items, updates, and non-urgent information. Uses lighter visual weight per Refactoring UI's hierarchy system. Apply the 'use fewer borders' principle from Finishing Touches: separate tiers with spacing and background color shifts, not borders.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I have to go to work tonight. I won't be back towards Sunday.",
+          "insight": "Dana might check her phone between flights on Saturday. The dashboard must answer 'anything urgent?' in 2 seconds."
+        },
+        {
+          "source": "refactoringui, Separate visual hierarchy from document hierarchy",
+          "type": "book",
+          "quote": "A lot of the time, section titles act more like labels than headings. Usually the content in that section should be the focus, not the title.",
+          "insight": "The dashboard section title ('Your Listings') should not be the visual focus — the status content within it should be."
+        },
+        {
+          "source": "refactoringui, Use fewer borders (Finishing Touches)",
+          "type": "book",
+          "quote": "When you need to create separation between two elements, try to resist immediately reaching for a border. Borders are a great way to distinguish two elements, but they're not the only way, and using too many can make a design feel busy.",
+          "insight": "Dashboard tiers should be separated by spacing and subtle background color shifts, not borders — fewer borders means less visual noise for the time-starved host."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Tier 1 (Status): visually dominant — dark text, large size, generous spacing. Tier 2 (Actions): medium weight — standard text, clear deadlines. Tier 3 (Activity): light weight — smaller text, softer color, below fold.",
+      "disclosure_pattern": "The status bar is always visible and never requires scrolling. Action queue items are expandable — show the action summary, expand for details. Activity feed loads on scroll, using lazy loading to keep initial page weight low.",
+      "cognitive_load_constraint": "Status bar: 1 sentence maximum. Action queue: maximum 3 visible items (show count of additional items if more). Activity feed: loads progressively, never competes with status or actions.",
+      "scan_order": ["Current status headline (most important thing happening now)", "Action count indicator (number of items needing attention)", "First action item with deadline", "Navigation to full activity feed"],
+      "exclude": ["Marketing content or tips in the status area", "Historical data above the fold", "Feature announcements competing with status", "Complex navigation menus on the dashboard (simplify to bottom tabs or minimal top nav)"]
+    },
+    {
+      "id": "communicates-004",
+      "type": "info_architecture",
+      "title": "Value Proposition Through Contrast with Competitor Experience",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "Dana already uses Furnished Finder and had a great experience with travel nurses before the pandemic shifted the tenant market. When Bryant sends her follow-up materials about Split Lease, the information must communicate a clear delta over Furnished Finder — specifically around guest quality control. Dana's evaluation criterion is not 'is this a nice platform?' but 'will this platform get me better guests than I can find myself?' Refactoring UI's 'emphasize by de-emphasizing' principle is key: the value proposition (better guest matching) should be primary, while features and pricing should be de-emphasized.",
+      "solution": "Structure evaluation materials (landing page, follow-up email, first platform screen) around a single information hierarchy: (1) Primary: 'We match you with part-week professionals' — this is the headline, visually dominant, using the host's own vocabulary ('travel nurses,' 'hybrid workers,' 'secondary address'). (2) Secondary: 'How it works differently' — brief explanation of the screening/matching process that Furnished Finder doesn't offer. (3) Tertiary: 'What Dana from other hosts' experience looks like' — social proof, but using Refactoring UI's 'labels as a last resort' principle: show the proof (a calendar showing a guest's Mon-Thu pattern, a review from a flight attendant host), don't label it 'Social Proof.' Apply the book's 'choose a personality' guidance: the information design should feel professional and reassuring, like a premium service, not a generic marketplace.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 03:34",
+          "type": "host_call",
+          "quote": "Catered to travel nursing. And I never, ever, ever had to advertise, because all the travelers want to stay there.",
+          "insight": "Dana's golden era was when she didn't need to find guests — they found her. The value prop must communicate that Split Lease recreates this experience: 'We bring you the right guests.'"
+        },
+        {
+          "source": "refactoringui, Emphasize by de-emphasizing",
+          "type": "book",
+          "quote": "Instead of trying to further emphasize the element you want to draw attention to, figure out how you can de-emphasize the elements that are competing with it.",
+          "insight": "In evaluation materials, de-emphasize generic platform features (messaging, calendar, dashboard) so the guest-matching value proposition naturally dominates."
+        },
+        {
+          "source": "dana-call.txt, 05:44",
+          "type": "host_call",
+          "quote": "If you find me a travel nurse, I'll give you a piggyback.",
+          "insight": "The value proposition, stated by the host herself: 'find me the right guest.' Everything else in the evaluation materials is secondary to this promise."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Primary: Guest matching promise (specific to host's stated preference). Secondary: How matching works (brief, visual, not text-heavy). Tertiary: Platform features and pricing (deferred to after the host is convinced on value).",
+      "disclosure_pattern": "First screen: Guest matching promise with one visual example (a guest profile card showing Mon-Thu pattern and 'Secondary Address' badge). Second screen (on scroll or tap): How it works — 3 steps, icon-driven, minimal text. Third screen: Pricing and features — only shown after the host has engaged with the value proposition.",
+      "cognitive_load_constraint": "First screen: 1 headline (under 10 words), 1 visual example, 1 CTA. No feature lists, no pricing, no comparison charts above the fold.",
+      "scan_order": ["Headline: guest matching promise", "Visual example: sample guest profile card", "Single CTA: 'Import your listing' or 'Get started'", "Supporting proof: host testimonial or metric"],
+      "exclude": ["Feature comparison tables above the fold", "Pricing information before value is established", "Generic platform screenshots that don't show guest matching", "Long-form text explanations of how the platform works"]
+    },
+    {
+      "id": "communicates-005",
+      "type": "info_architecture",
+      "title": "Empty State as Status Communication for Absent Hosts",
+      "journey_phases": ["active_lease"],
+      "problem": "When Dana checks her lease dashboard during a gap between flights and there's no active stay, the screen shows an empty state. Refactoring UI explicitly warns: 'Don't overlook empty states.' For an absent host, an empty state that shows nothing (or a generic 'No activity' message) creates anxiety: 'Is everything okay? Did I miss something?' The empty state is actually an information architecture opportunity — it's the most frequent state for a host whose guest stays Mon-Thu but the host checks on Saturday.",
+      "solution": "Design the 'no current stay' empty state as a positive status communication. Apply Refactoring UI's 'supercharge the defaults' principle: the default empty state should show useful, reassuring information. (1) Show the next upcoming stay with guest name and dates: 'Allen arrives Monday.' (2) Show the last completed stay with a one-line status: 'Last stay: Feb 10-13 · Cleaning photos received.' (3) If there's no upcoming stay, show the listing status: 'Your listing is active · 3 views this week.' (4) Use Refactoring UI's spacing principles: generous white space around the status message communicates calm confidence, not emptiness. (5) The visual hierarchy should make the 'next event' the primary element, using bold text and dark color, with past events in lighter, secondary visual weight.",
+      "evidence": [
+        {
+          "source": "refactoringui, Finishing Touches — Don't overlook empty states",
+          "type": "book",
+          "quote": "Don't overlook empty states. Empty states are a user's first interaction with a new product and your chance to make everything click for them.",
+          "insight": "For recurring empty states (between stays), the design should communicate 'everything is on track' rather than 'nothing is happening.' This is especially critical for absent hosts who check infrequently."
+        },
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I'm a flight attendant... I won't be back towards Sunday.",
+          "insight": "Dana checks between flights. If she sees an empty dashboard, she'll worry. If she sees 'Allen arrives Monday — everything is set,' she can stop worrying and focus on her other responsibilities."
+        },
+        {
+          "source": "refactoringui, Finishing Touches — Supercharge the defaults",
+          "type": "book",
+          "quote": "Replace boring defaults with something more interesting. Think about which elements you could make more exciting.",
+          "insight": "The 'empty' lease state is the most common state for part-week hosts. It should be designed with as much care as the active state — it's not really 'empty,' it's 'between stays.'"
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "Primary: Next scheduled event (arrival date, guest name). Secondary: Last completed event (status confirmation). Tertiary: Listing health metrics (views, inquiries). The empty state is actually a status display, not an absence of content.",
+      "disclosure_pattern": "Always show next event if one exists. Show last event as a single-line confirmation below. Listing metrics only shown if no upcoming event exists (filling the information void with something useful).",
+      "cognitive_load_constraint": "Maximum 2 data points in the empty state: next event + last event confirmation. No feature suggestions, no 'things you can do,' no educational content.",
+      "scan_order": ["Next upcoming event with date and guest name", "Last completed event with one-line status", "Listing health indicator (if no events scheduled)"],
+      "exclude": ["Feature discovery prompts in empty states", "Marketing or upgrade suggestions", "Tutorial content", "Generic 'nothing here yet' messaging"]
+    }
+  ]
+}

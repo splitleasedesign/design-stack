@@ -1,0 +1,298 @@
+{
+  "lens": {
+    "host_call": "user-stories-initial-analysis.md",
+    "book_extract": "becker-terror-vital-lie.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-2101-001",
+      "type": "validation_strategy",
+      "title": "Armor-Shedding Wizard Step Completion Rate Test",
+      "validates_element": "works-001",
+      "journey_phases": ["listing_creation"],
+      "problem": "If the listing wizard fails to fragment the act of self-exposure into manageable pieces, hosts will abandon at the impasse-layer steps (photo upload, house rules) where the existential weight of exposure becomes conscious. The wizard completion rate and per-step drop-off pattern reveal whether the armor-shedding sequence is correctly graduated.",
+      "solution": "Instrument each wizard step with completion and abandonment events. Map the per-step drop-off curve to Perls' four neurotic layers (cliche, role-playing, impasse, death) and verify that impasse-layer steps (photos, house rules) do not exceed the 25% drop-off threshold.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Completion percentage is a good host nudge. Hosts need to know what's unfinished before a listing goes live. A visible progress indicator on the listing card creates just enough friction to get them to finish.",
+          "insight": "The completion percentage works because it converts existential overwhelm into a manageable number. The test must verify that this conversion is actually happening -- that the percentage drives return-and-complete behavior, not anxiety."
+        },
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 4 (Perls' four layers)",
+          "type": "book",
+          "quote": "The third layer is a stiff one to penetrate: it is the 'impasse' that covers our feeling of being empty and lost.",
+          "insight": "Becker predicts the impasse layer is where the host feels 'empty and lost.' The photo upload and house rules steps are the impasse layer of listing creation. Drop-off at these steps is the measurable signal of impasse-layer failure."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track per-step metrics: (1) Step entry rate (what percentage of hosts who started step N enter step N+1). (2) Time-per-step distribution (mean, median, p90). (3) Step-specific abandonment events (browser close, navigate away, idle >5min). (4) Return-to-wizard rate per step (hosts who abandoned step N and returned within 7 days). Map results to the four-layer model: Steps 1-2 (title, location, property type) = cliche layer; Steps 3 (amenities) = role-playing layer; Steps 4-5 (photos, house rules) = impasse layer; Step 6 (pricing, publish) = death/rebirth layer.",
+      "success_criteria": "Overall wizard completion rate exceeds 70%. No single step has a drop-off rate exceeding 25%. Photo upload step (impasse-layer) has a return-within-7-days rate above 50% for hosts who abandon there. Time-per-step at impasse-layer steps stays under 3 minutes average (lingering indicates unmanaged existential confrontation).",
+      "failure_meaning": "If photo upload drop-off exceeds 25%, the wizard is failing to move hosts through the impasse layer quickly enough. Becker's insight: the host is lingering where they feel 'empty and lost.' The remedy is not motivational copy but structural: reduce the minimum photo requirement, add pre-labeled slots by room type, or allow placeholder photos to be replaced later.",
+      "implementation_hint": "Add analytics events for wizard_step_entered, wizard_step_completed, wizard_step_abandoned (with idle threshold), and wizard_return (host resumes abandoned wizard). Create a step-by-step funnel dashboard with the Perls layer annotations to make the psychological model visible to the product team."
+    },
+    {
+      "id": "tests-2101-002",
+      "type": "validation_strategy",
+      "title": "Pause-to-Reactivation Character Armor Preservation Test",
+      "validates_element": "works-002",
+      "journey_phases": ["listing_creation", "retention"],
+      "problem": "If the pause function does not preserve 100% of the host's character work (photos, descriptions, house rules, pricing), reactivation becomes a re-exposure event -- the host must re-engage with the vulnerability of listing creation rather than simply resuming. Additionally, if pause is not more discoverable and prominent than delete, hosts who need temporary retreat are forced into permanent exit.",
+      "solution": "Track pause-to-delete ratio, pause-to-reactivation rates at 30/60/90 day intervals, and run a data integrity audit on every reactivated listing to confirm zero field degradation.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Pause matters more than delete. Hosts who stop a listing aren't always done with it. Pause preserves the work, keeps the door open, and costs nothing. Delete is a one-way door that creates regret.",
+          "insight": "Rod establishes the behavioral hypothesis: a significant proportion of hosts who exit would return if their investment were preserved. The test verifies this directly."
+        },
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 2",
+          "type": "book",
+          "quote": "Repression is not simply a negative force opposing life energies; it lives on life energies and uses them creatively.",
+          "insight": "Becker predicts that the retreat impulse can be creative rather than destructive. Pause channels the retreat into a productive holding state. The test must verify that this creative channeling actually produces return behavior."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After pause feature deployment: (1) Measure pause-to-delete ratio when both options are offered. (2) Track pause-to-reactivation rate at 30, 60, 90, and 180 days. (3) For every reactivated listing, run automated data integrity check: compare all fields (photos, title, description, amenities, house rules, pricing) against pre-pause snapshot. Flag any field where data != snapshot. (4) Measure permanent deletion rate reduction compared to pre-pause baseline. (5) Track time-from-pause-to-reactivation distribution to understand the natural 'retreat duration.'",
+      "success_criteria": "Pause-to-delete ratio exceeds 3:1 (hosts choose pause 3x more than delete). Pause-to-reactivation rate above 40% within 90 days. 100% data integrity on reactivated listings (zero fields lost or degraded). Permanent listing deletions reduced by 50% compared to pre-pause baseline.",
+      "failure_meaning": "If pause-to-reactivation rate is below 40%, either: (a) the pause mechanism is not discoverable (hosts do not know it exists -- check menu placement), (b) the reactivation path has friction (the 'resume' action is not a single tap), or (c) paused listings are degrading over time (data loss converts pause into soft delete). If data integrity fails on any field, the platform is destroying the character work it promised to preserve -- the most serious possible violation of the pause-as-armor principle.",
+      "implementation_hint": "Ensure pause is the first item in the listing action menu, above delete. Reactivation must be a single-tap action from the listing card on the dashboard. Run automated data integrity checks on every reactivation event. Log all pause/resume/delete actions with timestamps and listing state snapshots."
+    },
+    {
+      "id": "tests-2101-003",
+      "type": "validation_strategy",
+      "title": "Stranger-Vetting Proposal Trust Signal Efficacy Test",
+      "validates_element": "works-003",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the proposal view fails to make the guest's credibility signals (verification badge, review score, stay count) the loudest information, the host's threat-assessment instinct has no structured outlet. The host defaults to uncontained vigilance -- either freezing (no response) or reflexively declining. The trust-first architecture must measurably reduce response time and increase acceptance rate compared to terms-first or undifferentiated layouts.",
+      "solution": "Measure proposal response time, acceptance rate, and counter-offer rate, and correlate with guest credibility signal completeness (verification status, review count, stay count). Compare behavior for proposals from verified guests with history vs. new guests without history.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "When someone who's already used Split Lease applies to a host who's never had a guest, that guest's reputation does the selling. Their history, their reviews, their familiarity with how things work -- it all reduces the host's anxiety.",
+          "insight": "Cross-activation is the testable mechanism: experienced guest history should produce measurably faster response times and higher acceptance rates from hosts, especially first-time hosts."
+        },
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 4",
+          "type": "book",
+          "quote": "He learns to embed himself in other-power, both of concrete persons and of things and cultural commands.",
+          "insight": "The guest's review history IS other-power the host borrows. The test must verify that the presence of this other-power (reviews, stays, verification) produces a measurable behavior change in the host."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "For every proposal, record: (1) Guest credibility score (composite: verification status + review count + stay count + profile completeness). (2) Host response time (notification to first action). (3) Host action taken (accept, counter, decline, no response). (4) Host tenure on platform (first-time vs. experienced). Cross-tabulate: response time by guest credibility score, acceptance rate by guest credibility score, and counter-offer rate by guest credibility score. Segment by host tenure to test the cross-activation hypothesis specifically for new hosts receiving proposals from experienced guests.",
+      "success_criteria": "Proposals from verified guests with 3+ reviews receive host responses within 24 hours at >75% rate. Acceptance rate for high-credibility guests exceeds 55%. First-time hosts accepting proposals from experienced guests show response times within 15% of experienced-host response times (the cross-activation effect closes the experience gap). Counter-offer rate is higher than decline rate for all guest credibility levels (hosts prefer negotiation to rejection when trust signals are present).",
+      "failure_meaning": "If high-credibility guests do not produce faster response times, the trust signals are not visually prominent enough -- the host's threat assessment is not being supported by the information hierarchy. If first-time hosts show significantly slower response times even for experienced guests, the cross-activation mechanism is failing -- likely because the review history and stay count are not positioned above the fold. If decline rate exceeds counter-offer rate, the counter-offer mechanism is not discoverable or the host feels the proposal is unredeemable despite trust signals.",
+      "implementation_hint": "Ensure guest verification badge, review score, and stay count are the first three data points visible in the proposal view (above the fold on mobile). Track eye-tracking or scroll-depth data if available. For new hosts, measure whether the first-proposal contextual guide reduces response time."
+    },
+    {
+      "id": "tests-2101-004",
+      "type": "validation_strategy",
+      "title": "Default-Delegated Pricing Acceptance Pattern Test",
+      "validates_element": "works-004",
+      "journey_phases": ["pricing"],
+      "problem": "If the pricing default is presented with insufficient visual confidence (small type, surrounded by options, competing with adjustment controls), the host reads it as uncertain and enters the self-valuation void that Becker identifies as existentially unbearable. The default must project enough authority to make acceptance the psychologically easy path while preserving genuine adjustment capability for hosts who need it.",
+      "solution": "Track default acceptance rate vs. manual adjustment rate, time-on-pricing-step, adjustment direction (above or below default), and correlation between pricing step behavior and listing completion.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Value before the ask -- always. Any flow that requires users to give information before seeing results will lose most of them. Show something useful first.",
+          "insight": "The pricing default IS the value being shown. The test must verify that the default is perceived as value (something the platform provides) rather than a question (something the platform demands the host answer)."
+        },
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 4",
+          "type": "book",
+          "quote": "Man could strut and boast all he wanted, but he really drew his 'courage to be' from a god, a string of sexual conquests, a Big Brother, a flag, the proletariat, and the fetish of money and the size of a bank balance.",
+          "insight": "The pricing default is the platform offering 'courage to be.' If the host accepts it quickly, they are drawing courage from the platform's authority. If they linger and adjust repeatedly, the authority is insufficient."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) Default acceptance rate (host taps 'Accept this price' without modification). (2) Time-on-pricing-step (distribution for accepters vs. adjusters). (3) Adjustment direction: percentage who adjust above default vs. below. (4) Adjustment magnitude: average percentage change from default. (5) Slider indecision events: hosts who change slider direction 3+ times before confirming. (6) Reset-to-default rate: hosts who adjust and then return to the recommended price. (7) Pricing step drop-off rate. (8) Correlation between pricing behavior and wizard completion (do adjusters complete at the same rate as accepters?).",
+      "success_criteria": "Default acceptance rate exceeds 65%. Average time-on-step for accepters stays under 30 seconds. Pricing step drop-off stays below 15%. Slider indecision events (3+ direction changes) occur in fewer than 10% of adjustment sessions. Reset-to-default rate exceeds 20% of adjusters (indicating the default's authority draws hosts back). Adjusters and accepters complete the wizard at equivalent rates (adjustment does not predict abandonment).",
+      "failure_meaning": "If default acceptance is below 65%, the default is not authoritative enough -- either the number is not visually dominant, the trust line ('Based on X similar rooms') is not credible, or the guaranteed income projection is not anchored to the default. If time-on-step exceeds 90 seconds for accepters, the pricing view has too many competing elements -- the host is evaluating rather than accepting. If slider indecision exceeds 10%, the adjustment range is too wide or the real-time price feedback is insufficient -- the host is lost in self-valuation space. The Becker diagnosis: the platform has failed to provide adequate other-power, and the host must generate courage from their own center.",
+      "implementation_hint": "The pricing card should render with the default already displayed as a hero number (48px equivalent in DM Sans). The 'Accept this price' button should be full-width and visually dominant. The 'Adjust' link should be below and subdued. Track all pricing interactions as a sequenced event stream to reconstruct the host's decision journey."
+    },
+    {
+      "id": "tests-2101-005",
+      "type": "validation_strategy",
+      "title": "Ritual Control Dashboard Engagement and Response Time Test",
+      "validates_element": "works-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the urgency-first dashboard fails to externalize the host's self-preservation instinct, the host either over-monitors (excessive messaging, micromanagement through alternate channels) or under-monitors (misses cleaning photo reviews, ignores date change requests, resulting in unresolved anxiety). The dashboard must be the single source of truth that satisfies the host's constant watchfulness.",
+      "solution": "Track dashboard visit frequency, urgency item response times, host messaging volume (as a proxy for unresolved anxiety), and cleaning photo approval rates and times. Compare dashboard-engaged hosts to low-engagement hosts on lease completion and satisfaction metrics.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Urgency should surface first on the dashboard. Unread proposals, pending actions, incomplete listings -- that's what a host needs to see the moment they log in. Everything else is secondary to what's waiting for them right now.",
+          "insight": "Rod's principle establishes the testable hypothesis: hosts who see urgency items first respond faster and experience less ambient anxiety. The test must verify that dashboard design drives both behavioral responsiveness and emotional equilibrium."
+        },
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 2",
+          "type": "book",
+          "quote": "Such constant expenditure of psychological energy on the business of preserving life would be impossible if the fear of death were not as constant. The very term 'self-preservation' implies an effort against some force of disintegration.",
+          "insight": "The constant self-preservation drive predicts constant dashboard checking. The test must verify that this checking is productive (resolving urgency items) rather than anxious (scrolling without acting). Productive engagement confirms the dashboard is serving its character-armor function."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "During active lease periods, track: (1) Dashboard visit frequency per host per week. (2) Urgency item response time (item appears -> host takes action). (3) Cleaning photo approval time (photos received -> host approves). (4) Host-initiated messaging volume as a percentage of total communication. (5) Date change request response time. (6) 'All caught up' state frequency (how often does the host see an empty urgency stack). (7) Host-initiated early lease termination rate for high-engagement vs. low-engagement dashboard users.",
+      "success_criteria": "Dashboard visit frequency exceeds 3x per week during active lease. Urgency item response time averages under 12 hours. Cleaning photo approval time averages under 24 hours. High-dashboard-engagement hosts (4+ visits/week) show early termination rates below 5% and host satisfaction scores 0.5+ points higher than low-engagement hosts. Host messaging volume decreases after first 3 dashboard-resolved urgency items (learning effect: the dashboard satisfies the monitoring need).",
+      "failure_meaning": "If dashboard visits are low (<2x/week) during active lease, the dashboard is not serving the self-preservation need and hosts are monitoring through other channels (messaging, direct communication, anxiety). If urgency response time exceeds 24 hours, either the notification system is failing or the urgency items are not visually prominent enough on the dashboard. If cleaning photo approval takes >48 hours, the ritual is not being treated as urgent -- the card may be buried below the fold. The Becker diagnosis: the dashboard is failing as a manageable world, and the host's self-preservation instinct has no structured outlet.",
+      "implementation_hint": "The urgency stack must be the first visible content on dashboard load -- no promotional banners, no summary metrics above it. Consider push notifications for cleaning photo arrivals specifically, as these are time-sensitive ritual items. Track the learning effect: do hosts respond faster to their 3rd+ urgency item than their 1st?"
+    },
+    {
+      "id": "tests-2101-006",
+      "type": "validation_strategy",
+      "title": "Cleaning Photo Ritual Restoration Satisfaction Test",
+      "validates_element": "behaves-004",
+      "journey_phases": ["active_lease"],
+      "problem": "The cleaning photo approval ritual is the emotional climax of each stay cycle -- the host confirming their sanctuary survived contact with the stranger. If this ritual feels administrative rather than conclusive, the host's self-preservation anxiety is not discharged, and it accumulates across stay cycles, increasing the risk of lease termination or listing pause.",
+      "solution": "Measure the emotional efficacy of the ritual through behavioral proxies: approval speed (fast approval = ritual is working; delayed = host is anxious), post-approval dashboard check frequency (reduced frequency = anxiety discharged; maintained or increased = anxiety persists), and flag-to-issue ratio (rising flag rates indicate ritual is surfacing real problems vs. anxiety).",
+      "evidence": [
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 2",
+          "type": "book",
+          "quote": "Repression is not simply a negative force opposing life energies; it lives on life energies and uses them creatively.",
+          "insight": "The cleaning photo ritual channels anxiety creatively into a resolvable action. The test must verify that the ritual actually resolves the anxiety (reduces subsequent monitoring) rather than merely providing a checkbox that fails to discharge the underlying tension."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Urgency should surface first on the dashboard.",
+          "insight": "The cleaning photo review moves from urgency (pending) to reassurance (approved). The test must verify that this transition -- from threat-zone to safety-zone -- produces a measurable behavioral change in the host's monitoring pattern."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "For each cleaning photo review event: (1) Measure time from photo receipt notification to host approval. (2) Track whether the host viewed photos in full-screen (engagement depth). (3) Record post-approval dashboard visit frequency for 48 hours (compared to pre-approval frequency for the same period). (4) Track flag rate (percentage of cleaning photo sets flagged vs. approved). (5) Over the course of a lease, measure whether approval speed increases with stay count (ritual learning effect). (6) Correlate cleaning photo ritual engagement (time to approve, full-screen views) with lease renewal rate.",
+      "success_criteria": "Average time-to-approval under 24 hours. Full-screen photo view rate exceeds 60% (hosts are actually examining the space, not rubber-stamping). Post-approval dashboard visit frequency decreases by at least 20% for 48 hours compared to pre-approval (anxiety discharge effect). Approval speed increases with each stay cycle (hosts who approve their 5th cleaning photo set respond faster than their 1st -- ritual confidence builds). Flag rate stays below 10% (most cleaning meets the standard). Hosts who consistently engage in the cleaning photo ritual show 15%+ higher lease renewal rates than hosts who ignore or delay the ritual.",
+      "failure_meaning": "If approval time exceeds 24 hours, the ritual is not surfaced with enough urgency or the cleaning photos are arriving at inconvenient times. If full-screen view rate is below 60%, hosts are rubber-stamping without examining -- the ritual has degraded to a checkbox and is not discharging anxiety. If post-approval monitoring does not decrease, the ritual is not conclusive enough -- the approval action may need a stronger confirmation animation (the border-color transition + haptic + overlay may need refinement). If flag rate exceeds 15%, either cleaning standards are genuinely poor (operational issue) or the ritual is surfacing anxiety that was previously unstructured (information architecture working correctly but revealing a cleaning quality problem).",
+      "implementation_hint": "Surface cleaning photo review as a signal-warn urgency card (not a notification-only item). The 'Approve: Space Restored' button label is critical -- test whether 'Approve' alone produces different engagement than 'Approve: Space Restored' (the 'Restored' framing may drive deeper engagement). Track the haptic pulse as a separate UX experiment on supported devices."
+    },
+    {
+      "id": "tests-2101-007",
+      "type": "validation_strategy",
+      "title": "Pricing Acceptance Animation as Confidence Signal Test",
+      "validates_element": "behaves-005",
+      "journey_phases": ["pricing"],
+      "problem": "The acceptance animation (price scale-up with spring easing + guaranteed income highlight) must make accepting the default feel like a confident embedding in the platform's authority, not a passive click. If the animation is too subtle, the acceptance feels administrative. If it is too dramatic, it draws attention to the magnitude of the decision, piercing the vital lie.",
+      "solution": "A/B test the acceptance animation against a no-animation control. Measure post-acceptance behavior: wizard completion rate, time-to-next-step, and whether hosts return to the pricing step to revise (indicating regret or insufficient confidence at the moment of acceptance).",
+      "evidence": [
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 4",
+          "type": "book",
+          "quote": "We don't want to admit that we do not stand alone, that we always rely on something that transcends us, some system of ideas and powers in which we are embedded and which support us.",
+          "insight": "The acceptance animation is the moment of embedding. If the animation produces a 'stamp of approval' feeling, the host should proceed more confidently and not return to revise. If the animation is missing or insufficient, the host may experience delayed self-doubt."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Value before the ask -- always.",
+          "insight": "The acceptance animation is the final value delivery in the pricing step -- the platform confirming 'your choice is affirmed.' The test must verify that this confirmation actually reduces post-decision anxiety."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "ab_test",
+      "test_description": "Three variants: (A) Full animation -- price scale-up 5% with spring easing (200ms) + guaranteed income highlight (500ms). (B) Minimal animation -- button success state only (green check, 200ms). (C) No animation -- instant transition to next step. Track: (1) Wizard completion rate post-pricing-step. (2) Time between pricing acceptance and next-step engagement (shorter = more confidence). (3) Return-to-pricing rate (host navigates back to pricing step after advancing). (4) Overall listing completion rate for each variant.",
+      "success_criteria": "Variant A (full animation) produces: wizard completion rate at least 5 percentage points higher than Variant C (no animation). Return-to-pricing rate at least 30% lower than Variant C. Time-to-next-step within 2 seconds (not pausing to second-guess). If Variant A outperforms B and C, the spring-easing scale-up contributes measurable confidence.",
+      "failure_meaning": "If no difference between variants, the animation is neither helping nor hurting -- the default's visual authority (hero number, trust line) is doing the confidence work regardless of the acceptance moment. If Variant A shows higher return-to-pricing rate, the animation may be drawing too much attention to the decision, making the host more conscious of what they just accepted. If Variant B (minimal) outperforms A (full), the spring-easing may feel patronizing or theatrical -- scale back to the minimal confirmation.",
+      "implementation_hint": "Run this test only after the pricing default visual is finalized (hero number, trust line, guaranteed income). The animation test is a refinement layer on top of the visual authority that should already be established."
+    },
+    {
+      "id": "tests-2101-008",
+      "type": "validation_strategy",
+      "title": "Immortality-Project Legacy Summary Retention Efficacy Test",
+      "validates_element": "works-006",
+      "journey_phases": ["retention"],
+      "problem": "If the Legacy Summary fails to provide adequate narcissistic supply -- evidence that the host's vulnerability produced meaningful contribution -- the host defaults to raw memory of hosting (anxiety, stranger-intrusion, control negotiations) and the vital lie cannot be rebuilt around continued hosting. The retention rate directly measures whether the legacy framing converts completed-lease anxiety into recommitment motivation.",
+      "solution": "Present the Legacy Summary at lease completion and measure re-listing rate, re-listing speed, and engagement with the summary (scroll depth, time on page, review snippet expansion). Compare against a control that shows a standard 'Lease complete' notification without the legacy narrative.",
+      "evidence": [
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 4",
+          "type": "book",
+          "quote": "The irony of man's condition is that the deepest need is to be free of the anxiety of death and annihilation; but it is life itself which awakens it, and so we must shrink from being fully alive.",
+          "insight": "Retention is the test of sustained aliveness. The Legacy Summary must make the host's vulnerability feel meaningful enough to sustain. The re-listing rate directly measures whether this meaning-making succeeds."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Pause matters more than delete. Hosts who stop a listing aren't always done with it.",
+          "insight": "At the retention moment, the Legacy Summary should increase the re-list rate AND the pause rate while decreasing the delete rate. Both re-listing and pausing indicate the host values their hosting identity; only deletion indicates identity rejection."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "ab_test",
+      "test_description": "Two variants: (A) Full Legacy Summary (income hero number, guests welcomed count, months of housing provided, review snippets, re-list CTA, pause option). (B) Standard completion notification ('Your lease with [Guest Name] has ended. Would you like to re-list?'). Track: (1) Re-listing rate within 30, 60, 90 days. (2) Pause rate (host pauses rather than deletes or ignores). (3) Delete rate. (4) Time from lease end to re-listing action. (5) Legacy Summary engagement: scroll depth, time on page, review snippet expansion rate. (6) Host satisfaction score at 30 days post-lease.",
+      "success_criteria": "Variant A (Legacy Summary) produces: re-listing rate at least 15 percentage points higher than Variant B within 90 days. Pause-to-delete ratio exceeds 4:1 (Variant A) vs. 2:1 (Variant B). Average time to re-list is under 14 days for Variant A. Scroll depth on Legacy Summary exceeds 80% (hosts read the full narrative). Review snippet expansion rate exceeds 40% (hosts engage with guest validation). Overall retention rate (re-list + pause) exceeds 75% for Variant A.",
+      "failure_meaning": "If the Legacy Summary does not increase re-listing rate, the narrative framing is not providing adequate narcissistic supply. Possible causes: the income number does not feel impressive enough, the 'guests welcomed' framing does not resonate, or the review snippets are not sufficiently positive. If scroll depth is low (<60%), the page is too long or the hero income number is not compelling enough to motivate further reading. If pause-to-delete ratio is not improved, the legacy framing is not shifting the host's identity-level self-concept toward 'I am a host.'",
+      "implementation_hint": "The Legacy Summary should appear as a full-screen interstitial after the final lease closes -- not as an email or notification. The host should encounter it naturally when they next open the app after lease end. The income hero number should be the first element visible without scrolling. Ensure the re-list CTA is below the review snippets, not above -- the host must absorb validation before being asked to recommit."
+    },
+    {
+      "id": "tests-2101-009",
+      "type": "validation_strategy",
+      "title": "Cross-Phase Armor Fragmentation Cascade Continuity Test",
+      "validates_element": "L0 cross_phase_patterns: The Armor Fragmentation Cascade",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "The Becker lens reveals that the host journey is a carefully sequenced armor-shedding cascade: each phase removes one layer of defense while simultaneously providing a platform-mediated replacement. If any phase fails to provide the replacement defense before removing the existing one, the host drops out. This cross-phase test validates the cascade as a whole rather than individual elements.",
+      "solution": "Map the complete host funnel from discovery to retention and identify phase-to-phase transition points where drop-off spikes. Correlate drop-off spikes with the presence or absence of replacement defense mechanisms (value demonstration, saved state, agent introduction, verification infrastructure, pricing defaults, trust signals, ritual cadence, legacy narrative).",
+      "evidence": [
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 4",
+          "type": "book",
+          "quote": "The defenses that form a person's character support a grand illusion, and when we grasp this we can understand the full drivenness of man.",
+          "insight": "The grand illusion must be maintained across all eight phases. A single phase where the illusion breaks (host confronts the raw reality of what hosting entails without adequate replacement defense) predicts a drop-off spike."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Value before the ask -- always.",
+          "insight": "Every phase transition is an ask (lower your defenses further) that must be preceded by a value (here is your replacement defense). The funnel reveals where this contract is being violated."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Build a complete 8-phase host funnel with phase-to-phase continuation rates: (1) Discovery -> Evaluation (engagement signal). (2) Evaluation -> Onboarding (signup). (3) Onboarding -> Listing Creation (wizard start). (4) Listing Creation -> Pricing (wizard pricing step). (5) Pricing -> Live Listing (publish). (6) Live Listing -> First Proposal Response (proposal engagement). (7) First Proposal -> Active Lease (acceptance). (8) Active Lease -> Retention Decision (lease completion). At each transition, log whether the replacement defense mechanism fired before the next demand: value demonstration before signup, agent introduction before wizard, saved state before photos, pricing default before publish, trust signals before proposal decision, ritual cadence before lease stabilization, legacy narrative before retention decision.",
+      "success_criteria": "No single phase-to-phase transition has a continuation rate below 50%. The three highest-risk transitions identified by the Becker lens (Evaluation -> Onboarding, Listing Creation -> Pricing, and Proposal Management -> Active Lease) each show replacement defense mechanisms firing before the transition demand. Overall funnel completion (Discovery -> Active Lease) exceeds 15%. Retention decision (re-list or pause vs. delete or churn) exceeds 65%.",
+      "failure_meaning": "A transition with continuation rate below 50% indicates the armor-shedding cascade has broken at that point -- the host's existing defense has been removed (they have exposed themselves to the next level of vulnerability) without an adequate replacement being provided by the platform. The Becker diagnosis: the host is at Perls' impasse layer ('empty and lost') at that transition point. The fix is not better copy or faster flows but a structural intervention: what replacement defense is the platform failing to provide at this transition?",
+      "implementation_hint": "This is a macro-level funnel test that requires instrumentation across the entire host journey. Start by building the 8-phase funnel with existing analytics and identify the weakest transitions. Then instrument the replacement defense mechanisms at those transitions specifically. The Becker framework predicts which transitions are highest-risk, allowing targeted instrumentation rather than boiling the ocean."
+    },
+    {
+      "id": "tests-2101-010",
+      "type": "validation_strategy",
+      "title": "Pause/Resume Toggle Frictionlessness and Boundary Respect Test",
+      "validates_element": "behaves-003",
+      "journey_phases": ["listing_creation", "retention"],
+      "problem": "The pause/resume toggle must feel like flipping a light switch -- instant, reversible, undramatic. If the pause action includes any friction (confirmation modals, reason-collection forms, 'Are you sure?' prompts), it forces the host to confront the retreat decision they are trying to avoid, amplifying the anxiety the pause is designed to relieve. The test must verify that pause is truly frictionless and that the platform respects the host's boundary without interrogation.",
+      "solution": "Measure pause action completion time (tap to confirmed state), abandonment during pause flow (any point where the host starts to pause but does not complete), and host sentiment signals post-pause (does the host engage with re-engagement emails, does the host return organically).",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Pause preserves the work, keeps the door open, and costs nothing.",
+          "insight": "If the pause action has any psychological cost (forced explanation, confrontation with consequences), it is no longer 'costing nothing.' The test must verify zero-cost pause."
+        },
+        {
+          "source": "becker-terror-vital-lie.txt, Ch. 2",
+          "type": "book",
+          "quote": "Repression is not simply a negative force opposing life energies; it lives on life energies and uses them creatively.",
+          "insight": "Creative repression requires instant, unquestioned retreat. Any interrogation of the retreat converts creative repression into forced confrontation, which is the opposite of the intended psychological effect."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) Time from pause tap to confirmed paused state (should be <500ms including desaturation animation). (2) Pause flow abandonment rate (host taps pause but does not complete -- this should be near zero if there are no intermediate steps). (3) Whether any confirmation modal fires during pause (it should not, unless active proposals exist). (4) Time from pause to first re-engagement email. (5) Organic return rate (host returns to dashboard without email prompt). (6) For the active-proposal edge case: measure whether the inline alert ('You have X open proposals. Pausing will auto-decline them') produces pause abandonment vs. pause completion.",
+      "success_criteria": "Pause action completes in under 500ms. Pause flow abandonment rate is below 2% (essentially zero friction). No confirmation modal fires during standard pause (no active proposals). First re-engagement email does not send before 45 days post-pause (boundary respect). Organic return rate within 90 days exceeds 25% (hosts who paused return on their own terms). For the active-proposal edge case: the inline alert produces pause completion (not abandonment) in at least 70% of cases -- the host's retreat intention is stronger than the proposal concern.",
+      "failure_meaning": "If pause action takes >500ms, there is unexpected friction in the flow (a modal, a loading state, or a multi-step process). If abandonment rate exceeds 2%, something is interrupting the pause -- likely an unintended confirmation dialog. If re-engagement email sends before 45 days, the platform is not respecting the retreat boundary, which undermines trust and reduces future pause-to-return rates. If active-proposal alert causes >30% pause abandonment, the alert is too alarming -- consider making it a non-blocking notification with an undo window instead.",
+      "implementation_hint": "The pause action should be a single-tap state change with no intermediate UI. The only exception is the active-proposal case, which should be a non-blocking notification, not a blocking modal. Time the re-engagement email cadence carefully: 45 days (first touch), 75 days (second touch), no further contact. Each email should be brief and warm: 'Your listing is saved. Resume anytime.'"
+    }
+  ]
+}

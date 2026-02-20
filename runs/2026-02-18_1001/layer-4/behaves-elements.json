@@ -1,0 +1,253 @@
+{
+  "lens": {
+    "guest_call": "Tyler Wood 24 November 2021.txt",
+    "book_extract": "hooked-hook-model.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Real-Time Match Feedback on Day Selection Toggle",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "Tyler's flexibility on days is the key to matching. In the call, the agent had to ask Tyler multiple questions over several minutes to understand his flexibility, then mentally compute which listings might match. On the platform, when the guest toggles a day chip, there should be immediate visual feedback showing how the change affects available matches and pricing. Without real-time feedback, the guest is operating blind — toggling days with no understanding of the impact. Eyal's Action phase (Ch 3) requires immediate feedback to complete the hook cycle's action step.",
+      "solution": "When the guest interacts with the day-of-week selector: (1) Each chip toggle triggers an immediate (under 200ms) update to the results count and listing order. (2) The update should be optimistic — show the new count immediately with a subtle loading indicator while the actual query completes. (3) If adding a 'flexible' day reveals new listings, animate them in with a gentle slide-down (300ms, ease-out). (4) If removing a day eliminates listings, fade them out (200ms) with a count indicator: 'Removing Friday hides 2 listings.' (5) Price updates on visible listings should animate numerically (counter transition) to draw attention to the change. The interaction should feel like a mixing board — each toggle produces an immediate, visible, and reversible change.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 18:13",
+          "type": "guest_call",
+          "quote": "That sounds much better because now I have something to work with.",
+          "insight": "The agent's 'aha' moment when Tyler expanded flexibility took 10 minutes of conversation. On the platform, this insight should be instant — toggle a day, see the results change."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 3 (Action)",
+          "type": "book",
+          "quote": "The simple action of clicking on the interesting picture in her newsfeed takes Barbra to a website called Pinterest.",
+          "insight": "Simple actions with immediate results drive engagement. Day chip toggling must be as responsive and rewarding as Pinterest's infinite scroll discovery."
+        },
+        {
+          "source": "Tyler Wood call, 16:38-17:44",
+          "type": "guest_call",
+          "quote": "Multiple exchanges exploring Sunday-Wednesday vs Sunday-Thursday vs Saturday-Wednesday flexibility.",
+          "insight": "The guest explored multiple day combinations verbally. The platform should let them explore these combinations visually with instant feedback for each variation."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Day chips show the guest's current selection. Results show listings matching current selection. Match counts are visible.",
+        "loading": "Optimistic update: show new count immediately. Subtle pulse animation on the results count while actual query runs. Never show a spinner for day toggles — the perceived response must be instant.",
+        "empty": "If no listings match the selected days: 'No exact matches for Sat-Wed in Chelsea. Try adding Thursday or expanding to Midtown.' Suggest specific day additions that would reveal results.",
+        "error": "If the query fails, keep the previous results visible with a subtle error toast: 'Couldn't update results. Showing previous matches.' Auto-retry in background.",
+        "success": "New listings animate in with slide-down. Removed listings fade out. Match count updates with a brief highlight pulse (200ms)."
+      },
+      "transition_principle": "Every day chip toggle should feel like adjusting a dial — smooth, continuous, and reversible. No page reloads, no modal confirmations. The guest should be able to tap multiple chips in rapid succession and see results update fluidly.",
+      "timing": {
+        "response_target": "Under 200ms for UI update (optimistic). Under 800ms for actual query result. Under 300ms for animation of new/removed listings.",
+        "easing": "ease-out for listing entrance animations. ease-in for listing removal. No easing on count updates (instant).",
+        "rationale": "Eyal's Action phase requires minimal delay between action and reward. 200ms is the threshold for feeling 'instant.' The optimistic update ensures this threshold is met even if the backend is slower."
+      },
+      "journey_state_awareness": "Early in search (few requirements set): show broad results with match scoring. During listing evaluation (viewing a specific listing): show availability calendar for that listing only. During proposal creation: lock days and show price confirmation.",
+      "edge_cases": [
+        "Guest toggles all days off — show helpful empty state, not an error",
+        "Guest selects days that conflict with each other (e.g., Saturday AND Sunday in a Mon-Fri listing) — show the conflict visually on the listing card",
+        "Slow network — optimistic update must hold until real data arrives, then reconcile smoothly",
+        "Multiple rapid toggles — debounce backend queries but update UI immediately for each toggle"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "One-Tap Weekly Check-In with Progressive Enhancement",
+      "journey_phases": ["active_lease"],
+      "problem": "Tyler's weekly stay cycle requires a check-in action. Currently, guests notify hosts via text message ('I'm arriving at 3pm'). The platform must make check-in faster and easier than sending a text — otherwise the guest will default to the lower-friction option. Eyal's Hook Model (Ch 3) shows that the action must be simpler than any alternative. A text message takes about 10 seconds. Platform check-in must take under 5 seconds.",
+      "solution": "Design a one-tap check-in that progressively enhances with optional details: (1) DEFAULT ACTION: Single tap on the 'Check In' button in the This Week's Stay card confirms arrival. The host receives an instant notification: 'Tyler has checked in for his Saturday stay.' Zero text input required. (2) PROGRESSIVE ENHANCEMENT: After tapping, an optional expansion shows: estimated arrival time (quick-select chips: 'Morning', 'Afternoon', 'Evening'), and a free-text note field. These are optional — the one-tap action is complete even without them. (3) LOCATION AWARENESS: If the guest grants location permission, the check-in can auto-trigger when they're near the space: 'Looks like you're near your Chelsea space. Check in?' (4) HAPTIC FEEDBACK: On mobile, the check-in tap produces a subtle haptic confirmation (a soft 'thud' feeling). This multisensory feedback makes the action feel complete and satisfying.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, full call",
+          "type": "guest_call",
+          "quote": "Call demonstrates that Tyler will commute weekly from California to NYC. Each arrival is a potential check-in moment.",
+          "insight": "The weekly arrival is the most predictable and frequent action in the guest journey. It's the ideal hook cycle action point."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 3 (Action)",
+          "type": "book",
+          "quote": "Six elements of simplicity: time, money, physical effort, brain cycles, social deviance, non-routine.",
+          "insight": "One-tap check-in scores perfectly: minimal time (1 second), no money, no physical effort, zero brain cycles (no text to compose), socially expected, and becomes routine after 2-3 uses."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 5 (Investment)",
+          "type": "book",
+          "quote": "The investment occurs when the user puts something into the product.",
+          "insight": "Each check-in is a micro-investment: it stores arrival data, builds the guest's reliability score, and loads the next trigger (end-of-stay cleanup prompt)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "This Week's Stay card shows 'Check In' button in prominent purple gradient. The button includes the date: 'Check In — Saturday Dec 6'.",
+        "loading": "Button immediately changes to a checkmark animation (200ms). The loading state IS the success state visually — optimistic UI. Background confirmation runs silently.",
+        "empty": "No upcoming stay this week: card shows 'No stay scheduled this week' with option to add dates or view next scheduled stay.",
+        "error": "If check-in fails to send: subtle toast with 'Couldn't confirm check-in. Tap to retry.' The button reverts to its original state. Previous successful check-ins are not affected.",
+        "success": "Button transforms to a green-purple check state: 'Checked In ✓ Saturday Dec 6'. Host notification sent. Optional enhancement fields slide down below the card (arrival time chips, note field)."
+      },
+      "transition_principle": "The check-in action should feel like a gentle 'lock' — one tap and it's done. The button transform from 'Check In' to 'Checked In' should feel final and satisfying, not tentative. The progressive enhancement (arrival time, notes) should slide down gently, not pop up as a modal.",
+      "timing": {
+        "response_target": "Under 100ms for visual button state change (optimistic). Under 500ms for host notification delivery. Under 300ms for progressive enhancement slide-down.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) for button state transition (fast start, gentle settle). ease-out for progressive enhancement slide.",
+        "rationale": "The check-in must feel instant and final. The 100ms visual change creates the perception of immediate response. The progressive enhancement is a reward, not a requirement, so it can take slightly longer."
+      },
+      "journey_state_awareness": "First stay: show a brief explainer tooltip: 'Tap to let Nina know you've arrived.' Subsequent stays: no tooltip, just the button. After 3+ stays: consider auto-triggering check-in prompt via push notification when near the space.",
+      "edge_cases": [
+        "Guest taps check-in hours before arrival — valid, the system should allow early check-in notification",
+        "Guest forgets to check in — send a gentle reminder 2 hours after typical arrival time, not an alarming notification",
+        "Guest arrives on a different day than scheduled — show a confirmation: 'Your stay was scheduled for Saturday. Checking in on Friday instead?'",
+        "Double-tap prevention — disable button immediately after first tap to prevent duplicate check-ins"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "End-of-Stay Cleaning Photo Capture with Guided Flow",
+      "journey_phases": ["active_lease"],
+      "problem": "Tyler agreed to self-cleaning in exchange for the other person cleaning for him. This reciprocal arrangement requires documentation — cleaning photos prove the space was left in good condition. Currently, this would be handled via text messages with photos. The platform must make photo capture faster and more structured than texting, while also creating stored value (investment) that improves future stays. Eyal's Investment principle (Ch 5) shows that the effort of taking and uploading photos increases the guest's commitment to the platform.",
+      "solution": "Design a guided end-of-stay flow triggered when the guest's departure day arrives: (1) TRIGGER: Push notification on departure morning: 'Heading out? Snap a quick photo to show the space is clean.' (2) ACTION: In-app camera opens with guided overlay showing suggested angles (kitchen counter, bathroom, main room). Quick-capture: tap once per room, 3 photos total. (3) VARIABLE REWARD: After submitting photos, show the guest's cleaning streak: 'Great! 3 stays, 3 clean departures. Your host appreciates it.' This is a 'reward of the self' — mastery and completion. (4) INVESTMENT: Photos are stored in the stay history, building a visual record that protects the guest in case of disputes and builds their reputation score.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 13:53",
+          "type": "guest_call",
+          "quote": "You would be kind of cleaning after yourself for the person, that person would be cleaning for you.",
+          "insight": "The cleaning exchange is a bilateral agreement that needs documentation. Photos serve as proof, trust-building, and platform investment."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 5 (Investment)",
+          "type": "book",
+          "quote": "The investment phase increases the odds that the user will make another pass through the hook cycle in the future.",
+          "insight": "Each set of cleaning photos is an investment that: (a) stores value in the platform (photo history), (b) loads the next trigger (host review), and (c) increases switching costs (reputation built here doesn't transfer)."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 4 (Variable Reward)",
+          "type": "book",
+          "quote": "Rewards of the self: the search for sensory pleasure, mastery, completion, and competence.",
+          "insight": "A cleaning streak counter provides self-reward: 'I'm a responsible guest' feeling reinforces the habit of documenting each departure."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "On departure day, the This Week's Stay card transforms to show: 'Departure day — upload cleaning photos when you leave.'",
+        "loading": "Photo upload shows a progress bar per photo. Each completed upload gets a small checkmark. The flow does not block — the guest can continue using the app while photos upload in background.",
+        "empty": "If the guest skips photos: gentle reminder 4 hours after typical departure. 'Did you forget to upload cleaning photos? You can still add them.' No penalty, just a nudge.",
+        "error": "Photo upload failure: 'One photo didn't upload. Tap to retry.' Save photos locally and retry automatically when connection improves.",
+        "success": "All photos uploaded: brief celebration animation (subtle checkmark confetti). Show cleaning streak. Transition to one-tap micro-review prompt: 'How was your stay this week?'"
+      },
+      "transition_principle": "The flow should feel like a natural conclusion to the stay, not an administrative task. The trigger (notification) → action (3 photos) → reward (streak) → investment (stored photos) mirrors the Hook Model exactly. Each step flows into the next without navigation.",
+      "timing": {
+        "response_target": "Under 100ms for camera launch. Under 2 seconds per photo upload (background). Under 300ms for streak animation.",
+        "easing": "ease-out for checkmark animations. cubic-bezier(0.34, 1.56, 0.64, 1) for celebration animation (slightly bouncy to feel rewarding).",
+        "rationale": "Photos are the most effortful action in the weekly cycle. Fast upload and immediate visual confirmation reduce perceived effort."
+      },
+      "journey_state_awareness": "First stay: show guided overlay with suggested angles and brief explanation. Second stay: show overlay but dimmed. Third stay onward: no overlay, just the camera. The flow adapts to the guest's experience level.",
+      "edge_cases": [
+        "Guest departs early or at an unusual time — notification timing should be flexible, not locked to a specific hour",
+        "Guest wants to add a note with photos (e.g., 'Left the dishes drying on the rack') — provide optional text field",
+        "Multiple photos of the same room — allow unlimited captures, suggest minimum of 3",
+        "Guest has no photos to upload (forgot to take them) — allow skip with a note: 'No photos this time. Your host will be notified.'"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Date Exception Quick-Modify with Instant Financial Feedback",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "Tyler needs to skip 3-4 nights before Christmas and may want to extend beyond January. Currently, these modifications require contacting the agent who then negotiates with the host. The Date Change Tool exists in the journey map but its interaction pattern must be designed to be faster than texting the host. Eyal's Action phase (Ch 3) and the six simplicity factors require the modification to be achievable in under 15 seconds with zero mental math.",
+      "solution": "Design a 'This Week Is Different' quick-modify flow accessible from the active lease dashboard: (1) TRIGGER: A persistent 'Modify' link on the This Week's Stay card, or a proactive prompt when approaching a holiday: 'Christmas week is coming up. Will your schedule be different?' (2) ACTION: Show the week's days as tappable chips (same visual pattern as search). Tap to toggle days on/off. Each toggle immediately shows the financial impact: 'Removing Tue-Wed saves $110 this week.' (3) VARIABLE REWARD: Show the host's response status in real-time: 'Nina approved your change' or 'Nina will review by tomorrow.' Fast responses feel rewarding. (4) INVESTMENT: Each modification is stored in the lease history, building a record of flexibility that benefits both parties.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 08:50",
+          "type": "guest_call",
+          "quote": "I'm going to be traveling for like three or four nights before Christmas.",
+          "insight": "Holiday exceptions are predictable and should be handled proactively. The system should prompt the guest before the exception week, not wait for them to remember."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 3 (Action)",
+          "type": "book",
+          "quote": "Six elements of simplicity: time, money, physical effort, brain cycles, social deviance, non-routine.",
+          "insight": "Quick-modify must be fast (under 15s), show money impact (no mental math), require no physical effort beyond tapping, use zero brain cycles (visual day chips, not text entry), feel socially normal (both parties expect flexibility), and feel routine (same UI as search day selector)."
+        },
+        {
+          "source": "Tyler Wood call, 08:09",
+          "type": "guest_call",
+          "quote": "At least December and January, possibly more.",
+          "insight": "Open-ended lease requires easy extension. The same quick-modify pattern should include 'Add another month' as a one-tap action."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Week view shows scheduled days. 'Modify' link is subtle but always visible.",
+        "loading": "After submitting a change: day chips lock with a subtle pulse. 'Sending to Nina...' message appears. If host auto-approval is enabled, resolve immediately.",
+        "empty": "No changes needed: the default state. 'This week looks good' passive confirmation.",
+        "error": "Change couldn't be sent: 'Couldn't submit your change. Your schedule is unchanged. Tap to retry.'",
+        "success": "Change approved: chips update to reflect new schedule. Financial summary updates: 'Updated: 3 nights this week ($165). Saved $110 from removing Tue-Wed.' Brief success animation."
+      },
+      "transition_principle": "The modification flow should feel like editing a simple list, not submitting a formal request. Toggle days, see impact, confirm. The flow stays on the same screen — no navigation, no modals for simple changes.",
+      "timing": {
+        "response_target": "Under 200ms for financial impact calculation. Under 500ms for change submission. Host notification delivered within 1 second of submission.",
+        "easing": "ease-out for financial impact number transition (counter animation). No easing on chip toggle — instant state change.",
+        "rationale": "Financial feedback must be perceived as instant — the guest needs to see the dollar impact before deciding whether to confirm the change."
+      },
+      "journey_state_awareness": "First modification: show a brief explainer: 'Need to change your schedule? Toggle days and we'll handle the rest.' Subsequent modifications: no explainer. Holiday weeks: proactive prompt appears automatically.",
+      "edge_cases": [
+        "Guest tries to remove all days for a week — interpret as 'skip this week' and show full-week savings",
+        "Guest adds a day that's already taken by another guest — show conflict immediately with alternative suggestion",
+        "Host rejects the change — show rejection with host's reason and suggest alternatives: 'Nina needs Wednesday occupied. Could you keep Wednesday and remove Tuesday instead?'",
+        "Multiple changes in same week — batch all toggles into a single submission with one confirmation"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Preference Profile Auto-Build from First Interaction",
+      "journey_phases": ["discovery", "search", "proposal_creation"],
+      "problem": "Tyler provided all his preferences verbally in a 15-minute call. The platform captured none of it. Eyal's Investment principle (Ch 5) shows that stored preferences are investments that load the next trigger and reduce future action effort. The interaction pattern must auto-build a preference profile from the guest's first actions on the platform — without requiring explicit 'set up your profile' steps.",
+      "solution": "Capture preferences implicitly through every guest action: (1) When the guest arrives from an external listing (Craigslist): auto-populate location preference from the listing's location. 'Looks like you're interested in Chelsea.' (2) When the guest interacts with the day selector: store their day pattern as their preferred schedule. (3) When the guest views pricing: infer budget range from their selected listings. (4) After each interaction, show the growing profile: 'What we know about you: Chelsea, Sat-Wed, ~$2,000/mo.' (5) Allow one-tap corrections: 'Not quite right? Tap to adjust.' The profile builds passively — the guest never fills out a profile form, yet after 3-4 interactions they have a complete preference set.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 05:47-14:41",
+          "type": "guest_call",
+          "quote": "Agent extracts all preferences through conversational questions across 10 minutes.",
+          "insight": "The agent builds a preference profile through conversation. The platform must build the same profile through implicit observation of guest actions."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 5 (Investment)",
+          "type": "book",
+          "quote": "Every email sent and received using Google's Gmail is stored indefinitely, providing users with a lasting repository of past conversations.",
+          "insight": "Gmail auto-builds value through normal use — no explicit 'save this email' action. The preference profile must work the same way: auto-build through normal search and browsing actions."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 1 (Habit Zone)",
+          "type": "book",
+          "quote": "Users also increase their dependency on habit-forming products by storing value in them — further reducing the likelihood of switching to an alternative.",
+          "insight": "A preference profile that took 3-4 interactions to build is a switching cost. The guest won't want to rebuild it on another platform."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "No profile yet. First-time visitor sees a blank search with day selector and location input.",
+        "loading": "Profile updating: subtle shimmer on the profile strip as new data is inferred from the guest's current action.",
+        "empty": "First visit with no data: 'Tell us what you're looking for' with the day selector and location input as the first action.",
+        "error": "Inference incorrect: guest taps 'Not quite right' and corrects. The correction is stored immediately.",
+        "success": "Profile populated: compact strip shows preferences. 'Your search: Chelsea | Sat-Wed | ~$2,000/mo | 2+ months.' Each parameter is tappable for inline editing."
+      },
+      "transition_principle": "Profile building should feel invisible — the guest doesn't realize they're creating a profile until it's shown to them. The moment of revelation ('Here's what we know about you') should feel helpful, not surveillance-like.",
+      "timing": {
+        "response_target": "Profile inference happens within 200ms of each significant action (day selection, listing view, location entry). Profile display updates within 300ms.",
+        "easing": "ease-out for profile strip appearance (slides in from top on first population). No animation for subsequent updates — just instant text changes.",
+        "rationale": "Profile building is background work. It should not interrupt the guest's primary task (searching, evaluating). Updates are subtle, not attention-grabbing."
+      },
+      "journey_state_awareness": "Discovery: capture source listing context (location, price). Search: capture day pattern, budget range, amenity preferences. Listing evaluation: capture space type preference (room vs apartment), bathroom requirement. Proposal creation: profile is complete and pre-fills the proposal form.",
+      "edge_cases": [
+        "Guest arrives with no context (direct URL, no Craigslist referral) — start with blank profile, build from first actions",
+        "Guest changes preferences significantly between sessions — update the profile and show what changed: 'Updated: you're now looking at Midtown instead of Chelsea.'",
+        "Guest hasn't provided enough data for meaningful inference — don't show the profile strip until at least 2 parameters are captured",
+        "Privacy-conscious guest — provide clear 'Clear my search data' option"
+      ]
+    }
+  ]
+}

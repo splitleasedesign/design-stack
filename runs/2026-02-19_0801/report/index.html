@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Stack v2 Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --surface-warm: #fdfcfa;
+      --ink: #1a1714;
+      --ink-soft: #4a4640;
+      --ink-muted: #8a857e;
+      --ink-ghost: #bdb8b0;
+      --accent: #2d5a3d;
+      --accent-light: #e8f0eb;
+      --accent-bright: #3a7a52;
+      --signal-warn: #c17a28;
+      --signal-warn-bg: #fef3e2;
+      --signal-danger: #b83a3a;
+      --signal-danger-bg: #fde8e8;
+      --signal-info: #2d5a8a;
+      --signal-info-bg: #e8f0fa;
+      --signal-success: #2d5a3d;
+      --signal-success-bg: #e8f0eb;
+      --border: #e2dfd9;
+      --border-strong: #ccc8c0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
+      --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+
+    /* Header */
+    .report-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .report-header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; margin-bottom: 4px; }
+    .report-header .lens-label { font-size: 16px; color: var(--ink-soft); margin-bottom: 12px; }
+    .report-meta { display: flex; gap: 24px; flex-wrap: wrap; color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-complete { background: var(--accent-light); color: var(--accent); }
+    .badge-partial { background: var(--signal-warn-bg); color: var(--signal-warn); }
+
+    /* Coherence Alert Bar */
+    .coherence-bar { background: var(--signal-warn-bg); border-bottom: 1px solid rgba(193,122,40,0.2); padding: 10px 40px; font-size: 13px; color: var(--signal-warn); display: none; align-items: center; gap: 12px; }
+    .coherence-bar.has-flags { display: flex; }
+    .coherence-bar .count { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+
+    /* Tab Nav */
+    .tab-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+    .tab-nav button { background: none; border: none; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms var(--ease-out); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .tab-nav button:hover { color: var(--ink-soft); }
+    .tab-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-nav button .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-deep); font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--ink-muted); }
+    .tab-nav button.active .layer-num { background: var(--accent); color: white; }
+
+    /* Main */
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+    .tab-panel { display: none; animation: fadeIn 300ms var(--ease-out); }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Element Card */
+    .element-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .element-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .element-card-header h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; flex: 1; min-width: 200px; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .type-process_pattern { background: #e8f0fa; color: #2d5a8a; }
+    .type-info_architecture { background: #f0e8fa; color: #6a2d8a; }
+    .type-visual_pattern { background: #fae8f0; color: #8a2d5a; }
+    .type-interaction_pattern { background: #faf0e8; color: #8a5a2d; }
+    .type-emotional_element { background: #e8faf0; color: #2d8a5a; }
+    .type-validation_strategy { background: var(--bg-deep); color: var(--ink-soft); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+    .priority-high { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Phase Tags */
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'IBM Plex Mono', monospace; background: var(--accent-light); color: var(--accent); }
+
+    /* Problem/Solution */
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .ps-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px; }
+    .ps-box.problem { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .ps-box.solution { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .ps-box label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+    @media (max-width: 700px) { .ps-grid { grid-template-columns: 1fr; } }
+
+    /* Evidence */
+    .evidence-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; color: var(--ink-muted); transition: all 150ms; }
+    .evidence-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .evidence-list { display: none; margin-top: 12px; }
+    .evidence-list.open { display: block; }
+    .evidence-item { padding: 10px 14px; margin: 6px 0; background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+    .evidence-item .source { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+    .evidence-item .quote { color: var(--ink-soft); font-style: italic; }
+    .evidence-item .insight { color: var(--ink); margin-top: 4px; }
+
+    /* Layer-specific fields */
+    .extra-fields { margin-top: 16px; display: grid; gap: 8px; }
+    .extra-field { font-size: 13px; }
+    .extra-field label { font-weight: 600; color: var(--ink-soft); font-size: 12px; }
+    .extra-field .value { color: var(--ink); }
+
+    /* Coherence sections */
+    .coherence-section { margin-bottom: 28px; }
+    .coherence-section h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 12px; }
+    .reinforcement-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-success-bg); border-left: 4px solid var(--signal-success); font-size: 14px; }
+    .contradiction-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-danger-bg); border-left: 4px solid var(--signal-danger); font-size: 14px; }
+    .extension-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-info-bg); border-left: 4px solid var(--signal-info); font-size: 14px; }
+    .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+    /* Coverage Map */
+    .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .coverage-cell { padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border); }
+    .coverage-cell .phase-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; }
+    .coverage-cell .count { font-size: 24px; font-weight: 700; }
+    .coverage-cell .level { font-size: 11px; color: var(--ink-muted); }
+    .coverage-none { background: var(--signal-danger-bg); }
+    .coverage-thin { background: var(--signal-warn-bg); }
+    .coverage-moderate { background: var(--signal-info-bg); }
+    .coverage-strong { background: var(--signal-success-bg); }
+
+    /* Journey Context phase cards */
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 12px; }
+    .phase-card h4 { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .phase-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+    .phase-card .risk { font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 6px; }
+    .risk-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .risk-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .risk-medium { background: var(--signal-info-bg); color: var(--signal-info); }
+    .risk-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Responsive + Print */
+    @media (max-width: 768px) { .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; } }
+    @media print { .tab-nav, .coherence-bar { display: none; } .tab-panel { display: block !important; page-break-inside: avoid; } body { background: white; } }
+  </style>
+</head>
+<body>
+
+  <!-- Data injection points -->
+  <!-- INJECT:run-config -->
+  <script id="run-config" type="application/json">{
+  "run_id": "2026-02-19_0801",
+  "process_type": "design-stack",
+  "journey_type": "guest",
+  "lens": {
+    "call_file": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt",
+    "book_chapters": "Forms, Buttons, Components: Action Hierarchy, Semantics, Form Design, Tables, Dropdowns"
+  },
+  "status": "running",
+  "started_at": "2026-02-19T08:01:00Z"
+}</script>
+  <!-- INJECT:layer-0 -->
+  <script id="data-layer-0" type="application/json">{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt",
+    "lens_summary": "This lens reveals how a hesitant, cleanliness-concerned guest navigates discovery through proposal creation, and how UI action hierarchy, spacing, and form design principles from Refactoring UI can reduce friction and build trust at every decision point."
+  },
+  "phases": {
+    "discovery": {
+      "what_this_lens_reveals": "William arrived via Craigslist ad — he received an email with property photos and information about an Upper East Side apartment. He is confused about the source ('I got it from somebody who sent me the information... I guess it was off Craigslist'). The platform identity is unclear to him. Refactoring UI's hierarchy principles suggest the discovery touchpoint must have a single, unmistakable primary action that clarifies what Split Lease is — not competing with the Craigslist context the guest arrived from.",
+      "user_state": {
+        "emotional_state": "Curious but guarded. He is responding to an outreach, not actively seeking. His tone is cautious — 'I don't really have a budget now. I have to see.'",
+        "knowledge_level": "Near zero about Split Lease. He does not know what the platform is, how it works, or that it involves sharing with another person. He came from a Craigslist listing.",
+        "commitment_level": "Browsing — he is gathering information, not ready to act. 'I'm just going to find out what's available.'",
+        "data_available": "Email address, desired location (67th and First), approximate dates (May 16 - July 8), bedroom preference (1 bedroom)"
+      },
+      "dropout_risk": {
+        "level": "high",
+        "reasons": [
+          "Platform identity confusion — William thinks he is responding to a Craigslist ad, not joining a new platform",
+          "The sharing model is completely unexpected — he did not expect to share space with someone else",
+          "No budget anchor means price shock could cause immediate dropout"
+        ],
+        "evidence": "William Romano.txt, 5:42-5:50: 'I got it from somebody who sent me the information about an apartment... I guess it was off Craigslist' — he does not know what Split Lease is."
+      },
+      "key_quotes": [
+        {
+          "source": "William Romano.txt, 0:55",
+          "quote": "I don't really have a budget now. I have to see, I'm just going to find out what's available.",
+          "relevance": "Guest is in pure exploration mode — the UI must support browsing without commitment pressure."
+        },
+        {
+          "source": "William Romano.txt, 5:42",
+          "quote": "I got it from somebody who sent me the information about an apartment that was on the upper east side with pictures and everything. And it came to my email, I guess it was off Craigslist.",
+          "relevance": "Discovery channel confusion — guest does not know the platform origin."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "quote": "Most pages only have one true primary action, a couple of less important secondary actions, and a few seldom used tertiary actions.",
+          "relevance": "The discovery page must have ONE clear primary action — not a wall of competing CTAs."
+        }
+      ]
+    },
+    "search": {
+      "what_this_lens_reveals": "William will be directed to the website to browse listings after the call. The agent promises to search for him in the 67th and First area. Refactoring UI's spacing principles ('start with too much white space') and form design principles ('avoid ambiguous spacing') directly apply to the search interface — listings must breathe, filters must be clearly grouped, and the search experience must not feel cramped or overwhelming.",
+      "user_state": {
+        "emotional_state": "Cautiously open — he agreed to provide his email and look at the website, but still processing the sharing concept.",
+        "knowledge_level": "Knows basic mechanics (sharing, matching, cleaning responsibilities) but does not yet understand the platform's interface or how to navigate it.",
+        "commitment_level": "Low but willing — 'I'll take a look at whatever you send' shows passive engagement.",
+        "data_available": "Location preference (67th and First, Upper East Side), dates (May 16 - July 8), 1 bedroom, email address"
+      },
+      "dropout_risk": {
+        "level": "high",
+        "reasons": [
+          "The transition from call to website is unprimed — William has no mental model of what the site looks like",
+          "If the search page is visually dense or unclear, his hesitation about sharing will amplify",
+          "He is planning to visit NYC on April 20th — long time gap before action, easy to forget"
+        ],
+        "evidence": "William Romano.txt, 7:18-7:33: 'I'm planning on going into New York city on April 20th and looking, and hopefully find something by that day.' — weeks of delay before engagement."
+      },
+      "key_quotes": [
+        {
+          "source": "William Romano.txt, 6:44-6:51",
+          "quote": "Sounds good. So what would happen was in a couple of minutes, you will receive an email with a link. So you can look on the website yourself.",
+          "relevance": "The email-to-website transition is the critical handoff point — the search page is the first platform impression."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Start with too much white space",
+          "quote": "A better approach is to start by giving something way too much space, then remove it until you're happy with the result.",
+          "relevance": "Search results and listing cards must have generous spacing to feel trustworthy and scannable, not cramped."
+        }
+      ]
+    },
+    "listing_evaluation": {
+      "what_this_lens_reveals": "William's core concern — cleanliness and hygiene — means the listing page must proactively address these fears with clear, hierarchically-organized information. Refactoring UI's action hierarchy principle (primary/secondary/tertiary) maps directly: the primary action is 'Create Proposal', but secondary information (cleaning protocol, linen handling, storage) must be visible and well-spaced BEFORE the CTA. The book's advice on destructive actions ('combine with a confirmation step') applies to the proposal button — it should not feel irrevocable.",
+      "user_state": {
+        "emotional_state": "Anxious about hygiene. 'Doesn't sound too good to me, sharing it with someone else... how clean it's going to be. I don't want to use somebody else's sheets.'",
+        "knowledge_level": "Partially informed — he heard about cleaning responsibilities and separate linens on the call, but may not remember details when on the platform.",
+        "commitment_level": "Evaluating with significant reservation. His cleanliness concern is a potential deal-breaker.",
+        "data_available": "All search data plus specific listing details, host info, photos, price"
+      },
+      "dropout_risk": {
+        "level": "critical",
+        "reasons": [
+          "Cleanliness concern is the #1 emotional blocker — if the listing page does not address it prominently, he will leave",
+          "The sharing model explanation on the listing page may re-trigger the same anxiety from the call",
+          "If pricing is unclear or feels hidden, his 'no budget' stance will shift to price aversion"
+        ],
+        "evidence": "William Romano.txt, 4:06-4:14: 'Doesn't sound too good to me, to you sharing it with someone else that, you know, when, like how clean it's going to be. I don't want to use somebody else's sheets.' — hygiene is the gate."
+      },
+      "key_quotes": [
+        {
+          "source": "William Romano.txt, 4:06-4:14",
+          "quote": "Doesn't sound too good to me, sharing it with someone else... how clean it's going to be. I don't want to use somebody else's sheets.",
+          "relevance": "This is the #1 objection. The listing page must have a visible, clear cleaning protocol section."
+        },
+        {
+          "source": "William Romano.txt, 4:28",
+          "quote": "Your sheets would be moved and put his sheets would be put on, there's no such thing as using somebody else's.",
+          "relevance": "The agent resolved the concern verbally — the platform must resolve it visually with equal clarity."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Avoid ambiguous spacing",
+          "quote": "Whenever you're relying on spacing to connect a group of elements, always make sure there's more space around the group than there is within it.",
+          "relevance": "Cleaning protocol info must be visually grouped as a clear, distinct section — not scattered among other listing details."
+        }
+      ]
+    },
+    "proposal_creation": {
+      "what_this_lens_reveals": "William needs to enter a 'bid' (proposal) to proceed. The agent explains this is non-binding ('the bid does not mean that you are obligated'). Refactoring UI's form design principles and button hierarchy are critical here: the proposal form must use clear field grouping, the submit button must communicate non-commitment (secondary styling, not aggressive primary), and progressive disclosure should reveal pricing as terms are configured.",
+      "user_state": {
+        "emotional_state": "Uncertain about commitment level. He heard 'bid' and needs reassurance it is non-binding.",
+        "knowledge_level": "Understands the bid is a signal of interest, not a contract. But this understanding may not persist to the platform.",
+        "commitment_level": "Willing to signal interest IF the platform makes clear it is non-binding.",
+        "data_available": "Dates, duration, location preference, bedroom type"
+      },
+      "dropout_risk": {
+        "level": "high",
+        "reasons": [
+          "The word 'bid' implies financial commitment — if the UI echoes this language, guests will hesitate",
+          "If the form asks for too much information upfront, the depleted/cautious guest will abandon",
+          "No visible price transparency during proposal creation will cause anxiety"
+        ],
+        "evidence": "William Romano.txt, 7:30-7:54: The agent explains 'the bid does not mean that you are obligated... the bid only indicates that you like it' — this reassurance must be embedded in the UI."
+      },
+      "key_quotes": [
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "quote": "The bid does not mean that you are obligated. The bid only indicates that you like it and you want to see if it's possible.",
+          "relevance": "The proposal form must communicate non-binding nature prominently — this is the key trust signal."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "quote": "Primary actions should be obvious. Solid, high contrast background colors work great here. Secondary actions should be clear but not prominent.",
+          "relevance": "The 'Submit Proposal' button should use secondary styling (outline or lower contrast) since it is non-binding — reserving primary styling for the final acceptance step."
+        }
+      ]
+    },
+    "negotiation": {
+      "what_this_lens_reveals": "William's call does not reach the negotiation phase, but the agent describes a process where he will meet his potential co-tenant on Zoom before any lease is signed. Refactoring UI's principles on not filling the whole screen and thinking in columns apply: the negotiation interface should show original terms alongside counter-terms in a clear, compact layout that does not overwhelm.",
+      "user_state": {
+        "emotional_state": "Would likely feel vulnerable — a stranger is modifying terms he proposed.",
+        "knowledge_level": "Understands that the host may counter. Also knows a Zoom meeting will happen.",
+        "commitment_level": "Conditional — depends on whether counter-terms feel fair.",
+        "data_available": "Original proposal, host counter-terms, pricing comparison"
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": [
+          "If counter-terms are displayed without clear comparison to original, the guest may feel lost",
+          "If the negotiation UI uses too many actions at equal visual weight, the guest cannot prioritize"
+        ],
+        "evidence": "refactoringui-forms-buttons-components.txt: 'When you take a hierarchy-first approach to designing the actions on a page, the result is a much less busy UI that communicates more clearly.'"
+      },
+      "key_quotes": [
+        {
+          "source": "William Romano.txt, 2:34-3:00",
+          "quote": "Before any lease is signed, you will meet on the zoom meeting... if you like each other, the lease is presented to the landlord.",
+          "relevance": "The negotiation phase includes a human verification step (Zoom) — the UI must reflect this as a natural part of the flow."
+        }
+      ]
+    },
+    "acceptance": {
+      "what_this_lens_reveals": "This lens does not directly address the acceptance phase from the call transcript. However, Refactoring UI's destructive action principle ('combine with a confirmation step where the destructive action actually is the primary action') applies perfectly: acceptance is the highest-stakes action. The confirmation step should use primary styling (solid, high contrast) for the accept button and secondary/tertiary for cancel/modify.",
+      "user_state": {
+        "emotional_state": "High stakes — this is the commitment moment.",
+        "knowledge_level": "Should have full clarity on terms, pricing, co-tenant identity, cleaning protocol.",
+        "commitment_level": "Ready to commit if all concerns are addressed.",
+        "data_available": "Full proposal terms, Zoom meeting outcome, host profile, pricing breakdown"
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": [
+          "If the acceptance screen lacks a clear pricing summary, last-minute doubt can cause abandonment",
+          "If the primary action (Accept) is not visually dominant, the guest may hesitate"
+        ],
+        "evidence": "refactoringui-forms-buttons-components.txt: 'Destructive actions... combine with a confirmation step where the destructive action actually is the primary action, and apply the big, red, bold styling there.'"
+      },
+      "key_quotes": []
+    },
+    "move_in": {
+      "what_this_lens_reveals": "William explicitly wants to visit NYC on April 20th to see the space in person before committing. The move-in phase must bridge digital expectations with physical reality. Refactoring UI's principle of 'give each element just the space it needs' applies to the House Manual — it should be scannable and task-oriented (Wi-Fi, keys, cleaning protocol) rather than comprehensive and overwhelming.",
+      "user_state": {
+        "emotional_state": "Anxious about reality matching expectations — especially cleanliness.",
+        "knowledge_level": "Has seen listing online, possibly met host on Zoom, has House Manual access.",
+        "commitment_level": "Committed but vulnerable — first impressions matter enormously.",
+        "data_available": "House Manual, host contact, lease terms, check-in procedures"
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": [
+          "If cleanliness reality does not match platform promises, immediate trust collapse",
+          "If House Manual is too long or poorly organized, guest feels unsupported"
+        ],
+        "evidence": "William Romano.txt, 7:18: 'I'm planning on going into New York city on April 20th and looking' — he wants physical verification before commitment."
+      },
+      "key_quotes": [
+        {
+          "source": "William Romano.txt, 7:18-7:33",
+          "quote": "I'm planning on going into New York city on April 20th and looking, and hopefully find something by that day.",
+          "relevance": "Physical verification desire — the platform must bridge digital-to-physical trust gap."
+        }
+      ]
+    },
+    "active_lease": {
+      "what_this_lens_reveals": "William's cleanliness concern makes the active lease phase critical: the Stays Manager, cleaning photo workflow, and Date Change Tool are the recurring touchpoints. Refactoring UI's form and component principles apply directly: the Stays Manager needs a clear action hierarchy (primary: confirm arrival/submit photos; secondary: change dates; tertiary: message host), generous spacing for scannability, and a systematic spacing system for the weekly-use dashboard. The guest visits the Leases page 13+ times during a typical 3-month lease — every visit must feel fast and unambiguous.",
+      "user_state": {
+        "emotional_state": "Oscillating between comfort (settled in) and vigilance (is the space clean? are my things safe?).",
+        "knowledge_level": "Fully onboarded — understands the system, knows the co-tenant, has cleaning protocol.",
+        "commitment_level": "Invested — lease is active, payments are flowing.",
+        "data_available": "Full lease data, payment history, stay schedule, cleaning photos, messages, reviews"
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": [
+          "If the Stays Manager is visually cluttered, weekly visits become a chore and the guest goes off-platform",
+          "If cleaning photo submission is friction-heavy, compliance drops and trust between co-tenants erodes",
+          "If the Date Change Tool is hidden or complex, the guest texts the host directly instead"
+        ],
+        "evidence": "William Romano.txt, 3:53-4:06: 'That's the only thing I'm really concerned about. Doesn't sound too good to me.' — cleanliness vigilance will persist throughout the entire active lease."
+      },
+      "key_quotes": [
+        {
+          "source": "William Romano.txt, 3:53-4:06",
+          "quote": "That's the only thing I'm really concerned about. Doesn't sound too good to me, sharing it with someone else.",
+          "relevance": "This concern does not evaporate after signing — it recurs every time the guest arrives and checks the space. The Stays Manager must provide visible proof of cleanliness compliance."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Establish a spacing and sizing system",
+          "quote": "A spacing and sizing system will help you create better designs, with less effort, in less time.",
+          "relevance": "The Stays Manager, visited 13+ times, must use a consistent spacing system so the guest can navigate it automatically — without conscious effort."
+        }
+      ]
+    }
+  },
+  "cross_phase_patterns": [
+    {
+      "pattern": "Cleanliness Anxiety as a Through-Line: William's hygiene concern surfaces in discovery, dominates listing evaluation, and persists through active lease. Every phase must address this concern at its appropriate level — from conceptual reassurance (discovery) to visual proof (active lease cleaning photos).",
+      "phases_affected": ["discovery", "listing_evaluation", "move_in", "active_lease"],
+      "evidence": "William Romano.txt, 4:06-4:28: The concern is raised and resolved verbally in the call, but the platform has no equivalent visual resolution mechanism."
+    },
+    {
+      "pattern": "Action Hierarchy Principle Across All Decision Points: Refactoring UI's primary/secondary/tertiary action hierarchy applies to every phase. Discovery needs one primary CTA. Listing evaluation needs primary (Create Proposal) subordinated to secondary (cleaning info, pricing). Proposal needs secondary treatment (non-binding). Acceptance needs primary treatment (binding). The Stays Manager needs a clear daily-action primary.",
+      "phases_affected": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "active_lease"],
+      "evidence": "refactoringui-forms-buttons-components.txt: 'Most pages only have one true primary action, a couple of less important secondary actions, and a few seldom used tertiary actions.'"
+    },
+    {
+      "pattern": "Spacing as Trust Signal: Generous, systematic spacing communicates quality and trustworthiness. A cramped interface triggers the same anxiety William feels about sharing space. White space is the visual equivalent of the physical cleanliness he demands.",
+      "phases_affected": ["search", "listing_evaluation", "proposal_creation", "active_lease"],
+      "evidence": "refactoringui-forms-buttons-components.txt: 'Start with too much white space... what might seem like a little too much when focused on an individual element ends up being closer to just enough in the context of a complete UI.'"
+    },
+    {
+      "pattern": "Non-Binding Language Must Persist: The agent's verbal reassurance that proposals are non-binding ('the bid does not mean that you are obligated') must be echoed at every commitment escalation point on the platform. This is a UI copywriting and button-styling pattern.",
+      "phases_affected": ["proposal_creation", "negotiation", "acceptance"],
+      "evidence": "William Romano.txt, 7:30-7:54: The agent explicitly says the bid is non-binding. If the platform does not reinforce this, the guest's earlier verbal reassurance is lost."
+    }
+  ],
+  "sources_consulted": [
+    "William Romano.txt — full guest call transcript, discovery through proposal intent",
+    "refactoringui-forms-buttons-components.txt — Refactoring UI chapters on action hierarchy, spacing systems, form design, button semantics, grids, type scales",
+    "split-lease-journey-map.md — full journey map including Stays Manager, Date Change Tool, cleaning photos, reviews",
+    "journey-types.json — guest phase definitions and key concerns",
+    "library/elements.json — first 200 lines for schema reference (existing elements focus on host journey with System 1 trust gates, ego depletion, cognitive speed matching)"
+  ]
+}</script>
+  <!-- INJECT:layer-1 -->
+  <script id="data-layer-1" type="application/json">{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "works-001",
+      "type": "process_pattern",
+      "title": "Single Primary Action Per Decision Point",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "acceptance"],
+      "problem": "Every page in the guest journey presents multiple competing actions at equal visual weight — browse listings, create account, learn about Split Lease, view FAQ. When a hesitant guest like William arrives from Craigslist with no mental model of the platform, competing CTAs cause decision paralysis. The guest cannot determine what to do first, so he does nothing. The current UI treats every action as equally important, violating the fundamental principle that most pages have only one true primary action.",
+      "solution": "Apply a strict action hierarchy to every page in the guest journey: (1) Identify the ONE primary action per page/state and give it dominant visual treatment (solid background, high contrast). (2) Relegate supporting actions to secondary treatment (outline, lower contrast). (3) Make exploratory/help actions tertiary (link-style, discoverable but unobtrusive). (4) The primary action should match the guest's current phase: Discovery = 'Browse Listings', Listing Evaluation = 'Create Proposal', Negotiation = 'Accept Terms'. No page should have two solid, high-contrast buttons competing for attention.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 0:55",
+          "type": "guest_call",
+          "quote": "I don't really have a budget now. I have to see, I'm just going to find out what's available.",
+          "insight": "William is in exploration mode — the primary action must be 'browse' or 'see listings', not 'sign up' or 'create proposal'. Forcing commitment actions on an exploratory guest violates the hierarchy."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "Every action on a page sits somewhere in a pyramid of importance. Most pages only have one true primary action, a couple of less important secondary actions, and a few seldom used tertiary actions.",
+          "insight": "This is the foundational principle: design actions by hierarchy, not semantics. A 'Delete' button and a 'Save' button may both be important semantically, but only one is primary on any given page."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Destructive actions",
+          "type": "book",
+          "quote": "Being destructive or high severity doesn't automatically mean a button should be big, red, and bold. If a destructive action isn't the primary action on the page, it might be better to give it a secondary or tertiary button treatment.",
+          "insight": "Similarly, being the 'Submit' action doesn't automatically mean it should be primary. On the proposal page, 'Submit' is important but non-binding — it should be secondary until the acceptance phase where it becomes primary."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Immediately understand what I should do on each page without having to evaluate competing options.",
+      "company_goal": "Increase conversion from page-view to primary action by reducing decision paralysis at every step of the guest journey.",
+      "time_budget": "Guest should identify the primary action within 2 seconds of page load. No visual scanning required.",
+      "anti_goals": [
+        "DO NOT place two solid, high-contrast buttons on the same screen. If two actions are both important, one must be visually subordinated.",
+        "DO NOT use primary button styling for non-binding actions like 'Submit Proposal' — reserve the strongest treatment for binding commitments like 'Accept Terms'.",
+        "DO NOT hide the primary action below the fold. It must be visible without scrolling.",
+        "DO NOT use semantic color (green = good, red = bad) as a substitute for hierarchical styling."
+      ],
+      "success_metric": "Click-through rate on the primary action per page. Target: 40%+ of page visitors click the primary action. Secondary metric: time-to-first-click under 5 seconds."
+    },
+    {
+      "id": "works-002",
+      "type": "process_pattern",
+      "title": "Proactive Objection Resolution at Point of Concern",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "move_in", "active_lease"],
+      "problem": "William's cleanliness concern ('Doesn't sound too good to me... how clean it's going to be. I don't want to use somebody else's sheets') was resolved by the agent in real-time during the call. On the platform, there is no equivalent: the listing page shows photos, price, and amenities, but does not proactively address the #1 guest anxiety about shared living — hygiene. The guest must either search for this information (FAQ, fine print) or carry the unresolved concern into the proposal stage, where it becomes a blocker. The platform treats all listing information as equal, when in reality, some information resolves objections and some creates them.",
+      "solution": "Identify the top 3 guest objections (cleanliness, safety, price fairness) and resolve them proactively at the point where they arise: (1) On the listing page, place a visible 'Cleaning Protocol' section above the fold, BEFORE the price breakdown. This section explains: separate linens, cleaning responsibilities, secure storage, cleaning photo verification. (2) Use the book's principle of grouping related information with unambiguous spacing — the cleaning protocol must be visually distinct from amenities. (3) Within the Stays Manager, surface cleaning photos from the previous stay BEFORE the guest marks arrival — proof of compliance, not just a policy.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 4:06-4:28",
+          "type": "guest_call",
+          "quote": "Doesn't sound too good to me, sharing it with someone else... how clean it's going to be. I don't want to use somebody else's sheets. [Agent resolves: 'Your sheets would be moved and put his sheets would be put on, there's no such thing as using somebody else's.']",
+          "insight": "The objection was raised and resolved within 30 seconds on the call. The platform must achieve the same resolution speed — the answer must be visible within the first scan, not buried."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Avoid ambiguous spacing",
+          "type": "book",
+          "quote": "Whenever you're relying on spacing to connect a group of elements, always make sure there's more space around the group than there is within it — interfaces that are hard to understand always look worse.",
+          "insight": "The cleaning protocol section must use clear group spacing to separate it from other listing info. Ambiguous spacing would make it blend into the general description, failing to resolve the objection."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Have my biggest concern about shared living addressed before I have to ask, so I feel the platform understands my hesitation.",
+      "company_goal": "Reduce listing-page bounce rate by resolving the top guest objection (cleanliness) visually, converting hesitant browsers into proposal creators.",
+      "time_budget": "Objection resolution must be visible within the first 5 seconds of listing page scan. No scrolling or clicking required to find it.",
+      "anti_goals": [
+        "DO NOT bury cleaning information in a FAQ or expandable section. It must be a first-class content block.",
+        "DO NOT group cleaning info with amenities — it is objection resolution, not a feature.",
+        "DO NOT use generic language ('We maintain high standards'). Use specific, observable promises ('Separate labeled linens. Cleaning photos verified before each stay.').",
+        "DO NOT wait until the active lease to show cleaning protocols — show them during listing evaluation when the objection first forms."
+      ],
+      "success_metric": "Listing-to-proposal conversion rate for first-time guests. Target: 15%+ improvement when cleaning protocol section is visible vs. hidden."
+    },
+    {
+      "id": "works-003",
+      "type": "process_pattern",
+      "title": "Non-Binding Commitment Language Throughout Proposal Flow",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "The agent explicitly tells William that the 'bid does not mean that you are obligated' — it is a signal of interest. But the platform UI uses transactional language ('Submit Proposal', 'Create Proposal') that implies commitment. The word 'submit' in a financial context triggers loss aversion. When the button says 'Submit', the guest mentally models it as 'commit to pay'. This creates a disconnect between the verbal reassurance and the digital experience, undermining the trust the agent built.",
+      "solution": "Redesign the proposal flow language and visual treatment to match the non-binding nature of the action: (1) Replace 'Submit Proposal' with 'Express Interest' or 'Send Request' — language that matches what the agent told William. (2) Use secondary button styling (outline or lower contrast) for the proposal action, reserving primary (solid, high contrast) for the final acceptance. (3) Add explicit reassurance text near the button: 'This is not a commitment. You can modify or withdraw at any time.' (4) Apply the Refactoring UI hierarchy principle: the proposal button is a secondary action (non-binding), and the acceptance button is the primary action (binding).",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated. The bid only indicates that you like it and you want to see if it's possible to meet your requirements.",
+          "insight": "The agent deliberately de-risks the proposal action with language. The platform must do the same with both language AND visual treatment."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "Secondary actions should be clear but not prominent. Outline styles or lower contrast background colors are great options.",
+          "insight": "A non-binding proposal IS a secondary action in the commitment hierarchy. It should look like one — clear but not bold. The bold treatment is reserved for the binding acceptance."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Feel confident that expressing interest in a listing does not lock me into anything, so I can explore without anxiety.",
+      "company_goal": "Increase proposal submission rate by reducing perceived commitment risk at the proposal stage.",
+      "time_budget": "The non-binding nature of the proposal should be understood within 3 seconds of seeing the button — no reading of fine print required.",
+      "anti_goals": [
+        "DO NOT use the word 'Submit' for non-binding actions. 'Submit' implies finality.",
+        "DO NOT use primary button styling (solid, high contrast) for the proposal action.",
+        "DO NOT hide the 'non-binding' reassurance in a tooltip or modal. It must be inline, near the button.",
+        "DO NOT make withdrawal or modification of a proposal harder than creating one."
+      ],
+      "success_metric": "Proposal creation rate among listing visitors. Target: 20%+ increase when non-binding language is used vs. transactional language."
+    },
+    {
+      "id": "works-004",
+      "type": "process_pattern",
+      "title": "Systematic Spacing as Trust Infrastructure",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "When a guest like William is already anxious about sharing physical space with a stranger, the digital interface becomes a proxy for the physical experience. A cramped, inconsistent UI triggers the same distrust as an unkempt apartment. Currently, the platform lacks a consistent spacing system — padding values are arbitrary, margins vary between pages, and form fields are packed tightly. Refactoring UI demonstrates that inconsistent spacing is the #1 cause of interfaces looking 'off' even when individual components are well-designed.",
+      "solution": "Implement a strict spacing and sizing system derived from a 16px base, applied across the entire guest journey: (1) Use a non-linear scale (4, 8, 12, 16, 24, 32, 48, 64, 96px) where each step is at least 25% larger than the previous. (2) Start every layout with too much white space, then remove until satisfied — the default should be generous. (3) Apply the system consistently: form field spacing, card padding, section margins, and Stays Manager layout must all draw from the same scale. (4) For the Stays Manager (visited 13+ times), consistent spacing enables automatic navigation — the guest should not have to think about where things are.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Establish a spacing and sizing system",
+          "type": "book",
+          "quote": "For a system to be truly useful, it needs to take into consideration the relative difference between adjacent values... make sure no two values in your scale are ever closer than about 25%.",
+          "insight": "A non-linear spacing scale prevents the 'pixel-nitpicking' problem and creates a rhythm that feels intentional. This rhythm communicates quality and care — exactly what the anxious guest needs."
+        },
+        {
+          "source": "William Romano.txt, 4:06",
+          "type": "guest_call",
+          "quote": "Doesn't sound too good to me, sharing it with someone else.",
+          "insight": "William's anxiety about shared physical space maps directly to digital space. A well-spaced, clean interface subconsciously reassures: 'This platform is organized and careful — the living situation will be too.'"
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Start with too much white space",
+          "type": "book",
+          "quote": "What might seem like 'a little too much' when focused on an individual element ends up being closer to 'just enough' in the context of a complete UI.",
+          "insight": "The default should be generous. For a guest already suspicious of shared space, visual breathing room is a trust signal."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Use a platform that feels clean, organized, and intentional — subconsciously reinforcing my confidence that the living arrangement will be the same.",
+      "company_goal": "Increase perceived platform quality and trustworthiness through systematic visual consistency, reducing bounce rates across all guest journey pages.",
+      "time_budget": "N/A — this is a system-level pattern, not a user-facing action. Its effect is measured through cumulative trust, not individual interaction speed.",
+      "anti_goals": [
+        "DO NOT use arbitrary spacing values. Every margin, padding, and gap must come from the defined scale.",
+        "DO NOT pack form fields tightly to 'save space' — the Stays Manager, visited weekly, must feel spacious.",
+        "DO NOT use a linear spacing scale (4, 8, 12, 16, 20...) — the jumps at the large end are imperceptible and lead to inconsistency.",
+        "DO NOT use different spacing scales for different pages — the system must be consistent across the entire journey."
+      ],
+      "success_metric": "Platform trust survey score (1-10) for 'The platform feels professional and well-designed'. Target: 8+ average."
+    },
+    {
+      "id": "works-005",
+      "type": "process_pattern",
+      "title": "Stays Manager as the Guest's Weekly Command Center",
+      "journey_phases": ["active_lease"],
+      "problem": "The guest visits the Leases/Stays Manager page 13+ times during a 3-month lease — more than any other page. Yet it is currently designed as a static information display, not as an active command center. William's ongoing cleanliness concern means every weekly visit is a moment of truth: 'Is the space ready? Did my co-tenant clean? Are my things safe?' The page must answer these questions instantly, without requiring the guest to navigate, scroll, or interpret. Refactoring UI's principle of giving each element 'just the space it needs' and not filling the whole screen applies: the Stays Manager must be compact but generous, with a clear action hierarchy for the guest's weekly workflow.",
+      "solution": "Redesign the Stays Manager as a task-oriented command center with three zones: (1) STATUS ZONE (top): Current stay status, next arrival date, cleaning compliance indicator. One glance answers 'Am I good?' (2) ACTION ZONE (middle): Primary action for the current state — 'Confirm Arrival', 'Submit Cleaning Photos', 'Request Date Change'. Only one primary action visible at a time, switching based on the stay lifecycle. (3) HISTORY ZONE (bottom): Past stays, payment history, cleaning photo log. Scrollable but not the focus. Apply the book's column-thinking principle: on desktop, status and action zones sit side-by-side; history sits below. On mobile, status stacks above action.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 3:53-4:06",
+          "type": "guest_call",
+          "quote": "That's the only thing I'm really concerned about. Doesn't sound too good to me, sharing it with someone else.",
+          "insight": "This concern does not end at signing. Every weekly visit to the Stays Manager is a micro-evaluation: 'Is this arrangement working?' The page must provide instant reassurance."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, You don't have to fill the whole screen",
+          "type": "book",
+          "quote": "If you only need 600px, use 600px. Spreading things out or making things unnecessarily wide just makes an interface harder to interpret.",
+          "insight": "The Stays Manager should be 600-700px wide on desktop, not full-width. A focused, contained layout is faster to scan and feels more manageable than a sprawling dashboard."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Thinking in columns",
+          "type": "book",
+          "quote": "If you wanted to make better use of the available space without making the form harder to use, you could break the supporting text out into a separate column.",
+          "insight": "The Stays Manager benefits from column layout: status + action in one column, upcoming schedule in another. This prevents vertical scrolling on a page visited weekly."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Open the Stays Manager and know my current status, next steps, and cleaning compliance within 3 seconds — without scrolling or clicking.",
+      "company_goal": "Make the Stays Manager the indispensable weekly touchpoint that keeps guests on-platform, reducing off-platform communication and increasing review submission rates.",
+      "time_budget": "3 seconds to scan status. 5 seconds to complete the primary action. 10 seconds for the entire weekly check-in.",
+      "anti_goals": [
+        "DO NOT make the Stays Manager full-width on desktop. Constrain it to the content width it needs.",
+        "DO NOT show all possible actions at once. Show only the contextually appropriate primary action.",
+        "DO NOT bury cleaning compliance in a sub-page. It must be visible in the STATUS ZONE on every visit.",
+        "DO NOT treat the Stays Manager as an information page. It is a task-completion tool."
+      ],
+      "success_metric": "Weekly Stays Manager engagement rate: % of active guests who visit the Stays Manager at least once per week. Target: 85%+. Secondary: average time-on-page under 30 seconds (indicating efficient task completion, not confused browsing)."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-2 -->
+  <script id="data-layer-2" type="application/json">{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "communicates-001",
+      "type": "info_architecture",
+      "title": "Cleaning Protocol as First-Class Content Block",
+      "journey_phases": ["listing_evaluation", "move_in", "active_lease"],
+      "problem": "The listing page treats all property information equally: amenities, photos, price, rules, host info. But for a guest like William, whose #1 concern is cleanliness ('I don't want to use somebody else's sheets'), the cleaning protocol is not an amenity — it is objection resolution. When it is buried among other details or absent entirely, the guest's anxiety compounds with each scroll. The information exists (separate linens, cleaning responsibilities, cleaning photos) but has no architectural prominence.",
+      "solution": "Elevate the cleaning protocol to a standalone content block with its own visual container, positioned AFTER photos and BEFORE pricing on the listing page. Structure: (1) HEADLINE: 'How Cleanliness Works' (2) Three clear items: separate linens, cleaning responsibilities, cleaning photo verification (3) Visual icon for each item (4) Link to detailed cleaning standards page for guests who want more. On the Stays Manager, surface the last cleaning photo with timestamp as the FIRST element the guest sees.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 4:06-4:28",
+          "type": "guest_call",
+          "quote": "Doesn't sound too good to me, sharing it with someone else... I don't want to use somebody else's sheets. [Agent: 'Your sheets would be moved and put his sheets would be put on.']",
+          "insight": "The objection requires specific, concrete answers — not vague assurances. The info architecture must present these answers as discrete, scannable items."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Avoid ambiguous spacing",
+          "type": "book",
+          "quote": "Whenever you're relying on spacing to connect a group of elements, always make sure there's more space around the group than there is within it.",
+          "insight": "The cleaning protocol block must have more space around it than within it, so it reads as a distinct, important section — not blending into the surrounding content."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Cleaning protocol sits at the same hierarchy level as pricing — both are decision-critical for the hesitant guest. Photos are primary (first scan), cleaning protocol is secondary (objection resolution), amenities are tertiary (nice-to-have details).",
+      "disclosure_pattern": "Show the 3 key cleaning facts on the listing page (no expansion needed). Link to full cleaning standards for detail-seekers. On the Stays Manager, show last cleaning photo inline — no tap required.",
+      "cognitive_load_constraint": "Maximum 3 cleaning facts visible at once. Each fact is one line with one icon. No paragraphs.",
+      "scan_order": ["Icon + headline ('How Cleanliness Works')", "Three fact items with icons", "Link to full standards"],
+      "exclude": ["Detailed cleaning checklists (save for House Manual)", "Other guests' cleaning reviews (save for review section)", "Penalty information for non-compliance (save for lease terms)"]
+    },
+    {
+      "id": "communicates-002",
+      "type": "info_architecture",
+      "title": "Progressive Price Revelation Aligned to Commitment Level",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance"],
+      "problem": "William says 'I don't really have a budget now. I have to see.' He is not price-anchored — he has no reference point for what shared living on Split Lease should cost. If the price appears too early (search cards) without context, it becomes the anchor and everything is evaluated against it. If price appears too late (only after proposal), the guest feels blindsided. Current info architecture shows nightly rate on search cards and a total on the proposal page, but the relationship between the two is not progressively revealed.",
+      "solution": "Reveal pricing in three progressive stages matched to commitment level: (1) SEARCH: Show nightly rate range only (e.g., '$XX-XX/night') — no total, because duration is not set. This matches William's 'just looking' state. (2) LISTING EVALUATION: Show nightly rate + estimated 4-week total based on default configuration. As the guest adjusts dates/duration, the total updates live. (3) PROPOSAL CREATION: Show full breakdown — nightly rate, duration, total, first payment, recurring payments. Add comparison: 'vs. Airbnb: $XX/night for the same area'. Each stage reveals only what the guest needs for their current decision.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 0:55",
+          "type": "guest_call",
+          "quote": "I don't really have a budget now. I have to see, I'm just going to find out what's available.",
+          "insight": "No budget means no anchor. The platform must build the price anchor progressively — starting with range (low commitment), moving to estimate (medium), then to exact (high commitment)."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Don't shrink an element until you need to",
+          "type": "book",
+          "quote": "If you know that say 500px is the optimal size for the card, why should it ever get smaller than that if you have the space for it?",
+          "insight": "Applied to information: if you know the guest doesn't need the full price breakdown at the search stage, why show it? Show only what's needed for the current decision context."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "At each stage: primary = the price unit relevant to the current decision (nightly at search, 4-week at evaluation, total at proposal). Secondary = supporting context. Tertiary = comparison data.",
+      "disclosure_pattern": "Search: range only. Listing: nightly + estimated total (live-updating). Proposal: full breakdown + comparison. Each transition adds one layer of detail.",
+      "cognitive_load_constraint": "Maximum 3 price data points visible at any stage. No more than 2 numbers in the search card.",
+      "scan_order": ["Primary price figure (largest font)", "Duration/context qualifier", "Comparison or secondary figure"],
+      "exclude": ["Full payment schedule at search stage", "Service fees before proposal stage", "Historical pricing data"]
+    },
+    {
+      "id": "communicates-003",
+      "type": "info_architecture",
+      "title": "Stays Manager Information Hierarchy for Weekly Visits",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager is visited 13+ times during a typical 3-month lease. Each visit has a different intent: sometimes the guest is checking status, sometimes submitting photos, sometimes requesting a date change. The current layout presents all information with equal weight — upcoming stays, past stays, payment info, date change tool, messages, cleaning photos — forcing the guest to scan the entire page to find what they need. For a weekly touchpoint, this friction is unacceptable. Refactoring UI's principle that 'dense UIs have their place' applies here: the Stays Manager should be information-dense but hierarchically organized.",
+      "solution": "Structure the Stays Manager with a clear information hierarchy based on temporal relevance: (1) NOW: What is the guest's current status? (Next stay in 3 days, cleaning photos due, date change pending.) One sentence, top of page. (2) NEXT: What action does the guest need to take? (Confirm arrival, submit photos, review stay.) Single primary button. (3) HISTORY: What happened? (Past stays, payments, cleaning log.) Scrollable list below the fold. Apply the book's column-thinking principle: on desktop, NOW + NEXT in left column (narrow, fixed width), HISTORY in right column (wider, fluid). On mobile, NOW + NEXT stack at top, HISTORY scrolls below.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 3:53-4:06",
+          "type": "guest_call",
+          "quote": "That's the only thing I'm really concerned about.",
+          "insight": "William's concern persists. Every Stays Manager visit must answer 'Is the space clean and ready?' within the first scan — this belongs in the NOW zone."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Dense UIs have their place",
+          "type": "book",
+          "quote": "If you're designing some sort of dashboard where a lot of information needs to be visible at once, packing that information together so it all fits on one screen might be worth making the design feel more busy.",
+          "insight": "The Stays Manager IS a dense UI — but the density must be organized hierarchically. NOW + NEXT above the fold, HISTORY below. Density is acceptable; chaos is not."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Not all elements should be fluid",
+          "type": "book",
+          "quote": "It makes much more sense to give the sidebar a fixed width that's optimized for its contents.",
+          "insight": "The NOW/NEXT zone should be fixed-width (optimized for status + one action), while the HISTORY zone flexes to fill remaining space."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "NOW (status) > NEXT (action) > HISTORY (reference). The guest's eye should hit status first, action second, and never need to reach history unless they choose to.",
+      "disclosure_pattern": "All NOW/NEXT information is visible without interaction. HISTORY is accessible by scrolling. Detailed payment breakdowns or cleaning photo galleries are one tap away from the HISTORY zone.",
+      "cognitive_load_constraint": "NOW zone: 1 status sentence + 1 visual indicator. NEXT zone: 1 button + 1 supporting sentence. Maximum 3 data points above the fold.",
+      "scan_order": ["Status sentence (NOW)", "Primary action button (NEXT)", "Next stay date", "History list (below fold)"],
+      "exclude": ["Full payment schedule (save for dedicated payments page)", "Lease terms (save for lease detail page)", "Host profile details (save for listing page)"]
+    },
+    {
+      "id": "communicates-004",
+      "type": "info_architecture",
+      "title": "Form Field Grouping with Unambiguous Spacing",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "The proposal creation form asks the guest to configure dates, duration, days of week, and review pricing — multiple related inputs that must be grouped logically. If the spacing between a label and its input is the same as the spacing between input groups, the guest cannot tell which label belongs to which field. Refactoring UI explicitly warns: 'At best the user has to work harder to interpret the UI, and at worst it means accidentally putting the wrong data in the wrong field.' For a guest already uncertain about commitment, form confusion amplifies anxiety.",
+      "solution": "Apply the unambiguous spacing principle: (1) Within a form group (label + input + helper text), use tight spacing (8px between label and input). (2) Between form groups, use generous spacing (24px minimum). (3) Between sections (dates section vs. pricing section), use a visual separator (border or background change) plus 32px+ spacing. (4) Group related controls: date range picker + duration selector are one group. Day-of-week selection is a separate group. Pricing summary is a separate section entirely. Never let the inter-group spacing equal the intra-group spacing.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Avoid ambiguous spacing",
+          "type": "book",
+          "quote": "If the margin below the label is the same as the margin below the input, the elements in the form group won't feel obviously 'connected'. At best the user has to work harder to interpret the UI.",
+          "insight": "This is the exact problem: equal spacing makes field relationships ambiguous. The fix is mathematical — group spacing must be at least 2x field spacing."
+        },
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated. The bid only indicates that you like it.",
+          "insight": "A guest who is already uncertain about commitment will abandon a confusing form faster than a confident one. The form must be crystal-clear to maintain the fragile willingness to proceed."
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "Within a section: label > input > helper text (top to bottom). Between sections: visual divider creates clear boundary. The pricing summary section is always last and visually distinct.",
+      "disclosure_pattern": "All required fields visible at once (no multi-step wizard for 4-5 fields). Pricing updates live as fields change. Optional fields (special requests) revealed via 'Add notes' link.",
+      "cognitive_load_constraint": "Maximum 5 form groups visible at once. Maximum 2 sections per viewport.",
+      "scan_order": ["Date range (when)", "Duration (how long)", "Days of week (which days)", "Pricing summary (how much)", "Submit action"],
+      "exclude": ["Payment method fields (save for acceptance)", "Host terms details (save for negotiation stage)", "Cancellation policy fine print (save for lease terms)"]
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-3 -->
+  <script id="data-layer-3" type="application/json">{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "looks-001",
+      "type": "visual_pattern",
+      "title": "Three-Tier Button Hierarchy Across the Guest Journey",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation", "acceptance"],
+      "problem": "The guest journey has actions at different commitment levels — browsing (low), proposing (medium), accepting (high) — but buttons are styled uniformly with the same solid purple treatment. This visual uniformity makes the non-binding proposal feel as weighty as the binding acceptance, causing hesitation at the wrong moment and insufficient gravity at the right moment. The book states: 'When you take a hierarchy-first approach to designing the actions on a page, the result is a much less busy UI that communicates more clearly.'",
+      "solution": "Implement a three-tier button system that visually communicates commitment level: PRIMARY (binding actions: Accept Terms, Confirm Payment): solid background using gradient-purple-button, white text, full border-radius pill shape. SECONDARY (non-binding actions: Create Proposal, Express Interest): outline style with secondary-purple border, purple text, transparent background. TERTIARY (exploratory: View Details, Learn More): no border, text-purple color, underline on hover. Apply consistently across the journey so the guest develops visual literacy — they learn to associate solid purple with 'this counts' and outline with 'this is reversible'.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "Primary actions should be obvious. Solid, high contrast background colors work great here. Secondary actions should be clear but not prominent. Outline styles or lower contrast background colors are great options. Tertiary actions should be discoverable but unobtrusive.",
+          "insight": "This is the exact visual prescription. The guest journey has all three levels; the design system must reflect them."
+        },
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated.",
+          "insight": "A non-binding proposal styled like a binding commitment creates visual-verbal disconnect. The secondary button treatment (outline) visually communicates what the agent said verbally: 'This doesn't lock you in.'"
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--secondary-purple (rgb(109,49,194)) for primary fill", "--primary-purple (#31135D) for primary hover", "--secondary-purple for secondary border/text", "--text-purple for tertiary text"],
+        "typography": ["Inter 600 (semibold) for primary and secondary", "Inter 500 (medium) for tertiary"],
+        "spacing": ["--spacing-sm (8px) vertical padding", "--spacing-2xl (24px) horizontal padding for primary/secondary", "--spacing-lg (16px) horizontal padding for tertiary"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "Primary: white text on secondary-purple background = ~7:1 contrast ratio (exceeds WCAG AA). Secondary: secondary-purple text on white = ~4.6:1 (meets WCAG AA). Tertiary: text-purple on white = ~6.5:1 (exceeds WCAG AA).",
+      "visual_hierarchy_rule": "On any given page, the primary button is the most prominent element after the page headline. Secondary buttons are clearly less prominent than primary but more prominent than body text. Tertiary buttons blend with text but are identifiable by color.",
+      "brand_alignment": "The purple palette conveys sophistication and trust (Style-guide.md). The three-tier system adds depth to the brand: solid purple = confidence, outline purple = invitation, text purple = guidance. This aligns with the taste model's 'Confident, not flashy' principle."
+    },
+    {
+      "id": "looks-002",
+      "type": "visual_pattern",
+      "title": "Generous White Space as Visual Cleanliness Signal",
+      "journey_phases": ["search", "listing_evaluation", "active_lease"],
+      "problem": "William's core anxiety is physical cleanliness. The visual presentation of the platform is a proxy for the physical experience he will have. A cramped, tight interface subconsciously signals 'this is not a clean, organized operation.' Refactoring UI's white space principles state that developers add the minimum space to not look bad, when they should start with too much and remove. The current platform follows the add-minimum pattern, creating a visually dense experience that works against the trust-building needed for an anxious guest.",
+      "solution": "Redefine spacing defaults to be 50% more generous than current: (1) Card padding: increase from 16px to 24px (--spacing-2xl). (2) Section spacing: increase from 24px to 32px (--spacing-4xl). (3) Listing cards in search: increase gap from 16px to 24px. (4) Form field vertical spacing: increase from 16px to 24px between groups. (5) Stays Manager content padding: 24px minimum. The visual effect: every page feels 'clean' — which is exactly what the anxious guest needs to see.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Start with too much white space",
+          "type": "book",
+          "quote": "A better approach is to start by giving something way too much space, then remove it until you're happy with the result.",
+          "insight": "The default should be generous. For guests whose primary concern is cleanliness, white space IS cleanliness in the digital realm."
+        },
+        {
+          "source": "William Romano.txt, 4:06",
+          "type": "guest_call",
+          "quote": "Doesn't sound too good to me, sharing it with someone else.",
+          "insight": "Visual breathing room counters the 'cramped sharing' anxiety. A spacious UI implies a spacious, well-managed living arrangement."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--bg-white (#ffffff) for card surfaces", "--bg-light (#f9fafb) for page backgrounds", "--bg-off-white (rgb(252,250,255)) for subtle section differentiation"],
+        "typography": [],
+        "spacing": ["--spacing-2xl (24px) as new default card padding", "--spacing-4xl (32px) as section separation", "--gap-xl (1.5rem) as listing card gap"],
+        "new_tokens_needed": ["--spacing-comfortable: 24px (alias for default generous spacing)"]
+      },
+      "contrast_requirements": "N/A — this pattern is about space, not color contrast. Background color differences between bg-white and bg-light must be perceptible (>= 3% luminance difference).",
+      "visual_hierarchy_rule": "White space itself creates hierarchy. Sections with more surrounding space appear more important. The cleaning protocol section should have the most generous spacing on the listing page, signaling its importance.",
+      "brand_alignment": "Taste model: 'Premium-accessible. Feels high quality without feeling exclusive.' Generous white space is the primary mechanism for this — it costs nothing but communicates quality instantly."
+    },
+    {
+      "id": "looks-003",
+      "type": "visual_pattern",
+      "title": "Constrained Content Width for Focused Scanning",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "On wide screens, content stretches to fill available space, creating long line lengths and scattered attention. The listing page, proposal form, and Stays Manager all suffer from this. Refactoring UI states: 'If you only need 600px, use 600px. Spreading things out or making things unnecessarily wide just makes an interface harder to interpret.' For a guest evaluating a listing, wide content means more eye movement, slower scanning, and increased cognitive load.",
+      "solution": "Constrain primary content to optimal widths based on content type: (1) Listing text content: max-width 680px (45-75 characters per line at 16px). (2) Proposal form: max-width 520px (narrow enough for focused input). (3) Stays Manager main column: max-width 640px. (4) Pricing summaries: max-width 400px (compact data presentation). When the content area is narrower than the viewport, center it with generous margins. Supporting content (photos, maps) can extend wider. Apply the book's column-thinking principle: on wide screens, break into columns rather than stretching a single column.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, You don't have to fill the whole screen",
+          "type": "book",
+          "quote": "If you only need 600px, use 600px. Spreading things out or making things unnecessarily wide just makes an interface harder to interpret.",
+          "insight": "Content width should be optimized for readability, not for filling the viewport."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Keep your line length in check",
+          "type": "book",
+          "quote": "For the best reading experience, make your paragraphs wide enough to fit between 45 and 75 characters per line.",
+          "insight": "At 16px font size, 45-75 characters = ~500-680px. This is the target range for text content."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": [],
+        "typography": [],
+        "spacing": ["--container-sm (640px) for Stays Manager", "--container-md (900px) for listing pages with sidebar"],
+        "new_tokens_needed": ["--content-width-narrow: 520px (for forms)", "--content-width-text: 680px (for readable text blocks)"]
+      },
+      "contrast_requirements": "N/A — layout pattern, not color pattern.",
+      "visual_hierarchy_rule": "Narrower content feels more important and focused. The proposal form being narrower than the listing page signals 'this requires your focused attention'. The Stays Manager being narrower than the search page signals 'this is your personal space, not a marketplace'.",
+      "brand_alignment": "Taste model: 'Confident, not flashy.' Constrained width communicates confidence — the design does not try to fill every pixel, it occupies exactly the space it needs."
+    },
+    {
+      "id": "looks-004",
+      "type": "visual_pattern",
+      "title": "Type Scale for Trust and Clarity",
+      "journey_phases": ["discovery", "listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "The platform uses too many font sizes without a systematic relationship. Refactoring UI warns: 'Most interfaces use way too many font sizes... it leads to annoying inconsistencies.' For a guest journey where trust must be built progressively, inconsistent typography signals carelessness — the same signal as an unkempt apartment.",
+      "solution": "Implement a constrained type scale aligned with the style guide: 11, 12, 14, 16, 18, 20, 28, 32, 36px. Use px or rem units only (never em). Apply consistently: (1) Page headlines: 28px (--text-2xl) Inter bold. (2) Section headlines: 20px (--text-xl) Inter semibold. (3) Body text: 14px (--text-base) Inter normal. (4) Supporting/secondary text: 12px (--text-sm) Inter normal. (5) Pricing figures: 20-28px (--text-xl to --text-2xl) Inter bold. (6) Labels and badges: 11px (--text-xs) Inter semibold, uppercase with letter-spacing.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Establish a type scale",
+          "type": "book",
+          "quote": "Choosing font sizes without a system is a bad idea for two reasons: 1. It leads to annoying inconsistencies in your designs. 2. It slows down your workflow.",
+          "insight": "A systematic type scale creates the visual consistency that builds trust. Every inconsistency is a micro-erosion of credibility."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Avoid em units",
+          "type": "book",
+          "quote": "Stick to px or rem units — it's the only way to guarantee you're actually sticking to the system.",
+          "insight": "Em units cause computed sizes to drift from the scale. For trust-critical interfaces, predictable sizing is essential."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--text-dark (#1a1a1a) for headlines and primary text", "--text-gray (#6b7280) for secondary text", "--text-light-gray (#9ca3af) for tertiary text"],
+        "typography": ["Inter 700 at 28px for page headlines", "Inter 600 at 20px for section headlines", "Inter 400 at 14px for body", "Inter 600 at 11px uppercase for labels"],
+        "spacing": ["--line-height-tight (1.2) for headlines", "--line-height-normal (1.5) for body"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "WCAG AA: --text-dark on --bg-white = 16.1:1 (exceeds AAA). --text-gray on --bg-white = 4.6:1 (meets AA). --text-light-gray on --bg-white = 2.6:1 (fails AA for body text — use only for decorative/non-critical text).",
+      "visual_hierarchy_rule": "Font size creates the primary hierarchy. Price figures must be at least 20px to signal importance. Body text at 14px is the baseline — everything else is relative to it.",
+      "brand_alignment": "Style guide specifies Inter for primary UI and DM Sans as alternative display font. This pattern uses Inter exclusively for consistency. DM Sans reserved for marketing/brand pages outside the product journey."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-4 -->
+  <script id="data-layer-4" type="application/json">{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Live Price Recalculation on Term Configuration",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "William has 'no budget' — he is price-discovering, not price-confirming. When the guest configures terms (dates, duration, days per week) on the listing page, the price must update in real-time. Any delay between term selection and price display forces the guest to hold both values in working memory simultaneously, increasing cognitive load. Refactoring UI's principle of immediate feedback applies: the UI must respond at conversational speed — the same speed at which the agent calculated pricing on the call.",
+      "solution": "Implement optimistic, client-side price recalculation that updates within 100ms of any term input change: (1) As the guest drags the date range or selects days, the price summary updates live — no 'Calculate' button needed. (2) Use a subtle scale animation (1.0 -> 1.05 -> 1.0, 200ms) on the price figure when it changes, drawing the eye without being distracting. (3) If server validation is needed, show the client-calculated price immediately and reconcile silently. Only show a loading state if server response takes > 1 second. (4) On error (dates unavailable), replace the price with a clear error message in the same space — do not add a new element.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 0:40-0:55",
+          "type": "guest_call",
+          "quote": "Do you have a budget which you'd like to spend per night? I don't really have a budget now. I have to see.",
+          "insight": "The guest is discovering price, not confirming it. The UI must let him experiment with term configurations and see price consequences immediately."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Relative sizing doesn't scale",
+          "type": "book",
+          "quote": "Let go of the idea that everything needs to scale proportionately — giving yourself the freedom to fine-tune things independently makes it a hell of a lot easier to design for multiple contexts.",
+          "insight": "Applied to interaction: the price display does not need to wait for all fields to be configured. It can update independently as each field changes."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Price summary shows estimated total based on current term configuration. Nightly rate + total clearly displayed.",
+        "loading": "If server validation takes > 1s, show a subtle shimmer animation on the price figure (not a spinner). The previous price remains visible but slightly faded.",
+        "empty": "Before any terms are configured, show 'Configure your dates to see pricing' in the price summary area.",
+        "error": "If selected dates are unavailable, replace the price with an inline error: 'These dates are not available. Try adjusting your schedule.' Error uses --status-error color but NOT a modal or toast.",
+        "success": "After successful calculation, a subtle scale-pulse (200ms) on the price figure draws attention to the updated value."
+      },
+      "transition_principle": "All price updates use ease-out transitions. The price figure should feel like it settles into place — confident and resolved, not jittery. Never use bounce or spring easing for financial data.",
+      "timing": {
+        "response_target": "100ms for client-side recalculation. 1000ms maximum for server reconciliation.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) — the style guide's --easing-ease-out equivalent",
+        "rationale": "Price responsiveness must feel instantaneous to match conversational speed. The agent calculated pricing in real-time during the call; the platform must match this."
+      },
+      "journey_state_awareness": "First-time visitors see a tooltip explaining that the price updates as they adjust terms. Returning visitors (with prior proposals) do not see the tooltip. The price summary remembers the guest's last-configured terms across sessions.",
+      "edge_cases": [
+        "Guest selects dates that span a pricing tier change (e.g., 8 weeks at one rate, 12 weeks at a lower rate) — show both tiers with a 'You save X by extending to Y weeks' note",
+        "Guest selects all 7 days — redirect to a full-time lease suggestion rather than pricing the weekly model",
+        "Network failure during server reconciliation — keep showing the client-calculated price with a subtle 'prices may vary' disclaimer"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Cleaning Photo Submission as One-Tap Flow",
+      "journey_phases": ["active_lease"],
+      "problem": "William's cleanliness concern means cleaning photo submission is the highest-trust interaction in the active lease. If submitting photos is friction-heavy (open camera app, take photos, return to Split Lease, navigate to submission page, upload, confirm), compliance drops. Low compliance means William never sees proof that his co-tenant cleaned, and his anxiety from the call ('Doesn't sound too good to me') resurfaces every week. The submission flow must be faster than texting a photo to the co-tenant.",
+      "solution": "Design cleaning photo submission as a one-tap capture-and-send flow within the Stays Manager: (1) When the guest's stay ends, the primary action button in the Stays Manager changes to 'Submit Cleaning Photos'. (2) Tapping opens the native camera directly — no intermediate screen. (3) After capture, the photo appears in a preview with a single 'Send' button. (4) Submission uses optimistic UI — the photo appears as 'sent' immediately, with background upload. (5) Success confirmation appears inline: 'Cleaning photos submitted. Your co-tenant will see these.' (6) If the guest wants to add more photos, a '+' button appears after the first is sent.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 4:06-4:14",
+          "type": "guest_call",
+          "quote": "I don't want to use somebody else's sheets. How clean it's going to be.",
+          "insight": "Cleaning photos are the observable proof that resolves this concern. The submission flow must be so easy that compliance approaches 100%."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "When you take a hierarchy-first approach to designing the actions on a page, the result is a much less busy UI that communicates more clearly.",
+          "insight": "The cleaning photo submission IS the primary action at the end of a stay. It should be the only prominent action — not competing with 'View Lease', 'Message Host', or 'Change Dates'."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Primary button reads 'Submit Cleaning Photos' with a camera icon. Appears only when the guest's stay has ended and no photos have been submitted.",
+        "loading": "After capture, the photo thumbnail appears with a subtle upload progress indicator (thin purple bar beneath the thumbnail). Button text changes to 'Sending...'",
+        "empty": "N/A — this state only appears post-stay.",
+        "error": "If upload fails: 'Photo could not be sent. Tap to retry.' Photo remains in local storage. Retry is a single tap.",
+        "success": "Inline confirmation: checkmark + 'Photos submitted' + timestamp. The button disappears and the status zone updates to 'Cleaning verified'."
+      },
+      "transition_principle": "The photo preview should slide in from the bottom (200ms ease-out), suggesting the photo is entering the system. Success confirmation should fade in (300ms) — calm and settled.",
+      "timing": {
+        "response_target": "Camera opens within 200ms of button tap. Photo preview appears within 100ms of capture. Upload begins immediately — no 'Confirm Upload' step.",
+        "easing": "ease-out for all transitions in this flow",
+        "rationale": "This is a weekly task that must feel effortless. Any friction reduces compliance, which reduces trust between co-tenants."
+      },
+      "journey_state_awareness": "First submission: show a brief tooltip ('Take 2-3 photos showing the space is clean'). After the first successful submission: no tooltip, just the button. If photos are not submitted within 24 hours of stay end: nudge notification.",
+      "edge_cases": [
+        "Guest exits the camera without taking a photo — return to Stays Manager with the button still visible",
+        "Guest submits blurry/dark photos — accept them (do not add image quality gates that create friction)",
+        "Co-tenant disputes cleaning — photos become evidence in the dispute flow, so they must be timestamped and geotagged"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Progressive Confirmation for Commitment Escalation",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "The journey map shows every critical action requires a 'Yes, Proceed' confirmation dialog. But the book warns against applying the same treatment to all actions: destructive/high-severity actions should get strong confirmation treatment, while exploratory actions should not. Currently, the proposal submission (non-binding) and the acceptance (binding) use the same confirmation pattern, which either over-warns the explorer or under-warns the committer.",
+      "solution": "Implement progressive confirmation that escalates with commitment level: (1) PROPOSAL (non-binding): No modal confirmation. Inline success message: 'Your interest has been sent to the host. You can modify or withdraw at any time.' This matches the agent's verbal reassurance. (2) NEGOTIATION (counter-offer): Lightweight confirmation: a slide-up panel showing the comparison of original vs. counter terms, with 'Accept Counter' as secondary button and 'Counter Back' as tertiary. (3) ACCEPTANCE (binding): Full confirmation modal with summary of all terms, total cost, payment schedule, and primary 'Accept & Pay' button. This is the only point where 'Yes, Proceed' is appropriate.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Destructive actions",
+          "type": "book",
+          "quote": "Combine this with a confirmation step where the destructive action actually is the primary action, and apply the big, red, bold styling there.",
+          "insight": "Confirmation treatment should match action severity. Apply the full confirmation treatment only at the acceptance stage — the 'destructive' (irreversible) moment."
+        },
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated.",
+          "insight": "A confirmation modal on a non-binding proposal contradicts the agent's reassurance. If it is truly non-binding, why does the UI ask 'Are you sure?'"
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Action button visible with appropriate styling (secondary for proposal, primary for acceptance).",
+        "loading": "Optimistic UI for proposal (show success immediately). Full loading state for acceptance (spinner on button, disable other actions).",
+        "empty": "N/A",
+        "error": "Proposal error: inline message below the button. Acceptance error: modal stays open with error message and retry button.",
+        "success": "Proposal: inline green confirmation. Acceptance: full-screen success state with next steps."
+      },
+      "transition_principle": "Proposal success: subtle fade-in confirmation (200ms). Acceptance success: expand from center with gentle scale-up (400ms) — this is the most important moment in the journey and deserves the most deliberate transition.",
+      "timing": {
+        "response_target": "Proposal: < 200ms optimistic response. Acceptance: actual server confirmation required, target < 2s.",
+        "easing": "ease-out for proposal, ease-in-out for acceptance modal",
+        "rationale": "Proposal should feel lightweight. Acceptance should feel weighty and deliberate."
+      },
+      "journey_state_awareness": "First-time proposers see a 'This is non-binding' tooltip. Returning proposers do not. Acceptance always shows the full confirmation regardless of experience level.",
+      "edge_cases": [
+        "Guest double-taps the proposal button — debounce, show only one success message",
+        "Guest navigates away during acceptance loading — show a 'Your acceptance is being processed' banner when they return",
+        "Payment fails during acceptance — keep the modal open, show specific error ('Card declined'), allow retry or payment method change"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Context-Aware Primary Action in Stays Manager",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager must serve different guest intents across the stay lifecycle: before arrival (confirm arrival), during stay (view house manual), at departure (submit cleaning photos), between stays (change dates, review). A static page with all actions visible at once violates the single-primary-action principle. The guest must scan and decide what to do, which adds friction to a weekly touchpoint.",
+      "solution": "Implement a context-aware primary action that changes based on the current stay state: (1) PRE-ARRIVAL (2 days before scheduled arrival): Primary button = 'Confirm Arrival' / 'I'm on my way'. (2) DURING STAY: Primary = 'Access House Manual' (first stay) or no primary action (subsequent stays — the guest knows the drill). (3) POST-STAY (within 24h of departure): Primary = 'Submit Cleaning Photos'. (4) BETWEEN STAYS (no upcoming stay within 5 days): Primary = 'Request Date Change' or 'Review Last Stay'. Only ONE primary action is visible at a time. All other actions are accessible via secondary links below the primary.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "Most pages only have one true primary action.",
+          "insight": "The Stays Manager must have one primary action per state, not a toolbar of options. The action changes contextually."
+        },
+        {
+          "source": "William Romano.txt, 3:12-3:30",
+          "type": "guest_call",
+          "quote": "The person who is matched with you will have to clean before he uses, after you used it, before he used it. And after he used, he would have to prepare it for you to be clean.",
+          "insight": "The cleaning workflow has a clear lifecycle. The Stays Manager must mirror this lifecycle with its primary action, making the correct next step obvious."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "One primary action button reflecting current stay state. Subtitle text explains what will happen ('Confirm your arrival for Thursday').",
+        "loading": "Button shows loading spinner. Previous state text remains visible.",
+        "empty": "If no active lease: 'You have no active leases. Browse listings?' with a link.",
+        "error": "Error appears below the button: 'Could not confirm arrival. Try again.' Button remains tappable.",
+        "success": "Primary action completes, success message fades in, and the button transitions to the next state action (e.g., after confirming arrival, the next action becomes 'Submit Cleaning Photos' for post-stay)."
+      },
+      "transition_principle": "When the primary action changes state, it crossfades (old action fades out 200ms, new action fades in 200ms). The transition should feel like the page is adapting to the guest, not like the page is being rebuilt.",
+      "timing": {
+        "response_target": "State change detection: immediate (client-side). Action completion: < 1s. New action appearance: 400ms after current action completes.",
+        "easing": "ease-in-out for crossfade between actions",
+        "rationale": "The action state change is the most frequent interaction on the most-visited page. It must feel seamless."
+      },
+      "journey_state_awareness": "First active lease: include helper text explaining each action. After 3+ stays: reduce helper text to one line. After 8+ stays: no helper text — the guest has learned the rhythm.",
+      "edge_cases": [
+        "Guest has two active leases — show a lease selector above the primary action",
+        "Stay is cancelled after pre-arrival confirmation — primary action reverts to date-related actions",
+        "Guest misses the cleaning photo window (>48h after departure) — show 'Cleaning photos overdue' with urgent styling"
+      ]
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-5 -->
+  <script id="data-layer-5" type="application/json">{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "feels-001",
+      "type": "emotional_element",
+      "title": "Hygiene Assurance as Emotional Foundation",
+      "journey_phases": ["listing_evaluation", "move_in", "active_lease"],
+      "problem": "William's cleanliness anxiety ('I don't want to use somebody else's sheets') is not a rational objection — it is an emotional one. The visceral image of sleeping in a stranger's sheets triggers disgust, one of the most powerful negative emotions. No amount of logical reassurance ('we have cleaning protocols') will override this if the emotional channel is not addressed first. The platform currently speaks to the rational brain (policies, rules) without addressing the emotional brain (proof, visual assurance, hygiene cues).",
+      "solution": "Design the cleanliness communication to target the emotional channel first: (1) On the listing page, use a visual 'Cleanliness Guarantee' badge with an icon (sparkle/shield) — visual > text for emotional processing. (2) Use specific, sensory language: 'Fresh linens, labeled and stored separately for each guest' — not 'Cleaning responsibilities are shared.' The first sentence creates an image; the second creates a policy. (3) In the Stays Manager, show the co-tenant's last cleaning photos BEFORE the guest arrives — visual proof resolves emotional anxiety faster than any text. (4) After the guest's first stay, prompt a 'Cleanliness Rating' (1-5 sparkles) — making the guest feel heard about their #1 concern.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 4:06-4:14",
+          "type": "guest_call",
+          "quote": "I don't want to use somebody else's sheets.",
+          "insight": "This is not about sheets. It is about disgust and boundary violation. The emotional response must be met with emotional communication — visual proof, sensory language, personal assurance."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Balance weight and contrast",
+          "type": "book",
+          "quote": "Making the border a bit heavier by increasing the width helps to emphasize it without losing the softer look.",
+          "insight": "Applied emotionally: the cleanliness badge should feel 'heavier' than other listing metadata — more border weight, more contrast — signaling 'this matters, we take it seriously' without being aggressive."
+        }
+      ],
+      "priority": "high",
+      "target_emotion": "safety",
+      "emotion_rationale": "A guest who fears using a stranger's sheets needs to feel physically safe before anything else matters. Safety is the emotional prerequisite for all downstream engagement.",
+      "copy_guidelines": {
+        "voice": "warm, specific, sensory, personal",
+        "do": [
+          "Use sensory language: 'Fresh linens, clean surfaces, your own storage space'",
+          "Use second person: 'Your linens are labeled and stored separately'",
+          "Reference verification: 'Cleaning photos are submitted and verified before each guest arrives'"
+        ],
+        "dont": [
+          "Use policy language: 'Both parties are responsible for maintaining cleanliness standards'",
+          "Use corporate disclaimers: 'Split Lease is not responsible for the condition of the space'",
+          "Use vague assurances: 'We maintain high standards of cleanliness'"
+        ],
+        "example_good": "Your space is cleaned and verified before every stay. Fresh linens, clear surfaces, your belongings stored securely.",
+        "example_bad": "Our cleaning protocol requires both tenants to comply with cleaning standards as outlined in the lease agreement."
+      },
+      "animation_feel": {
+        "easing": "ease-out — settled and calm, not bouncy",
+        "feel_description": "The cleanliness badge should fade in gently, like a quiet assurance. Not a flashy reveal — quiet confidence.",
+        "duration_range": "200-300ms"
+      },
+      "tension_relief": {
+        "tension_point": "Guest sees 'Shared Living' on the listing and recalls their anxiety from the call",
+        "relief_point": "Guest sees the Cleanliness Guarantee section with specific, sensory promises",
+        "timing": "Relief must come within 5 seconds of the tension point — ideally on the same scroll position"
+      },
+      "personalization_signals": [
+        "After first stay, reference their specific space: 'Your linens for 67th St are stored in Bin C'",
+        "Show their co-tenant's name with the cleaning photos: 'Marcus submitted cleaning photos 2 hours ago'",
+        "After 3+ stays, reduce cleaning protocol visibility (the guest trusts the system) and surface reviews instead"
+      ],
+      "anti_patterns": [
+        {
+          "pattern": "Using fine print to disclose cleaning limitations",
+          "reason": "Fine print signals that the platform is hiding something — the exact opposite of safety",
+          "example_bad": "* Cleaning standards are subject to individual compliance and Split Lease makes no guarantees regarding space condition."
+        },
+        {
+          "pattern": "Showing cleaning responsibilities as a legal obligation",
+          "reason": "Legal framing triggers anxiety ('what if they don't comply?'), not safety",
+          "example_bad": "As per Section 4.3 of the lease agreement, the departing guest must clean the premises."
+        }
+      ]
+    },
+    {
+      "id": "feels-002",
+      "type": "emotional_element",
+      "title": "Low-Commitment Invitation at Proposal Stage",
+      "journey_phases": ["proposal_creation"],
+      "problem": "The proposal stage sits at the peak of commitment anxiety. The guest has seen the listing, accepted the sharing model in principle, and now must take an action that feels like it costs something — even though the agent said it is non-binding. The word 'Submit' triggers finality. The modal confirmation ('Are you sure?') implies the action is consequential. The overall emotional tone of the proposal flow is 'transaction' when it should be 'conversation'.",
+      "solution": "Reframe the proposal flow as an invitation rather than a transaction: (1) Replace 'Submit Proposal' with 'Send Your Interest' — language that mirrors the agent's verbal framing. (2) Replace the confirmation modal with inline feedback: 'Interest sent! The host will get back to you within 24 hours.' (3) Use a softer visual treatment for the proposal card: rounded corners, lower contrast background (bg-off-white), relaxed spacing — it should feel like a note, not a contract. (4) Add an escape hatch visible at all times: 'You can modify or withdraw this anytime.'",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated. The bid only indicates that you like it.",
+          "insight": "The agent frames the action as an expression of interest, not a commitment. The UI must evoke the same emotional tone."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "Secondary actions should be clear but not prominent. Outline styles or lower contrast background colors are great options.",
+          "insight": "The visual treatment (outline button, lower contrast) physically communicates 'this is lighter than it looks' — which is exactly the emotional message needed."
+        }
+      ],
+      "priority": "high",
+      "target_emotion": "confidence",
+      "emotion_rationale": "At the proposal stage, the guest needs confidence that they are in control — that expressing interest does not surrender control to the host or the platform.",
+      "copy_guidelines": {
+        "voice": "casual, encouraging, low-pressure",
+        "do": [
+          "Use conversational language: 'Let the host know you're interested'",
+          "Emphasize reversibility: 'You can change your mind anytime'",
+          "Set expectations: 'The host typically responds within 24 hours'"
+        ],
+        "dont": [
+          "Use transactional language: 'Submit your proposal for review'",
+          "Use urgency: 'Act now — this listing is popular!'",
+          "Use legal language: 'By submitting, you agree to our terms and conditions'"
+        ],
+        "example_good": "Interested? Send the host a note with your preferred dates. No commitment yet.",
+        "example_bad": "Submit your binding proposal. By proceeding, you agree to the listed terms."
+      },
+      "animation_feel": {
+        "easing": "ease-out — smooth and easy, like setting down a cup of coffee",
+        "feel_description": "The proposal submission should feel like sliding a note across a table — gentle, natural, no drama.",
+        "duration_range": "200-300ms"
+      },
+      "tension_relief": {
+        "tension_point": "Guest hovers over the 'Send Interest' button and hesitates — 'Am I committing?'",
+        "relief_point": "Sees the 'No commitment — you can modify or withdraw anytime' text beneath the button",
+        "timing": "Relief text must be visible without scrolling when the button is visible"
+      },
+      "personalization_signals": [
+        "Pre-fill dates from the guest's search context",
+        "Show the host's response time: 'This host typically responds within 6 hours'",
+        "If the guest has prior proposals, show: 'You sent 2 proposals this week — keep exploring!'"
+      ],
+      "anti_patterns": [
+        {
+          "pattern": "Using a confirmation modal for proposal submission",
+          "reason": "Modals imply 'this action is dangerous' — the opposite of the low-commitment message",
+          "example_bad": "Are you sure you want to submit this proposal? [Cancel] [Yes, Submit]"
+        },
+        {
+          "pattern": "Hiding the withdrawal option",
+          "reason": "If the guest cannot immediately see how to undo the action, it feels irreversible",
+          "example_bad": "To withdraw your proposal, go to Settings > My Proposals > Select > Withdraw"
+        }
+      ]
+    },
+    {
+      "id": "feels-003",
+      "type": "emotional_element",
+      "title": "Weekly Rhythm Confidence in Stays Manager",
+      "journey_phases": ["active_lease"],
+      "problem": "The guest visits the Stays Manager 13+ times during a 3-month lease. Each visit could feel like 'checking on a problem' (anxiety) or 'managing my home' (confidence). The current experience offers no emotional trajectory — visit 1 feels the same as visit 13. There is no sense of growing comfort, no acknowledgment that the guest has become a veteran of the system. Refactoring UI's principle of designing for the context, not just the component, applies: the emotional feel of the Stays Manager should evolve as the guest's relationship with the system matures.",
+      "solution": "Design the Stays Manager's emotional trajectory across the lease lifecycle: (1) FIRST 3 VISITS (weeks 1-3): Supportive and instructional. Prominent helper text, warm encouraging language ('Great first stay! Here is what comes next.'). Visual cues are generous (more spacing, more contrast on actions). Target emotion: safety. (2) VISITS 4-8 (weeks 4-8): Efficient and calm. Reduced helper text, the guest knows the rhythm. Visual cues become more compact. Target emotion: momentum. (3) VISITS 9+ (weeks 9+): Confident and minimal. No helper text, actions are muscle memory. Surface review prompts and stay metrics ('You have completed 9 stays'). Target emotion: confidence. The Stays Manager should feel like it grows up with the guest.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 3:53",
+          "type": "guest_call",
+          "quote": "That's the only thing I'm really concerned about.",
+          "insight": "This concern is acute at the start. By week 9, if the cleaning system has worked reliably, the concern has been replaced by routine confidence. The UI should reflect this emotional evolution."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Relationships within elements",
+          "type": "book",
+          "quote": "Let go of the idea that everything needs to scale proportionately — giving yourself the freedom to fine-tune things independently makes it a hell of a lot easier to design for multiple contexts.",
+          "insight": "The Stays Manager for a week-1 guest and a week-9 guest are different contexts. The emotional tuning should be independent for each stage, not proportionally scaled."
+        }
+      ],
+      "priority": "medium",
+      "target_emotion": "confidence",
+      "emotion_rationale": "The cumulative effect of 13+ positive visits should be confidence — 'this works, I trust this system, my living arrangement is solid.' Confidence is the emotional endgame for the entire guest journey.",
+      "copy_guidelines": {
+        "voice": "evolves from warm-supportive to calm-minimal",
+        "do": [
+          "Weeks 1-3: 'Welcome back! Your space is ready and verified.'",
+          "Weeks 4-8: 'Next stay: Thursday. All set.'",
+          "Weeks 9+: 'Stay 10 of 13. Everything is on track.'"
+        ],
+        "dont": [
+          "Use the same copy density at week 9 as week 1",
+          "Add new instructional content after the guest has learned the system",
+          "Use exclamation points or enthusiasm for routine actions after week 3"
+        ],
+        "example_good": "Stay 11 of 13. Next up: Thursday. Your space was cleaned and verified 3 hours ago.",
+        "example_bad": "Welcome back to your Stays Manager! Don't forget to submit your cleaning photos after each stay! Your next stay is coming up!"
+      },
+      "animation_feel": {
+        "easing": "ease-out — calm and settled throughout",
+        "feel_description": "Early visits: slightly more animated (subtle slide-ins for new information). Later visits: nearly static — the page loads and the guest finds everything where they expect it. Stability IS the animation.",
+        "duration_range": "200ms for early visits, 100ms for later visits"
+      },
+      "tension_relief": {
+        "tension_point": "Every arrival: 'Is the space clean?'",
+        "relief_point": "Cleaning photo thumbnail with timestamp visible in the STATUS zone",
+        "timing": "Instant — cleaning verification must be the first thing the guest sees on every visit"
+      },
+      "personalization_signals": [
+        "Stay count: 'Stay 7 of 13'",
+        "Co-tenant name: 'Marcus cleaned and verified 2h ago'",
+        "Pattern recognition: 'You usually arrive around 6pm on Thursdays' (if the guest consistently confirms at the same time)",
+        "Milestone acknowledgment: 'You have completed half your lease — how is it going?' (at the midpoint)"
+      ],
+      "anti_patterns": [
+        {
+          "pattern": "Treating every visit as the first visit",
+          "reason": "Repeating onboarding content to a veteran user feels patronizing and erodes confidence",
+          "example_bad": "Welcome to your Stays Manager! Here's how it works: [step 1] [step 2] [step 3]"
+        },
+        {
+          "pattern": "Adding gamification elements (badges, streaks, points)",
+          "reason": "This is someone's home, not an app to be gamified. Gamification trivializes the living arrangement.",
+          "example_bad": "You've earned the 'Clean Machine' badge for 5 consecutive cleaning photo submissions!"
+        }
+      ]
+    },
+    {
+      "id": "feels-004",
+      "type": "emotional_element",
+      "title": "Platform Identity Confidence at Discovery",
+      "journey_phases": ["discovery", "search"],
+      "problem": "William arrived from Craigslist and has no idea what Split Lease is. His first emotional state is confusion ('I got it from somebody... I guess it was off Craigslist'). Confusion is the opposite of confidence and trust. If the platform does not immediately resolve the identity question ('What is this? Is this legitimate?'), the guest's default emotional response is suspicion. The platform must convert confusion into curiosity within seconds.",
+      "solution": "Design the first-impression experience to resolve identity confusion within 3 seconds: (1) The landing page headline must answer 'What is this?' in one sentence: 'Split Lease: Flexible shared housing, matched to your schedule.' (2) Below the headline, a single sentence resolves 'Is this legitimate?': 'Verified listings. Background-checked hosts. Separate linens and storage.' (3) The primary action is 'Browse Listings' — no sign-up gate. (4) Visual treatment: generous white space, the purple brand palette, professional photography. The emotional target is curiosity — 'This looks interesting, let me see what is available.'",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 5:42-5:50",
+          "type": "guest_call",
+          "quote": "I got it from somebody who sent me the information... I guess it was off Craigslist.",
+          "insight": "The guest's mental model is 'this is a Craigslist thing.' The platform must immediately differentiate itself and establish a unique identity."
+        },
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Establish a type scale",
+          "type": "book",
+          "quote": "Choosing font sizes without a system is a bad idea for two reasons: 1. It leads to annoying inconsistencies. 2. It slows down your workflow.",
+          "insight": "The first impression is set by typography. A professional type scale with clear hierarchy (headline > subhead > body) signals 'this is a real company, not a Craigslist post.'"
+        }
+      ],
+      "priority": "high",
+      "target_emotion": "curiosity",
+      "emotion_rationale": "At discovery, the guest does not yet trust the platform. Trust must be earned. But curiosity can be sparked immediately — 'I want to see more' is the emotional gateway to trust.",
+      "copy_guidelines": {
+        "voice": "clear, direct, intriguing",
+        "do": [
+          "Answer 'What is this?' in one sentence",
+          "Use specific differentiators: 'matched to your schedule', 'separate linens'",
+          "Invite exploration: 'Browse listings near you'"
+        ],
+        "dont": [
+          "Use startup jargon: 'We're disrupting the mid-term housing space'",
+          "Require sign-up before showing value",
+          "Use Craigslist-like visual language (walls of text, minimal styling)"
+        ],
+        "example_good": "Flexible shared housing, matched to your schedule. Browse verified listings near 67th & First.",
+        "example_bad": "Welcome to Split Lease! Sign up to access our marketplace of premium shared living experiences."
+      },
+      "animation_feel": {
+        "easing": "ease-out — the page should feel like it settles into place confidently",
+        "feel_description": "The headline and primary listing cards should appear immediately — no loading animations, no skeleton screens. Instant presence signals confidence.",
+        "duration_range": "0ms for above-fold content, 200ms for below-fold lazy-loading"
+      },
+      "tension_relief": {
+        "tension_point": "Guest lands on the page and thinks 'What is this?'",
+        "relief_point": "Headline answers the question in one sentence",
+        "timing": "Immediate — under 1 second"
+      },
+      "personalization_signals": [
+        "If the guest arrived from a specific listing link, show that listing prominently: 'You were looking at [Listing Name] on the Upper East Side'",
+        "If location data is available, personalize: 'Listings near 67th & First Avenue'",
+        "If the referring agent is known, show their name: 'Referred by [Agent Name] at Split Lease'"
+      ],
+      "anti_patterns": [
+        {
+          "pattern": "Gating content behind a sign-up wall",
+          "reason": "A confused guest who is asked to sign up will leave immediately. Show value first, ask for credentials later.",
+          "example_bad": "Create an account to browse available listings."
+        },
+        {
+          "pattern": "Using a generic welcome screen",
+          "reason": "Generic greetings carry no information and waste the critical first impression",
+          "example_bad": "Welcome to Split Lease! We're glad you're here."
+        }
+      ]
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-6 -->
+  <script id="data-layer-6" type="application/json">{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "reinforcements": [
+    {
+      "new_element_id": "works-005",
+      "existing_element_id": "works-001",
+      "similarity": "Both address the Stays Manager as the critical recurring guest touchpoint. The existing library element (System 1 Trust Gate) prescribes passing System 1 assessment at every phase transition. The new element (Stays Manager as Weekly Command Center) prescribes a three-zone layout optimized for 13+ weekly visits. Both share the same insight: the Stays Manager must be instantly comprehensible without conscious effort.",
+      "combined_evidence": "Library evidence: associative coherence at transitions (Kahneman). New evidence: action hierarchy and spacing system (Refactoring UI) applied to the most-visited page. Combined insight: the Stays Manager must pass both the System 1 test (instant recognition) AND the action hierarchy test (single primary action per state). These are complementary rather than redundant — one addresses recognition, the other addresses action.",
+      "recommendation": "keep_both"
+    },
+    {
+      "new_element_id": "works-004",
+      "existing_element_id": "works-003",
+      "similarity": "Both address cognitive speed. The existing element (Match Platform's Cognitive Speed to Phone Call's Conversational Speed) prescribes platform interactions that match call efficiency. The new element (Systematic Spacing as Trust Infrastructure) prescribes a spacing system that enables automatic navigation — reducing the cognitive cost of every platform interaction.",
+      "combined_evidence": "Library evidence: Andreas describes two units in 7 seconds, platform must match this speed. New evidence: a systematic spacing scale (16px base, non-linear) creates visual rhythm that enables faster scanning. Combined: cognitive speed is achieved not just through fewer interactions (existing) but also through predictable visual patterns (new). Spacing IS speed.",
+      "recommendation": "keep_both"
+    },
+    {
+      "new_element_id": "works-002",
+      "existing_element_id": "works-004",
+      "similarity": "Both address proactive trust-building. The existing element (Bridge Human Trust to Digital Trust) prescribes referencing the agent and call during the digital experience. The new element (Proactive Objection Resolution) prescribes resolving the guest's #1 concern (cleanliness) at the point it arises. Both are about anticipating user needs before they are expressed.",
+      "combined_evidence": "Library evidence: the platform should feel like 'opening a letter from someone you just spoke with.' New evidence: the cleaning protocol section should resolve William's hygiene anxiety before he has to search for it. Combined: proactive trust-building applies to both the human-digital handoff (existing) and the concern-resolution handoff (new).",
+      "recommendation": "keep_both"
+    },
+    {
+      "new_element_id": "communicates-003",
+      "existing_element_id": "guest-works-003",
+      "similarity": "Both define the Stays Manager information hierarchy for depleted, recurring users. The existing element (from nneka-call run) prescribes a System 1 dashboard. The new element prescribes a NOW/NEXT/HISTORY hierarchy with column layout.",
+      "combined_evidence": "Both draw from different theoretical foundations (Kahneman's System 1 vs. Refactoring UI's information hierarchy) to reach the same structural conclusion: the Stays Manager needs temporal hierarchy (current state > next action > history) with fixed-width content zones. The convergence strengthens confidence significantly.",
+      "recommendation": "merge"
+    }
+  ],
+  "contradictions": [
+    {
+      "new_element_id": "looks-004",
+      "existing_element_id": "tokens.json typography",
+      "conflict": "The new element prescribes Inter and DM Sans (from the production style guide). The taste model prescribes Instrument Serif (headlines), Outfit (body), and IBM Plex Mono (data). The tokens.json also lists these non-production fonts. There is a split between the production codebase (Inter/DM Sans) and the design aspiration (Instrument Serif/Outfit/IBM Plex Mono).",
+      "evidence_comparison": "The style guide (production CSS variables) has stronger evidence — it reflects what is actually deployed. The taste model represents design intent. This run aligns with production.",
+      "recommendation": "Acknowledge the drift. For this run, use production fonts (Inter/DM Sans). Flag for design team: resolve whether the taste model should update to match production, or production should migrate to taste model fonts.",
+      "severity": "warning"
+    }
+  ],
+  "extensions": [
+    {
+      "new_element_id": "works-001",
+      "gap_filled": "Action hierarchy as a systematic principle across all guest journey decision points. Previous elements addressed cognitive speed and trust gates but not the visual/functional hierarchy of actions. This element introduces Refactoring UI's primary/secondary/tertiary framework as a cross-journey pattern.",
+      "confidence_note": "Strong theoretical backing from the book. Guest call evidence shows a hesitant user who needs clear action guidance. Single-lens confidence is moderate — would be strengthened by additional calls showing similar hesitation patterns."
+    },
+    {
+      "new_element_id": "works-003",
+      "gap_filled": "Non-binding commitment language as a systematic principle. Previous elements addressed trust and speed but not the specific problem of proposal-stage language creating false commitment anxiety. This is a new insight specific to the guest proposal flow.",
+      "confidence_note": "Strong evidence from the call — the agent explicitly reframes the proposal as non-binding. The book supports with secondary button styling. Single-lens confidence is high because the agent's own language validates the pattern."
+    },
+    {
+      "new_element_id": "feels-001",
+      "gap_filled": "Hygiene assurance as an emotional design principle. No existing library element addresses cleanliness anxiety specifically. This is a new emotional territory for the guest journey.",
+      "confidence_note": "Very strong evidence from the call — William's objection is visceral and specific. Single-lens confidence is high because the emotional intensity of the objection is unmistakable."
+    },
+    {
+      "new_element_id": "behaves-002",
+      "gap_filled": "Cleaning photo submission as a designed interaction pattern. The existing library discusses the Stays Manager but does not specify the cleaning photo flow. This element fills a critical behavioral gap in the active lease phase.",
+      "confidence_note": "Medium confidence with single lens. The cleaning photo flow is critical based on the journey map and William's concerns, but no existing run has validated the specific interaction pattern."
+    }
+  ],
+  "token_compliance": {
+    "new_tokens_flagged": [
+      "--spacing-comfortable: 24px (alias for default generous spacing) — from looks-002",
+      "--content-width-narrow: 520px (for forms) — from looks-003",
+      "--content-width-text: 680px (for readable text blocks) — from looks-003"
+    ],
+    "recommendation": "Add --content-width-narrow and --content-width-text to the token system — these fill a real gap. --spacing-comfortable is redundant with --spacing-2xl (24px) — use the existing token instead."
+  },
+  "emotional_arc_check": {
+    "journey_emotion_map": [
+      {"phase": "discovery", "target_emotions": ["curiosity"]},
+      {"phase": "search", "target_emotions": ["curiosity", "safety"]},
+      {"phase": "listing_evaluation", "target_emotions": ["safety"]},
+      {"phase": "proposal_creation", "target_emotions": ["confidence"]},
+      {"phase": "negotiation", "target_emotions": ["confidence"]},
+      {"phase": "acceptance", "target_emotions": ["confidence", "excitement"]},
+      {"phase": "move_in", "target_emotions": ["safety", "excitement"]},
+      {"phase": "active_lease", "target_emotions": ["confidence", "safety"]}
+    ],
+    "arc_conflicts": [
+      "No conflict detected. The arc flows from curiosity (discovery) through safety (evaluation) to confidence (proposal/acceptance) and back to safety+confidence (active lease). This is a natural arc for a cautious guest."
+    ],
+    "arc_assessment": "The emotional arc is coherent. The dominant pattern is: curiosity -> safety -> confidence -> safety+confidence. William's specific anxiety (cleanliness) places safety as a recurring theme across the middle and late phases, which is appropriate for a guest whose primary concern is hygiene. The arc does not include 'excitement' as a dominant emotion, which is correct — William is practical and cautious, not enthusiastic."
+  },
+  "coverage_map": {
+    "discovery": {"element_count": 2, "coverage": "moderate"},
+    "search": {"element_count": 3, "coverage": "moderate"},
+    "listing_evaluation": {"element_count": 7, "coverage": "strong"},
+    "proposal_creation": {"element_count": 6, "coverage": "strong"},
+    "negotiation": {"element_count": 3, "coverage": "moderate"},
+    "acceptance": {"element_count": 2, "coverage": "thin"},
+    "move_in": {"element_count": 2, "coverage": "thin"},
+    "active_lease": {"element_count": 7, "coverage": "strong"}
+  },
+  "loop_back_recommendations": [
+    {
+      "layer": "1",
+      "reason": "The acceptance phase has thin coverage. Consider whether the Refactoring UI lens reveals additional process patterns for the binding commitment moment — the destructive action confirmation principle may yield a dedicated element.",
+      "new_input": "Re-read the 'Destructive actions' section specifically for the acceptance flow."
+    },
+    {
+      "layer": "5",
+      "reason": "The move-in phase has thin emotional coverage. William's desire to visit NYC and see the space in person (7:18) suggests a strong emotional moment at first physical contact that is not fully captured.",
+      "new_input": "Consider the gap between digital listing and physical reality as an emotional design opportunity."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-7 -->
+  <script id="data-layer-7" type="application/json">{
+  "lens": {
+    "guest_call": "William Romano.txt",
+    "book_extract": "refactoringui-forms-buttons-components.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Action Hierarchy Click-Through Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "listing_evaluation", "proposal_creation", "acceptance"],
+      "problem": "If the single-primary-action principle is poorly implemented, guests will either not identify the primary action (too subtle) or feel pressured by competing actions (too many primaries). Both outcomes reduce conversion.",
+      "solution": "Run a first-click test on each key page: show the page to 20 new users for 5 seconds, then ask 'What would you click first?' If 70%+ identify the intended primary action, the hierarchy works.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Semantics are secondary",
+          "type": "book",
+          "quote": "When you take a hierarchy-first approach to designing the actions on a page, the result is a much less busy UI.",
+          "insight": "A 'less busy UI' can be measured by click convergence — do users agree on what to do first?"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "First-click test on listing page, proposal page, and acceptance page. Show each page for 5 seconds, ask 'What would you click?', measure convergence on the intended primary action.",
+      "success_criteria": "70%+ of test participants identify the intended primary action on each page within 5 seconds.",
+      "failure_meaning": "The action hierarchy is not visually distinct enough. The primary button may be too similar to secondary buttons, or there may be competing visual weight from other elements.",
+      "implementation_hint": "Use Maze or UsabilityHub for remote first-click testing. Alternatively, implement Playwright visual regression tests that verify the primary button has the highest contrast ratio on the page."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Cleaning Protocol Visibility Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "If the cleaning protocol section is not prominent enough, guests with cleanliness concerns will bounce from the listing page without finding the information that would resolve their objection.",
+      "solution": "A/B test listing pages with and without the prominent cleaning protocol section. Measure listing-to-proposal conversion rate for first-time guests.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 4:06",
+          "type": "guest_call",
+          "quote": "Doesn't sound too good to me, sharing it with someone else.",
+          "insight": "If this objection is common (validate with other call transcripts), the cleaning section should measurably improve conversion."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control = current listing page. Variant = listing page with prominent 'How Cleanliness Works' section above the fold. Measure listing-to-proposal conversion for first-time guests over 4 weeks.",
+      "success_criteria": "15%+ improvement in listing-to-proposal conversion rate for first-time guests in the variant group.",
+      "failure_meaning": "Either cleanliness is not as widespread a concern as William's call suggests, or the section design does not effectively communicate the protocol. Check heatmaps to see if users are reading the section.",
+      "implementation_hint": "Track analytics event: 'cleaning_section_visible' when the section enters the viewport. Compare with 'proposal_created' event. Use PostHog or Mixpanel for the A/B test."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Non-Binding Language Conversion Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["proposal_creation"],
+      "problem": "If the non-binding language change is ineffective, guests will continue to hesitate at the proposal stage, and conversion will not improve.",
+      "solution": "A/B test proposal button copy: 'Submit Proposal' vs. 'Send Your Interest'. Measure proposal creation rate and time-to-click on the proposal button.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 7:30-7:54",
+          "type": "guest_call",
+          "quote": "The bid does not mean that you are obligated.",
+          "insight": "The agent's framing reduced William's resistance. If the UI copy achieves the same effect, proposal rates should improve."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control = 'Submit Proposal' (solid primary button). Variant = 'Send Your Interest' (outline secondary button with 'No commitment' subtitle). Measure proposal creation rate over 4 weeks.",
+      "success_criteria": "20%+ increase in proposal creation rate. Secondary: 30%+ reduction in time from page load to button click.",
+      "failure_meaning": "Either the language change is insufficient (the button styling also matters), or the hesitation is not language-driven but price-driven. Check if guests who see pricing are more or less likely to convert.",
+      "implementation_hint": "Track 'proposal_button_hover' event to measure hesitation (hover without click). Compare hover-to-click ratio between variants."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Stays Manager Weekly Engagement Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the Stays Manager redesign fails, guests will stop visiting it weekly and revert to off-platform communication (texts, calls), losing the platform's role as the central touchpoint.",
+      "solution": "Track weekly Stays Manager visit rate before and after redesign. Monitor cleaning photo submission compliance as a secondary metric.",
+      "evidence": [
+        {
+          "source": "William Romano.txt, 3:53-4:06",
+          "type": "guest_call",
+          "quote": "That's the only thing I'm really concerned about.",
+          "insight": "If the Stays Manager successfully surfaces cleaning compliance (photos, timestamps), William's ongoing anxiety should decrease, and he will visit reliably rather than anxiously."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track: (1) Weekly active user rate on Stays Manager. (2) Average time-on-page per visit. (3) Cleaning photo submission rate. (4) Date Change Tool usage vs. off-platform communication volume. Measure for 8 weeks after redesign.",
+      "success_criteria": "85%+ of active guests visit Stays Manager at least once per week. Average time-on-page under 30 seconds (efficient task completion). Cleaning photo submission rate above 90%.",
+      "failure_meaning": "If visit rate is low, the Stays Manager is not providing enough value to justify weekly visits. If time-on-page is high (>60s), the information hierarchy is failing. If cleaning photo rate is low, the submission flow is too friction-heavy.",
+      "implementation_hint": "Instrument: page_view('stays_manager'), time_on_page(), cleaning_photo_submitted(), date_change_requested(source='stays_manager' vs 'direct_message'). Use Mixpanel retention analysis."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Spacing System Consistency Audit",
+      "validates_element": "works-004",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "If the spacing system is not consistently applied, the trust-building effect is undermined. Inconsistent spacing is invisible to developers but felt by users — the interface looks 'off' without the user being able to articulate why.",
+      "solution": "Automated visual regression testing that flags any spacing value not in the defined scale. Combined with periodic design review.",
+      "evidence": [
+        {
+          "source": "refactoringui-forms-buttons-components.txt, Establish a spacing and sizing system",
+          "type": "book",
+          "quote": "Painfully trialing arbitrary values one pixel at a time will drastically slow you down at best, and create ugly, inconsistent designs at worst.",
+          "insight": "Spacing consistency is a systemic property — it must be enforced systematically, not ad hoc."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "automated",
+      "test_description": "Playwright or Puppeteer script that crawls all guest-facing pages and extracts computed margin, padding, and gap values from all elements. Flag any value not in the defined scale (4, 8, 12, 16, 24, 32, 48, 64, 96px).",
+      "success_criteria": "95%+ of spacing values on guest-facing pages match the defined scale. Zero off-scale values on the Stays Manager page.",
+      "failure_meaning": "Developers are overriding the spacing system with arbitrary values. Common causes: one-off fixes, component-specific overrides, third-party component injection.",
+      "implementation_hint": "Playwright script: page.evaluate(() => { const all = document.querySelectorAll('*'); const scale = [0,4,8,12,16,24,32,48,64,96]; return [...all].filter(el => { const s = getComputedStyle(el); return ![s.marginTop, s.paddingTop, s.gap].every(v => scale.includes(parseInt(v))); }); });"
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Guest Journey Emotional Arc Validation",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Individual elements may test well in isolation but create a jarring emotional arc when experienced sequentially. The transition from curiosity (discovery) to safety (listing evaluation) to confidence (proposal) must feel natural, not abrupt.",
+      "solution": "Qualitative user journey testing: recruit 5 guests to walk through the full journey (discovery to first active lease visit) while thinking aloud. Record emotional state at each phase transition. Map actual emotional arc against the designed arc.",
+      "evidence": [
+        {
+          "source": "William Romano.txt (full transcript)",
+          "type": "guest_call",
+          "quote": "William's emotional journey: curious (0:55) -> anxious (4:06) -> reassured (4:28) -> willing (8:34)",
+          "insight": "The call demonstrates a natural emotional arc. The platform journey must replicate this arc — with the reassurance coming at the right moment, not too early and not too late."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Think-aloud journey test with 5 guest personas. At each phase transition, pause and ask: 'How are you feeling right now? On a scale of 1-5, how confident are you about continuing?' Map the confidence curve and compare to the designed emotional arc.",
+      "success_criteria": "Confidence score increases monotonically from discovery to acceptance (no dips). No participant reports confusion or anxiety at phase transitions. At least 4/5 participants complete the journey without wanting to stop.",
+      "failure_meaning": "If confidence dips at a specific transition, that transition is emotionally mishandled. Check the layer outputs for that phase and compare the designed emotion against the tested emotion.",
+      "implementation_hint": "Use Lookback.io or UserTesting.com for remote think-aloud sessions. Create a standardized script with emotional check-ins at each phase boundary."
+    }
+  ]
+}</script>
+
+  <header class="report-header">
+    <h1>Design Stack v2 Report</h1>
+    <div class="lens-label" id="lens-label"></div>
+    <div class="report-meta">
+      <span id="meta-date"></span>
+      <span id="meta-run-id"></span>
+      <span class="badge" id="meta-status"></span>
+      <span id="meta-elements"></span>
+    </div>
+  </header>
+
+  <div class="coherence-bar" id="coherence-bar">
+    <span class="count" id="coherence-count"></span>
+    <span id="coherence-summary"></span>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="active" data-tab="overview"><span class="layer-num">*</span> Overview</button>
+    <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
+    <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
+    <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
+    <button data-tab="layer-3"><span class="layer-num">3</span> Looks</button>
+    <button data-tab="layer-4"><span class="layer-num">4</span> Behaves</button>
+    <button data-tab="layer-5"><span class="layer-num">5</span> Feels</button>
+    <button data-tab="layer-6"><span class="layer-num">6</span> Coherence</button>
+    <button data-tab="layer-7"><span class="layer-num">7</span> Tests</button>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Overview Tab -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Lens Summary</h3>
+        <p id="overview-lens-summary" style="font-size:16px;color:var(--ink-soft);margin-bottom:20px;"></p>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;">Journey Phase Coverage</h4>
+        <div class="coverage-grid" id="overview-coverage"></div>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin:20px 0 12px;font-family:'IBM Plex Mono',monospace;">Run Statistics</h4>
+        <div id="overview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+      </div>
+      <div id="overview-highlights"></div>
+    </div>
+
+    <!-- Layer 0: Journey Context -->
+    <div class="tab-panel" id="panel-layer-0">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Layer 0: Journey Context</h3>
+        <div id="content-layer-0"></div>
+      </div>
+    </div>
+
+    <!-- Layers 1-5: Element Cards -->
+    <div class="tab-panel" id="panel-layer-1"><div id="content-layer-1"></div></div>
+    <div class="tab-panel" id="panel-layer-2"><div id="content-layer-2"></div></div>
+    <div class="tab-panel" id="panel-layer-3"><div id="content-layer-3"></div></div>
+    <div class="tab-panel" id="panel-layer-4"><div id="content-layer-4"></div></div>
+    <div class="tab-panel" id="panel-layer-5"><div id="content-layer-5"></div></div>
+
+    <!-- Layer 6: Coherence -->
+    <div class="tab-panel" id="panel-layer-6">
+      <div id="content-layer-6"></div>
+    </div>
+
+    <!-- Layer 7: Tests -->
+    <div class="tab-panel" id="panel-layer-7"><div id="content-layer-7"></div></div>
+
+  </main>
+
+  <footer style="text-align:center;padding:32px;color:var(--ink-ghost);font-size:12px;font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v2.0 — Element Pipeline
+  </footer>
+
+  <script>
+    function loadJSON(id) { try { return JSON.parse(document.getElementById(id)?.textContent || '{}'); } catch { return {}; } }
+
+    const config = loadJSON('run-config');
+    const layers = {};
+    for (let i = 0; i <= 7; i++) layers[i] = loadJSON(`data-layer-${i}`);
+
+    // Header
+    const lens = config.lens || layers[0]?.lens || {};
+    document.getElementById('lens-label').textContent = `Lens: ${lens.guest_call || lens.host_call || '?'} + ${lens.book_extract || '?'}`;
+    document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
+    document.getElementById('meta-run-id').textContent = config.run_id || '';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = config.status || 'pending';
+    statusEl.className = `badge badge-${config.status || 'partial'}`;
+
+    // Count elements
+    let totalElements = 0;
+    for (let i = 1; i <= 5; i++) totalElements += (layers[i]?.elements || []).length;
+    totalElements += (layers[7]?.elements || []).length;
+    document.getElementById('meta-elements').textContent = `${totalElements} elements`;
+
+    // Coherence bar
+    const coherence = layers[6] || {};
+    const contradictions = coherence.contradictions || [];
+    const reinforcements = coherence.reinforcements || [];
+    if (contradictions.length > 0) {
+      const bar = document.getElementById('coherence-bar');
+      bar.classList.add('has-flags');
+      document.getElementById('coherence-count').textContent = `${contradictions.length} contradiction${contradictions.length !== 1 ? 's' : ''}`;
+      document.getElementById('coherence-summary').textContent = `${reinforcements.length} reinforcement${reinforcements.length !== 1 ? 's' : ''} found`;
+    }
+
+    // Tab navigation
+    document.getElementById('tab-nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+    });
+
+    // Evidence toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('evidence-toggle')) {
+        const list = e.target.nextElementSibling;
+        list.classList.toggle('open');
+        e.target.textContent = list.classList.contains('open') ? 'Hide evidence' : `Show evidence (${list.children.length})`;
+      }
+    });
+
+    // Render element card
+    function renderElementCard(el) {
+      const phases = (el.journey_phases || []).map(p => `<span class="phase-tag">${p}</span>`).join('');
+      const evidenceItems = (el.evidence || []).map(ev =>
+        `<div class="evidence-item">
+          <div class="source">${ev.source || ''}</div>
+          ${ev.quote ? `<div class="quote">"${ev.quote}"</div>` : ''}
+          ${ev.insight ? `<div class="insight">${ev.insight}</div>` : ''}
+        </div>`
+      ).join('');
+      const evidenceCount = (el.evidence || []).length;
+
+      let extras = '';
+      // Layer-specific fields
+      if (el.user_goal) extras += `<div class="extra-field"><label>User Goal</label> <span class="value">${el.user_goal}</span></div>`;
+      if (el.company_goal) extras += `<div class="extra-field"><label>Company Goal</label> <span class="value">${el.company_goal}</span></div>`;
+      if (el.success_metric) extras += `<div class="extra-field"><label>Success Metric</label> <span class="value">${el.success_metric}</span></div>`;
+      if (el.time_budget) extras += `<div class="extra-field"><label>Time Budget</label> <span class="value">${el.time_budget}</span></div>`;
+      if (el.hierarchy_principle) extras += `<div class="extra-field"><label>Hierarchy</label> <span class="value">${el.hierarchy_principle}</span></div>`;
+      if (el.disclosure_pattern) extras += `<div class="extra-field"><label>Disclosure</label> <span class="value">${el.disclosure_pattern}</span></div>`;
+      if (el.cognitive_load_constraint) extras += `<div class="extra-field"><label>Cognitive Load</label> <span class="value">${el.cognitive_load_constraint}</span></div>`;
+      if (el.brand_alignment) extras += `<div class="extra-field"><label>Brand Alignment</label> <span class="value">${el.brand_alignment}</span></div>`;
+      if (el.visual_hierarchy_rule) extras += `<div class="extra-field"><label>Visual Hierarchy</label> <span class="value">${el.visual_hierarchy_rule}</span></div>`;
+      if (el.transition_principle) extras += `<div class="extra-field"><label>Transitions</label> <span class="value">${el.transition_principle}</span></div>`;
+      if (el.journey_state_awareness) extras += `<div class="extra-field"><label>Journey Awareness</label> <span class="value">${el.journey_state_awareness}</span></div>`;
+      if (el.target_emotion) extras += `<div class="extra-field"><label>Target Emotion</label> <span class="value" style="font-size:16px;font-weight:600;">${el.target_emotion}</span></div>`;
+      if (el.emotion_rationale) extras += `<div class="extra-field"><label>Why</label> <span class="value">${el.emotion_rationale}</span></div>`;
+      if (el.validation_method) extras += `<div class="extra-field"><label>Method</label> <span class="value">${el.validation_method}</span></div>`;
+      if (el.success_criteria) extras += `<div class="extra-field"><label>Success Criteria</label> <span class="value">${el.success_criteria}</span></div>`;
+      if (el.failure_meaning) extras += `<div class="extra-field"><label>Failure Means</label> <span class="value">${el.failure_meaning}</span></div>`;
+      if (el.test_description) extras += `<div class="extra-field"><label>Test</label> <span class="value">${el.test_description}</span></div>`;
+
+      // Copy guidelines
+      if (el.copy_guidelines) {
+        const cg = el.copy_guidelines;
+        extras += `<div class="extra-field" style="margin-top:8px;"><label>Copy Voice</label> <span class="value">${cg.voice || ''}</span></div>`;
+        if (cg.example_good) extras += `<div class="extra-field"><label>Good Example</label> <span class="value" style="color:var(--signal-success);">"${cg.example_good}"</span></div>`;
+        if (cg.example_bad) extras += `<div class="extra-field"><label>Bad Example</label> <span class="value" style="color:var(--signal-danger);text-decoration:line-through;">"${cg.example_bad}"</span></div>`;
+      }
+
+      // Anti-goals / anti-patterns
+      const antiItems = el.anti_goals || (el.anti_patterns || []).map(a => typeof a === 'string' ? a : a.pattern);
+      let antiHTML = '';
+      if (antiItems && antiItems.length) {
+        antiHTML = `<div style="margin-top:12px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--signal-danger);font-family:'IBM Plex Mono',monospace;">Anti-goals</label><ul style="margin-top:4px;padding-left:18px;font-size:13px;color:var(--ink-soft);">${antiItems.map(a => `<li>${a}</li>`).join('')}</ul></div>`;
+      }
+
+      return `<div class="element-card">
+        <div class="element-card-header">
+          <h3>${el.title || el.id}</h3>
+          <span class="type-badge type-${el.type || ''}">${(el.type || '').replace(/_/g, ' ')}</span>
+          <span class="priority-badge priority-${el.priority || 'low'}">${el.priority || 'low'}</span>
+        </div>
+        <div class="phase-tags">${phases}</div>
+        <div class="ps-grid">
+          <div class="ps-box problem"><label>Problem</label>${el.problem || 'N/A'}</div>
+          <div class="ps-box solution"><label>Solution</label>${el.solution || 'N/A'}</div>
+        </div>
+        ${extras ? `<div class="extra-fields">${extras}</div>` : ''}
+        ${antiHTML}
+        ${evidenceCount > 0 ? `<div style="margin-top:16px;">
+          <button class="evidence-toggle">Show evidence (${evidenceCount})</button>
+          <div class="evidence-list">${evidenceItems}</div>
+        </div>` : ''}
+      </div>`;
+    }
+
+    // Render element layers (1-5, 7)
+    [1,2,3,4,5,7].forEach(i => {
+      const container = document.getElementById(`content-layer-${i}`);
+      if (!container) return;
+      const data = layers[i];
+      const elements = data?.elements || [];
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No elements discovered by this layer.</p></div>';
+        return;
+      }
+      const layerNames = {1:'Process Patterns',2:'Info Architecture',3:'Visual Patterns',4:'Interaction Patterns',5:'Emotional Elements',7:'Validation Strategies'};
+      container.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:20px;">Layer ${i}: ${layerNames[i]} <span style="font-size:14px;color:var(--ink-muted);font-family:'IBM Plex Mono',monospace;">(${elements.length} element${elements.length!==1?'s':''})</span></h2>` + elements.map(renderElementCard).join('');
+    });
+
+    // Render Layer 0: Journey Context
+    (function renderJourney() {
+      const container = document.getElementById('content-layer-0');
+      if (!container) return;
+      const data = layers[0];
+      if (!data || !data.phases) { container.innerHTML = '<p style="color:var(--ink-ghost);font-style:italic;">No journey context data.</p>'; return; }
+
+      const phaseOrder = ['discovery','search','listing_evaluation','proposal_creation','negotiation','acceptance','move_in','active_lease'];
+      let html = '';
+      if (data.lens?.lens_summary) html += `<p style="font-size:15px;color:var(--ink-soft);margin-bottom:20px;">${data.lens.lens_summary}</p>`;
+      phaseOrder.forEach(phase => {
+        const p = data.phases[phase];
+        if (!p) return;
+        const risk = p.dropout_risk?.level || 'low';
+        html += `<div class="phase-card">
+          <h4>${phase.replace(/_/g, ' ')}</h4>
+          <p>${p.what_this_lens_reveals || 'No data for this phase.'}</p>
+          ${p.user_state ? `<p style="font-size:12px;color:var(--ink-muted);"><strong>Emotional:</strong> ${p.user_state.emotional_state || '?'} | <strong>Knowledge:</strong> ${p.user_state.knowledge_level || '?'} | <strong>Commitment:</strong> ${p.user_state.commitment_level || '?'}</p>` : ''}
+          <span class="risk risk-${risk}">${risk} dropout risk</span>
+        </div>`;
+      });
+      if (data.cross_phase_patterns?.length) {
+        html += '<h4 style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;color:var(--accent);margin:20px 0 10px;text-transform:uppercase;">Cross-Phase Patterns</h4>';
+        data.cross_phase_patterns.forEach(cp => {
+          html += `<div class="phase-card"><p><strong>${cp.pattern}</strong></p><p style="font-size:12px;color:var(--ink-muted);">Affects: ${(cp.phases_affected||[]).join(', ')} | ${cp.evidence || ''}</p></div>`;
+        });
+      }
+      container.innerHTML = html;
+    })();
+
+    // Render Layer 6: Coherence
+    (function renderCoherence() {
+      const container = document.getElementById('content-layer-6');
+      if (!container) return;
+      const data = layers[6];
+      if (!data || Object.keys(data).length === 0) { container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence data.</p></div>'; return; }
+
+      let html = '';
+
+      // Reinforcements
+      if (data.reinforcements?.length) {
+        html += `<div class="coherence-section"><h3>Reinforcements (${data.reinforcements.length})</h3>`;
+        data.reinforcements.forEach(r => {
+          html += `<div class="reinforcement-card"><div class="card-label" style="color:var(--signal-success);">Reinforcement</div>
+            <p><strong>${r.new_element_id}</strong> reinforces <strong>${r.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${r.similarity || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${r.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Contradictions
+      if (data.contradictions?.length) {
+        html += `<div class="coherence-section"><h3>Contradictions (${data.contradictions.length})</h3>`;
+        data.contradictions.forEach(c => {
+          html += `<div class="contradiction-card"><div class="card-label" style="color:var(--signal-danger);">${c.severity || 'warning'}</div>
+            <p><strong>${c.new_element_id}</strong> conflicts with <strong>${c.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${c.conflict || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${c.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Extensions
+      if (data.extensions?.length) {
+        html += `<div class="coherence-section"><h3>Extensions (${data.extensions.length})</h3>`;
+        data.extensions.forEach(ext => {
+          html += `<div class="extension-card"><div class="card-label" style="color:var(--signal-info);">New Territory</div>
+            <p><strong>${ext.new_element_id}</strong> — ${ext.gap_filled || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">${ext.confidence_note || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Coverage Map
+      if (data.coverage_map) {
+        html += '<div class="coherence-section"><h3>Journey Coverage</h3><div class="coverage-grid">';
+        Object.entries(data.coverage_map).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          html += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g, ' ')}</div>
+            <div class="count">${info.element_count || 0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Emotional Arc
+      if (data.emotional_arc_check) {
+        const arc = data.emotional_arc_check;
+        html += `<div class="coherence-section"><h3>Emotional Arc</h3>`;
+        if (arc.journey_emotion_map?.length) {
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">';
+          arc.journey_emotion_map.forEach(em => {
+            html += `<div style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;text-align:center;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-muted);text-transform:uppercase;">${em.phase}</div>
+              <div style="font-weight:600;color:var(--accent);margin-top:2px;">${(em.target_emotions||[]).join(', ')}</div>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        if (arc.arc_assessment) html += `<p style="font-size:14px;color:var(--ink-soft);">${arc.arc_assessment}</p>`;
+        html += '</div>';
+      }
+
+      container.innerHTML = html || '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence issues detected.</p></div>';
+    })();
+
+    // Overview tab
+    (function renderOverview() {
+      // Coverage
+      const coverageContainer = document.getElementById('overview-coverage');
+      const coverageData = layers[6]?.coverage_map;
+      if (coverageData && coverageContainer) {
+        Object.entries(coverageData).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          coverageContainer.innerHTML += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g,' ')}</div>
+            <div class="count">${info.element_count||0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+      }
+
+      // Lens summary
+      const summaryEl = document.getElementById('overview-lens-summary');
+      if (summaryEl) summaryEl.textContent = layers[0]?.lens?.lens_summary || 'No lens summary available.';
+
+      // Stats
+      const statsEl = document.getElementById('overview-stats');
+      if (statsEl) {
+        const stats = [
+          { label: 'Elements', value: totalElements },
+          { label: 'Reinforcements', value: reinforcements.length },
+          { label: 'Contradictions', value: contradictions.length },
+          { label: 'Extensions', value: (coherence.extensions||[]).length }
+        ];
+        statsEl.innerHTML = stats.map(s =>
+          `<div style="padding:14px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--accent);">${s.value}</div>
+            <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--ink-muted);text-transform:uppercase;">${s.label}</div>
+          </div>`
+        ).join('');
+      }
+
+      // High-priority highlights
+      const highlightsEl = document.getElementById('overview-highlights');
+      if (highlightsEl) {
+        let highPriority = [];
+        [1,2,3,4,5,7].forEach(i => {
+          (layers[i]?.elements || []).forEach(el => {
+            if (el.priority === 'high') highPriority.push(el);
+          });
+        });
+        if (highPriority.length) {
+          highlightsEl.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:24px 0 16px;">High-Priority Elements</h2>` + highPriority.map(renderElementCard).join('');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

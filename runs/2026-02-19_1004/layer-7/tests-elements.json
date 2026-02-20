@@ -1,0 +1,385 @@
+{
+  "lens": {
+    "host_call": "hemeden-call.txt",
+    "book_extract": "donnorman-affordances-signifiers-feedback.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Signifier Discoverability Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "evaluation", "onboarding"],
+      "problem": "If signifiers for host controls and protections are not perceived before decisions are requested, the host will still need to call an agent to discover what protections exist -- the phone call dependency that works-001 is designed to eliminate.",
+      "solution": "Run a first-visit usability test where the host is given the scenario 'You spoke with an agent about renting your spare room. Now open the platform for the first time.' Measure whether the host can identify their three core protections (anti-squatter clause, damage deposit, payment guarantee) from the platform alone, without asking the moderator.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 03:01-04:44",
+          "type": "host_call",
+          "quote": "Part of the agreement which our guests signed with host... guests explicitly agrees that property is not intended to become his or her [primary residence].",
+          "insight": "The anti-squatter clause required a verbatim phone reading to discover. If the platform's signifiers are working, a usability test participant should find this protection without verbal guidance."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Signifiers",
+          "type": "book",
+          "quote": "Signifiers must be perceivable, else they fail to function.",
+          "insight": "The test measures perceivability directly: can the host see the signifiers without prompting?"
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 participants who have never hosted before and who own or rent their primary residence. Brief them with a scenario matching Hemeden's situation (spare room available, considering renting). Give them access to the platform evaluation and onboarding screens. Ask them to list all protections they can find within 3 minutes. Do not prompt or guide. Record which protections they identify and how long it takes.",
+      "success_criteria": "At least 4 of 5 participants identify all three core protections (anti-squatter clause, damage deposit, payment guarantee) within 3 minutes from the platform interface alone, without asking questions or navigating to help/FAQ pages.",
+      "failure_meaning": "If participants cannot find protections, the signifier layer is still invisible. The platform has the affordances but not the signifiers. Redesign the protection badge system (looks-001) for greater visual prominence, or reconsider placement in the visual hierarchy.",
+      "implementation_hint": "Unmoderated remote usability test via UserTesting or Maze. Screen-record participants navigating the evaluation and onboarding screens. Track eye movement patterns if available. Code each protection found/missed and the discovery path (direct scan vs. click-through vs. asked moderator)."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Constraint-First Listing Completion Rate Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["listing_creation", "proposal_mgmt"],
+      "problem": "If the constraint-first listing architecture does not improve completion rates for owner-occupant hosts, the inversion of the traditional listing hierarchy (constraints before features) may be adding friction rather than reducing it.",
+      "solution": "A/B test the constraint-first listing flow against the feature-first listing flow for hosts who self-identify as living in their rental space. Measure listing wizard completion rate, time-to-completion, and first-incompatible-proposal rate.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 00:30",
+          "type": "host_call",
+          "quote": "I'm not really comfortable with that. I don't really want people coming in and out of my house cause I lived there.",
+          "insight": "The host's first statement is a constraint. If constraint-first ordering matches this mental model, completion rates should improve for this host type."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.4",
+          "type": "book",
+          "quote": "Constraints That Force the Desired Behavior.",
+          "insight": "Norman's forcing-function principle predicts that constraint-first design will produce better downstream outcomes (fewer incompatible proposals). The A/B test validates whether this prediction holds."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Segment new hosts by occupancy type (owner-occupant vs. investor). For owner-occupant hosts, randomly assign to (A) constraint-first listing flow (constraints screen 1, features screen 2) or (B) feature-first listing flow (features screen 1, constraints screen 2). Run for minimum 200 hosts per variant or 4 weeks, whichever comes first. Track: wizard completion rate, time-to-completion, constraint setup completion rate, and incompatible proposal rate in the first 30 days.",
+      "success_criteria": "Constraint-first variant (A) shows a statistically significant improvement (p < 0.05) in listing wizard completion rate for owner-occupant hosts, with at least a 10 percentage point increase. Secondary: incompatible proposal rate decreases by at least 30% for hosts who complete constraint setup.",
+      "failure_meaning": "If constraint-first does not improve completion rates, the problem may not be ordering but rather the listing flow length, the number of constraint options, or the host's inability to define their constraints in the platform's terms. Re-examine whether the constraint fields match Hemeden's natural vocabulary (max guests, max stay, availability window) or introduce platform jargon.",
+      "implementation_hint": "Feature flag the listing flow order. Segment by a field in the host profile (owner-occupant checkbox during signup). Use Mixpanel or Amplitude funnel analysis. Ensure both variants have identical content and field count -- only the ordering changes."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Financial Feedback Comprehension Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["pricing", "proposal_mgmt"],
+      "problem": "If the real-time financial feedback display does not produce accurate host comprehension of net income, the host will still make pricing decisions in the dark -- the exact state Hemeden was in when she nearly abandoned over payment timing.",
+      "solution": "Post-pricing-completion survey embedded in the listing flow. After the host sets their nightly rate and reviews the financial feedback panel, ask a single comprehension question: 'Based on what you see, approximately how much would you earn from a 3-week stay after taxes and fees?' Compare the host's answer to the platform's calculated net income.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 06:36",
+          "type": "host_call",
+          "quote": "I don't know. I'm going to have to look into that.",
+          "insight": "The host cannot complete the pricing equation. If the financial feedback panel is working, the host should be able to answer this question from the platform display alone."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting.",
+          "insight": "The validation measures whether the immediate feedback produces actual comprehension, not just visual presence."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After the host completes the pricing step in the listing wizard, present a single inline question: 'Quick check: approximately how much would you earn from a 3-week stay after fees and taxes?' with a free-text number input. Compare the host's response to the platform's actual calculated net income for a 3-week stay at their entered rate. Calculate accuracy as percentage of hosts within 10% of the correct answer.",
+      "success_criteria": "At least 85% of hosts who complete the pricing step with the financial feedback panel can correctly estimate their 3-week net income within a 10% margin of the platform's calculation.",
+      "failure_meaning": "If comprehension is below 85%, the financial feedback display is visually present but not cognitively processed. Possible causes: net income number is not visually dominant enough (increase type size, check contrast), the two-scenario layout is confusing (simplify to one scenario with toggle), or the tax estimate is not trusted (add source attribution). Revisit looks-003 visual hierarchy.",
+      "implementation_hint": "Embed the comprehension question as an optional step between pricing and the next wizard screen. Track response rate and accuracy. Use a simple absolute difference calculation (|host_answer - platform_answer| / platform_answer). Log both the host's entered nightly rate and the platform's displayed net income to diagnose where misunderstandings occur."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "External Deferral Reduction Validation",
+      "validates_element": "works-004",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the self-contained system image does not reduce external deferrals, hosts will still leave the platform for days to consult lawyers and research tax rates -- the exact dropout-causing pattern from Hemeden's call.",
+      "solution": "Track the rate at which hosts defer decisions to external authorities (request legal documents for lawyer review, leave the pricing step without completing it, abandon onboarding mid-flow). Compare pre- and post-implementation of the self-contained decision surfaces.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 04:44",
+          "type": "host_call",
+          "quote": "Do you mind sending me that document so that I can have like a lawyer review this?",
+          "insight": "An explicit external deferral. The validation measures whether the platform's plain-language legal summaries reduce the frequency of such deferrals."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 System Image",
+          "type": "book",
+          "quote": "The entire burden of communication is on the system image.",
+          "insight": "If the system image is complete, external deferrals should decrease. The validation tests this prediction directly."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Instrument three deferral signals: (1) 'Download agreement' click without subsequent onboarding completion within 48 hours, (2) pricing step abandonment (user exits the pricing screen without saving a rate), (3) onboarding flow drop-off at legal agreement review step. Track these rates before and after implementing self-contained decision surfaces (plain-language clause summaries, tax rate lookup by zip code, payment timing comparison). Run for 8 weeks minimum post-implementation.",
+      "success_criteria": "At least a 40% reduction in the rate of external deferrals (measured as the combined rate of the three deferral signals) compared to baseline. Secondary: onboarding completion rate increases by at least 15 percentage points.",
+      "failure_meaning": "If deferrals do not decrease, the plain-language summaries may not be trusted -- the host still needs a lawyer even with the summary available. This would indicate a deeper trust issue that information design alone cannot solve. Consider adding social proof (e.g., 'reviewed by 50+ host lawyers') or a direct legal consultation option within the platform.",
+      "implementation_hint": "Use event tracking (Segment, Mixpanel) for each deferral signal. Define 'external deferral' as: agreement downloaded + no onboarding completion within 48 hours; pricing step visited + no rate saved within session; legal review step reached + session ended within 30 seconds. Compare cohorts before and after self-contained surfaces launch."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Action-to-Outcome Mapping Clarity Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "If the causal chain from host action to system outcome is not visible, hosts will configure their listings incorrectly or be surprised by the consequences of their settings -- the broken mapping that Hemeden experienced with price-duration-tax interactions.",
+      "solution": "Usability test where participants are asked to change a specific setting (max stay duration from 30 nights to 21 nights) and then describe what they expect will happen as a result. Measure whether their expectation matches the actual system behavior.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 06:57",
+          "type": "host_call",
+          "quote": "We go certain nights and everybody wins because you don't have to pay uncle Sam or we go less certain nights and then I have to collect the texts on your behalf.",
+          "insight": "The COO had to verbally explain the duration-tax interaction. If the mapping is working, participants should understand this interaction from the interface alone."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Mapping",
+          "type": "book",
+          "quote": "A device is easy to use when the set of possible actions is visible, when the controls and displays exploit natural mappings.",
+          "insight": "The validation tests whether the mapping between controls and outcomes is indeed visible and understandable."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 participants with no prior hosting experience. Give them a listing with max stay set to 35 nights and ask them to change it to 21 nights. After the change, ask: 'What just changed besides the number?' and 'How will this affect your income from a 3-week stay?' Record their responses verbatim. Code for: (a) awareness of tax implication, (b) awareness of proposal filtering change, (c) accurate income estimate.",
+      "success_criteria": "At least 4 of 5 participants correctly identify at least one downstream consequence of the setting change (tax implication or proposal filtering) without prompting. At least 3 of 5 provide an income estimate within 15% of the platform's calculation.",
+      "failure_meaning": "If participants cannot identify downstream consequences, the outcome preview (before/after display) is either not visible enough, not placed close enough to the control, or uses language the host does not understand. Revisit looks-003 (financial feedback display) and looks-006 (decision surface containment) for spatial proximity between controls and outcomes.",
+      "implementation_hint": "Moderated remote usability test. Use think-aloud protocol. Screen record + code responses. Key observation: does the participant notice the financial feedback panel update when they change the duration? If not, the animation timing or visual prominence of the update needs adjustment."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Verbal-to-Digital Concordance Fidelity Validation",
+      "validates_element": "works-006",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the platform's terminology diverges from the phone call's vocabulary, the host's conceptual model fractures and she cannot trust the platform as a continuation of the conversation.",
+      "solution": "Audit 10 host call transcripts and map every term, promise, and process described to its corresponding platform element. Calculate the concordance rate -- the percentage of call-described elements that have an exact or near-exact match on the platform.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 13:48",
+          "type": "host_call",
+          "quote": "I just started doing this.",
+          "insight": "A novice host has no vocabulary beyond the call. If the platform introduces unfamiliar terms, the novice has no framework to interpret them. The concordance audit catches these mismatches before they reach the host."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 System Image",
+          "type": "book",
+          "quote": "When the system image is incoherent or inappropriate, the user cannot easily use the device.",
+          "insight": "Terminology mismatch is the most direct form of system image incoherence. The audit measures coherence quantitatively."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Select 10 host call transcripts (including hemeden-call.txt and andreas-call.txt). For each call, extract every hosting-specific term, financial figure, process description, and promise. Map each to the corresponding platform UI element (label, heading, button text, notification copy). Code as: exact match, near-match (same meaning, slightly different wording), mismatch (different term for the same concept), or missing (call term has no platform equivalent). Calculate concordance rate as (exact + near-match) / total terms.",
+      "success_criteria": "Concordance rate of at least 90% across all 10 transcripts. No critical mismatches (different terms for safety-related concepts like 'anti-squatter clause' or payment timing). No more than 3 missing terms per transcript.",
+      "failure_meaning": "If concordance is below 90%, the platform's copy was written without reference to host call vocabulary. The fix is a terminology concordance document that maps call terms to platform terms and is enforced in all copy reviews. Mismatches in safety-related terms are critical severity and must be fixed immediately.",
+      "implementation_hint": "Create a spreadsheet with columns: call_term, call_source, platform_element, platform_location, match_type. Two reviewers independently code each term. Resolve disagreements by consensus. Output becomes the official verbal-to-digital concordance referenced by communicates-006."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Structured Checkpoint Engagement Validation",
+      "validates_element": "works-007",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "If structured checkpoints (trial night, payment confirmation, 4-week review, end-of-stay summary) do not engage hosts at the expected rates, the checkpoint model may be too passive or poorly timed, leaving hosts without the sense of control it was designed to provide.",
+      "solution": "Track engagement rates for each of the four checkpoints during the first 50 active leases using the new checkpoint system. Measure response rate, response time, and the action taken (extend, end, or no response).",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 11:44",
+          "type": "host_call",
+          "quote": "Would it be fair to say that you would review it after those four weeks?",
+          "insight": "The 4-week review was negotiated into the hosting arrangement. If the checkpoint system is working, hosts should engage with this review at high rates because they expect it."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback has to be planned. All actions need to be confirmed, but in a manner that is unobtrusive.",
+          "insight": "The validation tests whether planned, prioritized feedback actually produces engagement or is ignored."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "For the first 50 active leases using the structured checkpoint system, track: (1) Trial night post-stay prompt: response rate and time-to-response, (2) First payment confirmation: open rate and any support tickets within 48 hours, (3) 4-week review: response rate, time-to-response, and action taken (extend/end), (4) End-of-stay summary: view rate and re-hosting intent signal. Define 'engagement' as any interaction within 72 hours of checkpoint delivery.",
+      "success_criteria": "4-week review checkpoint: engagement rate above 70% within 48 hours. Payment confirmation: open rate above 90%. Trial night prompt: response rate above 60%. End-of-stay summary: view rate above 50%. Lease extension rate at the 4-week checkpoint above 50%.",
+      "failure_meaning": "If engagement is below targets, possible causes: (1) push notifications are being muted or ignored -- check delivery and open rates, (2) the checkpoint arrives at a bad time (e.g., during work hours for 9-to-5 hosts) -- adjust delivery timing, (3) the checkpoint requires too much effort to respond to -- simplify to a single tap, (4) the host does not understand what the checkpoint is asking -- revisit copy clarity.",
+      "implementation_hint": "Use event tracking for each checkpoint interaction: delivered, opened, responded, action_taken. Segment by host type (owner-occupant vs. investor) and time-of-delivery. Dashboard in analytics tool showing checkpoint funnel per lease."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Protection Badge Visibility and Trust Impact Validation",
+      "validates_element": "looks-001",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "If the protection badge visual signifier system is not perceived or not trusted, the badges become decorative elements that fail to reduce the host's reliance on phone calls for trust-building information.",
+      "solution": "Eye-tracking usability study measuring first-fixation time on protection badges and a pre/post trust survey measuring whether badge exposure increases the host's stated confidence in platform protections.",
+      "evidence": [
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Signifiers",
+          "type": "book",
+          "quote": "In design, signifiers are more important than affordances, for they communicate how to use the design.",
+          "insight": "The badge system creates signifiers for existing affordances. The eye-tracking study validates that these signifiers are actually perceived, not just present."
+        },
+        {
+          "source": "hemeden-call.txt, 04:44",
+          "type": "host_call",
+          "quote": "Do you mind sending me that document so that I can have like a lawyer review this?",
+          "insight": "If badges work, fewer hosts should need to request documents for external verification. The trust survey measures whether stated confidence increases."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8-10 participants who have never hosted before. Show them the evaluation and onboarding screens with protection badges. Use eye-tracking (or attention-tracking via webcam tools like Lumen or RealEye) to measure: first fixation time on each badge, total dwell time on badge area, and scan path relative to decision buttons. Follow with a trust survey: 'On a scale of 1-7, how confident are you that the platform protects you if a guest causes problems?' Compare to a control group who sees the same screens without protection badges.",
+      "success_criteria": "First fixation on at least one protection badge occurs within 3 seconds of page load for at least 7 of 10 participants. Trust survey mean score is at least 1.5 points higher (on 7-point scale) for the badge group compared to control.",
+      "failure_meaning": "If badges are not fixated within 3 seconds, they are placed too low in the visual hierarchy or do not have sufficient visual differentiation from surrounding content. Revisit looks-001 for contrast, size, and placement. If badges are fixated but trust scores do not improve, the badge copy may not be credible -- consider replacing marketing-adjacent language with specific, verifiable claims.",
+      "implementation_hint": "Remote unmoderated eye-tracking study using RealEye or Lumen Research. Between-subjects design: badge group vs. no-badge control. Show each group the same screens (evaluation landing, onboarding agreement, proposal card) and measure attention and trust. Keep the study under 10 minutes to maintain participant engagement."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Proposal Triage Speed Validation",
+      "validates_element": "looks-004",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the compatibility-first proposal card does not enable faster triage, the three-band visual structure may be adding visual complexity without improving the host's decision speed -- the host still reads the full card before checking compatibility.",
+      "solution": "Timed triage test: present hosts with 5 proposal cards (3 compatible, 2 incompatible) and measure how quickly they can sort them into accept-for-review and reject piles. Compare the three-band card to a standard card (photo-first, details in body).",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 08:51",
+          "type": "host_call",
+          "quote": "Well, yeah, that might not work.",
+          "insight": "11-second rejection based on a single incompatible parameter. The proposal card should enable this same speed digitally. The triage test measures whether it does."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Signifiers",
+          "type": "book",
+          "quote": "Signifiers must be perceivable, else they fail to function.",
+          "insight": "Compatibility indicators are signifiers. The triage test measures whether they are perceived quickly enough to function as the primary filter signal."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8-10 participants. Set up constraints (available Sep 10+, max 4 weeks, 1 guest). Present 5 proposal cards: 3 that match all constraints, 2 that violate at least one. Within-subjects A/B: each participant sees both card designs (three-band compatibility-first and standard photo-first) in counterbalanced order. Measure: time to identify both incompatible proposals, accuracy (did they correctly flag the incompatible ones?), and subjective ease rating (1-7).",
+      "success_criteria": "Three-band card reduces average triage time for incompatible proposals by at least 40% compared to standard card. Accuracy at 100% (all participants correctly identify both incompatible proposals). Subjective ease rating at least 1 point higher on 7-point scale.",
+      "failure_meaning": "If triage speed does not improve, the compatibility indicators in Band 1 may not be sufficiently differentiated from the rest of the card. Check: are the color-coded dots large enough? Is the text label readable at a glance? Is Band 1 visually separated from Band 2? If accuracy drops, the indicators may be ambiguous -- test with colorblind participants and verify that text labels alone communicate the match/mismatch status.",
+      "implementation_hint": "Use a rapid card-sorting task in an unmoderated tool (Maze, UsabilityHub). Show 5 cards sequentially or in a grid. Measure click time to 'Review' or 'Skip' for each card. Counterbalance design order to control for learning effects."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Payment Confirmation Anxiety Reduction Validation",
+      "validates_element": "behaves-001",
+      "journey_phases": ["active_lease"],
+      "problem": "If the optimistic payment confirmation pattern does not reduce payment-related anxiety, the three-stage status sequence (processing, confirmed, error) may not be emotionally calibrated correctly -- the host may still worry about payment despite seeing the processing indicator.",
+      "solution": "Post-first-payment survey measuring the host's anxiety level during the payment processing window (guest arrival to payment confirmation). Compare hosts with the new payment status card to a historical baseline.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 16:20",
+          "type": "host_call",
+          "quote": "I'm going to have to think about that.",
+          "insight": "Payment timing nearly caused dropout. The validation measures whether the optimistic payment UI eliminates this anxiety during actual hosting."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback must be immediate: even a delay of a tenth of a second can be disconcerting.",
+          "insight": "The validation tests whether the optimistic processing state fills the feedback gap sufficiently to prevent anxiety."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After the first payment confirmation for each host's first guest, send a brief in-app survey (3 questions): (1) 'During the time between your guest arriving and receiving payment confirmation, how anxious were you about payment?' (1-7 scale), (2) 'Did you check the app to verify payment status before the confirmation arrived?' (yes/no), (3) 'Was the payment confirmation timely?' (yes/no). Track: survey response rate, anxiety score distribution, app-check frequency during the processing window (via analytics), and support ticket rate for payment-related questions.",
+      "success_criteria": "Mean anxiety score below 3.0 on 7-point scale. Fewer than 30% of hosts check the app more than twice during the processing window. Zero support tickets about payment timing during the processing window. Payment confirmation timeliness rating above 90% 'yes.'",
+      "failure_meaning": "If anxiety is above 3.0, the processing state may not be visible or prominent enough -- the host opens the app and does not notice the status card. Increase Tier 1 visual treatment. If hosts check the app frequently, the processing indicator may not communicate forward progress convincingly -- add a more explicit timeline ('Payment estimated by [time]'). If timeliness ratings are low, the 24-hour commitment is not being met operationally.",
+      "implementation_hint": "Trigger the survey via in-app notification 2 hours after the payment confirmation is delivered. Track app-open events during the processing window (guest arrival timestamp to payment confirmation timestamp) via analytics. Segment by host type (first-time vs. returning) to isolate the novice experience."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Constraint-Gated Proposal Filtering Effectiveness Validation",
+      "validates_element": "behaves-002",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the constraint-gated proposal filter does not prevent incompatible proposals from reaching the host, the host's trust in the platform's respect for her boundaries is eroded -- the exact emotional violation that feels-004 identifies as a betrayal.",
+      "solution": "Track the incompatible proposal rate: the percentage of proposals shown to the host that violate at least one of their stated hard constraints. This should approach zero with proper constraint gating.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 00:30",
+          "type": "host_call",
+          "quote": "I don't really want people coming in and out of my house cause I lived there.",
+          "insight": "Constraints are safety boundaries. Every incompatible proposal that reaches the host is a trust violation. The metric directly measures whether the platform honors these boundaries."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.4",
+          "type": "book",
+          "quote": "Constraints That Force the Desired Behavior.",
+          "insight": "The gating system should force correct system behavior (filter incompatible proposals). The metric measures whether the forcing function works."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "For every proposal shown to a host, log whether the proposal violates any of the host's hard constraints (dates outside availability window, duration exceeding max stay, guest count exceeding limit). Calculate the incompatible proposal rate per host and across the platform. Also track: the 'filtered' count badge accuracy (does the count match the actual number of filtered proposals?) and the host's rejection rate on proposals that pass the filter.",
+      "success_criteria": "Incompatible proposal rate below 2% (accounting for edge cases and partial overlaps). Host rejection rate on filtered-in proposals below 30% (indicating the filter is selecting proposals the host actually considers). Filtered count badge accuracy at 100%.",
+      "failure_meaning": "If incompatible proposals leak through, the constraint matching logic has gaps -- likely in edge cases (partial date overlaps, duration exactly at the limit, guest count ambiguity). Audit the matching algorithm against Hemeden's specific constraints: Sep 10+ availability, max 4 weeks, 1 guest. If rejection rate is high on filtered-in proposals, the filter catches hard constraint violations but misses softer preferences -- consider adding a 'near-match' category.",
+      "implementation_hint": "Add constraint-match metadata to every proposal event: for each of the host's hard constraints, log match/mismatch/partial. Create a dashboard showing incompatible proposal rate over time, segmented by constraint type (dates, duration, guest count) to identify which constraint is most frequently violated."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Continuity Bridge Recognition Validation",
+      "validates_element": "behaves-006",
+      "journey_phases": ["onboarding"],
+      "problem": "If the verbal-to-digital continuity bridge does not produce a recognition response in the host, the personalized welcome screen is just another onboarding screen -- it does not bridge the call to the platform.",
+      "solution": "First-visit usability test where the host completes a simulated phone call (watching a 3-minute call summary video) and then opens the platform. Measure whether the host spontaneously recognizes call-discussed elements on the continuity bridge screen without prompting.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 17:08",
+          "type": "host_call",
+          "quote": "I think you've answered almost all the questions I have.",
+          "insight": "The host ends the call with a mental model built from specific terms and numbers. The continuity bridge must reflect these back. The test measures whether the host recognizes them."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Conceptual Models",
+          "type": "book",
+          "quote": "Conceptual models are often inferred from the device itself. Some models are passed on from person to person.",
+          "insight": "The model was passed person-to-person. The validation tests whether the device reinforces or contradicts this passed-on model."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 participants. Show them a 3-minute video summarizing a host call (covering nightly rate, max stay, availability date, agent name, legal protection, and trial night option). Then show them the continuity bridge screen. Ask: 'What on this screen do you recognize from the conversation?' Record unprompted recognitions. Then ask: 'Is there anything from the conversation that you expected to see but did not find?' Record expectations gaps. Measure: number of call elements recognized, time to first recognition, and expectations gaps.",
+      "success_criteria": "At least 4 of 5 participants spontaneously recognize at least 3 call-discussed elements (e.g., rate, agent name, constraints) within the first 10 seconds. Fewer than 2 expectations gaps reported per participant on average.",
+      "failure_meaning": "If recognition is low, the summary chips may not use the same terms as the call (vocabulary mismatch), the visual presentation may not make the call-derived data prominent enough (hierarchy issue), or the agent attribution may be too subtle (the host does not notice Bryant's name). Revisit looks-007 for visual prominence and communicates-006 for terminology concordance.",
+      "implementation_hint": "Moderated remote usability test. Record screen + audio. Use think-aloud protocol during the first 30 seconds of the continuity bridge screen. Code each verbalized recognition ('oh, that is the rate we discussed') and each gap ('I expected to see the cleaning fee mentioned'). Create a recognition map showing which elements are most and least frequently recognized."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Emotional Arc Journey-Level Validation",
+      "validates_element": "feels-001",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "Individual elements may each produce the intended emotion at their specific touchpoint, but the overall emotional arc may still feel incoherent -- safety at evaluation could feel disconnected from confidence at pricing if the transitions are not smooth.",
+      "solution": "Longitudinal emotion tracking across the full host journey for the first 20 hosts who complete the entire flow from evaluation to first active lease. Measure emotional state at each phase transition to verify the arc follows the intended sequence: caution to safety to confidence to relief to calm.",
+      "evidence": [
+        {
+          "source": "hemeden-call.txt, 00:30 through 17:08",
+          "type": "host_call",
+          "quote": "From 'I'm not really comfortable with that' (00:30) through 'Okay, sounds good' (after anti-squatter clause) through 'I'm going to have to think about that' (16:20) to 'I think you've answered almost all the questions I have' (17:08).",
+          "insight": "The call itself has an emotional arc: guarded to cautiously reassured to anxious to qualified satisfaction. The platform journey must follow a similar progression toward positive certainty, without the anxiety trough at payment timing."
+        },
+        {
+          "source": "donnorman-affordances-signifiers-feedback.txt, Ch.1 Feedback",
+          "type": "book",
+          "quote": "Feedback has to be planned. All actions need to be confirmed, but in a manner that is unobtrusive.",
+          "insight": "The emotional arc depends on planned feedback at each phase. The journey-level validation tests whether the feedback plan produces the intended emotional progression."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "For the first 20 hosts who complete the full journey (evaluation through first active lease), embed a single-question emotional pulse check at each phase transition: 'Right now, how do you feel about hosting with Split Lease?' with a 5-point emoji scale (anxious / uncertain / neutral / confident / very confident). Also collect one open-text word: 'Describe your feeling in one word.' Track the emotional trajectory per host across all phases. Look for: consistent upward trend, any phase where emotions dip, and correlation between emotional state and completion rate.",
+      "success_criteria": "At least 15 of 20 hosts show a non-decreasing emotional trajectory (no phase scores lower than the preceding phase). Mean emotional score at the active lease phase is at least 4.0 (confident). No single phase has a mean score below 3.0 (neutral). Open-text words at the active lease phase cluster around calm/confident/safe.",
+      "failure_meaning": "If the arc dips at a specific phase, that phase has an emotional design flaw. The dip location identifies the fix: if it dips at pricing, revisit feels-002 (financial clarity); if at onboarding, revisit feels-005 (conversational continuity); if at proposal management, revisit feels-004 (constraint respect). A universal downward trend suggests the overall emotional design is not working and requires a fundamental rethink.",
+      "implementation_hint": "Embed the pulse check as an in-app micro-survey that appears once per phase transition (e.g., when the host moves from pricing to proposal management). Use a non-blocking overlay that the host can dismiss. Track response rate and non-response bias. Store responses with timestamps and phase identifiers for longitudinal analysis. Visualize as a line chart per host, overlaid across the cohort."
+    }
+  ]
+}

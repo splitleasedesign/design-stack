@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Stack v2 Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f4f0;
+      --bg-deep: #eae7e1;
+      --surface: #ffffff;
+      --surface-warm: #fdfcfa;
+      --ink: #1a1714;
+      --ink-soft: #4a4640;
+      --ink-muted: #8a857e;
+      --ink-ghost: #bdb8b0;
+      --accent: #2d5a3d;
+      --accent-light: #e8f0eb;
+      --accent-bright: #3a7a52;
+      --signal-warn: #c17a28;
+      --signal-warn-bg: #fef3e2;
+      --signal-danger: #b83a3a;
+      --signal-danger-bg: #fde8e8;
+      --signal-info: #2d5a8a;
+      --signal-info-bg: #e8f0fa;
+      --signal-success: #2d5a3d;
+      --signal-success-bg: #e8f0eb;
+      --border: #e2dfd9;
+      --border-strong: #ccc8c0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(26,23,20,0.06);
+      --shadow-md: 0 2px 8px rgba(26,23,20,0.08);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; color: var(--ink); background: var(--bg); line-height: 1.6; }
+
+    /* Header */
+    .report-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .report-header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; margin-bottom: 4px; }
+    .report-header .lens-label { font-size: 16px; color: var(--ink-soft); margin-bottom: 12px; }
+    .report-meta { display: flex; gap: 24px; flex-wrap: wrap; color: var(--ink-muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-complete { background: var(--accent-light); color: var(--accent); }
+    .badge-partial { background: var(--signal-warn-bg); color: var(--signal-warn); }
+
+    /* Coherence Alert Bar */
+    .coherence-bar { background: var(--signal-warn-bg); border-bottom: 1px solid rgba(193,122,40,0.2); padding: 10px 40px; font-size: 13px; color: var(--signal-warn); display: none; align-items: center; gap: 12px; }
+    .coherence-bar.has-flags { display: flex; }
+    .coherence-bar .count { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+
+    /* Tab Nav */
+    .tab-nav { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+    .tab-nav button { background: none; border: none; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms var(--ease-out); white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+    .tab-nav button:hover { color: var(--ink-soft); }
+    .tab-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-nav button .layer-num { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-deep); font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--ink-muted); }
+    .tab-nav button.active .layer-num { background: var(--accent); color: white; }
+
+    /* Main */
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+    .tab-panel { display: none; animation: fadeIn 300ms var(--ease-out); }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Element Card */
+    .element-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .element-card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .element-card-header h3 { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; flex: 1; min-width: 200px; }
+    .type-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .type-process_pattern { background: #e8f0fa; color: #2d5a8a; }
+    .type-info_architecture { background: #f0e8fa; color: #6a2d8a; }
+    .type-visual_pattern { background: #fae8f0; color: #8a2d5a; }
+    .type-interaction_pattern { background: #faf0e8; color: #8a5a2d; }
+    .type-emotional_element { background: #e8faf0; color: #2d8a5a; }
+    .type-validation_strategy { background: var(--bg-deep); color: var(--ink-soft); }
+    .priority-badge { padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+    .priority-high { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .priority-medium { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .priority-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Phase Tags */
+    .phase-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .phase-tag { padding: 2px 8px; border-radius: var(--radius-sm); font-size: 11px; font-family: 'IBM Plex Mono', monospace; background: var(--accent-light); color: var(--accent); }
+
+    /* Problem/Solution */
+    .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .ps-box { padding: 14px 16px; border-radius: var(--radius-md); font-size: 14px; }
+    .ps-box.problem { background: var(--signal-danger-bg); border-left: 3px solid var(--signal-danger); }
+    .ps-box.solution { background: var(--signal-success-bg); border-left: 3px solid var(--signal-success); }
+    .ps-box label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+    @media (max-width: 700px) { .ps-grid { grid-template-columns: 1fr; } }
+
+    /* Evidence */
+    .evidence-toggle { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; cursor: pointer; color: var(--ink-muted); transition: all 150ms; }
+    .evidence-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .evidence-list { display: none; margin-top: 12px; }
+    .evidence-list.open { display: block; }
+    .evidence-item { padding: 10px 14px; margin: 6px 0; background: var(--surface-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+    .evidence-item .source { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+    .evidence-item .quote { color: var(--ink-soft); font-style: italic; }
+    .evidence-item .insight { color: var(--ink); margin-top: 4px; }
+
+    /* Layer-specific fields */
+    .extra-fields { margin-top: 16px; display: grid; gap: 8px; }
+    .extra-field { font-size: 13px; }
+    .extra-field label { font-weight: 600; color: var(--ink-soft); font-size: 12px; }
+    .extra-field .value { color: var(--ink); }
+
+    /* Coherence sections */
+    .coherence-section { margin-bottom: 28px; }
+    .coherence-section h3 { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 12px; }
+    .reinforcement-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-success-bg); border-left: 4px solid var(--signal-success); font-size: 14px; }
+    .contradiction-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-danger-bg); border-left: 4px solid var(--signal-danger); font-size: 14px; }
+    .extension-card { padding: 14px 16px; margin: 8px 0; border-radius: var(--radius-md); background: var(--signal-info-bg); border-left: 4px solid var(--signal-info); font-size: 14px; }
+    .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+    /* Coverage Map */
+    .coverage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .coverage-cell { padding: 12px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border); }
+    .coverage-cell .phase-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; }
+    .coverage-cell .count { font-size: 24px; font-weight: 700; }
+    .coverage-cell .level { font-size: 11px; color: var(--ink-muted); }
+    .coverage-none { background: var(--signal-danger-bg); }
+    .coverage-thin { background: var(--signal-warn-bg); }
+    .coverage-moderate { background: var(--signal-info-bg); }
+    .coverage-strong { background: var(--signal-success-bg); }
+
+    /* Journey Context phase cards */
+    .phase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 12px; }
+    .phase-card h4 { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; }
+    .phase-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+    .phase-card .risk { font-size: 12px; font-family: 'IBM Plex Mono', monospace; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-top: 6px; }
+    .risk-critical { background: var(--signal-danger-bg); color: var(--signal-danger); }
+    .risk-high { background: var(--signal-warn-bg); color: var(--signal-warn); }
+    .risk-medium { background: var(--signal-info-bg); color: var(--signal-info); }
+    .risk-low { background: var(--bg-deep); color: var(--ink-muted); }
+
+    /* Responsive + Print */
+    @media (max-width: 768px) { .report-header, .main-content, .tab-nav, .coherence-bar { padding-left: 20px; padding-right: 20px; } }
+    @media print { .tab-nav, .coherence-bar { display: none; } .tab-panel { display: block !important; page-break-inside: avoid; } body { background: white; } }
+  </style>
+</head>
+<body>
+
+  <!-- Data injection points -->
+  <!-- INJECT:run-config -->
+  <script id="run-config" type="application/json">{
+  "run_id": "2026-02-19_0800",
+  "process_type": "design-stack",
+  "journey_type": "host",
+  "lens": {
+    "call_file": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt",
+    "book_chapters": "Introduction + Chapters 1-6: Libertarian Paternalism, Choice Architecture, Defaults, Framing, Status Quo Bias"
+  },
+  "status": "running",
+  "started_at": "2026-02-19T08:00:00Z"
+}</script>
+  <!-- INJECT:layer-0 -->
+  <script id="data-layer-0" type="application/json">{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt",
+    "lens_summary": "This lens reveals how choice architecture, defaults, and status quo bias shape a delegator-host's journey through a platform he barely uses, relying on a proxy (his girlfriend Christiana) as the default operator."
+  },
+  "phases": {
+    "discovery": {
+      "what_this_lens_reveals": "Kris discovered Split Lease through Christiana, not through direct platform interaction. He is a passive recipient of discovery — someone else chose for him. Thaler & Sunstein's concept of choice architecture applies: whoever framed Split Lease to Kris (Christiana) acted as his choice architect. The 'default' was that Christiana handles everything; Kris only enters when the default breaks (he can't figure out photos, he wants pricing guidance).",
+      "user_state": {
+        "emotional_state": "Relieved and mildly impatient — 'Thank God you called. My boyfriend is here and we are kind of like stupid and we don't know how to do it.'",
+        "knowledge_level": "Minimal. Kris knows he has an expensive NYC apartment ($5,500/mo) and wants to make money when away. He does not understand the platform mechanics.",
+        "commitment_level": "Committed to the concept (making money from his apartment), not committed to the platform specifically.",
+        "data_available": "Property details (57th St, Park & Lex, 1BR + office, 11.5ft ceilings, rooftop), $5,500/mo rent, 3-weeks-away/2-weeks-home schedule, self-employed medical technology."
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": ["Kris delegates everything to Christiana — if she loses interest, he will never engage directly.", "His discovery was passive, meaning he has no independent motivation to explore the platform."],
+        "evidence": "kris-call.txt 00:14: 'I'm going to pass my thing for him. And do you mind talk to him because he's a little there, but as I spoke to you, not at all, he has no idea of anything.'"
+      },
+      "key_quotes": [
+        {
+          "source": "kris-call.txt, 00:01",
+          "quote": "Well, thank God you called. Cause my boyfriend is here and we are kind of like stupid and we don't know how to do it.",
+          "relevance": "Shows the platform's default experience failed — they needed a phone call to unblock. Choice architecture created friction, not flow."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "quote": "A choice architect has the responsibility for organizing the context in which people make decisions... there is no such thing as a neutral design.",
+          "relevance": "The platform's current design is the choice architecture, and its defaults are not optimized for delegator-hosts like Kris."
+        }
+      ]
+    },
+    "evaluation": {
+      "what_this_lens_reveals": "Kris evaluates through conversation, not through the platform. His evaluation is anchored by Bryant's verbal framing: 'It's a great fit. It's a really perfect for the guests that we work with.' The Nudge book's anchoring heuristic is directly visible — Bryant sets the anchor ('great fit'), and Kris's evaluation is shaped by this framing. The platform plays zero role in his evaluation.",
+      "user_state": {
+        "emotional_state": "Enthusiastic and anchored positively — 'That's great. That's great.' He mirrors Bryant's framing.",
+        "knowledge_level": "Knows the value proposition (part-time guests matching his schedule) but not the mechanics.",
+        "commitment_level": "Evaluating positively, but evaluation is conversation-dependent, not platform-dependent.",
+        "data_available": "Schedule confirmed (3 weeks away, 2 weeks home), property premium signals (57th St, luxury finishes)."
+      },
+      "dropout_risk": {
+        "level": "low",
+        "reasons": ["Bryant has anchored him positively, and Kris's schedule is genuinely a good fit."],
+        "evidence": "kris-call.txt 02:13: 'That's great. That's great. All right. So, you know, it's, it's, uh, it's, it's a nice apartment. It's on the nicest street in New York.'"
+      },
+      "key_quotes": [
+        {
+          "source": "kris-call.txt, 01:53",
+          "quote": "It's really a great fit because a lot of the people that we work with are sort of like complement your schedule very nicely.",
+          "relevance": "Bryant uses framing to anchor Kris: 'great fit' + 'complement your schedule'. This is the Nudge book's anchoring concept in action."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Anchoring",
+          "quote": "You start with some anchor, a number you know, and adjust in the direction you think is appropriate... the bias occurs because the adjustments are typically insufficient.",
+          "relevance": "Kris is anchored by Bryant's framing, not by platform data. The platform should replicate this anchoring effect."
+        }
+      ]
+    },
+    "onboarding": {
+      "what_this_lens_reveals": "Onboarding fails for Kris because the default is self-service, but Kris's operating model is delegation. The listing is under Christiana's account — Kris doesn't even have his own login. The book's concept of status quo bias applies: the status quo is 'Christiana handles it,' and breaking this status quo requires effort Kris won't expend. The platform's onboarding choice architecture assumes direct users, but Kris is a proxy user. The call itself IS the onboarding — Bryant is doing the choice architecture work the platform should be doing.",
+      "user_state": {
+        "emotional_state": "Cooperative but disengaged from platform mechanics — he hands the phone to Christopher (himself) with 'He has no idea of anything.'",
+        "knowledge_level": "Does not know how to log in. Does not know the listing exists. Cannot see photos.",
+        "commitment_level": "Willing to participate in a phone call but not willing to learn a platform interface.",
+        "data_available": "Phone number provided (self-employed, reachable). Schedule details. Property description."
+      },
+      "dropout_risk": {
+        "level": "high",
+        "reasons": ["The proxy model (Christiana's account) creates dependency — if Christiana is unavailable, onboarding stalls.", "Kris cannot even see his own listing photos (03:35: 'She's having a problem').", "The default onboarding path assumes the host IS the account holder."],
+        "evidence": "kris-call.txt 03:35-04:02: 'She's having a problem. Like... Let me send over a, I'll send over the email and then the temporary password.'"
+      },
+      "key_quotes": [
+        {
+          "source": "kris-call.txt, 01:26",
+          "quote": "Christiana has a split lease account and the listing is under her account currently.",
+          "relevance": "The platform has no concept of delegated host access. The choice architecture forces a single-user model."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction Status Quo Bias",
+          "quote": "People have a strong tendency to go along with the status quo or default option... whatever the default choices are, many people stick with them.",
+          "relevance": "Kris's default is delegation. The platform must accommodate this default rather than fight it."
+        }
+      ]
+    },
+    "listing_creation": {
+      "what_this_lens_reveals": "Listing creation is broken for delegator-hosts. Kris cannot assess the listing quality ('not really good pictures, darling'), Christiana created it but Kris has the property knowledge, and Bryant has the platform expertise. This is a three-person choice architecture problem that the platform treats as a one-person task. The book's concept of 'smart defaults' applies — the listing wizard should pre-populate from call data and agent knowledge, not start blank.",
+      "user_state": {
+        "emotional_state": "Critical of current listing quality (07:44: 'not really good pictures') but willing to contribute better content.",
+        "knowledge_level": "Deep property knowledge but zero platform knowledge. Can describe the apartment eloquently in conversation but cannot translate this to a listing form.",
+        "commitment_level": "Will send better photos via email. Will not upload them to the platform himself.",
+        "data_available": "Rich property description from call: location, size, ceiling height, rooftop, elevator, art collection."
+      },
+      "dropout_risk": {
+        "level": "high",
+        "reasons": ["Photos are the primary listing asset and they are poor quality.", "The host who knows the property cannot edit the listing.", "The person who can edit the listing doesn't know the property as well."],
+        "evidence": "kris-call.txt 07:44: 'Not really good pictures, darling. They're not very, You don't show the outside of anything. It doesn't really show the sizes.'"
+      },
+      "key_quotes": [
+        {
+          "source": "kris-call.txt, 08:02",
+          "quote": "If what you can do, if you just send them over to me, I'd be happy to put them on your listing for you.",
+          "relevance": "Bryant becomes the choice architect for listing quality — uploading photos on Kris's behalf. The platform should formalize this agent-as-proxy workflow."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 5 Choice Architecture",
+          "quote": "Good choice architects realize that although they can't build the perfect building, they can make some design choices that will have beneficial effects.",
+          "relevance": "The listing wizard should act as a good choice architect: pre-populating from call data, suggesting based on location, not starting from a blank slate."
+        }
+      ]
+    },
+    "pricing": {
+      "what_this_lens_reveals": "Kris asks directly: 'How much do you think I should rent this place for?' He wants a default, not a choice. This is the Nudge book's core argument for smart defaults in action. Bryant offers to use a pricing tool ('based on similar listings'), which functions as a recommendation engine — the choice architecture equivalent of putting healthy food at eye level. The book's framing effect applies: how the price is presented (nightly rate vs monthly vs annual ROI) will anchor Kris's perception of value.",
+      "user_state": {
+        "emotional_state": "Seeking guidance, not control. He trusts the expert to set the anchor.",
+        "knowledge_level": "Knows his cost ($5,500/mo) but has no market reference for short-term rental pricing.",
+        "commitment_level": "Ready to accept a recommendation if it comes from a trusted source.",
+        "data_available": "Monthly rent ($5,500), property details, schedule (availability = ~3 weeks/month)."
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": ["If the platform asks Kris to set pricing without a strong default/recommendation, he will defer to Bryant or abandon.", "Without anchoring data (comps, market rate), Kris may underprice or overprice and lose trust in outcomes."],
+        "evidence": "kris-call.txt 04:12: 'How much do you think I should rent this place for? Cause I pay about $5,500 a month.'"
+      },
+      "key_quotes": [
+        {
+          "source": "kris-call.txt, 04:50",
+          "quote": "We kind of have a tool basically based on similar listings and we use location as well. We can kind of get a price estimate.",
+          "relevance": "Bryant describes a nudge: a price recommendation based on comps. The platform should surface this as the default, not as an optional tool."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction Defaults",
+          "quote": "You can often increase participation rates by 25 percent, and sometimes by a lot more than that, simply by shifting from an opt-in to an opt-out design.",
+          "relevance": "Pricing should be opt-out from a smart default, not opt-in from a blank field. The recommended price should be pre-filled."
+        }
+      ]
+    },
+    "proposal_mgmt": {
+      "what_this_lens_reveals": "This lens does not directly address proposal management (no proposal activity in the call). However, the book's status quo bias principle predicts that once Kris has an established pricing default, he will likely accept proposals that match it and be reluctant to negotiate away from that anchor. Proposal management for delegator-hosts like Kris should default to acceptance with safeguards, not to a negotiation workflow.",
+      "user_state": {
+        "emotional_state": "Not yet reached — but predicted: low-effort preference, wanting decisions pre-made.",
+        "knowledge_level": "Will not understand proposal terms without translation to his mental model ($5,500/mo baseline).",
+        "commitment_level": "Will likely delegate proposal decisions to Christiana or expect Bryant to curate.",
+        "data_available": "Pricing anchor from earlier discussion, schedule constraints."
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": ["If proposals require active management from Kris, he will ignore them.", "The proxy model means notifications go to Christiana's account, not Kris."],
+        "evidence": "kris-call.txt 05:13: 'And, you know, and if I have someone who's someone regular, cause obviously they'll get a discount because I'd prefer to work with one or two.' — Kris wants a simple, repeatable arrangement, not per-proposal negotiation."
+      },
+      "key_quotes": [
+        {
+          "source": "kris-call.txt, 05:13",
+          "quote": "If I have someone who's someone regular, cause obviously they'll get a discount because I'd prefer to work with one or two.",
+          "relevance": "Kris's preference is for a default guest — the status quo bias in favor of 'the regular.' The platform should support recurring guest relationships as a first-class feature."
+        }
+      ]
+    },
+    "active_lease": {
+      "what_this_lens_reveals": "Kris's active lease concerns center on asset protection ('I've got some really good art in that apartment') and guest quality. The book's loss aversion concept is strongly activated — Kris perceives the risk of his art being damaged as more significant than the gain from rental income. Bryant's response (vetting, credit checks, payment guarantee) functions as a loss-aversion nudge: reframe the risk as managed. The platform's active lease experience must continuously signal that the host's assets are protected.",
+      "user_state": {
+        "emotional_state": "Anxious about asset protection — the art concern surfaces unprompted at 08:44.",
+        "knowledge_level": "Knows his property is premium and vulnerable. Doesn't know the vetting process.",
+        "commitment_level": "Conditional on trust — 'How do you vet people?'",
+        "data_available": "Art collection in apartment (high-value assets at risk), premium property details."
+      },
+      "dropout_risk": {
+        "level": "medium",
+        "reasons": ["If the vetting process is not transparently communicated, Kris's loss aversion will override his income motivation.", "Art damage is an irreversible loss — no amount of payment guarantee compensates for sentimental/irreplaceable value."],
+        "evidence": "kris-call.txt 08:44: 'I've got some really good art in that apartment. So I want to make sure that the, you know, how, how, how do you vent to people?'"
+      },
+      "key_quotes": [
+        {
+          "source": "kris-call.txt, 08:55",
+          "quote": "We do all the vetting ourselves and we do credit check landlord references. And part of the reason why we do that is we guarantee payments to you as the landlord.",
+          "relevance": "Bryant uses the payment guarantee as a loss-aversion offset. The platform must make this equally prominent."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Gains and Losses",
+          "quote": "The prospect of losing something makes you twice as miserable as the prospect of gaining the same thing makes you happy.",
+          "relevance": "Kris's art anxiety is classic loss aversion. The platform must address this with twice the intensity it uses to promote income potential."
+        }
+      ]
+    },
+    "retention": {
+      "what_this_lens_reveals": "Kris's retention signal is strong but conditional. His schedule creates natural recurring demand (3 weeks/month, every month). The book's status quo bias is the retention mechanism: once Kris has a working arrangement with a 'regular' guest, the effort to change exceeds the effort to continue. The platform should design for this by making the status quo (continuing with the same guest) the default, and making changes require active opt-out.",
+      "user_state": {
+        "emotional_state": "Forward-looking — 'I look forward to working with you then.'",
+        "knowledge_level": "Understands the recurring nature of the arrangement.",
+        "commitment_level": "High for the concept, contingent on finding a good guest and protecting his assets.",
+        "data_available": "Recurring schedule, preference for 1-2 regular guests, upcoming departure Feb 21st."
+      },
+      "dropout_risk": {
+        "level": "low",
+        "reasons": ["Kris's schedule creates natural recurring demand — he NEEDS this arrangement.", "Status quo bias works in Split Lease's favor once a lease is established."],
+        "evidence": "kris-call.txt 05:13: 'I'd prefer to work with one or two' — expressing preference for stability and recurring arrangements."
+      },
+      "key_quotes": [
+        {
+          "source": "kris-call.txt, 09:44",
+          "quote": "That's great. All right. I look forward to working with you then.",
+          "relevance": "Retention commitment is verbal and emotional but not yet platform-anchored. The platform must convert this goodwill into a status quo arrangement."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction Status Quo Bias",
+          "quote": "For lots of reasons, people have a general tendency to stick with their current situation. One reason is loss aversion; giving up what we have is painful.",
+          "relevance": "Once Kris has a guest, the status quo bias + loss aversion (losing rental income) will keep him retained — if the platform makes renewal the default."
+        }
+      ]
+    }
+  },
+  "cross_phase_patterns": [
+    {
+      "pattern": "Delegator-Host Anti-Pattern: The platform assumes direct user engagement, but Kris operates through proxies (Christiana manages the account, Bryant handles photos and pricing). Every phase that requires direct platform interaction is a friction point.",
+      "phases_affected": ["onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "evidence": "kris-call.txt 01:26 (listing under Christiana's account), 08:02 (Bryant uploads photos), 04:12 (asks Bryant for pricing). Nudge Introduction: 'there is no such thing as a neutral design' — the platform's single-user design is not neutral, it actively penalizes delegator-hosts."
+    },
+    {
+      "pattern": "Smart Defaults as the Primary UX Pattern: Across every phase, Kris wants a recommendation, not a choice. The book's core thesis — that defaults shape behavior more than explicit choices — maps directly to Kris's behavior. He accepted Bryant's framing ('great fit'), asked for pricing defaults ('how much do you think?'), and wants a default guest type ('someone regular').",
+      "phases_affected": ["evaluation", "pricing", "proposal_mgmt", "retention"],
+      "evidence": "kris-call.txt 04:12, 05:13. Nudge Ch 5: 'setting default options can have huge effects on outcomes.' The entire host journey should be redesigned around smart defaults with opt-out, not blank forms with opt-in."
+    },
+    {
+      "pattern": "Loss Aversion Dominates Income Motivation: Kris's anxiety about his art (irreversible loss) outweighs his enthusiasm for rental income (reversible gain). This is the book's 2:1 loss aversion ratio in practice. Every phase must address what the host might lose, not just what they might gain.",
+      "phases_affected": ["active_lease", "evaluation", "retention"],
+      "evidence": "kris-call.txt 08:44 (art concern), Nudge Ch 1: 'the prospect of losing something makes you twice as miserable as the prospect of gaining the same thing makes you happy.'"
+    },
+    {
+      "pattern": "The Phone Call as Choice Architecture Bypass: Bryant functions as a human choice architect, doing what the platform should do — framing options, setting anchors, providing defaults, managing proxies. The platform should internalize Bryant's techniques as digital choice architecture.",
+      "phases_affected": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing"],
+      "evidence": "Throughout the call, Bryant frames ('great fit'), anchors ('price estimate based on similar listings'), and defaults ('I'll put the photos on for you'). Nudge Introduction: 'choice architects can make major improvements to the lives of others by designing user-friendly environments.'"
+    }
+  ],
+  "sources_consulted": [
+    "kris-call.txt — Full transcript. Extracted: delegator-host behavior, proxy account issues, pricing request, asset protection concerns, schedule details, photo quality criticism.",
+    "nudge-choice-architecture.txt — Introduction through Chapter 1. Extracted: choice architecture definition, defaults power, status quo bias, anchoring heuristic, loss aversion (2:1 ratio), libertarian paternalism framework.",
+    "split-lease-journey-map.md — Full journey map. Extracted: phase structure, listing wizard flow, proposal flow, active lease management.",
+    "library/elements.json — First 200 lines. Extracted: existing element schema, works-001 through works-004 patterns for comparison."
+  ]
+}</script>
+  <!-- INJECT:layer-1 -->
+  <script id="data-layer-1" type="application/json">{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "works-001",
+      "type": "process_pattern",
+      "title": "Smart Defaults for Every Host Decision Point",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "The platform presents blank fields and open choices at critical decision points (pricing, listing details, proposal response). Kris explicitly asks 'How much do you think I should rent this place for?' — he wants a default, not a decision. Thaler and Sunstein demonstrate that defaults shape 25%+ of outcomes. When the platform fails to provide defaults, hosts either abandon (depleted decision-makers default to denial) or accept random/poor outcomes. The current listing wizard starts blank; the pricing field starts blank; the proposal response requires active engagement. Every blank field is a choice architecture failure.",
+      "solution": "Pre-fill every decision point with an intelligent default that produces a good outcome if accepted without modification. (1) Pricing: Pre-fill with a recommended nightly rate based on location comps, property type, and schedule. Show the default prominently with a 'Recommended' label and allow adjustment via slider, not blank input. (2) Listing details: Pre-populate from agent call notes and property address data (neighborhood description, nearby transit, building type). (3) Proposal response: Default to 'Accept' for proposals within the host's stated parameters, with a 'Review details' option rather than requiring active acceptance. (4) Lease renewal: Default to auto-renewal with the same guest, requiring opt-out rather than opt-in. Each default must be the choice a well-informed, attentive host would make.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 04:12",
+          "type": "host_call",
+          "quote": "How much do you think I should rent this place for? Cause I pay about $5,500 a month.",
+          "insight": "Kris provides his cost anchor ($5,500/mo) and explicitly asks for a recommendation. He is not a price-setter; he is a default-accepter. The platform must serve this behavior, not fight it."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "You can often increase participation rates by 25 percent, and sometimes by a lot more than that, simply by shifting from an opt-in to an opt-out design. Setting default options can have huge effects on outcomes.",
+          "insight": "The research is unambiguous: defaults are the most powerful single choice architecture tool. Every blank field on the platform is a missed opportunity to apply this tool."
+        },
+        {
+          "source": "kris-call.txt, 05:13",
+          "type": "host_call",
+          "quote": "If I have someone who's someone regular, cause obviously they'll get a discount because I'd prefer to work with one or two.",
+          "insight": "Kris wants a default guest arrangement — not a marketplace of options. The platform should support 'preferred guest' as a status quo, not force re-evaluation each cycle."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Status Quo Bias",
+          "type": "book",
+          "quote": "People have a general tendency to stick with their current situation. A study conducted in the late 1980s looked at decisions of participants in a pension plan. The median number of changes in the asset allocation over a lifetime was zero.",
+          "insight": "Once a default is set, hosts will rarely change it. This makes the quality of the initial default critical — it must be right the first time."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Get a working, well-priced listing without having to research the market, learn the platform, or make decisions I'm not qualified to make.",
+      "company_goal": "Increase listing completion rate and pricing accuracy by providing intelligent defaults that produce good outcomes even when hosts accept without deliberation.",
+      "time_budget": "Each decision point should require under 5 seconds for a host who accepts the default. Modification should add no more than 30 seconds per field.",
+      "anti_goals": [
+        "DO NOT present blank fields at any critical decision point. A blank field is a failed default.",
+        "DO NOT label defaults as 'suggested' or 'recommended' in a way that implies the host should override them. The default should feel like 'the right answer' unless the host has specific knowledge to the contrary.",
+        "DO NOT use defaults as a way to manipulate hosts into pricing below market. Defaults must optimize for the host's outcome, not the platform's booking volume.",
+        "DO NOT remove the ability to override defaults. Libertarian paternalism requires that all options remain available."
+      ],
+      "success_metric": "Default acceptance rate: percentage of hosts who accept the pre-filled default at each decision point without modification. Target: above 60% for pricing, above 80% for listing details, above 50% for proposal acceptance."
+    },
+    {
+      "id": "works-002",
+      "type": "process_pattern",
+      "title": "Delegated Host Access: Multi-User Account Architecture",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt", "active_lease"],
+      "problem": "Kris's listing is under Christiana's account. Kris cannot see his own listing photos. Bryant needs to upload photos on their behalf. This three-person collaboration (property owner + account manager + agent) is forced through a single-user account model. The platform's choice architecture assumes the host IS the account holder, but for premium delegator-hosts like Kris, the account holder is a proxy. This creates a fragile dependency — if Christiana is unavailable, the listing stalls. The Nudge book warns that 'seemingly arbitrary decisions will have subtle influences on how the people who use the building interact.' The single-user account model is one such arbitrary decision with major downstream consequences.",
+      "solution": "Implement a multi-role access model for listings. (1) Owner role: The property owner (Kris) can view the listing, receive proposals, approve guests, and see earnings — even if they did not create the account. Access via a simple invite link, no separate account creation required. (2) Manager role: The account holder (Christiana) can edit listings, manage photos, handle logistics. (3) Agent role: The assigned agent (Bryant) can edit photos, adjust pricing, and manage proposals on behalf of the host — with visibility but not ownership. (4) Each role receives appropriate notifications. The owner gets decision-requiring items (proposals, reviews). The manager gets operational items (photo requests, schedule changes). The agent gets system items (listing performance, pricing recommendations).",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 01:26-03:57",
+          "type": "host_call",
+          "quote": "Christiana has a split lease account and the listing is under her account currently... She's having a problem. Like...",
+          "insight": "The three-person collaboration breaks down because the platform has no concept of delegated access. The account holder can't log in, the property owner can't see the listing, and the agent must manually bridge the gap."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction Architecture Analogy",
+          "type": "book",
+          "quote": "There are many parallels between choice architecture and more traditional forms of architecture. A crucial parallel is that there is no such thing as a neutral design. Seemingly arbitrary decisions, such as where to locate the bathrooms, will have subtle influences.",
+          "insight": "The single-user account model is an 'arbitrary' architectural decision that profoundly shapes who can participate in the host journey. It's not neutral — it excludes delegator-hosts."
+        },
+        {
+          "source": "kris-call.txt, 08:02",
+          "type": "host_call",
+          "quote": "If what you can do, if you just send them over to me, I'd be happy to put them on your listing for you.",
+          "insight": "Bryant informally creates an agent role — acting as photo uploader on behalf of the host. The platform should formalize this workflow instead of requiring ad hoc workarounds."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Have my listing managed well even though I don't use the platform directly. See what matters to me (proposals, earnings, guest quality) without managing what doesn't matter to me (photos, descriptions, logistics).",
+      "company_goal": "Capture high-value delegator-hosts who own premium properties but will not personally manage a platform account. These hosts have the most valuable listings but the lowest direct engagement.",
+      "time_budget": "Owner role setup should take under 60 seconds (click invite link, verify identity). Manager-to-owner handoffs (e.g., 'approve this proposal') should take under 15 seconds.",
+      "anti_goals": [
+        "DO NOT require the property owner to create a full account to participate. The default for premium delegators is that someone else handles the account.",
+        "DO NOT send all notifications to the account holder. Route decision-requiring notifications to the property owner.",
+        "DO NOT allow the single-user model to be the only option. Some hosts will always delegate.",
+        "DO NOT make the agent role invisible. Agents like Bryant are already performing this role informally — formalize and empower it."
+      ],
+      "success_metric": "Multi-user listing adoption: percentage of listings with more than one person contributing. Target: 20% of new listings use delegated access within 6 months. Secondary: reduction in agent manual interventions (photo uploads, pricing changes made on behalf of hosts)."
+    },
+    {
+      "id": "works-003",
+      "type": "process_pattern",
+      "title": "Loss Aversion Addressing: Asset Protection Visibility",
+      "journey_phases": ["evaluation", "active_lease", "retention"],
+      "problem": "Kris's most visceral concern is asset protection ('I've got some really good art in that apartment'). Loss aversion means this concern carries twice the emotional weight of income potential. Bryant addresses it verbally (credit checks, vetting, payment guarantee), but the platform surfaces income potential (pricing, earnings) far more prominently than loss protection (vetting process, insurance, guest quality assurance). The current choice architecture is income-framed when it should be loss-protection-framed for premium hosts.",
+      "solution": "Rebalance the platform's information architecture to give loss protection equal or greater prominence than income potential. (1) During evaluation: Lead with 'How we protect your property' before 'How much you can earn.' The vetting process, credit checks, and payment guarantee should be above-the-fold content, not buried in FAQ. (2) During active lease: Surface guest quality signals prominently — verified status, reviews from other hosts, credit check completion. Show a 'Property Protection' status indicator on the lease dashboard. (3) During onboarding: Allow hosts to flag high-value assets (art, electronics, furniture) and receive a custom protection recommendation. (4) Frame the payment guarantee as loss prevention, not income assurance: 'Your $5,500/month rent is guaranteed — you will never miss a payment because of a guest.'",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 08:44-09:25",
+          "type": "host_call",
+          "quote": "I've got some really good art in that apartment. So I want to make sure that the, you know, how do you vet people?... Our guests are really a cut above the rest. We are very selective.",
+          "insight": "Kris's art concern is unprompted and emotional. It's the only moment in the call where he asks 'how' rather than accepting a recommendation. This signals high anxiety that the platform must address proactively."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Gains and Losses",
+          "type": "book",
+          "quote": "People hate losses. Roughly speaking, the prospect of losing something makes you twice as miserable as the prospect of gaining the same thing makes you happy... those with mugs demand roughly twice as much to give them up as others are willing to pay to get one.",
+          "insight": "The 2:1 loss aversion ratio means that for every $1 of income potential shown, the platform needs $2 worth of protection assurance to maintain emotional equilibrium for premium hosts."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Know with certainty that my property and belongings are protected before, during, and after each guest stay. Feel that Split Lease takes my concerns about my space as seriously as I do.",
+      "company_goal": "Retain premium hosts (high-value properties) who are loss-averse and will churn if they perceive insufficient protection. These hosts have the most valuable listings and highest retention potential.",
+      "time_budget": "Protection assurance should be visible within 2 seconds of any screen load during active lease. The vetting summary for each guest should be scannable in under 5 seconds.",
+      "anti_goals": [
+        "DO NOT lead with income/earnings for premium hosts. Lead with protection and make income secondary.",
+        "DO NOT use generic 'We vet all guests' language. Specifics matter: 'Credit check complete. Landlord references verified. Payment pre-authorized.'",
+        "DO NOT hide the vetting process behind a 'Learn More' link. It should be default-visible, not opt-in.",
+        "DO NOT treat all hosts the same. Kris's $5,500/mo premium property needs different loss-aversion messaging than a $800/mo room."
+      ],
+      "success_metric": "Host anxiety reduction: measured by support ticket volume related to guest quality/vetting concerns. Target: 30% reduction after implementing visible protection signals. Secondary: premium host retention rate above 85%."
+    },
+    {
+      "id": "works-004",
+      "type": "process_pattern",
+      "title": "Agent-as-Choice-Architect: Formalize the Human Nudge Pipeline",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "Bryant performs the role of choice architect throughout the call — framing options, setting anchors, providing defaults, managing multi-party logistics. But this work is invisible to the platform. There is no mechanism for the agent to encode their choice architecture work (price recommendations, listing improvements, host preferences) into the platform in a way that persists and compounds. Each call is a one-time human performance that the platform does not capture or learn from.",
+      "solution": "Create an agent-facing workflow that allows agents to encode choice architecture decisions into the platform after each call. (1) Post-call agent dashboard: After a host call, the agent fills in a structured form: recommended price (becomes the default), host preferences (guest type, schedule), host concerns (asset protection level), and listing improvements needed (photos, description). (2) These inputs become the smart defaults that populate the host's experience. When Kris logs in (or Christiana logs in), they see Bryant's recommendations as pre-filled defaults. (3) Track which agent recommendations are accepted vs modified — this data improves future defaults. (4) The agent's name and photo appear next to their recommendations, transferring human trust to digital defaults.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 04:50",
+          "type": "host_call",
+          "quote": "We kind of have a tool basically based on similar listings and we use location as well. We can kind of get a price estimate.",
+          "insight": "Bryant describes a pricing tool that produces a recommendation. But this recommendation exists only in the phone conversation — it never becomes a platform default. The agent's work is lost."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "Choice architects can make major improvements to the lives of others by designing user-friendly environments. Many of the most successful companies have succeeded in the marketplace for exactly that reason.",
+          "insight": "Bryant IS the choice architect. The platform should amplify his impact by persisting his choices, not forcing him to redo them manually each time."
+        },
+        {
+          "source": "kris-call.txt, 08:02",
+          "type": "host_call",
+          "quote": "If what you can do, if you just send them over to me, I'd be happy to put them on your listing for you.",
+          "insight": "Bryant informally extends his choice architect role to listing content (photo management). The platform should provide a formal agent editing interface, not rely on email-forwarded photos."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "See the platform reflect what my agent already knows about me and my property, so I don't have to repeat myself or make decisions the agent already made for me.",
+      "company_goal": "Scale the high-conversion impact of agent calls by encoding call-derived insights as platform defaults. Each call should improve the platform experience for all future interactions, not be a one-time event.",
+      "time_budget": "Agent post-call encoding should take under 3 minutes. Host should see agent-derived defaults immediately upon next login.",
+      "anti_goals": [
+        "DO NOT make agent work invisible to the host. If Bryant set the price recommendation, Kris should see 'Bryant recommended $X/night based on similar listings.'",
+        "DO NOT require agents to use a separate tool to encode insights. It should be part of the existing CRM/dashboard flow.",
+        "DO NOT treat agent recommendations as lower quality than host self-service inputs. For delegator-hosts, agent-curated defaults ARE the best defaults.",
+        "DO NOT create a dependency on agents — smart defaults should also work from algorithmic recommendations when no agent input is available."
+      ],
+      "success_metric": "Agent-encoded default adoption rate: percentage of hosts who accept agent-set defaults without modification. Target: above 70%. Secondary: time-to-first-listing for hosts with agent calls vs without."
+    },
+    {
+      "id": "works-005",
+      "type": "process_pattern",
+      "title": "Recurring Guest as Default: Status Quo Bias for Retention",
+      "journey_phases": ["proposal_mgmt", "active_lease", "retention"],
+      "problem": "Kris explicitly wants 'one or two' regular guests rather than a revolving marketplace. But the platform treats each lease cycle as independent — requiring new proposals, new vetting, new decisions. This fights the host's natural status quo bias. The Nudge book shows that the median number of changes to pension allocations over a lifetime is zero — people don't change defaults. If Split Lease makes 'same guest, same terms' the default, hosts like Kris will retain for years. If the platform makes each cycle feel like a new decision, it forces the host out of their preferred status quo.",
+      "solution": "Design the retention flow around status quo bias. (1) At lease end, default to renewal with the same guest at the same terms. Frame it as: 'Your lease with [Guest Name] renews on [date]. Same terms. No action needed.' The host must actively opt out to change guests. (2) When a guest's lease is ending and they want to return, auto-generate a renewal proposal that the host receives as a confirmation, not a decision. (3) Create a 'Preferred Guest' status that gives specific guests auto-renewal privileges. (4) For returning guests, skip the vetting display (already vetted) and show a tenure signal: 'Guest since [date] — 3 successful stays.'",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 05:13",
+          "type": "host_call",
+          "quote": "If I have someone who's someone regular, cause obviously they'll get a discount because I'd prefer to work with one or two.",
+          "insight": "Kris is asking for a status quo arrangement. He wants to find one or two guests and then stop making decisions. The platform must support this 'set and forget' model."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Status Quo Bias",
+          "type": "book",
+          "quote": "The median number of changes in the asset allocation over a lifetime was, believe it or not, zero. In other words, over the course of their careers, more than half of the participants made exactly no changes.",
+          "insight": "If pension participants never change their allocation, Kris will never change his guest — if the platform makes the current guest the default. This is the strongest retention mechanism available."
+        }
+      ],
+      "priority": "high",
+      "user_goal": "Find one or two great guests and work with them repeatedly without having to re-evaluate, re-negotiate, or re-decide each cycle.",
+      "company_goal": "Maximize host retention and lease continuity by leveraging status quo bias. Recurring guest relationships are the lowest-cost, highest-LTV arrangement for the platform.",
+      "time_budget": "Lease renewal should require zero host action if the guest and host both want to continue. Active opt-out should take under 30 seconds.",
+      "anti_goals": [
+        "DO NOT treat each lease cycle as a fresh marketplace event. Returning guests should be framed as continuing relationships, not new transactions.",
+        "DO NOT require active acceptance for renewals with preferred guests. The default should be continuation.",
+        "DO NOT hide the 'Preferred Guest' concept behind complex settings. It should be a single toggle or a one-tap action after the first successful stay.",
+        "DO NOT show marketplace options to hosts who have a preferred guest arrangement, unless the host actively seeks alternatives."
+      ],
+      "success_metric": "Guest return rate: percentage of completed leases that result in the same guest rebooking. Target: above 40% within 12 months. Secondary: host-initiated lease terminations as a percentage of all lease endings — target below 15%."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-2 -->
+  <script id="data-layer-2" type="application/json">{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "communicates-001",
+      "type": "info_architecture",
+      "title": "Protection-First Information Hierarchy for Premium Hosts",
+      "journey_phases": ["evaluation", "active_lease", "retention"],
+      "problem": "The platform's information hierarchy leads with income potential (pricing, earnings projections). But Kris's primary information need is protection: how guests are vetted, what guarantees exist, how his art and property are safeguarded. Loss aversion research shows protection concerns carry 2x the emotional weight of income gains. The current hierarchy inverts the premium host's actual decision priority, forcing them to scroll past income data to find the protection information they need to feel safe.",
+      "solution": "Restructure the information hierarchy to lead with protection for premium hosts. (1) Evaluation page scan order: 'How we protect your property' banner > vetting process summary (credit check, references, guarantee) > guest quality stats ('94% of our guests are working professionals') > then income projection. (2) Active lease dashboard: Guest verification badge and protection status indicator appear in the top-left (first scan position), not hidden in a profile tab. (3) Use progressive disclosure: Protection summary always visible; detailed vetting report available on tap. Income details in a secondary tab. (4) Frame the payment guarantee as a protection feature, not an income feature: 'Your rent is protected' not 'Your income is guaranteed.'",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 08:44",
+          "type": "host_call",
+          "quote": "I've got some really good art in that apartment. So I want to make sure...",
+          "insight": "Protection is Kris's primary information need. It surfaces unprompted, late in the call, as an anxiety that has been building throughout."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Gains and Losses",
+          "type": "book",
+          "quote": "The prospect of losing something makes you twice as miserable as the prospect of gaining the same thing makes you happy.",
+          "insight": "Information hierarchy should mirror emotional hierarchy. Protection information (loss prevention) must appear before income information (gain) because it carries 2x the emotional weight."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Primary: Property protection status and guest verification. Secondary: Earnings and income data. Tertiary: Marketplace activity and platform features. The emotional weight of loss prevention means protection must always be above the fold.",
+      "disclosure_pattern": "Always-visible: protection status badge + guest verification summary. On-tap: full vetting report, credit check details, insurance coverage. On-request: income projections, market comparisons.",
+      "cognitive_load_constraint": "Protection summary must be scannable in under 3 data points: (1) Guest verified status, (2) Payment guarantee active, (3) Insurance/protection level. Do not exceed 3 items in the primary protection display.",
+      "scan_order": ["Protection status badge", "Guest verification summary", "Payment guarantee indicator", "Income/earnings summary"],
+      "exclude": ["Detailed vetting methodology (belongs in a secondary view)", "Legal terms of guarantee (link to full document)", "Marketplace statistics that don't relate to this host's listing"]
+    },
+    {
+      "id": "communicates-002",
+      "type": "info_architecture",
+      "title": "Anchored Pricing Display: Comps Before Inputs",
+      "journey_phases": ["pricing", "listing_creation"],
+      "problem": "Kris asks 'How much do you think I should rent this place for?' before seeing any market data. The platform's current pricing step presents a blank field, requiring the host to anchor on their own number (which may be their rent, a guess, or an Airbnb comparison). Thaler and Sunstein show that anchors — even arbitrary ones — profoundly shape decisions. The platform must provide the right anchor before asking for input, or hosts will anchor on wrong numbers.",
+      "solution": "Display comparable listing data before revealing the price input field. (1) Show 3-5 comparable listings in the host's area with their nightly rates, occupancy rates, and key features. (2) Highlight the recommended price as a large, prominent number above the input field — this becomes the anchor. (3) Show the host's cost basis ($5,500/mo) alongside the recommended nightly rate and calculate the implied ROI: 'At $X/night, your expected monthly income covers your rent and earns $Y extra.' (4) Frame the price relative to the host's rent, not relative to abstract market data. Kris thinks in terms of $5,500/mo — show him how the nightly rate maps to that frame.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 04:12-04:50",
+          "type": "host_call",
+          "quote": "How much do you think I should rent this place for? Cause I pay about $5,500 a month... We kind of have a tool based on similar listings.",
+          "insight": "Kris provides his anchor ($5,500/mo) and asks for a better one. Bryant promises a comp-based recommendation. The platform must deliver this before the price field appears."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Anchoring",
+          "type": "book",
+          "quote": "You start with some anchor, a number you know, and adjust in the direction you think is appropriate. The bias occurs because the adjustments are typically insufficient... Even obviously irrelevant anchors creep into the decision-making process.",
+          "insight": "If the platform shows comps at $200/night before asking for input, hosts will anchor near $200. If it shows a blank field, hosts anchor on their rent or a random number. The order of information display is the nudge."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Primary: Recommended price (large, prominent). Secondary: Comparable listings data that justifies the recommendation. Tertiary: Price input field for adjustment. The anchor must come before the input, never after.",
+      "disclosure_pattern": "Step 1: Show recommended price with headline ROI calculation. Step 2: Show 3-5 comps on tap for hosts who want validation. Step 3: Allow adjustment via slider from the recommended price, not a blank field.",
+      "cognitive_load_constraint": "Maximum 3 comparable listings shown by default. Price displayed in the host's mental model (monthly income relative to rent), not just nightly rate. No more than 2 numbers on screen at the recommendation step.",
+      "scan_order": ["Recommended nightly rate (large number)", "Monthly income calculation relative to rent", "Comparable listings carousel", "Price adjustment slider"],
+      "exclude": ["Platform fee structure at the pricing step (show at checkout/confirmation)", "Complex market analytics that require interpretation", "Multiple pricing tiers or models at the first pass (progressive disclosure)"]
+    },
+    {
+      "id": "communicates-003",
+      "type": "info_architecture",
+      "title": "Agent Continuity Display: Call-to-Platform Information Bridge",
+      "journey_phases": ["onboarding", "listing_creation", "pricing"],
+      "problem": "Information discussed on the phone call (property details, pricing expectations, schedule, concerns) does not persist into the platform experience. When Kris or Christiana logs in, the platform has no memory of what Bryant discussed. This creates an information gap: the host must re-enter or re-discover information that was already exchanged. The Nudge book emphasizes that choice architecture is inevitable — the platform's choice to show a blank dashboard instead of a call-informed dashboard is itself a choice that communicates 'we don't know you.'",
+      "solution": "Bridge call information to platform display. (1) After an agent call, the platform should show a 'Your agent noted' section at the top of the dashboard with key call outcomes: recommended price, schedule captured, photos needed, concerns logged. (2) Agent name and photo visible on the dashboard — the platform inherits trust from the person. (3) Call-derived data pre-populates relevant fields: schedule from call notes fills the availability calendar; pricing discussion fills the recommended rate; property details fill listing description. (4) If any information is missing, the platform asks for it in the context of the call: 'Bryant mentioned your apartment has a rooftop — would you like to add photos of the rooftop to your listing?'",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 01:53-02:13",
+          "type": "host_call",
+          "quote": "It's really a great fit because a lot of the people that we work with complement your schedule... That's great. So, you know, it's a nice apartment. It's on the nicest street in New York.",
+          "insight": "Rich property context is exchanged verbally. The platform should display: 'Bryant confirmed your 3-week availability schedule is a great fit for our guest pool. Your property at 57th between Park & Lex has been noted as premium.'"
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "Choice architects can make major improvements to the lives of others by designing user-friendly environments. Many of the most successful companies have succeeded in the marketplace for exactly that reason.",
+          "insight": "The information bridge IS the choice architecture. Showing call data on the platform turns a cold digital experience into a warm continuation of a human conversation."
+        }
+      ],
+      "priority": "high",
+      "hierarchy_principle": "Primary: Agent-noted items requiring host action (e.g., 'Upload better photos'). Secondary: Pre-filled data from call for review (e.g., schedule, pricing). Tertiary: Standard platform onboarding content.",
+      "disclosure_pattern": "On first login after a call: Display agent summary card prominently. On subsequent logins: Move agent notes to a sidebar reference. Once all call-derived actions are complete: Collapse to agent contact info only.",
+      "cognitive_load_constraint": "Agent summary card: maximum 4 items. Each item: one sentence + one action button. No more than 2 actions requiring immediate attention.",
+      "scan_order": ["Agent photo and name", "Key call outcomes (3-4 bullet points)", "Action items with clear CTAs", "Pre-filled listing/schedule data for review"],
+      "exclude": ["Full call transcript (never show this to the host)", "Internal agent notes not meant for host eyes", "Platform features not discussed in the call"]
+    },
+    {
+      "id": "communicates-004",
+      "type": "info_architecture",
+      "title": "Schedule-as-Value Framing: Availability as Income Opportunity",
+      "journey_phases": ["listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "Kris describes his schedule as a personal routine ('I go away for three weeks, come back for two weeks'). He frames availability as absence, not as inventory. The platform must reframe this information: Kris's 3-week absences are not empty weeks — they are 21 bookable nights per month. The Nudge book's framing effect shows that how information is presented changes decisions. 'You're away 3 weeks' feels passive. '21 nights available per month at $X/night = $Y/month' feels actionable. The platform's information architecture must translate the host's personal frame into a value frame.",
+      "solution": "Display schedule information in a dual frame: personal context + income opportunity. (1) Calendar view: Show Kris's schedule with his language ('Away: Feb 21 - Mar 14') but overlay the income calculation ('21 available nights = $X potential income'). (2) At listing creation: When the host enters their schedule, immediately show the income potential of that schedule. Don't wait for pricing to show value. (3) At proposal matching: Frame incoming proposals against the host's schedule: 'Guest request: Feb 22 - Mar 10 (17 of your 21 available nights). Potential income: $X.' (4) Use the host's own anchor ($5,500/mo rent) as the reference point: 'This month's bookings cover 85% of your rent.'",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 01:43",
+          "type": "host_call",
+          "quote": "I go away for three weeks. I come back for two weeks, so it's a weird schedule. It's expensive, you know, my part's expensive to make some money on this.",
+          "insight": "Kris frames his schedule as weird and his apartment as expensive. The platform must reframe: 'Your 3-week availability is highly desirable for our guests' and 'Your premium property commands $X/night.'"
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction Framing",
+          "type": "book",
+          "quote": "Small and apparently insignificant details can have major impacts on people's behavior. A good rule of thumb is to assume that everything matters.",
+          "insight": "How the schedule is displayed IS the nudge. 'Away 3 weeks' vs '21 bookable nights' is the same information with completely different motivational impact."
+        }
+      ],
+      "priority": "medium",
+      "hierarchy_principle": "Primary: Income potential calculation tied to schedule. Secondary: Schedule visualization (calendar). Tertiary: Schedule flexibility options.",
+      "disclosure_pattern": "Immediately upon schedule entry: Show income calculation. On calendar view: Overlay available vs occupied nights with income summation. On proposal receipt: Frame proposal against schedule and income target.",
+      "cognitive_load_constraint": "One number dominates: monthly income potential. Support with exactly 2 sub-numbers: available nights count and nightly rate. Do not show more than 3 numbers in the schedule-value display.",
+      "scan_order": ["Monthly income potential (large, bold)", "Available nights this month", "Nightly rate", "Calendar visualization"],
+      "exclude": ["Complex occupancy rate calculations", "Year-over-year comparisons (premature for new hosts)", "Guest demand forecasting beyond one month ahead"]
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-3 -->
+  <script id="data-layer-3" type="application/json">{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "looks-001",
+      "type": "visual_pattern",
+      "title": "Premium Property Visual Language: Elevated Trust Signals",
+      "journey_phases": ["evaluation", "listing_creation", "active_lease"],
+      "problem": "Kris describes a premium property (57th St between Park & Lex, 11.5ft ceilings, rooftop, art collection). But the platform's visual language treats all listings the same — same card layouts, same typography, same badge system. Premium hosts need a visual language that mirrors the quality of their property and communicates trust at the level they expect. The Nudge book's concept of 'everything matters' applies to visual design: the visual quality of the platform is itself a choice architecture signal. A premium host seeing a generic interface will question whether the platform can attract premium guests.",
+      "solution": "Create a premium visual tier for high-value listings. (1) Use the deep purple palette (#31135D) for premium listing cards — this signals sophistication without adding new colors. (2) Typography shift: Use DM Sans at 600 weight for premium listing headlines (slightly more refined than Inter). (3) Photo treatment: Premium listings get full-bleed hero photos with the subtle purple gradient overlay from the style guide (--gradient-purple-dark). (4) Trust badges for premium listings: 'Verified Premium Property' using a gold/amber accent against the purple palette (use --accent-gold #D4A853 from proposed palette). (5) Spacing increases: Premium cards use --spacing-3xl padding instead of --spacing-2xl, giving content room to breathe — matching the 11.5ft ceilings Kris describes.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 02:13",
+          "type": "host_call",
+          "quote": "It's on the nicest street in New York. It's on 57th between park and Lexington... the ceilings are about 11 and a half feet high.",
+          "insight": "Kris communicates premium through spatial language: nicest street, specific cross-streets, ceiling height. The visual design must match this spatial premium with generous spacing and elevated typography."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "A good rule of thumb is to assume that everything matters. In many cases, the power of these small details comes from focusing people's attention in a particular direction.",
+          "insight": "Visual details ARE choice architecture. A premium visual treatment focuses guest attention on quality, increasing booking likelihood and justifying higher pricing."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--primary-purple (#31135D)", "--gradient-purple-dark", "--bg-off-white (rgb(252, 250, 255))"],
+        "typography": ["DM Sans 600 for premium headlines at --text-xl (20px)", "Inter 400 for body at --text-base (14px)"],
+        "spacing": ["--spacing-3xl (28px) padding for premium cards", "--gap-xl (1.5rem) between premium elements"],
+        "new_tokens_needed": ["--accent-gold (#D4A853) from proposed palette — not yet in production tokens"]
+      },
+      "contrast_requirements": "WCAG AA: #31135D on #ffffff = 13.5:1 (passes). DM Sans 600 at 20px on white background meets large text requirements. Gold accent #D4A853 on white = 2.4:1 — use only for decorative elements, never for text.",
+      "visual_hierarchy_rule": "Premium listings visually separate from standard listings through denser color (deeper purple header) and more generous whitespace. The eye should register 'quality' before reading any content.",
+      "brand_alignment": "Taste model calls for 'Premium-accessible: Feels high quality without feeling exclusive.' The premium visual tier must feel elevated but not gated — any host can aspire to it by improving their listing quality."
+    },
+    {
+      "id": "looks-002",
+      "type": "visual_pattern",
+      "title": "Default Recommendation Visual Weight: Make the Nudge Visible",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt"],
+      "problem": "When the platform provides a default or recommendation (pricing, listing details, proposal response), the visual treatment must clearly signal 'this is the recommended choice' without appearing manipulative. The Nudge book's taxi tipping example shows that pre-calculated options with clear visual anchoring outperform blank inputs. But overly aggressive anchoring (like the 30% tip default) triggers reactance. The visual balance between 'clearly recommended' and 'not pushy' is critical.",
+      "solution": "Design a recommendation visual pattern. (1) The recommended option is displayed in a card with --secondary-purple border (2px, using --border-width-thick) and a subtle purple-tinted background (--bg-off-white). Alternative options use --border-color (standard gray) and --bg-white. (2) A small 'Recommended' badge in --secondary-purple with white text appears above the recommended card — never inside the card to avoid clutter. (3) The recommended number (price, date, etc.) uses --text-2xl (28px) and --font-weight-bold. Alternatives use --text-lg (18px) and --font-weight-medium. Size difference creates visual hierarchy without aggressive framing. (4) Allow one-tap acceptance of the recommended option and require additional taps for alternatives — friction as nudge.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 04:50",
+          "type": "host_call",
+          "quote": "We kind of have a tool based on similar listings and we use location as well. We can kind of get a price estimate.",
+          "insight": "Bryant frames the pricing tool as a recommendation, not a requirement. The visual pattern must match this tone: 'Here's what we recommend' with easy acceptance and easy override."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Anchoring — Taxi Tips",
+          "type": "book",
+          "quote": "Those who did install the technology were pleasantly surprised to learn that their tips increased... The screen appears only when the trip is over; the customer is ready to leave, and entering one's own amount requires some calculations and a couple extra steps. By contrast, just clicking one of the buttons is easy!",
+          "insight": "The visual pattern must make the recommended option the easiest to select. Visual prominence + reduced friction = higher acceptance of good defaults. But reactance risk means avoiding aggressive anchoring."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--secondary-purple for recommended border", "--bg-off-white for recommended background", "--border-color for alternatives"],
+        "typography": ["--text-2xl (28px) --font-weight-bold for recommended value", "--text-lg (18px) --font-weight-medium for alternatives"],
+        "spacing": ["--spacing-2xl (24px) padding for recommendation card", "--spacing-lg (16px) for alternative cards"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "WCAG AA: --secondary-purple (rgb(109,49,194)) on --bg-off-white (rgb(252,250,255)) = 5.8:1 (passes). Recommended badge: white text on --secondary-purple = 7.2:1 (passes AAA).",
+      "visual_hierarchy_rule": "The recommended option must be visually 1.5x larger than alternatives through size, spacing, and color weight. The eye should land on the recommendation first and perceive alternatives as secondary.",
+      "brand_alignment": "Taste model: 'Confident, not flashy. The product speaks through clarity, not decoration.' The recommendation pattern uses size and color hierarchy, not badges, icons, or animation to indicate preference."
+    },
+    {
+      "id": "looks-003",
+      "type": "visual_pattern",
+      "title": "Protection Shield Visual System: Safety at a Glance",
+      "journey_phases": ["active_lease", "evaluation", "proposal_mgmt"],
+      "problem": "Kris's loss aversion about his art requires a visual system that communicates protection status instantly — within the 2-second System 1 assessment window. The current platform has no dedicated visual language for protection/safety status. Protection information is mixed with general listing data, requiring System 2 search to find it. For a loss-averse premium host, this visual absence IS the message: 'your property is not protected.'",
+      "solution": "Create a consistent protection visual system. (1) Protection status uses a distinct visual treatment: a shield icon (Feather icon 'shield') paired with a status color — --secondary-purple for 'fully protected,' --status-warning (#C4841D from proposed tokens) for 'action needed.' (2) The protection indicator appears in a fixed position on the active lease dashboard — top-right corner, always visible, never scrolls away. (3) Guest verification cards use a vertical purple stripe on the left edge (4px, --secondary-purple) to visually distinguish them from general information cards. (4) On hover/tap, the shield icon expands to show the full protection summary: credit check status, references verified, payment guarantee active, insurance level.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 08:44-09:25",
+          "type": "host_call",
+          "quote": "I've got some really good art... how do you vet people?... we do credit check landlord references... we guarantee payments to you.",
+          "insight": "Kris's anxiety demands an instant visual answer. A shield icon with 'Protected' status communicates in under 1 second what Bryant took 30 seconds to explain verbally."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction — Schiphol Fly",
+          "type": "book",
+          "quote": "If a man sees a fly, he aims at it... etchings reduced spillage by 80 percent.",
+          "insight": "A small visual signal (the fly in the urinal) changes behavior dramatically. A small protection shield icon changes the host's emotional state from anxious to assured. Visual nudges work because they require zero cognitive effort."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--secondary-purple for active protection", "--status-warning (#C4841D) for needs-attention", "--bg-off-white for protection card background"],
+        "typography": ["Inter 600 at --text-sm (12px) for protection badge label", "Inter 400 at --text-base (14px) for protection detail text"],
+        "spacing": ["--spacing-sm (8px) between shield icon and label", "--spacing-md (12px) internal padding for protection detail card"],
+        "new_tokens_needed": ["--status-warning (#C4841D) from proposed palette — not yet in production"]
+      },
+      "contrast_requirements": "WCAG AA: Shield icon must be at least 24px (--icon-md) for visibility. --secondary-purple on white = 5.8:1 for text, adequate. Warning color #C4841D on white = 4.6:1, meets AA for large text only — use at --text-md (16px) minimum.",
+      "visual_hierarchy_rule": "The protection shield is always in the secondary scan position (top-right or directly below the heading). It must be visible without scrolling and must not compete with the primary content (listing details, earnings) for the first scan position.",
+      "brand_alignment": "Taste model: 'Trustworthy, not corporate.' The shield icon is a universal trust signal that feels protective, not institutional. Using the purple palette instead of a generic green checkmark keeps it on-brand."
+    },
+    {
+      "id": "looks-004",
+      "type": "visual_pattern",
+      "title": "Agent Presence Visual Pattern: Human Face in Digital Space",
+      "journey_phases": ["onboarding", "listing_creation", "pricing"],
+      "problem": "Kris's trust is built with Bryant (a person), not Split Lease (a platform). When Kris encounters the platform, there is no visual trace of Bryant. The Nudge book's concept of choice architecture emphasizes that the designer's invisible hand shapes experience. Making the agent's presence visible on the platform transfers human trust to digital trust. Without this visual bridge, the platform feels like a stranger's website.",
+      "solution": "Embed the agent's visual presence into the platform. (1) Agent avatar (--avatar-md, 48px, circular) appears in the dashboard header next to the host's name. Clicking reveals a contact card. (2) Agent-recommended items show a small avatar (--avatar-sm, 36px) and 'Bryant recommends' label. (3) The first-login experience opens with an agent welcome card: full photo, name, and a 1-sentence summary of what was discussed on the call. (4) Agent photo uses a subtle purple ring (2px --secondary-purple border) to visually distinguish from guest photos. (5) Agent contact info is always accessible via a floating action button (FAB) in the bottom-right corner — 48px minimum touch target, using --gradient-purple-button.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 09:49",
+          "type": "host_call",
+          "quote": "I'm glad I got to talk. I know Christiana is, we've talked about you and I've mentioned before, but it's good to finally talk with you.",
+          "insight": "Kris values the human connection with Bryant. 'Good to finally talk with you' implies built-up anticipation. The platform should sustain this connection visually."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "There are many parallels between choice architecture and more traditional forms of architecture... every trip to the bathroom creates an opportunity to run into colleagues.",
+          "insight": "In building architecture, placing people near each other increases interaction. In digital architecture, placing the agent's face near the host's dashboard increases trust. Proximity is the nudge."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--secondary-purple for agent avatar ring", "--gradient-purple-button for agent FAB", "--bg-off-white for agent welcome card background"],
+        "typography": ["DM Sans 600 at --text-md (16px) for agent name", "Inter 400 at --text-sm (12px) for 'Bryant recommends' label"],
+        "spacing": ["--spacing-sm (8px) between avatar and name", "--spacing-2xl (24px) for welcome card padding"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "WCAG AA: Agent FAB must meet 48px minimum touch target. Purple gradient button with white icon meets contrast requirements (tested).",
+      "visual_hierarchy_rule": "The agent avatar is a supporting visual element — it should be visible but not dominant. It anchors trust without competing with primary content. The agent welcome card on first login is the exception: it dominates the view as the first interaction.",
+      "brand_alignment": "Taste model: 'Warm, not cold. Trustworthy, not corporate.' The agent face literally warms the digital interface. A human presence transforms 'corporate platform' into 'someone you know helping you.'"
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-4 -->
+  <script id="data-layer-4" type="application/json">{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "One-Tap Default Acceptance with Undo Safety Net",
+      "journey_phases": ["pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Every decision point on the platform currently requires explicit multi-step confirmation: review options, select one, confirm, possibly re-confirm. For a delegator-host like Kris who wants to accept defaults, this interaction cost is a tax on the behavior the platform should encourage. The Nudge book shows that making the right choice easy (one button click) dramatically increases adoption. But pure one-tap risks accidental actions. The solution is optimistic action with undo — accept the default instantly, provide a brief undo window for errors.",
+      "solution": "Implement an optimistic acceptance pattern for defaults and recommendations. (1) Default acceptance is one tap: 'Accept recommended price' or 'Accept proposal' — single button, immediate confirmation. (2) After acceptance, show a 5-second toast notification with 'Undo' button. The toast uses --secondary-purple background with white text. (3) After the undo window closes, the action is committed. No additional confirmation modal. (4) For high-stakes actions (accepting a guest for the first time), extend the undo window to 30 seconds and add a brief summary of what was accepted. (5) The undo button is visually prominent: white text on purple, right-aligned in the toast, minimum 48px touch target.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 04:12-04:50",
+          "type": "host_call",
+          "quote": "How much do you think I should rent this place for?... We can kind of get a price estimate.",
+          "insight": "Kris wants a recommendation to accept, not a decision to make. The interaction pattern should match: one tap to accept the recommendation, with safety net for errors."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Anchoring — Taxi Tips",
+          "type": "book",
+          "quote": "Just clicking one of the buttons is easy! ... the more you ask for, the more you tend to get.",
+          "insight": "Taxi tip screens succeed because one tap selects the default. The platform's recommendation acceptance should match this simplicity. Friction reduces adoption of good defaults."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Recommendation displayed with prominent 'Accept' button. Alternative options visible but visually secondary. Accept button uses --gradient-purple-button.",
+        "loading": "On tap, button shows a brief checkmark animation (200ms). No spinner — the action feels instant (optimistic UI).",
+        "empty": "If no recommendation is available (no comps, new market), show 'Set your own price' with a guided wizard instead of a blank field.",
+        "error": "If the acceptance fails server-side, reverse the optimistic UI: toast changes to error state (--status-error background), show 'Something went wrong — your previous settings are restored.' Automatic rollback.",
+        "success": "Toast notification: 'Price set to $X/night. Undo (5s)' then transitions to a persistent confirmation: 'Your listing is priced at $X/night. Based on similar listings in your area.'"
+      },
+      "transition_principle": "Optimistic: the UI reflects the accepted state immediately upon tap. Rollback only if the server reports failure. The user's perception is that their action was instant.",
+      "timing": {
+        "response_target": "< 100ms for visual confirmation (checkmark animation). Server sync in background.",
+        "easing": "ease-out for confirmation animation (--easing-ease-out). The motion should feel 'settled' — no bounce.",
+        "rationale": "Delegator-hosts like Kris value speed and finality. The interaction must feel decisive, not tentative."
+      },
+      "journey_state_awareness": "For first-time hosts, extend the undo window and add a brief explanatory tooltip: 'You can change this anytime in Settings.' For returning hosts with established patterns, shorten or eliminate the undo window.",
+      "edge_cases": ["Network failure mid-acceptance: show 'Saving...' state, retry 3 times, then show error with manual retry option.", "Double-tap on accept: idempotent — second tap has no effect.", "Undo tapped after server commit: show 'Reverting...' and issue a correction API call."]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Proxy Login Flow: Seamless Multi-User Access",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "Christiana's account is the only way to access Kris's listing. When Kris needs to see something, Bryant must send login credentials via text. This is a broken interaction flow: manual credential sharing, no role separation, and a single point of failure. The Nudge book's principle that 'there is no such thing as a neutral design' applies — the platform's single-user login IS a design choice, and it excludes multi-person host operations.",
+      "solution": "Create a lightweight proxy access flow. (1) The account holder (Christiana) can generate a 'View & Approve' link for the property owner (Kris). One tap sends a magic link via SMS. (2) Kris taps the link, authenticates via phone number (SMS code — no password required), and sees a simplified dashboard: listing preview, pending proposals, earnings summary, and protection status. (3) The proxy view is read-heavy, action-light: Kris can approve/decline proposals and view but not edit the listing. Editing remains with the account holder. (4) The proxy session expires after 24 hours but can be refreshed with a new magic link. (5) Agent Bryant gets a permanent role — no magic link needed, just dashboard access scoped to the listings he manages.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 04:02",
+          "type": "host_call",
+          "quote": "Let me send over a, I'll send over the email and then the temporary password that was made.",
+          "insight": "Bryant manually creates a proxy access workaround — sending temporary credentials via text. This is the interaction pattern the platform should automate and secure."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "If you create the forms or the website that new employees use to choose among various employee benefits, you are a choice architect.",
+          "insight": "The login form IS choice architecture. A form that requires email + password excludes Kris. A form that accepts phone number + SMS code includes him. The design of the access flow determines who can participate."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Account holder sees 'Invite Property Owner' button on listing management page. Owner invitation is pending until accepted.",
+        "loading": "Magic link generation shows a sending animation (phone icon with pulse). SMS delivery confirmed with checkmark.",
+        "empty": "No property owner linked: Show suggestion card — 'Does someone else own this property? Invite them to view and approve proposals.'",
+        "error": "SMS delivery failure: Show error with retry option. Invalid phone number: Show format correction hint.",
+        "success": "Owner linked: Show green confirmation toast. Dashboard updates to show 'Kris can view this listing.' Owner sees: 'Connected to your listing via Christiana's account.'"
+      },
+      "transition_principle": "Magic link flow should feel as simple as sharing a link in a messaging app. No forms, no passwords, no setup wizards. One tap to invite, one tap to access.",
+      "timing": {
+        "response_target": "Magic link SMS delivery: under 10 seconds. SMS code verification: under 5 seconds. Dashboard load after verification: under 2 seconds.",
+        "easing": "ease-in-out for the transition from SMS code entry to dashboard (--easing-ease-in-out). The transition should feel like 'arriving' at your destination.",
+        "rationale": "Kris is self-employed and reachable by phone. SMS is his preferred communication channel. The interaction must match his modality."
+      },
+      "journey_state_awareness": "First invitation: show onboarding tour explaining the proxy view. Subsequent visits: skip tour, go directly to dashboard. If the owner hasn't visited in 30+ days: send a reminder SMS with listing performance summary.",
+      "edge_cases": ["Owner's phone number changes: Account holder can update via settings.", "Multiple properties under one account with different owners: Each listing can have a different owner invite.", "Owner tries to edit listing: Show clear message 'Editing is managed by [Christiana]. Contact her or your agent.'"]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Auto-Renewal Default with Opt-Out Friction Gradient",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "Lease renewal currently requires active decision-making from both host and guest. For Kris, who wants 'one or two regular' guests, this forced re-decision at each lease end fights his natural status quo bias. The Nudge book's pension study shows that when the default is 'continue,' the median number of changes is zero. The platform should harness this by making renewal the default, requiring action only to change or stop.",
+      "solution": "Design a status-quo-preserving renewal flow. (1) Default behavior: 30 days before lease end, send a notification: 'Your lease with [Guest] renews on [date] at the same terms. No action needed.' (2) If both parties take no action, the lease auto-renews. (3) To change terms, the host taps 'Modify terms' — which opens a lightweight adjustment screen (slider for price, date picker for schedule changes). (4) To end the lease, the host must tap 'End lease' which triggers a brief confirmation: 'Are you sure? [Guest] has been a great tenant for [N] months.' This is deliberate friction for the non-default choice. (5) The visual treatment: 'Renews automatically' is shown in calm, confident purple. 'End lease' is shown in muted gray, de-emphasized.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 05:13",
+          "type": "host_call",
+          "quote": "If I have someone who's someone regular, cause obviously they'll get a discount because I'd prefer to work with one or two.",
+          "insight": "Kris explicitly wants recurring arrangements. Auto-renewal is his preferred default. Forcing him to re-decide each cycle is an interaction pattern that fights his stated preference."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Status Quo Bias",
+          "type": "book",
+          "quote": "The median number of changes in the asset allocation over a lifetime was zero. Many married participants who were single when they joined the plan still had their mothers listed as their beneficiaries!",
+          "insight": "If people don't change pension beneficiaries, they certainly won't actively renew a lease that's working well. Make the working arrangement the default and watch retention compound."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Active lease card shows 'Auto-renews on [date]' in --text-purple with a small renewal icon. No action required from host.",
+        "loading": "If host initiates modification, show inline form load with skeleton screen (200ms).",
+        "empty": "Not applicable — there is always an active lease in this state.",
+        "error": "If auto-renewal fails (guest declined, payment issue): Alert host immediately with clear next steps. 'Your renewal with [Guest] needs attention — [Guest] has not confirmed. Contact your agent.'",
+        "success": "Auto-renewal confirmed: Brief toast — 'Lease renewed with [Guest]. Same terms through [new end date].' No further action needed."
+      },
+      "transition_principle": "The renewal transition should be invisible for hosts who want continuity. The only visible transition is the date update on the lease card. For hosts who want to change, the transition from default to modification should feel reversible — 'You can always go back to the default.'",
+      "timing": {
+        "response_target": "Notification 30 days before renewal. Second notification 7 days before. Auto-renewal happens at midnight on renewal date — no mid-day interruption.",
+        "easing": "No animation for auto-renewal — it should feel like nothing happened (because the right thing is nothing). Modification forms use ease-in-out for open/close.",
+        "rationale": "The best interaction for status quo bias is no interaction at all. The platform should do the right thing silently."
+      },
+      "journey_state_awareness": "First renewal: Include a brief explainer in the notification — 'We auto-renew so you don't have to think about it.' Second+ renewals: Skip explainer, just show the date update. If host has modified terms in the past: Show 'Based on your previous preferences' with adjusted defaults.",
+      "edge_cases": ["Guest wants to leave but host wants to renew: Notify host immediately, offer to match with a new guest.", "Host's schedule changes: Allow schedule modification without canceling the lease.", "Price market shift: Suggest price adjustment to host before renewal, but keep current price as default."]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Photo Upload by Proxy: Agent-Assisted Content Pipeline",
+      "journey_phases": ["listing_creation", "active_lease"],
+      "problem": "Kris's photos are bad ('not really good pictures, darling'). He will send better ones. But to whom? And how do they get onto the listing? Currently, this requires: Kris emails photos to Bryant, Bryant downloads them, Bryant logs into Christiana's account (using credentials sent via text), Bryant uploads them manually. This multi-step proxy chain is fragile, slow, and untraceable. The interaction pattern must formalize agent-mediated content upload.",
+      "solution": "Create a direct photo pipeline from host to listing via agent. (1) Host sends photos via SMS/email to a listing-specific address (e.g., photos-[listing-id]@splitlease.com or a unique SMS number). (2) Photos arrive in an agent review queue with the listing context pre-loaded. (3) Agent can one-tap approve-and-upload: the photo goes directly to the listing without needing to log into the host's account. (4) Host receives a notification: 'Bryant added 3 photos to your listing. Tap to preview.' (5) If the host has proxy access, they can reorder or remove photos from their simplified view.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 08:21-08:27",
+          "type": "host_call",
+          "quote": "When you texted me, why don't you send me your email so I can forward you those pictures?... Yeah, that would be great.",
+          "insight": "The current workflow is email-to-agent. The platform should formalize this: make the agent's inbox the listing's inbox, with direct-to-listing upload capability."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 5 Choice Architecture",
+          "type": "book",
+          "quote": "Choosers are human, so designers should make life as easy as possible. Send reminders and then try to minimize the costs imposed on those who, despite your best efforts, space out.",
+          "insight": "Kris's path of least resistance is email. The platform should meet him there, not force him into a different modality."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Listing photo section shows current photos with 'Add photos' CTA and 'Email photos to photos-[id]@splitlease.com' alternative.",
+        "loading": "Agent-uploaded photos show 'Processing...' thumbnail with progress indicator. Typically under 3 seconds.",
+        "empty": "No photos: Prominent 'Your listing needs photos' card with email/SMS upload instructions and agent-assisted option.",
+        "error": "Photo too large or wrong format: Auto-resize if possible, notify agent if not. Host never sees the error.",
+        "success": "Photo added: Thumbnail appears in listing with 'Added by Bryant' attribution. Host notification: 'New photo added to your listing.'"
+      },
+      "transition_principle": "The photo pipeline should be asynchronous and invisible to the host. Kris sends an email; photos appear on the listing. The complexity is handled by the agent and platform, not by the host.",
+      "timing": {
+        "response_target": "Photo processing: under 5 seconds. Agent review queue notification: immediate. Host notification after agent approval: under 1 minute.",
+        "easing": "Photo thumbnail fade-in: 300ms ease-out (--transition-slow --easing-ease-out). Feels like the photo 'settling into place.'",
+        "rationale": "Asynchronous workflow means timing is measured in minutes, not milliseconds. The critical timing is agent response time, not UI animation."
+      },
+      "journey_state_awareness": "New listings with no photos: Aggressive prompting — agent should proactively request photos. Listings with some photos: Suggest improvements — 'Your listing would benefit from a rooftop photo.' Mature listings: Occasional photo refresh prompts — 'Your photos are 6 months old — time for an update?'",
+      "edge_cases": ["Host sends photos but no agent is assigned: Route to a general review queue.", "Multiple people send photos for the same listing: Queue all, let agent curate.", "Host sends non-photo attachments: Reject gracefully with 'We received your file but it doesn't appear to be a photo.'"]
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-5 -->
+  <script id="data-layer-5" type="application/json">{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "feels-001",
+      "type": "emotional_element",
+      "title": "Delegator Confidence: 'It's Handled' Assurance",
+      "journey_phases": ["onboarding", "listing_creation", "pricing"],
+      "problem": "Kris delegates because he doesn't want to manage the platform. But delegation creates a secondary anxiety: 'Is it actually being handled?' When Christiana can't log in, when photos are bad, when pricing isn't set — Kris's delegation confidence erodes. The emotional challenge is not getting Kris to engage more, but reassuring him that his delegation strategy is working. The Nudge book's 'status quo bias' connects: Kris's default is delegation, and any signal that delegation is failing triggers anxiety that undermines the status quo.",
+      "solution": "Design a persistent 'it's handled' emotional signal. (1) Every agent action on behalf of the host generates a brief, positive notification: 'Bryant updated your photos' / 'Bryant set your recommended price.' These are not action items — they are reassurance signals. (2) The dashboard should show a 'Listing Health' indicator that stays green/purple as long as the agent is active. Kris doesn't need to know the details — he needs to know someone competent is managing. (3) Copy voice: Calm, factual, slightly warm. Like a good assistant reporting back. (4) Never ask Kris to 'review' or 'confirm' unless absolutely necessary. The emotional signal of 'review this' is 'something might be wrong,' which undermines delegation confidence.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 00:01",
+          "type": "host_call",
+          "quote": "Thank God you called. Cause my boyfriend is here and we are kind of like stupid and we don't know how to do it.",
+          "insight": "The emotional state is relief that someone competent arrived. The platform must sustain this relief, not replace it with platform-induced anxiety."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "Choosers are human, so designers should make life as easy as possible.",
+          "insight": "The emotional corollary: make choosers FEEL that life is easy. It's not enough to reduce complexity — the host must perceive that complexity is being managed on their behalf."
+        }
+      ],
+      "priority": "high",
+      "target_emotion": "confidence",
+      "emotion_rationale": "Kris's delegation strategy only works if he is confident it's working. Confidence is the emotional fuel for his status quo (staying on the platform without active engagement).",
+      "copy_guidelines": {
+        "voice": "Calm, factual, quietly competent",
+        "do": ["Use agent name in updates: 'Bryant updated your listing'", "Show completion states: 'Your listing is live and looking great'", "Use passive confirmations: 'Everything is on track'"],
+        "dont": ["Use urgency language: 'Action required!'", "Ask for reviews/confirmations unless necessary", "Use exclamation marks — they signal anxiety, not confidence"],
+        "example_good": "Bryant added 4 new photos to your listing. Your pricing is set based on similar properties in your area.",
+        "example_bad": "IMPORTANT: Please review your listing immediately! Some settings need your attention!"
+      },
+      "animation_feel": {
+        "easing": "ease-out (--easing-ease-out) — motions settle, they don't bounce",
+        "feel_description": "Steady, settled, unhurried. Like a status indicator that was always there. Nothing draws urgent attention.",
+        "duration_range": "200-300ms for status updates. No animations for passive notifications."
+      },
+      "tension_relief": {
+        "tension_point": "When Kris wonders 'Is my listing actually working?'",
+        "relief_point": "Dashboard shows listing status: live, priced, photos updated, agent active. All green/purple indicators.",
+        "timing": "Relief should be immediate upon opening the app — no search required to find the status."
+      },
+      "personalization_signals": ["Agent name and photo on updates", "Property address in status messages", "Schedule-aware notifications ('Your apartment is available starting Feb 21')"],
+      "anti_patterns": [
+        {
+          "pattern": "Requiring action on passive updates",
+          "reason": "Asking Kris to 'confirm' Bryant's photo upload signals distrust in the agent and adds cognitive load to a delegator.",
+          "example_bad": "Bryant added photos to your listing. Please review and confirm they meet your standards."
+        },
+        {
+          "pattern": "Generic system notifications",
+          "reason": "Notifications from 'Split Lease System' feel impersonal and undermine the human-mediated trust model.",
+          "example_bad": "Your listing has been updated. Log in to view changes."
+        }
+      ]
+    },
+    {
+      "id": "feels-002",
+      "type": "emotional_element",
+      "title": "Asset Protection Calm: Defusing Loss Aversion",
+      "journey_phases": ["evaluation", "active_lease"],
+      "problem": "Kris's art anxiety is the emotional peak of the call. Loss aversion makes this concern feel twice as urgent as income excitement. The platform must not just inform about protection — it must make Kris FEEL that his property is safe. Information alone doesn't defuse loss aversion; emotional reassurance does. The Nudge book shows that vivid, salient examples drive behavior more than statistics. Kris needs to feel protected, not be told the protection statistics.",
+      "solution": "Design an emotional protection experience, not just an informational one. (1) First encounter with a matched guest: Show the guest's profile with verification badges that FEEL substantial — not a small icon, but a full verification card with specifics: 'Credit score verified. 3 landlord references checked. $X payment pre-authorized.' (2) During active lease: Show a running 'Stay Report' with guest check-in confirmation, cleaning photo submissions, and review snippets from other hosts. This creates a narrative of safety, not just a badge. (3) Copy voice for protection: Measured, specific, factual. Avoid vague reassurances ('Your property is safe!'). Use concrete specifics ('Guest credit check: Excellent. Previous host rating: 4.8/5. Payment pre-authorized: $X.'). (4) If something goes wrong: Communicate immediately with the same calm tone. 'We noticed [issue]. Your agent Bryant has been notified and will contact you within 1 hour.'",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 08:44-09:25",
+          "type": "host_call",
+          "quote": "I've got some really good art in that apartment... Our guests are really a cut above the rest. We are very selective.",
+          "insight": "Bryant's verbal reassurance works because it is specific ('credit check landlord references') and personal ('a cut above the rest'). The platform must replicate this specificity."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Availability Heuristic",
+          "type": "book",
+          "quote": "Accessibility and salience are closely related to availability... vivid and easily imagined causes of death often receive inflated estimates of probability.",
+          "insight": "Kris's art anxiety is vivid and salient — he can easily imagine damage. Counteract with equally vivid and salient safety signals: specific guest credentials, concrete protection measures."
+        }
+      ],
+      "priority": "high",
+      "target_emotion": "safety",
+      "emotion_rationale": "Loss aversion creates a safety deficit that income potential cannot fill. The platform must create a persistent feeling of safety to keep premium hosts engaged through their most anxious moments.",
+      "copy_guidelines": {
+        "voice": "Measured, specific, reassuringly precise",
+        "do": ["Use specific data points: 'Credit score: Excellent'", "Name the protection measures: 'Payment guarantee: Active'", "Reference the agent: 'Bryant has reviewed this guest'"],
+        "dont": ["Use vague reassurances: 'Don't worry!'", "Minimize the concern: 'Most guests are fine'", "Use superlatives: 'The safest platform ever'"],
+        "example_good": "Guest verified: Credit check passed. 2 landlord references confirmed. Bryant reviewed and approved. Payment of $X pre-authorized.",
+        "example_bad": "We carefully vet all our guests to ensure your property is safe!"
+      },
+      "animation_feel": {
+        "easing": "ease-in-out (--easing-ease-in-out) — balanced, no sudden movements",
+        "feel_description": "Steady and grounded. Protection indicators should feel permanent and immovable, like a building's foundation. No flashiness.",
+        "duration_range": "300-400ms for protection card reveals. Slow enough to feel deliberate, fast enough to not create waiting anxiety."
+      },
+      "tension_relief": {
+        "tension_point": "When a new guest is matched and Kris sees an unfamiliar person being recommended for his apartment",
+        "relief_point": "The guest verification card expands with specific, concrete credentials. Each data point reduces anxiety incrementally.",
+        "timing": "Verification data should be immediately visible when the guest profile loads — no tap required to see it."
+      },
+      "personalization_signals": ["Property-specific protection context ('High-value art collection noted')", "Guest-specific verification details", "Agent endorsement ('Bryant personally reviewed this guest')"],
+      "anti_patterns": [
+        {
+          "pattern": "Hiding protection behind tabs or modals",
+          "reason": "Forcing Kris to click to find protection information signals that the platform doesn't prioritize what he cares about most.",
+          "example_bad": "Click 'View verification details' to see this guest's background check results."
+        },
+        {
+          "pattern": "Statistical reassurance instead of specific data",
+          "reason": "Saying '94% of guests have positive reviews' doesn't address Kris's specific concern about HIS apartment with HIS art.",
+          "example_bad": "Our guests are vetted professionals with a 94% satisfaction rate."
+        }
+      ]
+    },
+    {
+      "id": "feels-003",
+      "type": "emotional_element",
+      "title": "Income Momentum: Turning Schedule Into Earnings Excitement",
+      "journey_phases": ["listing_creation", "pricing", "active_lease"],
+      "problem": "Kris describes his schedule defensively: 'it's a weird schedule.' He perceives his 3-week absences as a problem to solve, not an opportunity to capitalize on. The Nudge book's framing effect shows that how information is presented changes how it feels. 'You're gone 3 weeks a month' feels like absence. '21 bookable nights generating $X income' feels like opportunity. The platform must reframe the host's self-perception from 'person with a weird schedule' to 'owner of a premium, high-demand space.'",
+      "solution": "Design a framing-based emotional shift. (1) When the host enters their schedule, immediately show an income projection: 'Your availability: 21 nights/month. Estimated monthly income: $X.' Use excited but grounded copy. (2) After first booking: Show a real-time earnings tracker that counts up, not a static number. The counting-up animation triggers the same positive emotion as a rising stock ticker. (3) Frame earnings relative to the host's known reference: 'This month covers 85% of your rent.' This reframes the income from abstract to meaningful. (4) Use warm visual language: Gold accent (#D4A853) for earnings displays. The color signals 'premium value,' not just 'money.'",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 01:43",
+          "type": "host_call",
+          "quote": "I go away for three weeks. I come back for two weeks, so it's a weird schedule. It's expensive, you know.",
+          "insight": "Kris frames his situation as 'weird' and 'expensive' — both negative frames. The platform must reframe to 'ideal' and 'valuable.'"
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Introduction Framing",
+          "type": "book",
+          "quote": "Small and apparently insignificant details can have major impacts on people's behavior. A good rule of thumb is to assume that everything matters.",
+          "insight": "The emotional framing of the income display IS the nudge. Showing '$3,500/month' feels different from showing 'Your apartment earns you $3,500 while you're in Florida.' Same data, different emotional impact."
+        }
+      ],
+      "priority": "medium",
+      "target_emotion": "excitement",
+      "emotion_rationale": "Excitement about income potential counterbalances loss aversion about property risk. The host needs to feel that the upside is not just financial but emotionally rewarding — their 'weird schedule' is actually their superpower.",
+      "copy_guidelines": {
+        "voice": "Warm, grounded, optimistically factual",
+        "do": ["Frame schedule as asset: 'Your 21 available nights are in high demand'", "Show earnings relative to rent: 'Covers 85% of your monthly rent'", "Use time-based framing: 'Earn while you're in Florida'"],
+        "dont": ["Use generic income language: 'Maximize your earnings!'", "Compare to other hosts: 'Top hosts earn...'", "Use countdown timers or urgency: 'Only 3 days until your availability starts!'"],
+        "example_good": "Your apartment at 57th St earned $3,200 last month — that's 58% of your rent covered while you were in Florida.",
+        "example_bad": "Congratulations! You've earned $3,200! Optimize your listing to earn even more!"
+      },
+      "animation_feel": {
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1) — the 'out' easing from tokens, feels like rising momentum that settles confidently",
+        "feel_description": "Rising and settling. The earnings counter should feel like something growing organically, not like a slot machine. Momentum, not gambling.",
+        "duration_range": "400-600ms for earnings counter animation. Slow enough to savor, fast enough to feel current."
+      },
+      "tension_relief": {
+        "tension_point": "Kris wondering 'Is this actually worth the hassle of sharing my apartment?'",
+        "relief_point": "Seeing concrete earnings relative to his rent: 'This covers $X of your $5,500 monthly rent.'",
+        "timing": "The earnings-to-rent ratio should update within 24 hours of each booking payment. Real-time or near-real-time."
+      },
+      "personalization_signals": ["Host's actual rent amount in income calculations", "Property address in earnings context", "Schedule-aware messaging ('While you're away Feb 21 - Mar 14')"],
+      "anti_patterns": [
+        {
+          "pattern": "Gamified earnings with badges and levels",
+          "reason": "Kris is a premium host, not a gig worker. Gamification undermines the sophistication he expects.",
+          "example_bad": "You've reached Gold Host status! Earn 2 more bookings to unlock Platinum!"
+        },
+        {
+          "pattern": "Comparison to other hosts",
+          "reason": "Kris doesn't care about ranking. He cares about his own economics (rent coverage). Comparisons feel competitive, not supportive.",
+          "example_bad": "You're in the top 15% of hosts in your area!"
+        }
+      ]
+    },
+    {
+      "id": "feels-004",
+      "type": "emotional_element",
+      "title": "Premium Host Recognition: Elevated Treatment for High-Value Properties",
+      "journey_phases": ["evaluation", "onboarding", "retention"],
+      "problem": "Kris describes his property with pride: 'nicest street in New York,' '11.5 feet ceilings,' 'really good art.' He expects the platform to recognize this premium status and treat him accordingly. The Nudge book's 'representativeness heuristic' applies: Kris judges the platform's quality by how it represents his property's quality. If the platform treats his luxury apartment the same as a basic room share, it fails the representativeness test. Premium hosts need to feel that the platform is worthy of their property.",
+      "solution": "Create subtle but unmistakable premium recognition. (1) During onboarding: After property details are captured, acknowledge the premium nature: 'Your property on 57th St is in our top tier. We'll match you with our most qualified guests.' (2) Visual treatment: Premium listing cards use the deep purple treatment (see looks-001) that signals sophistication. (3) Agent allocation: Premium hosts get priority agent attention — and they should know it: 'Bryant is your dedicated agent for premium listings.' (4) Guest matching language: 'We've selected 3 pre-qualified guests for your premium listing' — not 'You have new proposals.'",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 02:13",
+          "type": "host_call",
+          "quote": "It's on the nicest street in New York. The ceilings are about 11 and a half feet high, so it's pretty nice.",
+          "insight": "Kris's self-presentation is premium. He expects the platform's presentation of his property to match. Misalignment between his property quality and the platform's treatment erodes trust."
+        },
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1 Representativeness",
+          "type": "book",
+          "quote": "When asked to judge how likely it is that A belongs to category B, people answer by asking themselves how similar A is to their image or stereotype of B.",
+          "insight": "Kris judges whether Split Lease is the right platform by asking: 'Does this feel like a platform for properties like mine?' Premium visual treatment ensures the answer is yes."
+        }
+      ],
+      "priority": "medium",
+      "target_emotion": "confidence",
+      "emotion_rationale": "Premium hosts need to feel that the platform matches their property's caliber. This confidence drives initial commitment and long-term retention.",
+      "copy_guidelines": {
+        "voice": "Understated, elevated, respectfully attentive",
+        "do": ["Acknowledge property quality: 'Your premium listing on 57th St'", "Use curated language: 'Selected guests' not 'proposals'", "Reference specifics from the property: 'Your rooftop space and gallery-quality interiors'"],
+        "dont": ["Use mass-market language: 'Great news! You have a booking!'", "Flatten premium to generic: 'Your listing' instead of 'Your premium listing'", "Over-sell: 'Amazing! Incredible! Best listing ever!' — this cheapens the experience"],
+        "example_good": "We've matched 2 pre-qualified guests for your 57th Street property. Both are working professionals with excellent references.",
+        "example_bad": "You've got new proposals! Check them out now!"
+      },
+      "animation_feel": {
+        "easing": "ease-in-out, slightly slower than standard (--transition-slow, 300ms)",
+        "feel_description": "Deliberate and refined. Nothing hasty or excitable. The motion says 'we take this seriously.'",
+        "duration_range": "300-400ms for premium card transitions. Slower than standard to convey weight and importance."
+      },
+      "tension_relief": {
+        "tension_point": "When Kris first sees his listing on the platform and judges whether it represents his property well",
+        "relief_point": "Premium visual treatment, high-quality photo display, and 'Premium Property' badge confirm the platform recognizes his property's value",
+        "timing": "First impression — within 2 seconds of viewing the listing. The premium signals must be in the initial viewport."
+      },
+      "personalization_signals": ["Property-specific language using actual address and features", "Premium tier badge visible on listing", "Agent dedication signal ('Your dedicated agent')"],
+      "anti_patterns": [
+        {
+          "pattern": "Same treatment for all property tiers",
+          "reason": "A $5,500/mo luxury apartment receiving the same visual treatment as a $500/mo room share tells the premium host 'we don't recognize the difference.'",
+          "example_bad": "Here's your listing! It looks great! [Same card template as every other listing]"
+        },
+        {
+          "pattern": "Excessive enthusiasm",
+          "reason": "Overly excited copy ('WOW! Amazing property!!') feels inauthentic and low-market. Premium recognition is quiet, not loud.",
+          "example_bad": "WOW your listing is AMAZING! Guests are going to LOVE it!"
+        }
+      ]
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-6 -->
+  <script id="data-layer-6" type="application/json">{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "reinforcements": [
+    {
+      "new_element_id": "works-001 (Smart Defaults for Every Host Decision Point)",
+      "existing_element_id": "works-002 (Design for the Depleted User at Every Step After the First)",
+      "similarity": "Both prescribe smart defaults as the primary UX pattern. The existing element frames defaults through ego depletion (Kahneman's parole judge study). The new element frames defaults through choice architecture (Thaler & Sunstein's opt-out vs opt-in research). Same prescription, different theoretical lens.",
+      "combined_evidence": "Kahneman evidence: depleted judges default to denial. Nudge evidence: opt-out designs increase participation by 25%+. Kris evidence: explicitly asks for a pricing recommendation rather than making his own choice. Combined: Smart defaults work because users are both depleted AND behaviorally biased toward status quo — two independent mechanisms reinforcing the same design pattern.",
+      "recommendation": "merge"
+    },
+    {
+      "new_element_id": "works-004 (Agent-as-Choice-Architect)",
+      "existing_element_id": "works-004 (Bridge Human Trust to Digital Trust Through Continuity Priming)",
+      "similarity": "Both address the agent-to-platform handoff problem. The existing element frames it as priming (Kahneman associative coherence). The new element frames it as choice architecture encoding (Thaler agent-as-designer). Both require the agent's call outputs to persist into the platform.",
+      "combined_evidence": "Existing evidence: platform arrives as an unprimed stimulus; the agent must prime the digital experience during the call. New evidence: Bryant's recommendations (pricing, photos, scheduling) are ephemeral call outputs that the platform never captures. Combined: The agent must both prime the host for the platform AND encode their choice architecture into the platform. These are two sides of the same bridge.",
+      "recommendation": "merge"
+    },
+    {
+      "new_element_id": "works-003 (Loss Aversion Addressing)",
+      "existing_element_id": "communicates-001 from 2026-02-17_2200 run (if exists: Prospect Theory Loss Framing)",
+      "similarity": "Both address loss aversion in the host journey. The Kahneman Part 4 run (2026-02-17_2200) likely identified prospect theory and loss aversion as design drivers. This run independently discovers the same pattern through Kris's art anxiety and the Nudge book's 2:1 loss aversion ratio.",
+      "combined_evidence": "Multiple independent lenses converging on loss aversion as a critical design factor for premium hosts. Kris's art concern is a concrete, emotionally vivid instance of the abstract principle.",
+      "recommendation": "keep_both"
+    },
+    {
+      "new_element_id": "works-005 (Recurring Guest as Default)",
+      "existing_element_id": "works-001 (System 1 Trust Gate at Every Phase Transition)",
+      "similarity": "Both leverage the principle that users prefer continuity over novelty. The existing element applies it to phase transitions (visual/linguistic continuity). The new element applies it to guest relationships (recurring guests as default). Both use the same cognitive principle: continuity reduces cognitive cost.",
+      "combined_evidence": "System 1 trust gates require continuity at transitions. Status quo bias requires continuity at decision points. Combined: the platform should optimize for continuity at every level — visual, linguistic, relational, and operational.",
+      "recommendation": "keep_both"
+    }
+  ],
+  "contradictions": [
+    {
+      "new_element_id": "feels-003 (Income Momentum — excitement)",
+      "existing_element_id": "feels-002 (Asset Protection Calm — safety)",
+      "conflict": "Within this run, the income emotion is 'excitement' while the protection emotion is 'safety.' These are not contradictory per se, but they create a tonal tension: excitement is forward-leaning and energizing; safety is grounding and calming. The dashboard must balance both without creating emotional whiplash.",
+      "evidence_comparison": "Both are well-evidenced. The safety emotion has stronger evidence from the call (Kris's art anxiety is more visceral than his income curiosity). Safety should take visual priority, with excitement as a secondary emotional layer.",
+      "recommendation": "Resolve by spatial separation: Protection/safety occupies the persistent header zone (always visible, always calm). Income/excitement occupies the content zone below (dynamic, engaging, but not competing with safety signals).",
+      "severity": "warning"
+    }
+  ],
+  "extensions": [
+    {
+      "new_element_id": "works-002 (Delegated Host Access)",
+      "gap_filled": "Multi-user account architecture for delegator-hosts. No existing element in the library addresses the proxy/delegation model. All prior runs assumed direct user engagement.",
+      "confidence_note": "Single lens, but the evidence is strong: Kris's entire call is mediated through a proxy (Christiana) and an agent (Bryant). This pattern likely applies to 15-20% of premium hosts who delegate property management."
+    },
+    {
+      "new_element_id": "behaves-002 (Proxy Login Flow)",
+      "gap_filled": "Lightweight, SMS-based proxy access for property owners who don't manage their own accounts. This is a concrete interaction pattern for the delegated access principle.",
+      "confidence_note": "First lens to identify this pattern. Should be validated with usage data: how many listings are managed by someone other than the property owner?"
+    },
+    {
+      "new_element_id": "behaves-004 (Photo Upload by Proxy)",
+      "gap_filled": "Agent-mediated content pipeline for listing photos. No existing element addresses the workflow of agents uploading content on behalf of hosts.",
+      "confidence_note": "Moderate confidence. The email-to-agent photo pipeline is clearly needed based on the call, but the implementation pattern (listing-specific email addresses) needs technical validation."
+    }
+  ],
+  "token_compliance": {
+    "new_tokens_flagged": [
+      "--accent-gold (#D4A853) — referenced in looks-001 and feels-003 for premium/earnings displays. From proposed palette, not yet in production.",
+      "--status-warning (#C4841D) — referenced in looks-003 for protection attention-needed state. From proposed palette, not yet in production."
+    ],
+    "recommendation": "Both tokens are from Paula Scher's proposed palette revision. Use with awareness that they are not yet in production. For current implementation, use --secondary-purple as fallback for premium accents, and --accent-blue for warning states."
+  },
+  "emotional_arc_check": {
+    "journey_emotion_map": [
+      {"phase": "discovery", "target_emotions": ["curiosity"]},
+      {"phase": "evaluation", "target_emotions": ["confidence", "excitement"]},
+      {"phase": "onboarding", "target_emotions": ["confidence", "relief"]},
+      {"phase": "listing_creation", "target_emotions": ["confidence", "momentum"]},
+      {"phase": "pricing", "target_emotions": ["confidence", "excitement"]},
+      {"phase": "proposal_mgmt", "target_emotions": ["confidence", "safety"]},
+      {"phase": "active_lease", "target_emotions": ["safety", "confidence", "excitement"]},
+      {"phase": "retention", "target_emotions": ["confidence", "calm"]}
+    ],
+    "arc_conflicts": [
+      "The active_lease phase carries three simultaneous emotions (safety, confidence, excitement). This risks emotional overload. Prioritize safety as the dominant emotion, with confidence as steady-state and excitement as momentary (when earnings updates arrive)."
+    ],
+    "arc_assessment": "The emotional arc is coherent: curiosity → confidence → safety → calm. The primary through-line is CONFIDENCE, which makes sense for a delegator-host who needs to feel that everything is handled. Safety peaks during active lease (when the host's property is occupied). Excitement is a secondary thread tied to income milestones. The arc avoids negative emotions (urgency, anxiety, pressure) which aligns with the delegator persona. Overall: sound."
+  },
+  "coverage_map": {
+    "discovery": {"element_count": 1, "coverage": "thin"},
+    "evaluation": {"element_count": 5, "coverage": "moderate"},
+    "onboarding": {"element_count": 6, "coverage": "strong"},
+    "listing_creation": {"element_count": 8, "coverage": "strong"},
+    "pricing": {"element_count": 7, "coverage": "strong"},
+    "proposal_mgmt": {"element_count": 5, "coverage": "moderate"},
+    "active_lease": {"element_count": 7, "coverage": "strong"},
+    "retention": {"element_count": 4, "coverage": "moderate"}
+  },
+  "loop_back_recommendations": [
+    {
+      "layer": "1",
+      "reason": "Discovery phase has thin coverage. This run's lens (delegator-host) has limited insight into discovery because Kris was discovered by proxy (Christiana found Split Lease). A future lens with a host who self-discovered the platform would fill this gap.",
+      "new_input": "Host call from a self-discovery host (found via Google, ad, or organic search) paired with a marketing/persuasion book."
+    },
+    {
+      "layer": "4",
+      "reason": "The proxy login flow (behaves-002) needs technical validation. Can SMS-based magic links provide sufficient security for property management access? What are the compliance requirements?",
+      "new_input": "Technical architecture review of SMS auth security and multi-tenant access patterns."
+    }
+  ]
+}</script>
+  <!-- INJECT:layer-7 -->
+  <script id="data-layer-7" type="application/json">{
+  "lens": {
+    "host_call": "kris-call.txt",
+    "book_extract": "nudge-choice-architecture.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Smart Default Acceptance Rate Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["pricing", "listing_creation", "proposal_mgmt"],
+      "problem": "If smart defaults are poorly calibrated, hosts will either accept bad defaults (harming their outcomes and trust) or override them constantly (defeating the purpose). Both failure modes undermine the choice architecture.",
+      "solution": "A/B test default-provided vs blank-field experiences. Track: (1) Default acceptance rate per field. (2) Outcome quality for hosts who accept defaults vs those who override. (3) Time-to-completion for default-provided vs blank-field flows.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Introduction",
+          "type": "book",
+          "quote": "You can often increase participation rates by 25 percent simply by shifting from an opt-in to an opt-out design.",
+          "insight": "The 25% improvement benchmark gives us a concrete target: default-provided flows should show at least 25% higher completion rates than blank-field flows."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Cohort A: Pricing field pre-filled with recommended price and comps. Cohort B: Blank pricing field with 'Enter your nightly rate' placeholder. Measure completion rate, time-to-completion, and 90-day booking rate for both cohorts.",
+      "success_criteria": "Default-provided cohort shows at least 25% higher pricing step completion rate. Hosts who accept defaults achieve booking rates within 10% of hosts who override — proving defaults are well-calibrated.",
+      "failure_meaning": "If completion improves but booking rates drop, the defaults are poorly calibrated (too high or too low). If completion doesn't improve, the defaults are not visible or compelling enough — revisit looks-002 (recommendation visual weight).",
+      "implementation_hint": "Analytics events: 'pricing_default_shown', 'pricing_default_accepted', 'pricing_default_modified', 'pricing_blank_submitted'. Track the modification delta (how far from default did the host adjust?) to improve future default calibration."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Delegated Access Adoption Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the multi-user access model is too complex, hosts will ignore it and revert to credential-sharing (the current workaround). If it's too simple, it may create security concerns.",
+      "solution": "Track adoption rate of the invite-to-view flow and compare listing completion rates for single-user vs multi-user listings.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 01:26",
+          "type": "host_call",
+          "quote": "Christiana has a split lease account and the listing is under her account currently.",
+          "insight": "The proxy pattern already exists informally. Validation must show that formalizing it increases engagement from both the account holder and the property owner."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After launching multi-user access: Track (1) number of invite links generated, (2) invite acceptance rate, (3) owner login frequency, (4) listing update frequency for multi-user vs single-user listings.",
+      "success_criteria": "At least 15% of new listings generate an owner invite within the first month. Multi-user listings show 20%+ higher photo count and 15%+ higher listing quality score than single-user listings.",
+      "failure_meaning": "If invite generation is low, the feature is not discoverable — revisit onboarding flow placement. If invites are generated but not accepted, the magic link flow has friction — revisit behaves-002.",
+      "implementation_hint": "Track: 'owner_invite_sent', 'owner_invite_accepted', 'owner_proxy_login', 'owner_action_taken' (with action type: view_listing, approve_proposal, etc.)."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Loss Aversion Response Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["evaluation", "active_lease"],
+      "problem": "If protection signals are not visible or convincing enough, premium hosts will churn due to unresolved loss aversion. If protection is over-emphasized, it may create anxiety that didn't previously exist.",
+      "solution": "Usability test with premium hosts: Show them a listing dashboard with protection signals and measure anxiety reduction via self-report and behavioral proxies.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 08:44",
+          "type": "host_call",
+          "quote": "I've got some really good art in that apartment. So I want to make sure...",
+          "insight": "Kris's anxiety is specific and visceral. The validation must show that protection signals address this specific type of concern, not just general platform anxiety."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 premium hosts (property value $3,000+/mo). Show them: (A) Current dashboard without protection signals. (B) Redesigned dashboard with protection shield, guest verification, and payment guarantee visibility. Ask: 'How comfortable are you with a guest staying in your apartment?' Score 1-10 for each version. Also track: time spent looking at protection-related elements (eye tracking or click heatmap).",
+      "success_criteria": "Comfort score increases by at least 2 points (on 10-point scale) from version A to version B. At least 80% of participants notice and can recall the protection signals without prompting.",
+      "failure_meaning": "If comfort doesn't improve, the protection signals are not addressing the right concerns — go back to feels-002 and identify what specific anxieties need addressing. If participants don't notice the signals, revisit looks-003 (protection shield visual system).",
+      "implementation_hint": "Screen recording with think-aloud protocol. Key question: 'You mentioned you have valuable items in your apartment. What on this screen addresses that concern?' Unprompted recall is more valuable than prompted recognition."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Agent Continuity Display Validation",
+      "validates_element": "communicates-003",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the call-to-platform information bridge doesn't feel personal or relevant, hosts will perceive it as generic marketing rather than genuine continuity.",
+      "solution": "Compare first-login engagement for hosts with agent call notes pre-populated vs hosts without.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, 09:49",
+          "type": "host_call",
+          "quote": "I'm glad I got to talk. It's good to finally talk with you.",
+          "insight": "Kris values the personal connection. The platform must sustain it. Validation: does seeing 'Bryant noted...' on the dashboard increase engagement?"
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Cohort A: First login shows agent welcome card with call-derived data (property details, schedule, recommendations). Cohort B: First login shows standard onboarding flow. Track: session duration, listing completion rate, return visit within 7 days.",
+      "success_criteria": "Cohort A shows 30%+ higher listing completion rate within the first session. Return visit rate within 7 days is 20%+ higher for Cohort A.",
+      "failure_meaning": "If no improvement, the agent data is not meaningful enough or the display is not prominent enough. Check whether agent notes are detailed enough to create genuine personalization.",
+      "implementation_hint": "Requires agent CRM integration. After each call, agent fills a structured form (5 fields max). Platform renders this as a personalized welcome card on first host login."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Auto-Renewal Retention Impact Validation",
+      "validates_element": "works-005 and behaves-003",
+      "journey_phases": ["retention"],
+      "problem": "If auto-renewal is poorly communicated, hosts may feel trapped or surprised. If it's well-communicated but poorly timed, it may trigger reactance (the Nudge book's warning about aggressive defaults).",
+      "solution": "Track renewal rates before and after implementing auto-renewal default, and monitor opt-out rates and support complaints.",
+      "evidence": [
+        {
+          "source": "nudge-choice-architecture.txt, Ch 1",
+          "type": "book",
+          "quote": "They also provoked an increase in the number of riders who offered no tip at all. Some people were evidently put off by the aggressive defaults.",
+          "insight": "Auto-renewal must be communicated clearly and early (30 days notice) to avoid reactance. The validation must check for both increased retention AND any increase in negative reactions."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Phase 1 (current): Track baseline lease renewal rate (host manually opts to renew). Phase 2 (auto-renewal): Implement auto-renewal with 30-day notification. Track: (1) Renewal rate, (2) Opt-out rate (hosts who actively cancel the renewal), (3) Support tickets mentioning auto-renewal, (4) Host satisfaction survey scores.",
+      "success_criteria": "Renewal rate increases by at least 20% (from voluntary to auto-renewal). Opt-out rate stays below 15%. Support tickets mentioning auto-renewal stay below 5% of total renewals. Satisfaction scores do not decrease.",
+      "failure_meaning": "If renewal improves but satisfaction drops, the auto-renewal feels coercive — adjust notification timing and language. If opt-out rate exceeds 15%, the default is not well-calibrated to host preferences — investigate why hosts are opting out.",
+      "implementation_hint": "Analytics events: 'renewal_notification_sent', 'renewal_auto_completed', 'renewal_opt_out_initiated', 'renewal_terms_modified'. Track time-from-notification-to-opt-out to understand when in the 30-day window hosts decide to leave."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Journey-Level Validation: Delegator Host End-to-End Flow",
+      "validates_element": "All elements from this run",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Individual elements may test well in isolation but fail to create a coherent delegator-host experience end-to-end.",
+      "solution": "Conduct a longitudinal case study with 3-5 delegator-hosts (hosts who have someone else manage their listing) through the full journey.",
+      "evidence": [
+        {
+          "source": "kris-call.txt, full transcript",
+          "type": "host_call",
+          "quote": "The entire Kris call is mediated through a proxy (Christiana) and an agent (Bryant). This is the delegator-host archetype.",
+          "insight": "Kris's journey is not a single interaction — it's a multi-week, multi-person process. Validation must cover the full arc, not just individual touchpoints."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 3-5 premium host pairs (property owner + account manager). Follow them from first agent call through first guest booking (approximately 2-4 weeks). Track: (1) Listing completion time, (2) Number of support touches, (3) Pricing accuracy (bookings within 30 days), (4) Host self-reported confidence at weeks 1, 2, and 4. Qualitative: interview at end about which elements were most/least valuable.",
+      "success_criteria": "All participants complete listing creation within 48 hours of first agent call. Average support touches per host below 3 during onboarding. Self-reported confidence increases from week 1 to week 4. At least 60% of participants report that they feel 'the platform handles everything for them.'",
+      "failure_meaning": "If completion time exceeds 48 hours, the agent-to-platform pipeline has gaps. If support touches are high, the self-service elements are failing for this persona. If confidence doesn't increase, the emotional design (feels-001) is not landing.",
+      "implementation_hint": "Partner with the agent team to identify upcoming premium host sign-ups. Pre-brief agents to use the structured post-call form. Monitor platform analytics alongside qualitative check-ins at days 1, 7, and 30."
+    }
+  ]
+}</script>
+
+  <header class="report-header">
+    <h1>Design Stack v2 Report</h1>
+    <div class="lens-label" id="lens-label"></div>
+    <div class="report-meta">
+      <span id="meta-date"></span>
+      <span id="meta-run-id"></span>
+      <span class="badge" id="meta-status"></span>
+      <span id="meta-elements"></span>
+    </div>
+  </header>
+
+  <div class="coherence-bar" id="coherence-bar">
+    <span class="count" id="coherence-count"></span>
+    <span id="coherence-summary"></span>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="active" data-tab="overview"><span class="layer-num">*</span> Overview</button>
+    <button data-tab="layer-0"><span class="layer-num">0</span> Journey</button>
+    <button data-tab="layer-1"><span class="layer-num">1</span> Works</button>
+    <button data-tab="layer-2"><span class="layer-num">2</span> Communicates</button>
+    <button data-tab="layer-3"><span class="layer-num">3</span> Looks</button>
+    <button data-tab="layer-4"><span class="layer-num">4</span> Behaves</button>
+    <button data-tab="layer-5"><span class="layer-num">5</span> Feels</button>
+    <button data-tab="layer-6"><span class="layer-num">6</span> Coherence</button>
+    <button data-tab="layer-7"><span class="layer-num">7</span> Tests</button>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Overview Tab -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Lens Summary</h3>
+        <p id="overview-lens-summary" style="font-size:16px;color:var(--ink-soft);margin-bottom:20px;"></p>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;">Journey Phase Coverage</h4>
+        <div class="coverage-grid" id="overview-coverage"></div>
+        <h4 style="font-size:13px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.05em;margin:20px 0 12px;font-family:'IBM Plex Mono',monospace;">Run Statistics</h4>
+        <div id="overview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;"></div>
+      </div>
+      <div id="overview-highlights"></div>
+    </div>
+
+    <!-- Layer 0: Journey Context -->
+    <div class="tab-panel" id="panel-layer-0">
+      <div class="element-card">
+        <h3 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:16px;">Layer 0: Journey Context</h3>
+        <div id="content-layer-0"></div>
+      </div>
+    </div>
+
+    <!-- Layers 1-5: Element Cards -->
+    <div class="tab-panel" id="panel-layer-1"><div id="content-layer-1"></div></div>
+    <div class="tab-panel" id="panel-layer-2"><div id="content-layer-2"></div></div>
+    <div class="tab-panel" id="panel-layer-3"><div id="content-layer-3"></div></div>
+    <div class="tab-panel" id="panel-layer-4"><div id="content-layer-4"></div></div>
+    <div class="tab-panel" id="panel-layer-5"><div id="content-layer-5"></div></div>
+
+    <!-- Layer 6: Coherence -->
+    <div class="tab-panel" id="panel-layer-6">
+      <div id="content-layer-6"></div>
+    </div>
+
+    <!-- Layer 7: Tests -->
+    <div class="tab-panel" id="panel-layer-7"><div id="content-layer-7"></div></div>
+
+  </main>
+
+  <footer style="text-align:center;padding:32px;color:var(--ink-ghost);font-size:12px;font-family:'IBM Plex Mono',monospace;">
+    SplitLease Design Stack v2.0 — Element Pipeline
+  </footer>
+
+  <script>
+    function loadJSON(id) { try { return JSON.parse(document.getElementById(id)?.textContent || '{}'); } catch { return {}; } }
+
+    const config = loadJSON('run-config');
+    const layers = {};
+    for (let i = 0; i <= 7; i++) layers[i] = loadJSON(`data-layer-${i}`);
+
+    // Header
+    const lens = config.lens || layers[0]?.lens || {};
+    document.getElementById('lens-label').textContent = `Lens: ${lens.host_call || '?'} + ${lens.book_extract || '?'}`;
+    document.getElementById('meta-date').textContent = config.started_at ? new Date(config.started_at).toLocaleDateString() : '';
+    document.getElementById('meta-run-id').textContent = config.run_id || '';
+    const statusEl = document.getElementById('meta-status');
+    statusEl.textContent = config.status || 'pending';
+    statusEl.className = `badge badge-${config.status || 'partial'}`;
+
+    // Count elements
+    let totalElements = 0;
+    for (let i = 1; i <= 5; i++) totalElements += (layers[i]?.elements || []).length;
+    totalElements += (layers[7]?.elements || []).length;
+    document.getElementById('meta-elements').textContent = `${totalElements} elements`;
+
+    // Coherence bar
+    const coherence = layers[6] || {};
+    const contradictions = coherence.contradictions || [];
+    const reinforcements = coherence.reinforcements || [];
+    if (contradictions.length > 0) {
+      const bar = document.getElementById('coherence-bar');
+      bar.classList.add('has-flags');
+      document.getElementById('coherence-count').textContent = `${contradictions.length} contradiction${contradictions.length !== 1 ? 's' : ''}`;
+      document.getElementById('coherence-summary').textContent = `${reinforcements.length} reinforcement${reinforcements.length !== 1 ? 's' : ''} found`;
+    }
+
+    // Tab navigation
+    document.getElementById('tab-nav').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+    });
+
+    // Evidence toggle
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('evidence-toggle')) {
+        const list = e.target.nextElementSibling;
+        list.classList.toggle('open');
+        e.target.textContent = list.classList.contains('open') ? 'Hide evidence' : `Show evidence (${list.children.length})`;
+      }
+    });
+
+    // Render element card
+    function renderElementCard(el) {
+      const phases = (el.journey_phases || []).map(p => `<span class="phase-tag">${p}</span>`).join('');
+      const evidenceItems = (el.evidence || []).map(ev =>
+        `<div class="evidence-item">
+          <div class="source">${ev.source || ''}</div>
+          ${ev.quote ? `<div class="quote">"${ev.quote}"</div>` : ''}
+          ${ev.insight ? `<div class="insight">${ev.insight}</div>` : ''}
+        </div>`
+      ).join('');
+      const evidenceCount = (el.evidence || []).length;
+
+      let extras = '';
+      // Layer-specific fields
+      if (el.user_goal) extras += `<div class="extra-field"><label>User Goal</label> <span class="value">${el.user_goal}</span></div>`;
+      if (el.company_goal) extras += `<div class="extra-field"><label>Company Goal</label> <span class="value">${el.company_goal}</span></div>`;
+      if (el.success_metric) extras += `<div class="extra-field"><label>Success Metric</label> <span class="value">${el.success_metric}</span></div>`;
+      if (el.time_budget) extras += `<div class="extra-field"><label>Time Budget</label> <span class="value">${el.time_budget}</span></div>`;
+      if (el.hierarchy_principle) extras += `<div class="extra-field"><label>Hierarchy</label> <span class="value">${el.hierarchy_principle}</span></div>`;
+      if (el.disclosure_pattern) extras += `<div class="extra-field"><label>Disclosure</label> <span class="value">${el.disclosure_pattern}</span></div>`;
+      if (el.cognitive_load_constraint) extras += `<div class="extra-field"><label>Cognitive Load</label> <span class="value">${el.cognitive_load_constraint}</span></div>`;
+      if (el.brand_alignment) extras += `<div class="extra-field"><label>Brand Alignment</label> <span class="value">${el.brand_alignment}</span></div>`;
+      if (el.visual_hierarchy_rule) extras += `<div class="extra-field"><label>Visual Hierarchy</label> <span class="value">${el.visual_hierarchy_rule}</span></div>`;
+      if (el.transition_principle) extras += `<div class="extra-field"><label>Transitions</label> <span class="value">${el.transition_principle}</span></div>`;
+      if (el.journey_state_awareness) extras += `<div class="extra-field"><label>Journey Awareness</label> <span class="value">${el.journey_state_awareness}</span></div>`;
+      if (el.target_emotion) extras += `<div class="extra-field"><label>Target Emotion</label> <span class="value" style="font-size:16px;font-weight:600;">${el.target_emotion}</span></div>`;
+      if (el.emotion_rationale) extras += `<div class="extra-field"><label>Why</label> <span class="value">${el.emotion_rationale}</span></div>`;
+      if (el.validation_method) extras += `<div class="extra-field"><label>Method</label> <span class="value">${el.validation_method}</span></div>`;
+      if (el.success_criteria) extras += `<div class="extra-field"><label>Success Criteria</label> <span class="value">${el.success_criteria}</span></div>`;
+      if (el.failure_meaning) extras += `<div class="extra-field"><label>Failure Means</label> <span class="value">${el.failure_meaning}</span></div>`;
+      if (el.test_description) extras += `<div class="extra-field"><label>Test</label> <span class="value">${el.test_description}</span></div>`;
+
+      // Copy guidelines
+      if (el.copy_guidelines) {
+        const cg = el.copy_guidelines;
+        extras += `<div class="extra-field" style="margin-top:8px;"><label>Copy Voice</label> <span class="value">${cg.voice || ''}</span></div>`;
+        if (cg.example_good) extras += `<div class="extra-field"><label>Good Example</label> <span class="value" style="color:var(--signal-success);">"${cg.example_good}"</span></div>`;
+        if (cg.example_bad) extras += `<div class="extra-field"><label>Bad Example</label> <span class="value" style="color:var(--signal-danger);text-decoration:line-through;">"${cg.example_bad}"</span></div>`;
+      }
+
+      // Anti-goals / anti-patterns
+      const antiItems = el.anti_goals || (el.anti_patterns || []).map(a => typeof a === 'string' ? a : a.pattern);
+      let antiHTML = '';
+      if (antiItems && antiItems.length) {
+        antiHTML = `<div style="margin-top:12px;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--signal-danger);font-family:'IBM Plex Mono',monospace;">Anti-goals</label><ul style="margin-top:4px;padding-left:18px;font-size:13px;color:var(--ink-soft);">${antiItems.map(a => `<li>${a}</li>`).join('')}</ul></div>`;
+      }
+
+      return `<div class="element-card">
+        <div class="element-card-header">
+          <h3>${el.title || el.id}</h3>
+          <span class="type-badge type-${el.type || ''}">${(el.type || '').replace(/_/g, ' ')}</span>
+          <span class="priority-badge priority-${el.priority || 'low'}">${el.priority || 'low'}</span>
+        </div>
+        <div class="phase-tags">${phases}</div>
+        <div class="ps-grid">
+          <div class="ps-box problem"><label>Problem</label>${el.problem || 'N/A'}</div>
+          <div class="ps-box solution"><label>Solution</label>${el.solution || 'N/A'}</div>
+        </div>
+        ${extras ? `<div class="extra-fields">${extras}</div>` : ''}
+        ${antiHTML}
+        ${evidenceCount > 0 ? `<div style="margin-top:16px;">
+          <button class="evidence-toggle">Show evidence (${evidenceCount})</button>
+          <div class="evidence-list">${evidenceItems}</div>
+        </div>` : ''}
+      </div>`;
+    }
+
+    // Render element layers (1-5, 7)
+    [1,2,3,4,5,7].forEach(i => {
+      const container = document.getElementById(`content-layer-${i}`);
+      if (!container) return;
+      const data = layers[i];
+      const elements = data?.elements || [];
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No elements discovered by this layer.</p></div>';
+        return;
+      }
+      const layerNames = {1:'Process Patterns',2:'Info Architecture',3:'Visual Patterns',4:'Interaction Patterns',5:'Emotional Elements',7:'Validation Strategies'};
+      container.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:24px;font-weight:400;margin-bottom:20px;">Layer ${i}: ${layerNames[i]} <span style="font-size:14px;color:var(--ink-muted);font-family:'IBM Plex Mono',monospace;">(${elements.length} element${elements.length!==1?'s':''})</span></h2>` + elements.map(renderElementCard).join('');
+    });
+
+    // Render Layer 0: Journey Context
+    (function renderJourney() {
+      const container = document.getElementById('content-layer-0');
+      if (!container) return;
+      const data = layers[0];
+      if (!data || !data.phases) { container.innerHTML = '<p style="color:var(--ink-ghost);font-style:italic;">No journey context data.</p>'; return; }
+
+      const phaseOrder = ['discovery','evaluation','onboarding','listing_creation','pricing','proposal_mgmt','active_lease','retention'];
+      let html = '';
+      if (data.lens?.lens_summary) html += `<p style="font-size:15px;color:var(--ink-soft);margin-bottom:20px;">${data.lens.lens_summary}</p>`;
+      phaseOrder.forEach(phase => {
+        const p = data.phases[phase];
+        if (!p) return;
+        const risk = p.dropout_risk?.level || 'low';
+        html += `<div class="phase-card">
+          <h4>${phase.replace(/_/g, ' ')}</h4>
+          <p>${p.what_this_lens_reveals || 'No data for this phase.'}</p>
+          ${p.user_state ? `<p style="font-size:12px;color:var(--ink-muted);"><strong>Emotional:</strong> ${p.user_state.emotional_state || '?'} | <strong>Knowledge:</strong> ${p.user_state.knowledge_level || '?'} | <strong>Commitment:</strong> ${p.user_state.commitment_level || '?'}</p>` : ''}
+          <span class="risk risk-${risk}">${risk} dropout risk</span>
+        </div>`;
+      });
+      if (data.cross_phase_patterns?.length) {
+        html += '<h4 style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;color:var(--accent);margin:20px 0 10px;text-transform:uppercase;">Cross-Phase Patterns</h4>';
+        data.cross_phase_patterns.forEach(cp => {
+          html += `<div class="phase-card"><p><strong>${cp.pattern}</strong></p><p style="font-size:12px;color:var(--ink-muted);">Affects: ${(cp.phases_affected||[]).join(', ')} | ${cp.evidence || ''}</p></div>`;
+        });
+      }
+      container.innerHTML = html;
+    })();
+
+    // Render Layer 6: Coherence
+    (function renderCoherence() {
+      const container = document.getElementById('content-layer-6');
+      if (!container) return;
+      const data = layers[6];
+      if (!data || Object.keys(data).length === 0) { container.innerHTML = '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence data.</p></div>'; return; }
+
+      let html = '';
+
+      // Reinforcements
+      if (data.reinforcements?.length) {
+        html += `<div class="coherence-section"><h3>Reinforcements (${data.reinforcements.length})</h3>`;
+        data.reinforcements.forEach(r => {
+          html += `<div class="reinforcement-card"><div class="card-label" style="color:var(--signal-success);">Reinforcement</div>
+            <p><strong>${r.new_element_id}</strong> reinforces <strong>${r.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${r.similarity || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${r.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Contradictions
+      if (data.contradictions?.length) {
+        html += `<div class="coherence-section"><h3>Contradictions (${data.contradictions.length})</h3>`;
+        data.contradictions.forEach(c => {
+          html += `<div class="contradiction-card"><div class="card-label" style="color:var(--signal-danger);">${c.severity || 'warning'}</div>
+            <p><strong>${c.new_element_id}</strong> conflicts with <strong>${c.existing_element_id}</strong></p>
+            <p style="font-size:13px;color:var(--ink-soft);margin-top:4px;">${c.conflict || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">Recommendation: ${c.recommendation || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Extensions
+      if (data.extensions?.length) {
+        html += `<div class="coherence-section"><h3>Extensions (${data.extensions.length})</h3>`;
+        data.extensions.forEach(ext => {
+          html += `<div class="extension-card"><div class="card-label" style="color:var(--signal-info);">New Territory</div>
+            <p><strong>${ext.new_element_id}</strong> — ${ext.gap_filled || ''}</p>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:4px;">${ext.confidence_note || ''}</p>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Coverage Map
+      if (data.coverage_map) {
+        html += '<div class="coherence-section"><h3>Journey Coverage</h3><div class="coverage-grid">';
+        Object.entries(data.coverage_map).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          html += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g, ' ')}</div>
+            <div class="count">${info.element_count || 0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Emotional Arc
+      if (data.emotional_arc_check) {
+        const arc = data.emotional_arc_check;
+        html += `<div class="coherence-section"><h3>Emotional Arc</h3>`;
+        if (arc.journey_emotion_map?.length) {
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">';
+          arc.journey_emotion_map.forEach(em => {
+            html += `<div style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;text-align:center;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-muted);text-transform:uppercase;">${em.phase}</div>
+              <div style="font-weight:600;color:var(--accent);margin-top:2px;">${(em.target_emotions||[]).join(', ')}</div>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        if (arc.arc_assessment) html += `<p style="font-size:14px;color:var(--ink-soft);">${arc.arc_assessment}</p>`;
+        html += '</div>';
+      }
+
+      container.innerHTML = html || '<div class="element-card"><p style="color:var(--ink-ghost);font-style:italic;">No coherence issues detected.</p></div>';
+    })();
+
+    // Overview tab
+    (function renderOverview() {
+      // Coverage
+      const coverageContainer = document.getElementById('overview-coverage');
+      const coverageData = layers[6]?.coverage_map;
+      if (coverageData && coverageContainer) {
+        Object.entries(coverageData).forEach(([phase, info]) => {
+          const cov = info.coverage || 'none';
+          coverageContainer.innerHTML += `<div class="coverage-cell coverage-${cov}">
+            <div class="phase-name">${phase.replace(/_/g,' ')}</div>
+            <div class="count">${info.element_count||0}</div>
+            <div class="level">${cov}</div>
+          </div>`;
+        });
+      }
+
+      // Lens summary
+      const summaryEl = document.getElementById('overview-lens-summary');
+      if (summaryEl) summaryEl.textContent = layers[0]?.lens?.lens_summary || 'No lens summary available.';
+
+      // Stats
+      const statsEl = document.getElementById('overview-stats');
+      if (statsEl) {
+        const stats = [
+          { label: 'Elements', value: totalElements },
+          { label: 'Reinforcements', value: reinforcements.length },
+          { label: 'Contradictions', value: contradictions.length },
+          { label: 'Extensions', value: (coherence.extensions||[]).length }
+        ];
+        statsEl.innerHTML = stats.map(s =>
+          `<div style="padding:14px;background:var(--surface-warm);border:1px solid var(--border);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:28px;font-weight:700;color:var(--accent);">${s.value}</div>
+            <div style="font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--ink-muted);text-transform:uppercase;">${s.label}</div>
+          </div>`
+        ).join('');
+      }
+
+      // High-priority highlights
+      const highlightsEl = document.getElementById('overview-highlights');
+      if (highlightsEl) {
+        let highPriority = [];
+        [1,2,3,4,5,7].forEach(i => {
+          (layers[i]?.elements || []).forEach(el => {
+            if (el.priority === 'high') highPriority.push(el);
+          });
+        });
+        if (highPriority.length) {
+          highlightsEl.innerHTML = `<h2 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin:24px 0 16px;">High-Priority Elements</h2>` + highPriority.map(renderElementCard).join('');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

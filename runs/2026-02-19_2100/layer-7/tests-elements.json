@@ -1,0 +1,472 @@
+{
+  "lens": {
+    "guest_call": "user-stories-initial-analysis.md",
+    "book_extract": "sapiens-tree-of-knowledge.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-2100-001",
+      "type": "validation_strategy",
+      "title": "Value-Before-Ask Sequence Compliance Test",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery"],
+      "problem": "If the platform presents any registration prompt, preference input, or data collection form before the guest has seen real listings and social proof, the collective fiction fails at first contact. The guest bounces because the myth demands participation before demonstrating its reality. This violation is invisible in standard funnel analytics because it manifests as a bounce, not as a form abandonment.",
+      "solution": "Instrument the discovery page to track the sequence of first meaningful content paint vs. first input demand. Measure bounce rate stratified by whether the guest saw listings before encountering any registration or data-entry prompt.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Value before the ask",
+          "type": "guest_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them. Show something useful first.",
+          "insight": "The testable principle is binary: did the guest see value before being asked for anything? Every violation is a measurable dropout cause."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Legend of Peugeot",
+          "type": "book",
+          "quote": "Telling effective stories is not easy. The difficulty lies not in telling the story, but in convincing everyone else to believe it.",
+          "insight": "Harari predicts that undemonstrated myths fail to recruit believers. The test measures whether the platform demonstrates its myth (active listings) before asking for belief (registration)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Add two timestamp events to the discovery page: (1) first_value_rendered -- fires when the first listing card or social proof element enters the viewport. (2) first_ask_rendered -- fires when any registration prompt, signup modal, or data-entry field enters the viewport. Measure the delta and sequence for every session. Segment bounce rate by: (a) sessions where first_value_rendered preceded first_ask_rendered, and (b) sessions where the sequence was inverted or first_ask_rendered fired without first_value_rendered.",
+      "success_criteria": "100% of sessions have first_value_rendered firing before first_ask_rendered. Bounce rate for value-first sessions is at least 30% lower than ask-first sessions. First meaningful content paint occurs within 1.5 seconds.",
+      "failure_meaning": "Any session where first_ask_rendered fires before first_value_rendered indicates a structural violation of the value-before-ask principle. The platform is demanding belief before demonstrating reality -- the Sapiens equivalent of asking someone to believe in a company before showing them any product.",
+      "implementation_hint": "Add lightweight analytics events to the rendering pipeline. No UI changes needed for the test itself -- this is observational. Flag any code path that could render a signup prompt before listing content loads (e.g., slow API responses that leave a registration CTA visible while listings are still loading)."
+    },
+    {
+      "id": "tests-2100-002",
+      "type": "validation_strategy",
+      "title": "Gossip Bandwidth Impact on Card Engagement",
+      "validates_element": "works-002",
+      "journey_phases": ["search", "discovery"],
+      "problem": "If enriched listing cards do not measurably increase the guest's ability to assess stranger-trustworthiness quickly, the additional data points are noise rather than gossip. The risk is over-enrichment: adding data that does not serve trust assessment but clutters the card, slowing the scan rather than accelerating it.",
+      "solution": "A/B test the enriched card (with hover gossip layer, availability indicator, response time, photo count) against the current card. Measure engagement rate, time-to-first-click, and search-to-proposal conversion.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Listing cards",
+          "type": "guest_call",
+          "quote": "The current card works but it's leaving engagement on the table. Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions.",
+          "insight": "The user stories predict that enrichment will increase engagement. The test must verify this prediction and measure the magnitude."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Gossip theory",
+          "type": "book",
+          "quote": "Reliable information about who could be trusted meant that small bands could expand into larger bands.",
+          "insight": "Harari's gossip theory predicts that higher trust-information bandwidth increases cooperation velocity. The test measures whether card enrichment actually increases the speed of the guest's trust assessment."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Split search traffic 50/50 between control (current card) and treatment (enriched card with three-layer gossip architecture). Track per-variant: (1) Card hover rate (treatment only -- baseline for hover engagement). (2) Card click-through rate to listing detail. (3) Average time from search page load to first card click. (4) Search-to-proposal conversion rate at 7-day and 14-day windows. (5) Save/bookmark actions per session. Run for minimum 2 weeks or until statistical significance at 95% confidence.",
+      "success_criteria": "Treatment (enriched card) shows at least 15% higher click-through rate, at least 10% shorter time-to-first-click, and no decrease in search-to-proposal conversion. Hover engagement rate above 40% on desktop indicates the gossip layer is discoverable.",
+      "failure_meaning": "If enriched cards do not improve click-through or time-to-first-click, the additional data points are not functioning as gossip signals -- they may be irrelevant information that does not aid stranger-assessment. If time-to-first-click increases, the enrichment is creating cognitive overload rather than increasing gossip bandwidth.",
+      "implementation_hint": "Implement the enriched card as a feature-flagged variant. Use the existing analytics pipeline for click-through and conversion metrics. Add a new hover_engaged event for the treatment group. Ensure that the hover layer pre-loads data with the initial card payload (no lazy-loading that creates hover latency)."
+    },
+    {
+      "id": "tests-2100-003",
+      "type": "validation_strategy",
+      "title": "Cross-Activation Trust Transfer Measurement",
+      "validates_element": "works-003",
+      "journey_phases": ["listing_evaluation", "discovery", "acceptance"],
+      "problem": "If verified reviews and host trust signals do not measurably change the guest's conversion behavior, the trust infrastructure is not functioning as cross-activation -- past guests are not actually activating future guests. The platform then bears the full trust-building burden alone, which is fragile and expensive.",
+      "solution": "Compare conversion rates for listings with varying levels of trust evidence (0 reviews vs. 1-3 reviews vs. 4+ reviews; verified host vs. unverified host). Measure the marginal impact of each trust signal on the guest's progression from listing evaluation to proposal.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation",
+          "type": "guest_call",
+          "quote": "A skeptical guest who sees verified reviews, ID checks, and real host history doesn't need the platform to convince them -- another user already did.",
+          "insight": "The cross-activation hypothesis is directly testable: do listings with more peer trust evidence convert at higher rates than listings without?"
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Trade and fiction",
+          "type": "book",
+          "quote": "Trade cannot exist without trust, and it is very difficult to trust strangers.",
+          "insight": "Harari predicts that trust infrastructure is the bottleneck for stranger cooperation. If the trust signals are working, listings with more trust evidence should show non-linearly higher conversion."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Segment all listing detail page views by trust-evidence tier: Tier 0 (no reviews, no verification), Tier 1 (1-3 reviews OR host verified), Tier 2 (4+ reviews AND host verified). For each tier, measure: (1) Listing-to-proposal conversion rate. (2) Average time on listing detail page. (3) Scroll depth. (4) Message-to-host rate. (5) Return visits to the same listing. Run as a cohort analysis over 30 days of data.",
+      "success_criteria": "Tier 2 listings show at least 2x the proposal conversion rate of Tier 0 listings. Tier 1 shows a measurable intermediate lift. Time on page for Tier 2 should be shorter (faster trust resolution) with higher proposal rates, confirming that trust evidence accelerates rather than delays the decision.",
+      "failure_meaning": "If Tier 2 listings do not outperform Tier 0, the trust signals are either not visible enough (information architecture problem), not credible enough (quality problem), or not relevant to the guest's trust assessment (design problem). Each failure mode requires different intervention.",
+      "implementation_hint": "This analysis can be run on existing data if review counts and verification status are logged with listing page views. No new instrumentation required for the initial analysis. If results confirm the cross-activation effect, prioritize increasing Tier 1 and Tier 2 listing coverage."
+    },
+    {
+      "id": "tests-2100-004",
+      "type": "validation_strategy",
+      "title": "Proposal Ritual Friction Audit",
+      "validates_element": "works-004",
+      "journey_phases": ["proposal_creation", "acceptance"],
+      "problem": "If the proposal form introduces friction that the pre-populated, inline-auth design was meant to eliminate (redundant fields, page redirects, hidden costs), the incorporation ritual fails and proposal abandonment remains high. The Sapiens lens predicts that any break in the ritual sequence disrupts the formation of the shared fiction.",
+      "solution": "Audit the proposal flow for ritual-breaking friction points and measure the impact of pre-population and inline auth on proposal completion rate and time-to-submit.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Authentication",
+          "type": "guest_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "The critical test is whether inline auth preserves context and completion rate compared to redirect auth."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Legend of Peugeot",
+          "type": "book",
+          "quote": "Once the lawyer had performed all the right rituals and pronounced all the necessary spells and oaths, millions of upright French citizens behaved as if the Peugeot company really existed.",
+          "insight": "Ritual completion depends on unbroken ceremonial flow. Any interruption (auth redirect, redundant data entry) is a ritual-breaking event that the test must detect."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8-12 participants who have browsed a shared-space listing but never submitted a proposal. Task: find a listing and submit a proposal. Observe: (1) Time from 'Create Proposal' click to successful submission. (2) Number of fields the participant manually edits vs. accepts pre-populated. (3) Reaction to inline authentication (surprise, confusion, acceptance). (4) Whether the participant reads the price breakdown. (5) Emotional response at submission (relief, uncertainty, confidence). Record screen and think-aloud protocol. Supplement with quantitative analytics: proposal form open-to-submit rate, median completion time, auth-modal-to-resume dropout rate.",
+      "success_criteria": "Median time-to-submit under 90 seconds for new users (including auth). At least 70% of participants accept 3+ pre-populated fields without editing. Auth modal causes zero navigational confusion (participants understand they are still on the same page). Price breakdown is noticed by at least 80% of participants. Emotional response at submission is positive or neutral, not anxious.",
+      "failure_meaning": "If time-to-submit exceeds 90 seconds, the ritual has too many friction points. If participants manually re-enter pre-populated data, the pre-population is not trustworthy or visible enough. If the auth modal causes confusion, the inline implementation is not sufficiently integrated into the flow. Each failure mode maps to a specific L1-L5 element that needs revision.",
+      "implementation_hint": "Use a prototype with realistic listing data for usability sessions. The analytics component can run on the production proposal flow. Key instrumentation: proposal_form_opened, field_edited (per field), auth_modal_triggered, auth_modal_completed, proposal_submitted timestamps."
+    },
+    {
+      "id": "tests-2100-005",
+      "type": "validation_strategy",
+      "title": "Living Map Engagement and Place-Sense Measurement",
+      "validates_element": "works-005",
+      "journey_phases": ["search", "discovery"],
+      "problem": "If the enriched map (with transit, landmarks, contextual layers) does not change the guest's engagement behavior or reduce external navigation to Google Maps, the investment in map enrichment does not serve the intersubjective place-making goal. The map may be technically richer but emotionally flat.",
+      "solution": "Measure map interaction rate, time-in-map, and external navigation behavior before and after contextual layer deployment. Supplement with qualitative feedback on whether the map conveys 'mood' and place-sense.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Map should feel alive",
+          "type": "guest_call",
+          "quote": "Transit stops, landmarks, real-time context -- this is about mood, not just utility. The feeling that something is happening.",
+          "insight": "The success criterion is emotional, not just functional: does the map feel alive? This requires qualitative validation alongside quantitative metrics."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Dual reality",
+          "type": "book",
+          "quote": "Ever since the Cognitive Revolution, Sapiens has thus been living in a dual reality.",
+          "insight": "The map must bridge objective geography and imagined neighborhood identity. The test must measure whether the contextual layers create the sense of a living place (imagined reality) on top of the pin locations (objective reality)."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "Deploy the enriched map to 50% of search traffic. Track per variant: (1) Map interaction rate (pan, zoom, pin click). (2) Time spent with map in viewport. (3) Listing clicks originating from map pin vs. grid card. (4) External navigation events (clicks to Google Maps links or browser tab switches to maps.google.com during search session). (5) Post-session survey (treatment group only): 'Did the map help you understand the neighborhood?' (1-5 scale). Run for 3 weeks minimum.",
+      "success_criteria": "Treatment shows at least 20% higher map interaction rate, at least 15% higher map-originated listing clicks, and at least 25% reduction in external map navigation. Survey average above 3.5/5 on neighborhood understanding. No increase in page load time greater than 500ms.",
+      "failure_meaning": "If map interaction does not increase, the contextual layers are not discoverable or visually compelling enough. If external navigation does not decrease, the enrichment does not satisfy the guest's neighborhood assessment needs. If page load increases significantly, the technical implementation needs optimization before the emotional design can work.",
+      "implementation_hint": "Deploy contextual layers as an overlay that loads asynchronously after map tiles and listing pins. Track external navigation through referrer analysis and tab-focus events. The post-session survey can be triggered for a subset of treatment-group sessions."
+    },
+    {
+      "id": "tests-2100-006",
+      "type": "validation_strategy",
+      "title": "Pre-Commitment Messaging Cross-Activation Test",
+      "validates_element": "works-006",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "If the Contact Host messaging channel does not measurably reduce proposal abandonment or increase guest-to-proposal conversion, it may be functioning as a delay mechanism rather than a trust-building gossip channel. The risk is that messaging becomes an alternative to proposing rather than a bridge to proposing.",
+      "solution": "Measure the conversion funnel for guests who message before proposing vs. guests who propose without messaging. Track whether messaging accelerates or delays proposal submission.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Messaging before proposals",
+          "type": "guest_call",
+          "quote": "A message action reduces abandonment when someone isn't ready for a proposal. Having the option is better than having no action at all.",
+          "insight": "The user stories predict that messaging will reduce abandonment. The test must verify this AND ensure messaging does not create an indefinite delay loop."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Gossip theory",
+          "type": "book",
+          "quote": "The new linguistic skills that modern Sapiens acquired about seventy millennia ago enabled them to gossip for hours on end.",
+          "insight": "Harari warns that gossip can go on endlessly. The test must measure whether platform messaging leads to proposal (productive gossip) or replaces it (endless gossip)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "After messaging feature deployment, create three cohorts: (A) Guests who viewed a listing and proposed without messaging. (B) Guests who messaged then proposed within 7 days. (C) Guests who messaged but did not propose within 14 days. Measure for each cohort: (1) Listing-to-proposal conversion rate. (2) Median time from listing view to proposal submission. (3) Host response rate to proposals. (4) Proposal quality score (percentage of pre-populated fields accepted without edit). (5) Overall abandonment rate for listing detail pages before and after messaging deployment.",
+      "success_criteria": "Cohort B (message-then-propose) shows at least equal conversion rate to Cohort A, with higher host response rate (proposals informed by messaging are better quality). Cohort C (message-no-propose) is less than 30% of all messaging sessions. Overall listing-page abandonment decreases after messaging deployment. Median time from message to proposal is under 48 hours.",
+      "failure_meaning": "If Cohort C exceeds 40% of messaging sessions, messaging is becoming an alternative to commitment rather than a bridge. If Cohort B has lower conversion than Cohort A, messaging is introducing doubt rather than building trust. If host response rate does not improve for Cohort B, the messaging is not improving proposal quality.",
+      "implementation_hint": "Cohort creation requires linking message events to proposal events at the user-listing level. Ensure that the messaging feature logs listing_id, guest_id, and timestamp for each message sent and received. The 7-day and 14-day windows should be configurable parameters."
+    },
+    {
+      "id": "tests-2100-007",
+      "type": "validation_strategy",
+      "title": "Gossip-Layer Card Information Scan Efficiency Test",
+      "validates_element": "communicates-002",
+      "journey_phases": ["search"],
+      "problem": "If the three-layer information architecture (glance, scan, deep) does not match the guest's natural scanning order, the card's gossip bandwidth is structurally misaligned. Data points in the wrong layer (e.g., trust signals buried in the deep layer, amenities in the glance layer) force the guest to work harder for trust-relevant information.",
+      "solution": "Use eye-tracking or click-heatmap analysis to validate that the information hierarchy matches the guest's actual scanning behavior during search.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Listing cards",
+          "type": "guest_call",
+          "quote": "The card needs more gossip layers, not more data. The distinction matters: layers are progressive, discoverable, and scoped.",
+          "insight": "The test must validate that the layering is correct -- that each layer contains the information the guest seeks at that level of engagement."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Gossip theory",
+          "type": "book",
+          "quote": "Reliable information about who could be trusted meant that small bands could expand into larger bands.",
+          "insight": "Trust-relevant information must appear in the earliest layer. The scan efficiency test validates that the gossip hierarchy is correctly ordered."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 6-8 participants. Present them with a search grid containing 12 enriched listing cards. Task: 'Choose the 3 listings you would most want to explore further and explain why.' Record: (1) Eye-tracking fixation patterns or mouse-movement heatmaps (which card elements are looked at first, second, third). (2) Time to first hover action. (3) Verbal rationale for selections (what information drove the choice). (4) Whether trust signals (verification badge, response time) are mentioned in the rationale. Map observed scan order against the designed scan order (photo > price > location > trust badge > hover details).",
+      "success_criteria": "At least 70% of participants scan in the designed order (photo first, then price/location, then trust signal). Trust signals are mentioned in the selection rationale by at least 50% of participants. Hover engagement occurs within 5 seconds of search page load for at least 60% of participants.",
+      "failure_meaning": "If participants scan trust signals before price (the designed order is violated), the visual hierarchy needs adjustment. If trust signals are never mentioned in selection rationale, they are not functioning as gossip signals and need more visual weight. If hover is never triggered, the hover layer is not discoverable.",
+      "implementation_hint": "Use a clickable prototype with realistic data. If eye-tracking hardware is unavailable, use cursor-tracking tools (e.g., Hotjar session recordings) as a proxy. The think-aloud protocol is essential for understanding what information the guest values at the glance layer."
+    },
+    {
+      "id": "tests-2100-008",
+      "type": "validation_strategy",
+      "title": "Trust-First Listing Detail Scroll Depth and Trust Resolution Test",
+      "validates_element": "communicates-003",
+      "journey_phases": ["listing_evaluation", "acceptance"],
+      "problem": "If the trust-first information architecture does not result in guests encountering reviews and host identity within the first scroll, the trust resolution moment is delayed. Guests who must scroll past extensive listing descriptions before reaching trust evidence may abandon due to unresolved trust anxiety.",
+      "solution": "Measure scroll depth at which the guest first encounters the trust section (reviews + host identity), and correlate trust-section visibility with proposal conversion.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation",
+          "type": "guest_call",
+          "quote": "Even if a user loves what they see on the card, they'll still open the listing before committing -- to check host reviews, credibility, full photos.",
+          "insight": "The test must verify that the review section is reachable within the first scroll, because the guest opens the listing specifically to check trust evidence."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Trade and fiction",
+          "type": "book",
+          "quote": "Trade cannot exist without trust, and it is very difficult to trust strangers.",
+          "insight": "Harari predicts that trust resolution speed determines cooperation willingness. The test measures whether the page architecture enables fast trust resolution."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Instrument the listing detail page with scroll-depth events that fire when specific sections enter the viewport: photos, host_identity, review_summary, listing_description, amenities, action_bar. For each listing page view, record: (1) Time to trust_section_visible (review summary enters viewport). (2) Whether the guest scrolled past the trust section or stopped before it. (3) Action taken after trust section visibility (propose, message, save, leave). Correlate trust_section_visible timing with conversion outcome.",
+      "success_criteria": "Trust section is visible within 2 seconds of page load or within 1 scroll action (whichever comes first) for at least 90% of sessions. Sessions where trust_section_visible occurs within 2 seconds show at least 25% higher proposal conversion than sessions where it occurs after 5+ seconds. Guests who view the trust section are at least 50% more likely to take any action (propose, message, save) than those who leave before reaching it.",
+      "failure_meaning": "If the trust section is not reached within 1 scroll by 90% of sessions, the page architecture has too much content above the trust zone (likely oversized photo gallery or pre-trust description blocks). If reaching the trust section does not correlate with higher conversion, the trust content itself may be insufficient or unconvincing.",
+      "implementation_hint": "Use intersection observer events for section visibility tracking. The listing detail page template determines the scroll distance to the trust section -- this is a design/layout parameter that can be adjusted without backend changes."
+    },
+    {
+      "id": "tests-2100-009",
+      "type": "validation_strategy",
+      "title": "Ritual Proposal Form Price Transparency Test",
+      "validates_element": "communicates-004",
+      "journey_phases": ["proposal_creation", "acceptance"],
+      "problem": "If the live price breakdown does not update in real-time as the guest modifies terms, or if any fee component is hidden until the final confirmation step, the ritual-clarity principle is violated. The guest experiences a cost surprise that breaks the ceremonial trust and increases abandonment at the moment of highest commitment.",
+      "solution": "Verify that the price breakdown is visible at all times during proposal composition, updates within 100ms of any field change, and contains no fees absent from the initial display.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Price transparency",
+          "type": "guest_call",
+          "quote": "A well-structured proposal -- clear dates, schedule, pricing, intent -- activates the host to respond.",
+          "insight": "Price clarity is a structural requirement for the ritual to succeed. Hidden fees are ritual-breaking events."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Legend of Peugeot",
+          "type": "book",
+          "quote": "If a certified lawyer followed all the proper liturgy and rituals, wrote all the required spells and oaths on a wonderfully decorated piece of paper.",
+          "insight": "The ritual requires that all terms are visible on the 'decorated piece of paper.' Hidden fees are oaths not pronounced -- they invalidate the ritual."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Create automated end-to-end tests that: (1) Open a proposal form and verify the price breakdown panel is visible on initial load. (2) Modify the date range and verify the total updates within 200ms. (3) Modify the schedule (days per week) and verify the total updates within 200ms. (4) Compare the price breakdown on the form with the price shown at the confirmation step -- they must be identical (zero hidden fees). (5) Verify that every line item in the confirmation step was present in the form view. Run as part of the CI pipeline on every deployment.",
+      "success_criteria": "Price breakdown visible on load: 100% pass. Price update latency under 200ms: 100% pass. Zero discrepancy between form-view price and confirmation-view price. Zero line items appearing at confirmation that were not present on the form. All tests green on every deployment.",
+      "failure_meaning": "Any price discrepancy between the form and confirmation is a critical trust violation. Any update latency above 200ms creates a moment of uncertainty where the guest does not know the current cost. Any hidden line item appearing at confirmation is a fee surprise that triggers abandonment.",
+      "implementation_hint": "Use Playwright or Cypress for the automated tests. The price comparison test should serialize the full price breakdown at both stages and assert equality. Add a visual regression test for the price panel to catch layout changes that might obscure fee components."
+    },
+    {
+      "id": "tests-2100-010",
+      "type": "validation_strategy",
+      "title": "Hover-Reveal Gossip Layer Discoverability and Responsiveness Test",
+      "validates_element": "behaves-002",
+      "journey_phases": ["search"],
+      "problem": "If the hover gossip layer is not discovered by guests (they never hover long enough to trigger it) or is too slow to feel responsive, the secondary trust information remains hidden. On mobile, the long-press alternative may be entirely undiscoverable without affordance cues.",
+      "solution": "Measure hover trigger rate, hover-to-click progression, and mobile long-press adoption. Validate that the 200ms hover transition feels responsive through performance monitoring.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Listing cards",
+          "type": "guest_call",
+          "quote": "Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions -- all without leaving the search grid.",
+          "insight": "The hover layer is only valuable if guests actually encounter it. Discoverability is the critical validation."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Gossip theory",
+          "type": "book",
+          "quote": "Reliable information about who could be trusted meant that small bands could expand into larger bands.",
+          "insight": "Hidden gossip channels provide zero trust bandwidth. The hover layer must be discovered to function."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track per search session: (1) hover_activated events (cursor rests on card for 100ms+ on desktop). (2) hover_info_viewed events (secondary row fully visible for 500ms+ -- the guest actually read the gossip layer). (3) hover_to_click rate (guest clicks through to listing detail after viewing hover layer). (4) On mobile: long_press_activated events. (5) Hover transition render time (performance mark from hover-enter to secondary-row-visible). Segment by device type (desktop vs. tablet vs. mobile).",
+      "success_criteria": "Desktop: at least 50% of search sessions have at least one hover_activated event. At least 30% of hover_activated events progress to hover_info_viewed. Hover-to-click rate is at least 20% higher than direct-click rate (cards clicked without hover). Hover transition renders within 250ms. Mobile: long_press_activated rate above 10% of search sessions (lower bar due to discoverability challenges).",
+      "failure_meaning": "If hover_activated rate is below 30%, guests are not pausing on cards long enough -- the grid layout may be too dense or the scroll pattern too fast. If hover_info_viewed is low relative to hover_activated, the secondary row content is not compelling enough to hold attention. If mobile long-press is below 5%, the feature is undiscoverable on touch devices and needs explicit affordance cues.",
+      "implementation_hint": "Use performance.mark() and performance.measure() for transition timing. The 100ms debounce on hover activation should be instrumented separately from the visual transition timing. For mobile discoverability, consider a one-time tooltip or subtle affordance animation on the first card."
+    },
+    {
+      "id": "tests-2100-011",
+      "type": "validation_strategy",
+      "title": "Inline Authentication Context Preservation Test",
+      "validates_element": "behaves-003",
+      "journey_phases": ["proposal_creation", "listing_evaluation"],
+      "problem": "If the inline authentication modal fails to preserve the guest's context (the listing they were viewing, the proposal they were composing, the message they were drafting), the auth boundary becomes a ritual-breaking redirect regardless of its visual presentation. Context preservation is the critical behavioral requirement, not just the inline visual treatment.",
+      "solution": "Verify through automated and usability testing that 100% of pre-auth context is preserved after authentication, with zero data loss across the auth boundary.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Authentication",
+          "type": "guest_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "Context preservation is the core requirement. The test must verify not just that the modal is inline, but that the guest's state is identical before and after auth."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Legend of Peugeot",
+          "type": "book",
+          "quote": "Once the lawyer had performed all the right rituals and pronounced all the necessary spells and oaths.",
+          "insight": "The ritual must be unbroken. Auth is a step in the ritual, not a detour from it. Any context loss is a ritual interruption."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "automated",
+      "test_description": "Create automated tests for every auth trigger point: (1) Message overlay: pre-auth, type a message. Post-auth, verify message text is preserved. (2) Proposal form: pre-auth, modify a pre-populated field. Post-auth, verify modification is preserved. (3) Listing detail: pre-auth, scroll to a specific section. Post-auth, verify scroll position is preserved. (4) Search results: pre-auth, apply filters. Post-auth, verify filters are applied. Additionally, test edge cases: auth modal dismissal and re-trigger, session timeout during form fill, magic link return after page navigation.",
+      "success_criteria": "100% context preservation across all auth trigger points. Zero form data loss. Scroll position restored within 50px. Filter state identical. Auth modal dismiss-and-retrigger works without cooldown. Magic link returns to the correct context page.",
+      "failure_meaning": "Any context loss is a critical failure -- it means the auth boundary is functioning as a redirect despite looking like an inline modal. Specific failures: text loss in message overlay = gossip channel broken; field loss in proposal form = ritual interrupted; scroll loss on listing detail = trust evaluation disrupted.",
+      "implementation_hint": "Store all form state and scroll position in sessionStorage before auth modal opens. On auth success, restore from sessionStorage. The magic link return flow must include a return_to URL parameter that encodes the full context (page, scroll position, form state hash)."
+    },
+    {
+      "id": "tests-2100-012",
+      "type": "validation_strategy",
+      "title": "Pre-Populated Proposal Form Edit Ratio Test",
+      "validates_element": "behaves-004",
+      "journey_phases": ["proposal_creation"],
+      "problem": "If guests consistently override pre-populated fields, the pre-population is either inaccurate (wrong defaults) or untrustworthy (guests do not believe the pre-filled data). Both outcomes indicate the 'ritual preparation' has failed -- the platform did not correctly anticipate the guest's proposal terms.",
+      "solution": "Track the edit ratio per pre-populated field to identify which defaults are accepted and which are consistently overridden.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Proposal forms",
+          "type": "guest_call",
+          "quote": "Stories that push toward more structured, pre-populated proposal forms aren't just about UX, they're about making the cross-activation moment as clean as possible.",
+          "insight": "Pre-population is a cross-activation mechanism. Its effectiveness is measurable through the accept-vs-edit ratio."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Legend of Peugeot",
+          "type": "book",
+          "quote": "If a certified lawyer followed all the proper liturgy and rituals.",
+          "insight": "The ritual must be correctly prepared. If the guest must rewrite most of the 'document,' the preparation has failed."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "For every proposal form submission, log per field: (1) pre_populated_value (what the platform suggested). (2) submitted_value (what the guest actually submitted). (3) field_edited (boolean -- did the guest modify this field?). (4) edit_magnitude (for numeric fields: percentage change from pre-populated value). Aggregate over 30 days to identify: (a) Fields with highest edit rate (the platform's default is wrong). (b) Fields with lowest edit rate (the platform's default is trusted). (c) Average edit magnitude for price and date fields.",
+      "success_criteria": "At least 60% of pre-populated fields are accepted without edit across all proposals. Price field edit magnitude is under 15% on average (guests make minor adjustments, not wholesale changes). Date fields are accepted without edit in at least 50% of proposals. No single field has an edit rate above 80% (which would indicate a systematically wrong default).",
+      "failure_meaning": "A field with 80%+ edit rate has a wrong default and is creating work rather than reducing it. A price edit magnitude above 25% suggests the listing's displayed price does not match what guests expect to propose, indicating a disconnect between listing detail and proposal form. An overall edit rate above 50% means the ritual preparation has failed -- guests are constructing rather than confirming.",
+      "implementation_hint": "Add field-level change tracking to the proposal form. Store pre-populated values at form-open time and compare with submitted values. This data can also inform improved default algorithms over time."
+    },
+    {
+      "id": "tests-2100-013",
+      "type": "validation_strategy",
+      "title": "Contact Host Message Overlay Interaction Quality Test",
+      "validates_element": "behaves-005",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "If the message overlay interaction feels like filing a support ticket rather than starting a conversation, it fails as a gossip channel. The interaction quality -- from the overlay's visual warmth to the placeholder text to the response-time display -- determines whether the guest perceives messaging as a trust-building opportunity or a bureaucratic step.",
+      "solution": "Usability test the message overlay interaction with emphasis on emotional perception and message quality, not just completion rate.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Messaging before proposals",
+          "type": "guest_call",
+          "quote": "The park analogy holds -- you check availability before committing.",
+          "insight": "The message should feel like approaching someone in a park, not filling out a contact form. The test must assess this emotional quality."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Gossip theory",
+          "type": "book",
+          "quote": "The new linguistic skills that modern Sapiens acquired about seventy millennia ago enabled them to gossip for hours on end.",
+          "insight": "Gossip is conversational and social. If the messaging interaction feels formal or transactional, it fails the gossip function."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 6-8 participants currently searching for shared space. Task: browse listings and contact a host you are interested in. Observe: (1) Does the participant find the Contact Host button without prompting? (2) How long do they spend composing the message? (3) What is the tone of the message (formal, casual, transactional, personal)? (4) Do they read the host response-time indicator? (5) Post-task interview: 'How did it feel to send that message? Did it feel like reaching out to a person or submitting a form?' Rate the interaction on a warmth scale (1-5).",
+      "success_criteria": "At least 80% of participants find and use the Contact Host button without prompting. Average message length is 20-100 words (not too brief for meaningful gossip, not too long for a first contact). At least 60% of messages are casual or personal in tone (not formal/transactional). Warmth rating averages above 3.5/5. At least 50% of participants notice and mention the response-time indicator.",
+      "failure_meaning": "If participants cannot find the button, it lacks visual prominence relative to the proposal CTA. If messages are very short (<10 words) or very formal, the overlay design does not encourage conversational engagement. If warmth rating is below 3, the overlay feels more like a contact form than a conversation starter. Each finding maps to specific visual or copy adjustments.",
+      "implementation_hint": "Use a prototype with realistic host data including response-time history. Record screen and audio for think-aloud analysis. The warmth scale question should be asked after the task, not during, to avoid biasing behavior."
+    },
+    {
+      "id": "tests-2100-014",
+      "type": "validation_strategy",
+      "title": "Acceptance Confirmation Emotional Arc Test",
+      "validates_element": "behaves-006",
+      "journey_phases": ["acceptance"],
+      "problem": "If the two-step acceptance sequence (review terms + confirm) does not create the intended emotional arc (deliberation, confirmation, celebration, orientation), the ritual moment fails to mark the cooperation threshold. The guest either does not register the significance of the commitment or feels excessive anxiety.",
+      "solution": "Usability test the acceptance flow with emotional state tracking at each step of the sequence.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation",
+          "type": "guest_call",
+          "quote": "When a guest messages a host, that's not just UX convenience -- it's the moment two strangers begin to trust each other through the platform.",
+          "insight": "If messaging is a trust moment, acceptance is THE trust moment. The emotional design must honor this significance without creating paralyzing anxiety."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Legend of Peugeot",
+          "type": "book",
+          "quote": "Seeing that the priest had properly and assiduously observed all the procedures, millions of devout French Catholics behaved as if God really existed.",
+          "insight": "The ritual must be properly observed. The test measures whether the two-step sequence feels like a proper ritual (significant, clear, complete) or a bureaucratic process (redundant, confusing, anticlimactic)."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 6-8 participants who have navigated through a mock proposal-negotiation flow. Task: review the host's counter-terms and decide whether to accept. At each step, ask the participant to describe their emotional state in one word: (1) While reviewing the terms summary card. (2) After clicking 'Accept Terms' and seeing the confirmation dialog. (3) After clicking 'Yes, Proceed' and seeing the success overlay. (4) After transitioning to the dashboard with next steps. Record: time at each step, verbal reactions, whether the participant reads all terms before accepting, and whether they engage with the next-steps orientation.",
+      "success_criteria": "Emotional progression follows the intended arc: step 1 elicits deliberation words (careful, focused, reviewing), step 2 elicits confirmation words (sure, ready, okay), step 3 elicits celebration words (relieved, excited, happy), step 4 elicits orientation words (clear, organized, next). At least 80% of participants read the full terms summary before accepting. At least 70% engage with next-steps content within 10 seconds of dashboard transition. Zero participants express confusion about what they committed to.",
+      "failure_meaning": "If step 3 does not elicit positive emotion, the success overlay is not celebratory enough or arrives too late. If participants skip the terms summary, the visual hierarchy does not make terms review feel worthwhile. If participants do not engage with next steps, the post-acceptance orientation is failing to channel the emotional momentum.",
+      "implementation_hint": "Use a high-fidelity prototype with realistic negotiation history. The emotional self-report at each step should be brief (one word) to avoid disrupting the flow. Video recording of facial expressions can supplement verbal reports."
+    },
+    {
+      "id": "tests-2100-015",
+      "type": "validation_strategy",
+      "title": "Journey-Level Collective Fiction Adoption Funnel Test",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "acceptance", "move_in"],
+      "problem": "The Sapiens lens frames the entire guest journey as progressive adoption of a collective fiction: from first encounter with the myth (discovery) through active participation in the fiction (proposal) to living within the imagined reality (move-in). If the journey does not follow this progressive adoption arc -- if the guest's belief in the platform's fiction does not strengthen at each phase -- the journey is a series of disconnected transactions rather than a coherent cooperation narrative.",
+      "solution": "Track a composite 'fiction adoption' metric across the full guest journey that measures progressive trust-building, not just conversion at each step.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation framework",
+          "type": "guest_call",
+          "quote": "In a marketplace, the best user stories don't just serve one user, they create conditions for users to activate each other.",
+          "insight": "The journey-level test must verify that cross-activation effects compound across phases -- each trust signal strengthens the next phase's conversion."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Collective imagination",
+          "type": "book",
+          "quote": "Large numbers of strangers can cooperate successfully by believing in common myths.",
+          "insight": "The journey IS the myth adoption process. The test must measure whether belief strengthens progressively or plateaus/declines at specific phases."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Create a journey-level funnel with engagement depth markers at each phase: (1) Discovery: viewed 3+ listings (myth encountered). (2) Search: hovered on cards or interacted with map (myth explored). (3) Listing evaluation: viewed trust section on listing detail (myth evaluated). (4) Proposal creation: opened proposal form (myth participation initiated). (5) Acceptance: completed acceptance ritual (myth adopted). (6) Move-in: accessed House Manual (myth embodied). Track phase-to-phase progression rates over 30-day cohorts. Additionally, create a 'fiction strength' composite score using: trust section engagement, social proof visibility, review reads, host profile views, and messaging activity -- all signals that the guest is actively building belief in the platform's collective fiction.",
+      "success_criteria": "Phase-to-phase progression rates increase or remain stable at each step (no phase has a lower progression rate than the phase after it -- the funnel should not have a 'bulge' where guests who passed a harder gate fail at an easier one). The fiction strength score increases monotonically across phases for guests who complete the full journey. Guests with higher fiction strength scores at discovery show higher acceptance rates at the end of the journey (correlation above 0.3).",
+      "failure_meaning": "If a phase-to-phase progression rate drops sharply, that phase is a fiction-breaking event -- something in the experience undermines the trust the guest built in prior phases. If fiction strength does not increase monotonically, some phases are neutral or negative for trust-building. If discovery fiction strength does not correlate with acceptance rates, the early trust signals are not the right predictors of eventual cooperation.",
+      "implementation_hint": "The fiction strength composite requires defining weights for each trust-engagement signal. Start with equal weights and iterate. The monotonicity check should be computed per-cohort, not per-individual, to account for natural variation in individual journeys. This is a strategic metric, not an operational one -- review monthly."
+    },
+    {
+      "id": "tests-2100-016",
+      "type": "validation_strategy",
+      "title": "Emotional Arc Coherence Across Journey Phases",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "acceptance", "move_in"],
+      "problem": "If the emotional design at individual phases is correct but the transitions between phases create emotional discontinuities (e.g., the guest feels 'informed curiosity' during search but then encounters a proposal flow that assumes 'committed momentum'), the journey's emotional arc breaks. Each phase's emotional design was created in isolation; this test validates their coherence as a sequence.",
+      "solution": "Conduct a longitudinal diary study tracking guest emotional states across the full journey, from first visit to move-in, to validate the intended emotional arc.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "The platform needs to earn that trust first -- show them something, then invite them to refine.",
+          "insight": "The journey is a trust-earning sequence. If emotional states do not align with the trust-earning progression, the design has internal contradictions."
+        },
+        {
+          "source": "sapiens-tree-of-knowledge.txt, Collective imagination",
+          "type": "book",
+          "quote": "Any large-scale human cooperation -- whether a modern state, a medieval church, an ancient city or an archaic tribe -- is rooted in common myths that exist only in people's collective imagination.",
+          "insight": "Myth adoption is a gradual process. The emotional arc should reflect this gradual deepening of belief, not a jagged sequence of disconnected emotional states."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Recruit 5-8 participants who are actively searching for shared space. At each major phase transition (after first visit, after first listing detail view, after first message or proposal, after acceptance), prompt the participant to complete a brief emotional check-in via text message: (1) One word for how you feel right now about using Split Lease. (2) On a scale of 1-10, how confident are you that you will find a good match? (3) What would make you stop using the platform right now? Track these responses over the full journey (typically 1-4 weeks). Map the emotional trajectory against the intended arc: earned belief > informed curiosity > cautious hope > committed momentum > grounded reassurance > anchored confidence.",
+      "success_criteria": "Confidence scores increase monotonically across phases for at least 60% of participants. Emotional words cluster around the intended target emotions at each phase (not requiring exact matches, but semantic alignment). Dropout-risk factors mentioned in check-in question 3 align with the dropout risks identified in the journey context (trust, hidden costs, host reliability). The emotional arc shows no sharp discontinuities between adjacent phases.",
+      "failure_meaning": "A confidence score drop at a specific phase indicates that phase's design is undermining rather than building trust. Emotional words that are sharply negative at a phase where the design targets positive emotion indicate a design-reality gap. If dropout-risk factors do not match the journey context predictions, the design is addressing the wrong fears.",
+      "implementation_hint": "This is a multi-week study requiring dedicated participant management. Use SMS or a simple chatbot for emotional check-ins to minimize participant burden. Compensation should be per-check-in (not just completion) to maintain engagement. Recruit from actual Split Lease visitors if possible for ecological validity."
+    }
+  ]
+}

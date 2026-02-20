@@ -1,0 +1,400 @@
+{
+  "lens": {
+    "guest_call": "user-stories-initial-analysis.md",
+    "book_extract": "flow-conditions-of-flow.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Sub-200ms Direct Action Response with Flow-Sustaining Feedback Cascade",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation", "active_lease"],
+      "problem": "Csikszentmihalyi defines flow as requiring 'clear clues as to how well one is performing' -- but the guest journey currently provides feedback only as post-action summaries, not as real-time responses to individual actions. When the guest hovers over a listing card, nothing happens. When they apply a search filter, results may silently update with no visible cause-and-effect signal. When they fill a proposal field, the system is mute until submission. When they pan the map, pins appear or disappear without animation. Each silent response is a micro-violation of Flow's feedback condition. The user stories confirm this: the map should 'feel alive' with 'the feeling that something is happening.' L1 (works-002) identifies feedback absence as a cross-phase pattern; L2 (communicates-002) specifies a three-tier feedback information layer; L3 (looks-007) defines the visual micro-response grammar. What is missing is the interaction timing and behavioral specification: exactly how fast, in what sequence, and with what state awareness should the system respond to each guest action?",
+      "solution": "Every direct guest action (click, tap, hover, type, scroll, pan, filter) must produce a system response within 200ms. The response follows a two-phase cascade: (1) Acknowledgment phase (0-100ms): the system signals that the action was received. For buttons, this is a scale-down pulse (0.97x). For form fields, a focus ring appears. For filter changes, the current results dim slightly (opacity 0.7). For map pans, new pin placeholders appear at 40% opacity. The acknowledgment is always the same type as the action -- visual for visual actions, spatial for spatial actions -- so the guest perceives direct causation. (2) Resolution phase (100-500ms): the system delivers the actual result. Filtered results animate in (fade + scale from 0.95 to 1.0). Map pins load with context data. Price calculations update with a brief purple highlight pulse. Proposal field validation appears inline. The resolution phase uses ease-out easing so the transition decelerates into its final state, creating the 'gentle settle' the taste model specifies. For async actions (proposal submission, message send), the acknowledgment phase is immediate ('Sending...') and the resolution phase shows a progress indicator that transitions to a confirmation state ('Sent -- host notified') within 2 seconds. During the wait, a contextual pulse (opacity cycle 1.0 to 0.6, 2s period) replaces the feedback vacuum with a living signal. All timing targets: direct actions < 200ms acknowledgment, computed feedback < 2s, async feedback < 1min for host-viewed notification.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "A sense that one's skills are adequate to cope with the challenges at hand, in a goal-directed, rule-bound action system that provides clear clues as to how well one is performing.",
+          "insight": "Flow requires 'clear clues' about performance continuously, not just at action endpoints. Every 200ms of silence after a guest action is a missing performance clue that erodes the guest's sense of control -- one of Flow's four necessary conditions."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Transit stops, landmarks, real-time context -- this is about mood, not just utility. The feeling that something is happening.",
+          "insight": "The 'feeling that something is happening' is the emotional experience of continuous feedback. When the map responds to every pan with contextual data appearing, the guest perceives a living system. When it does not respond, the guest perceives a static tool."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions -- all without leaving the search grid.",
+          "insight": "Hover states are feedback mechanisms: the guest's action (hovering) must produce a visible system response (new information appearing). The sub-200ms timing ensures the response feels like a direct consequence of the action, not a delayed reaction."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "They have rules that require the learning of skills, they set up goals, they provide feedback, they make control possible.",
+          "insight": "Feedback and control are co-dependent in Flow's framework. You cannot feel in control of a system that does not respond to your inputs. The two-phase cascade (acknowledge then resolve) ensures the guest always knows the system heard them (control) and is producing a result (feedback)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All interactive elements are at rest state -- full opacity, default shadow, no animation running. The system is listening for input but visually quiet.",
+        "loading": "Acknowledgment phase active: the triggering element shows its scale-down pulse or opacity shift. Skeleton placeholders appear in the target area for content that is loading. The guest sees direct causation between their action and the system's response.",
+        "empty": "No results match the action (e.g., filter produces zero listings). The system still acknowledges the action within 200ms, then transitions to an empty state that explains why ('No listings match these filters') and offers a productive redirect ('Try widening your dates or expanding your area').",
+        "error": "The action could not be completed (network failure, validation error). The system still acknowledges within 200ms via the same initial pulse, then shows an error state that is adjacent to the triggering element (inline, not in a banner or toast). The error message includes a specific recovery action: 'Could not save -- tap to retry' rather than 'An error occurred.'",
+        "success": "Resolution phase completes: the result is fully rendered, any transition animation has settled, and the system returns to default listening state. For async actions, success shows a brief confirmation ('Message sent') that auto-dismisses after 3 seconds, returning focus to the next logical action."
+      },
+      "transition_principle": "Fast acknowledgment, gentle resolution. The first 100ms is instantaneous and mechanical (the system received your input). The next 100-500ms is organic and decelerating (the system is producing your result). The acknowledgment feels like pressing a physical button; the resolution feels like watching something settle into place. This two-phase rhythm creates the sense of a responsive, living system without any feeling of jitter or instability.",
+      "timing": {
+        "response_target": "< 200ms for acknowledgment; < 500ms for resolution of direct actions; < 2000ms for computed feedback (price calculations, validation); < 60000ms for async feedback (host viewed, estimated response time)",
+        "easing": "Acknowledgment: ease (uniform acceleration). Resolution: ease-out (decelerating settle). Waiting state pulse: ease-in-out (smooth breathing cycle, 2s period). Filter card transitions: ease-out over 200ms.",
+        "rationale": "Csikszentmihalyi's flow requires unbroken concentration. Any response gap above 200ms forces the guest to consciously wonder 'did that work?' -- which is an irrelevant thought that breaks concentration. The ease-out resolution easing matches the taste model's 'gentle settle' principle and prevents visual jitter that would pull attention away from content."
+      },
+      "journey_state_awareness": "Response timing adapts to context. On first visit (low skill), acknowledgments include slightly more visual emphasis (larger pulse, more obvious opacity shift) because the guest is still learning the system's feedback language. On return visits (high skill), acknowledgments become subtler because the guest trusts the system will respond. In the Stays Manager (visit 5+), feedback cascades shorten: the guest expects the system to be fast and notices only when it is not. This follows Csikszentmihalyi's challenge-skill progression: as skill grows, the feedback layer becomes background rhythm rather than foreground signal.",
+      "edge_cases": [
+        "Slow network: if resolution cannot complete within 500ms, show a skeleton placeholder at the 500ms mark rather than extending the loading state indefinitely. The guest should never wait more than 500ms without seeing something in the target area.",
+        "Rapid sequential actions: if the guest applies multiple filters in quick succession (< 200ms between each), batch the acknowledgments and show a single resolution with the combined result. Do not animate each intermediate state.",
+        "Offline state: if the device loses connectivity, buffer the acknowledgment phase normally (the button still pulses) but show a connectivity indicator after 2s instead of a resolution. 'Waiting for connection -- your action will complete automatically.'",
+        "Reduced motion preference: when prefers-reduced-motion is active, replace all animated acknowledgments with instant state changes (opacity switch, border color change) and replace all animated resolutions with instant content swaps. The timing targets still apply; only the animation is removed.",
+        "Map pin density: when > 50 pins are visible, individual pin hover-proximity scaling degrades performance. Cluster pins at this density and apply the feedback cascade to the cluster, not individual pins."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Contextual Continuity Preservation Across Every Transition",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "The guest's flow state is repeatedly destroyed by system-imposed context switches at moments of peak engagement. The user stories identify the most explicit case: 'Inline auth pop-up, not a full-page redirect. Users don't lose search context.' But the pattern extends to every transition in the high-engagement path. Navigating from search to a listing loads a new page, forcing the guest to process an entirely new visual layout. Returning from a listing may reset scroll position, filter state, and map zoom. Moving from listing to proposal requires entering a new form context with no reference to the listing content. Csikszentmihalyi is absolute: flow requires concentration 'so intense that there is no attention left over to think about anything irrelevant.' Every context switch injects irrelevant processing -- 'where am I now, how do I get back, what was I looking at' -- that spends attentional resources the guest cannot recover. L1 (works-003) identifies this as a high-priority process pattern; L2 (communicates-007) specifies information containment architecture; L3 (looks-003) defines the visual transition grammar. The interaction layer must specify exactly how state is preserved, how transitions behave, and how the system responds when the guest navigates backward.",
+      "solution": "Every transition within the search-to-proposal path must preserve the guest's complete interaction state and present new content as a layer on top of the existing context, not as a replacement of it. Specifically: (1) Search-to-listing: when the guest clicks a listing card, the card becomes the origin point for a slide-in panel (desktop: right-side panel, 380px max-width; mobile: full-screen with visible back affordance). The search grid remains rendered behind the panel at reduced opacity (0.6). Scroll position, filter selections, and map state are frozen exactly. The guest can see where they came from and perceive the listing as a deeper look at something in the search grid, not a new place. (2) Listing-to-proposal: when the guest initiates a proposal, the proposal form expands downward from the listing content. The listing's photos, price, and host info remain visible above as reference. The transition is a height expansion (0 to auto, 300ms, ease-out), not a page navigation. (3) Authentication: when a high-intent action (message, propose, save) requires auth, a modal overlay appears centered on screen (400px max-width, 16px corner radius). The underlying page is fully rendered but inert behind a dark overlay (rgba(0,0,0,0.7)). After auth completes, the modal dismisses and the guest is exactly where they were. (4) Back navigation: pressing browser back or tapping the back affordance reverses the transition animation exactly. The panel slides out, the grid returns to full opacity, and scroll position is restored to the pixel. The guest never needs to re-find their place. (5) Any system interruption (session timeout, error notification) is delivered as a non-destructive overlay that can be dismissed to return to the exact prior state.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context. High-intent actions trigger it -- messaging, proposing -- nothing else.",
+          "insight": "The inline auth requirement is the clearest statement of the preservation principle: the guest's current interaction context must survive any sub-task. Authentication is not the only context-destroyer; every full-page navigation is equally destructive."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "Concentration is so intense that there is no attention left over to think about anything irrelevant, or to worry about problems. Self-consciousness disappears, and the sense of time becomes distorted.",
+          "insight": "Flow's concentration requirement is absolute: zero spare attention for irrelevant stimuli. A full-page navigation forces the guest to process new layout, new navigation position, new scroll state -- all irrelevant to finding housing. Each context switch consumes attention that cannot be recovered."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions -- all without leaving the search grid.",
+          "insight": "The repeated emphasis on 'without leaving the search grid' reveals the core interaction principle: the search context is the container for all subsequent interactions. Listing evaluation and even proposal initiation should happen within or layered on top of the search context."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "Some individuals might be constitutionally incapable of experiencing flow... This symptom appears to be related to 'stimulus overinclusion,' which refers to the fact that schizophrenics are condemned to notice irrelevant stimuli, to process information whether they like it or not.",
+          "insight": "While Csikszentmihalyi describes stimulus overinclusion as a clinical condition, the platform artificially creates it every time it forces the guest to process a new page layout. The interaction pattern must prevent platform-imposed overinclusion by keeping irrelevant layout changes out of the guest's field."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The guest is in the search context. The grid, map, and filters are all at full opacity and fully interactive. No panels or overlays are active.",
+        "loading": "A transition is in progress. The origin element (card, button) shows its acknowledgment pulse. The target container (panel, modal, form section) begins its entrance animation. Skeleton content appears in the target if data is not yet available. The prior context dims to its reduced-opacity state during the transition.",
+        "empty": "The transition target has no content to show (e.g., listing was removed between search result load and click). The panel or overlay opens but displays an empty state with explanation ('This listing is no longer available') and a redirect action ('Back to search' or 'View similar listings'). The prior context remains fully recoverable.",
+        "error": "The transition failed (network error loading listing data). The panel slides open with an error state: 'Could not load this listing. Tap to retry.' The prior context remains fully rendered and recoverable. If the error persists, the panel auto-dismisses after 8 seconds, returning the guest to the search grid with no state loss.",
+        "success": "The transition completed. The target panel or section is fully rendered with content. The prior context is visible but dimmed. Navigation affordances (back arrow, close button, escape key) are clearly available. The browser URL updates to reflect the new state (enabling direct linking and proper back-button behavior)."
+      },
+      "transition_principle": "Spatial continuity over temporal interruption. Every transition must communicate where the new content came from (it emerged from the card, it expanded from the listing, it overlaid the current page) so the guest maintains a spatial mental model of the interface. No content should appear from nowhere or disappear without trace. The guest should always be able to answer: 'Where was I, where am I now, and how do I get back?' -- without any conscious thought.",
+      "timing": {
+        "response_target": "Panel slide-in: 300ms. Form expand: 300ms. Modal appear: 200ms. Back/dismiss: reverse of entrance duration. State restoration (scroll, filters, map) on back: 0ms (instant, no animation).",
+        "easing": "Panel entrance: ease-out (decelerating slide). Form expand: ease-out (decelerating height growth). Modal: fade ease-out. Back navigation: ease-in (accelerating exit, faster than entrance to feel responsive). State restoration: instant (no easing -- the prior state must snap back to communicate nothing was lost).",
+        "rationale": "Entrance transitions are slower (300ms) to give the guest time to perceive the spatial relationship between old and new content. Exit transitions are faster to feel responsive and to minimize the time before the guest sees their restored context. State restoration is instant because any animation during recovery would signal that the state was reconstructed rather than preserved -- breaking the illusion of continuity."
+      },
+      "journey_state_awareness": "The depth of context preservation scales with engagement level. A guest who has viewed 5+ listings in a session has the full slide-panel experience. A guest on their first listing click gets the same panel but with a subtle guide indicator showing they can swipe/click back. On mobile where screen real estate limits layering, the listing takes full screen but a persistent floating back button and a miniaturized card thumbnail at the top remind the guest of their search origin. In the Stays Manager (active_lease phase), context preservation applies to sub-tools: the date change tool opens as an in-page expansion, not a modal or new page.",
+      "edge_cases": [
+        "Deep linking: if the guest arrives at a listing URL directly (no search context to preserve), the listing renders as a full page. A 'Search for more like this' affordance replaces the back-to-search button.",
+        "Multiple listing inspection: if the guest opens listing A, then from the panel clicks a 'similar listing' link to listing B, the panel content transitions (crossfade, 200ms) but the search grid behind it remains unchanged. Back navigates through the panel history (B -> A -> search grid).",
+        "Stale search results: if the guest spent > 5 minutes in a listing panel and search results have changed, the grid behind the panel shows a subtle 'Results updated' badge. On dismissal, the grid refreshes with a brief animation, but scroll position is maintained to the nearest available card.",
+        "Authentication during proposal: if the guest begins filling the proposal form (which expanded from the listing) and triggers auth, the auth modal overlays everything. After auth, the form returns with all entered data preserved -- no field is cleared.",
+        "Browser refresh: search state (filters, scroll position, map state) is persisted to URL parameters and sessionStorage. A page refresh restores the search context to its pre-refresh state. Panel state (which listing is open) is also persisted."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Challenge-Skill Escalation Ladder: Progressive Interaction Complexity Matched to Guest Readiness",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "Each phase transition in the guest journey demands skills the guest has not yet developed, creating systematic anxiety spikes (Csikszentmihalyi's A3 zone) that push guests out of the flow channel. A guest who can comfortably browse listing cards may not be ready to evaluate a listing in depth. A guest who can evaluate a listing may not be ready to compose a proposal. The user stories confirm this at the evaluation-to-proposal boundary: 'The jump from card to proposal skips steps people naturally need.' The current design offers two interaction modes: passive browsing and full commitment. There is no intermediate-challenge action between them. Guests who are ready to do more than browse but not ready to propose have no appropriate action available, so they either abandon (anxiety) or remain stuck in passive mode (boredom). L1 (works-001) defines the process pattern; L2 (communicates-001) specifies progressive disclosure tiers; L3 (looks-001) defines visual density layers. The interaction layer must specify how the system detects readiness and surfaces the appropriate challenge at each level.",
+      "solution": "Insert intermediate-challenge interactions at every phase transition that raise the guest's perceived skill before the next phase's challenge arrives. The system surfaces these through behavioral detection, not explicit prompts. (1) Search-to-evaluation bridge: when the guest has hovered over 3+ cards or spent > 30s scrolling results, the listing cards respond by enabling their Tier 2 interactive layer -- hover reveals richer data (neighborhood name, host response time, availability indicator). This is not a feature gate; Tier 2 is always technically available on hover, but the system can also surface a subtle prompt ('Tap for more details') on mobile where hover is unavailable. The intermediate challenge is: engage with a card beyond a glance. (2) Evaluation-to-proposal bridge: on the listing page, after the guest has scrolled past 60% of content or spent > 45s, a 'Message Host' action becomes visually prominent (transitions from subtle to standard emphasis, matching L3's visual grammar). Messaging is the intermediate challenge -- it requires more skill than browsing (composing a question) but less commitment than a proposal (no financial obligation). The user stories confirm: 'Once someone messages a host, the path to a proposal gets shorter, not longer.' (3) Proposal readiness signals: after the guest has messaged the host OR saved the listing OR spent > 90s on the listing page, the 'Create Proposal' button transitions from secondary styling to primary styling. This is not a gate -- the button is always available -- but its visual prominence scales with the guest's demonstrated engagement. (4) Each intermediate action provides immediate feedback: message-sent confirmation, save acknowledgment, comparison view of saved listings. The feedback raises the guest's perceived skill ('I can navigate this system') and prepares them for the next challenge.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Even if a user loves what they see on the card, they'll still open the listing before committing -- to check host reviews, credibility, full photos. The jump from card to proposal skips steps people naturally need.",
+          "insight": "Rod intuitively identifies the challenge-skill gap: the guest's skill at evaluating a card is insufficient for the challenge of creating a proposal. The listing page is the skill-building step. Messaging is the step after that. Each builds readiness for the next."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "If Alex is anxious (A3), the way back to flow requires that he increase his skills... in practice it is difficult to ignore challenges once one is aware that they exist.",
+          "insight": "Once a guest has seen a listing they like, they cannot un-see the challenge of securing it. If the platform offers no intermediate skill-building action (messaging, saving, comparing), anxiety drives abandonment rather than engagement."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "The park analogy holds -- you check availability before committing. A message action reduces abandonment when someone isn't ready for a proposal. Having the option is better than having no action at all. Once someone messages a host, the path to a proposal gets shorter, not longer.",
+          "insight": "Messaging is the A2-to-A4 bridge in Flow's diagram: it raises the guest's skill (they learn about the host) while presenting a manageable challenge (composing a message), preparing them for the higher challenge of proposal creation."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "Neither boredom nor anxiety are positive experiences, so Alex will be motivated to return to the flow state. How is he to do it? If he is bored (A2) and wishes to be in flow again, Alex has essentially only one choice: to increase the challenges he is facing.",
+          "insight": "A guest who has mastered search but is not ready for proposals is at A2 (bored with passive browsing). The intermediate challenges (hover interactions, messaging, saving) are the mechanisms for increasing challenge to match growing skill."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All interaction levels are technically available but visually weighted toward the guest's current phase. In search, card Tier 1 is visible; Tier 2 responds to hover. On the listing page, 'Message Host' is visible in secondary styling; 'Create Proposal' is visible in tertiary styling. No prompts or gates.",
+        "loading": "When the guest triggers an intermediate action (composing a message, saving a listing), the system shows the action's own loading state (message composer opening, save confirmation pending) without disrupting the current context. The listing page remains visible and interactive around the action container.",
+        "empty": "The intermediate action has no content to surface (e.g., the host has no reviews to show, the listing has no availability data). The system falls back to the next available intermediate action. If the listing lacks reviews but has a host profile, the 'Message Host' prompt is elevated. The guest always has at least one intermediate action available.",
+        "error": "An intermediate action failed (message could not send, save failed). The error appears inline within the action container and offers retry. The guest is never pushed back to a prior state by an error in an intermediate action. Their position in the evaluation flow is preserved.",
+        "success": "The intermediate action completed. Feedback confirms the action ('Message sent -- hosts typically respond within 4 hours') and the next challenge becomes more visually prominent (proposal button shifts from tertiary to secondary or secondary to primary). The guest perceives momentum: each successful action opens the door to the next."
+      },
+      "transition_principle": "Invitation, not instruction. The system never tells the guest what to do next; it makes the next appropriate action progressively more visible and accessible as the guest demonstrates readiness. The escalation is always available but never forced -- a skilled returning guest can skip directly to proposal creation. The transitions between challenge levels should feel like the guest is discovering options that were always there, not being funneled through a predetermined path.",
+      "timing": {
+        "response_target": "Behavioral detection thresholds: 3+ card hovers or 30s scroll for Tier 2 activation; 60% scroll or 45s dwell for Message Host prominence; message sent or 90s dwell for Proposal button elevation. Visual prominence transitions: 300ms ease-out for button styling changes.",
+        "easing": "Button emphasis transitions use ease-out over 300ms -- slow enough to be perceived but fast enough not to distract. Card Tier 2 reveal on hover uses ease-in-out over 200ms. Message composer opening uses ease-out over 300ms.",
+        "rationale": "The behavioral thresholds are calibrated to meaningful engagement signals, not arbitrary timers. 3 card hovers indicate the guest is comparing (a skill-building action). 60% scroll on a listing indicates the guest has absorbed the primary content. 45s dwell indicates sustained attention. These are proxy measures for skill growth that trigger appropriate challenge escalation."
+      },
+      "journey_state_awareness": "The escalation ladder adapts to returning guests. A guest who has previously sent a message to any host arrives at new listings with the 'Message Host' action already at standard prominence and the 'Create Proposal' at secondary prominence -- their demonstrated skill means the intermediate challenges are no longer needed at the same level. A guest who has submitted a previous proposal arrives at new listings with 'Create Proposal' at primary prominence immediately. The system's memory of past actions serves as a proxy for accumulated skill, matching Csikszentmihalyi's insight that flow activities must increase in complexity as skills grow.",
+      "edge_cases": [
+        "Returning guest with high skill: do not force intermediate steps. A guest who has submitted 3+ proposals should see 'Create Proposal' at primary prominence on every listing. The ladder is scaffolding, not a cage.",
+        "Guest browsing without auth: all intermediate actions except 'Create Proposal' are available without authentication. Saving requires auth (triggers inline modal). Messaging requires auth (triggers inline modal). The auth gate should feel like the natural moment to commit identity, not like a wall.",
+        "Mobile interaction detection: since hover is unavailable on mobile, Tier 2 card data appears on long-press (300ms hold) or on second tap. The 'Message Host' prominence transition is triggered by scroll depth and dwell time only.",
+        "Guest abandons after messaging: if a guest messages a host but does not return within 48 hours, the system sends a low-frequency reminder ('Your host replied -- see their message') that brings the guest back into the flow channel at the messaging skill level.",
+        "Listing with no message option: if the host has disabled messaging, the intermediate challenge shifts to 'Save & Compare' -- the guest can save the listing and see a comparison view against other saved listings. This replaces the missing messaging step."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Stays Manager Complexity Ratchet: Evolving Interaction Surface Across 13+ Visits",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager is visited 13+ times during a 3-month lease -- the highest-frequency touchpoint in the entire guest journey. Csikszentmihalyi's central insight applies with full force: 'One cannot enjoy doing the same thing at the same level for long. We grow either bored or frustrated.' A Stays Manager that offers identical interactions on visit 1 and visit 13 guarantees boredom by mid-lease (A2 in the Flow diagram). The guest's skill grows with each visit -- they know the layout, understand the payment cycle, recognize the date change tool -- but the interaction complexity remains flat. This skill-challenge mismatch is the textbook condition for flow collapse. The Shushwap analogy from Flow Ch 4 is instructive: 'at times the world became too predictable and the challenge began to go out of life.' The current Stays Manager needs the equivalent of the Shushwap's village move -- periodic interaction novelty that reintroduces challenge at the guest's current skill level. L1 (works-004) defines the process pattern; L2 (communicates-004) specifies temporal information architecture; L3 (looks-005) defines the visual evolution. The interaction layer must specify what new actions become available when, and how the system detects the guest's readiness for increased complexity.",
+      "solution": "Design the Stays Manager's interaction surface to evolve across three lifecycle phases, introducing new interactive capabilities matched to the guest's growing platform skill. Phase 1 -- Orientation (Weeks 1-3): available interactions are simple and onboarding-focused. A getting-started checklist with checkable items (tap to complete: 'Review House Manual', 'Confirm arrival time', 'Send first message to host'). Each completed item triggers a satisfying state change (check icon animates from gray to purple, progress bar fills). The date change tool is available but not prominent. Review prompts are absent. The cognitive demand is low, matching the guest's low skill. Phase 2 -- Rhythm (Weeks 4-9): new interactions surface. After each completed stay cycle, a one-tap micro-review prompt appears ('How was this week's stay?' with a 5-point scale). The date change tool gains prominence (it is now a likely need as schedules shift). A stay-cycle progress visualization becomes interactive -- the guest can tap any completed segment to see that week's details. Payment milestones appear as interactive markers ('4 of 13 payments completed'). The interaction density has increased to match the guest's skill growth. Phase 3 -- Reflection (Weeks 10-13): the highest-complexity interactions appear. A cumulative review composition prompt invites a narrative review (not just a rating). A lease renewal consideration card surfaces with comparison data ('Renewing saves $X vs. re-searching'). The stay-cycle timeline becomes exportable or shareable. A recommendation prompt appears ('Know someone looking for a place in this area?'). Each phase transition is driven by the lease calendar (week number), not by arbitrary feature gates. The layout skeleton remains identical across all three phases -- the sections and their positions never change -- preserving the clarity that the autotelic family framework requires.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "It is this dynamic feature that explains why flow activities lead to growth and discovery. One cannot enjoy doing the same thing at the same level for long. We grow either bored or frustrated; and then the desire to enjoy ourselves again pushes us to stretch our skills, or to discover new opportunities for using them.",
+          "insight": "The Stays Manager must implement this 'dynamic feature.' Each visit must present the guest with opportunities to stretch skills (review composition, date management) or discover new uses (timeline exploration, recommendation). A static interface is structurally incompatible with sustained flow."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Every review is a past guest activating a future one. The trust infrastructure is cross-activation infrastructure.",
+          "insight": "Micro-reviews during the rhythm phase serve dual purpose: they are a flow activity for the current guest (reflecting on experience, contributing to community) and a cross-activation mechanism that creates the trust signals future guests need at discovery and listing evaluation."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "The elders said, at times the world became too predictable and the challenge began to go out of life. Without challenge, life had no meaning. So the elders, in their wisdom, would decide that the entire village should move.",
+          "insight": "The three-phase interaction evolution is the Stays Manager's village move. The layout does not change (no disorientation), but the available interactions do (renewed challenge). Phase transitions happen at natural lifecycle boundaries, not arbitrary dates."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "The family context promoting optimal experience could be described as having five characteristics. The first one is clarity... And finally there is challenge, or the parents' dedication to provide increasingly complex opportunities for action to their children.",
+          "insight": "Clarity (stable layout) and challenge (evolving interactions) must coexist on the same page. The Stays Manager skeleton provides clarity; the phased interaction surface provides challenge. These are not in tension -- clarity is structural, challenge is temporal."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The Stays Manager shows the current lifecycle phase's interaction set. Phase-appropriate actions are visible and active. Actions from future phases are not yet visible. Actions from past phases that remain relevant (date change, messaging) are still accessible but visually recessed.",
+        "loading": "On each visit, the page loads with the stable skeleton first (< 200ms), then populates dynamic content (stay details, review prompts, new-since-last-visit indicators) within 500ms. The guest perceives the familiar structure immediately and the evolving content shortly after.",
+        "empty": "A lifecycle phase has no new content to show (e.g., rhythm phase visit with no new stay cycle completed since last visit). The system surfaces a secondary engagement: 'No new stays since your last visit. Explore the neighborhood guide.' The page never appears blank or unchanged -- at minimum, a 'what changed since last visit' summary confirms that the guest's visit was acknowledged even if nothing is new.",
+        "error": "An interaction within the Stays Manager fails (review could not submit, date change request failed). The error appears inline within the relevant section and offers retry. The rest of the page remains functional. No error should require the guest to reload the entire Stays Manager.",
+        "success": "An interaction completed (review submitted, date change confirmed, checklist item marked). The specific section shows a success state: the review prompt transforms into a 'Thank you' acknowledgment with the guest's rating visible, the date change shows the updated schedule, the checklist item animates to complete. The overall page updates any dependent elements (progress bar, timeline segment) in sync."
+      },
+      "transition_principle": "Familiar structure, fresh content. The guest should recognize the page on every visit (same zones, same spatial arrangement) but discover something new within it (a new review prompt, a new milestone, a new action). The transition between lifecycle phases is invisible -- there is no 'Phase 2 unlocked!' notification. New interactions appear naturally in their designated zones as the calendar advances. The guest perceives evolution, not versioning.",
+      "timing": {
+        "response_target": "Page load to interactive: < 1000ms. Checklist item completion: < 200ms acknowledgment. Micro-review submission: < 500ms confirmation. Date change request: < 2000ms for server confirmation. New-since-last-visit indicators: appear within 500ms of page load.",
+        "easing": "Checklist completion: the check icon uses a spring-like scale animation (0 to 1.1 to 1.0, 300ms) for satisfying feedback. Progress bar fill: ease-out over 400ms. Review prompt appearance: fade-in ease-out over 200ms. Phase transition content: no animation -- new phase content simply appears on the next visit as though it was always there.",
+        "rationale": "Checklist animations are slightly more playful (spring-like) because orientation-phase interactions should feel rewarding and welcoming. Progress bar fills use ease-out for a natural deceleration. Phase transitions have no animation because drawing attention to the transition would break the illusion that the page simply knows what the guest needs right now."
+      },
+      "journey_state_awareness": "The complexity ratchet is driven primarily by calendar position (lease week number) but modulated by engagement signals. A guest who has submitted 0 micro-reviews by week 6 sees a gentler review prompt (simpler scale, one tap, no text). A guest who has submitted 4+ micro-reviews by week 6 sees a richer review prompt (narrative text field, photo upload option). A guest who has never used the date change tool sees it at default prominence; a guest who has used it 3+ times sees it with quick-access positioning. The system's memory of past interactions determines not whether a feature is available, but how much complexity it presents -- matching Csikszentmihalyi's principle that challenge must track actual skill, not assumed skill.",
+      "edge_cases": [
+        "Short lease (< 6 weeks): compress the three phases proportionally. Orientation is week 1 only. Rhythm is weeks 2 through N-2. Reflection is the final week. The same interaction set is available but surfaces faster.",
+        "Extended lease (> 13 weeks): after week 13, Phase 3 interactions persist but add a 'long-term stay' layer: quarterly summary views, lease renewal reminders, community features (if available). The complexity ratchet continues turning.",
+        "Guest who never engages: if a guest visits the Stays Manager but takes no actions across 3+ consecutive visits, the system reduces interaction density to prevent the page from feeling like an ignored to-do list. Only the most relevant time-sensitive item (next stay, next payment) remains prominent.",
+        "Guest accesses Stays Manager on mobile: the three-zone layout collapses to a single-column stack. Phase-appropriate interactions retain their priority order but appear as collapsible sections rather than simultaneous zones. The action band becomes a sticky top bar.",
+        "Multiple active leases: if the guest has 2+ active leases, the Stays Manager shows a lease selector at the top. Each lease has its own lifecycle phase and interaction set. Switching leases preserves the other lease's state."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Cross-Activation Events as Conversational Interactions, Not Form Submissions",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation", "active_lease"],
+      "problem": "Messaging, proposals, negotiations, and reviews are the platform's cross-activation moments -- where one user's action activates another user's engagement. Csikszentmihalyi identifies social activities (conversations, games, rituals) as among the most powerful flow generators. These interactions are inherently social: they involve two conscious agents (guest and host) stretching skills to meet each other's challenges. But the platform currently treats each as a transactional form submission -- a text box and a submit button. The social dimension is invisible. The guest does not feel they are entering a conversation; they feel they are filling out a form. The user stories confirm messaging's primacy: 'When a guest messages a host, that's not just UX convenience -- it's the moment two strangers begin to trust each other through the platform.' But trust is not built through forms; it is built through interactions that feel personal, responsive, and human. L1 (works-005) defines the social flow process; L2 (communicates-002) specifies the feedback information layer; L3 (looks-004) defines proposal visual design. The interaction layer must specify how these cross-activation moments behave as social interactions rather than data entry.",
+      "solution": "Redesign every cross-activation interaction to surface the social context and provide conversation-like feedback. (1) Messaging: when the guest opens the message composer, the host's profile appears alongside it (photo, name, response time: 'Usually responds within 3 hours', communication style hint if available). As the guest types, a character count and quality signal appear (not evaluative but informational: 'Including your dates helps hosts respond faster'). After sending, the system shows 'Message sent' immediately, then updates to 'Host notified' when confirmed, and eventually 'Host viewed' or 'Host typing...' as signals become available. The messaging interaction feels like starting a conversation, not filing a ticket. (2) Proposal creation: the form arrives pre-populated with listing data (dates, price, location). The guest's task is to review and confirm, not to generate from scratch. As they adjust any field, the total price updates in real time (purple highlight pulse, 400ms). Before submission, a proposal preview shows exactly what the host will see -- a mini-card with the guest's profile, dates, price, and message. This preview is the social feedback: the guest sees themselves through the host's eyes, reducing the self-consciousness that Csikszentmihalyi identifies as a flow inhibitor. (3) Negotiation: when the host sends a counter-offer, the system presents it as a side-by-side comparison (original vs. counter) with each changed element highlighted and the financial impact pre-calculated ('$15/night more, $150 total difference'). Available actions expand beyond accept/reject to include 'Suggest a modification' with guided fields. Each action shows its likely outcome ('Hosts who receive modifications respond 80% of the time'). The interaction feels like a turn in a collaborative game, not a binary decision. (4) Reviews: the micro-review prompt during active lease presents the review as a contribution ('Share what this week was like') not an obligation ('Rate your stay'). The guest's growing review history is visible ('Your 5th review -- you have reviewed more than 90% of guests'). After submission, the review appears in the listing immediately (if the host has given consent), providing the social feedback of visible community contribution.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Messaging is the highest cross-activation story in the list. When a guest messages a host, that's not just UX convenience -- it's the moment two strangers begin to trust each other through the platform. The platform is the medium.",
+          "insight": "If the platform is the medium for trust between strangers, then the messaging interaction must feel like a trust-building conversation, not a form submission. The host's profile, response time, and eventual read/typing indicators make the guest feel they are communicating with a person."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "In agonistic games, the participant must stretch her skills to meet the challenge provided by the skills of the opponents. The roots of the word 'compete' are the Latin con petire, which meant 'to seek together.'",
+          "insight": "Negotiation is agonistic: guest and host are 'seeking together' for acceptable terms. The side-by-side comparison and modification options make this collaboration visible. Binary accept/reject eliminates the skill-stretching that makes agon a flow activity."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "A well-structured proposal -- clear dates, schedule, pricing, intent -- activates the host to respond. A vague or incomplete one creates friction.",
+          "insight": "Proposal quality directly determines cross-activation success. Pre-populated fields and the host-view preview are interaction mechanisms that improve output quality -- the guest's flow state produces a better proposal, which creates conditions for the host's engagement."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "A person who is constantly worried about how others will perceive her, who is afraid of creating the wrong impression, or of doing something inappropriate, is also condemned to permanent exclusion from enjoyment.",
+          "insight": "The proposal preview directly addresses self-consciousness: by showing the guest what the host will see, it replaces worry ('Is this right?') with knowledge ('This is what it looks like'). Pre-populated fields further reduce self-consciousness by showing the 'right' answer before the guest acts."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The cross-activation touchpoint (message button, proposal CTA, counter-offer card, review prompt) is visible and ready. Social context (host profile, response time, review count) is loaded and visible alongside the interaction point.",
+        "loading": "The guest has initiated the cross-activation action. The interaction container (message composer, proposal form, negotiation view, review form) opens with pre-populated content loading. The host's profile information is visible immediately from cache; dynamic data (response time, online status) loads within 500ms.",
+        "empty": "The social context is unavailable (new host with no reviews, no response time history). The system falls back to platform-level trust signals ('Verified host since January 2026') and adjusts quality hints to be more explicit ('Including your dates and schedule helps new hosts understand your needs').",
+        "error": "The cross-activation action failed (message not sent, proposal submission error, review could not save). The error appears inline within the action container with preserved input -- nothing the guest typed or selected is lost. The retry action is adjacent to the error message. For proposal errors, the pre-populated data is preserved; for message errors, the composed text is preserved.",
+        "success": "The action completed and the social feedback cascade begins. Messages: 'Sent' -> 'Host notified' -> 'Host viewed/typing' (as signals arrive). Proposals: 'Submitted' -> 'Host notified' with estimated response time. Negotiations: 'Modification sent' -> same cascade. Reviews: 'Thank you -- your review is now visible' with a link to see it on the listing. Each success state includes a natural next action ('While you wait, explore similar listings' or 'Check back for the host's response')."
+      },
+      "transition_principle": "Social warmth over transactional efficiency. Every cross-activation interaction should take slightly longer to open (showing the host's profile, loading social context) and provide richer feedback after completion (status cascade, estimated response times) compared to a standard form. The extra 200-300ms of social context loading is an investment in making the interaction feel like a human connection rather than a database write. The transitions should feel like entering a conversation space, not opening a form.",
+      "timing": {
+        "response_target": "Message composer open (with host profile): < 500ms. Proposal form open (with pre-populated data): < 800ms. Negotiation comparison render: < 500ms. Review prompt appearance: < 200ms. Post-action social cascade: 'Sent' < 200ms, 'Host notified' < 2s, 'Host viewed' when available (real-time or polling).",
+        "easing": "Composer/form opening: ease-out over 300ms. Pre-populated field appearance: sequential stagger (each field fills 50ms after the previous, creating a 'being prepared for you' effect). Host profile slide-in: ease-out over 200ms. Post-action status transitions: fade crossfade over 200ms.",
+        "rationale": "The staggered pre-population animation serves double purpose: it communicates that the system did work on the guest's behalf (each field filling visually demonstrates preparation) and it gives the guest time to read each value before the next appears. This is slower than instant rendering but creates the perception of care -- 'the system prepared this for me' -- which reduces the self-consciousness of entering a social interaction."
+      },
+      "journey_state_awareness": "Cross-activation interactions become richer as the guest accumulates platform history. A first-time messager sees the basic composer with host profile and response time. A guest who has messaged 3+ hosts sees their own profile card alongside ('Hosts see this about you'), which motivates profile completion. A guest submitting their 3rd+ proposal sees a 'Your proposal history' indicator showing acceptance rate -- building their sense of skill. A guest writing their 5th+ review sees their reviewer reputation growing. Each accumulation matches Csikszentmihalyi's complexity ratchet: the same action (messaging, proposing, reviewing) becomes more complex and rewarding as the guest's social history grows.",
+      "edge_cases": [
+        "Host is offline/slow responder: if the host's average response time exceeds 24 hours, the message composer surfaces this honestly ('This host usually takes 1-2 days to respond') and suggests saving the listing in the meantime. Do not create false urgency.",
+        "Proposal for a listing with no reviews: the proposal preview adds extra reassurance elements ('Your payment is held securely until 48 hours after move-in') since the guest has no social proof to reduce commitment anxiety.",
+        "Counter-offer with > 3 changed elements: group changes by category (dates, pricing, terms) with expandable sections. Show the net financial impact as a single summary number before the detail breakdown. Do not overwhelm the guest with simultaneous difference highlights.",
+        "Guest-to-guest cross-activation: if the platform later supports guest referrals, the review and recommendation interactions should surface the guest's impact ('Your reviews have been seen by 23 potential guests').",
+        "Negotiation timeout: if no counter-offer arrives within 72 hours, the system surfaces a gentle prompt ('Still waiting? You can withdraw this proposal and explore other options, or send a follow-up message'). The guest should never feel stuck in a feedback vacuum."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Error Recovery as Flow Redirection: Every Dead End Becomes a Productive Path",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "Standard error handling assumes errors are terminal events: show a message, stop the interaction, wait for the user to figure out what to do. In Csikszentmihalyi's framework, this is the worst possible response. An error that stops the guest's action and provides no productive path creates immediate anxiety (A3: challenge exceeds skill) because the guest now faces a new, unexpected challenge (recovering from the error) that they have no skill to meet. The guest's flow state -- which required investment of psychic energy to build -- is destroyed, and the system offers nothing to redirect that energy toward. The user stories implicitly address this through the value-before-the-ask principle: 'Show something useful first.' An error state that shows only an error message is showing nothing useful. It is an ask (figure out what went wrong) without any value (a productive alternative). Every error is a flow breakpoint. The question is not how to display the error; it is how to redirect the guest's psychic energy to a productive action before the flow state collapses entirely.",
+      "solution": "Design every error state as a redirection to a productive action, not as a termination. The principle: the guest should never encounter a dead end. Every error must be adjacent to at least one forward-moving action. Specifically: (1) Search with zero results: instead of 'No listings found,' show the 3 closest-matching listings (relaxing one filter at a time) with an explanation ('No exact matches, but these are close: wider date range / nearby areas / different schedule'). The guest's energy redirects to evaluating alternatives rather than re-configuring filters from scratch. (2) Listing unavailable: instead of '404 Not Found,' show the listing's photo and name as context ('This listing is no longer available') alongside 3 similar listings from the same area and price range. The guest's evaluation energy redirects rather than dissipates. (3) Proposal submission failure: preserve all entered data, show the specific field that caused the error adjacent to the field itself (not in a banner), and auto-focus the field that needs correction. If the error is server-side (network failure), show a retry button with the message 'Your proposal is saved locally -- we will submit it automatically when connectivity returns.' (4) Message send failure: preserve the composed message, show 'Could not send -- tap to retry' inline. The guest's composed thought is never lost. (5) Authentication failure: show the error within the auth modal without dismissing it. Offer alternative auth methods (email link, phone) as immediate paths. Never redirect the guest away from their current context because auth failed. (6) Payment processing error: preserve all proposal data, show the specific payment issue, and offer alternative payment methods as immediate actions. The principle across all cases: acknowledge the error in 1 sentence, offer a productive action in the next sentence, and never clear user-entered data.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "Neither boredom nor anxiety are positive experiences, so Alex will be motivated to return to the flow state. How is he to do it?",
+          "insight": "Csikszentmihalyi asks exactly the right question: 'how to return to flow.' An error state is an anxiety moment (A3) where the challenge (recovering) exceeds the skill (the guest did not expect this). The productive redirect is the answer to 'how to return': offer a new action that matches the guest's existing skill."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them. Show something useful first. Offer to refine after.",
+          "insight": "Value-before-the-ask applies to error states: the error message is the 'ask' (understand what went wrong). The productive redirect is the 'value' (here is something useful you can do right now). Error states that show only error messages are all-ask, no-value."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "Cultures are defensive constructions against chaos, designed to reduce the impact of randomness on experience.",
+          "insight": "Errors are chaos events -- random disruptions to the guest's ordered experience. The platform's error handling is its defensive construction against this chaos. Like the cultures Csikszentmihalyi describes, it must 'channel attention to a limited set of goals and means' even when the original goal has been disrupted."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "When it is no longer clear what is permitted and what is not, when it is uncertain what public opinion values, behavior becomes erratic and meaningless.",
+          "insight": "An error state without a productive redirect creates micro-anomie: the guest does not know what is permitted (what can they do now?), what is expected (should they retry? go back? leave?), or what the system values (does it care that their work was just lost?). The redirect resolves anomie by making the next step clear."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Normal operation. No errors. All interactive elements are responsive and functional.",
+        "loading": "An action is in progress. If the action takes longer than expected (> 2s for a server request), a contextual progress indicator replaces the loading spinner: 'Still connecting... this is taking longer than usual.' The progress indicator includes a cancel option so the guest can redirect themselves if the system cannot.",
+        "empty": "Technically not an error, but the empty state follows the same redirection principle. Zero-results search, empty inbox, no reviews available -- each surfaces alternatives rather than blank space.",
+        "error": "The error state is always three parts: (1) Brief acknowledgment of what happened ('This listing is no longer available'), (2) Preservation of user input (no data loss, ever), (3) At least one productive redirect action ('View similar listings' / 'Tap to retry' / 'Try a different payment method'). The error visual is a warm amber tone (not red, which signals danger and amplifies anxiety) with a clear icon. The error appears inline, adjacent to the action that triggered it -- never as a page-level banner or a separate error page.",
+        "success": "Recovery from the error state. When the productive redirect succeeds (retry works, alternative listing found, payment processed on second attempt), the success state is celebrated slightly more than a normal success -- the system acknowledges the guest's persistence ('Payment processed -- your proposal is on its way')."
+      },
+      "transition_principle": "Redirect, do not terminate. The error should feel like a detour, not a dead end. The visual transition into the error state should be gentle (fade-in over 200ms, warm color, no jarring red flash) and the productive redirect action should be more visually prominent than the error message itself. The guest's eye should land on what they CAN do, not on what went wrong.",
+      "timing": {
+        "response_target": "Error detection to error display: < 500ms. Productive redirect rendering: simultaneous with error display (the redirect is not an afterthought; it loads as part of the error state). Data preservation: instantaneous (user input is never cleared at any point during the error flow). Retry action response: same timing targets as the original action.",
+        "easing": "Error state appearance: fade-in ease-out over 200ms. Error state dismissal (on retry success): fade-out ease-in over 150ms. Productive redirect hover/focus: standard button acknowledgment timing (100ms scale pulse).",
+        "rationale": "Error states appear gently (200ms fade) to avoid startling the guest. They dismiss quickly (150ms) to minimize the time the error is visible once recovery succeeds. The redirect action uses standard interaction timing to signal that it is a normal, productive action -- not an emergency recovery button."
+      },
+      "journey_state_awareness": "Error recovery adapts to the guest's journey position and accumulated investment. In discovery/search (low investment), errors redirect to exploration actions ('Try a wider search'). In proposal creation (high investment), errors prioritize data preservation and retry ('Your proposal is saved -- retry now'). In active lease (highest investment), errors escalate to human support faster ('Could not process your date change -- we have notified your host directly'). The higher the guest's sunk cost, the more urgently the system must preserve their work and provide immediate recovery paths.",
+      "edge_cases": [
+        "Cascading errors: if 3+ errors occur in the same session, the system surfaces a support contact option ('Something seems off. Chat with us?') without replacing the per-error redirects. The guest can still self-recover but has escalation available.",
+        "Offline mode: if the device is offline, all form inputs are preserved locally. When connectivity returns, the system attempts to submit automatically and notifies the guest of the result. 'Your message was sent when connectivity returned (2 minutes ago).'",
+        "Critical path error (payment failure during acceptance): the system must not leave the guest in an ambiguous state. Either the proposal is confirmed or it is not. If payment fails, the proposal is held (not rejected) for 24 hours while the guest resolves the payment issue. The host is not notified of the payment failure.",
+        "Expired listing during proposal: if a listing becomes unavailable while the guest is filling the proposal form, the system preserves the form data and offers to convert it into a message to the host ('This listing was taken, but your host may have others. Send them your details?').",
+        "Rate limiting: if the guest triggers a rate limit (too many messages in quick succession), the error does not use punitive language. 'You are messaging faster than hosts can read -- your next message will be available in 2 minutes.'"
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Value-Before-Investment Gate: Interaction Access Without Identity Commitment",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Flow cannot begin until the guest perceives a structured, goal-directed activity worth investing psychic energy in. But if the platform demands identity investment (sign-up, account creation, personal data) before allowing meaningful interaction, the guest never reaches the point where they can perceive value. The user stories are explicit: 'Any flow that requires users to give information before seeing results will lose most of them. Show something useful first.' Csikszentmihalyi's framework explains why: entering a flow state requires that the activity be 'distinct from the paramount reality of everyday existence.' A sign-up-first platform is indistinguishable from every other sign-up-first website -- it IS the paramount reality of everyday internet experience. The guest perceives no ordered system worth entering. L1 (works-006) defines the value-before-investment process; L2 (communicates-003, communicates-005) specify trust and goal-first information architectures. The interaction layer must specify exactly which actions require authentication and which do not, and how the auth gate behaves when it does appear.",
+      "solution": "Make every exploration interaction available without authentication. Authentication appears only when the guest attempts an action that requires persistent identity -- and even then, it appears as an inline continuation of the current flow, not as a gate. The interaction access model: (1) No auth required: searching, filtering, map exploration, viewing listing cards (all tiers), viewing full listing pages (including photos, reviews, host profile), comparing listings, viewing neighborhood data. The guest should be able to explore the entire platform as deeply as they want without creating an account. (2) Auth required (triggered inline): saving a listing, messaging a host, creating a proposal, writing a review. When the guest attempts one of these high-intent actions, the auth modal appears in-context (centered overlay, 400px width, dark backdrop) with the triggering action clearly referenced ('Sign up to message this host' or 'Create an account to save this listing'). The modal offers the fastest auth paths first (social sign-in, email magic link) and does not ask for more information than the action requires. After auth completes, the original action proceeds immediately -- the message composer opens, the listing is saved, the proposal form appears with pre-populated data. The guest experiences zero gap between authenticating and doing the thing they wanted to do. (3) Progressive profile building: the initial auth captures only email and name. Additional profile data (photo, bio, schedule preferences) is requested contextually during later interactions, not during initial sign-up. The first message to a host might prompt 'Adding a photo helps hosts respond faster -- upload one now?' The first proposal might surface 'Hosts appreciate a brief introduction -- add one to your profile?' Each prompt is optional, inline, and tied to a specific benefit.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them. Show something useful first. Offer to refine after.",
+          "insight": "This is the operational definition of the value-before-investment gate: the activity must provide intrinsic reward (seeing useful listings, exploring neighborhoods) before demanding identity investment. Reversing this order guarantees the guest never enters the flow channel."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "They facilitate concentration and involvement by making the activity as distinct as possible from the so-called 'paramount reality' of everyday existence.",
+          "insight": "A sign-up gate IS the paramount reality. Every website demands sign-up. The platform distinguishes itself by not demanding sign-up -- by allowing the guest to explore freely and discover value before committing identity. This distinctiveness is itself a flow enabler."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "A skeptical guest who sees verified reviews, ID checks, and real host history doesn't need the platform to convince them -- another user already did.",
+          "insight": "Trust signals (reviews, host verification) are the value that earns the guest's identity investment. But these signals can only work if the guest can SEE them before being asked to sign up. The value-before-investment gate ensures trust infrastructure is visible to unauthenticated guests."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "When it is no longer clear what is permitted and what is not, when it is uncertain what public opinion values, behavior becomes erratic and meaningless.",
+          "insight": "A sign-up gate creates anomie: the guest does not know what is behind the gate, what they will get in return for their data, or whether the system is worth their investment. Allowing full exploration before auth resolves this anomie by making the system's rules, content, and community visible before any commitment is required."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The guest is unauthenticated but has full exploration access. The platform operates normally with all browsing, searching, filtering, and viewing capabilities available. No auth prompts, banners, or persistent reminders appear. The system does not signal that the guest is 'missing out' by not signing up.",
+        "loading": "Auth modal is opening in response to a high-intent action trigger. The modal loads within 200ms. The underlying page remains fully rendered but inert behind the overlay. Social sign-in buttons and email field are visible immediately.",
+        "empty": "Not applicable to this pattern -- there is no empty state for authentication. If social auth providers are unavailable (API down), the email magic link and password options remain as fallbacks.",
+        "error": "Auth failed (wrong password, social auth rejection, magic link expired). The error appears within the modal without dismissing it: 'That password did not match -- try again or use a magic link.' The underlying page and the guest's intent (which action triggered auth) are both preserved. Multiple failed attempts offer a 'Need help?' link but never lock the guest out of browsing.",
+        "success": "Auth completed. The modal dismisses immediately (150ms fade-out). The action that triggered auth executes automatically: the message composer opens, the save confirmation appears, the proposal form begins loading. The gap between auth completion and action execution is < 500ms. The guest perceives 'I signed up AND my action completed' as a single event."
+      },
+      "transition_principle": "Authentication is a transparent speed bump, not a wall. The guest approaches it at speed (they wanted to message a host), slows briefly (the auth modal), and accelerates through (auth completes, action proceeds). At no point does the guest stop, turn around, or lose their direction. The modal appears and disappears from the same visual position, and the guest's journey continues from exactly where they were headed.",
+      "timing": {
+        "response_target": "Auth modal appearance: < 200ms from trigger action. Auth completion to action execution: < 500ms. Social sign-in flow: < 3000ms end-to-end (including provider redirect if needed). Magic link delivery: < 30000ms to inbox.",
+        "easing": "Modal appearance: fade-in ease-out 200ms with scale from 0.95 to 1.0 for a subtle settle effect. Modal dismissal: fade-out ease-in 150ms (faster out than in, to minimize time between auth and action). Action execution after auth: standard action timing (message composer 300ms open, proposal form 500ms load).",
+        "rationale": "The auth modal must feel lightweight and temporary. Fast appearance (200ms) prevents the guest from perceiving it as a barrier. Faster dismissal (150ms) ensures the transition from auth to action feels seamless. The scale-settle animation communicates 'this is a brief interruption' not 'this is a new destination.'"
+      },
+      "journey_state_awareness": "The auth gate adapts to the guest's demonstrated engagement level. A guest who has viewed 10+ listings and spent > 5 minutes on the platform sees a warmer auth prompt ('You have been exploring -- create an account to save your favorites'). A guest who clicked 'Message Host' on their first listing view sees a more functional prompt ('Sign up to message this host'). A returning guest who cleared cookies sees a recognition prompt ('Welcome back -- sign in to pick up where you left off'). The auth modal's framing matches the guest's investment level, never overselling or underselling the moment.",
+      "edge_cases": [
+        "Guest starts a message before auth: if a guest types into the message field before triggering auth (possible if the field is visible but submission requires auth), the typed content is preserved in sessionStorage. After auth, the composer opens with their text intact.",
+        "Auth provider outage: if Google/Apple sign-in is unavailable, the modal automatically expands the email options and does not show broken social buttons. The guest should never see a button that does not work.",
+        "Auth during proposal: the highest-stakes auth moment. The modal must reference the specific action ('Sign up to send this proposal to [Host Name]') and the post-auth flow must restore all form state including any adjustments the guest made to pre-populated fields.",
+        "Returning authenticated guest: if the guest is already authenticated, high-intent actions execute immediately with no modal. The gate is invisible to returning users.",
+        "Privacy-conscious guest: if the guest blocks third-party cookies or uses a privacy-focused browser, social sign-in may fail silently. The modal should detect this and default to email-first options."
+      ]
+    }
+  ]
+}

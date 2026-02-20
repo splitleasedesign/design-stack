@@ -1,0 +1,344 @@
+{
+  "lens": {
+    "guest_call": "Taline  Bryant.txt",
+    "book_extract": "creativeacts-dschool-exercises.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Category Comprehension Gate Before Engagement",
+      "journey_phases": ["discovery", "search"],
+      "problem": "Taline arrived from a Craigslist ad with zero understanding of the Split Lease model. She invested three minutes of phone conversation before learning her need (full-time rental) did not match the product (part-time stays). Her first question -- 'is it for a certain time?' (0:52) -- reveals that whatever she encountered at discovery communicated nothing about the product category. In a self-service flow, a guest in this state would interact with listing details, search filters, and pricing under a false mental model, making every subsequent interaction meaningless. The system must gate engagement behind category comprehension: the guest must understand what Split Lease IS before any interactive element (search, filter, calendar, price explorer) becomes actionable. Without this gate, the guest builds an expectation scaffold that collapses the moment they discover the mismatch -- and that collapse happens silently as abandonment.",
+      "solution": "Implement a category comprehension gate as the first interactive moment on any guest-facing surface. Before the guest can search, filter, or evaluate a listing, the system presents a 3-second interactive category declaration: a static weekly calendar visual (M-F shaded) with the label 'Part-time rental: 2-5 nights per week. Not a full-time lease.' The guest acknowledges comprehension through a single action -- tapping 'This could work for me' or 'I need something different.' The 'something different' path does not reject the guest; it redirects to the mismatch-to-alternative bridge (see behaves-003). The 'this could work' path unlocks the full search and evaluation flow. This gate ensures every subsequent interaction -- search, filter, calendar, pricing -- is built on a correct mental model. The gate appears once per session and is remembered across sessions via local storage or account state.",
+      "evidence": [
+        {
+          "source": "Taline  Bryant.txt, 0:52",
+          "type": "guest_call",
+          "quote": "I just wanted to know, like that, is it for a certain time?",
+          "insight": "Taline's first question is not about price, location, or amenities -- it is about the fundamental nature of the product. Every interaction she had after this point was built on a false premise until Bryant corrected it at 3:09. The category gate prevents this cascade of misunderstanding."
+        },
+        {
+          "source": "Taline  Bryant.txt, 2:03-3:02",
+          "type": "guest_call",
+          "quote": "What I'm really looking for something for like two months... Yeah, my full time.",
+          "insight": "Despite Bryant's 45-second verbal explanation of the model (1:06-1:51), Taline still believed this was a full-time rental. Passive explanation failed; the gate requires active acknowledgment of the category before proceeding."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 86",
+          "type": "book",
+          "quote": "What the students thought might be the need and what they actually found turned out to be two very different things.",
+          "insight": "The d.school team found that misaligned expectations at the start corrupt all subsequent work. For interaction design, this means the system must verify category comprehension before enabling category-dependent interactions."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 89",
+          "type": "book",
+          "quote": "Like so many great tales, this story starts with a miscommunication.",
+          "insight": "The book treats miscommunication as the generative origin of design problems. The category gate resolves this miscommunication in the first 3 seconds of interaction rather than allowing it to compound across every subsequent touchpoint."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The category gate is visible as a compact card with the weekly calendar visual and the plain-language label. Two action buttons are visible: 'This could work for me' and 'I need something different.' No listing content is visible behind or below the gate -- the gate is the first and only interactive element until the guest responds.",
+        "loading": "If the gate state needs to be checked against a stored preference or account flag, show the weekly calendar visual as a static placeholder with a subtle shimmer animation on the text area. The visual communicates the concept even before the interactive buttons load. Duration: under 500ms.",
+        "empty": "Not applicable in the traditional sense. If the gate has already been acknowledged in a prior session, it does not appear -- the guest proceeds directly to search/evaluation. The 'empty' state is the absence of the gate for returning guests.",
+        "error": "If the gate fails to load or the acknowledgment fails to save, do not block the guest. Fall back to an inline category banner at the top of the search results that passively communicates 'Part-time rentals: 2-5 nights/week' without requiring interaction. Log the gate failure for monitoring.",
+        "success": "On tap of 'This could work for me,' the gate card compresses smoothly upward and the search/listing content animates into view from below. The transition should feel like a curtain rising, not a page change. The category label persists as a compact badge in the header for the remainder of the session."
+      },
+      "transition_principle": "The gate-to-content transition must feel like an invitation opening, not a barrier being removed. The gate is not an obstacle the guest overcame; it is a frame the guest chose. The animation should expand the content area rather than collapse the gate -- emphasize what appears, not what disappears.",
+      "timing": {
+        "response_target": "150ms from tap to animation start. 400ms for the full gate-to-content transition.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing from tokens.json provides a swift initial response that decelerates naturally, matching the emotional arc of 'yes, I understand, show me more.' The 150ms response target ensures the tap feels immediately registered. The 400ms transition is long enough to be perceived as smooth but short enough to not frustrate an urgent guest like Taline."
+      },
+      "journey_state_awareness": "First-time guests from external channels (Craigslist, social, referral links) always see the gate. Returning guests who previously acknowledged the gate skip it. Guests who chose 'I need something different' are remembered: if they return, the system opens directly to the mismatch-to-alternative flow rather than re-asking the gate question. The gate adapts its language based on the referral channel: from Craigslist, it says 'This is not a standard rental listing' to address the specific expectation mismatch.",
+      "edge_cases": [
+        "Guest arrives from a deep link to a specific listing: the gate still appears but is overlaid on a blurred preview of the listing, creating anticipation rather than obstruction.",
+        "Guest has JavaScript disabled: the gate degrades to a static HTML section with anchor links to the two paths. No interaction blocking occurs.",
+        "Guest taps 'I need something different' and then immediately navigates back: the system remembers their initial response and shows the bridge flow, not the gate again.",
+        "Guest is a returning platform user who previously booked a part-time stay: the gate never appears. Category comprehension is assumed from behavioral evidence.",
+        "Guest arrives on a mobile device while driving (like Taline): the gate must be operable with a single tap, no scrolling required. The two action buttons must be within the initial viewport."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Stay Pattern Builder with Live Cost Feedback",
+      "journey_phases": ["listing_evaluation", "proposal_creation"],
+      "problem": "Taline could not understand the Split Lease model through verbal explanation, but understood it instantly when Bryant offered a concrete pattern: 'five nights a week' (3:21). She immediately mapped it to her life: 'five nights and then I can do the weekends at my mom' (3:37). Comprehension arrived through a specific, manipulable example -- not through a definition. Furthermore, when she asked 'how much would it cost' (2:51), she received no answer because pricing depends on the specific pattern chosen. These two problems -- model comprehension and pricing opacity -- are the same problem: the guest needs to interact with a concrete stay pattern and see what it costs, in real time, before she can evaluate whether this arrangement works for her life. Currently, this exploration requires a human phone call. The interaction pattern must make this exploration self-service.",
+      "solution": "Implement a stay pattern builder as the primary interactive element on every listing evaluation page. The builder is a horizontal row of 7 tappable day blocks (M T W T F S S) where the guest selects which nights they want to stay. As the guest taps nights on and off, an estimated monthly cost updates in real time beside or below the calendar row. Default state: M-F pre-selected (the most common pattern). The cost display shows '~$X/month (estimated)' using the listing's nightly rate range and the selected number of nights. The guest can also adjust duration (number of weeks or months) via a simple stepper control below the calendar. Every change to pattern or duration instantly recalculates the cost estimate. This single component replaces both the verbal model explanation and the pricing conversation -- the guest learns the model by using it and gets a price signal by configuring it.",
+      "evidence": [
+        {
+          "source": "Taline  Bryant.txt, 3:21-3:37",
+          "type": "guest_call",
+          "quote": "Five nights a week is likely something that you would be interested in... Five nights and then I can do the weekends at my mom.",
+          "insight": "Taline understood the model the moment it became a concrete, countable pattern. The stay pattern builder provides this concreteness systematically: the guest always sees a specific pattern they can manipulate, never an abstract description."
+        },
+        {
+          "source": "Taline  Bryant.txt, 2:51",
+          "type": "guest_call",
+          "quote": "So I just want to know how much would it cost.",
+          "insight": "The most urgent evaluation question. The pattern builder answers it dynamically: every configuration has a visible estimated cost. The guest never encounters a state where 'how much' has no answer."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 32",
+          "type": "book",
+          "quote": "These kinds of realizations don't come from just understanding an idea -- they come through the experience of trying, and failing, and trying again.",
+          "insight": "The pattern builder IS experiential learning applied to a booking decision. The guest 'tries' different configurations, sees cost consequences, and arrives at understanding through manipulation, not explanation."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 75",
+          "type": "book",
+          "quote": "None of these assignments has to be used exactly as written. Each is meant to be tinkered with, adapted, and remixed.",
+          "insight": "The tinkering principle demands that the pattern builder be freely adjustable. The guest experiments with different nights, different durations, and sees how each change affects cost. The interaction must feel like play, not like filling out a form."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Seven day blocks displayed horizontally with M-F pre-filled in accent green. Below or beside the row, the estimated monthly cost is displayed in mono type: '~$1,400/mo (estimated).' A duration stepper shows the default: '8 weeks.' The guest can immediately begin tapping days on/off. No instructions are needed -- the visual affordance of highlighted vs. unhighlighted blocks is self-explanatory.",
+        "loading": "When the listing page loads, the calendar row appears immediately with the pre-filled M-F pattern as a skeleton. The cost figure shows a shimmer placeholder for up to 500ms while the price range data loads. The calendar blocks are already interactive during this loading state -- taps are queued and applied when data arrives, so the guest never feels delayed.",
+        "empty": "If the guest deselects all nights (taps every block off), the cost display shows '$0/mo' and a gentle prompt appears below: 'Select at least one night to see pricing.' The prompt uses ink-muted color and does not block any interaction. The guest can immediately re-select nights.",
+        "error": "If the pricing API fails to return an estimate, the cost display shows 'Price range: $55-$85/night' (the static Tier 1 range from the listing) with a note: 'Exact estimate unavailable right now. Contact us for details.' The calendar remains fully interactive -- the guest can still explore patterns even if cost calculation is temporarily broken. The error state never disables the interactive element.",
+        "success": "When the guest selects a pattern and taps 'Continue to proposal' (or equivalent), the selected pattern locks with a subtle bounce animation on the active blocks, the cost estimate gains a checkmark icon, and the view transitions to the proposal form with the pattern and estimate pre-filled. The guest can still edit the pattern from the proposal form."
+      },
+      "transition_principle": "Every change to the pattern (day tap, duration adjustment) must produce an immediate, visible response in the cost display. The cost number should animate between values using a counter-style transition (digits rolling) rather than a hard swap. This creates a sense of cause-and-effect that teaches the pricing model through interaction. The transition between 'exploring patterns' and 'submitting a proposal' should feel like a natural progression, not a mode change -- the calendar and cost remain visible and editable throughout.",
+      "timing": {
+        "response_target": "60ms from day-block tap to visual state change (fill/unfill). 200ms for the cost figure to update after a pattern change. 300ms for the counter-style cost animation.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "The spring easing from tokens.json provides a playful overshoot on day-block taps, reinforcing the tinkering quality of the interaction. The 60ms tap response keeps the interaction feeling direct and physical. The 200ms cost update is fast enough to feel causal but slow enough to be perceived as a calculation, building trust that the number is computed, not arbitrary."
+      },
+      "journey_state_awareness": "For first-time guests who came through the category gate (behaves-001), the pattern builder defaults to M-F with a micro-annotation: 'Most guests stay Monday through Friday.' For guests who indicated urgency or a specific need during onboarding, the builder pre-selects a pattern that matches their stated need. For returning guests who previously configured a pattern, the builder remembers their last configuration. During proposal creation, the builder is in a 'confirm' state with reduced interactivity (taps still work but require a confirmation step before changing a submitted pattern).",
+      "edge_cases": [
+        "Guest selects only 1 night per week: the system allows this but shows a contextual note -- 'For single-night stays, nightly rates may differ. This estimate uses the per-night rate for multi-night stays.' No blocking, just transparent information.",
+        "Guest selects all 7 nights: the system allows this but triggers the mismatch bridge (behaves-003) inline below the calendar, explaining that this listing offers 2-5 night stays and showing the alternative M-F pattern with its cost.",
+        "Guest rapidly taps multiple days in sequence: the cost figure debounces updates to avoid jittery number changes. Updates apply after 200ms of no further taps.",
+        "Guest is on a slow connection: the calendar blocks respond instantly to taps (local state change) while the cost estimate shows a micro-loader until the server responds. Interactive responsiveness is never gated by network speed.",
+        "Guest using screen reader: each day block announces its state on focus ('Monday: selected, $X per night') and the cost total is announced as a live region that updates when the pattern changes."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Mismatch-to-Alternative Redirect Without Rejection",
+      "journey_phases": ["listing_evaluation", "negotiation"],
+      "problem": "When Bryant told Taline 'unfortunately I won't be able to help you with that... he's not interested in full-time rentals' (3:09), the interaction reached a dead end. Taline's need was rejected. The interaction survived only because (a) Bryant immediately suggested an alternative ('five nights a week,' 3:21) and (b) Taline was resilient enough to adapt in real time under pressure. In a self-service flow, the rejection moment is where the guest clicks away. Standard interaction patterns for constraint violations use error states -- red borders, warning banners, disabled buttons -- all of which communicate 'you did something wrong.' But the guest did nothing wrong; the mismatch is a product-category issue, not a user error. The interaction must redirect without rejecting, presenting the constraint and the alternative as a single, atomic action.",
+      "solution": "When the system detects a mismatch between the guest's stated need and what is available (e.g., guest selects 7 nights on the pattern builder, or guest enters 'full-time' in a search filter), the interaction does not produce an error state. Instead, it produces a bridge state: the mismatched selection remains visible (acknowledging the guest's intent), a constraint message appears in warm amber (not red), and a concrete alternative appears simultaneously in accent green with an interactive calendar pre-configured to the nearest viable pattern and its estimated cost. The alternative is actionable: the guest can tap 'Try this pattern' to instantly load the alternative into the pattern builder. The entire bridge sequence -- detection, display, alternative -- must complete within 400ms. The guest's mismatched selection is never deleted; it remains visible but visually de-emphasized, so the guest sees both what they wanted and what is available in the same view.",
+      "evidence": [
+        {
+          "source": "Taline  Bryant.txt, 3:09-3:21",
+          "type": "guest_call",
+          "quote": "Unfortunately I won't be able to help you with that... Five nights a week is likely something that you would be interested in.",
+          "insight": "The rejection and alternative were separated by ~12 seconds of human conversation. In a UI, that gap is where the guest leaves. The bridge state collapses the gap to zero: constraint and alternative appear simultaneously as one visual unit."
+        },
+        {
+          "source": "Taline  Bryant.txt, 3:37",
+          "type": "guest_call",
+          "quote": "Five nights and then I can do the weekends at my mom.",
+          "insight": "Taline adapted the moment she saw a specific, concrete alternative. The bridge must always show a specific pattern with a specific cost, not a vague 'consider fewer nights' suggestion."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 43",
+          "type": "book",
+          "quote": "We're hard on work but soft on people, and we don't confuse kindness with weakness.",
+          "insight": "Being hard on the constraint (clearly stating what is not available) while being soft on the guest (immediately showing a supportive path forward) is the core interaction principle. The bridge state embodies this: the constraint is clear, the alternative is kind."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 33",
+          "type": "book",
+          "quote": "The product is important, but how to get there deserves at least as much attention, if not more.",
+          "insight": "The process of encountering a mismatch and finding an alternative IS the product for many guests. The interaction design of this moment -- whether it feels like rejection or redirection -- determines whether the guest stays or leaves."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Not visible. The bridge state is dormant until a mismatch is detected. The guest interacts normally with the pattern builder or search filters.",
+        "loading": "When a mismatch is detected (e.g., guest selects night 7 on a listing limited to 5), the bridge card begins to appear with a 200ms slide-down animation. During this 200ms, the alternative pattern and cost are being calculated. If the calculation takes longer than 200ms, the bridge card appears with the constraint message visible and the alternative section showing a brief shimmer placeholder.",
+        "empty": "If no alternative can be generated (e.g., the listing has no availability at all), the bridge card shows only the constraint message with a 'Browse other listings in this area' action button. The bridge never shows a constraint without at least one forward path.",
+        "error": "If the alternative calculation fails, the bridge shows the constraint with a generic alternative: 'This listing offers 2-5 night stays. Explore available patterns.' The guest is directed to the pattern builder in an unrestricted state where they can manually explore what works. The bridge never dead-ends.",
+        "success": "When the guest taps 'Try this pattern,' the bridge card smoothly compresses while the pattern builder updates to the suggested pattern with a spring animation on the newly-selected day blocks. The cost estimate updates simultaneously. The bridge card is dismissed but the guest can undo the change via a compact 'Undo' pill that appears for 5 seconds near the pattern builder."
+      },
+      "transition_principle": "The bridge must appear as an expansion of the existing content, not as a modal or overlay that interrupts the flow. It slides into the content area below the mismatched element, pushing subsequent content down smoothly. This creates the feeling that the system is offering more information, not blocking the guest. When the guest accepts the alternative, the bridge compresses and the content shifts back -- the page returns to its normal state with the new pattern in place. The undo option ensures the transition is reversible and non-threatening.",
+      "timing": {
+        "response_target": "200ms from mismatch detection to bridge card appearing. 300ms for the slide-down animation. 400ms for the bridge-to-pattern-builder transition when the guest accepts the alternative.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing provides a fast initial appearance that decelerates, creating the impression that the system responded quickly but is settling gently into place. The 200ms detection-to-appearance target ensures the guest perceives the bridge as an immediate, contextual response rather than a delayed error message. The spring easing from tokens.json is used for the day-block updates when the alternative is accepted, maintaining consistency with the pattern builder interaction."
+      },
+      "journey_state_awareness": "For first-time guests, the bridge includes a brief contextual explanation: 'Split Lease listings are available for part-time stays.' For returning guests, the explanation is omitted -- only the alternative is shown. For guests who previously accepted a bridge suggestion, the system remembers their adapted pattern and uses it as the default on future listings. For guests coming from the category gate's 'I need something different' path, the bridge is the first thing they see, pre-populated with a comparison: 'You need 7 nights. This listing offers 5. Here is what 5 nights costs.'",
+      "edge_cases": [
+        "Guest triggers the bridge and then taps 'Try this pattern' but immediately taps 'Undo': the system reverts to the pre-bridge state with zero data loss. The bridge does not reappear unless the guest re-triggers the mismatch.",
+        "Guest triggers the bridge on multiple listings in a row: the system learns the guest's adapted pattern after 2 bridge acceptances and pre-selects that pattern on subsequent listings, reducing friction.",
+        "Guest triggers the bridge while on a slow connection: the constraint message appears immediately (local state), and the alternative loads asynchronously. The bridge card is never empty -- the constraint is always instant.",
+        "Guest triggers a partial mismatch (e.g., selects 6 nights when the listing offers 2-5): the bridge suggests 5 nights as the closest viable alternative, showing the cost difference between 6 and 5 nights.",
+        "Guest with screen reader encounters the bridge: the bridge is announced as a live region with the message 'This listing is available for 2 to 5 nights per week. A Monday through Friday pattern is suggested at approximately $X per month. Activate to apply this pattern.'"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Post-Interaction Status Tracker with Proactive Updates",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "Taline's call ended with zero persistent state. The only output was a verbal promise: 'I can talk to him and talk to him about your situation. And I get back to you on that' (5:22-5:33). There is no timeline, no status visibility, no way for Taline to check progress, and no mechanism to update her request while waiting. For a guest under time pressure (lease ending, needs housing by December 15th, child's school commute at stake), this unstructured wait is the highest-risk dropout moment in the entire journey. The interaction between call-end and proposal-receipt is currently a void -- no system state, no UI, no feedback loop. The guest has no interaction surface to return to, and the platform has no way to maintain engagement during the wait. Every hour without contact is an hour Taline may find alternative housing elsewhere.",
+      "solution": "Immediately after any substantive guest interaction (call, chat, form submission), the system generates a persistent status tracker accessible via a unique URL sent to the guest by text/email within 5 minutes. The tracker is a single-page view with three sections: (1) A vertical stepper showing the current process stage (needs captured, host reviewing, pricing proposed, guest confirming) with the active step highlighted, (2) a summary card showing the guest's captured request in structured fields (pattern, dates, area, estimated cost range), and (3) a 'Next Step' panel with a specific action and timeline ('Bryant is confirming availability with the host. Expected response: within 24 hours.'). The tracker updates in real time when the agent or host takes action. The guest receives a push notification (text/email) when the status changes. The guest can edit their request (dates, pattern) directly from the tracker while the review is in progress -- edits are flagged for the agent's next review.",
+      "evidence": [
+        {
+          "source": "Taline  Bryant.txt, 5:22-5:33",
+          "type": "guest_call",
+          "quote": "I can talk to him and talk to him about your situation. And I get back to you on that.",
+          "insight": "The entire forward path depends on a single human follow-up with no timeline and no visibility. The status tracker converts this opaque wait into a visible, trackable process with defined steps and expected timelines."
+        },
+        {
+          "source": "Taline  Bryant.txt, 6:13-6:20",
+          "type": "guest_call",
+          "quote": "Let me know if you have any questions about the space or anything else that comes up, feel free to text me.",
+          "insight": "The only post-call touchpoint is unstructured texting. The status tracker provides a structured alternative: the guest can check status, review what was discussed, and update their request without composing a text message."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 69",
+          "type": "book",
+          "quote": "But success is never about a single moment of insight.",
+          "insight": "The status tracker communicates visually that the process has multiple steps. Success is not gated by a single callback moment. The stepper reduces emotional weight on the wait by showing progress across a defined sequence."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 45",
+          "type": "book",
+          "quote": "We try things out before we know exactly what will happen, and then we spend time thinking and talking about what, exactly, just happened.",
+          "insight": "The status tracker is the 'what exactly just happened' artifact. It makes the interaction legible and reviewable, allowing the guest to reflect on and share what was discussed rather than relying on memory."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The stepper shows the current step highlighted in accent green with a subtle pulse animation on the active node. Completed steps show solid accent fill with a check icon. Future steps show muted fill. The summary card displays the captured request with editable fields. The 'Next Step' panel sits at the top with a clear action and timeline.",
+        "loading": "On initial load, the stepper nodes appear first (skeleton) and fill with status data within 500ms. The summary card fields populate with a stagger animation (each field appears 100ms after the previous). The 'Next Step' panel loads last but is anchored to the top of the viewport on mobile, so it is the first thing the guest sees even if other content is still loading.",
+        "empty": "If the tracker is accessed before any request data has been captured (e.g., the guest received a link but no call happened), the tracker shows a friendly empty state: 'We are getting your information ready. If you just spoke with an agent, your details will appear here shortly.' A retry check runs every 30 seconds.",
+        "error": "If the tracker fails to load status data, it shows the last known state (cached locally) with a subtle banner: 'Showing last updated status. Checking for updates...' The banner auto-dismisses when connectivity is restored and fresh data loads. The guest is never shown a broken page -- stale data is better than no data.",
+        "success": "When the process reaches the proposal stage, the 'Next Step' panel transforms into an actionable proposal card with the confirmed price, the stay pattern, and a 'Review and Accept' button. The stepper advances to the final step with a celebratory micro-animation (the node scales up briefly). The transition from 'waiting' to 'proposal ready' is the highest-value moment and must feel like a reward for patience."
+      },
+      "transition_principle": "Status changes must feel like forward momentum, not like page refreshes. When the stepper advances, the completed step's node fills smoothly from outline to solid while the next step's node begins pulsing. The transition should feel like a relay -- one step passes energy to the next. Push notifications that arrive while the guest is viewing the tracker should update the page in place with a smooth animation, not require a reload. The emotional arc of the tracker is: waiting (calm pulse) to advancing (forward animation) to ready (arrival celebration).",
+      "timing": {
+        "response_target": "Under 1000ms for initial page load with all status data. 200ms for in-page status updates when data changes. 60ms for the pulse animation frame rate on the active stepper node.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing provides a natural deceleration for status transitions -- the node fills quickly and settles slowly, matching the emotional cadence of 'something happened, now settle into the new state.' The 1000ms initial load target accommodates the multiple data sources (agent notes, host response, pricing) that feed the tracker. The pulse animation uses a 2-second cycle at the frame rate to create a calm, heartbeat-like rhythm that signals 'alive and in progress' without urgency."
+      },
+      "journey_state_awareness": "For guests in the 'host reviewing' stage, the tracker shows estimated wait time based on historical response times for this host or agent. For guests whose agent has not responded within the SLA (24 hours), the tracker escalates: the 'Next Step' panel changes to 'Your agent has been reminded. If you need immediate help, contact us here.' For guests who edit their request on the tracker, the agent sees the edit flagged in their queue within 5 minutes. For guests who have received a proposal, the tracker transitions into acceptance mode where the 'Next Step' is the guest's own action.",
+      "edge_cases": [
+        "Guest shares the tracker URL with a family member (e.g., Taline shares with her mother to discuss the arrangement): the tracker is view-only for non-authenticated users, with edit capabilities requiring the original phone number or email verification.",
+        "Agent updates status while guest is actively viewing the tracker: the page updates in real time via server-sent events or polling, with a brief highlight animation on the changed element.",
+        "Guest receives a proposal and does not respond for 48 hours: the tracker shows a gentle reminder -- 'Your proposal is waiting for review. It will remain available for 7 days.' No aggressive countdown or pressure language.",
+        "Multiple listings are being explored simultaneously: the tracker supports multiple request tracks in a tab or accordion view, each with its own stepper and status.",
+        "The guest's phone number changes after the call: the tracker URL remains valid. The guest can update contact info directly on the tracker with SMS verification to the new number."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Urgency-Adaptive Interaction Sequencing",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Taline called while driving home from work in traffic (0:35). She has a lease ending, needs to move by December 15th, has two jobs and a child whose school commute determines where she can live. She does not have time or cognitive bandwidth for exploratory browsing. She needs three answers: (1) can I move in by my date, (2) can I afford it, (3) does it work for my commute. The standard interaction sequence -- browse listings, read descriptions, explore amenities, then check price and availability -- forces the urgent guest through a sequence optimized for casual exploration. Every interaction step that does not answer one of her three critical questions is friction that pushes her toward abandoning the platform and returning to Craigslist. The interaction sequence must adapt to urgency, front-loading the decision-critical interactions and deferring exploratory ones.",
+      "solution": "When the system detects urgency (guest enters a move-by date, selects 'I need housing soon,' or arrives from an urgency-coded channel), the interaction sequence reorders. Instead of the standard listing page flow (photos, description, amenities, then price/availability), the urgent flow presents three tappable answer cards above the fold: (1) 'Available from [date]' with a green check or amber warning, (2) 'Estimated: ~$X/month' with the pattern builder inline, and (3) 'X min to your work' if the guest provided a work location. These cards are interactive: tapping the availability card opens a calendar, tapping the cost card opens the pattern builder, tapping the commute card opens a map. Below these cards, the standard listing content is available for guests who want to explore further. The interaction model is: answer the three critical questions first, then offer depth. The guest can toggle between 'Essentials' and 'Full details' modes at any time.",
+      "evidence": [
+        {
+          "source": "Taline  Bryant.txt, 0:35",
+          "type": "guest_call",
+          "quote": "Don't coming home from traffic.",
+          "insight": "Taline is in a low-attention, high-urgency context. She cannot engage with a rich, exploratory interface. She needs essential answers delivered in the smallest possible number of interactions."
+        },
+        {
+          "source": "Taline  Bryant.txt, 2:51",
+          "type": "guest_call",
+          "quote": "So I just want to know how much would it cost.",
+          "insight": "Taline cuts through the model explanation to ask the single question that matters for her urgency. The urgent interaction sequence puts cost in the first interaction layer, not behind a description or photo gallery."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 58",
+          "type": "book",
+          "quote": "The world is changing too quickly to learn everything you need to know about life while you're in school.",
+          "insight": "An urgent guest cannot learn everything about the platform before making a decision. The interaction sequence must front-load action-enabling information and defer educational content to after the critical need is addressed."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 80",
+          "type": "book",
+          "quote": "Maybe it was a challenge you took on following a promotion at work, the search for an apartment in a new city, or an effort to organize your neighbors to deal with a block-wide problem.",
+          "insight": "The book names apartment search as an open-ended challenge that provokes beginner anxiety. For Taline, the anxiety is compounded by a deadline. The urgency-adaptive sequence reduces this anxiety by answering the most pressing questions first."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Three answer cards displayed horizontally above the listing photo. Each card shows one data point (availability, cost, commute) with a compact interactive element. The cards use surface background with a left-border accent stripe (green for positive signals, amber for warnings). Below the cards, the standard listing content is visible but de-emphasized until the guest scrolls.",
+        "loading": "The three answer cards appear as skeleton placeholders immediately, with data populating progressively: availability first (fastest to compute), then cost estimate (requires pattern data), then commute time (requires geocoding). Each card transitions from skeleton to live with a subtle fade. Cards that load faster do not wait for slower ones -- partial data is always better than no data.",
+        "empty": "If the guest has not provided enough data for all three cards (e.g., no work location for the commute card), the unavailable card shows a prompt: 'Add your workplace to see commute time.' The prompt is tappable and opens a quick-input field inline. The other two cards display normally -- missing one data point does not block the other two.",
+        "error": "If any individual card fails to load data, it degrades to a static fallback: the availability card shows 'Check with agent,' the cost card shows the Tier 1 price range, the commute card shows the neighborhood name. Each fallback is tappable and leads to a more detailed view or a contact action. No card is ever fully blank.",
+        "success": "When all three cards show positive signals (available, affordable, commutable), a subtle connecting line or background tint links the three cards visually, and a 'This listing matches your needs' label appears. A 'Start your proposal' button animates into view below the cards. The transition from evaluation to proposal initiation is seamless -- the guest does not need to scroll or navigate."
+      },
+      "transition_principle": "The transition between standard and urgency-adapted layouts must be instant if triggered by an explicit user action (toggle), or pre-rendered if detected from context (channel, onboarding data). There should never be a visible reflow where the guest sees the standard layout and then watches it rearrange into the urgency layout. If urgency is detected, the adapted layout is the first thing rendered. The toggle between 'Essentials' and 'Full details' uses a smooth crossfade: the three cards compress or expand while the listing content below fades in or becomes more prominent.",
+      "timing": {
+        "response_target": "100ms for layout mode toggle. Under 800ms for all three answer cards to reach a displayable state (even if some show skeleton/partial data). 60ms for card interaction response (tap to expand).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing ensures rapid initial response on all card interactions, which is critical for an urgent guest who expects immediate feedback. The 800ms target for full card population acknowledges that three different data sources feed the cards, but prioritizes partial display over waiting for complete data."
+      },
+      "journey_state_awareness": "Urgency is persisted across the session: once detected, all listings are shown in urgency mode until the guest toggles off. The guest's move-by date is displayed in the header as a persistent context reminder ('Moving by Dec 15 -- 26 days left'). As the deadline approaches, the urgency framing intensifies subtly: listings with availability before the deadline are visually boosted, while those without are not hidden but carry a 'May not be available by Dec 15' note. Post-deadline, the urgency framing automatically relaxes.",
+      "edge_cases": [
+        "Guest on mobile with limited viewport: the three answer cards stack vertically instead of horizontally, with the most critical (availability) at top. Each card is collapsible to conserve space.",
+        "Guest has not declared urgency but exhibits urgent behavior (rapid page transitions, short time on listings): the system offers the urgency toggle proactively -- 'Need to move soon? See essentials first.' -- without forcing a layout change.",
+        "Guest's move-by date has already passed: the urgency framing shifts from deadline-focused to availability-focused -- 'Available now' replaces 'Available by [date].'",
+        "Guest using assistive technology: the three answer cards are presented as a landmark region labeled 'Quick evaluation summary' with each card as a list item. Focus order matches the visual priority: availability, cost, commute.",
+        "Guest toggles from urgency to full-details mode and back: the system remembers which listings they evaluated in urgency mode and does not re-show them in the standard view unless the guest explicitly revisits."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Negotiation as Guided Exploration, Not Binary Accept/Reject",
+      "journey_phases": ["negotiation", "proposal_creation"],
+      "problem": "Taline experienced negotiation as a rejection followed by self-rescue. Her need was rejected ('unfortunately I won't be able to help you,' 3:09), she had to invent an alternative under pressure ('Monday through Friday,' 3:53), and she had to justify her adaptation with personal vulnerability ('I just really need a place... I don't want to stay at my mom because my job for me to commute and have to pick up my son from school,' 4:14-4:41). The emotional arc was: hope, rejection, scramble, tentative recovery. This arc worked because Taline is resilient and Bryant is skilled. The platform cannot depend on either. In a self-service flow, the negotiation interaction must guide the guest through the adaptation process without requiring resilience, improvisation, or emotional disclosure. The interaction must present the space of possibilities and let the guest navigate it, rather than presenting a binary (accepted/rejected) and asking the guest to generate alternatives unassisted.",
+      "solution": "Replace binary accept/reject with a negotiation explorer: an interactive view that shows all viable stay patterns for a listing as selectable options on a spectrum. The explorer displays 3-5 pre-configured pattern options (e.g., 'M-F, 5 nights,' 'M-Th, 4 nights,' 'Sun-Th, 4 nights,' 'M/W/F, 3 nights') each with its estimated monthly cost, arranged from most nights to fewest. The guest can select any pre-configured option or customize their own pattern using the pattern builder (behaves-002). Each option shows social proof when available: 'Most popular pattern' or '12 guests chose this.' The explorer does not ask the guest WHY they want a particular pattern -- no emotional justification is required. The guest selects what works for their life; the system calculates the cost. If none of the options work, a 'None of these work for me' path leads to a contact-agent action, not a dead end. The interaction frame is exploration, not negotiation: the guest is discovering what is possible, not haggling for concessions.",
+      "evidence": [
+        {
+          "source": "Taline  Bryant.txt, 3:09-3:53",
+          "type": "guest_call",
+          "quote": "Unfortunately I won't be able to help you with that... And I just do it like Monday through Friday.",
+          "insight": "The 45-second arc from rejection to adaptation required human skill and guest resilience. The negotiation explorer compresses this into a single view where all options are visible simultaneously -- no rejection, no scramble, no improvisation needed."
+        },
+        {
+          "source": "Taline  Bryant.txt, 4:14-4:41",
+          "type": "guest_call",
+          "quote": "I just really need a place... I don't want to stay at my mom because my job for me to commute and have to pick up my son from school far from me.",
+          "insight": "Taline disclosed significant personal vulnerability to justify her need. The explorer eliminates this requirement: the guest selects a pattern; the system does not ask why. Dignity is preserved by design."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 43",
+          "type": "book",
+          "quote": "We're hard on work but soft on people, and we don't confuse kindness with weakness.",
+          "insight": "The negotiation explorer is hard on the parameters (clear about what is available) and soft on the guest (no rejection language, no justification required, multiple supported paths forward)."
+        },
+        {
+          "source": "creativeacts-dschool-exercises.txt, line 75",
+          "type": "book",
+          "quote": "None of these assignments has to be used exactly as written. Each is meant to be tinkered with, adapted, and remixed.",
+          "insight": "The explorer treats the stay arrangement as tinkerable: the guest explores pre-set options and can customize. The interaction is framed as creative exploration within constraints, not as compliance with a fixed offer."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "3-5 pattern option cards arranged vertically, each showing: the weekly calendar visual with the pattern highlighted, the estimated monthly cost in mono type, and a brief descriptor ('Weeknights only' or 'Long weekends'). The most popular option is visually flagged with an accent-light background. A 'Customize your own pattern' link opens the full pattern builder below. The guest can select any option with a single tap.",
+        "loading": "The option cards appear as skeleton placeholders in the correct layout. The most popular option loads first (highest priority data), followed by the others. Each card transitions from skeleton to live independently. The 'Customize' link is available immediately even if pre-configured options are still loading.",
+        "empty": "If the listing has no pre-configured pattern options (e.g., a new listing with no booking history), the explorer shows only the pattern builder in its interactive state with the M-F default, alongside the message: 'This listing is new. Build your preferred pattern and we will check availability.' The explorer never shows an empty state with no interactive element.",
+        "error": "If the pricing data for one or more options fails to load, those options show the Tier 1 price range instead of an exact estimate. A note appears: 'Exact pricing for some options is being calculated. Estimates shown.' The options remain tappable and functional -- the error is in precision, not in availability.",
+        "success": "When the guest selects an option, the selected card expands slightly with a spring animation and gains an accent border. The other cards compress and fade to 50% opacity (still visible, still tappable for comparison). A 'Continue with this pattern' button appears below the selected card with a smooth slide-up animation. Tapping the button transitions to the proposal flow with all data pre-filled."
+      },
+      "transition_principle": "Selection should feel like choosing, not committing. The guest can tap between options and see each one highlight in turn, with the cost and pattern updating in the summary area. Only the explicit 'Continue with this pattern' action advances the flow. Switching between options is instantaneous and carries no penalty or friction -- the interaction rewards exploration. The transition from explorer to proposal should carry the selected pattern visually: the chosen card animates from its position in the explorer to its position in the proposal form, creating spatial continuity.",
+      "timing": {
+        "response_target": "60ms from option tap to visual selection feedback. 200ms for the expand/compress animation of selected/deselected cards. 400ms for the transition from explorer to proposal form.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "The spring easing provides a playful, exploratory quality to option selection -- the slight overshoot on the expand animation reinforces that this is a lightweight, reversible choice, not a heavy commitment. The 60ms tap response keeps the exploration feeling responsive and game-like."
+      },
+      "journey_state_awareness": "For guests who arrived through the mismatch bridge (behaves-003), the explorer pre-highlights the pattern suggested by the bridge as 'Recommended for you.' For guests who previously explored patterns on other listings, the explorer shows which options are similar to their prior selections. For guests in the proposal revision stage (they submitted a proposal that was countered by the host), the explorer shows the host's counter-offer as one of the options alongside the guest's original request, enabling direct comparison.",
+      "edge_cases": [
+        "Guest selects an option, advances to proposal, then navigates back: the explorer remembers their selection and highlights it, but does not prevent them from choosing a different option.",
+        "Host has unusual availability constraints (e.g., only Tuesday-Thursday): the explorer shows this specific pattern as the primary option, with broader patterns grayed out and labeled 'Not available for this listing.'",
+        "Guest compares options for a long time without selecting: after 60 seconds of exploration without selection, a gentle prompt appears -- 'Not sure which pattern works? You can always change it later.' -- reducing decision paralysis.",
+        "Two guests are exploring the same listing simultaneously and one books the last available slot for a pattern: the other guest's explorer updates in real time, marking the now-unavailable pattern with an 'Recently booked' label.",
+        "Guest with cognitive disabilities using simplified interaction mode: the explorer reduces to 2 options (the most popular and a custom builder) with larger tap targets and no animation, reducing cognitive load."
+      ]
+    }
+  ]
+}

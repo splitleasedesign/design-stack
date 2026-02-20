@@ -1,0 +1,284 @@
+{
+  "lens": {
+    "host_call": "user-stories-initial-analysis.md",
+    "book_extract": "flow-solitude-others.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Arrival-Departure Ritual Interactions: Structuring Solitude-Companionship Transitions",
+      "journey_phases": ["active_lease"],
+      "problem": "Each guest arrival disrupts the host's solitude; each departure restores it. These transitions are the highest-anxiety micro-moments in the host's week. Csikszentmihalyi describes how Susan Butcher's 'routines demand that her consciousness be focused on manageable tasks all of the time -- thereby making life a continuous flow experience' (lines 420-422). Without structured transition rituals, the host's consciousness wanders: 'Is the guest coming? Did they leave the space clean? When exactly are they arriving?' This is the psychic entropy of unstructured social transition -- 'worries are always hovering at the periphery of attention' (lines 210-212). The journey map specifies that guests notify arrival and send cleaning photos, but the host-side interaction pattern for receiving and acknowledging these signals is unspecified. The host currently receives raw notifications (a message saying 'I am arriving') without a structured response pattern. This lack of ritual produces the 'unstructured solitude' Csikszentmihalyi warns is so difficult to manage (lines 197-202) -- except here it is unstructured social transitions that generate the entropy.",
+      "solution": "Design arrival and departure as structured interaction rituals with clear host actions that bookend each stay cycle. Arrival ritual: when the guest sends an arrival notification, the host receives a compact card in the Stays Manager with the guest's arrival message, the arrival time, and a one-tap acknowledgment button: 'Got it -- welcome.' Tapping the button sends a confirmation to the guest and transitions the corresponding day on the rhythm strip from 'transition' to 'guest-present.' The acknowledgment is the ritual act -- a small, concrete action that structures the transition from solitude to shared space. Departure ritual: when the guest sends cleaning photos, the host receives a card with the photos displayed as a compact gallery (tappable thumbnails) and a one-tap acknowledgment: 'Looks good' or a 'Note to guest' text option for issues. Acknowledging transitions the rhythm strip day from 'guest-present' to 'guest-absent' and triggers the per-stay micro-review prompt. The departure acknowledgment is the second ritual act -- it formally returns the space to the host's solitude. Both rituals are time-bounded: if the host does not acknowledge within 4 hours, the system acknowledges automatically and notifies the host: 'Your guest arrived -- you can review anytime.' This prevents the ritual from becoming an obligation. The rituals' emotional function is Csikszentmihalyi's 'structuring time' principle: they convert anxiety-laden transitions into predictable, manageable micro-actions.",
+      "evidence": [
+        {
+          "source": "flow-solitude-others.txt, lines 420-422",
+          "type": "book",
+          "quote": "The routines she has built demand that her consciousness be focused on manageable tasks all of the time -- thereby making life a continuous flow experience.",
+          "insight": "The arrival acknowledgment and departure acknowledgment are manageable tasks that focus the host's consciousness at transition moments. Without them, the host's attention drifts into anxious speculation; with them, it is directed toward a concrete, completable action."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Urgency should surface first on the dashboard'",
+          "type": "host_call",
+          "quote": "Unread proposals, pending actions, incomplete listings -- that's what a host needs to see the moment they log in.",
+          "insight": "Arrival notifications and cleaning photo submissions are pending actions that should surface with urgency. The ritual cards appear in the Stays Manager's action band, immediately visible on login, ensuring the host encounters them when their attention is available."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 448-453",
+          "type": "book",
+          "quote": "How one copes with solitude makes all the difference. If being alone is seen as a chance to accomplish goals that cannot be reached in the company of others, then instead of feeling lonely, a person will enjoy solitude.",
+          "insight": "The departure ritual formally marks the return to solitude. By acknowledging cleaning photos and completing the review prompt, the host transforms the guest's departure from a vague transition into a definitive moment: 'The space is mine again. Here is how the stay went.' This structures the return to solitude as purposeful, not empty."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 697-700",
+          "type": "book",
+          "quote": "Unless the partners invest psychic energy in the relationship, conflicts are inevitable, simply because each individual has goals that are to a certain extent divergent.",
+          "insight": "The arrival and departure rituals are small investments of psychic energy that prevent the larger conflicts Csikszentmihalyi describes. A host who acknowledges 'Looks good' after reviewing cleaning photos has invested 3 seconds of attention that prevents a week of simmering resentment about unchecked cleanliness."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "No transition is occurring. The rhythm strip shows the current day's state (present/absent) and no ritual cards are active. The Stays Manager's action band is empty of transition-related items.",
+        "loading": "The guest has sent an arrival notification or cleaning photos. The ritual card appears in the action band within 500ms, with the guest's message or photos loading. A skeleton placeholder appears immediately to signal that content is incoming.",
+        "empty": "The guest did not send an arrival notification or cleaning photos (system failure or guest omission). The system generates a gentle prompt to the guest ('Your host is expecting a check-in -- send a quick arrival message?') and shows the host a placeholder card: 'Waiting for guest check-in. If they have already arrived, you can confirm manually.'",
+        "error": "The acknowledgment failed to send (network issue). The ritual card shows an inline retry: 'Could not confirm -- tap to try again.' The host's tap is preserved locally and will resend when connectivity returns.",
+        "success": "The host acknowledged. The ritual card transforms: 'Got it -- welcome' becomes 'Guest arrived -- enjoy your week' or 'Looks good' becomes 'Space returned -- your week ahead' with the rhythm strip updating in sync. The card then collapses after 5 seconds, leaving the Stays Manager clean."
+      },
+      "transition_principle": "Ritual brevity over process thoroughness. Each transition ritual should take under 10 seconds of host attention. The acknowledgment is a single tap, not a multi-step confirmation. The emotional function is marking the transition, not documenting it. The system handles documentation (updating the rhythm strip, logging the stay cycle) automatically after the host's ritual tap.",
+      "timing": {
+        "response_target": "Ritual card appearance: < 500ms after guest notification received. Acknowledgment processing: < 200ms (one-tap response). Rhythm strip update: < 300ms after acknowledgment. Auto-acknowledgment if host does not respond: 4 hours.",
+        "easing": "Ritual card appearance: fade-in ease-out 200ms. Acknowledgment transformation: card content crossfade 200ms. Card collapse: height to 0 ease-in 300ms. Rhythm strip day-state transition: fill color transition ease-out 200ms.",
+        "rationale": "The rituals are brief by design -- Csikszentmihalyi's Dorothy spends seconds on each routine item (check the hens, milk the goat), not minutes. The timing reinforces this: fast appearance, instant acknowledgment, quick collapse. The host perceives a crisp, purposeful micro-interaction."
+      },
+      "journey_state_awareness": "Early in the lease (weeks 1-3), the ritual cards include slightly more context: 'Your guest is arriving today for the first time. Send a welcome?' This acknowledges that early transitions are emotionally loaded. Mid-lease (weeks 4-9), the cards are minimal: 'Guest arriving' + acknowledgment tap. The host has established the ritual and needs only the prompt, not the explanation. Late-lease (weeks 10-13), the departure ritual adds a forward-looking element: 'Last stay cycle -- your final review will be part of the lease summary.'",
+      "edge_cases": [
+        "Guest arrives without notification: the host can manually mark the arrival on the rhythm strip by tapping the transition day and selecting 'Guest arrived.' This generates a gentle reminder to the guest about the notification ritual.",
+        "Guest sends cleaning photos that reveal issues: the 'Note to guest' option opens a compact text field within the ritual card. The host's note is sent to the guest alongside the acknowledgment, keeping the issue within the structured ritual rather than escalating to unstructured messaging.",
+        "Multiple arrivals in one day (impossible in current model, but future-proofing): if the host has multiple active leases, each guest's arrival produces its own ritual card. They stack in the action band by time, not by listing.",
+        "Host is away during transition: the 4-hour auto-acknowledgment ensures the guest receives confirmation even if the host cannot engage in real time. On the host's next login, a compact note shows: 'Your guest arrived yesterday -- auto-confirmed.'"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Counter-Proposal as Creative Reframing: Interaction Design for Social Situation Transformation",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "When a host wants to modify a proposal's terms, the current interaction is a rejection-and-resubmission pattern: decline the original, send new terms. Csikszentmihalyi describes Mark's encounter with robbers (lines 139-168) as an example of how 'a social situation has the potential to be transformed by redefining its rules' (lines 160-162). The counter-proposal should embody this principle -- the host is not rejecting the guest but creatively redefining the arrangement to match their own flow parameters. However, a decline-and-resubmit interaction feels like rejection, not transformation. The guest receives a decline notification, which triggers anxiety and potential abandonment, even if new terms follow immediately. The user stories confirm that 'a vague or incomplete proposal creates friction' -- and a rejection notification is the ultimate friction. The interaction must preserve the relational warmth of the proposal exchange while giving the host creative control over the terms.",
+      "solution": "Design the counter-proposal as an in-place editing interaction on the proposal card, not as a separate action. When the host taps 'Suggest changes' on the proposal card, the terms column becomes editable. Each field (dates, duration, nights per week, price) transforms from display to input with a smooth visual transition (border appears, background shifts to accent-light at 5% opacity, 200ms ease-out). As the host adjusts any field, the impact is calculated and displayed inline below the changed field: 'Changing from 16 to 10 weeks reduces total income by $5,100 but gives you 6 fewer weeks of hosting.' A personal message field appears at the bottom, pre-populated with: 'I would love to host you with a small adjustment --' (editable). The guest's social profile remains visible in the right column throughout editing, maintaining the social context. When the host taps 'Send suggestion,' the system sends the modified proposal to the guest as a 'Host suggestion' -- not as a counter-offer, not as a rejection. The guest receives: 'Jessica made an adjustment to your proposal' with the side-by-side comparison. The interaction frames the host as a creative collaborator, not a gatekeeper.",
+      "evidence": [
+        {
+          "source": "flow-solitude-others.txt, lines 159-162",
+          "type": "book",
+          "quote": "A social situation has the potential to be transformed by redefining its rules. By not taking on the role of the 'victim' that had been imposed on him, and by not treating his assailants as 'robbers,' but as reasonable people who might be expected to empathize.",
+          "insight": "The counter-proposal interaction is designed to prevent role-casting. The host is not a 'rejector' and the guest is not 'rejected.' Both are reasonable people adjusting terms together. The in-place editing and collaborative framing enforce this perception."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "host_call",
+          "quote": "A well-structured proposal activates the host to respond. A vague or incomplete one creates friction.",
+          "insight": "The counter-proposal interaction must be well-structured in the opposite direction: the host's suggestion must be as clear to the guest as the guest's proposal was to the host. Pre-populated explanation text and inline impact calculations ensure the host's modification is structured and comprehensible."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 135-136",
+          "type": "book",
+          "quote": "It is the very flexibility of relationships that makes it possible to transform unpleasant interactions into tolerable, or even exciting ones.",
+          "insight": "The counter-proposal interaction IS the flexibility mechanism. By making modification easy and well-framed, the platform transforms what could be an unpleasant rejection into an exciting collaboration -- the host and guest are working together to find terms that create cohabitation flow."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 968-972",
+          "type": "book",
+          "quote": "It is necessary not only to have common goals and to provide reciprocal feedback, which even interactions in taverns or at cocktail parties provide, but also to find new challenges in each other's company.",
+          "insight": "The counter-proposal is a shared challenge: can these two people find terms that work for both? This is more engaging than a binary accept/reject because it requires skill from both parties -- the host must articulate what they need, and the guest must evaluate whether the adjustment still works."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The proposal card displays terms and social profile in read-only mode. 'Suggest changes' button is visible alongside 'Accept' and 'Decline.'",
+        "loading": "The host tapped 'Suggest changes.' The terms column transitions to editable state: fields gain input borders, background shifts, and impact calculation areas appear as skeleton placeholders that resolve within 200ms.",
+        "empty": "A field was cleared during editing (e.g., the host deleted the dates without entering new ones). The impact calculation for that field shows: 'Select new dates to see the impact.' The 'Send suggestion' button is disabled until all required fields have values.",
+        "error": "The suggestion could not be sent (network failure). All edits are preserved locally. An inline error appears: 'Could not send -- your changes are saved. Tap to retry.' The host's work is never lost.",
+        "success": "The suggestion was sent. The terms column reverts to read-only, now showing the modified terms with change highlights. A status label replaces the action buttons: 'Suggestion sent -- waiting for [Guest Name].' The host can see exactly what they proposed and track the response."
+      },
+      "transition_principle": "Edit-in-place over navigate-away. The host never leaves the proposal card to make modifications. The transition from reading to editing and back to reading should feel like annotating a document -- the content transforms, but the context (social profile, card structure) remains stable. The host maintains their mental model throughout.",
+      "timing": {
+        "response_target": "Transition to edit mode: < 200ms. Impact calculation for each field change: < 500ms. Send suggestion: < 1000ms server confirmation. Guest notification: immediate after server confirmation.",
+        "easing": "Edit mode transition: ease-out 200ms (field borders appear, background shifts). Impact calculation appearance: fade-in ease-out 150ms. Send confirmation: crossfade from buttons to status label, ease-out 200ms. Return to read-only: ease-out 200ms.",
+        "rationale": "Edit transitions are fast to feel responsive. Impact calculations arrive quickly to maintain the 'real-time feedback' that Flow requires. The send confirmation crossfade communicates completion without a jarring state change."
+      },
+      "journey_state_awareness": "First-time counter-proposers see a brief tooltip on the 'Suggest changes' button: 'Adjust any terms and explain your thinking. Your guest will see your changes side by side with their original proposal.' Experienced hosts (2+ previous counters) see the edit mode directly with no tooltip. Hosts who have a history of successful negotiations see a confidence indicator: 'Your past suggestions have been accepted 3 out of 4 times.'",
+      "edge_cases": [
+        "Host wants to change only one field: all other fields remain at their original values. The impact calculation appears only for the changed field. The personal message pre-populates with context-specific text: 'I would love to host you -- just with a slightly different schedule.'",
+        "Guest has already modified their proposal while the host was editing: if the guest sends an updated proposal during the host's editing session, the system alerts the host: 'Guest updated their proposal -- review the new version before sending your suggestion.' The host's edits are preserved as a draft.",
+        "Host attempts to counter with terms outside platform parameters (e.g., below minimum price): inline validation appears immediately with explanation, not on send. 'The minimum nightly rate in your area is $X.'",
+        "Multiple proposals pending: each proposal card is independent. Countering on one does not affect others. The host can have different suggestions in progress for different proposals simultaneously."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Stays Manager Phase Evolution: Silent Complexity Ratchet Across 13+ Visits",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager is visited 13+ times during a 3-month lease. Csikszentmihalyi's central warning applies: 'One cannot enjoy doing the same thing at the same level for long. We grow either bored or frustrated' (derived from lines 728-735 on relationship staleness). If the Stays Manager presents identical interactions on visit 1 and visit 13, the host emotionally disengages by mid-lease. Their hosting skill grows with each visit (they know the layout, understand the payment cycle, have navigated date changes), but the interaction complexity remains flat. Csikszentmihalyi explicitly addresses this dynamic in families: 'boredom and frustration will inevitably set in, and then the relationship is likely to break up unless there are strong external factors keeping it together' (lines 654-655). The 'strong external factor' for the host is the lease contract -- but Csikszentmihalyi argues this extrinsic binding cannot sustain enjoyment. The user stories' urgency-first principle addresses what to show, but not how the Stays Manager evolves over time.",
+      "solution": "Design the Stays Manager's interaction surface to evolve silently across three lease phases, introducing new interactive capabilities matched to the host's growing platform skill. The layout skeleton (rhythm strip at top, main content area, reference footer) remains identical across all phases -- preserving the 'clarity' from Csikszentmihalyi's autotelic family context. Only the content within each zone changes. Phase 1 -- Orientation (Weeks 1-3): the main content area features a getting-started checklist with interactive items: 'Review House Manual with guest in mind,' 'Confirm arrival notification process,' 'Send a welcome message.' Each item is a tap-to-complete interaction with a satisfying check animation. The checklist provides low-challenge, high-feedback interactions that match the host's low platform skill. Phase 2 -- Rhythm (Weeks 4-9): the checklist is replaced by per-stay micro-review prompts, a date-change management tool (if any requests are pending), and a stay-cycle progress visualization. The progress visualization shows completed cycles as accent-filled segments in a horizontal bar, with the current cycle highlighted. Tapping a completed segment reveals that cycle's review and guest feedback. Phase 3 -- Reflection (Weeks 10-13): new interactions surface: a cumulative review composition prompt ('Write a final review of your hosting experience'), a lease renewal consideration card with comparison data, and a forward-looking challenge card (from L2's growth narrative). Phase transitions happen silently -- no 'Phase 2 unlocked!' notification. New content appears naturally on the next visit as the calendar advances.",
+      "evidence": [
+        {
+          "source": "flow-solitude-others.txt, lines 654-655",
+          "type": "book",
+          "quote": "If it is not a flow activity, boredom and frustration will inevitably set in, and then the relationship is likely to break up unless there are strong external factors keeping it together.",
+          "insight": "The lease contract is the external factor. But the Stays Manager must also be a flow activity -- providing appropriate challenge at each visit -- or the host mentally 'breaks up' with the platform even while the lease continues. Phase evolution prevents this by matching challenge to growing skill."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 734-735",
+          "type": "book",
+          "quote": "The only way to restore flow to the relationship is by finding new challenges in it.",
+          "insight": "Each phase introduces new challenges: Phase 1's checklist, Phase 2's reviews and date management, Phase 3's cumulative reflection and renewal consideration. The host encounters genuinely new interactive possibilities at each phase transition."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Urgency should surface first'",
+          "type": "host_call",
+          "quote": "Unread proposals, pending actions -- that's what a host needs to see the moment they log in.",
+          "insight": "Urgency surfacing in the action band remains constant across all phases. The phase evolution happens in the main content area below the action band. The host always sees urgency first; what changes is the engagement content below it."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 848-853",
+          "type": "book",
+          "quote": "When a family has a common purpose and open channels of communication, when it provides gradually expanding opportunities for action in a setting of trust, then life in it becomes an enjoyable flow activity.",
+          "insight": "The phrase 'gradually expanding opportunities for action' is the exact description of the phase evolution. Phase 1 offers 3-4 simple actions. Phase 2 offers 4-5 moderately complex actions. Phase 3 offers the highest-complexity actions. The expansion is gradual and matched to demonstrated skill."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The Stays Manager shows the current phase's interaction set. Phase-appropriate content is visible and active. Future-phase interactions are not yet rendered. Past-phase interactions that remain relevant (messaging, date changes) are still accessible in the reference footer.",
+        "loading": "On each visit, the skeleton loads first (< 200ms -- rhythm strip, action band, content containers), then phase-appropriate content populates within 500ms. The host perceives the familiar structure immediately and the evolving content shortly after.",
+        "empty": "A phase has no new content to show (e.g., Phase 2 visit with no new stay cycle completed). The system surfaces a secondary engagement: neighborhood tip, House Manual review reminder, or a 'what changed since last visit' confirmation that nothing is pending. The page never appears completely static.",
+        "error": "An interaction within the Stays Manager fails (review could not submit, date change request failed). The error appears inline within the relevant section with retry. The rest of the page remains functional.",
+        "success": "An interaction completed (review submitted, checklist item completed, date change confirmed). The specific section shows a success state with satisfying visual feedback (check animation, progress bar fill, confirmation text). Dependent elements update in sync (rhythm strip adjusts, progress bar advances)."
+      },
+      "transition_principle": "Familiar structure, fresh content. Phase transitions are invisible -- new content appears on the next visit as if it was always the right content for this moment. The host should feel that the Stays Manager 'knows' what they need this week, not that a feature was unlocked.",
+      "timing": {
+        "response_target": "Page load to interactive: < 1000ms. Checklist item completion: < 200ms visual acknowledgment. Review submission: < 500ms confirmation. Progress bar animation: 400ms ease-out. Phase transition content: no animation -- appears as default content on next visit.",
+        "easing": "Checklist check animation: scale 0 to 1.1 to 1.0, 300ms, easing.spring. Progress bar fill: ease-out 400ms. Review prompt appearance: fade-in ease-out 200ms. Phase content: instant (no transition animation between phases).",
+        "rationale": "Checklist animations are slightly playful (spring easing) because Phase 1 interactions should feel rewarding and welcoming. Progress bar fills use ease-out for natural deceleration. Phase transitions have no animation because drawing attention to the transition would break the illusion of organic evolution."
+      },
+      "journey_state_awareness": "The complexity ratchet is driven by calendar (lease week) but modulated by engagement. A host who submitted 0 reviews by week 6 sees a gentler Phase 2 prompt (one-tap rating only, no text option). A host who submitted 4+ reviews sees a richer prompt (text option, photo upload option). A host who has never used the date change tool sees it at default prominence; a frequent date-changer sees it with quick-access positioning. The system's memory of past interactions determines HOW complex a feature presents itself, not WHETHER it appears.",
+      "edge_cases": [
+        "Short lease (< 6 weeks): compress phases proportionally. Phase 1 = week 1 only. Phase 2 = weeks 2 through N-2. Phase 3 = final week.",
+        "Extended lease (> 13 weeks): Phase 3 interactions persist after week 13, adding a 'long-term hosting' layer with quarterly summaries and renewal reminders.",
+        "Host who never engages with phase content: after 3 consecutive visits with no interaction, reduce content density to prevent the page from feeling like an ignored to-do list. Show only the rhythm strip and action band.",
+        "Mobile layout: the three-zone layout collapses to a single column. Phase content appears as collapsible sections in priority order.",
+        "Multiple active leases: each lease has its own phase state. The host sees a lease selector and each lease's Stays Manager has its own evolution timeline."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "House Manual as Living Document: Evolving Differentiation Through Active Lease",
+      "journey_phases": ["listing_creation", "active_lease"],
+      "problem": "The House Manual is created during listing creation as a static document -- house rules, space descriptions, neighborhood tips -- and remains unchanged throughout the lease. But Csikszentmihalyi's framework demands that the host's differentiation evolve as the cohabitation relationship develops: 'the only way to restore flow to the relationship is by finding new challenges in it' (lines 734-735). Static rules set before the host has experienced actual cohabitation become stale or irrelevant. A rule about 'quiet after 10pm' may prove unnecessary when the guest is out every evening. A missing rule about kitchen cleanup may become critical after three messy stays. The user stories identify that 'Pause preserves the work' -- the host's investment in listing content should persist and evolve. But the House Manual's investment is lost if it cannot be updated based on lived experience. Csikszentmihalyi's family dynamics apply: 'without concentration, a complex activity breaks down into chaos' (line 870). The House Manual is the host's concentrated expression of how cohabitation should work; if it cannot evolve, it loses relevance and the cohabitation's framework weakens.",
+      "solution": "Make the House Manual an editable living document that the host can update during active lease, with changes surfaced to the guest through structured notifications. The interaction model: (1) The House Manual appears in the Stays Manager's reference footer as an expandable section. Tapping it opens the full manual in an in-page panel (not a new page). Each section (house rules, space description, neighborhood tips) has an 'Edit' affordance visible only to the host. (2) Editing uses inline text editing -- the host taps a section, the text becomes editable with a subtle background shift (same pattern as counter-proposal editing), and a 'Save & notify guest' button appears. (3) When the host saves a change, the guest receives a notification: 'Your host updated the House Manual -- [section name] changed.' The notification links directly to the changed section with the modification highlighted. (4) A change log is maintained at the bottom of the House Manual, showing when each section was last updated. This gives both parties confidence that the document reflects the current arrangement, not the pre-lease assumptions. (5) The per-stay review prompt can include a contextual suggestion: 'Based on your review, would you like to update your house rules?' -- connecting the feedback loop to the differentiation document.",
+      "evidence": [
+        {
+          "source": "flow-solitude-others.txt, lines 734-735",
+          "type": "book",
+          "quote": "The only way to restore flow to the relationship is by finding new challenges in it.",
+          "insight": "Updating the House Manual IS a new challenge -- it requires the host to reflect on what is working and what is not, articulate changes, and communicate them to the guest. This reflection-and-update cycle is a mini flow activity that keeps the hosting relationship dynamic."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 668-674",
+          "type": "book",
+          "quote": "Differentiation means that each person is encouraged to develop his or her unique traits... Integration guarantees that what happens to one person will affect all others.",
+          "insight": "House Manual updates are differentiation-through-integration. The host differentiates (articulates their evolved expectations) AND integrates (ensures the guest is aware of changes). This is exactly the dynamic Csikszentmihalyi describes in well-functioning families."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Pause matters more than delete'",
+          "type": "host_call",
+          "quote": "Pause preserves the work, keeps the door open, and costs nothing.",
+          "insight": "If pause preserves listing-creation work, the House Manual should preserve and build on that work during active lease. The host's investment in articulating their space and rules should compound over time, not remain frozen at listing-creation level."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 855-864",
+          "type": "book",
+          "quote": "One of the most basic delusions of our time is that home life takes care of itself naturally... the family, like any other joint enterprise, needs constant investments of psychic energy to assure its existence.",
+          "insight": "House Manual updates are the host's 'constant investment of psychic energy' in the cohabitation arrangement. A Manual that cannot be updated enforces the 'delusion that home life takes care of itself.' A living Manual acknowledges that managing a household requires ongoing attention."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The House Manual is in the reference footer, collapsed by default. Tapping opens it in read-only mode with 'Edit' affordances visible to the host on each section.",
+        "loading": "The host tapped 'Edit' on a section. The section transitions to editable mode: text becomes editable, background shifts, 'Save & notify guest' button appears. Transition takes < 200ms.",
+        "empty": "A section has no content (the host skipped it during listing creation). In active lease, the system suggests adding it: 'Your guest might appreciate neighborhood tips. Add some?' The prompt is contextual and non-blocking.",
+        "error": "The save failed (network issue). The edited text is preserved locally. An inline error: 'Could not save -- your changes are kept locally. Tap to retry when connected.'",
+        "success": "The save succeeded. The section returns to read-only with the updated text. A confirmation appears: 'Updated -- [Guest Name] will be notified.' The change log at the bottom updates with the current date and section name."
+      },
+      "transition_principle": "Edit-in-place, notify-on-save. The host edits within the Manual panel without navigating elsewhere. The guest learns of changes through a notification that links directly to the changed section. Neither party needs to leave their current context.",
+      "timing": {
+        "response_target": "Edit mode transition: < 200ms. Save to server: < 1000ms. Guest notification: immediate after save confirmation. Change log update: simultaneous with save.",
+        "easing": "Edit mode: background shift ease-out 200ms. Save confirmation: crossfade from edit controls to confirmation text, 200ms. Return to read-only: ease-out 200ms.",
+        "rationale": "Editing is a brief, focused action -- the host adjusts a specific rule or description, not rewriting the entire Manual. Fast transitions support this focused intent."
+      },
+      "journey_state_awareness": "During Phase 1 (weeks 1-3), the House Manual has a prominent 'Review your manual' prompt in the Stays Manager, encouraging the host to revisit their listing-creation work now that a guest is present. During Phase 2 (weeks 4-9), the post-review suggestion ('Would you like to update your house rules?') connects feedback to Manual evolution. During Phase 3 (weeks 10-13), the Manual's change log becomes part of the lease-end growth narrative, showing how the host's cohabitation framework evolved over the lease.",
+      "edge_cases": [
+        "Guest disputes a new rule: the notification includes a 'Reply to host' affordance. The host's update opens a conversation, not a unilateral decree.",
+        "Host makes frequent changes (3+ per week): the system gently notes: 'You have updated the Manual 3 times this week. Consider collecting changes and sending one update.' This prevents notification fatigue for the guest.",
+        "Multiple sections changed at once: updates are batched into a single notification: 'Your host updated house rules and neighborhood tips.' The guest sees both changes in one view.",
+        "Manual accessed by the guest independently: the guest can read the Manual at any time without the host's involvement. Changes are marked with a 'New' badge until the guest views them."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Listing Pause-and-Return: Solitude Recovery as a First-Class Interaction",
+      "journey_phases": ["listing_creation", "retention"],
+      "problem": "The user stories identify that 'Pause preserves the work, keeps the door open, and costs nothing. Delete is a one-way door that creates regret.' Csikszentmihalyi frames this through the solitude lens: 'Every rule has its exceptions, and even though most people dread solitude, there are some individuals who live alone by choice' (lines 367-368). A host who pauses their listing is choosing solitude -- retreating from the social complexity of hosting to recover their private equilibrium. This is Csikszentmihalyi's 'taming solitude' in action: the host has decided that their current capacity for social engagement is depleted, and they need time alone. The platform must honor this as a healthy, natural part of the hosting rhythm -- not as a failure or abandonment. But the current interaction around pausing may feel like giving up. And the return interaction -- reactivating after a pause -- may feel like starting over. Both feelings work against the host's willingness to pause when they need to and return when they are ready.",
+      "solution": "Design pause as a dignified, one-tap action with full state preservation, and return as an equally effortless one-tap reactivation with a welcoming status summary. Pause interaction: a 'Pause listing' button in the listing management view, visually neutral (surface background, ink-soft text, border outline -- not red, not warning-colored). Tapping it opens a brief confirmation: 'Your listing will be hidden from search. All your work -- photos, rules, pricing -- is preserved. You can bring it back anytime.' A single 'Pause' button confirms. The listing card on the host's dashboard shows a 'Paused' badge in ink-muted with a subtle clock icon. Return interaction: the paused listing card shows a 'Reactivate' button in accent. Tapping it opens a brief status summary: 'Your listing is ready to go live. Here is what has changed since you paused: [number] days paused, [any platform changes]. Review or go live now.' Two options: 'Review listing' (opens the wizard at the first step with all data preserved) or 'Go live' (reactivates immediately). The emotional principle: pausing is resting, not quitting. Returning is resuming, not restarting. Csikszentmihalyi: 'unless a person learns to enjoy [solitude], much of life will be spent desperately trying to avoid its ill effects' (lines 474-476). A host who can pause without penalty learns to enjoy the oscillation between hosting and solitude.",
+      "evidence": [
+        {
+          "source": "flow-solitude-others.txt, lines 367-368",
+          "type": "book",
+          "quote": "Every rule has its exceptions, and even though most people dread solitude, there are some individuals who live alone by choice.",
+          "insight": "The pause mechanism honors hosts who temporarily choose solitude. The platform does not treat this as failure -- it treats it as a valid state in the hosting rhythm."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Pause matters more than delete'",
+          "type": "host_call",
+          "quote": "Pause preserves the work, keeps the door open, and costs nothing. Delete is a one-way door that creates regret.",
+          "insight": "The interaction design must make the difference between pause and delete unmistakable. Pause is visually neutral and reassuring. Delete (if available) should be visually distant and require explicit confirmation. The default action for a disengaging host should always be pause, never delete."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 473-476",
+          "type": "book",
+          "quote": "Solitude is a problem that must be confronted whether one lives in southern Manhattan or the northern reaches of Alaska. Unless a person learns to enjoy it, much of life will be spent desperately trying to avoid its ill effects.",
+          "insight": "The pause-and-return cycle teaches hosts that solitude (not hosting) and engagement (hosting) are both valuable states. A platform that makes pausing painless and returning easy helps hosts develop the healthy oscillation between social engagement and private recovery that Csikszentmihalyi recommends."
+        },
+        {
+          "source": "flow-solitude-others.txt, lines 281-284",
+          "type": "book",
+          "quote": "The ultimate test for the ability to control the quality of experience is what a person does in solitude, with no external demands to give structure to attention.",
+          "insight": "A paused host is in solitude with no hosting demands structuring their attention. The return interaction should arrive when the host is ready -- not through nagging notifications, but through a gentle check-in at 30 days and a dashboard reminder that their listing is ready whenever they are."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The listing is active. The 'Pause' action is accessible from the listing management view but is not prominently featured -- it is a utility action, not a primary one.",
+        "loading": "The host confirmed the pause. The listing transitions to paused state: search visibility is removed within 2 seconds, the listing card on the dashboard updates with the 'Paused' badge, and a brief confirmation appears: 'Your listing is paused. Everything is saved.'",
+        "empty": "Not applicable to this pattern -- the listing always has content (it was fully or partially created before pausing).",
+        "error": "The pause could not be processed (network issue). The listing remains active. An inline error: 'Could not pause right now -- tap to retry.' The host's intent is preserved.",
+        "success": "Pause: the listing is paused, the dashboard card shows the badge, and the host receives a single confirmation. No follow-up notifications for 30 days. Return: the listing is reactivated, the 'Paused' badge disappears, and the host sees a brief 'Welcome back -- your listing is live' confirmation."
+      },
+      "transition_principle": "One tap to pause, one tap to return. The entire interaction should take under 15 seconds in each direction. The emotional message is: 'This is easy because it is normal. Take the time you need.'",
+      "timing": {
+        "response_target": "Pause confirmation: < 500ms. Search removal: < 2000ms (background process). Reactivation: < 500ms for dashboard update, < 2000ms for search re-listing. Status summary on return: < 500ms.",
+        "easing": "Pause badge appearance: fade-in ease-out 200ms. Reactivation badge removal: fade-out ease-in 150ms. Confirmation text: fade-in ease-out 200ms.",
+        "rationale": "Both pause and return are light, quick interactions. The timing reinforces the emotional message: this is a normal, easy action, not a consequential decision requiring deliberation."
+      },
+      "journey_state_awareness": "During listing creation: if a host pauses mid-wizard, the return interaction opens the wizard at exactly the step where they left off, with a 'Welcome back -- here is where you left off' summary. During retention (post-lease): if a host pauses after completing a lease, the return interaction includes a growth narrative reference: 'You had a great run -- 4.8 average rating, 13 successful stays. Ready to host again?' At 30 days post-pause: a single gentle notification: 'Your listing is still paused -- just checking in.' No further notifications.",
+      "edge_cases": [
+        "Host pauses with an active lease: this should not be possible -- the pause button is disabled while a lease is active, with explanatory text: 'Your listing cannot be paused while a lease is active. It will be available to pause after your current lease ends.'",
+        "Host pauses with pending proposals: pausing automatically withdraws the listing from search but preserves pending proposals for 48 hours. The host is notified: 'You have 2 pending proposals -- they will expire in 48 hours unless you respond.'",
+        "Host deleted their listing previously and now wants to re-create: this is a separate flow from pause-and-return. The system should offer to pre-populate from the deleted listing's data if any was preserved.",
+        "Platform changes during pause: if pricing algorithms or listing requirements changed while the host was paused, the return summary flags these: '1 thing changed while you were away: minimum photos increased to 4.' The host can address this before going live."
+      ]
+    }
+  ]
+}

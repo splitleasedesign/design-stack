@@ -1,0 +1,351 @@
+{
+  "lens": {
+    "host_call": "mahesh-call.txt",
+    "book_extract": "coldstart-tipping-point.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Preemptive Risk Absorption Reveal on Commitment Surfaces",
+      "journey_phases": ["evaluation", "pricing", "proposal_mgmt"],
+      "problem": "Mahesh asks about financial protection three separate times across a 13-minute call (02:17, 10:45, 12:04), each time because the platform has not yet answered the question before he needs to ask it. Cold Start Theory identifies that the hard side will 'try competitive products to compare' -- Mahesh is already comparing to Furnished Finder (07:29). Every moment the host spends wondering 'am I protected?' is a moment the anti-network effect gains strength. The interaction challenge: when a commitment-requesting surface loads (proposal card, pricing confirmation, agreement screen), the guarantee information must arrive before the host's risk-assessment reflex fires. If the guarantee appears after a loading delay, or only after scrolling, the host's System 1 has already flagged the screen as 'uncertain' and the cognitive frame shifts from acceptance to interrogation.",
+      "solution": "When any commitment-adjacent surface loads, the protection status component must render first -- before guest details, stay logistics, or pricing breakdowns. The interaction sequence is: (1) skeleton screen appears with the protection bar placeholder at top, (2) protection status resolves and renders within 200ms (payment guarantee + property coverage), (3) remaining content fills in below. This ensures the host's first visual intake on any decision screen is 'you are protected,' establishing the cognitive frame before any decision content appears. If guarantee data is unavailable (network error, edge case), the error state explicitly says 'Guarantee status loading -- do not proceed until confirmed' rather than silently omitting the component. The pattern reverses the typical 'content first, assurance later' interaction into 'assurance first, content follows.'",
+      "evidence": [
+        {
+          "source": "mahesh-call.txt, 10:45",
+          "type": "host_call",
+          "quote": "Even if you are not able to find this ghost roommate setup, I'm still getting paid whatever first month.",
+          "insight": "Mahesh's risk-assessment reflex fires before he evaluates the ghost roommate proposition. The guarantee must resolve before the proposition loads, mirroring this natural priority order."
+        },
+        {
+          "source": "mahesh-call.txt, 12:04-12:21",
+          "type": "host_call",
+          "quote": "How does the deposit get sorted out? Is that something that I would work with you or would that with the...",
+          "insight": "At every commitment moment, Mahesh's first interaction is a risk probe. The platform must answer this probe architecturally -- through render order -- not conversationally through FAQ links."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 7 (The Hard Side)",
+          "type": "book",
+          "quote": "Users on the hard side have complex workflows, expect status benefits as well as financial outcomes, and will try competitive products to compare.",
+          "insight": "The hard side comparison-shops at every commitment moment. If the guarantee is not the first thing they interact with, their comparison frame defaults to the competitor where they already feel safe."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Protection status bar is rendered at the top of the commitment surface with full guarantee data: 'Payment Guaranteed: $2,600/mo' and 'Property Protected: $1M Coverage Active.' The bar is non-collapsible and non-dismissible. All content below it loads after the bar resolves.",
+        "loading": "A skeleton placeholder occupies the protection bar's exact dimensions (height, width) at screen top. A subtle shimmer animation (opacity 0.4 to 0.7, 1.2s loop) signals that guarantee data is resolving. No other content renders until the bar resolves or times out at 3 seconds.",
+        "empty": "Should never occur for an active proposal or lease. If guarantee data is genuinely absent (e.g., pre-agreement host browsing), the bar displays: 'Guarantees activate upon agreement signing' in a muted state, using the same visual position but with reduced contrast to indicate pending status.",
+        "error": "If guarantee data fails to load after 3 seconds, the bar renders in a warning state: 'Protection status unavailable -- please refresh or contact your agent before proceeding.' The commitment CTA below is disabled (grayed out, non-interactive) until the guarantee resolves. This prevents the host from making a commitment without confirmed protection.",
+        "success": "On initial load, the bar renders with a brief settle animation (translate from -4px to 0px, 280ms, easing: cubic-bezier(0.16, 1, 0.3, 1)) to signal that the data has arrived fresh, not been cached from a previous view. No celebratory animation -- the tone is 'your protection is confirmed,' not 'congratulations.'"
+      },
+      "transition_principle": "The protection bar arrives before the content it protects. The settle animation (easing-out, 280ms) is barely perceptible -- it communicates freshness without drawing attention to itself. The transition from loading to resolved should feel like a lock clicking into place: quick, solid, and final.",
+      "timing": {
+        "response_target": "200ms for protection bar render; 3000ms timeout before error state",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing from tokens.json provides a fast initial movement that decelerates to rest, matching the 'quick confirmation' feel needed for a protection status that should feel certain and settled, not bouncy or playful."
+      },
+      "journey_state_awareness": "During evaluation (pre-agreement), the bar shows guarantee terms as a promise: 'Payment will be guaranteed upon signing.' During proposal_mgmt, the bar shows guarantee terms as imminent: 'Payment guaranteed upon acceptance.' During active_lease, the bar shows guarantee terms as active: 'Payment Guaranteed -- $X received to date.' The data and urgency escalate with the host's commitment level.",
+      "edge_cases": [
+        "Host has multiple properties with different guarantee terms -- the bar must scope to the specific property/lease being viewed, not a global guarantee status",
+        "Ghost roommate arrangement changes the total guaranteed amount -- the bar must update in real time when a ghost roommate match is added or removed, with a brief highlight animation on the changed number",
+        "Management company requires guarantee documentation -- a 'Share Protection Details' action must be accessible from the bar without navigating away from the commitment screen",
+        "Network connectivity loss during an active lease -- the bar shows the last-known protection status with a timestamp: 'Protection active as of [timestamp] -- reconnecting'"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Management Company Handoff State Machine",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "Mahesh's management company is a blocking dependency for network formation (04:25-04:30: 'I probably need that information to share with my management because they do require application'). Cold Start Theory identifies this as an enterprise adoption barrier: 'There are enterprise products like Workday that require the company to implement them before there is any value.' The interaction challenge: the management company approval is an asynchronous, multi-day process that occurs outside the platform. The host initiates it (shares the package), waits for a response, and may need to follow up. During this waiting period, the platform has no visibility into the approval status, and the host has no way to track progress. If the platform does not model this external process as a visible state, the host experiences a black hole: they shared the document, and now... nothing. The momentum built by the call with Bryant dissipates into an undefined waiting period.",
+      "solution": "Model the management company approval as a first-class state machine within the proposal pipeline. The states are: (1) 'Package Not Yet Shared' -- the host sees the proposal but has not exported the management package. A prominent 'Share with Management' action is visible. (2) 'Package Shared' -- the host has exported or emailed the package. The platform records the timestamp and transitions the proposal to 'Awaiting Management Approval' status. A visible countdown begins: 'Shared 2 days ago. Management companies typically respond within 3-5 business days.' (3) 'Follow-Up Nudge' -- if 5 business days pass with no host update, the platform sends a notification: 'Has your management company responded? Update the status or we can help follow up.' The host can mark as 'Approved,' 'Denied,' or 'Still Waiting.' (4) 'Approved' -- the proposal transitions to the next pipeline stage (lease preparation). (5) 'Denied' -- the platform offers alternatives: 'Would additional documentation help? Your agent can provide supplementary verification.' The entire state machine is visible to both the host and the agent, preventing the approval from becoming an untracked dependency.",
+      "evidence": [
+        {
+          "source": "mahesh-call.txt, 04:25-04:30",
+          "type": "host_call",
+          "quote": "I probably need that information to share with my management because they do require application.",
+          "insight": "Mahesh introduces management company approval as a standard requirement, not an edge case. The interaction must treat it as a normal pipeline stage with defined transitions, not an exception that falls off the tracking system."
+        },
+        {
+          "source": "mahesh-call.txt, 09:34",
+          "type": "host_call",
+          "quote": "Do I have to send most of them to, to find management company I'm here on something that I'll have to, I'll have to figure out?",
+          "insight": "Mahesh is uncertain about the mechanics of the handoff. The state machine must guide him through each step, making the next action obvious at every stage rather than leaving him to 'figure out' the process."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 6 (The Atomic Network / Enterprise)",
+          "type": "book",
+          "quote": "There are enterprise products like Workday that require the company to implement them before there's any value. Here, a viral growth strategy is difficult, because it's not enough to dribble in a few users at a time.",
+          "insight": "The management company must be 'implemented' before the atomic network can form. The state machine makes this implementation process visible and trackable, converting an opaque enterprise-style gate into a managed platform workflow."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Proposal card shows the guest profile and terms, with a prominent 'Share with Management' action button if the host has indicated they have a management company. The management approval stage appears in the proposal pipeline visualization as the next required step.",
+        "loading": "When the host triggers 'Share with Management,' the export generates (PDF or shareable link). A brief spinner (400ms max visible time) occupies the button space. If generation takes longer than 400ms, the spinner appears; if shorter, the button transitions directly to the confirmation state without showing a spinner (avoid flash-of-loading for fast operations).",
+        "empty": "If the host has not indicated a management company requirement, this state machine is entirely hidden. It does not clutter the proposal flow for hosts who can decide unilaterally. The management company flag is set during onboarding or evaluation via a simple yes/no question.",
+        "error": "If the PDF export fails, the button shows an inline error: 'Export failed -- tap to retry.' The proposal remains in 'Package Not Yet Shared' state. If the host marks the management company as 'Denied,' the error state presents recovery options rather than a dead end: 'Your agent can provide additional documentation or discuss directly with your management company.'",
+        "success": "When the host marks the management company as 'Approved,' the proposal card updates with a green confirmation badge: 'Management Approved [date].' The pipeline visualization advances to the next stage with a brief fill animation (left to right, 300ms, easing-out). The management approval record is stored for reuse: if the same management company is encountered for a future guest, the platform can reference the prior approval pathway."
+      },
+      "transition_principle": "Each state transition is initiated by the host, not by the platform guessing. The platform suggests, tracks, and nudges, but never auto-advances the management approval state. The transitions feel like checkpoints on a journey: the host confirms each milestone, and the platform records and celebrates it. The nudge notification at day 5 is gentle (informational, not urgent) to respect the reality that management companies have their own timelines.",
+      "timing": {
+        "response_target": "PDF export generation under 2000ms; state transition animations 300ms; follow-up nudge at 5 business days",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing provides a clean, professional transition between pipeline stages. No spring easing here -- the management approval process is formal and businesslike, and the interactions should match that tone."
+      },
+      "journey_state_awareness": "During evaluation, the management company question surfaces as an optional flag ('Does a management company or HOA need to approve guests?'). During onboarding, the flag determines whether the management state machine appears in the pipeline. During proposal_mgmt, the state machine is active and drives the host's next action. The pattern escalates from passive detection to active workflow as the host progresses through the journey.",
+      "edge_cases": [
+        "Management company requires information beyond what the platform's standard package includes (e.g., a specific form they use) -- the platform must support uploading custom forms or attaching supplementary documents to the package",
+        "Multiple properties under the same management company -- once the company approves one guest, subsequent approvals should offer a fast-track reference: 'This management company approved a previous Split Lease guest on [date]'",
+        "Host does not know their management company's email or contact -- the platform should provide a generic shareable link as an alternative to direct email, with a copy-to-clipboard action",
+        "Management company never responds -- after 10 business days, escalate to agent intervention rather than continuing to nudge the host, who may feel stuck and disengaged"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Ghost Roommate Progressive Engagement Ladder",
+      "journey_phases": ["evaluation", "pricing", "active_lease"],
+      "problem": "Mahesh's response to the ghost roommate concept is dual: economic interest ('I'm still getting paid whatever first month' at 10:45) and operational anxiety ('comes with little complications' at 08:31). Cold Start Theory's Hitting the Ceiling chapter warns of context collapse: 'There's fraudsters, overcrowding, and context collapse -- all natural outcomes of a network that grows and matures.' Two guests sharing one property is a miniature context collapse that the interaction must manage. The challenge: if the platform presents the ghost roommate as a single binary decision (opt in or opt out), it forces the host to process all economic and operational information simultaneously, which triggers the anxiety Mahesh expresses. If it presents too many incremental steps, the host loses sight of the economic payoff and the engagement ladder feels like bureaucracy.",
+      "solution": "Structure ghost roommate engagement as a three-rung ladder, each rung gated by the host's explicit action and each presenting exactly the right amount of information for that decision stage. Rung 1 (Awareness): During evaluation/pricing, a single inline element shows the potential upside: 'Weekend ghost roommate could increase total income to ~$X/mo.' The host can tap to learn more (expanding a brief explainer) or ignore it entirely. No action is required. Rung 2 (Preview): When a specific ghost roommate match is found, the platform presents a dedicated preview card with the proposed guest's profile, the exact schedule split (Mon-Fri / Fri-Mon), the cleaning handoff protocol, and the incremental income. Two clear actions: 'Accept Match' or 'Decline -- Keep Single Guest.' The host sees both the money and the work before deciding. Rung 3 (Operations): Once accepted, the Stays Manager shows a dual-guest view with a tab/toggle pattern separating weekday and weekend guest contexts. The host never sees both guests' operational details simultaneously -- one context at a time, switchable at will. Each rung is a complete interaction with a clear entry, a clear action, and a clear exit. The host can stop at any rung without penalty.",
+      "evidence": [
+        {
+          "source": "mahesh-call.txt, 08:31",
+          "type": "host_call",
+          "quote": "I've never dealt with that kind of a situation, obviously it comes with little complications.",
+          "insight": "Mahesh's anxiety is triggered by novelty and undefined complexity. Each rung of the ladder resolves one layer of complexity: Rung 1 resolves 'what is this?', Rung 2 resolves 'what would it actually look like?', Rung 3 resolves 'how do I manage it day to day?'"
+        },
+        {
+          "source": "mahesh-call.txt, 10:45",
+          "type": "host_call",
+          "quote": "Even if you are not able to find this ghost roommate setup, I'm still getting paid whatever first month.",
+          "insight": "The host's first concern is that the base guarantee holds regardless of the ghost roommate. Rung 1 must make the guarantee-floor visible alongside the ghost roommate upside, ensuring the host sees the safety net before considering the trapeze."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 4 (Hitting the Ceiling)",
+          "type": "book",
+          "quote": "A rapidly growing network wants to both grow as well as tear itself apart, and there are enormous forces in both directions.",
+          "insight": "The ghost roommate feature amplifies both the tipping-point force (more economic value) and the ceiling-hitting force (more operational complexity). The progressive ladder channels the tipping force while rate-limiting the ceiling force."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Rung 1 is visible as a subtle inline element in the pricing/evaluation view. Rung 2 appears only when a match is found (triggered by platform notification). Rung 3 appears only after the host accepts the match. Each rung is hidden until the prior rung's conditions are met.",
+        "loading": "When transitioning between rungs (e.g., host taps 'Accept Match' on Rung 2), a brief transition animation (300ms, easing-out) slides the current rung content up and the new rung content in from below. No full-page loader -- the transition is contained within the ghost roommate component to avoid disrupting the surrounding dashboard context.",
+        "empty": "If no ghost roommate match exists, only Rung 1 is visible as a passive informational note: 'No weekend match available yet. We will notify you if one is found.' No empty state for Rungs 2 or 3, as they do not render without a match.",
+        "error": "If the host accepts a ghost roommate match but the acceptance fails (network error), the preview card returns to its pre-acceptance state with an inline error: 'Could not confirm match -- please try again.' The host's decision is not lost; the card remains in preview mode ready for retry.",
+        "success": "When the host accepts a match (Rung 2 to Rung 3 transition), a brief confirmation appears inline: 'Ghost roommate confirmed. Weekend guest [name] will begin [date].' The Stays Manager tab/toggle pattern activates, showing the weekday guest as the default view with the weekend guest tab now available. The transition uses easing-out (300ms) for the tab appearance."
+      },
+      "transition_principle": "Each rung transition is initiated by the host, never auto-advanced. The transitions between rungs feel like stepping through a doorway: the host chooses to enter, sees the full room, and can step back. The out easing (fast start, gentle deceleration) ensures transitions feel responsive but not jarring. No spring easing -- ghost roommate interactions should feel controlled and deliberate, matching the host's need for confidence when managing a novel arrangement.",
+      "timing": {
+        "response_target": "Rung 1 inline expand: 250ms; Rung 2 preview card render: 400ms; Rung 3 tab activation: 300ms; match acceptance confirmation: 500ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing keeps all ghost roommate transitions smooth and professional. Response targets are slightly more generous than navigation transitions (400ms vs 200ms for preview card) because the host is processing a novel concept and needs a beat to adjust between information layers."
+      },
+      "journey_state_awareness": "During evaluation, the ghost roommate element is whisper-quiet (inline text, no card, no action required). During pricing, it gains a single data point (potential additional income). During active_lease with a match found, it becomes a decision card. During active_lease with a match accepted, it becomes an operational tool. The interaction weight scales directly with the host's commitment and familiarity.",
+      "edge_cases": [
+        "Host declines a ghost roommate match but a new match is found later -- the platform should present the new match as a fresh Rung 2 preview, not assume the host's prior decline applies to all matches",
+        "Ghost roommate guest cancels mid-lease -- the tab/toggle reverts to single-guest mode with a notification: 'Weekend arrangement ended. Your base guarantee remains active. We will notify you if a new match is available.'",
+        "Host wants to opt out of ghost roommate entirely (not just decline one match) -- provide a persistent 'Ghost Roommate Preferences' toggle in settings that suppresses all Rung 1 and Rung 2 interactions",
+        "Cleaning handoff dispute between weekday and weekend guests -- the host's escalation path must be visible from the active tab/toggle, not buried in a settings menu"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Agent Trust Handoff Continuity Bridge",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "All trust in Mahesh's journey is stored in Bryant. The platform is mentioned once as a delivery channel (05:05: 'I can get the account set up and send that information through there'). Cold Start Theory documents how Slack's Stewart Butterfield 'personally handled 10,000 tweets per month and 8,000 customer support tickets' -- essential at cold start, impossible at scale. The interaction challenge: when Mahesh opens the platform for the first time, the interaction must feel like a continuation of the conversation with Bryant, not like a new relationship with a stranger. If the first interaction is a generic welcome screen with a multi-step onboarding wizard, the trust-transfer fails. The host's mental model shifts from 'Bryant's platform' to 'some platform' -- and the anti-network effect kicks in because 'when people show up to a product and none of their friends or coworkers are using it, they will naturally leave.'",
+      "solution": "Design the first-visit interaction as a personalized handoff that mirrors the call's information structure. When the host first authenticates, the platform renders a single-screen handoff document, not a multi-step wizard. The screen contains: (1) Agent's personal note at the top ('Hi Mahesh, great talking with you...'), (2) Pre-populated property details from the call (rent, deposit, amenities -- data entered by the agent, not by the host), (3) Guest profile with vetting summary, (4) Guarantee overview, (5) Single CTA: 'Review Proposal' or 'Confirm Property Details.' The interaction principle: the host's first click on the platform should be a confirmation ('yes, this is what we discussed'), not a creation ('enter your information'). The handoff screen is a mirror of the call, and the host's first interaction validates it, establishing that the platform listened and remembered.",
+      "evidence": [
+        {
+          "source": "mahesh-call.txt, 05:05",
+          "type": "host_call",
+          "quote": "If I can grab your email, I can basically get the account set up and then a lot of that information can just be sent to you right through there.",
+          "insight": "Bryant promises the platform will have 'that information.' The host's first interaction must validate this promise. If the host arrives and sees empty fields, the promise is broken and trust degrades immediately."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 4 (Tiny Speck / Slack)",
+          "type": "book",
+          "quote": "Stewart personally handled the lion's share of 10,000 tweets per month and 8,000 customer support tickets.",
+          "insight": "Butterfield's personal handling was the trust mechanism. Bryant's call is the same mechanism. The platform's first-visit interaction must encode Bryant's personal touch into a digital artifact that works without Bryant being present."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 5 (Anti-Network Effects)",
+          "type": "book",
+          "quote": "Small, sub-scale networks naturally want to self-destruct, because when people show up to a product and none of their friends or coworkers are using it, they will naturally leave.",
+          "insight": "Mahesh arrives at a platform where he knows no one. The personalized handoff screen counters this anti-network effect by making the platform feel like it already knows him -- it has his data, his agent's note, and his guest's profile."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The handoff screen renders as a single scrollable page with the agent's note, pre-populated property details, guest profile, guarantee summary, and one CTA. All data is pre-filled from the agent's input during or after the call. The host's only required interaction is to review and confirm or proceed to the proposal.",
+        "loading": "The handoff screen renders in stages: agent note first (text, instant), then property details (pre-populated card, 200ms fade-in), then guest profile (with avatar, 300ms fade-in), then guarantee bar (200ms settle). This staged reveal creates a narrative feel -- the information 'arrives' in the order of conversational importance, echoing the call structure. Total load under 800ms.",
+        "empty": "If the agent has not yet entered the host's data (e.g., host visits the platform before the agent completes setup), the handoff screen shows a warm holding state: 'Bryant is setting up your account with the details from your call. You will receive an email when everything is ready.' This prevents the host from encountering empty forms that contradict Bryant's promise.",
+        "error": "If the handoff data fails to load, the screen shows the agent's contact information prominently: 'Having trouble loading your information? Contact Bryant directly: [phone] [email].' The fallback routes the host back to the human trust source rather than leaving them stranded on a broken digital screen.",
+        "success": "When the host confirms the handoff (reviews and taps the CTA), the handoff screen transitions to the standard dashboard with a brief crossfade (400ms, easing-out). The handoff data migrates into the dashboard's permanent sections (property in listings, guest in proposals, guarantee in protection bar). The handoff screen does not reappear on subsequent visits -- it was a one-time bridge."
+      },
+      "transition_principle": "The handoff screen is a bridge, not a destination. It appears once, transfers trust from agent to platform, and dissolves into the standard dashboard. The staged loading creates a narrative feel: information arrives like a story being told, not like a database being queried. The crossfade to the dashboard signals 'you are home now' -- the bridge has been crossed.",
+      "timing": {
+        "response_target": "Agent note render: immediate; property card: 200ms; guest profile: 300ms; guarantee bar: 200ms; total handoff load: under 800ms; handoff-to-dashboard transition: 400ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The staged fade-in uses the out easing to create a gentle narrative reveal. Each section appears quickly (fast start of the easing curve) and settles smoothly (long deceleration), preventing the sensation of content 'jumping' into place."
+      },
+      "journey_state_awareness": "The handoff screen only appears on the host's first authenticated visit when agent-entered data exists. If the host returns later, they see the standard dashboard with all handoff data integrated. If the host was acquired through self-service (no agent call), the handoff screen does not appear -- instead, the standard onboarding flow is used. The pattern adapts to the acquisition channel.",
+      "edge_cases": [
+        "Agent enters partial data (e.g., property details but no guest profile yet) -- the handoff screen shows what is available with a note: 'Guest profile will be added shortly' rather than leaving a blank section",
+        "Host visits platform on mobile where the single-page handoff may be too long -- adapt to a collapsible card layout where each section is a tappable summary that expands on demand",
+        "Multiple agents have interacted with the host (e.g., initial contact by one agent, follow-up by another) -- the handoff note should come from the most recent agent, with a mention: 'Following up on your conversation with [first agent]'",
+        "Host visits weeks after the call and the proposal has expired or the guest has withdrawn -- the handoff screen must detect stale data and adjust: 'The guest from your call is no longer available, but here is your account with your property details saved'"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Lease Health Accumulation Pulse",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "Ariel's 3-month initial commitment is conditional: 'start with three months and then ideally extend if it was something that worked for her' (03:26). Cold Start Theory identifies Slack's threshold (2,000 messages = 93% retention) as the model for engagement thresholds. Split Lease's equivalent is the 3-month initial lease (~12-13 weekly stays). The interaction challenge: during the active lease, the host has no engagement prompt that surfaces cumulative value. Payments arrive silently, stays complete without ceremony, and the property remains undamaged without acknowledgment. The host must mentally aggregate 12 weeks of non-events into a positive judgment at the renewal moment. Without deliberate interaction design, the absence of problems reads as 'nothing happened' rather than 'everything worked.' The platform must convert passive non-events into active evidence of success.",
+      "solution": "Design a weekly 'pulse' interaction that surfaces cumulative lease health at the natural cadence of the stay cycle. After each weekly stay completes (guest checks out), the platform sends a brief, glanceable notification: 'Week [N] of 12 complete. Total received: $[X]. Property status: No issues reported.' The host can tap to view the full Lease Health dashboard or dismiss. At weeks 4, 8, and 12, the notification is elevated to a milestone summary with slightly richer content: 'Month [N] complete: $[X] received, [N] on-time payments, 0 incidents. You are [X]% through the initial lease.' The milestone at week 12 transitions into the renewal prompt: 'Initial lease complete. [Summary of outcomes]. Would you like to extend?' The interaction converts the passive passage of time into an active accumulation narrative that the host can see building toward the renewal decision.",
+      "evidence": [
+        {
+          "source": "mahesh-call.txt, 03:26",
+          "type": "host_call",
+          "quote": "Start with three months and then ideally extend if it was something that worked for her.",
+          "insight": "The renewal decision is conditional on the host perceiving that 'it worked.' The weekly pulse makes 'it working' visible in real time, so the host does not arrive at month 3 with an abstract feeling but with concrete, accumulated evidence."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 5 (Anti-Network Effects, Slack threshold)",
+          "type": "book",
+          "quote": "After 2,000 messages, 93% of those customers are still using Slack today.",
+          "insight": "Slack's threshold was measurable and cumulative. The weekly pulse is Split Lease's mechanism for making progress toward the retention threshold visible: each completed week is a step closer to the stability point."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 3 (Escape Velocity, Engagement Effect)",
+          "type": "book",
+          "quote": "The Engagement Effect manifests itself by increased engagement as the network grows -- this can be developed further by conceptually moving users up the 'engagement ladder.'",
+          "insight": "The weekly pulse moves the host up the engagement ladder: from passive recipient (payment arrives) to active participant (reviewing lease health) to committed network member (extending the lease). Each pulse is a rung on the ladder."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The Lease Health dashboard shows the progress bar (12-13 segments, filled segments for completed weeks), three aggregate KPIs (total income, on-time rate, incident count), and the next milestone date. The current week pulses subtly (opacity 0.6 to 1.0, 1.5s cycle) to indicate the active period.",
+        "loading": "When the host opens the Lease Health dashboard, KPI data loads within 300ms. The progress bar renders immediately from cached data (week completions are deterministic from dates). Income total may take an additional 200ms if fetching from payment system. The progress bar is always available instantly; only the income number may briefly show a placeholder.",
+        "empty": "During the first week of a new lease (no completed stays yet), the progress bar shows all segments unfilled with a label: 'Your lease journey begins this week. Check back after the first stay completes.' The KPIs show $0 / 0% / 0 with the tone of 'starting fresh' not 'nothing to show.'",
+        "error": "If payment data fails to load, the income KPI shows 'Income data unavailable -- syncing' while the other KPIs (based on stay completion dates, which are deterministic) remain accurate. The progress bar never errors because it is date-driven, not API-driven.",
+        "success": "When a week completes and the host views the pulse notification, the progress bar fills the next segment with a brief left-to-right animation (200ms, easing-out). The income KPI increments with a number-counting animation (400ms). At milestones (weeks 4, 8, 12), the milestone diamond marker lights up with a subtle glow (box-shadow expand, 300ms). At week 12, the renewal CTA appears below the completed progress bar with a gentle slide-up (350ms, easing-out)."
+      },
+      "transition_principle": "The weekly pulse is a heartbeat, not a drumroll. Each notification is brief (under 5 seconds to read), each dashboard update is subtle (one segment fills, one number increments), and each milestone is gently elevated (glow, not fireworks). The accumulation should feel like watching a garden grow: gradual, visible, and satisfying without being dramatic. The out easing supports this -- fast arrival, gentle settle, no bounce.",
+      "timing": {
+        "response_target": "Weekly pulse notification: delivered within 1 hour of stay completion; progress bar segment fill: 200ms; KPI increment animation: 400ms; milestone glow: 300ms; renewal CTA slide-up: 350ms",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing is used for all accumulation animations because the feeling should be 'arrival and rest' -- each completed week arrives and settles into place as part of the growing evidence. No spring easing, which would create a playful bounce inappropriate for financial progress tracking."
+      },
+      "journey_state_awareness": "During the first 4 weeks (month 1), the pulse notifications are slightly warmer and more descriptive ('Your first month is building nicely') to counteract anti-network effects during the highest-risk period. During weeks 5-8 (month 2), the pulse becomes more data-dense and less narrative ('Month 2: $15,600 total, 100% on-time'). During weeks 9-12 (month 3), the pulse explicitly references the approaching renewal: 'Just [N] weeks until your lease renewal decision. Here is your track record so far.' The tone scales from encouragement to evidence to decision support.",
+      "edge_cases": [
+        "Guest misses a check-in (date change, cancellation) -- the progress bar shows the missed week in a muted/striped fill rather than leaving a gap, with a tooltip: 'Stay modified -- payment guarantee active'",
+        "Host does not open the app for weeks -- pulse notifications accumulate as a batched summary when the host returns: 'While you were away: 3 weeks completed, $7,800 received, 0 incidents'",
+        "Lease extends beyond 3 months -- the progress bar resets or extends to show the new term, with the prior 3-month record preserved as a 'completed' summary card above the new progress bar",
+        "Ghost roommate is active during the lease -- the progress bar must show both guest contexts contributing to the same timeline, with income KPI reflecting total from both guests"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Counterparty Role Disambiguation on Interaction Surfaces",
+      "journey_phases": ["evaluation", "proposal_mgmt", "active_lease"],
+      "problem": "Mahesh cannot parse the three-party contractual structure from conversation alone (11:27: 'The agreement is, is it between which we, you know, for me, at least on my side, is it with you guys or it's a, the record?'). When he encounters a question during the active lease -- who handles damage claims? who collects the deposit? who do I message about a date change? -- he needs to know the counterparty instantly. Cold Start Theory states that atomic networks require 'the right people, at the same time, using the product in the right way.' If the host cannot identify which participant handles which responsibility, the interaction breaks down: he either contacts the wrong party (frustration) or contacts no one (disengagement). The interaction challenge is not about displaying a static map but about surfacing the right counterparty at the right interaction moment without requiring the host to consult a reference card.",
+      "solution": "Embed counterparty identification directly into every action surface, not as a separate reference. When the host initiates an action, the interface states who they are interacting with for that specific action. Examples: On the message compose screen, the header says 'Message to Ariel (Guest)' -- not just 'Send Message.' On the damage claim form, the header says 'File with Split Lease -- Property Protection.' On the payment history screen, each line item shows 'Paid by Split Lease (Guaranteed).' On the lease agreement screen, the signatories are named: 'Between Mahesh (Host) and Ariel (Guest), hosted by Split Lease.' The counterparty is stated at the moment of interaction, not in a separate reference. Additionally, the Arrangement Summary card (from L3) serves as a persistent reference accessible from the dashboard sidebar, but the primary disambiguation happens inline at the point of action.",
+      "evidence": [
+        {
+          "source": "mahesh-call.txt, 11:27",
+          "type": "host_call",
+          "quote": "The agreement is, is it between which we, you know, for me, at least on my side, is it with you guys or it's a, the record?",
+          "insight": "Mahesh's fragmented phrasing reveals genuine confusion about the counterparty structure. Static labels ('Agreement') are insufficient; the interaction surface must actively name the parties every time the host takes a binding or communication action."
+        },
+        {
+          "source": "mahesh-call.txt, 12:04",
+          "type": "host_call",
+          "quote": "How does the deposit get sorted out? Is that something that I would work with you or would that with the...",
+          "insight": "For each responsibility type (deposits, damage, communication), Mahesh needs the counterparty identified in context. The platform must answer 'who do I work with on this?' at the exact moment 'this' is happening."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 5 (Anti-Network Effects)",
+          "type": "book",
+          "quote": "Solving the Cold Start Problem requires getting all the right users and content on the same network at the same time.",
+          "insight": "The atomic network's participant roles must be structurally clear. If the host cannot identify roles during interactions, the network feels amorphous and trust erodes, amplifying anti-network effects."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Every action surface includes a contextual counterparty label: message screens name the recipient with their role, claim forms name Split Lease as the processing party, payment records name Split Lease as the guarantor. The Arrangement Summary card is accessible from the dashboard sidebar as a persistent reference.",
+        "loading": "Counterparty labels load with the action surface -- they are part of the interface structure, not fetched data. No separate loading state is needed because the labels are determined by the action type (message = guest, claim = platform, payment = platform), not by an API call.",
+        "empty": "If the host has no active lease (pre-agreement), counterparty labels do not appear because there are no action surfaces to label. The Arrangement Summary card shows a preview: 'Once your agreement is signed, you will see exactly who handles each part of your arrangement here.'",
+        "error": "Counterparty labels cannot error because they are hardcoded based on action type. The only edge case is if a guest's name fails to load, in which case the label shows the role only: 'Message to Guest' rather than 'Message to Ariel (Guest).'",
+        "success": "When the host completes an action (sends a message, files a claim, views a payment), the counterparty label remains visible in the confirmation: 'Message sent to Ariel (Guest)' or 'Claim filed with Split Lease -- you will hear back within 48 hours.' The counterparty identification persists through the entire interaction lifecycle."
+      },
+      "transition_principle": "Counterparty labels do not animate or transition -- they are static structural elements that are always present. The principle is environmental, not transitional: like room signs in a building, they are always visible and never call attention to themselves. They orient without interrupting.",
+      "timing": {
+        "response_target": "Counterparty labels render with the action surface (0ms additional latency). No separate timing required.",
+        "easing": "N/A -- no animation for static structural labels",
+        "rationale": "Counterparty identification is structural orientation, not interactive feedback. Animating it would imply uncertainty ('which party is this?') when the goal is unwavering clarity."
+      },
+      "journey_state_awareness": "During evaluation, counterparty information appears in explanatory contexts ('Split Lease creates and hosts the agreement between you and the guest'). During proposal_mgmt, it appears on the proposal card ('Agreement between Mahesh and Ariel, hosted by Split Lease'). During active_lease, it appears on every action surface inline. The format shifts from explanatory (evaluation) to declarative (active_lease) as the host's familiarity with the structure grows.",
+      "edge_cases": [
+        "Ghost roommate arrangement adds a third party to the agreement -- counterparty labels must adjust: 'Agreement between Mahesh (Host), Ariel (Weekday Guest), and [Name] (Weekend Guest), hosted by Split Lease'",
+        "Host has multiple active leases with different guests -- each lease's action surfaces must scope counterparty labels to the specific lease context, preventing confusion between guests",
+        "Dispute where the host needs to contact both Split Lease and the guest -- the interface must route through Split Lease first ('File with Split Lease') rather than encouraging direct guest confrontation, per the guarantee structure",
+        "Agent handoff (Bryant leaves, new agent assigned) -- counterparty labels for agent interactions must update to reflect the current agent, with a transition note: 'Your new contact is [name], continuing from Bryant'"
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Adjacent Network Seed Prompt at Stability Threshold",
+      "journey_phases": ["active_lease", "retention"],
+      "problem": "Cold Start Theory's domino effect states that 'each launch makes the next set of adjacent networks easier, and easier, and easier, until the momentum becomes unstoppable -- but it all radiates from a small win at the very start.' Mahesh's successful lease is the first domino, but the platform currently has no interaction designed to convert a successful lease into a seed for adjacent host acquisition. If the platform waits for the host to organically recommend it, the tipping point slows to the speed of unprompted word-of-mouth. Mahesh's management company is a particularly valuable domino: once the approval pathway is established, every other host under the same management company benefits. But without a deliberate interaction at the right moment (post-stability-threshold), this pathway is never leveraged. The interaction challenge: when do you ask, and how do you ask, without making the host feel instrumentalized?",
+      "solution": "At the 3-month milestone (the stability threshold), after the Lease Performance Summary is delivered and the host has either renewed or is in the process of deciding, surface a single, low-pressure referral prompt. The prompt appears below the performance summary, separated by visual space to ensure the host processes the summary first and the referral second. The copy is: 'Know other hosts in your building or under your management company? A successful lease like yours makes their approval faster.' One CTA: 'Share Split Lease.' Tapping generates a pre-written message the host can forward, containing the management company's prior approval as social proof ('Your management company has already approved a Split Lease guest'). The interaction is opt-in, dismissible, and does not reappear if dismissed. For hosts without management companies, the prompt adjusts: 'Know other hosts who could benefit? Share your experience.' The prompt is contextual (tied to the milestone), evidence-based (references the host's own successful track record), and non-recurring (one ask, one moment).",
+      "evidence": [
+        {
+          "source": "mahesh-call.txt, 04:25-04:30",
+          "type": "host_call",
+          "quote": "I probably need that information to share with my management because they do require application.",
+          "insight": "The management company is both Mahesh's barrier and the adjacent network's bridge. Once cleared, the approval pathway becomes a reusable asset. The referral prompt leverages this asset by including the management company's prior approval in the shareable message."
+        },
+        {
+          "source": "mahesh-call.txt, 07:29",
+          "type": "host_call",
+          "quote": "I've never heard of this company.",
+          "insight": "Mahesh discovered Split Lease through direct agent outreach, not organic awareness. The referral prompt converts Mahesh's successful experience into organic awareness for adjacent hosts, shifting the acquisition channel from agent-dependent to network-driven."
+        },
+        {
+          "source": "coldstart-tipping-point.txt, Ch. 3 (Tipping Point)",
+          "type": "book",
+          "quote": "Each launch makes the next set of adjacent networks easier, and easier, and easier, until the momentum becomes unstoppable -- but it all radiates from a small win at the very start.",
+          "insight": "The referral prompt is the mechanism that converts Mahesh's 'small win' into the first domino in a chain. Without it, the win is isolated; with it, the win radiates to adjacent networks through the management company pathway."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The referral prompt appears below the Lease Performance Summary at the 3-month milestone. It is a single card with a brief message, one CTA, and a dismiss action. If the host has not reached the 3-month milestone, the prompt does not exist anywhere in the interface.",
+        "loading": "When the host taps 'Share Split Lease,' the platform generates the pre-written message with the management company approval reference (if applicable). This generation takes under 500ms. A brief spinner appears within the button during generation.",
+        "empty": "If the host dismisses the referral prompt, it does not reappear. No empty state -- the card simply does not render on subsequent visits. The platform records the dismissal to avoid re-prompting.",
+        "error": "If the shareable message fails to generate (rare, since it is templated), the CTA falls back to copying the host's unique referral link: 'Copy your referral link instead.' The experience degrades gracefully from personalized message to simple link.",
+        "success": "When the host shares the message (via email, text, or copy-to-clipboard), the card updates to a brief confirmation: 'Shared. If they sign up, their path will be faster thanks to your management company approval.' The card then gently fades (400ms, easing-out) and is replaced by a persistent but minimal reference: 'Referral shared on [date]' visible in the host's account history."
+      },
+      "transition_principle": "The referral prompt arrives as a natural extension of the milestone celebration, not as a separate ask. The transition from performance summary to referral card uses a gentle slide-up (300ms, easing-out) with a brief delay (200ms after the summary renders) to ensure the host has absorbed the summary before the referral appears. The fade-out after sharing completes the interaction cleanly -- the prompt served its purpose and disappears.",
+      "timing": {
+        "response_target": "Referral prompt appears 200ms after Lease Performance Summary renders; shareable message generation under 500ms; post-share confirmation visible for 3000ms before fade",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The out easing ensures the referral card slides in smoothly and fades out gracefully. The 200ms delay after the summary creates a deliberate pause that separates 'your results' from 'share with others,' preventing the host from feeling that the summary was just a prelude to a sales ask."
+      },
+      "journey_state_awareness": "The referral prompt only surfaces after the 3-month stability threshold is crossed. For hosts who renew, the prompt appears once at renewal confirmation. For hosts who are deciding, it appears alongside the performance summary as additional context ('your experience could help others'). It never appears during the first 3 months, when the host is still in the stability-testing phase and a referral ask would feel premature. For hosts whose lease ends without renewal, the prompt does not appear -- the focus shifts to understanding why they did not renew, not to extracting a referral.",
+      "edge_cases": [
+        "Host renewed but had a negative experience (filed a damage claim, had a late payment) -- the referral prompt should be suppressed if the Lease Health score indicates sub-threshold satisfaction, even if the host renewed",
+        "Management company served multiple hosts who all completed 3 months -- the platform should batch-reference all successful leases in the shareable message: 'Your management company has approved [N] Split Lease guests with 100% on-time payment'",
+        "Host shares the referral but the recipient does not act for months -- the referral tracking should not generate repeated follow-up notifications to the original host, as this feels transactional",
+        "Host is in a single-unit property with no management company and no adjacent hosts -- the referral prompt still appears but adjusts to a general message without the management company pathway reference"
+      ]
+    }
+  ]
+}

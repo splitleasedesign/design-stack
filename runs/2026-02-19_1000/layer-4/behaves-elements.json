@@ -1,0 +1,394 @@
+{
+  "lens": {
+    "host_call": "jason-call.txt",
+    "book_extract": "inspired-product-discovery.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Optimistic Proposal Link Delivery During Live Call",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "The phone call builds 14 minutes of engagement momentum, but the transition to the platform is fully asynchronous -- Bryant promises 'I'll follow up with an email shortly' (13:59) and the host returns to competing priorities (6 showings, kitchen repairs, deep cleaning). Between the call ending and the email arriving, the host's engagement decays and competitive alternatives progress. There is no interactive response to the host's peak engagement moment. The system treats the call ending as a pause when it should treat it as a trigger for immediate digital activation. Cagan's principle that good startups are 'optimized for learning and moving quickly' (Ch. 3) means the platform must respond to the host's expressed interest with the same speed the host experienced during the conversation.",
+      "solution": "When the agent determines the host is engaged (typically at the email-collection moment around 09:27), the system should optimistically generate and send a proposal link via SMS before the call ends. The link opens a pre-populated, zero-login proposal view. The interaction principle is: treat the host's willingness to share their email as a commitment signal and respond instantly with value, not with a promise of future value. The SMS arrives while the host is still on the phone, and the agent confirms receipt in real-time. If the link generation fails or the proposal data is incomplete, the system falls back gracefully to the email follow-up without the host perceiving a failure.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 09:27-10:01",
+          "type": "host_call",
+          "quote": "Could I get your email, send over some information to you after this call? JasongLee@gmail.com.",
+          "insight": "This is the peak commitment moment -- Jason volunteers personal contact information. The system should respond to this signal instantly with a link, not store it for a later asynchronous action. The gap between this moment and the email is the highest-risk engagement decay window."
+        },
+        {
+          "source": "jason-call.txt, 13:59",
+          "type": "host_call",
+          "quote": "I'll follow up with an email shortly. And like I said, if you have questions for me, text email either way, anytime works.",
+          "insight": "The call ends with vague timing ('shortly') and passive availability ('anytime'). No urgency, no concrete next action, no mechanism to maintain the engagement momentum built over 14 minutes."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 3 (line ~241)",
+          "type": "book",
+          "quote": "Boas startups são otimizadas para aprender e se mover rapidamente e normalmente há muito pouca burocracia para desacelerá-las.",
+          "insight": "Cagan identifies speed as the startup's core advantage. The post-call engagement gap is a speed failure that the interaction pattern must eliminate by making the first digital touchpoint synchronous with the call, not sequential after it."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 2 (line ~221)",
+          "type": "book",
+          "quote": "Produtos movidos à tecnologia não precisam ser puramente digitais. Muitos dos melhores exemplos hoje são misturas de experiências online e offline.",
+          "insight": "The phone call is the offline experience; the proposal link is the online experience. Cagan's principle demands these blend into one continuous interaction, not two separate sessions separated by an engagement-decay gap."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Agent has the host on the phone and has not yet triggered the link. The system is ready to generate a proposal link on agent command. No visible state to the host yet.",
+        "loading": "After the agent triggers the send, the host receives an SMS with a brief 'Loading your proposal...' placeholder that resolves to the full proposal view within 2 seconds. On the agent's screen, a confirmation indicator shows 'Link sent' or 'Sending...' so the agent knows when to prompt the host to check their phone.",
+        "empty": "If the proposal data is incomplete (e.g., guest income not yet entered, term not confirmed), the link still opens but shows the available data with clearly labeled gaps: 'Income: confirming exact figures -- we will update this within 24 hours.' The host sees partial value immediately rather than an empty screen.",
+        "error": "If link generation or SMS delivery fails, the agent's screen shows a subtle error indicator. The agent does not mention the failure to the host -- instead, the system automatically queues the follow-up email with higher priority (sent within 5 minutes of call end, not 'shortly'). The host's experience is uninterrupted; they simply receive an email instead of an SMS.",
+        "success": "The host opens the link and sees a pre-populated proposal summary matching what was discussed in the call. A brief confirmation appears at the top: 'Proposal for [address] -- sent by [agent name].' The agent, still on the phone, can confirm: 'Did you get it? You should see everything we just discussed.'"
+      },
+      "transition_principle": "The transition from phone call to digital proposal must feel like a continuation, not a handoff. The host should perceive no gap, no context switch, no new environment to learn. The SMS link opens directly to content -- no splash screens, no onboarding flows, no account creation. The visual content mirrors the verbal content of the call, creating associative coherence between what the host heard and what they now see.",
+      "timing": {
+        "response_target": "SMS delivery within 3 seconds of agent trigger. Proposal page load within 2 seconds of link tap. Total time from agent action to host seeing the proposal: under 8 seconds.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing from tokens.json provides a quick initial response that decelerates naturally, matching the feel of something arriving promptly and settling into place. This is appropriate because the host is in a divided-attention state (phone + screen) and the content should appear quickly then stabilize, not bounce or overshoot."
+      },
+      "journey_state_awareness": "During discovery and early evaluation, this pattern does not activate -- the host has not yet provided contact information or expressed interest. It activates at the commitment signal (email or phone number shared) and adapts based on proposal completeness. If the host is a returning host (retention phase), the link can include their previous experience data. If the host is in initial evaluation, the link shows only what was discussed -- no upsells, no platform features, just the proposal.",
+      "edge_cases": [
+        "Host does not have a smartphone or cannot receive SMS -- fall back to email with the same urgency (within 5 minutes, not 'shortly').",
+        "Agent forgets or chooses not to send the link during the call -- the system should auto-generate and send the link within 15 minutes of call end based on call metadata, with a notification to the agent.",
+        "Host's phone blocks or filters the SMS -- the follow-up email serves as a redundant channel, sent regardless of SMS success.",
+        "Proposal data changes after the link is sent (e.g., guest updates income information) -- the link should be a live URL that always shows current data, not a static snapshot.",
+        "Host opens the link days later instead of during the call -- the proposal view should still be valid, with any updates reflected and a note about how long ago it was created."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Progressive Data Readiness with Graceful Incompleteness",
+      "journey_phases": ["evaluation", "proposal_mgmt"],
+      "problem": "When Jason asks 'What's a total income between both of them?' (06:14), Bryant cannot answer precisely: 'I'd have to look that up. I don't have it handy with me right now' (06:21). This is not a one-off failure -- it represents a systemic pattern where the host's predictable evaluation questions encounter incomplete data. The platform must handle the reality that tenant data arrives incrementally: some fields are populated at guest signup, others after vetting, others after manual verification. The current system treats incomplete data as a reason to defer ('I will send that later'), but the host's decision process cannot wait. Cagan's business case framework (Ch. 6) states that decisions require knowing value and cost -- if either is opaque, the host cannot evaluate. The interaction pattern must present whatever data exists now and explicitly communicate what is missing and when it will arrive.",
+      "solution": "Every data field on the proposal and evaluation screens should have three interaction states: confirmed (data verified and shown), pending (data being processed, with estimated resolution time), and unavailable (data cannot be obtained, with explanation). The system should never show a blank field or omit a data point entirely. Pending fields show the approximate value if known ('over $80,000 -- exact figure confirming within 24 hours') and auto-update when the data resolves. The host sees a clear completeness indicator for the overall proposal: '5 of 7 verification items confirmed.' When all data resolves, the host receives a notification and the pending indicators transition to confirmed states.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14-06:38",
+          "type": "host_call",
+          "quote": "What's a total income between both of them? ... I'd have to look that up. I don't have it handy with me right now. I know it was both of them were making over 80,000.",
+          "insight": "Jason's most urgent evaluation question receives an approximate answer ('over 80,000') instead of a precise one. The system has the approximate data but not the exact data. Rather than hiding the gap, the interaction should show the approximation transparently while the exact figure resolves."
+        },
+        {
+          "source": "jason-call.txt, 10:18-10:22",
+          "type": "host_call",
+          "quote": "Do people want to see the place? ... Typically actually we don't show the place beforehand.",
+          "insight": "Another predictable host question with an improvised answer. The interaction pattern must preemptively surface answers to predictable questions rather than waiting for the host to discover gaps."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 6 (line ~310)",
+          "type": "book",
+          "quote": "Isso se resume à necessidade de saber duas coisas sobre cada ideia: (1) Quanto dinheiro ou valor isso gerará? e (2) Quanto dinheiro ou tempo isso custará?",
+          "insight": "Cagan's business case framework maps directly to host evaluation: the host needs to know the value (income, guarantee) and the cost (process friction). If either side is incomplete, the host cannot form a decision. The interaction must surface partial data with explicit incompleteness rather than deferring the entire evaluation."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 6 (line ~329)",
+          "type": "book",
+          "quote": "Este modelo leva a produtos guiados por stakeholders e ofertas especiais guiadas por vendas... essa não é a fonte de nossas melhores ideias de produto.",
+          "insight": "When agents mediate data rather than the product surfacing it directly, the system is stakeholder-driven in Cagan's terms. The interaction pattern shifts data responsibility from the agent to the platform, ensuring data is system-available before the host asks."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All available data fields are populated. Confirmed fields show solid text in ink color with a subtle verification badge. The proposal completeness indicator reads '7 of 7 items verified' in accent color. No pending indicators visible.",
+        "loading": "When new verification data is being processed (e.g., credit check running, employer responding), the affected field shows a subtle pulse animation on the pending indicator. The field displays the best available approximation with a label: 'Estimated -- verifying now.' The pulse uses the 'out' easing token to feel calm, not urgent.",
+        "empty": "If a data field has no information at all (not even an approximation), it shows a placeholder in ink-muted: 'Income: not yet provided by guest -- expected within [timeframe].' The field is visually present but clearly incomplete, ensuring the host knows what data to expect and that its absence is acknowledged, not hidden.",
+        "error": "If a verification fails (e.g., employer cannot be reached, credit check returns an error), the field shows a clear but non-alarming status: 'Employment verification: unable to confirm at this time -- our team is following up.' The error uses signal-info color (not signal-danger) to indicate the issue is being handled, not that the guest is untrustworthy. A support contact is available inline.",
+        "success": "When a pending field resolves to confirmed, it transitions with a brief color change from signal-info-bg to the default background, accompanied by the verification badge appearing. If the host is viewing the proposal when the data resolves, the transition is animated (fade-in over 300ms). If they are not viewing, the update is silent and they see the confirmed state on next visit."
+      },
+      "transition_principle": "Data fields transition from pending to confirmed with a subtle, non-disruptive animation that the host notices peripherally but that does not interrupt active reading or decision-making. The transition communicates 'something improved' without demanding attention. Multiple fields resolving simultaneously should stagger their animations by 150ms to avoid a jarring batch update. The overall completeness indicator updates smoothly using a counter animation.",
+      "timing": {
+        "response_target": "Field state updates should reflect in the UI within 500ms of backend confirmation. The pending-to-confirmed animation should take 300ms. The completeness indicator counter should animate over 400ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing provides a smooth deceleration that feels natural for data resolution -- the new information settles into place rather than snapping or bouncing, which would be distracting in a context where the host is evaluating multiple data points simultaneously."
+      },
+      "journey_state_awareness": "During initial evaluation (first proposal view), the completeness indicator is prominent and shows any gaps clearly -- the host needs to know what is verified and what is not. During proposal management (host has already reviewed once), the indicator becomes less prominent and only highlights changes since last visit. During active lease, all verification fields should be fully resolved; any remaining pending states trigger an internal alert to the operations team.",
+      "edge_cases": [
+        "All fields are pending (new guest who just signed up) -- show the proposal with every field in pending state and a clear message: 'Guest verification in progress -- we will notify you as items are confirmed.' Do not delay showing the proposal until all data arrives.",
+        "A field that was confirmed reverts to pending (e.g., employer change detected during lease) -- use a distinct transition (subtle signal-warn-bg highlight) to differentiate 'newly uncertain' from 'not yet confirmed.'",
+        "Host makes a decision before all fields are confirmed -- allow this, with a clear acknowledgment: 'You are proceeding with 5 of 7 items verified. Remaining items will continue resolving.' Do not block the host's decision on data the system has not yet provided.",
+        "Guest refuses to provide a data point (e.g., declines to share exact income) -- show this clearly: 'Income: guest has chosen not to share exact figures. Verified as above the [threshold] minimum.' Transparent about the limitation without framing the guest negatively."
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Mental Model Bridge Deployment at Process Divergence Points",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "Jason's landlord mental model expects in-person showings, direct income verification, and physical lease processes. When the platform's process diverges from these expectations -- no showings, platform-mediated vetting, digital lease -- Jason perceives the platform as deficient, not innovative. His concern escalates from 'sounds a bit odd' (10:50) to 'this just sounds weird to me' (12:35) when the divergence is not adequately bridged. The current interaction has no mechanism to detect when a host encounters a divergence point and proactively deploy an explanation. Bryant's response ('typically we don't show the place beforehand... for privacy reasons') skips validation and jumps to justification, which Jason interprets as dismissal. The interaction must detect the divergence encounter and respond with a structured bridge before the concern compounds.",
+      "solution": "At every point where the platform's process diverges from traditional landlord expectations, the UI proactively deploys an inline bridge callout that follows a three-part sequence: acknowledge the traditional expectation, explain the platform's approach, and offer the equivalent protection or accommodation. The callout appears contextually -- when the host first encounters a proposal with no 'Schedule Showing' button, when they see platform vetting format instead of a traditional application, or when the lease agreement uses unfamiliar terminology. The bridge is not a modal or dialog requiring interaction; it is an inline element that the host reads as naturally as any other content on the screen. It uses the host's vocabulary, not platform jargon.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 10:50",
+          "type": "host_call",
+          "quote": "I've been doing showings. It sounds a bit odd that they don't want to see the place before they move in.",
+          "insight": "First mention uses mild language ('a bit odd') -- this is the ideal moment for the bridge to deploy. The concern is curiosity, not objection. If the bridge deploys here, it can satisfy the curiosity before it hardens."
+        },
+        {
+          "source": "jason-call.txt, 12:35-12:52",
+          "type": "host_call",
+          "quote": "A lot of people are like, this just sounds weird to me that they want to sign a lease without seeing it.",
+          "insight": "By the second mention, Jason has escalated and generalized ('a lot of people'). The concern has compounded from personal curiosity into structural objection. The interaction pattern failed because no bridge was deployed at the first divergence encounter."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 2 (line ~221)",
+          "type": "book",
+          "quote": "Muitos dos melhores exemplos hoje são misturas de experiências online e offline -- como arrumar uma carona ou um quarto para passar a noite.",
+          "insight": "Cagan's principle validates accommodating offline expectations rather than eliminating them. The bridge should not argue against showings -- it should explain what the platform offers instead and, when possible, facilitate the traditional expectation."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 6 (line ~329)",
+          "type": "book",
+          "quote": "Este modelo leva a produtos guiados por stakeholders e ofertas especiais guiadas por vendas... essa não é a fonte de nossas melhores ideias de produto.",
+          "insight": "The no-showing default was likely a stakeholder decision optimizing for operational efficiency. The bridge interaction pattern compensates for this product gap by providing explicit contextual education at the moment of encounter."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The bridge callout is visible inline at the divergence point. It sits on a surface-warm background with a 3px left border in accent color, containing three lines: acknowledgment (bold), explanation (regular), and accommodation (accent-colored link). The host can read it in one scan or skip past it if already familiar. Total: under 40 words.",
+        "loading": "Not applicable -- bridge callouts are static content rendered with the page. They do not depend on external data. If the host navigates to a page where the divergence exists, the bridge is present on first render.",
+        "empty": "If the divergence does not apply to this host (e.g., a host who has already used the platform and understands the process), the bridge callout is not rendered. The system tracks whether the host has previously acknowledged or interacted with each bridge and suppresses it after the second visit to the same divergence point. First-time hosts always see bridges.",
+        "error": "Not applicable in the traditional sense. However, if the accommodation offered in the bridge fails (e.g., host requests a showing via the bridge link but the showing cannot be scheduled), the bridge updates to reflect the new state: 'Showing request sent -- we will confirm within 24 hours.' If confirmation fails, it shows: 'Unable to schedule at this time -- your account manager will follow up.'",
+        "success": "When the host interacts with the bridge (e.g., clicks the accommodation link to request a showing, or clicks 'Got it' to dismiss), the callout gently fades to a collapsed state (a single line: 'Showing option available' with a link to re-expand). This keeps the bridge accessible without consuming space on repeat visits. The fade uses 'out' easing over 300ms."
+      },
+      "transition_principle": "Bridge callouts appear on page load without animation -- they are contextual content, not notifications. They should feel like they belong on the page, not like they appeared in response to something the host did. Dismissal transitions are gentle fades to collapsed state. Re-expansion is instant (no animation) because the host is deliberately seeking the information. The overall feel is: 'this helpful context was always here, ready when you needed it.'",
+      "timing": {
+        "response_target": "Bridge renders with the page -- 0ms additional latency beyond page load. Dismissal animation: 300ms. Collapse and re-expand: 0ms (instant).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing is used only for the dismissal animation, creating a gentle fade that does not draw attention away from the primary content. The bridge appearing with no animation reinforces that it is content, not an alert."
+      },
+      "journey_state_awareness": "First-time hosts (discovery/evaluation) see all applicable bridges at their most prominent. Hosts returning to the platform after a call see bridges only at divergence points they have not previously encountered. Hosts in the active lease phase do not see evaluation-phase bridges. Hosts who have completed one lease cycle (retention) see no bridges unless the platform introduces a new process change. Bridge visibility decreases as the host's platform familiarity increases.",
+      "edge_cases": [
+        "Host encounters multiple divergence points on the same screen -- display a maximum of 2 bridges per screen to avoid overwhelming. Prioritize the divergence most likely to cause dropout (showings > income verification format > lease terminology).",
+        "Host encounters a divergence not in the predefined bridge library -- the system should have a generic bridge: 'This may work differently from what you are used to. Here is why -- [link to FAQ].' But the goal is to predefine bridges for the top 5 divergences.",
+        "Host's traditional expectation is actually available (e.g., Jason wants a showing and the guests agree) -- the bridge should update to reflect availability: 'Good news -- your guests are interested in visiting. [Schedule a showing].' The interaction becomes facilitation, not explanation.",
+        "Host dismisses a bridge but later raises the same concern in chat or call -- the system should flag this to the agent, indicating the bridge was seen but the concern persists, enabling the agent to address it with more depth."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Configurable Furniture State Negotiation During Proposal",
+      "journey_phases": ["listing_creation", "proposal_mgmt"],
+      "problem": "Jason's apartment has negotiable furniture: a bed (good), a futon ('not the highest quality,' 08:19), 4 tables/desks ('too many... I can just move out a couple,' 11:52), and cleaning scope that depends on the tenant's preferences (11:17-11:38). Traditional listing platforms force binary choices (furnished: yes/no) that cannot express this reality. When the listing says 'furnished' but the host means 'partially furnished with negotiable items of varying quality,' the expectation mismatch surfaces during proposal negotiation or after move-in, causing friction. The interaction pattern must support real-time configuration of property attributes during the proposal phase, where both host and guest can indicate preferences and reach agreement before commitment.",
+      "solution": "Present furniture and amenity items as a configurable inventory with three states per item: Included (will be there), Available (can be there, with condition note), and Removable (can be taken out on request). During listing creation, the host sets the default state for each item. During proposal negotiation, the guest can view these states and express preferences (e.g., 'please remove 2 tables,' 'the futon is fine as-is'). The host reviews the guest's preferences and confirms or adjusts. Each configuration change updates in real-time for both parties. The interaction creates a collaborative agreement about the physical space before the lease is signed, preventing post-move-in disputes.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 11:52",
+          "type": "host_call",
+          "quote": "There's actually too many tables. So I can just move out a couple of the tables. There's four tables and desks. Really need all of that.",
+          "insight": "Jason is proactively willing to customize. The interaction must support this willingness with a mechanism that captures his flexibility (remove some tables) without forcing him to decide before knowing the guest's preference."
+        },
+        {
+          "source": "jason-call.txt, 08:19",
+          "type": "host_call",
+          "quote": "It can be flipped on, but it's not the highest quality. I can let them know.",
+          "insight": "Jason wants to be honest about the futon's condition. The interaction must support inline condition notes attached to configurable items, visible to both host and guest. Transparency builds trust; suppressing caveats builds resentment."
+        },
+        {
+          "source": "jason-call.txt, 11:17-11:38",
+          "type": "host_call",
+          "quote": "I'm going to do a deep cleaning after I... well, I haven't decided what I've moved the furniture out because it depends on the tenant.",
+          "insight": "Jason's decisions are interdependent and tenant-dependent. The interaction must allow the listing to remain partially undecided during evaluation and resolve through bilateral negotiation during proposal management."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 6 (line ~307-310)",
+          "type": "book",
+          "quote": "Existe sempre um monte de coisas nas diferentes partes do negócio que precisam ser feitas. Muitas empresas querem priorizar essas ideias em um roadmap.",
+          "insight": "Just as product roadmaps should be flexible and responsive to discovery, property listings should be flexible and responsive to the negotiation. A rigid schema that forces premature finalization is the listing equivalent of a waterfall process."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The furniture inventory grid shows all items with their current state (Included/Available/Removable) indicated by a small colored dot: accent for Included, signal-info for Available, ink-ghost for Removable. Each item occupies one row with the item name, state indicator, and optional condition note. The grid is scannable in under 15 seconds.",
+        "loading": "When a guest submits configuration preferences (e.g., 'remove 2 tables'), the affected rows show a subtle pulse while the request is sent to the host. The guest sees 'Request sent -- waiting for host confirmation' in signal-info text below the affected items. The host sees the change request as a highlighted row with the guest's preference and two action options: Confirm or Suggest Alternative.",
+        "empty": "If no furniture items have been added to the listing, the grid shows a conversational prompt: 'What furniture will be in the space? Add items your guests should know about.' The empty state includes suggested items based on the property type (bed, desk, sofa, table) that the host can tap to add quickly. At least one item must be added before the listing can be marked as 'furnished.'",
+        "error": "If a configuration change fails to save (network error, conflict with another change), the affected row shows a subtle border in signal-warn color with a retry option: 'Change not saved -- tap to retry.' The row reverts to its previous state visually, so the host or guest always sees the last confirmed configuration. No data is lost.",
+        "success": "When the host confirms a guest's configuration request, the affected row transitions from the highlighted request state to the confirmed state with a brief check animation (accent color checkmark that fades in over 200ms). Both host and guest see the updated configuration simultaneously. A summary line at the bottom updates: 'Configuration agreed -- 3 items confirmed, 1 item to be removed before move-in.'"
+      },
+      "transition_principle": "Configuration changes flow bidirectionally between host and guest with minimal latency. Each change is optimistic on the requesting side (the UI updates immediately) with rollback if the other party rejects. The interaction should feel like a conversation, not a form submission -- each configuration preference is a turn in a negotiation, with the UI reflecting the current state of agreement. Animations are subtle and functional: they indicate what changed, not celebrate the change.",
+      "timing": {
+        "response_target": "Optimistic UI update on the requester's side: immediate (under 100ms). Notification to the other party: under 2 seconds. Confirmation animation: 200ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing suits the check animation and state transitions -- they should feel decisive and settling, matching the finality of a confirmed configuration agreement."
+      },
+      "journey_state_awareness": "During listing creation, only the host interacts with the grid -- they set defaults and add condition notes. During proposal management, the guest can view and request changes, activating the bidirectional negotiation flow. During active lease, the grid is read-only and reflects the agreed configuration -- any post-agreement changes require a formal amendment request. The grid's interactivity level adapts to the current phase.",
+      "edge_cases": [
+        "Host and guest make conflicting changes simultaneously (e.g., host removes an item the guest just requested to keep) -- the system should detect the conflict and prompt the host (as property owner) to resolve: 'Guest requested to keep the futon, but you marked it for removal. Keep or remove?'",
+        "Guest requests a configuration that requires host action before move-in (e.g., 'remove 2 tables') -- the system should create a task in the host's task list with a deadline tied to the move-in date: 'Remove 2 tables by [move-in date].'",
+        "Host adds a condition note that is excessively negative or could deter the guest (e.g., 'mattress is stained and uncomfortable') -- the system should not censor but may suggest reframing: 'Consider focusing on what guests should expect: Mattress is functional but shows wear. Guests may want a mattress topper.'",
+        "Furniture items are added after the proposal is already sent -- the guest should receive a notification: 'Host updated the furniture inventory -- 1 new item added.' The new item appears in the grid with a 'New' badge that fades after the guest views it."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Competitive Context Timeline with Transparent Decision Windows",
+      "journey_phases": ["proposal_mgmt", "evaluation"],
+      "problem": "Both sides of Jason's match have active alternatives. Jason has done 6 showings and continues to receive Craigslist inquiries. The guests are 'taking a look at a couple other places' (13:26). But neither party can see the other's timeline. Jason proactively asks 'they're considering other places as well, right?' (13:20), revealing that he wants this competitive context to calibrate his own decision timing. The current process provides no timeline visibility -- the call ends with 'shortly' and 'anytime,' creating an open-ended limbo that encourages delay. The interaction must surface factual, neutral competitive context that helps both parties make timely decisions without resorting to pressure tactics or artificial urgency.",
+      "solution": "Display a factual timeline badge on the proposal screen showing the guest's decision window ('Ariel and Amber plan to decide by [date]') and the proposal age ('Proposal sent [X] days ago'). The timeline uses neutral language and muted typography -- it reads as ambient information, like checking a train departure board, not as a pressure notification. The badge sits below the proposal content and above the action zone, positioned to be noticed during the decision process without dominating it. After 48 hours without host action, the text subtly darkens from ink-muted to ink-soft to increase visibility without introducing urgency colors or alarms.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 13:20-13:26",
+          "type": "host_call",
+          "quote": "Also, I mean, they're considering other places as well, right? Yes. Yep. They're taking a look at a couple other places.",
+          "insight": "Jason asks about competitive context unprompted -- he wants to know where he stands. The platform should answer this question proactively, not wait for the host to ask."
+        },
+        {
+          "source": "jason-call.txt, 13:59",
+          "type": "host_call",
+          "quote": "I'll follow up with an email shortly. And like I said, if you have questions for me, text email either way, anytime works.",
+          "insight": "The call ends with zero timeline visibility. 'Shortly' and 'anytime' create open-ended ambiguity that encourages deferral. The interaction must replace vague timing with specific, visible decision windows."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 3 (line ~237)",
+          "type": "book",
+          "quote": "A realidade da vida da startup é que você está em uma corrida para alcançar o encaixe do produto com o mercado antes de acabar o dinheiro.",
+          "insight": "Cagan's funding-runway metaphor translates to each host interaction having a conversion runway. Making this runway visible as a date -- not a countdown -- aligns the host's decision timing with the actual urgency without manipulation."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 5 (line ~280-281)",
+          "type": "book",
+          "quote": "Fortes empresas de produtos tecnológicos sabem que precisam garantir uma consistente inovação de produtos. Isto significa criar constantemente um novo valor para seus clientes e para seu negócio.",
+          "insight": "Every moment of delay without new value creation allows competing alternatives to progress. Transparent timelines are themselves a form of value -- they help the host make better-timed decisions."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The timeline badge displays below the proposal content as a single line of text in ink-muted color, 13-14px: 'Ariel and Amber plan to decide by March 5.' The date is rendered in IBM Plex Mono to signal factual precision. No icons, no colored backgrounds, no progress bars. Feels like ambient context, not a notification.",
+        "loading": "If the guest's decision timeline is not yet known (guests have not indicated a timeframe), the badge shows: 'Decision timeline: to be confirmed.' It updates automatically when the guest provides a timeline. No loading spinner -- the text simply changes.",
+        "empty": "If no competitive context is available (single proposal, no timeline indicated), the badge area is empty -- no placeholder, no generic text. The space collapses. Competitive context is only shown when real data exists. Fabricating urgency violates the trust principle.",
+        "error": "If the timeline data becomes stale (e.g., the guest's indicated decision date has passed without a decision), the badge updates to reflect the new reality: 'Decision date passed -- we are following up with guests for an update.' The color shifts to ink-soft. The host sees that the situation is being actively managed.",
+        "success": "When the host takes action on the proposal (expresses interest, requests changes, or declines), the timeline badge transitions to a confirmation state: 'Your response was sent on [date]. Guests will be notified.' The badge then shows the expected response window: 'Guests typically respond within 48 hours.' The color shifts to accent to reflect positive momentum."
+      },
+      "transition_principle": "Timeline information updates silently -- no notifications, no animations for routine changes. The badge reflects the current state whenever the host views the proposal. The only animated transition is the 48-hour darkening, which is a CSS class toggle (not a continuous animation) that makes the text slightly more visible on the next page load. The overall feel is informational, not urgent -- like a status display that is always accurate and always available.",
+      "timing": {
+        "response_target": "Timeline data should be current within 1 hour of any update from the guest side. The 48-hour darkening activates on the next page load after the threshold, not as a real-time animation. Status changes after host action should reflect within 2 seconds.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Easing is applied only to the success-state transition (badge color change when host takes action). The 'out' easing creates a smooth, settling feel that confirms the action was registered without celebratory animation."
+      },
+      "journey_state_awareness": "During initial evaluation, the timeline badge is at its most prominent -- the host needs to know the decision context. During active proposal negotiation, the badge updates to reflect negotiation-specific timing: 'Guest reviewing your counter-proposal -- typically responds within 24 hours.' During active lease, timeline badges are not applicable. During retention (re-listing), the badge reappears with new match timelines.",
+      "edge_cases": [
+        "Guest extends their decision timeline after it was already displayed to the host -- the badge updates silently. No notification about the extension unless the host is actively waiting (in which case, a notification is sent).",
+        "Multiple guests are considering the same property -- show the earliest decision date: 'Your first match plans to decide by [date].' Individual timelines are available in each proposal's detail view.",
+        "Host does not respond and the guest decides on a different property -- the badge updates to: 'Ariel and Amber have chosen another property. [View other matches].' This is factual and non-judgmental.",
+        "Guest's decision date is very far out (more than 2 weeks) -- show the date but do not apply the 48-hour darkening mechanism for proposals this far from the deadline. The urgency calibration must match the actual timeline."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Operational Knowledge Progressive Capture During Natural Conversation",
+      "journey_phases": ["listing_creation", "active_lease"],
+      "problem": "Jason spent nearly a quarter of his 14-minute call (03:15-05:14) providing rich parking logistics: street cleaning schedules, time-of-day availability patterns, garage pricing, and historical parking behavior. He also described furniture conditions (08:19-09:27) and building rules (08:55: security escort for furniture). This operational knowledge is critical for guest satisfaction but currently exists only in the host's memory and the agent's call notes. The platform has no mechanism to capture this knowledge in a structured, updatable format that guests can access. If the knowledge is captured at all, it happens through a static listing form that fails to prompt for the kind of detailed, experience-based information Jason naturally provides in conversation. The interaction must create natural capture moments that feel conversational, not bureaucratic.",
+      "solution": "Present operational knowledge capture as guided conversational prompts that appear progressively during listing creation. Instead of a monolithic 'Additional Notes' text box, offer 3-5 targeted prompts organized by the guest's experience sequence: getting there (parking, transit, building access), settling in (furniture conditions, amenities), and living there (neighborhood tips, building rules). Each prompt is a question in the host's vocabulary: 'What should guests know about parking near your place?' The host can answer in 1-3 sentences of free text, with optional structured sub-fields (street cleaning day, nearest garage). The captured knowledge surfaces as a dynamic house manual that the host can update at any time during the active lease.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 03:15-05:14",
+          "type": "host_call",
+          "quote": "Parking battery park city, the parking is quite tough because it's the business district... street cleaning once a week... sometimes it'll take an hour if it's maybe Saturday night... there are also some parking spots that open up after the work day.",
+          "insight": "Jason volunteers 3 minutes of detailed parking knowledge without being asked a specific question -- just a general prompt from Bryant about parking. The capture mechanism should mimic this conversational dynamic: ask a natural question, let the host talk, and structure the output."
+        },
+        {
+          "source": "jason-call.txt, 08:36-08:55",
+          "type": "host_call",
+          "quote": "People come in and they're like, oh, there's like a dirt stain... but they could also get another bed or another type of thing to put on top of it.",
+          "insight": "Jason anticipates guest reactions and preemptively offers solutions. The capture mechanism should support this anticipatory knowledge: 'Anything guests might notice about the space that you want to set expectations about?'"
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 2 (line ~221)",
+          "type": "book",
+          "quote": "Muitos dos melhores exemplos hoje são misturas de experiências online e offline.",
+          "insight": "The house manual is the bridge between the host's offline expertise (years of parking knowledge, furniture condition awareness) and the guest's online preparation. Capturing this knowledge makes the offline experience accessible before the guest arrives."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 1 (line ~191)",
+          "type": "book",
+          "quote": "Por trás de todo grande produto existe alguém que levou a equipe a combinar tecnologia e design para resolver problemas reais dos clientes.",
+          "insight": "The real problem is that hosts have nuanced, experience-based knowledge that guests need but the platform does not capture. The interaction pattern solves this by making knowledge capture feel natural and valuable rather than administrative."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Completed knowledge cards display the host's content with a category icon, title, and 1-3 sentences. Cards use surface background, radius-md corners, and shadow-sm. A completion indicator shows '3 of 5 tips added' in accent color. The host can edit any card at any time with a single tap.",
+        "loading": "When the host saves a knowledge entry, the card briefly shows a checkmark animation (200ms) to confirm the save. If the save takes longer than 500ms (poor connection), a subtle 'Saving...' indicator appears below the card. The card content remains editable during the save to avoid blocking the host's flow.",
+        "empty": "Unpopulated cards show a dotted border (1px dashed in border color) with a conversational prompt in ink-muted: 'What should guests know about parking near your place?' The empty state includes a small contextual hint: 'Most guests ask about this.' The prompt feels like a gentle invitation, not a required field. Cards can be skipped entirely.",
+        "error": "If a save fails, the card shows a subtle warning border and the text 'Not saved -- tap to retry.' The host's typed content is preserved in local state so nothing is lost. If the error persists, a fallback message suggests: 'You can also share this information in a message to your guests.'",
+        "success": "When a card is completed and saved, it transitions from the dotted-border empty state to a solid-border content state. The transition is a border-style change (dashed to solid) with a brief fade of the background from surface-warm to surface, accompanied by the completion indicator incrementing. The overall section header updates: 'Help your guests arrive prepared -- 4 of 5 tips added.'"
+      },
+      "transition_principle": "Knowledge capture interactions are low-pressure and non-blocking. No prompt is required. The host can complete any prompt in any order, skip any prompt, and return to add content at any time. Transitions between empty and filled states are subtle border and background changes that communicate progress without creating pressure. The interaction should feel like jotting down notes, not filling out a form.",
+      "timing": {
+        "response_target": "Autosave triggers 1 second after the host stops typing. Save confirmation (checkmark animation): 200ms. Card state transition (empty to filled): 300ms. Completion indicator increment: 200ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing for card state transitions creates a settling effect: the new content settles into its card as if it belongs there. The 1-second autosave delay prevents saves during active typing while ensuring nothing is lost."
+      },
+      "journey_state_awareness": "During listing creation, prompts appear in full with suggested content from the agent's call notes (if available). During the active lease, the host can update any card -- useful for seasonal changes (parking gets harder in winter) or new information (construction on the block). During retention (re-listing), previously captured knowledge carries over and the host can review and update. The system never discards operational knowledge between lease cycles.",
+      "edge_cases": [
+        "Agent captured detailed information during the call that the host has not yet entered -- pre-populate the prompts with the agent's notes and let the host confirm or edit. Show: 'Based on your conversation with [agent], we added some details. Review and edit as needed.'",
+        "Host provides information that could be interpreted as a negative (e.g., 'parking is very difficult') -- the system should not censor or reframe. Honest context sets accurate expectations and prevents complaints. However, if the host's entry contains language that might violate fair housing laws, flag it for review.",
+        "Operational knowledge becomes outdated (e.g., street cleaning schedule changes) -- send periodic prompts (every 3 months) during the active lease: 'Is your parking information still accurate? Tap to review.' Keep the review lightweight -- the host confirms with a single tap or edits as needed.",
+        "Host provides far more detail than 3 sentences for a single prompt (e.g., Jason's 3-minute parking monologue) -- allow it. The text field should not have a visible character limit. For guest-facing display, show the first 2 sentences with a 'Read more' expand option."
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Proposal Decision Sequence Gating with Progressive Reveal",
+      "journey_phases": ["proposal_mgmt", "evaluation"],
+      "problem": "Jason's call reveals a strict cognitive decision sequence: income first (06:14), term second (06:43), furnishing third (07:55), showings fourth (10:18). This is not random -- it is the traditional landlord's decision tree where financial viability gates all subsequent evaluation. If the platform presents all proposal information simultaneously in a flat layout, the host must cognitively triage to find their decision-tree starting point, consuming mental energy on sorting before they can begin evaluating. The current agent-mediated process has no structure at all -- Bryant addresses topics as they arise conversationally, which works in a phone call but fails on a screen where the host is alone. The interaction must pre-sort the proposal into the host's natural decision sequence, revealing each section as the prior one is resolved.",
+      "solution": "Structure the proposal view as three visually gated sections with decreasing visual weight: Financial (primary), Terms (secondary), and Operational (tertiary). The Financial section is fully visible and visually prominent on load. The Terms section is visible but visually subordinate. The Operational section is labeled but collapsed, expanding when the host scrolls to it or when they interact with the Terms section. Each section includes a subtle contextual connector that acknowledges the host's progress: the Terms heading reads 'Financials look solid? Here are the proposed terms.' The host can jump to any section at any time (no hard gating), but the default flow follows the decision sequence. A micro-interaction at the bottom of each section -- a single button ('Continue to Terms' / 'Review Operational Details') -- guides the host forward without forcing them.",
+      "evidence": [
+        {
+          "source": "jason-call.txt, 06:14 then 06:43 then 07:55 then 10:18",
+          "type": "host_call",
+          "quote": "What's a total income between both of them? [06:14] ... you were saying something about the term [06:43] ... they're looking for a furnished place [07:55] ... do people want to see the place? [10:18]",
+          "insight": "Jason's question sequence maps directly to his decision tree: money, time, stuff, trust. The proposal UI must mirror this sequence rather than fight it."
+        },
+        {
+          "source": "jason-call.txt, 13:20-13:26",
+          "type": "host_call",
+          "quote": "They're considering other places as well, right? Yes.",
+          "insight": "Both sides have alternatives. A well-structured proposal that accelerates the host's decision sequence reduces the time spent in evaluation limbo, compressing the conversion runway."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 6 (line ~307-310)",
+          "type": "book",
+          "quote": "Existe sempre um monte de coisas nas diferentes partes do negócio que precisam ser feitas. Muitas empresas querem priorizar essas ideias em um roadmap.",
+          "insight": "Just as product roadmaps must prioritize by impact, proposal screens must prioritize by the host's decision sequence. Presenting everything simultaneously is the information equivalent of an unprioritized backlog."
+        },
+        {
+          "source": "inspired-product-discovery.txt, Ch. 6 (line ~310)",
+          "type": "book",
+          "quote": "Isso se resume à necessidade de saber duas coisas sobre cada ideia: (1) Quanto dinheiro ou valor isso gerará? e (2) Quanto dinheiro ou tempo isso custará?",
+          "insight": "Cagan's business case framework is the host's decision framework. Financial evaluation comes first because it determines whether subsequent evaluation is worth the host's time."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "All three sections are rendered on the page. The Financial section occupies the prime viewport on a white card with shadow-md and the largest typography (mono for income figures). The Terms section sits below on a surface-warm card with shadow-sm and medium typography. The Operational section sits at the bottom on the page background with no elevation and smaller typography. Visual weight cascades from top to bottom, naturally guiding the eye in the correct sequence.",
+        "loading": "If the proposal data is still loading (e.g., host opened the link before all data was assembled), each section loads independently. The Financial section appears first (it contains the most critical data). Terms and Operational sections show skeleton placeholders that resolve as data arrives. The host can begin evaluating financials while terms are still loading.",
+        "empty": "If a section has no data (e.g., no operational preferences from the guest), the section collapses to a single line: 'No operational preferences indicated by guests.' The remaining sections expand to fill the space naturally. Empty sections do not show placeholder cards or dummy content.",
+        "error": "If a section's data fails to load, it shows a clear fallback: 'Unable to load term details -- [retry] or [contact your account manager].' The other sections remain fully functional. A section-level error does not block evaluation of other sections.",
+        "success": "When the host reaches the bottom of the proposal and takes action (express interest, request changes, decline), the entire proposal view transitions to a confirmation state: the action button confirms with a checkmark and the proposal summary collapses to a compact view showing the key terms and the host's response. A follow-up timeline appears: 'Your response was sent. Guests will be notified within 2 hours.'"
+      },
+      "transition_principle": "Scrolling between sections should feel like a natural descent through decreasing importance, guided by the visual weight cascade (white to warm to background). Each section transition provides subtle separation (40px gap) that creates a cognitive pause -- the host has a moment to shift from financial evaluation to term evaluation. The 'Continue to Terms' button at the bottom of the Financial section creates an intentional transition point, but scrolling past it achieves the same result. The interaction is guided but not gated.",
+      "timing": {
+        "response_target": "Full proposal render: under 1.5 seconds. Section-by-section progressive load: Financial section within 500ms, Terms within 800ms, Operational within 1.2 seconds. Action confirmation: under 300ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 'out' easing is applied to section expansion animations (when the host clicks 'Continue to Terms' or when a collapsed section expands). The quick start and gentle deceleration creates a smooth reveal that does not interrupt the host's reading rhythm."
+      },
+      "journey_state_awareness": "During first evaluation (host's first view of the proposal), the progressive reveal is at its most structured -- sections follow the full cascade with contextual connectors. On subsequent visits, the host sees the full proposal without gating -- they have already internalized the decision sequence and can jump to any section. During proposal negotiation (counter-offers, term changes), only the changed sections are highlighted, and unchanged sections fade to reduce cognitive load. The system tracks which sections the host has viewed and adjusts emphasis accordingly.",
+      "edge_cases": [
+        "Host skips the Financial section and goes directly to Operational (e.g., furniture is their primary concern) -- the system allows this without friction. The 'Continue to Terms' button is a guide, not a gate. The host's decision sequence may differ from the typical landlord pattern.",
+        "Proposal is viewed on a small mobile screen where all three sections require significant scrolling -- collapse the Terms and Operational sections by default, showing only the Financial section fully. A sticky section navigator at the bottom allows the host to jump between sections.",
+        "Host reviews the proposal across multiple sessions (views financials today, terms tomorrow) -- the system remembers their scroll position and section progress, highlighting what has changed since their last visit: 'Updated since your last visit: income verification confirmed.'",
+        "Agent or guest updates proposal terms while the host is viewing it -- show a subtle notification at the top: 'This proposal was updated 5 minutes ago. [View changes].' Do not auto-refresh the page, which would lose the host's scroll position and reading context."
+      ]
+    }
+  ]
+}

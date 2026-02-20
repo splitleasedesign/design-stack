@@ -1,0 +1,385 @@
+{
+  "lens": {
+    "guest_call": "user-stories-initial-analysis.md",
+    "book_extract": "kahneman-part5-two-selves.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-2102-001",
+      "type": "validation_strategy",
+      "title": "Move-In Peak Engineering: First-Impression Sentiment and Rebooking Correlation",
+      "validates_element": "works-001",
+      "journey_phases": ["move_in"],
+      "problem": "If the move-in welcome card fails to create a positive peak, the guest's remembering self stores a flat or negative first impression that defines the entire lease memory. The platform has no current mechanism to measure whether move-in is producing positive peaks or leaving peak formation to chance.",
+      "solution": "Deploy the 'How does the space feel?' prompt within the welcome card to capture the peak impression in real time. Track the sentiment score against end-of-lease rebooking rates to validate Kahneman's peak-end rule prediction: positive move-in peaks should correlate with higher rebooking regardless of intervening weeks.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Peak-end rule)",
+          "type": "book",
+          "quote": "The global retrospective rating was well predicted by the average of the level of pain reported at the worst moment of the experience and at its end.",
+          "insight": "If the peak-end rule holds for leases as it does for medical procedures, the move-in sentiment score should be a strong predictor of rebooking -- stronger than average weekly satisfaction."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "guest_call",
+          "quote": "Show something useful first. Offer to refine after.",
+          "insight": "The welcome card delivers three frames of value before the sentiment prompt. If the prompt completion rate is below 60%, the value delivery may be insufficient or the prompt may feel like 'the ask' rather than a natural reflection moment."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track three metrics across all leases: (1) Welcome card engagement rate (percentage of guests who view at least 2 frames of the welcome takeover), (2) First-impression sentiment score (Great/Good/Something's Off distribution), (3) Rebooking rate at lease end. Run correlation analysis between move-in sentiment and rebooking, controlling for lease length, listing quality, and host rating.",
+      "success_criteria": "Welcome card engagement rate above 85% (most guests view the takeover). 'Great' or 'Good' sentiment above 80%. Guests who rated 'Great' at move-in rebook at 2x or higher the rate of guests who rated 'Something's Off.' Move-in sentiment is a statistically significant predictor of rebooking after controlling for lease duration.",
+      "failure_meaning": "If sentiment does not correlate with rebooking, the move-in peak may not be the lease's defining memory -- possibly because negative peaks during the lease (disputes, maintenance failures) override the positive move-in. If engagement is low, the welcome card may not be commanding attention at the peak-sensitivity moment. Investigate whether the takeover is being dismissed before the host message is read.",
+      "implementation_hint": "Instrument events: welcome_card_viewed, welcome_frame_1_photo_seen, welcome_frame_2_message_read, welcome_frame_3_essentials_viewed, welcome_frame_4_sentiment_submitted, sentiment_value. Tag each lease with the sentiment value. At lease end, join with rebooking_initiated events. Build a dashboard showing sentiment-to-rebooking funnel."
+    },
+    {
+      "id": "tests-2102-002",
+      "type": "validation_strategy",
+      "title": "Lease-End Gratitude Sequence: Graduated Emotional Arc Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["active_lease"],
+      "problem": "If the lease-end sequence fails to create a positive ending, the guest's retrospective evaluation is governed by whatever administrative interaction was last (deposit processing, checkout friction). The rebooking decision is 'entirely determined by the final evaluation,' so a flat ending directly reduces retention.",
+      "solution": "Measure the rebooking rate differential between guests who experienced the full three-phase gratitude sequence and those who experienced only partial phases (e.g., host did not submit closing message, guest dismissed phases early). Additionally, measure the sentiment expressed in the guest's memory prompt response ('What will you remember most?').",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 36 (Amnesic Vacations)",
+          "type": "book",
+          "quote": "The intentions for future vacations were entirely determined by the final evaluation.",
+          "insight": "If the final evaluation is governed by the gratitude sequence, guests who complete all three phases should rebook at higher rates than those who received only administrative endings."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Cold-hand experiment)",
+          "type": "book",
+          "quote": "Fully 80% of the participants who reported that their pain diminished during the final phase opted to repeat it.",
+          "insight": "The three-phase graduated arc (reflection > farewell > gratitude) mimics the gradually improving ending. The validation must test whether the graduated arc produces better outcomes than a single farewell moment."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Segment leases into three groups: (A) Full gratitude sequence (all three phases experienced, host message received), (B) Partial sequence (guest saw Phase 1 but dismissed or host message was absent), (C) No sequence (guest did not engage with any phase). Compare rebooking rates across groups. Additionally, analyze the sentiment of memory prompt responses and correlate with rebooking.",
+      "success_criteria": "Group A rebooks at 25% or higher within 30 days of lease end. Group A rebooks at 1.5x or higher the rate of Group C. Guests who wrote positive memory prompt responses rebook at higher rates than those who skipped the prompt. The graduated sequence (all 3 phases) outperforms a single farewell (Phase 3 alone) by at least 20%.",
+      "failure_meaning": "If Group A does not outperform Group C, the gratitude sequence may not be emotionally impactful enough -- the administrative ending may be equally well-remembered (or the positive ending may not override negative lease experiences). If the host message does not lift rebooking, the human warmth element may be less important than the narrative summary. Investigate whether the host's message quality varies too much to be a reliable peak generator.",
+      "implementation_hint": "Tag each lease with gratitude_sequence_completion_level (0, 1, 2, 3 phases). Record host_closing_message_submitted boolean. Store memory_prompt_response text and run sentiment analysis. At lease end + 30 days, measure rebooking_initiated. Compare across segments."
+    },
+    {
+      "id": "tests-2102-003",
+      "type": "validation_strategy",
+      "title": "Rich Listing Card: Search Peak Probability and Return Session Rate",
+      "validates_element": "works-003",
+      "journey_phases": ["search"],
+      "problem": "If listing cards fail to generate positive peaks, the search session is remembered as fruitless -- regardless of how many listings were viewed. A fruitless search memory means the guest does not return for another session, and the funnel dies at the top.",
+      "solution": "A/B test the current listing card against the enriched card (photo carousel, neighborhood identity, availability signal, hover enhancements). Measure whether the enriched card increases the probability of a positive search outcome (defined as clicking into a listing detail page) and whether it increases return session rates.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Two Selves)",
+          "type": "book",
+          "quote": "System 1 represents sets by averages, norms, and prototypes, not by sums.",
+          "insight": "The search session is prototyped by one card. Richer cards produce richer prototypes. If the enriched card increases search-to-listing conversion, it is producing more positive prototypical impressions."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Listing cards section",
+          "type": "guest_call",
+          "quote": "The current card works but it's leaving engagement on the table.",
+          "insight": "The user stories identify specific enrichments. The A/B test validates whether these enrichments translate into measurable peak generation (higher conversion, higher return rate)."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control group sees current listing cards. Treatment group sees enriched cards with photo carousel (auto-advance on hover), neighborhood label with transit, availability alignment signal, and hover quick-actions. Primary metric: search-to-listing-detail conversion rate. Secondary metrics: average carousel photos viewed per session, return search session rate within 7 days.",
+      "success_criteria": "Treatment group shows 25% or greater increase in search-to-listing conversion. Average carousel photos viewed is 2.5 or higher per hovered card (indicating the carousel is generating additional peak opportunities). Return session rate within 7 days increases by 15% or more in treatment group.",
+      "failure_meaning": "If enriched cards do not increase conversion, the enrichments may be adding cognitive load without generating peaks. The card may feel busy rather than rich. Investigate whether specific enrichments (carousel vs. neighborhood label vs. availability) can be isolated for their individual contribution. If return sessions do not increase, the peak generated may not be memorable enough -- the prototype is richer but still not vivid enough to drive return behavior.",
+      "implementation_hint": "Feature-flag the enriched card behind an A/B framework. Instrument events: card_hovered, carousel_photo_viewed (with photo index), neighborhood_label_visible, availability_match_displayed, quick_action_clicked. Track session-level conversion: search_session_started, listing_detail_viewed. Track return: search_session_started with same user within 7 days."
+    },
+    {
+      "id": "tests-2102-004",
+      "type": "validation_strategy",
+      "title": "Messaging as Human Peak: Message-to-Proposal Conversion and Rebooking Differential",
+      "validates_element": "works-004",
+      "journey_phases": ["listing_evaluation", "negotiation"],
+      "problem": "If messaging does not create a human interaction peak, it becomes friction rather than facilitation. The Two Selves prediction is that messaging creates a narrative richness that drives both immediate conversion (proposal) and long-term retention (rebooking). If messaging is merely informational, it adds a step without adding a peak.",
+      "solution": "Compare the full lifecycle of guests who messaged before proposing against those who proposed directly. Track message-to-proposal conversion, acceptance rates, and most critically, rebooking rates at lease end.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Messaging before proposals' section",
+          "type": "guest_call",
+          "quote": "Once someone messages a host, the path to a proposal gets shorter, not longer.",
+          "insight": "The user stories predict higher conversion for message-first guests. The Two Selves lens predicts higher rebooking for message-first guests. Both predictions can be validated with the same cohort comparison."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 36 (Life as a Story)",
+          "type": "book",
+          "quote": "We all care intensely for the narrative of our own life and very much want it to be a good story.",
+          "insight": "Guests who messaged have a richer booking narrative (including a human connection chapter). If richer narratives drive rebooking, the message-first cohort should rebook at higher rates."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Cohort analysis: Cohort A = guests who sent at least one message to a host before submitting their first proposal. Cohort B = guests who submitted a proposal without prior messaging. Track: (1) proposal completion rate, (2) host acceptance rate, (3) lease completion rate, (4) rebooking rate within 30 days of lease end. Control for listing quality and host response characteristics.",
+      "success_criteria": "Cohort A shows 35% or higher message-to-proposal conversion (validating the user stories' prediction). Cohort A's rebooking rate exceeds Cohort B's by at least 20% (validating the Two Selves' prediction that richer narratives drive retention). Host acceptance rates should also be higher for Cohort A (messaging cross-activates the host).",
+      "failure_meaning": "If Cohort A does not rebook at higher rates, the messaging peak may not be memorable enough -- host responses may be too generic or slow to create a vivid human peak. Investigate host response quality and velocity as moderating variables. If proposal conversion is lower for Cohort A, messaging may be introducing hesitation rather than building confidence.",
+      "implementation_hint": "Tag each proposal with message_sent_before_proposal boolean. Track first_message_timestamp, first_proposal_timestamp, and host_response_time. At lease end, join with rebooking events. Build a cohort comparison dashboard with propensity score matching to control for self-selection bias (guests who message may differ systematically from those who do not)."
+    },
+    {
+      "id": "tests-2102-005",
+      "type": "validation_strategy",
+      "title": "Experiencing-Self Data Layer: Expectation Gap Reduction at Move-In",
+      "validates_element": "works-005",
+      "journey_phases": ["listing_evaluation", "move_in"],
+      "problem": "If the focusing illusion remains uncorrected, guests select listings based on photos (remembering-self data) rather than livability (experiencing-self data). The predictable result is a move-in expectation gap: the space is fine for daily living but does not match the photo-formed dream. This gap produces a negative move-in peak that defines the lease memory.",
+      "solution": "Track which listing page sections guests engage with (photos only vs. photos + livability data) and correlate with their move-in sentiment score. Guests who engaged with the Daily Life data layer should arrive with more accurate expectations and report higher move-in satisfaction.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 38 (Focusing Illusion)",
+          "type": "book",
+          "quote": "Nothing in life is as important as you think it is when you are thinking about it.",
+          "insight": "Guests who attended to livability data during evaluation had a broader focus than those who attended only to photos. The broader focus should produce a more accurate affective forecast and a smaller expectation gap at move-in."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "guest_call",
+          "quote": "Every review is a past guest activating a future one.",
+          "insight": "Guests who read reviews (experiencing-self reports from past guests) should have more realistic expectations. Review engagement should correlate with higher move-in satisfaction."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Instrument listing page engagement: track which sections each guest viewed (photo_gallery, daily_life_sidebar, reviews, amenities, rules). At move-in, capture the sentiment score. Correlate section engagement with sentiment. Specifically: do guests who viewed the Daily Life sidebar report higher move-in satisfaction than those who viewed only photos?",
+      "success_criteria": "Guests who engaged with 2 or more experiencing-self data sources (Daily Life sidebar, reviews, map transit data) report 'Great' or 'Good' move-in sentiment at 85% or higher -- at least 10 percentage points above guests who engaged only with photos and price. The expectation gap (delta between listing evaluation enthusiasm and move-in sentiment) is measurably smaller for the livability-engaged cohort.",
+      "failure_meaning": "If livability engagement does not reduce the expectation gap, the data layer may not contain the right information (commute times may not be what matters), or the data may not be prominent enough to counteract the focusing illusion. Alternatively, the expectation gap may be primarily driven by photo quality/accuracy rather than data availability.",
+      "implementation_hint": "Instrument scroll-depth and section-visibility events on the listing page: daily_life_section_viewed, review_section_viewed, photo_gallery_time_spent (seconds), daily_life_time_spent. Join with move-in sentiment. Build a regression model: move_in_sentiment ~ photo_time + daily_life_viewed + reviews_read + listing_quality_control."
+    },
+    {
+      "id": "tests-2102-006",
+      "type": "validation_strategy",
+      "title": "Duration Neglect Mitigation: Mid-Lease Check-In Impact on Longer-Lease Retention",
+      "validates_element": "works-006",
+      "journey_phases": ["active_lease"],
+      "problem": "Duration neglect means a 16-week lease produces the same retrospective evaluation as a 4-week lease if neither has designed mid-lease peaks. The platform implicitly assumes longer leases create more value. If this assumption is wrong, the mid-lease check-in and milestone markers should equalize rebooking rates across lease lengths.",
+      "solution": "Compare rebooking rates across lease lengths (4, 8, 12, 16 weeks) before and after implementing mid-lease check-ins and milestones. The prediction: without mid-lease peaks, longer leases do NOT rebook at higher rates. With mid-lease peaks, longer leases should rebook at rates proportional to (or better than) shorter leases.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Duration neglect)",
+          "type": "book",
+          "quote": "Duration of the procedure had no effect whatsoever on the ratings of total pain.",
+          "insight": "If duration neglect holds for leases, rebooking rates should be independent of lease length (absent designed peaks). Mid-lease peaks should break this pattern by creating temporal anchors that give the remembering self more data points."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 36 (Jen's life)",
+          "type": "book",
+          "quote": "Doubling the duration of Jen's life had no effect whatsoever on the desirability of her life.",
+          "insight": "Without intervention, doubling lease length should have no effect on rebooking desirability. Mid-lease peaks should make longer leases produce richer memories and proportionally better retention."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Phase 1 (baseline): Measure rebooking rates by lease length (4, 8, 12, 16 weeks) for leases completed before mid-lease features launch. Hypothesis: no significant difference by length. Phase 2 (post-launch): Measure the same metrics after mid-lease check-ins and milestones are deployed. Hypothesis: longer leases with more check-ins and milestones now show proportionally better rebooking. Additionally: compare engagement with mid-lease check-in responses and correlate with rebooking.",
+      "success_criteria": "Phase 1 baseline confirms duration neglect: no statistically significant rebooking rate difference between 4-week and 16-week leases. Phase 2 shows that 16-week leases with mid-lease peaks rebook at rates equal to or higher than 4-week leases (breaking the duration neglect pattern). Guests who engaged with the mid-lease check-in ('What has been the best part?') rebook at 1.3x or higher the rate of those who skipped it.",
+      "failure_meaning": "If Phase 1 already shows longer leases rebooking at higher rates, duration neglect may not apply to leases (the experiencing self may accumulate value differently for housing than for medical procedures). If Phase 2 mid-lease peaks do not improve longer-lease retention, the peaks may not be memorable enough -- they may feel routine rather than special. Revisit the visual distinction between milestone cards and operational cards.",
+      "implementation_hint": "Build a lease-length rebooking dashboard. Tag leases with length_weeks and milestone_engagement_count. Phase 1 analysis is retrospective (historical data). Phase 2 requires feature launch and cohort tracking. For the A/B test option: randomize mid-lease features to 50% of new leases, compare rebooking at end."
+    },
+    {
+      "id": "tests-2102-007",
+      "type": "validation_strategy",
+      "title": "Inline Authentication: Peak Preservation During Messaging Intent",
+      "validates_element": "behaves-004",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "If authentication disrupts the messaging impulse, the human connection peak never occurs. The focusing illusion snaps from the listing (positive) to the registration form (negative), and the guest either abandons or returns with diminished emotional momentum.",
+      "solution": "Usability test the inline auth overlay against a full-page redirect. Measure whether the guest perceives the auth as a brief pause (inline) or a detour (redirect), and whether they complete the message after auth.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md, 'Authentication should be invisible' section",
+          "type": "guest_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "The user stories define the testable criterion: users must not lose context. A usability test directly validates whether the inline overlay preserves the messaging impulse."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 38 (Focusing Illusion)",
+          "type": "book",
+          "quote": "Nothing in life is as important as you think it is when you are thinking about it.",
+          "insight": "At the messaging moment, the guest is thinking about the host. A full-page redirect changes what the guest is thinking about. The test validates whether the inline overlay keeps the host in the guest's focal attention throughout auth."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Task-based usability test with 8-10 unauthenticated participants. Task: browse listings, find one they like, and message the host (triggering auth). Group A uses the inline overlay. Group B uses a full-page redirect. Measure: (1) message completion rate (did they send the message after auth?), (2) time from auth trigger to message sent, (3) post-task interview: 'Did you feel like you lost your train of thought at any point?'",
+      "success_criteria": "Group A completes the message at 90% or higher. Group B completes at 60% or lower (establishing the baseline friction of redirects). Group A reports no loss of train of thought in 80% or more of post-task interviews. Average time from auth trigger to message sent is under 15 seconds for Group A.",
+      "failure_meaning": "If both groups complete at similar rates, the auth friction may not be the bottleneck -- the message composition itself may be the barrier. If Group A still loses context, the inline overlay may not be preserving enough visual state (listing photo, host photo, compose area should all remain visible above the overlay).",
+      "implementation_hint": "Build both implementations behind a feature flag. Run moderated usability sessions with screen recording. Track eye movements if available to determine whether the guest's gaze stays on the listing/host during auth or shifts to the auth fields."
+    },
+    {
+      "id": "tests-2102-008",
+      "type": "validation_strategy",
+      "title": "Mid-Lease Narrative Check-In: Reflection Quality and Memory Formation",
+      "validates_element": "behaves-005",
+      "journey_phases": ["active_lease"],
+      "problem": "If the mid-lease check-in feels like a survey, it produces a negative micro-peak (extraction). If it feels like a personal reflection, it produces a positive micro-peak (attention). The interaction design determines which, but the only way to validate is to measure the emotional quality of the responses and whether the check-in itself is remembered at lease end.",
+      "solution": "Deploy the check-in with two variants: (A) reflective prompt ('What has been the best part so far?') and (B) survey-style prompt ('Rate your experience 1-5'). Compare response rates, response sentiment, and whether the check-in is mentioned in the lease-end memory prompt.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Duration neglect)",
+          "type": "book",
+          "quote": "Duration of the procedure had no effect whatsoever on the ratings of total pain.",
+          "insight": "The mid-lease check-in must create a memorable moment that breaks duration neglect. If the reflective variant is remembered at lease end (mentioned in the memory prompt) but the survey variant is not, the reflective design creates peaks that the survey design does not."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "guest_call",
+          "quote": "Show something useful first. Offer to refine after.",
+          "insight": "The reflective variant shows the guest their progress (useful) before asking for reflection. The survey variant asks immediately. The value-before-ask principle predicts higher engagement for the reflective variant."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test at mid-lease: Variant A shows the narrative check-in ('Halfway through. X stays in [neighborhood]. What has been the best part so far?') with progress summary first. Variant B shows a standard survey ('Rate your experience so far: 1-5'). Measure: (1) response rate, (2) response word count/sentiment for Variant A, (3) at lease end, whether the guest's memory prompt references the mid-lease moment.",
+      "success_criteria": "Variant A response rate exceeds Variant B by 20% or more. Variant A responses average 10+ words (indicating genuine reflection, not a quick dismiss). At lease end, 30% or more of Variant A guests reference a mid-lease moment in their memory prompt response. Variant B guests show no significant mid-lease memory formation.",
+      "failure_meaning": "If both variants have similar response rates, the prompt framing may matter less than the timing. If neither is remembered at lease end, the mid-lease check-in may not generate a peak strong enough to break duration neglect. Consider adding a visual element (photo capture, neighborhood highlight) to amplify the peak's memorability.",
+      "implementation_hint": "A/B test at the calculated lease midpoint. Instrument check_in_viewed, check_in_responded, response_text, response_rating (for Variant B). At lease end, analyze memory_prompt_response for references to mid-lease moments (keyword matching: 'halfway,' 'check-in,' specific neighborhood/host references)."
+    },
+    {
+      "id": "tests-2102-009",
+      "type": "validation_strategy",
+      "title": "Counter-Proposal Common-Ground Framing: Loss Aversion Mitigation",
+      "validates_element": "behaves-006",
+      "journey_phases": ["negotiation"],
+      "problem": "If the counter-proposal is experienced as rejection (loss), the guest either abandons the negotiation or accepts with resentment that undermines the lease relationship from day one. The common-ground-first framing must convert the emotional register from loss to collaboration.",
+      "solution": "A/B test the common-ground-first counter-proposal view against a standard diff-style view (changed terms highlighted, no common-ground section). Measure acceptance rates, abandonment rates, and post-acceptance lease satisfaction.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Two Selves)",
+          "type": "book",
+          "quote": "The experiencing self does not have a voice. The remembering self is the one that makes decisions.",
+          "insight": "The guest's decision to accept, counter, or walk away is made by the remembering self based on the negotiation's peak moment. If common-ground framing produces a positive peak (agreement), acceptance rates should be higher than if diff-style framing produces a negative peak (loss)."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, Cross-Activation section",
+          "type": "guest_call",
+          "quote": "When a guest messages a host, that's not just UX convenience -- it's the moment two strangers begin to trust each other through the platform.",
+          "insight": "The host's personal message within the counter-proposal is the trust element. If trust is preserved through the counter, acceptance increases. The test validates whether the common-ground framing preserves the trust that pre-proposal messaging built."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control group sees a standard counter-proposal view (original and changed terms highlighted, no host message prominence, 'Accept / Decline / Counter' buttons). Treatment group sees the common-ground-first view (host message first, 'Where you agree' section, neutral changes section, 'Accept Sarah's suggestion / Suggest a change / Message Sarah' buttons). Measure: (1) acceptance rate, (2) abandonment rate, (3) time to decision, (4) post-acceptance mid-lease satisfaction.",
+      "success_criteria": "Treatment group acceptance rate exceeds control by 15% or more. Treatment group abandonment rate is lower by 20% or more. Treatment group's time-to-decision may be longer (they are reading the host message and common ground) but this should correlate with higher acceptance -- deliberation driven by positive framing. Post-acceptance satisfaction (mid-lease check-in) should be higher for treatment group.",
+      "failure_meaning": "If acceptance rates are similar, the common-ground framing may not override the loss aversion triggered by the parameter change itself. The changed terms may be the bottleneck regardless of framing. Investigate whether the magnitude of the change (e.g., 16 to 10 weeks vs. 16 to 14 weeks) moderates the framing effect.",
+      "implementation_hint": "Feature-flag the counter-proposal view. Instrument: counter_viewed, host_message_read_time, common_ground_section_viewed, changes_section_viewed, action_taken (accept/counter/message/abandon). Track time_to_decision as seconds from counter_viewed to action_taken."
+    },
+    {
+      "id": "tests-2102-010",
+      "type": "validation_strategy",
+      "title": "Peak-First Information Hierarchy: Move-In Information Order Impact",
+      "validates_element": "communicates-001",
+      "journey_phases": ["move_in"],
+      "problem": "If the move-in information hierarchy leads with rules rather than welcome, the focusing illusion anchors the space memory in constraint. The peak-first hierarchy (welcome > essentials > highlights > rules) must produce a measurably different first impression than the current rules-first order.",
+      "solution": "A/B test the information order within the move-in dashboard: Control shows the House Manual (rules, access, procedures) first. Treatment shows the welcome card (host message, neighborhood essentials, space highlights) first, with the House Manual accessible below.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 38 (Focusing Illusion)",
+          "type": "book",
+          "quote": "Any aspect of life to which attention is directed will loom large in a global evaluation.",
+          "insight": "The first information element at move-in IS the attention anchor. Welcome-first anchors the evaluation in warmth. Rules-first anchors the evaluation in constraint. The A/B test validates whether this information order difference produces a measurable sentiment difference."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'Value before the ask' section",
+          "type": "guest_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them.",
+          "insight": "Rules are 'the ask' (constraints the guest must internalize). Welcome is 'the results' (the value of having a new space with a warm host). Value-before-ask predicts that welcome-first produces better engagement."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test at move-in: Control group sees the standard House Manual as the first dashboard element. Treatment group sees the welcome card (host message + neighborhood essentials + space highlights) as the first element, with the House Manual accessible via a 'House Guide' link below. Measure: (1) first-impression sentiment (Great/Good/Something's Off), (2) time spent on the first dashboard element, (3) House Manual access rate (treatment group must still find and use the manual when needed).",
+      "success_criteria": "Treatment group 'Great' or 'Good' sentiment is 10 or more percentage points higher than control. Treatment group spends more time on the welcome card than control spends on the House Manual (indicating engagement rather than obligation). Treatment group House Manual access rate remains above 70% (the guide is still findable and used). Rebooking rate at lease end shows a positive trend for treatment group.",
+      "failure_meaning": "If sentiment is similar, the information order may matter less than the physical space quality. If House Manual access drops below 50% in the treatment group, the welcome-first hierarchy may be hiding essential operational information too effectively. In this case, consider integrating key operational items (access code, emergency contact) into the welcome card's third frame rather than relegating them entirely.",
+      "implementation_hint": "Feature-flag the dashboard order. Instrument: first_element_viewed (welcome_card vs house_manual), time_on_first_element, sentiment_submitted, house_manual_accessed (boolean + timestamp). Track rebooking at lease end for long-term impact."
+    },
+    {
+      "id": "tests-2102-011",
+      "type": "validation_strategy",
+      "title": "Dual-Track Listing Page: Photo-Only vs. Photo+Livability Evaluation Lens",
+      "validates_element": "looks-003",
+      "journey_phases": ["listing_evaluation"],
+      "problem": "If the listing page's visual layout foregrounds photos exclusively, the focusing illusion produces photo-based evaluations that predict move-in excitement but not daily well-being. The dual-track layout must produce evaluations that incorporate both aesthetic impression and experiential reality.",
+      "solution": "A/B test the current photo-dominant listing layout against the dual-track layout (60% photos left, 35% Daily Life sidebar right). Measure how the layout affects proposal rates, proposal-to-move-in expectation gaps, and which listing features guests reference when asked 'why did you choose this listing?'",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 37 (Experienced Well-Being)",
+          "type": "book",
+          "quote": "It is only a slight exaggeration to say that happiness is the experience of spending time with people you love and who love you.",
+          "insight": "Daily life factors (commute, neighborhood, convenience) predict experienced well-being better than aesthetic factors (beautiful photos). If the Daily Life sidebar shifts evaluation toward daily-life factors, the gap between expected and experienced satisfaction should narrow."
+        },
+        {
+          "source": "user-stories-initial-analysis.md, 'The map should feel alive' section",
+          "type": "guest_call",
+          "quote": "Transit stops, landmarks, real-time context -- this is about mood, not just utility.",
+          "insight": "The Daily Life sidebar communicates mood (what the neighborhood feels like) alongside utility (transit times). If guests in the treatment group cite neighborhood character and commute in their listing choice rationale, the sidebar is successfully expanding the evaluation lens."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test: Control sees the current photo-dominant listing page. Treatment sees the dual-track layout with Daily Life sidebar. Measure: (1) proposal rate from the listing page, (2) time spent on the listing page, (3) which sections guests scroll to, (4) at move-in, compare sentiment between control and treatment. Post-lease survey: 'What factors most influenced your choice?' Track whether treatment group cites neighborhood/commute more often.",
+      "success_criteria": "Treatment group proposal rate is within 5% of control (the sidebar should not reduce conversion). Treatment group spends more total time on the listing page but the same time on photos (the sidebar adds evaluation time, not photo browsing). Move-in sentiment is 5 or more percentage points higher for treatment group (more accurate expectations). Treatment group cites neighborhood/commute factors at 2x the rate of control.",
+      "failure_meaning": "If proposal rate drops significantly in the treatment group, the sidebar may be introducing doubt rather than calibration. Guests who see daily-life data may feel more uncertain rather than more informed. If move-in sentiment does not improve, the data in the sidebar may not be accurate or actionable enough. Verify that commute times and neighborhood labels are correct and specific.",
+      "implementation_hint": "Feature-flag the listing page layout. Instrument section visibility and scroll depth. Track daily_life_sidebar_viewed, daily_life_time_spent, transit_data_viewed, review_highlights_viewed. Join with proposal and move-in sentiment events."
+    },
+    {
+      "id": "tests-2102-012",
+      "type": "validation_strategy",
+      "title": "Journey-Level: Peak-End Rule as Retention Predictor Across All Lease Lengths",
+      "validates_element": "layer-0 (cross-phase pattern: Peak-End Architecture)",
+      "journey_phases": ["move_in", "active_lease"],
+      "problem": "The entire run's theoretical foundation rests on Kahneman's peak-end rule applying to multi-week leases. This has been validated for short episodes (medical procedures, vacations) but not for 4-16 week housing arrangements. If the peak-end rule does not hold for leases, the design priority given to move-in peaks and lease-end finales may be misallocated.",
+      "solution": "Build a predictive model for rebooking that includes move-in sentiment (the peak), lease-end sentiment (the end), and average weekly satisfaction (the duration). Test whether move-in and lease-end sentiments predict rebooking better than average weekly satisfaction, validating the peak-end rule for leases.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Peak-end rule)",
+          "type": "book",
+          "quote": "The global retrospective rating was well predicted by the average of the level of pain reported at the worst moment of the experience and at its end.",
+          "insight": "This is the foundational prediction: the retrospective rating (rebooking intent) is predicted by peak and end, not by duration or average experience. The validation directly tests whether this holds for Split Lease's lease context."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 36 (Amnesic Vacations)",
+          "type": "book",
+          "quote": "The intentions for future vacations were entirely determined by the final evaluation.",
+          "insight": "If this holds, the lease-end sentiment alone should predict rebooking as strongly as (or more strongly than) all intervening weekly satisfaction data combined."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Build a regression model: rebooking_intent ~ move_in_sentiment + lease_end_sentiment + average_weekly_satisfaction + lease_length + listing_quality. The peak-end rule predicts that move_in_sentiment and lease_end_sentiment will have higher regression coefficients than average_weekly_satisfaction and lease_length. Test this on a cohort of completed leases where all four data points are available.",
+      "success_criteria": "Move-in sentiment and lease-end sentiment together explain more variance in rebooking than average weekly satisfaction and lease length combined. Lease length has a non-significant coefficient (confirming duration neglect). The model with only peak and end sentiments has an R-squared within 10% of the full model (confirming that peak and end are sufficient predictors).",
+      "failure_meaning": "If average weekly satisfaction is a stronger predictor, the experiencing self's cumulative data may matter more for leases than for short episodes. This would not invalidate the move-in and lease-end designs (they are still important moments) but would suggest that the platform should invest equally in daily experience quality and not over-index on peaks and endings. The design priority would shift from 'engineer the peaks' to 'optimize the daily and engineer the peaks.'",
+      "implementation_hint": "Requires move-in sentiment, weekly satisfaction proxies (cleaning photo scores, communication volume, date-change frequency, issue reports), and lease-end sentiment. Build the dataset from completed leases that have all data points. Start with correlation analysis before building the full regression model."
+    },
+    {
+      "id": "tests-2102-013",
+      "type": "validation_strategy",
+      "title": "Journey-Level: Remembering Self as Retention Gatekeeper -- Memory Prompt Accuracy",
+      "validates_element": "layer-0 (cross-phase pattern: Remembering Self as Retention Gatekeeper)",
+      "journey_phases": ["active_lease"],
+      "problem": "The Two Selves framework predicts that the remembering self's distorted summary (peak + end) governs the rebooking decision, even when that summary does not accurately represent the daily experience. If this is true, the guest's retrospective self-report at lease end should correlate more strongly with rebooking than their cumulative behavioral data during the lease.",
+      "solution": "Compare two predictive models for rebooking: Model A uses the guest's explicit retrospective evaluation (lease-end sentiment, memory prompt response sentiment, overall rating). Model B uses behavioral proxies for experienced well-being (communication frequency, date-change rate, issue reports, payment timing). The Two Selves prediction: Model A outperforms Model B.",
+      "evidence": [
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 35 (Two Selves)",
+          "type": "book",
+          "quote": "The experiencing self does not have a voice. The remembering self is sometimes wrong, but it is the one that keeps score and governs what we learn from living, and it is the one that makes decisions.",
+          "insight": "If the remembering self governs the rebooking decision, the guest's retrospective self-report (the remembering self's voice) should predict rebooking better than behavioral data (the experiencing self's footprint)."
+        },
+        {
+          "source": "kahneman-part5-two-selves.txt, Ch 36 (Amnesic Vacations)",
+          "type": "book",
+          "quote": "As in the cold-hand experiment, right or wrong, people choose by memory when they decide whether or not to repeat an experience.",
+          "insight": "This directly predicts that guests rebook based on memory (retrospective self-report), not based on experience (behavioral data). The model comparison validates this prediction."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Build two competing models for rebooking prediction. Model A (Remembering Self): lease-end sentiment + memory prompt sentiment + overall rating + host closing message received (boolean). Model B (Experiencing Self): average communication frequency + date-change count + issue reports + payment punctuality + total stays completed. Compare R-squared and AUC-ROC for both models in predicting rebooking within 30 days of lease end.",
+      "success_criteria": "Model A's AUC-ROC exceeds Model B's by 0.10 or more. Model A's R-squared is at least 50% higher than Model B's. This validates that the remembering self's explicit evaluation is a better predictor of future behavior than the experiencing self's cumulative behavioral data.",
+      "failure_meaning": "If Model B outperforms Model A, the experiencing self's data may be more predictive for leases than for short episodes. This would suggest that for multi-week housing, the cumulative daily reality matters more than the retrospective summary. Design implications: invest more in daily experience quality (stays manager, communication tools, issue resolution) and somewhat less in peak-and-end engineering.",
+      "implementation_hint": "Requires robust data collection for both models. Model A data comes from the gratitude sequence (sentiment, memory prompt, rating) and the host closing message. Model B data comes from operational logs (communication events, date changes, issue tickets, payment timestamps). Build both models on the same cohort of completed leases and compare using cross-validated performance metrics."
+    }
+  ]
+}

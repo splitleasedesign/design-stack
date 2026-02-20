@@ -1,0 +1,393 @@
+{
+  "lens": {
+    "guest_call": "Customer call- Vince.txt",
+    "book_extract": "dontmakemethink-usability-laws.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Instant Service Concept Recognition on Listing Load",
+      "journey_phases": ["discovery", "listing_evaluation"],
+      "problem": "When Vince landed on the Nolita listing page, the page loaded with a conventional layout (photos, location, amenities) and he scanned it using the same mental model he uses for Airbnb or Craigslist. The service concept -- ghost roommate, exclusive-when-there, personal storage -- was either absent or buried below the fold. By the time the page finished loading and Vince finished scanning, he had already formed three wrong mental models (hotel, cleaning-out arrangement, multiple occupants). The page's default state failed to communicate the most important information before the user's first scan completed. This is an interaction timing problem: the service concept explainer must be visible and comprehensible in the same window of time the user spends on their first scan (under 5 seconds), which means it must be part of the initial render, not a lazy-loaded or scroll-revealed element.",
+      "solution": "The service concept explainer block must be rendered as part of the initial page paint -- above the fold, before the photo gallery, and without any scroll-to-reveal or fade-in animation that delays comprehension. The block should appear in its complete state on first render (no skeleton loader, no progressive reveal). If the page is loading slowly, the concept explainer should be in the first content paint while photos and amenities load asynchronously below. This inverts the conventional pattern where photos load first and descriptions load later. For this novel service, comprehension must precede visual appeal. On subsequent visits by the same user, the concept explainer can collapse to a compact reminder ('Shared apartment, separate schedules') since the mental model is already formed, with an expand affordance if the user wants the full explainer.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 1:19-1:33",
+          "type": "guest_call",
+          "quote": "How does this work like is, uh, like there's a full kitchen in there, you know, are you splitting it with like a hotel, like multiple, multiple people, multiple people throughout the week where you clean everything out and you go home or what?",
+          "insight": "Vince's cascade of wrong mental models proves the listing page's default state -- what he saw on first load and first scan -- did not contain the service concept in a scannable position. The interaction failure is temporal: the concept was not available during the 3-5 second window of Vince's first scan."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.11)",
+          "type": "book",
+          "quote": "It means that as far as is humanly possible, when I look at a Web page it should be self-evident. Obvious. Self-explanatory. I should be able to 'get it' -- what it is and how to use it -- without expending any effort thinking about it.",
+          "insight": "Krug's First Law operates on the initial page view -- the moment the user first looks at the page. If the service concept is not self-evident at that moment (not after scrolling, not after a loading animation completes), the law is violated. The interaction pattern must guarantee concept visibility at first paint."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.2 (p.21)",
+          "type": "book",
+          "quote": "What they actually do most of the time (if we're lucky) is glance at each new page, scan some of the text, and click on the first link that catches their interest or vaguely resembles the thing they're looking for.",
+          "insight": "The first scan is the critical interaction window. Whatever is visible and scannable during that window determines the user's mental model. Anything that loads after, animates in later, or requires scrolling to reach may never be seen by a satisficing user."
+        },
+        {
+          "source": "Customer call- Vince.txt, 2:04-2:20",
+          "type": "guest_call",
+          "quote": "You would have the space a hundred percent yours when you're there. Um, you'd have a ghost roommate when you're not there. Someone who would live in the space when you're not there, that you would never share this space. Um, and you're able to like kind of store your stuff in between stays.",
+          "insight": "The agent's verbal explanation achieved in 16 seconds what the page's default state failed to achieve at all. The interaction pattern must replicate this explanation's effectiveness through the page's initial render state."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Service concept explainer block is fully visible above the fold in its complete form: one-sentence value proposition, 3-panel visual showing the time-split, and scannable labels. The block is static (no animation on entry) so it is immediately comprehensible. Photo gallery and amenity details load below.",
+        "loading": "If the page is loading, the concept explainer renders first as part of the critical rendering path. Photos show skeleton placeholders below. The concept block itself never shows a skeleton state -- it renders complete or not at all, because a half-loaded concept explainer is worse than none (it signals 'something is here but I cannot read it yet,' adding a question mark).",
+        "empty": "Not applicable for this pattern -- the concept explainer is static content, not data-dependent. However, if a listing is in a draft state and the concept explainer has not been configured, show a generic version of the service concept rather than an empty block.",
+        "error": "If the concept explainer fails to render (JS error, missing assets), fall back to a plain-text version of the value proposition sentence. Never show a broken illustration placeholder -- plain text that communicates the concept is better than a broken visual that communicates nothing.",
+        "success": "On return visits by the same user (identified by session or account), the concept explainer collapses to a compact one-line reminder with an expand chevron, freeing space for photos and details that are now more relevant to a user who already understands the model."
+      },
+      "transition_principle": "No entry animation on the concept explainer -- it must be present and static from the moment the page renders. The collapse-to-compact transition on return visits uses easing-out at 200ms to feel smooth but not slow. The expand-from-compact transition when the user clicks the chevron uses easing-out at 250ms. Transitions serve returning users; first-time visitors see no transitions on this component.",
+      "timing": {
+        "response_target": "0ms -- the concept explainer must be in the initial HTML render, not loaded via JavaScript. Target: visible within the browser's first contentful paint, typically under 1000ms on a fast connection.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "No easing needed for initial render (static content). The easing-out value from tokens.json applies only to the collapse/expand transition for returning users, where the smooth deceleration feels confident and unhurried."
+      },
+      "journey_state_awareness": "First-time visitors (no account, no prior visits): full concept explainer, static, above fold. Returning visitors who have not yet created a proposal: compact one-line reminder with expand option. Active-lease guests revisiting a listing: concept explainer hidden entirely, replaced by a contextual link to their active arrangement. The pattern degrades gracefully across the journey as the guest's comprehension increases.",
+      "edge_cases": [
+        "Guest arrives at a listing via deep link from an external source (Google, social media) with zero prior context -- the full explainer is critical and must not be suppressed by any A/B test or cookie state",
+        "Guest uses a screen reader -- the concept explainer must convey the three-pillar model (exclusive when there, ghost roommate when not, stuff stays) through text alone, not relying on the visual illustration",
+        "Very slow connection (3G or worse) -- the concept explainer as text renders first; illustration loads progressively without blocking the text. The text alone must be sufficient for comprehension",
+        "Guest has JavaScript disabled -- the concept explainer is in the initial HTML, not dynamically injected, so it renders regardless of JS state"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Live Office-Days-to-Stay-Nights Translation on Input",
+      "journey_phases": ["proposal_creation", "negotiation", "active_lease"],
+      "problem": "When Vince selected his schedule during the call, he initially said 'Monday, Tuesday' (his office days) before correcting himself to 'Sunday, Monday' (the stay nights he actually needs). The agent caught the error only because a human was present. On a digital form, this translation error would produce a silent wrong booking. The interaction problem is that the platform's schedule input accepts nights as the primary input when the guest's mental model is office days. The feedback loop between input and outcome is missing: when Vince enters 'Monday, Tuesday' on a nights-based form, nothing tells him that he has booked the wrong nights until after submission. The interaction pattern must provide real-time bidirectional translation so the guest sees the consequence of their input before committing.",
+      "solution": "The schedule input component accepts office days as the primary input mode. As the guest taps each office day on a weekly calendar strip, the corresponding stay night highlights simultaneously with a 120ms spring-eased animation, providing instant visual feedback that the translation is happening. The derived stay nights appear below the office-day input in a secondary visual treatment, updating in real time as the guest adds or removes office days. A one-line bridge sentence appears on first use: 'In the office Mon-Tue means you arrive Sunday night.' The monthly cost updates live as nights are added or removed, using IBM Plex Mono with a number-morphing animation (each digit transitions independently at 150ms with easing-out) so the cost change is noticed but not disruptive. The entire interaction is reversible: tapping an office day again removes it and its corresponding night, with the same spring animation in reverse.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 6:27-6:43",
+          "type": "guest_call",
+          "quote": "Actually, I'm sorry. I'm thinking about it. Uh, I think what I mean is Sunday, Monday, I'm supposed to be in the office Monday, Tuesday. So I think the nights I want to stay might be something like that.",
+          "insight": "Vince's self-correction took 16 seconds of real-time thought. On a form, this self-correction does not happen because forms do not talk back. The interaction must provide the feedback that caught the error: showing both the input (office days) and its consequence (stay nights) simultaneously, in real time."
+        },
+        {
+          "source": "Customer call- Vince.txt, 6:43-6:56",
+          "type": "guest_call",
+          "quote": "Oh, perfect. Okay. Sunday, Monday. Yeah. Sorry. It's hard to say like thinking of the days you need with the backing up to the nights that isn't completely understandable.",
+          "insight": "The agent confirms this is a systemic confusion pattern, not a Vince-specific error. The interaction must solve it for all guests through real-time visual feedback, not through instructions or tooltips that guests will not read."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.15)",
+          "type": "book",
+          "quote": "When we're using the Web every question mark adds to our cognitive workload, distracting our attention from the task at hand. The distractions may be slight but they add up, and sometimes it doesn't take much to throw us.",
+          "insight": "The days-to-nights translation is a recurring question mark. Live translation in the interaction eliminates this question mark at the moment it would otherwise appear -- during input, not after submission."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.2 (p.26-28)",
+          "type": "book",
+          "quote": "Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through, making up our own vaguely plausible stories about what we're doing and why it works.",
+          "insight": "Vince will not read a tooltip explaining the days-to-nights conversion. He will muddle through by selecting what he thinks is right. The interaction must make the translation visible as a consequence of his action (tapping an office day), not as a pre-action instruction he must read and remember."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Weekly calendar strip shows seven days (Mon-Sun). No days are selected. The office-day row is prominent (accent-light background). The stay-nights row below is empty but labeled ('Your stay nights will appear here'). The bridge sentence is not yet visible (it appears on first interaction).",
+        "loading": "If the guest's existing schedule is being fetched (returning user or date-change flow), show the calendar strip with a subtle pulse animation on the day cells (opacity oscillation between 0.6 and 1.0 at 800ms interval) to indicate data is loading. Do not show skeleton rectangles -- the calendar shape itself is the skeleton.",
+        "empty": "When no office days are selected, the stay-nights row shows a gentle prompt: 'Tap your office days above to see your stay nights.' This prompt uses ink-muted color and disappears on first interaction, replaced by the derived nights.",
+        "error": "If a selected schedule creates a conflict (e.g., overlaps with the ghost roommate's confirmed schedule), the conflicting night cell turns signal-warn-bg with a signal-warn border, and a single-line error appears below: 'Sunday night is not available -- your roommate is there that night.' The error does not clear the selection; it lets the guest see the conflict and decide how to adjust. The conflicting cell has a gentle shake animation (3px horizontal, 300ms, easing-out) on initial conflict detection.",
+        "success": "When the guest confirms their schedule, the selected nights briefly pulse with accent-bright (200ms fade-in, 400ms hold, 200ms fade-out) to confirm the selection registered. The monthly cost display shows a brief checkmark icon that fades in and holds for 1 second."
+      },
+      "transition_principle": "Each office-day tap produces an immediate (under 120ms) corresponding night highlight, creating a cause-and-effect relationship the guest can see. The spring easing on the night highlight makes the connection feel responsive and tactile. The cost update uses a number-morphing animation where individual digits transition, creating visual continuity rather than a jarring number replacement. All transitions are reversible: removing an office day reverses the night highlight with the same timing. The principle is 'every input has an immediate, visible consequence.'",
+      "timing": {
+        "response_target": "120ms from office-day tap to corresponding stay-night highlight. 150ms for the cost digit transition. Under 50ms for the tap feedback on the office-day cell itself (background color change).",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "Spring easing from tokens.json is used for the night highlight because it creates a slight overshoot that draws the eye to the derived night -- making the translation visible and attention-catching without being distracting. The overshoot is the interaction's way of saying 'look, this is what your selection means.'"
+      },
+      "journey_state_awareness": "At proposal creation (first encounter): show the bridge sentence on first interaction, full office-day input mode with prominent labels. At negotiation (counter-offer): pre-populate with the proposed schedule, highlight changes from the original in signal-info color. At active lease (date change): pre-populate with the current schedule, show diffs from current when the guest modifies. At every phase, the dual-format display (office days + stay nights) is always visible -- never show one without the other.",
+      "edge_cases": [
+        "Guest works a non-standard schedule (e.g., office days are Saturday and Sunday) -- the calendar must not assume Monday-Friday office days. All seven days must be selectable as office days, and the system must correctly derive the preceding nights for any combination",
+        "Guest selects a single office day (e.g., only Monday) -- the system derives a single stay night (Sunday). The monthly cost must update correctly for a one-night schedule without displaying an error or minimum-stay warning at this input stage",
+        "Guest selects non-consecutive office days (e.g., Monday and Thursday) -- the system derives two non-consecutive nights (Sunday and Wednesday). The visual must clearly show the gap between nights without implying the guest needs to book the intervening nights",
+        "Guest's schedule changes mid-lease and they use the date-change tool -- the interaction must show both the current schedule (in muted treatment) and the proposed new schedule (in active treatment) simultaneously, so the guest can see what is changing"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Flexibility Reassurance Reveal at Commitment Hover",
+      "journey_phases": ["proposal_creation", "acceptance", "active_lease"],
+      "problem": "Vince's flexibility anxiety ('What if things change?') peaks at the exact moment he is asked to commit -- submitting a proposal, signing a lease, confirming a schedule. But flexibility information is currently available only through a phone call, not through the interface. The interaction problem is temporal: the guest needs reassurance at the precise moment of highest anxiety (the commitment action), not before (when they are still evaluating) or after (when it is too late). If the flexibility assurance is a static element elsewhere on the page, it may have been scanned and forgotten by the time the guest's cursor reaches the submit button. The interaction pattern must deliver the reassurance at the moment of commitment, triggered by the guest's own approach to the action.",
+      "solution": "When the guest hovers over or focuses on a commitment button (Submit Proposal, Sign Lease, Confirm Schedule), a flexibility assurance callout gently reveals itself adjacent to the button. The reveal is not a tooltip (tooltips feel like afterthoughts and disappear on mouseout) but a persistent callout that slides in from below the button at 250ms with easing-out, remains visible as long as the button area has focus, and slides back down 2 seconds after the cursor or focus leaves the area. The callout content adapts per phase: at proposal submission, 'This is your starting schedule -- adjust anytime after move-in'; at lease signing, 'Your arrangement includes built-in flexibility. Change your schedule with one week notice'; at schedule change confirmation, 'You can change again anytime.' The callout uses the signal-info color palette (calm blue, not warning amber). On touch devices where hover is not available, the callout appears on page load positioned statically below the button, since the hover trigger is not possible.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 5:06-5:25",
+          "type": "guest_call",
+          "quote": "Is there a times when I could just do one night a week, like if after six months or two months by schedule changes from just going in once a week and I could make the work, uh, is that too little on your end to have me sending just once a week?",
+          "insight": "Vince's flexibility question comes before he has even heard a price. Flexibility anxiety precedes and conditions the commitment decision. The reassurance must be present at the commitment moment, not as background information encountered earlier in the flow."
+        },
+        {
+          "source": "Customer call- Vince.txt, 0:39",
+          "type": "guest_call",
+          "quote": "I'm still waiting on them to make things official on the days I would have to be into the office probably going to start off as two, but eventually hopefully get down to one.",
+          "insight": "Vince's schedule uncertainty is the first thing he communicates in the call. This anxiety will be present at every commitment point. The interaction must acknowledge it at those exact moments, not just once during the journey."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.3 (p.31)",
+          "type": "book",
+          "quote": "The more important something is, the more prominent it is.",
+          "insight": "At the moment of commitment, flexibility is the most important secondary information (after the action itself). The hover-reveal interaction makes it prominent exactly when it matters most, without cluttering the page at all other times."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.15)",
+          "type": "book",
+          "quote": "The fact that the people who built the site didn't care enough to make things obvious -- and easy -- can erode our confidence in the site and its publishers.",
+          "insight": "A commitment button with no flexibility context says 'we do not understand your anxiety.' A commitment button that reveals flexibility reassurance on approach says 'we anticipated your concern.' The interaction builds trust at the moment trust is most needed."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The commitment button is visible in its normal state. The flexibility callout is hidden (height: 0, opacity: 0, overflow: hidden). The page is clean and focused on the action.",
+        "loading": "If the commitment action is processing (form submission in progress), the button enters a loading state (spinner replaces label, button becomes non-interactive). The flexibility callout remains visible during loading to maintain reassurance while the guest waits for a response.",
+        "empty": "Not applicable -- the callout content is static per phase, not data-dependent.",
+        "error": "If the commitment action fails (network error, validation error), the flexibility callout slides out as the error message appears, yielding visual space to the error. The error message uses signal-danger palette. Once the error is resolved and the guest re-approaches the button, the flexibility callout re-reveals.",
+        "success": "On successful commitment, the button transitions to a success state (accent-bright background, checkmark icon, 'Submitted' or 'Signed' label) and the flexibility callout transitions from reassurance to confirmation: 'Your schedule is set. You can change it anytime from your dashboard.' This transition uses a crossfade (150ms fade-out of old text, 150ms fade-in of new text)."
+      },
+      "transition_principle": "The callout reveal is gentle and non-intrusive: slide-up from below the button at 250ms with easing-out. It does not bounce, flash, or demand attention -- it simply becomes available when the guest approaches the commitment point. The 2-second delay before hide on mouse-leave prevents flickering for guests who move their cursor near the button repeatedly. On touch devices, the callout is static (always visible near the button) because hover interactions are not available.",
+      "timing": {
+        "response_target": "250ms for the callout reveal animation. 2000ms delay before hide on cursor/focus leave. 150ms for the success-state text crossfade.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Easing-out from tokens.json is used because the reveal should feel like the information is arriving smoothly and settling into place, not bouncing or springing. The deceleration curve communicates calm confidence, matching the reassurance content."
+      },
+      "journey_state_awareness": "At proposal submission: callout says 'This is your starting schedule -- adjust anytime after move-in.' At lease signing: 'Your arrangement includes built-in flexibility. Change your schedule with 1-week notice.' At active-lease date change confirmation: 'You can change again anytime -- no penalty.' The content becomes more specific and concrete as the guest progresses through the journey, matching their increasing knowledge of the platform. First-time guests see more explanation; active-lease guests see shorter confirmation.",
+      "edge_cases": [
+        "Guest uses keyboard navigation (Tab to the button) -- the callout must trigger on focus, not just on mouse hover. The focus trigger must use the same timing and animation as the hover trigger",
+        "Guest on a touch device -- hover is not possible. The callout appears statically below the button on page load, always visible. This is a graceful degradation, not a broken experience",
+        "Multiple commitment buttons on the same page (e.g., Save Draft + Submit Proposal) -- only the final-action button (Submit) triggers the flexibility callout. The draft-save button does not, because the guest is not fully committing",
+        "Screen reader users -- the callout content must be announced when the button receives focus, using aria-describedby linking the button to the callout. The reassurance is informational, not blocking"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Proactive Alternative Promotion on Listing Unavailability",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "When the agent told Vince the Nolita listing might not be available, Vince immediately pivoted to considering alternatives (3:52-4:02). But on the platform, if a guest navigates to a listing that is no longer available, the conventional interaction is a dead-end state: 'This listing is no longer available' with a 'Back to search' link. Krug's satisficing principle predicts that a guest who hits this dead end will leave the platform entirely rather than restart their search. The agent's human behavior -- proactively offering an alternative in the same breath as delivering the bad news -- is the interaction the platform must replicate digitally. The dead-end must become a redirect.",
+      "solution": "When a guest views a listing that is unavailable, the page does not show a dead-end message. Instead, it shows the unavailable listing in a muted state (reduced opacity, desaturated photos, 'No longer available' label in ink-muted) with the next-best alternative listing automatically promoted into a prominent 'Similar space nearby' card that appears directly below the unavailable listing with a 300ms slide-up and fade-in animation. The alternative card uses full opacity, accent-colored 'Available' badge, and the same card format as the original listing, making it immediately actionable. A one-line explanation bridges the two: 'This one is taken. Here is a similar [studio/1BR] [X blocks away / in the same neighborhood].' The alternative is pre-selected based on the same criteria that brought the guest to the original listing (location, schedule compatibility, amenities). If no suitable alternative exists, the page shows the unavailable message with a 'Notify me when something similar opens' email capture, preventing a total dead end.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 3:52-4:02",
+          "type": "guest_call",
+          "quote": "If this one isn't available. Are you open to other locations if they're close to the financial district? Yeah. Yeah, I wouldn't be, um, that's just, yeah.",
+          "insight": "Vince's instant pivot proves that the alternative, not the unavailability, is the important information. The agent delivered both in the same breath. The platform must do the same: the unavailable message and the alternative must appear together in one view, not as separate interactions."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.2 (p.24-25)",
+          "type": "book",
+          "quote": "Most of the time we don't choose the best option -- we choose the first reasonable option, a strategy known as satisficing. As soon as we find a link that seems like it might lead to what we're looking for, there's a very good chance that we'll click it.",
+          "insight": "Satisficing guests do not restart searches. If the first reasonable option is gone and no alternative is immediately visible, the guest will satisfice on a completely different platform (Airbnb, Craigslist) rather than return to search on this one. The alternative must be the next thing they see, not the next thing they search for."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.3 (p.36)",
+          "type": "book",
+          "quote": "Dividing the page into clearly defined areas is important because it allows users to decide quickly which areas of the page to focus on and which areas they can safely ignore.",
+          "insight": "The unavailable listing and the alternative must be clearly defined as two separate areas: one to ignore (the muted, unavailable listing) and one to focus on (the prominent, available alternative). The visual distinction between these areas must be instant and unambiguous."
+        },
+        {
+          "source": "Customer call- Vince.txt, 1:02-1:07",
+          "type": "guest_call",
+          "quote": "The one you reached out about is in Nolita, it looks like it's between, um, right on Mulberry.",
+          "insight": "Vince found this listing through a specific geographic search. The alternative must match the same geographic criteria (near the Financial District) or the promotion feels irrelevant. The matching logic is part of the interaction pattern: wrong alternatives are worse than no alternative."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "For available listings, this pattern does not activate -- the listing page functions normally. The pattern only activates when the listing is confirmed unavailable.",
+        "loading": "While checking availability status, the listing page loads normally. If availability data returns 'unavailable,' the muting transition begins immediately (300ms opacity reduction to 0.5) and the alternative card begins its slide-up animation simultaneously. The guest should not see the listing in a fully active state and then watch it become muted -- if availability is known before render, render the muted state directly.",
+        "empty": "If no suitable alternative exists within the matching criteria, show the unavailable listing muted with a 'Notify me' email capture card in place of the alternative card. The capture card uses the same visual prominence as the alternative card would have, with an accent-colored 'Get notified' button. This prevents a total dead end.",
+        "error": "If the alternative listing data fails to load (network error), show the unavailable listing with a generic 'Browse similar spaces' button that links to pre-filtered search results matching the original listing's criteria. This is the fallback: less ideal than a specific alternative, but better than a dead end.",
+        "success": "When the guest clicks on the alternative listing card, it expands smoothly (300ms easing-out) into the full listing view while the unavailable listing fades out completely (200ms), creating a seamless transition from 'this one is gone' to 'here is your next option' without a page reload."
+      },
+      "transition_principle": "The unavailable-to-alternative transition should feel like a gentle redirect, not a jarring interruption. The muting of the unavailable listing (opacity reduction, desaturation) happens simultaneously with the alternative card's slide-up, creating a visual transfer of attention from one to the other. The alternative card's slide-up uses easing-out for a confident arrival. The overall feeling should be: 'we anticipated this and already have something for you,' not 'sorry, here is a consolation prize.'",
+      "timing": {
+        "response_target": "300ms for the unavailable listing muting transition. 300ms for the alternative card slide-up (begins simultaneously with muting). 200ms for the unavailable listing fade-out when the alternative is clicked.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Easing-out creates a smooth deceleration that makes the alternative card feel like it is settling into its rightful place, not popping in urgently. The simultaneous muting and promoting creates a visual narrative: attention is transferred, not lost."
+      },
+      "journey_state_awareness": "At search results: if the best-match listing becomes unavailable between search and click, the promotion happens inline in the search results rather than on a separate listing page. At listing evaluation: the full muted-listing-plus-alternative layout described above. At proposal creation: if the listing becomes unavailable while the guest is mid-proposal, a modal intercepts with the alternative and offers to transfer the proposal details to the new listing. The pattern becomes more assistive as the guest invests more effort.",
+      "edge_cases": [
+        "Listing becomes unavailable while the guest is actively viewing it (another guest just booked the last slot) -- the muting transition must happen gracefully in real time, not as a hard page redirect. A WebSocket or polling mechanism detects the availability change and triggers the transition",
+        "The alternative listing is in a different neighborhood than the original -- the bridge explanation must clearly state the difference: 'This one is taken. The closest available space is in [neighborhood], about [X] minutes from your office.' Honesty about the tradeoff is essential",
+        "Guest has a direct link to the unavailable listing (bookmarked, shared by a friend) and has never seen the search results -- the alternative must still be presented because the guest has no search context to return to",
+        "Multiple alternatives are available -- show only the single best match to support satisficing, with a 'See more options' link below for the rare guest who wants to compare"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Self-Evident Date-Change Tool with Live Cost Impact",
+      "journey_phases": ["active_lease"],
+      "problem": "The agent explained the date-change feature verbally (5:25-5:39), and Vince responded with surface-level comprehension ('Right, right. Okay'). When Vince encounters this tool in the app weeks later, he will have a vague memory at best. Krug's muddling-through principle predicts he will attempt to use the tool based on incomplete understanding, and if it is confusing, he will default to texting the agent instead. The interaction challenge is twofold: (1) the tool must be discoverable on the active lease dashboard without the guest knowing it exists, and (2) the tool must be usable on first encounter without instructions. Additionally, because schedule changes affect monthly cost, the guest needs to see the financial impact of their change before committing to it -- an interaction that was handled verbally in the call when the agent said 'I'd have to get back to you' about pricing.",
+      "solution": "The date-change tool lives on the active lease dashboard as a weekly calendar strip showing the guest's current schedule (their nights highlighted in accent-light with accent border). A clearly labeled 'Change my schedule' button sits directly below the calendar strip in accent color. When tapped, the calendar enters edit mode: (1) the button text changes to 'Save changes' (accent) and a 'Cancel' text link appears beside it, (2) a first-use contextual hint fades in below in ink-muted: 'Tap an office day to add or remove it from your schedule,' (3) the day cells gain a subtle hover/focus state (accent-bright border) signaling tappability. As the guest taps office days, the corresponding stay nights toggle with a 120ms spring-eased animation, and a live cost display below updates with a number-morphing animation showing the new monthly total alongside the current total, with the difference highlighted in accent (increase) or signal-info (decrease). The guest sees exactly what their change means financially before committing. The 'Save changes' button confirms; 'Cancel' reverts all changes with a 200ms reverse animation.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 5:25-5:39",
+          "type": "guest_call",
+          "quote": "Through our app, once you're in a rental agreement, you can actually change your dates on the flat using the app. So if your roommate wanted to buy a night from you or you wanted to buy a night from them, that's entirely doable as well.",
+          "insight": "The feature was sold verbally but never demonstrated. The interaction must be self-evident on first encounter in the app -- no recall of this phone conversation should be required. The tool's label ('Change my schedule'), affordance (tappable calendar), and feedback (live cost update) must communicate purpose, mechanism, and consequence independently."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.9)",
+          "type": "book",
+          "quote": "If something is hard to use, I just don't use it as much.",
+          "insight": "The date-change tool competes with texting the agent. If the tool requires more effort or thought than composing a text message ('Hey, can I switch to just Monday nights?'), the guest will text. The tool must be easier than texting: fewer taps, more immediate, and with the added benefit of instant cost feedback that texting cannot provide."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.3 (p.36-37)",
+          "type": "book",
+          "quote": "Since a large part of what people are doing on the Web is looking for the next thing to click, it's important to make it obvious what's clickable and what's not.",
+          "insight": "In edit mode, the day cells must be obviously tappable. The hover state (accent-bright border) and the first-use hint ('Tap an office day...') both signal clickability. Outside of edit mode, the day cells must NOT appear clickable, preventing accidental schedule changes."
+        },
+        {
+          "source": "Customer call- Vince.txt, 5:06-5:25",
+          "type": "guest_call",
+          "quote": "Is there a times when I could just do one night a week, like if after six months or two months by schedule changes from just going in once a week...",
+          "insight": "Vince's flexibility question includes an implicit cost question: if I reduce to one night, what do I pay? The date-change tool must answer this instantly through the live cost display, eliminating the need to 'get back to you' that the agent required."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Calendar strip shows current schedule with guest nights in accent-light. 'Change my schedule' button visible below. Cost display shows current monthly total. The tool is view-only; day cells are not interactive.",
+        "loading": "If schedule data is loading, the calendar strip shows day labels with pulsing accent-light backgrounds (opacity oscillation 0.5-1.0, 800ms cycle). The 'Change my schedule' button is disabled (ink-ghost color) until data loads. Loading should complete in under 1 second for cached data, under 3 seconds for fresh fetch.",
+        "empty": "For a new guest who has not yet set a schedule (edge case: accessing dashboard before completing proposal), the calendar strip shows all days unselected with a prompt: 'Set your office days to get started.' The 'Change my schedule' button is replaced by 'Set my schedule' to match the guest's mental model of a first-time action.",
+        "error": "If a schedule change conflicts with the roommate's schedule, the conflicting night cell shows signal-warn-bg with signal-warn border and a brief shake animation (3px, 300ms). A one-line error appears: 'Wednesday night is not available -- your roommate is there.' The conflicting selection is not cleared automatically; the guest must tap the day again to deselect, maintaining control. If the save action fails (network error), the button shows signal-danger color with 'Could not save -- try again' and the proposed changes remain so the guest does not lose their work.",
+        "success": "On successful save, the 'Save changes' button briefly shows a checkmark with accent-bright background (300ms hold), then transitions back to the default 'Change my schedule' state. The calendar updates to reflect the new schedule. The cost display shows the new monthly total with a brief accent-bright highlight on the changed digits (200ms fade-in, 500ms hold, 200ms fade-out)."
+      },
+      "transition_principle": "Edit mode entry (tapping 'Change my schedule') uses a 200ms transition where the button morphs from 'Change my schedule' to 'Save changes' + 'Cancel', day cells gain hover states, and the cost comparison display slides in from below. The overall feeling is that the tool is 'opening up' for interaction. Edit mode exit (Save or Cancel) reverses these transitions. Within edit mode, each day tap produces immediate feedback (120ms spring-eased night toggle, 150ms cost digit morph). The principle is 'the tool responds to every action faster than the guest can form a question about what happened.'",
+      "timing": {
+        "response_target": "50ms for day cell tap feedback (background color change). 120ms for corresponding stay-night toggle animation. 150ms for cost digit morph. 200ms for edit mode entry/exit transitions. 300ms for success confirmation hold.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "Spring easing for the night toggle creates a responsive, tactile feel that rewards each tap. The slight overshoot draws the eye to the derived night, reinforcing the days-to-nights translation. Easing-out (cubic-bezier(0.16, 1, 0.3, 1)) is used for the edit mode entry/exit transitions, which should feel smooth and settling rather than bouncy."
+      },
+      "journey_state_awareness": "During the first month of an active lease, the date-change tool includes the first-use hint and the bridge sentence ('In the office Mon-Tue means you arrive Sunday night'). After the guest has used the tool once, the hint does not reappear. If the guest has never changed their schedule in 3+ months, a subtle prompt appears on the dashboard: 'Did you know you can change your schedule anytime?' in ink-muted with a dismiss option. The tool adapts its guidance level to the guest's experience with it.",
+      "edge_cases": [
+        "Guest tries to remove all nights (reducing to zero) -- the tool should prevent this with a gentle message: 'You need at least one night per week. To end your arrangement, contact us.' The 'Save changes' button is disabled when zero nights are selected",
+        "Guest's schedule change would leave the ghost roommate with zero available nights -- show a warning: 'This change would leave no nights for your roommate. We will need to find a new match, which may take [X] days.' Allow the change but set expectations",
+        "Guest is on a mobile device with limited screen space -- the calendar strip should be a compact row of tappable circles (one per day) rather than full-width cells. The cost display stacks below rather than beside",
+        "Guest has pending schedule changes that have not yet taken effect -- the calendar shows both the current schedule (solid accent border) and the pending schedule (dashed accent border) with a status note: 'Your new schedule starts [date]'"
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Scannable Move-In Guide with Progressive Arrival Sequence",
+      "journey_phases": ["move_in", "active_lease"],
+      "problem": "The agent promised Vince a 'feel like home' experience with personal storage (2:10-2:20), but Vince's first physical encounter with the space will be mediated by a House Manual that Krug's scanning principle predicts he will not read. The interaction problem is that a traditional House Manual is a document -- static, linear, and dense -- when what the guest needs is a sequence of just-in-time information cards that match the physical actions of arriving. Vince's arrival sequence is: (1) find the door and get in, (2) connect to WiFi, (3) find where to put his stuff, (4) check the kitchen, (5) understand the basic rules. A document presents all of this simultaneously; a progressive sequence presents each card only when the guest is ready for the next one. The interaction must match the physical rhythm of arrival, not the organizational logic of a manual.",
+      "solution": "The move-in guide is delivered as a sequence of 5 cards on the guest's mobile device, with only the first card (Access) fully expanded on initial load and the remaining cards collapsed to their headings. As the guest completes each step, they tap 'Done' or 'Next' to collapse the current card and expand the next one, creating a linear progression that matches their physical actions. Each card contains: a heading in Outfit 18px bold, one photo (the actual space, not a generic image), and a maximum of 20 words of body text. The cards are: (1) Access -- key/code, photo of entrance; (2) WiFi -- network name and password in IBM Plex Mono for easy reading and copying (tap-to-copy affordance); (3) Your Storage -- photo of the exact drawer/shelf/area in this unit; (4) Kitchen -- photo showing what is available; (5) House Rules -- 3 bullet points maximum. The guide is sent 24 hours before first stay via notification and is always accessible from the active lease dashboard. On subsequent stays, only the Access card is shown by default (the guest may need a door code reminder), with the other cards available on tap.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 2:10-2:20",
+          "type": "guest_call",
+          "quote": "You're able to like kind of store your stuff in between stays so like toiletries and monitors and whatever you need there. It's kinda nice to be able to, you know, feel like home every time you're there.",
+          "insight": "The 'feel like home' promise depends on Vince finding his storage location easily on arrival. A progressive guide that surfaces the storage card as the third step (after access and WiFi) ensures Vince encounters it during his first 10 minutes, not buried on page 3 of a manual he will never read that far."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.2 (p.21)",
+          "type": "book",
+          "quote": "What they actually do most of the time (if we're lucky) is glance at each new page, scan some of the text, and click on the first link that catches their interest or vaguely resembles the thing they're looking for.",
+          "insight": "A full House Manual will be scanned, and Vince will extract only the first scannable item (probably the door code). The progressive sequence eliminates scanning by presenting one item at a time, ensuring each piece of information is encountered in order."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.5 (p.44)",
+          "type": "book",
+          "quote": "Omit needless words.",
+          "insight": "20 words per card is the maximum. Every word beyond 20 is a word Vince will skip. The card format enforces radical brevity because there is no room for paragraphs -- only a heading, a photo, and a sentence."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.19)",
+          "type": "book",
+          "quote": "Making pages self-evident is like having good lighting in a store: it just makes everything seem better. Using a site that doesn't make us think about unimportant things feels effortless.",
+          "insight": "The progressive sequence is the digital equivalent of good lighting: it illuminates exactly the information the guest needs at each step, dimming everything else. The arrival experience feels effortless because the guest never has to search for the next piece of information."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "First card (Access) is fully expanded with photo and text visible. Cards 2-5 are collapsed to headings only, showing a progress indicator (dots or numbered steps) at the top. Each collapsed card heading has a subtle chevron indicating it can be expanded manually.",
+        "loading": "If photos are loading, show the card heading and text immediately with a placeholder background for the photo (surface-warm, no skeleton shimmer -- just a calm empty space that does not distract from the text). Photos load asynchronously and fade in at 200ms when ready. The text content is the priority -- it should never wait for a photo.",
+        "empty": "If a card's content has not been configured by the host (e.g., no storage photo uploaded), show a generic prompt: 'Ask your host about your storage space' with a one-tap message affordance that opens a pre-filled message to the host. Do not show a blank card -- every card must provide actionable information or a path to get it.",
+        "error": "If the guide fails to load (network error on mobile), show a cached version if the guide has been viewed before. If no cache exists, show a minimal fallback with just the access code (the single most critical piece of information) and a 'Retry' button. Access information should be cached aggressively -- losing access instructions while standing outside the building is the worst possible failure mode.",
+        "success": "When the guest completes all 5 cards, the progress indicator shows all steps complete, and a brief 'You are all set' message appears with accent-bright background (300ms fade-in, holds until dismissed). The guide collapses to a compact icon on the dashboard, accessible anytime but no longer taking prominent space."
+      },
+      "transition_principle": "Each card collapse/expand uses a 250ms easing-out animation. The current card collapses (height reduces, opacity fades to show only the heading) while the next card expands simultaneously, creating a smooth vertical scroll effect. The guest's eye naturally follows the collapsing card down to the expanding card. Progress indicator dots fill with accent color as each card is completed, providing a sense of forward motion. The overall feeling should be like flipping through a very short, very helpful stack of cards -- each one gives you what you need and gets out of the way.",
+      "timing": {
+        "response_target": "250ms for card collapse/expand transitions. 200ms for photo fade-in on load. 300ms for the completion message fade-in. Tap-to-copy for WiFi password should provide haptic feedback (on supported devices) and a 'Copied' toast within 100ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Easing-out for card transitions creates a smooth, settling motion that matches the calm, 'welcome home' tone of the move-in experience. Spring easing would feel too energetic for a guest who is arriving tired with bags. The motion should feel like settling in, not bouncing."
+      },
+      "journey_state_awareness": "First stay: full 5-card sequence, sent 24 hours before arrival. Second stay: only Access card expanded by default (guest may need the door code), other cards collapsed and accessible. Fifth+ stay: guide available on dashboard but not proactively surfaced -- the guest is a regular and knows the space. If the guest has never opened the guide before their first stay, send a reminder notification 2 hours before check-in with just the access information.",
+      "edge_cases": [
+        "Guest arrives before the guide is sent (early arrival, schedule change) -- the access information must be available immediately via the dashboard, even if the full guide has not been triggered yet",
+        "Guest has accessibility needs (screen reader) -- each card must be navigable via swipe gestures with full text alternatives for photos. The progress indicator must announce 'Step 1 of 5: Access' on focus",
+        "Host has not uploaded photos for the space -- fall back to icons (key icon for access, WiFi icon, drawer icon for storage) with text descriptions. Generic photos are worse than no photos because they set wrong expectations about the actual space",
+        "Guest's WiFi password contains special characters that are hard to type -- the tap-to-copy affordance is critical. If clipboard access is denied by the browser, show the password in IBM Plex Mono at a size large enough to read character-by-character (16px minimum)"
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Optimistic Proposal Submission with Transparent Status Tracking",
+      "journey_phases": ["proposal_creation", "negotiation"],
+      "problem": "During the call, the agent collected Vince's preferences and promised to 'get back to you' (4:51) and 'have myself or someone get in touch with you shortly' (6:27). This creates a black-box experience: Vince submits his preferences and then waits with no visibility into what is happening. On the platform, if the guest submits a proposal and sees only a 'We will get back to you' confirmation, the same black-box anxiety emerges. Krug's muddling-through principle means Vince will form 'vaguely plausible stories' about what is happening during the wait, and those stories will be worse than reality (Is anyone looking at this? Did it go through? Are they going to call me or should I call them?). The interaction must provide immediate optimistic feedback on submission and transparent status tracking during the wait.",
+      "solution": "When the guest submits a proposal, the interface provides three phases of interaction: (1) Immediate optimistic response (under 300ms): the submit button transitions to a checkmark with accent-bright background and the text 'Proposal sent' while the page transitions to a status view. This happens before the server confirms receipt -- the interaction is optimistic, assuming success. (2) Status tracker: a simple 3-step progress indicator appears showing 'Sent > Under review > Response ready', with the first step highlighted. Each step has a one-line description ('Your proposal was received' / 'A host is reviewing your schedule and pricing' / 'Check your proposal for the host response'). (3) Estimated timeline: below the tracker, show 'Hosts typically respond within [X hours/days]' in ink-soft, setting expectations concretely. If the server response fails (optimistic assumption was wrong), roll back gracefully with a signal-warn message: 'Your proposal could not be sent. Your information is saved -- try again.' The rollback animation reverses the checkmark transition (300ms), restoring the submit button.",
+      "evidence": [
+        {
+          "source": "Customer call- Vince.txt, 6:27",
+          "type": "guest_call",
+          "quote": "But I will have myself or someone get in touch with you shortly.",
+          "insight": "The agent's 'shortly' is vague. On the platform, 'shortly' could mean 2 hours or 2 weeks. The status tracker replaces vague promises with concrete steps and timeframes, reducing the anxiety that festers during the wait between submission and response."
+        },
+        {
+          "source": "Customer call- Vince.txt, 4:51-4:58",
+          "type": "guest_call",
+          "quote": "I'd have to get back to you. I can get back to you with the exact cross streets and how much, um, two nights would be.",
+          "insight": "Even the agent could not provide immediate pricing. On the platform, the proposal submission should include the guest's monthly cost estimate (from the live calculator in behaves-002) so the guest knows what they proposed, even if the host's response may adjust it. The status tracker can show 'Your proposed rate: $X/month' as a reference point during the wait."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.2 (p.26-28)",
+          "type": "book",
+          "quote": "Faced with any sort of technology, very few people take the time to read instructions. Instead, we forge ahead and muddle through, making up our own vaguely plausible stories about what we're doing and why it works.",
+          "insight": "During the wait between submission and response, the guest is muddling through the uncertainty. Without a status tracker, they will form stories: 'They probably forgot about me,' 'I should call them,' 'Maybe I did something wrong.' The status tracker replaces these anxious stories with clear, factual status updates."
+        },
+        {
+          "source": "dontmakemethink-usability-laws.txt, Ch.1 (p.15)",
+          "type": "book",
+          "quote": "The fact that the people who built the site didn't care enough to make things obvious -- and easy -- can erode our confidence in the site and its publishers.",
+          "insight": "A black-box submission ('We will get back to you') erodes confidence in the platform's reliability. A transparent status tracker ('Step 2 of 3: A host is reviewing your proposal') builds confidence by showing the platform is actively working."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Before submission, the proposal form is in its standard state with the submit button in accent color. The status tracker is not visible.",
+        "loading": "The optimistic response (checkmark, 'Proposal sent') appears immediately. Meanwhile, the actual server submission happens in the background. If the server confirms within 3 seconds, the status tracker's first step activates with a subtle accent-bright pulse. If the server takes longer than 3 seconds, a small progress indicator appears below the status tracker: 'Confirming your proposal...' The guest never sees a blank loading screen.",
+        "empty": "Not applicable -- once a proposal is submitted, the status tracker always has content. If the guest has not yet submitted, they are in the proposal creation form, not the status view.",
+        "error": "If the optimistic submission fails (server rejects or network error), the checkmark reverses to the submit button (300ms reverse animation), and a signal-warn callout slides in: 'Your proposal could not be sent. Your information is saved -- try again.' The guest's input is preserved in the form so they do not have to re-enter anything. If the proposal was submitted but the status tracker cannot fetch updates (polling failure), show the last known status with 'Updated [X minutes ago]' and a manual refresh option.",
+        "success": "When the host responds to the proposal, the status tracker's third step activates with an accent-bright pulse, and a notification is sent to the guest. The status tracker transitions to show the host's response inline: 'Your host responded' with the response details (accepted terms, counter-offer, or decline) displayed below. If accepted, a 'Proceed to lease' button appears. If counter-offer, the changed terms are highlighted in signal-info color."
+      },
+      "transition_principle": "The optimistic submission creates a feeling of forward momentum: the submit button's transition to a checkmark (300ms, spring easing) signals 'done,' and the page's smooth scroll to the status tracker (400ms, easing-out) signals 'here is what happens next.' The status tracker steps activate sequentially as the proposal progresses, with each step's activation using a subtle left-to-right fill animation (200ms) that communicates progress. If rollback is needed, the reverse animation must be equally smooth -- the guest should feel 'let me try again,' not 'something broke.'",
+      "timing": {
+        "response_target": "300ms for the optimistic checkmark transition. 400ms for the scroll to the status tracker. 200ms for each status step activation animation. Under 3000ms for server confirmation (target). 300ms for the rollback animation if submission fails.",
+        "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "rationale": "Spring easing for the checkmark transition creates a brief moment of satisfaction ('that felt good') that rewards the submission action. The slight overshoot of the spring curve makes the checkmark feel like it arrived with energy, matching the positive emotion of taking a step forward. Easing-out is used for the scroll and status transitions, which should feel calm and informational."
+      },
+      "journey_state_awareness": "First proposal: full status tracker with timeline estimates and a link to 'What happens next?' explanation. Subsequent proposals (guest is experienced): compact status tracker without the explanation link. If the guest has a history of proposals that were not responded to, the timeline estimate adjusts to reflect actual response times, and a 'Contact us if you have not heard back' option appears after the estimated window passes.",
+      "edge_cases": [
+        "Guest submits a proposal and immediately closes the app/browser -- the optimistic submission should still complete via the server. On return, the status tracker should show the current state, not restart from scratch",
+        "Host responds while the guest is offline -- on next app/page open, the status tracker should show the completed state with the host's response, plus a notification badge if the response has not been viewed",
+        "Guest submits multiple proposals for different listings simultaneously -- each proposal gets its own status tracker, accessible from a 'My proposals' list on the dashboard. Active proposals show a count badge",
+        "The proposal is auto-rejected (e.g., schedule conflict with existing arrangement) -- the rejection should appear as a status update with a clear explanation and a 'Browse alternatives' action, not as a generic error"
+      ]
+    }
+  ]
+}

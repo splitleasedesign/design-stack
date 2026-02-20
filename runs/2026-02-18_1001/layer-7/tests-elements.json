@@ -1,0 +1,198 @@
+{
+  "lens": {
+    "guest_call": "Tyler Wood 24 November 2021.txt",
+    "book_extract": "hooked-hook-model.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Flexibility Expression Self-Service Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "If the flexibility selector is poorly implemented, guests will revert to calling the agent for day matching — defeating the purpose of self-service.",
+      "solution": "Run a moderated usability test with 5 participants who have specific day-of-week requirements. Give them a scenario matching Tyler's (need a Chelsea space Sat-Wed, flexible to Sun-Wed). Measure time to express preferences and find matches.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 07:03-18:13",
+          "type": "guest_call",
+          "quote": "Tyler spent 10+ minutes negotiating day flexibility with the agent.",
+          "insight": "The baseline is 10+ minutes for phone-based flexibility expression. The self-service target is under 2 minutes."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Give 5 participants a scenario: 'You need a shared space in Chelsea, Saturday-Wednesday, for 2 months, around $2,000/month. You're flexible on which specific days.' Have them use the flexibility selector to find matching listings. Measure time to completion, number of errors, and satisfaction (1-5 scale). Also measure whether participants understand the 'flexible' vs 'selected' day distinction.",
+      "success_criteria": "80% of participants can express their day preferences and find at least one matching listing within 2 minutes. 100% understand the difference between selected and flexible days. Average satisfaction score above 3.5/5.",
+      "failure_meaning": "If participants take longer than 2 minutes or don't understand the flexible/selected distinction, the visual encoding is unclear. Likely fix: simplify to a two-state chip (selected/not selected) instead of three states, or add a brief tooltip on first use.",
+      "implementation_hint": "Prototype the day-chip selector in Figma or HTML. Use Maze or UserTesting.com for remote moderated testing. Key Playwright check: verify that toggling a day chip updates the results count within 500ms."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Guest Investment Capture Funnel Analytics",
+      "validates_element": "works-002",
+      "journey_phases": ["discovery", "search", "proposal_creation"],
+      "problem": "If guest investment capture fails, guests will interact once (call or browse) and never return — zero stored value means zero switching costs.",
+      "solution": "Track the funnel from first contact to stored preference profile: what percentage of guests have a complete preference set within 24 hours of first interaction?",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 14:41",
+          "type": "guest_call",
+          "quote": "I guess that gives me all the information I need to start working.",
+          "insight": "The agent has all the data but the platform has none. Success means the platform has the data within 24 hours of first contact."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Implement analytics events for: (1) first_contact (guest arrives on platform), (2) preference_captured (each preference field stored: location, days, budget, duration), (3) profile_complete (all 4 core preferences stored), (4) return_visit (guest returns within 7 days). Track funnel conversion rates.",
+      "success_criteria": "80% of guests who complete at least one search action have a stored preference profile within 24 hours. 50% of guests with stored profiles return within 7 days. Profile completion rate (all 4 core fields) above 60%.",
+      "failure_meaning": "If profile completion is below 60%, the implicit capture mechanism isn't working — guests are taking actions but the system isn't inferring preferences. Likely fix: add explicit but quick preference capture (3-question onboarding quiz: Where? When? Budget?).",
+      "implementation_hint": "Track events: page_view (with UTM source for Craigslist/external), day_chip_toggle, listing_view, search_submit, proposal_start. Infer preferences from: location from first listing viewed, days from first chip selection, budget from price range of viewed listings."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Weekly Hook Cycle Engagement Rate",
+      "validates_element": "works-003",
+      "journey_phases": ["active_lease"],
+      "problem": "If the weekly hook cycle doesn't engage guests, they'll manage stays off-platform via text, and the platform loses its most valuable engagement data.",
+      "solution": "Track weekly engagement rate during active leases: what percentage of stay-weeks include at least one platform action (check-in, photo upload, review, date change)?",
+      "evidence": [
+        {
+          "source": "hooked-hook-model.txt, Ch 1 (Habit Zone)",
+          "type": "book",
+          "quote": "A behavior that occurs with enough frequency and perceived utility enters the Habit Zone.",
+          "insight": "Weekly stays are high-frequency. If platform engagement doesn't match this frequency, the Hook Model fails to form habits."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "For each active lease, track the percentage of stay-weeks where the guest performs at least one of: check-in, cleaning photo upload, stay review, date change request, or host message. Segment by lease length (short: 4-8 weeks, long: 8+ weeks) and by week number (early vs. late in lease).",
+      "success_criteria": "70% weekly engagement rate averaged across all active leases. Engagement rate should INCREASE over time within a lease (indicating habit formation), not decrease. Week 1 target: 50%. Week 8 target: 80%.",
+      "failure_meaning": "If engagement rate is below 70% or DECREASING over time, the hook cycle is failing. The trigger (notification) may be ineffective, the action (check-in) may be too effortful, or the reward (streak, acknowledgment) may be insufficient. Diagnose by checking which hook phase has the lowest completion rate.",
+      "implementation_hint": "Track events: stay_checkin, photo_upload, review_submitted, date_change_requested, message_sent. Aggregate per stay-week per lease. Create a dashboard showing engagement trend over lease duration. Alert when engagement drops below 50% for 2 consecutive weeks."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Price Transparency Trust Test",
+      "validates_element": "communicates-002",
+      "journey_phases": ["listing_evaluation", "proposal_creation", "negotiation"],
+      "problem": "If price decomposition is poorly presented, guests will feel manipulated by price differences between posted rates and their personalized rates — exactly the anxiety Tyler expressed.",
+      "solution": "Run an A/B test: show one group the standard listing price, and the other group the day-based price decomposition. Measure proposal submission rates and post-proposal satisfaction.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 12:07",
+          "type": "guest_call",
+          "quote": "Don't push up the price without a reason.",
+          "insight": "Price transparency directly impacts trust. Guests who understand why their price differs from the posted rate should have higher trust and submission rates."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test on the listing detail page: (A) Standard: show nightly rate and total monthly price. (B) Decomposition: show per-day rates with weekend premium indication and savings opportunity for day shifts. Measure: proposal submission rate, time on listing page, and post-proposal survey question: 'Did you feel the pricing was transparent? (1-5 scale).'",
+      "success_criteria": "Variant B (decomposition) achieves: (1) equal or higher proposal submission rate vs. A, (2) higher transparency score (target: 4.0/5 vs. estimated 3.0/5 for A), (3) lower post-acceptance complaint rate about pricing.",
+      "failure_meaning": "If decomposition reduces submission rates, the visual presentation may be overwhelming or the per-day rates may feel more expensive when decomposed (even if the total is the same). Likely fix: lead with the total and make decomposition expandable.",
+      "implementation_hint": "Implement as a feature flag on the listing detail page. Track: listing_view, proposal_started, proposal_submitted, pricing_section_expanded (for decomposition variant). Add a one-question survey after proposal submission: 'How transparent was the pricing? 1-5.'"
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Check-In Speed vs. Text Message Benchmark",
+      "validates_element": "behaves-002",
+      "journey_phases": ["active_lease"],
+      "problem": "If the one-tap check-in is slower or more effortful than texting the host, the guest will default to text — and the platform loses the engagement anchor of the weekly hook cycle.",
+      "solution": "Time comparison test: measure the time for one-tap check-in vs. composing and sending a text message to the host. The platform action must be faster.",
+      "evidence": [
+        {
+          "source": "hooked-hook-model.txt, Ch 3 (Action)",
+          "type": "book",
+          "quote": "Companies leverage two basic pulleys of human behavior: the ease of performing an action and the psychological motivation to do it.",
+          "insight": "If the platform action is easier than texting, guests will use the platform. If it's harder, they'll text."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Give 5 participants two tasks: (1) Check in using the platform's one-tap button. (2) Compose and send a text message to a host saying 'Arriving at 3pm.' Time both tasks. Also measure error rate and satisfaction.",
+      "success_criteria": "Platform check-in is completed in under 3 seconds (one tap + visual confirmation). Text message takes 8-15 seconds. Platform must be at least 2x faster. Zero errors on platform check-in (it's one tap).",
+      "failure_meaning": "If the platform check-in takes longer than 5 seconds or produces errors, the button state is unclear or the flow has unnecessary steps. Likely fix: ensure the check-in button is immediately visible without scrolling on the dashboard.",
+      "implementation_hint": "Playwright automated test: navigate to active lease dashboard, assert check-in button is visible within viewport, click button, assert success state appears within 500ms. For usability test: use mobile device, measure from 'open app' to 'check-in confirmed.'"
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "Cleaning Photo Upload Completion Rate",
+      "validates_element": "behaves-003",
+      "journey_phases": ["active_lease"],
+      "problem": "If the cleaning photo flow is cumbersome, guests will skip it — losing the key investment action of the weekly hook cycle and the documentation that protects both parties.",
+      "solution": "Track the cleaning photo upload rate as a percentage of completed stays, segmented by stay number (1st, 2nd, 3rd...) to detect habit formation or decay.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 13:53",
+          "type": "guest_call",
+          "quote": "You would be kind of cleaning after yourself for the person.",
+          "insight": "The cleaning exchange is a core commitment. If the photo documentation rate is low, it indicates the investment action is too effortful."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track photo_upload_completed events per stay-week. Segment by: stay number within lease (1st, 2nd, 3rd...), device type (iOS/Android/web), and time of upload relative to departure time. Also track: photo_prompt_shown, photo_camera_opened, photo_uploaded events to identify funnel drop-off points.",
+      "success_criteria": "50% of stays have at least one cleaning photo uploaded. Upload rate should increase over time (habit formation): Week 1 target 30%, Week 4 target 60%. Less than 20% drop-off between camera_opened and photo_uploaded (indicating the upload flow is smooth).",
+      "failure_meaning": "If upload rate is below 30% after week 4, the prompt timing or the photo flow is wrong. Diagnose: if prompt_shown-to-camera_opened is low, the prompt isn't compelling (copy/timing issue). If camera_opened-to-uploaded is low, the upload mechanism is slow or buggy.",
+      "implementation_hint": "Track events: cleaning_prompt_shown, cleaning_camera_opened, cleaning_photo_captured, cleaning_photo_uploaded, cleaning_flow_completed. Create a funnel visualization. Set up alerts for upload rate drops below 30%."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Emotional Arc Validation: Discovery-to-Belonging Progression",
+      "validates_element": "feels-001, feels-002, feels-003",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation", "negotiation", "acceptance", "move_in", "active_lease"],
+      "problem": "If the emotional arc is incoherent — if confidence doesn't build into belonging, or if anxiety spikes at the wrong moments — the guest's overall experience breaks down even if individual touchpoints are well-designed.",
+      "solution": "Longitudinal qualitative study: interview 5-8 guests at multiple points in their journey (after first search, after proposal submission, after first stay, after 4th stay) to track emotional progression.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, full arc",
+          "type": "guest_call",
+          "quote": "Tyler's emotional journey: curiosity (discovery) → cooperation (search) → budget anxiety (negotiation) → patience (waiting) → [projected] belonging (active lease).",
+          "insight": "The emotional arc must be validated through real guest experiences, not just projected from a single call."
+        },
+        {
+          "source": "hooked-hook-model.txt, Ch 2 (Internal Trigger)",
+          "type": "book",
+          "quote": "Internal triggers manifest automatically in your mind.",
+          "insight": "The ultimate test of the emotional arc is whether guests develop internal triggers — they think of Split Lease automatically when they need flexible housing, without external prompting."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 5-8 guests who are starting new leases. At each milestone (first search, proposal submitted, first stay, 4th stay), conduct a 15-minute interview asking: (1) How are you feeling about your housing situation right now? (1-10 scale) (2) What word describes your relationship with the platform right now? (3) Have you thought about Split Lease without being prompted this week? (4) What would make you feel more at home?",
+      "success_criteria": "Satisfaction score increases from search (target: 6/10) to 4th stay (target: 8/10). Guest-chosen emotional words progress from task-oriented (efficient, helpful) to relationship-oriented (comfortable, home, mine). By the 4th stay, at least 60% of guests report thinking of Split Lease without prompting (internal trigger formation).",
+      "failure_meaning": "If satisfaction plateaus or decreases, identify the phase where the dip occurs. If emotional words remain task-oriented after 4 stays, the belonging design is failing — the product feels like a tool, not a home base. If internal trigger formation is below 40%, the hook cycle is not completing frequently enough.",
+      "implementation_hint": "Use Dovetail or similar qualitative research tool to track longitudinal interviews. Create a journey emotion map from the data. Compare against the projected arc from this run."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Date Exception Management On-Platform Rate",
+      "validates_element": "works-005, behaves-004",
+      "journey_phases": ["active_lease", "negotiation"],
+      "problem": "If date exception handling is cumbersome, guests will handle exceptions off-platform (text the host, call the agent), losing data integrity and engagement.",
+      "solution": "Track the percentage of date exceptions managed through the platform vs. off-platform channels.",
+      "evidence": [
+        {
+          "source": "Tyler Wood call, 08:50",
+          "type": "guest_call",
+          "quote": "I'm going to be traveling for like three or four nights before Christmas.",
+          "insight": "Tyler's holiday exception is exactly the type of date change that must be platform-managed. If it happens via phone call instead, the platform has failed."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track: date_change_initiated (on-platform), date_change_completed (on-platform), and compare against support_ticket_date_change and agent_call_date_change events. Calculate the ratio: on-platform / (on-platform + off-platform). Also track time-to-complete for on-platform date changes.",
+      "success_criteria": "70% of date exceptions are managed through the platform. Average time-to-complete for a single-week date change is under 15 seconds. Less than 10% of on-platform date changes require support escalation.",
+      "failure_meaning": "If on-platform rate is below 50%, the date change flow is too complex or guests don't know it exists. If time-to-complete exceeds 30 seconds, the UI has too many steps. If support escalation exceeds 20%, the flow doesn't handle common edge cases (e.g., host rejection, partial week changes).",
+      "implementation_hint": "Track events: date_change_screen_opened, day_toggled, financial_impact_viewed, date_change_submitted, date_change_approved, date_change_rejected. Create a funnel from opened-to-completed. Also track support tickets tagged with 'date change' as the off-platform comparison."
+    }
+  ]
+}

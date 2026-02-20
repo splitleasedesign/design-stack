@@ -1,0 +1,825 @@
+{
+  "lens": {
+    "host_call": "kent-call.txt",
+    "book_extract": "campbell-departure-heros-journey.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Due-Diligence Host Conversion Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the platform treats due-diligence questioning as sales resistance rather than trust-building behavior, high-question hosts will have the lowest conversion rate despite being the most committed archetype once converted.",
+      "solution": "Track question count during evaluation calls and correlate with conversion outcomes. Then A/B test proactive evidence presentation versus reactive question-answering.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:10",
+          "type": "host_call",
+          "quote": "I wanna, you know, do my due diligence before I agree to anything.",
+          "insight": "Kent explicitly names due diligence as a precondition for commitment. If the platform serves this need, conversion should follow. If it does not, Kent disappears."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Segment hosts by question count during evaluation calls (low: 0-3, medium: 4-7, high: 8+). Track conversion rates for each segment across the full funnel (call -> onboarding -> listing -> first proposal accepted). Then test proactive evidence presentation (pre-answering the 6-rung question sequence on a landing page) against the current reactive model.",
+      "success_criteria": "High-question hosts (8+ questions) achieve a conversion rate (call to listing creation) above 50%, compared to the current baseline. The proactive evidence variant shows higher conversion for high-question hosts without reducing conversion for low-question hosts.",
+      "failure_meaning": "If high-question hosts still convert below 50% with proactive evidence, the evidence ladder content is wrong (answering the wrong questions) or the evidence quality is insufficient (hosts verify independently and find discrepancies). Re-examine the 6-rung sequence for accuracy.",
+      "implementation_hint": "Tag each call with question_count in the CRM. Create a Mixpanel funnel segmented by question_count. For the A/B test, create a landing page variant that presents the 6-rung evidence ladder versus the current homepage. Route high-question hosts (identified by agent tagging) to the variant."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Phase-Specific Artifact Engagement Validation",
+      "validates_element": "works-002",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "If protective artifacts are delivered in batches rather than at phase boundaries, hosts may fail to engage with the right artifact at the right time, reducing their trust-building effectiveness.",
+      "solution": "Track artifact engagement (open, read, time spent) by phase and correlate with phase completion rates.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 10:02-10:37",
+          "type": "host_call",
+          "quote": "I'm gonna share with you this other page when we have the policies and all the documents that we use, you will see there an example of a rental agreement, an example of a supplemental agreement, the credit card authorization form.",
+          "insight": "Frederick delivers 4+ documents in a single batch. This test validates whether sequenced delivery improves engagement versus batch delivery."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two delivery models: (A) current batch delivery (all documents sent in one email after the call) versus (B) sequenced delivery (success stories Day 1, contract Day 2, policies Day 4). Track: open rates per document, click-through to full document, time spent reading, and subsequent phase completion (onboarding, listing creation).",
+      "success_criteria": "Sequenced delivery (B) achieves higher per-document engagement rates (>70% open rate per document vs. <40% for batch) and higher phase completion (evaluation-to-onboarding conversion >40% vs. current baseline).",
+      "failure_meaning": "If batch delivery outperforms sequenced delivery, hosts prefer having all materials at once for self-directed review. This would mean the due-diligence archetype's self-structuring capability is stronger than assumed, and the platform should provide materials in full with a suggested review order rather than gating delivery.",
+      "implementation_hint": "Use email marketing tool (e.g., Customer.io) to create two workflows: batch and sequenced. Track open/click events per email. Create a Mixpanel cohort for each group and compare funnel completion rates over 14 days."
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Post-Call Re-Engagement Rate Validation",
+      "validates_element": "works-003",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the post-call void is not structured with re-engagement triggers, hosts who said 'I will get back to you' may never return.",
+      "solution": "Measure the re-engagement rate under the current unstructured model, then test structured follow-up sequences.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 11:17",
+          "type": "host_call",
+          "quote": "So I, all right, well I look forward to your, your information. Yeah. And I'll review it and I'll get back to you.",
+          "insight": "The call ends with the ball entirely in Kent's court. Without a scheduled follow-up, the platform has no mechanism to bring him back."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Measure baseline: what percentage of hosts who complete an evaluation call take at least one platform action (visit website, open dashboard, respond to agent) within 7 days? Then implement the structured re-engagement sequence (Day 1: success stories, Day 2: contract, Day 4: policies, Day 5-7: follow-up call) and measure the same metric.",
+      "success_criteria": "Post-call re-engagement rate (at least one platform action within 7 days) above 40% with the structured sequence, compared to baseline.",
+      "failure_meaning": "If re-engagement remains below 40% even with structured follow-ups, the problem is not timing but content -- the materials themselves are not compelling enough, or the host's concerns raised during the call are not being addressed in the follow-up materials. Review call notes for unaddressed objections.",
+      "implementation_hint": "Track 'first platform action after call' as a key event in analytics. Set up the re-engagement sequence in the CRM with automated triggers. Agent tags the call outcome ('materials requested', 'specific concerns: [list]') to enable personalization."
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Vetting Evidence Visibility Impact on Proposal Acceptance",
+      "validates_element": "works-004",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the proposal interface shows only guest name and dates without vetting evidence, due-diligence hosts will reject or defer proposals even when the guest is qualified.",
+      "solution": "A/B test proposal views with and without visible vetting evidence and measure proposal acceptance rate and response time.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 04:56-05:05",
+          "type": "host_call",
+          "quote": "Do you do any vetting of these people? ... On the site we have rental application form, which this guest fill, and we call it all the information about their jobs, about their situation, their financial situation.",
+          "insight": "Kent's most anxiety-laden question is about vetting. If the proposal interface does not show vetting results, his anxiety returns at the moment of decision."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two proposal view designs: (A) current view (guest name, dates, basic info) versus (B) vetting evidence view (four-category grid: employment, financial, documents, references with specific results plus payment guarantee footer). Measure: proposal response time (hours from delivery to accept/reject), acceptance rate, and qualitative feedback from hosts.",
+      "success_criteria": "Vetting evidence view (B) reduces median proposal response time to under 48 hours (from current baseline) and increases first-proposal acceptance rate above 60%.",
+      "failure_meaning": "If vetting evidence does not improve acceptance rates, the issue may be that hosts distrust the platform's vetting process itself (not just its visibility). This would indicate a deeper credibility problem that UI changes alone cannot solve -- the vetting process itself may need strengthening or third-party verification.",
+      "implementation_hint": "Build the vetting evidence grid as a React component. Use feature flags to show/hide the grid per user segment. Track 'proposal_viewed', 'proposal_accepted', 'proposal_rejected', 'proposal_deferred' events with timestamps. Run for minimum 4 weeks to gather sufficient proposal volume."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Host Boundary Enforcement Validation",
+      "validates_element": "works-005",
+      "journey_phases": ["listing_creation", "proposal_mgmt"],
+      "problem": "If the platform defaults to its own preferred terms (6-week minimum) and the host must manually override, boundary-sensitive hosts may accept the default out of inertia or miss the setting entirely.",
+      "solution": "Test whether surfacing boundary configuration as the first listing step (with host's stated preference pre-populated) changes boundary adoption and satisfaction.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:46",
+          "type": "host_call",
+          "quote": "Yeah. See, I don't wanna do anything that short.",
+          "insight": "Kent's rejection of the 6-week minimum is a non-negotiable boundary. If the platform defaults to 6 weeks, Kent may not find the override or may lose trust."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Track two metrics: (1) What percentage of hosts who expressed a minimum stay preference during the call set that preference in the listing wizard? (2) What percentage of proposals shown to hosts violate their stated boundary preferences? Additionally, survey hosts 30 days after listing creation: 'Do you feel the platform respects your stated terms?'",
+      "success_criteria": "90%+ of hosts who stated a preference during the call successfully set it in the listing wizard. 0% of proposals shown violate host-set boundaries. Host satisfaction with boundary enforcement above 80% on the 30-day survey.",
+      "failure_meaning": "If hosts fail to set their preferred boundary, the listing wizard's boundary step is not prominent enough or the call notes are not being transferred to the platform. If proposals violate boundaries, there is a matching algorithm defect. If satisfaction is low despite technical enforcement, the host's perceived boundaries are broader than what the single minimum-stay setting captures.",
+      "implementation_hint": "Add a 'boundary_preferences' field to the CRM call record. Pre-populate the listing wizard from CRM data. Add a server-side filter that rejects proposals below host-set minimums before they reach the host's inbox. Log any boundary violations as critical errors."
+    },
+    {
+      "id": "tests-006",
+      "type": "validation_strategy",
+      "title": "60-Second Credibility Verification Validation",
+      "validates_element": "works-006",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "If credibility markers (company age, founder background, track record) are not findable within 60 seconds of first contact, due-diligence hosts will disengage before evaluating the proposition.",
+      "solution": "Usability test with new hosts to measure time-to-credibility-finding on the current website versus a credibility-first redesign.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 08:11-08:22",
+          "type": "host_call",
+          "quote": "And how, how old is this company? ... Five years ... Okay. So it's not like you're a startup.",
+          "insight": "Company age is a binary trust gate for Kent. If this information took more than 60 seconds to find on the website, Kent would have left."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 8-10 property owners unfamiliar with Split Lease. Task: 'You received a cold call from this company. You hung up and decided to check them out on your own. Go to their website and tell me: how old is the company, who founded it, and whether they have proof that it works.' Measure time-to-first-credibility-marker (seconds) and task completion rate. Test both current website and the credibility-first variant with the triad above the fold.",
+      "success_criteria": "On the credibility-first variant, 80%+ of participants find all three markers (age, founder, track record) within 60 seconds. On the current website, establish baseline for comparison.",
+      "failure_meaning": "If participants cannot find credibility markers even on the redesigned variant, the markers themselves are not recognizable as credibility signals -- they may be mistaken for marketing or decoration. The visual treatment (mono typography, compact data bar) needs to be more distinctively 'factual' rather than 'decorative.'",
+      "implementation_hint": "Use a remote usability testing tool (e.g., UserTesting.com, Maze). Create a Figma prototype of the credibility-first layout. Record time-on-task and think-aloud audio. Code responses for: found/not found per marker, time to first marker, and any expressed confusion."
+    },
+    {
+      "id": "tests-007",
+      "type": "validation_strategy",
+      "title": "Evidence Ladder Question Sequence Validation",
+      "validates_element": "communicates-008",
+      "journey_phases": ["discovery", "evaluation", "onboarding"],
+      "problem": "If the evidence ladder's 6-rung sequence does not match the natural question hierarchy of most due-diligence hosts, the information architecture will feel disjointed rather than anticipatory.",
+      "solution": "Analyze additional host call transcripts to validate that the question sequence derived from Kent's call generalizes to other due-diligence hosts.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 01:13 through 09:31",
+          "type": "host_call",
+          "quote": "Kent asks 12 questions in a predictable hierarchy: proposition, credibility, economics, vetting, commitment, verification.",
+          "insight": "This sequence was derived from a single call. If it generalizes, it becomes a powerful information architecture pattern. If it does not, each host archetype may need its own sequence."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Review 10-15 additional host call transcripts. For each call, extract the host's question sequence and categorize each question into the 6 rungs (proposition, credibility, economics, vetting, commitment, verification). Calculate: (1) What percentage of hosts follow a similar sequence? (2) Which rungs are asked in a different order? (3) Are there common questions that do not fit any of the 6 rungs?",
+      "success_criteria": "70%+ of hosts who ask 5+ questions follow the same general sequence (proposition and credibility first, verification and commitment last). The 6 rung categories cover 90%+ of all questions asked.",
+      "failure_meaning": "If the sequence varies significantly across hosts, a fixed evidence ladder will serve only one archetype. The information architecture may need to be adaptive (surfacing rungs based on the host's behavior) rather than sequential (presenting a fixed order).",
+      "implementation_hint": "Export call transcripts from the CRM. Use a spreadsheet to code each question by rung category and sequence position. Calculate Kendall's tau correlation between each host's sequence and Kent's reference sequence."
+    },
+    {
+      "id": "tests-008",
+      "type": "validation_strategy",
+      "title": "Threshold Artifact Timing Validation",
+      "validates_element": "communicates-009",
+      "journey_phases": ["evaluation", "onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "If artifacts are delivered too early (before the host reaches the relevant threshold) or too late (after they have already crossed or abandoned), the protective function is lost.",
+      "solution": "Track artifact delivery timing relative to the host's journey position and correlate with engagement and phase completion.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 06:16",
+          "type": "host_call",
+          "quote": "And what else do, do you guys have references of your own? Like, you know, how, how do I check you out?",
+          "insight": "Kent requests the evaluation-phase artifact at the exact moment he needs it. The platform must learn to deliver artifacts at this same temporal precision."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Instrument artifact delivery and access events with journey phase context. For each host, track: (1) Which artifacts were delivered at which journey phase? (2) Which artifacts were accessed (opened/read)? (3) What was the time gap between delivery and access? (4) Did the host complete the subsequent phase? Analyze whether early delivery (before the phase boundary) or boundary-timed delivery (at the phase transition) produces higher engagement.",
+      "success_criteria": "Artifacts delivered at the phase boundary (within 24 hours before or at the transition) achieve 70%+ engagement rate, versus lower engagement for early-delivered artifacts.",
+      "failure_meaning": "If early-delivered artifacts have equal or higher engagement, hosts prefer having materials available in advance for self-paced review. The sequencing prescription should shift from time-gated to availability-first with contextual surfacing.",
+      "implementation_hint": "Add phase_context to all artifact delivery events. Create a Mixpanel funnel that tracks: artifact_delivered -> artifact_opened -> artifact_read (30+ seconds) -> phase_completed. Segment by time_gap_delivery_to_phase_boundary."
+    },
+    {
+      "id": "tests-009",
+      "type": "validation_strategy",
+      "title": "Credibility-First Information Hierarchy Validation",
+      "validates_element": "communicates-010",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "If the proposition is presented before credibility markers, due-diligence hosts will discount the proposition because the messenger is unverified.",
+      "solution": "A/B test two landing page layouts: proposition-first versus credibility-first.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 02:38-02:50",
+          "type": "host_call",
+          "quote": "And what's your background? ... Well, no, I mean like your real estate background.",
+          "insight": "Kent's first substantive question after the proposition is about credibility. He needs to trust the messenger before processing the message."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two landing page variants for hosts arriving from cold outreach: (A) current layout (proposition headline, then features, credibility buried on About page) versus (B) credibility-first layout (credibility triad above the fold, then proposition, then features). Measure: bounce rate, time on page, scroll depth, and conversion to next action (schedule call, view success stories, create account).",
+      "success_criteria": "Credibility-first variant (B) reduces bounce rate by 15%+ and increases conversion-to-next-action by 20%+ compared to current layout for hosts arriving from cold outreach channels.",
+      "failure_meaning": "If proposition-first performs better, the target audience may not be primarily due-diligence hosts -- they may be aspiration-driven and respond to the opportunity before needing credibility. This would indicate the need for audience segmentation rather than a single layout.",
+      "implementation_hint": "Create the credibility-first variant in the CMS or as a separate landing page. Use UTM parameters to route cold outreach traffic to the A/B test. Track with Google Analytics or Mixpanel. Run for minimum 2 weeks or 500 visitors per variant."
+    },
+    {
+      "id": "tests-010",
+      "type": "validation_strategy",
+      "title": "Post-Call Momentum Architecture Validation",
+      "validates_element": "communicates-011",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the post-call document delivery has no structure, hosts enter an unguided review void that dissipates the call's momentum.",
+      "solution": "Test the engagement-responsive delivery sequence against the current batch delivery model.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 11:17",
+          "type": "host_call",
+          "quote": "So I, all right, well I look forward to your, your information. Yeah. And I'll review it and I'll get back to you.",
+          "insight": "The call ends with no structure. The momentum architecture aims to convert this ambiguity into a guided path."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "Same as tests-002 (artifact engagement validation) but focused on the momentum architecture specifically: measure whether the sequenced delivery with agent-personalized notes and progress indicators produces higher end-to-end funnel completion (call -> listing) than batch delivery with generic notes.",
+      "success_criteria": "Sequenced delivery with personalized notes achieves 30%+ higher call-to-listing conversion than batch delivery over a 14-day measurement window.",
+      "failure_meaning": "If batch delivery with generic notes performs comparably, the personalization and sequencing add operational cost without proportional benefit. Simplify to batch delivery with a suggested review order and a single scheduled follow-up call.",
+      "implementation_hint": "Requires agent training to write personalized notes. Create templates with merge fields for host name, specific call topics, and property details. Track the full funnel in CRM with clear stage gates."
+    },
+    {
+      "id": "tests-011",
+      "type": "validation_strategy",
+      "title": "Vetting Transparency Layer Validation",
+      "validates_element": "communicates-012",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If vetting evidence is presented as claims of process rather than evidence of results, due-diligence hosts will not trust the vetting and will reject qualified guests.",
+      "solution": "Qualitative testing of vetting evidence display with hosts, measuring perceived trustworthiness and decision confidence.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 04:56-05:05",
+          "type": "host_call",
+          "quote": "Do you do any vetting of these people?",
+          "insight": "Kent's anxiety about guest quality is the primary barrier to proposal acceptance. The transparency layer must address this anxiety with evidence, not claims."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "Show 6-8 hosts two proposal mockups: (A) current format with 'Verified' badge and guest summary, (B) evidence format with four-category vetting grid showing specific results (employment, financial, documents, references) plus payment guarantee. Ask: 'How confident are you in accepting this guest?' (1-10 scale), 'What would you want to know before deciding?', and 'Does this feel like enough information?' Record time to stated decision.",
+      "success_criteria": "Evidence format (B) achieves average confidence score above 7/10, compared to badge format (A) baseline. 80%+ of hosts say the evidence format provides enough information to decide without contacting the agent.",
+      "failure_meaning": "If confidence scores are similar, hosts may trust the platform's judgment (badge) as much as the evidence itself. Alternatively, the specific evidence categories may not match what hosts actually care about -- qualitative feedback will reveal which categories matter most.",
+      "implementation_hint": "Create two Figma prototypes of proposal views. Use a moderated remote testing session (30 minutes per host). Record confidence scores, qualitative responses, and time-to-decision. Analyze for patterns in what additional information hosts request."
+    },
+    {
+      "id": "tests-012",
+      "type": "validation_strategy",
+      "title": "Host Control Boundary Configuration Usability Validation",
+      "validates_element": "communicates-013",
+      "journey_phases": ["listing_creation", "pricing"],
+      "problem": "If boundary configuration is buried in advanced settings or uses confusing controls, hosts will accept poor defaults that later cause dissatisfaction.",
+      "solution": "Usability test the listing wizard with boundary configuration as the first step versus the current flow.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:46",
+          "type": "host_call",
+          "quote": "Yeah. See, I don't wanna do anything that short.",
+          "insight": "Kent's boundary is non-negotiable. If the wizard does not surface this setting prominently, Kent may miss it or assume the platform does not support his preference."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Recruit 6-8 hosts (mix of new and experienced). Task: 'Set up a listing for your property with a 3-month minimum stay.' Test two wizard variants: (A) current flow with boundary settings in a later step, (B) boundaries-first flow with minimum stay as Step 1. Measure: task completion rate, time to successfully set the 3-month minimum, and any confusion or backtracking.",
+      "success_criteria": "Boundaries-first variant (B): 100% task completion, time-to-boundary-set under 30 seconds, zero backtracking. Current variant (A): establish baseline for comparison.",
+      "failure_meaning": "If hosts struggle with the boundaries-first flow, they may find it confusing to set terms before describing the property (the context feels insufficient). The wizard may need to collect minimal property context first, then surface boundaries.",
+      "implementation_hint": "Create two Figma prototypes of the listing wizard. Use moderated testing with think-aloud protocol. Record task completion, time stamps, and confusion points."
+    },
+    {
+      "id": "tests-013",
+      "type": "validation_strategy",
+      "title": "Agent Trust Continuity Validation",
+      "validates_element": "communicates-014",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "If the platform replaces the agent's personal presence with generic system notifications, the trust built during the call is lost and must be rebuilt from scratch.",
+      "solution": "Compare host engagement and satisfaction between agent-attributed communications and generic system communications.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 03:35",
+          "type": "host_call",
+          "quote": "Even if that happens, we will pay you because we are the one on that.",
+          "insight": "Frederick's personal voice is the foundation of Kent's trust. If the platform strips this voice, the foundation crumbles."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two communication styles for all post-call platform interactions: (A) generic system attribution ('Split Lease Team', 'noreply@splitlease.com', corporate language) versus (B) agent attribution (Frederick's name, photo, conversational register, direct contact). Measure: email open rates, response rates, time-to-first-platform-action, and 30-day retention.",
+      "success_criteria": "Agent-attributed communications (B) achieve 25%+ higher email open rates, 50%+ higher response rates, and 20%+ higher 30-day retention compared to generic communications (A).",
+      "failure_meaning": "If generic communications perform comparably, host trust may not be as agent-dependent as assumed. Some hosts may prefer institutional communication that feels official and reliable rather than personal. This would suggest offering communication style as a host preference.",
+      "implementation_hint": "Configure the email system to support agent-specific sender names and reply-to addresses. Create template variants for generic and agent-attributed styles. Use feature flags to assign hosts to groups. Measure with standard email metrics plus CRM funnel tracking."
+    },
+    {
+      "id": "tests-014",
+      "type": "validation_strategy",
+      "title": "Evidence Ladder Visual Rhythm Scan Test",
+      "validates_element": "looks-008",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "If the three-layer visual rhythm (serif headline, sans body, mono data point) does not create scannable rungs, the evidence ladder collapses into a wall of text that due-diligence hosts cannot navigate efficiently.",
+      "solution": "Eye-tracking or 5-second test to verify that hosts identify individual rungs and can locate specific information within the ladder.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 08:11-08:22",
+          "type": "host_call",
+          "quote": "And how, how old is this company? Five years. Okay. So it's not like you're a startup.",
+          "insight": "Kent extracts a single data point and converts it to a trust judgment. The visual pattern must make data points instantly scannable."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show the evidence ladder design to 8-10 participants for 5 seconds, then remove it. Ask: 'How many distinct sections did you see?' and 'Can you recall any specific facts?' Then show it again and ask participants to find specific information: 'How old is the company?', 'How many successful leases?', 'Who founded it?'. Measure accuracy and time-to-find.",
+      "success_criteria": "80%+ of participants identify 3+ distinct rungs in the 5-second test. 90%+ find specific data points within 10 seconds on the second viewing.",
+      "failure_meaning": "If participants cannot distinguish rungs, the vertical spacing between rungs is insufficient or the three-layer typographic system is not creating enough visual differentiation. Increase inter-rung spacing or strengthen the typographic contrast.",
+      "implementation_hint": "Create a high-fidelity static mockup in Figma. Use a 5-second test tool (e.g., UsabilityHub/Lyssna) for the first phase. Use moderated testing for the find-specific-info phase. Record time-to-find with screen recording."
+    },
+    {
+      "id": "tests-015",
+      "type": "validation_strategy",
+      "title": "Protective Artifact Card Recognition Validation",
+      "validates_element": "looks-009",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "If the artifact card's visual treatment (left accent border, warm surface background) does not create a recognizable 'protective document' category distinct from generic content, hosts will not associate the pattern with safety.",
+      "solution": "Category recognition test where participants sort content types into groups, verifying that artifact cards are recognized as a distinct category.",
+      "evidence": [
+        {
+          "source": "campbell-departure-heros-journey.txt, Supernatural Aid",
+          "type": "book",
+          "quote": "For those who have not refused the call, the first encounter of the hero-journey is with a protective figure who provides the adventurer with amulets against the dragon forces he is about to pass.",
+          "insight": "Amulets must be visually recognizable as distinct objects. If the artifact card blends into surrounding content, its protective function is invisible."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 8 participants a page containing 3 artifact cards (with accent border) mixed with 3 generic content cards (without accent border) and 2 navigation elements. Ask: 'Which elements on this page contain documents you should review before making a decision?' Measure: correct identification rate of artifact cards, false positive rate (identifying non-artifacts as artifacts).",
+      "success_criteria": "90%+ correct identification of artifact cards. Less than 10% false positive rate.",
+      "failure_meaning": "If artifact cards are not distinctly recognized, the left accent border is insufficient differentiation. Consider stronger visual treatment: different card elevation, distinct background color, or an icon that signals 'document/protection.'",
+      "implementation_hint": "Create a Figma prototype of a page with mixed card types. Use remote unmoderated testing. Record click targets (which cards participants identify) and analyze recognition patterns."
+    },
+    {
+      "id": "tests-016",
+      "type": "validation_strategy",
+      "title": "Credibility Triad Above-the-Fold Visibility Validation",
+      "validates_element": "looks-010",
+      "journey_phases": ["discovery"],
+      "problem": "If the credibility triad (company age, founder background, track record) occupies too much vertical space, it pushes the proposition below the fold. If it is too small, it is missed in the first scan.",
+      "solution": "Verify that the compact data bar format is noticed within the first 5 seconds of page load without displacing the proposition.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 08:11-08:22",
+          "type": "host_call",
+          "quote": "Five years. Okay. So it's not like you're a startup.",
+          "insight": "A single credibility fact shifted Kent's emotional posture. The visual treatment must make this fact discoverable in the first scan."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "5-second exposure test with 10 participants. Show the landing page with the credibility triad above the proposition. After 5 seconds, ask: 'What do you remember about this company?' Measure whether any credibility facts (age, founder, track record) are recalled, and whether the proposition is also recalled (verifying the triad did not crowd it out).",
+      "success_criteria": "60%+ of participants recall at least one credibility fact AND the proposition after 5-second exposure. Neither element crowds out the other.",
+      "failure_meaning": "If credibility facts are recalled but the proposition is not, the triad is too prominent and needs to be visually subordinated. If the proposition is recalled but credibility facts are not, the triad's compact format is too subtle and needs more visual weight.",
+      "implementation_hint": "Use a 5-second test tool. Create 2-3 variants with different triad sizes and placements. Compare recall rates across variants to find the optimal balance."
+    },
+    {
+      "id": "tests-017",
+      "type": "validation_strategy",
+      "title": "Agent Presence Persistence Validation",
+      "validates_element": "looks-011",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "If the persistent agent presence element is too prominent, it competes with primary content. If too subtle, it fails to provide the reassurance it is designed for.",
+      "solution": "Measure whether hosts notice the agent element, use it to contact their agent, and report feeling supported on the platform.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 08:48-09:10",
+          "type": "host_call",
+          "quote": "Also let share with you my information so you can have it hand like my email and phone number.",
+          "insight": "Frederick offered personal accessibility. The agent element must make this accessibility persistent without being intrusive."
+        }
+      ],
+      "priority": "low",
+      "validation_method": "analytics",
+      "test_description": "Track agent element interaction rate across all authenticated pages: (1) How often do hosts click the agent contact button? (2) From which pages? (3) At what journey stage? Also survey hosts at 7 and 30 days: 'Do you feel you can easily reach your agent from the platform?'",
+      "success_criteria": "Agent contact button is used by 30%+ of hosts within the first 14 days. 80%+ of hosts report feeling they can easily reach their agent on the 7-day survey.",
+      "failure_meaning": "If the contact button is rarely used but satisfaction is high, hosts may prefer other channels (email, text) for agent communication. The element still serves its visual reassurance function even if rarely clicked. If satisfaction is low AND the button is rarely used, the element is not noticeable enough.",
+      "implementation_hint": "Add click tracking to the agent contact button. Add a 'source_page' parameter to identify where contacts originate. Include the survey question in the 7-day and 30-day automated check-in emails."
+    },
+    {
+      "id": "tests-018",
+      "type": "validation_strategy",
+      "title": "Vetting Evidence Grid Scan Validation",
+      "validates_element": "looks-012",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the 2x2 vetting grid's color coding (green for passed, amber for flagged) does not communicate status instantly, the visual shortcut fails and hosts must read every detail to assess safety.",
+      "solution": "Visual scan test to verify that hosts can assess overall vetting status from the grid in under 5 seconds.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 04:56",
+          "type": "host_call",
+          "quote": "Do you do any vetting of these people?",
+          "insight": "Kent needs to answer this question quickly when viewing a proposal. The grid must communicate 'yes, thoroughly' at a glance."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 8 participants a proposal view with the vetting grid for 3 seconds. Ask: 'Is this guest safe to accept?' Then show the grid again and ask them to identify which categories are fully verified and which need attention. Test with two scenarios: (A) all categories passed, (B) one category flagged.",
+      "success_criteria": "Scenario A: 90%+ of participants correctly assess 'safe' in the 3-second test. Scenario B: 80%+ correctly identify the flagged category within 10 seconds of full viewing.",
+      "failure_meaning": "If participants cannot distinguish all-pass from one-flagged in the 3-second test, the color coding is too subtle or the grid layout does not support rapid scanning. Consider stronger color differentiation or a more linear (vertical stack) layout instead of a 2x2 grid.",
+      "implementation_hint": "Create two Figma mockups (all-pass and one-flagged). Use a timed exposure test tool. Record response accuracy and confidence for both scenarios."
+    },
+    {
+      "id": "tests-019",
+      "type": "validation_strategy",
+      "title": "Progress Indicator Momentum Validation",
+      "validates_element": "looks-013",
+      "journey_phases": ["onboarding"],
+      "problem": "If the post-call progress indicator does not create a sense of forward movement, the sequenced delivery feels like disconnected emails rather than a guided journey.",
+      "solution": "Compare hosts who receive emails with the progress indicator versus without, measuring engagement with subsequent deliveries.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 11:17",
+          "type": "host_call",
+          "quote": "I'll review it and I'll get back to you.",
+          "insight": "Without a progress indicator, 'review' is amorphous. With one, 'review' has structure: step 1 of 4."
+        }
+      ],
+      "priority": "low",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test post-call emails with and without the progress indicator element. (A) Emails with document and agent note only. (B) Emails with document, agent note, and progress indicator showing current step. Measure: click-through rate on subsequent deliveries, time between deliveries (is the host engaging faster?), and overall funnel completion.",
+      "success_criteria": "Progress indicator variant (B) achieves 15%+ higher click-through on subsequent deliveries and 10%+ higher overall funnel completion.",
+      "failure_meaning": "If the progress indicator has no measurable impact, the forward momentum comes from content quality and agent personalization, not visual progress signaling. Simplify by removing the indicator and investing effort in note quality.",
+      "implementation_hint": "Generate the progress indicator as an inline HTML element in the email template. Use conditional rendering based on the host's current step. Track click events per email in both groups."
+    },
+    {
+      "id": "tests-020",
+      "type": "validation_strategy",
+      "title": "Boundary Configuration Live Feedback Validation",
+      "validates_element": "looks-014",
+      "journey_phases": ["listing_creation", "pricing"],
+      "problem": "If boundary controls do not provide immediate visual feedback showing the consequence of each setting, hosts configure blindly and may be surprised by the results.",
+      "solution": "Usability test boundary configuration with and without live consequence preview, measuring confidence and satisfaction.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:46",
+          "type": "host_call",
+          "quote": "Yeah. See, I don't wanna do anything that short.",
+          "insight": "Kent needs to see proof that his 3-month minimum will be enforced. Live feedback provides this proof during configuration."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Test two boundary configuration prototypes with 6-8 hosts: (A) standard form with minimum stay dropdown and no feedback, (B) interactive slider with live consequence preview ('With a 3-month minimum, ~35% of guest pool qualifies'). Ask hosts to set their preferred boundary and rate their confidence (1-10) that the platform will enforce it.",
+      "success_criteria": "Live feedback variant (B) produces average confidence rating above 8/10. Standard form (A) establishes baseline. 100% of hosts in variant B correctly state the consequence of their setting when asked.",
+      "failure_meaning": "If confidence is similar between variants, the live feedback adds visual complexity without proportional trust benefit. Hosts may trust that the platform will enforce settings regardless of preview feedback. Simplify to a clear static confirmation statement.",
+      "implementation_hint": "Create two Figma prototypes with interaction. Use moderated testing with confidence rating collection. Record whether hosts adjust their boundary after seeing the consequence preview (indicating the preview influenced their decision)."
+    },
+    {
+      "id": "tests-021",
+      "type": "validation_strategy",
+      "title": "Artifact Reveal Interaction Timing Validation",
+      "validates_element": "behaves-001",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "If the artifact reveal feels slow (host perceives delay between click and content) or jarring (abrupt appearance without progressive reveal), the interaction breaks the protective ceremony that Campbell's framework prescribes.",
+      "solution": "Prototype the optimistic reveal pattern and measure perceived responsiveness and comfort through user testing.",
+      "evidence": [
+        {
+          "source": "campbell-departure-heros-journey.txt, Supernatural Aid",
+          "type": "book",
+          "quote": "One has only to know and trust, and the ageless guardians will appear.",
+          "insight": "The guardian must appear when summoned. A slow or broken reveal violates this principle."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Build a coded prototype of the artifact reveal pattern with three timing variants: (A) instant (0ms, all content appears at once), (B) optimistic cascade (120ms container, 400ms full cascade as specified), (C) slow reveal (600ms container, 1000ms cascade). Show each variant to 6 participants (within-subjects design, randomized order). Rate perceived speed (1-5, 'too slow' to 'too fast') and perceived quality (1-5, 'cheap' to 'polished').",
+      "success_criteria": "Optimistic cascade (B) rated as 'just right' speed (score 3) by 70%+ of participants AND rated above 3.5 on quality. It should feel faster than variant C and more polished than variant A.",
+      "failure_meaning": "If instant (A) is preferred for both speed and quality, the cascade animation adds perceived delay without enough perceived quality benefit. Simplify to instant reveal. If slow (C) is preferred for quality, the cascade can be extended slightly.",
+      "implementation_hint": "Build in HTML/CSS/JS with configurable timing variables. Use a local server for testing. Record responses after each variant presentation. Use a counterbalanced design to control order effects."
+    },
+    {
+      "id": "tests-022",
+      "type": "validation_strategy",
+      "title": "Evidence Ladder Scroll Behavior Validation",
+      "validates_element": "behaves-002",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "If the scroll-triggered progressive disclosure feels gated or patronizing, due-diligence hosts who want to scan the full ladder quickly will be frustrated by animations that slow them down.",
+      "solution": "Test the scroll-anchored behavior with hosts at different reading speeds, verifying it supports both careful reading and rapid scanning.",
+      "evidence": [
+        {
+          "source": "campbell-departure-heros-journey.txt, Refusal of the Call",
+          "type": "book",
+          "quote": "Not all who hesitate are lost. The psyche has many secrets in reserve.",
+          "insight": "The progressive disclosure must respect the host's autonomy -- fast scanners and slow readers must both feel served."
+        }
+      ],
+      "priority": "low",
+      "validation_method": "usability_test",
+      "test_description": "Build a coded prototype of the evidence ladder with scroll-triggered animations. Test with 8 participants, giving two tasks: (1) 'Read through this page at your normal pace and tell me what you learned.' (2) 'Scroll back to the top and find the company's age as fast as you can.' Observe: does the reading tunnel effect enhance task 1? Does it impede task 2? Record any frustration with animation timing.",
+      "success_criteria": "Task 1: 80%+ of participants report the page was easy to follow. Task 2: 90%+ find the data point within 10 seconds. Zero participants express frustration with animations blocking their scanning.",
+      "failure_meaning": "If animations impede rapid scanning, the progressive disclosure is too aggressive. Reduce animation duration, increase the scroll speed threshold for animation suppression, or make the reading tunnel effect less pronounced.",
+      "implementation_hint": "Build in HTML/CSS/JS with IntersectionObserver for scroll-triggered animations. Include the rapid-scroll suppression logic. Test on both desktop and mobile. Record think-aloud observations."
+    },
+    {
+      "id": "tests-023",
+      "type": "validation_strategy",
+      "title": "Vetting Stack Accordion Usability Validation",
+      "validates_element": "behaves-003",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If the vetting stack accordion behavior is confusing (host does not realize categories are expandable, or loses context when one expands and another collapses), the vetting evidence fails to build progressive confidence.",
+      "solution": "Usability test the accordion behavior with hosts reviewing a mock proposal.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 04:56-05:05",
+          "type": "host_call",
+          "quote": "Do you do any vetting of these people?",
+          "insight": "Kent will investigate each vetting category individually. The accordion must support this one-at-a-time review pattern."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 6-8 hosts a coded prototype of the vetting stack within a proposal view. Task: 'Review this guest's vetting information and decide whether to accept or decline.' Observe: do hosts discover the expandable categories? Do they expand all four? Do they use the 'show all details' toggle? How long does the full vetting review take? Ask after: 'How confident are you in your decision?'",
+      "success_criteria": "100% of hosts discover at least one expandable category without prompting. 70%+ expand all four categories. Average vetting review time under 2 minutes. Average confidence above 7/10.",
+      "failure_meaning": "If hosts do not discover expandability, the collapsed state needs a stronger visual affordance (chevron icon, 'tap to see details' hint). If confidence is low despite reviewing all categories, the evidence content is insufficient -- add more detail or different evidence types.",
+      "implementation_hint": "Build a clickable prototype with real-feeling data. Use moderated testing with screen recording. Record discovery method (how did they find the expandable), review sequence (which category first), and decision outcome."
+    },
+    {
+      "id": "tests-024",
+      "type": "validation_strategy",
+      "title": "Boundary Configuration Live Preview Interaction Validation",
+      "validates_element": "behaves-004",
+      "journey_phases": ["listing_creation", "pricing"],
+      "problem": "If the live consequence preview introduces lag or visual noise during slider interaction, hosts may perceive the configuration as unreliable or confusing.",
+      "solution": "Test the boundary configuration interaction on real devices to verify smooth, lag-free consequence updates.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:49",
+          "type": "host_call",
+          "quote": "You can also set your listing for longer than that.",
+          "insight": "Frederick's verbal assurance must translate to a smooth, confidence-building digital interaction."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Build a coded prototype of the boundary configuration with live consequence preview and quantitative indicator. Test on real devices (iPhone, Android, desktop) with 6 participants. Tasks: (1) Set your minimum stay to 3 months. (2) Observe the consequence preview. (3) Adjust to 6 months and observe the change. Measure: perceived update speed, any visual glitches, and host confidence rating.",
+      "success_criteria": "100% of participants perceive consequence updates as instant. Zero visual glitches observed on any device. Average confidence rating above 8/10 that the platform will enforce the setting.",
+      "failure_meaning": "If updates are perceived as laggy on mobile, the real-time calculation may need to be moved client-side or simplified. If the quantitative indicator's counting animation causes confusion, replace with a simple crossfade.",
+      "implementation_hint": "Build with React. Use requestAnimationFrame for smooth slider tracking. Debounce the API call for the quantitative indicator but update the consequence text synchronously from client-side data. Test on low-end Android devices to catch performance issues."
+    },
+    {
+      "id": "tests-025",
+      "type": "validation_strategy",
+      "title": "Engagement-Responsive Delivery Sequence Validation",
+      "validates_element": "behaves-005",
+      "journey_phases": ["onboarding", "listing_creation"],
+      "problem": "If the engagement-responsive delivery sequence fires too aggressively (sending the next document as soon as the host opens the previous email), hosts feel surveilled. If too conservatively (waiting days regardless of engagement), momentum is lost.",
+      "solution": "Test the engagement-responsive cadence against fixed-calendar cadence, measuring both conversion and host sentiment.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 11:17",
+          "type": "host_call",
+          "quote": "I'll review it and I'll get back to you.",
+          "insight": "Kent commits to review on his own timeline. The engagement-responsive sequence must adapt to his pace without feeling intrusive."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test three delivery cadences: (A) fixed calendar (Day 1, Day 3, Day 5), (B) engagement-responsive with 18-hour cooldown (next delivery triggers when host engages + cooldown), (C) engagement-responsive with 36-hour cooldown. Measure: per-document engagement rate, overall funnel completion (call to listing), host sentiment ('Did the follow-ups feel well-timed? Too frequent? Too slow?'), and unsubscribe/complaint rate.",
+      "success_criteria": "Engagement-responsive (B or C) achieves higher funnel completion than fixed calendar (A) without higher unsubscribe/complaint rates. Hosts in the engagement-responsive group rate follow-up timing as 'well-timed' at 70%+.",
+      "failure_meaning": "If fixed calendar performs better, the engagement tracking introduces technical complexity without benefit. Hosts may prefer predictable timing over adaptive timing. If engagement-responsive triggers too many complaints, the cooldown is too short or the tracking feels invasive.",
+      "implementation_hint": "Implement with a workflow automation tool (Customer.io, Braze) that supports event-triggered sequences with cooldowns. Track email engagement events (open, click) and add timestamp-based cooldown logic. Include a sentiment survey question in the final delivery."
+    },
+    {
+      "id": "tests-026",
+      "type": "validation_strategy",
+      "title": "Agent Continuity Banner Contextual Update Validation",
+      "validates_element": "behaves-006",
+      "journey_phases": ["onboarding", "proposal_mgmt", "active_lease"],
+      "problem": "If the agent banner's contextual status updates feel robotic or algorithmically generated, they may undermine rather than support the human trust they are designed to maintain.",
+      "solution": "Qualitative testing of contextual status messages to verify they feel authentic and agent-like rather than automated.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 03:35",
+          "type": "host_call",
+          "quote": "Even if that happens, we will pay you because we are the one on that.",
+          "insight": "Frederick's conversational register is personal and informal. The status updates must match this register to feel like they come from Frederick."
+        }
+      ],
+      "priority": "low",
+      "validation_method": "manual_review",
+      "test_description": "Present 8 hosts with 6 contextual status messages (3 agent-attributed in conversational register, 3 system-generated in corporate register). For each message, ask: 'Does this feel like it was written by a person or generated by a system?' and 'How much does this make you trust the platform?' (1-10). Messages are shown without attribution labels.",
+      "success_criteria": "80%+ of participants correctly identify agent-attributed messages as human-written. Agent-attributed messages score 2+ points higher on trust than system-generated messages.",
+      "failure_meaning": "If participants cannot distinguish agent-attributed from system-generated, either the agent messages are too formulaic (need more variation and personality) or the system messages are good enough that the distinction does not matter. In the latter case, simplify to well-written system messages.",
+      "implementation_hint": "Create a simple survey with randomized message presentation. Use Google Forms or Typeform. Analyze with paired t-test on trust ratings and chi-squared on human/system identification accuracy."
+    },
+    {
+      "id": "tests-027",
+      "type": "validation_strategy",
+      "title": "Due-Diligence Host Emotional Respect Validation",
+      "validates_element": "feels-001",
+      "journey_phases": ["discovery", "evaluation"],
+      "problem": "If the platform's emotional tone during evaluation feels like salesmanship (urgency, excitement, persuasion) rather than respect (factual, unhurried, evidence-first), due-diligence hosts will feel patronized and disengage.",
+      "solution": "A/B test evaluation-phase copy in two voices: sales-focused and evidence-focused.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:10",
+          "type": "host_call",
+          "quote": "I wanna, you know, do my due diligence before I agree to anything.",
+          "insight": "Kent's emotional need is respect for his evaluation process. Copy that tries to bypass this process triggers distrust."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test two versions of the evaluation-phase landing page and first follow-up email: (A) sales-focused copy (aspirational headlines, urgency markers, 'Start earning today'), (B) evidence-focused copy (factual headlines, credibility markers, 'Here is what you need to make your decision'). Measure: bounce rate, time on page, conversion to next action, and qualitative feedback ('Which version did you trust more?').",
+      "success_criteria": "Evidence-focused variant (B) achieves lower bounce rate and higher conversion for hosts who arrive via cold outreach. Qualitative feedback shows 80%+ preference for variant B among hosts who asked 3+ questions during calls.",
+      "failure_meaning": "If sales-focused copy performs better overall, the audience includes a significant non-due-diligence segment that responds to aspiration. The platform may need two entry paths: evidence-first for cold outreach (where hosts are skeptical) and aspiration-first for inbound (where hosts have self-selected for interest).",
+      "implementation_hint": "Create two complete copy variants for the landing page and first email. Route by traffic source (cold outreach gets the A/B test, organic gets the current version as control). Include a post-conversion survey asking 'What convinced you to take the next step?'"
+    },
+    {
+      "id": "tests-028",
+      "type": "validation_strategy",
+      "title": "Post-Call Continuation Emotional Validation",
+      "validates_element": "feels-002",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If the post-call experience feels like abandonment rather than continuation, the host's emotional state shifts from engaged to isolated, killing momentum.",
+      "solution": "Survey hosts 48 hours after the call about their emotional state and perceived connection to the platform.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 11:17",
+          "type": "host_call",
+          "quote": "I look forward to your information. And I'll review it and I'll get back to you.",
+          "insight": "Kent's closing tone is open but uncommitted. The post-call experience determines whether openness converts to engagement or fades to indifference."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "analytics",
+      "test_description": "Send a brief survey 48 hours after the call (embedded in the Day 2 delivery for the sequenced group): 'On a scale of 1-5, how connected do you feel to Split Lease right now? Do you feel guided through the review process? Do you have unanswered questions from the call?' Correlate responses with eventual conversion.",
+      "success_criteria": "Hosts who report feeling 'connected' (4-5) convert at 2x the rate of hosts who report feeling 'disconnected' (1-2). The sequenced delivery group reports higher connection scores than the batch delivery group.",
+      "failure_meaning": "If connection scores do not correlate with conversion, the emotional state 48 hours after the call is not the primary driver -- conversion may depend more on content quality, property fit, or external factors. Shift focus from emotional continuity to content optimization.",
+      "implementation_hint": "Embed a 3-question survey in the Day 2 email using an embedded survey tool (Typeform, SurveyMonkey). Link survey responses to CRM records for conversion correlation analysis."
+    },
+    {
+      "id": "tests-029",
+      "type": "validation_strategy",
+      "title": "Credibility-Before-Excitement Emotional Validation",
+      "validates_element": "feels-003",
+      "journey_phases": ["discovery"],
+      "problem": "If hosts encounter earning projections before credibility evidence, they may dismiss the opportunity as a scam rather than engage with it.",
+      "solution": "Test whether leading with credibility before aspiration produces different trust levels than the reverse sequence.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 02:38",
+          "type": "host_call",
+          "quote": "And what's your background?",
+          "insight": "Kent's first substantive question is about credibility, not earning potential. His emotional sequence is: verify, then evaluate."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 8 participants two ad/landing page variants: (A) aspiration-first ('Earn up to $3,000/month from your spare room'), then credibility; (B) credibility-first ('5 years in NYC, 200+ successful leases'), then aspiration. After viewing each, ask: 'How likely are you to explore further?' (1-10) and 'What is your first impression?' Record unprompted impressions for scam/trust language.",
+      "success_criteria": "Credibility-first (B) produces higher 'explore further' scores for participants with a skeptical baseline. Zero participants use scam-related language for variant B. Variant A may perform better for participants with an aspirational baseline.",
+      "failure_meaning": "If aspiration-first consistently outperforms credibility-first, the target audience responds to opportunity signals more than verification signals. This would suggest due-diligence hosts are a minority of the prospect pool, and the credibility-first approach should be reserved for cold outreach only.",
+      "implementation_hint": "Create two card-format mockups. Use moderated testing with impression recording. Segment participants by self-reported skepticism level ('When you see ads for new services, is your first instinct to investigate or to dismiss?')."
+    },
+    {
+      "id": "tests-030",
+      "type": "validation_strategy",
+      "title": "Protective Artifact Emotional Framing Validation",
+      "validates_element": "feels-004",
+      "journey_phases": ["evaluation", "onboarding", "proposal_mgmt"],
+      "problem": "If protective artifacts are framed as informational documents rather than protective shields, their emotional impact is reduced and hosts process them intellectually without feeling reassured.",
+      "solution": "A/B test artifact delivery framing: informational versus protective language.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:24",
+          "type": "host_call",
+          "quote": "I mean, do you, do you have like a sample contract you can send me?",
+          "insight": "Kent asks for the contract not out of curiosity but out of a need for protection. The framing must match this emotional need."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test the language used when delivering the sample contract: (A) informational framing ('Here is our sample rental agreement for your review'), (B) protective framing ('Here is the agreement that protects your property and income. Sections 3 and 7 are the most important for your situation.'). Measure: document open rate, time spent reading, and subsequent onboarding completion.",
+      "success_criteria": "Protective framing (B) achieves 20%+ higher document open rate and 15%+ higher onboarding completion than informational framing (A).",
+      "failure_meaning": "If informational framing performs equally, the language difference is cosmetic and the content itself is what matters. Invest in content quality rather than framing language. If protective framing performs worse, hosts may find it patronizing -- tone down the language to be more neutral.",
+      "implementation_hint": "Create two email template variants with different subject lines and body copy. Use the same document link. Track open rates, click rates, and funnel completion per variant."
+    },
+    {
+      "id": "tests-031",
+      "type": "validation_strategy",
+      "title": "Host Identity Boundary Emotional Validation",
+      "validates_element": "feels-005",
+      "journey_phases": ["listing_creation", "proposal_mgmt"],
+      "problem": "If boundary configuration language suggests the host should relax their requirements for better results, it undermines the host's sense of identity control and triggers distrust.",
+      "solution": "Test two copy variants for boundary configuration: empowering versus advisory.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:46",
+          "type": "host_call",
+          "quote": "Yeah. See, I don't wanna do anything that short.",
+          "insight": "Kent's boundary is identity-level, not preference-level. The copy must respect this by empowering rather than advising."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 6-8 hosts two boundary configuration screens: (A) advisory copy ('Setting your minimum above 6 weeks may reduce proposals. We recommend 6 weeks for maximum exposure.'), (B) empowering copy ('Your terms, your property. Minimum stay: set by you. We enforce it on every proposal.'). Measure: host confidence in the platform (1-10), willingness to proceed with listing (yes/no), and any expressed frustration.",
+      "success_criteria": "Empowering copy (B) produces average confidence above 8/10 and zero hosts expressing frustration. Advisory copy (A) establishes baseline, expected to produce lower confidence for hosts with strong boundary preferences.",
+      "failure_meaning": "If advisory copy produces higher confidence, hosts may value transparency about trade-offs more than empowerment language. They prefer knowing the consequences (fewer proposals) rather than being told the platform will handle everything. Provide both: empowering tone with honest consequence data.",
+      "implementation_hint": "Create two Figma mockups. Use moderated testing with confidence and willingness measurement. Record verbatim responses to the advisory language to identify specific trust-breaking phrases."
+    },
+    {
+      "id": "tests-032",
+      "type": "validation_strategy",
+      "title": "Vetting Evidence Emotional Confidence Validation",
+      "validates_element": "feels-006",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If vetting evidence produces information but not emotional confidence, due-diligence hosts will read all the data and still hesitate to accept.",
+      "solution": "Measure the relationship between vetting evidence detail level and host decision confidence.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 04:56",
+          "type": "host_call",
+          "quote": "Do you do any vetting of these people?",
+          "insight": "Kent's question is emotionally charged. The answer must produce emotional relief, not just informational satisfaction."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 6 hosts three proposal views with increasing vetting detail: (A) badge only ('Verified'), (B) category summaries ('Employment: Verified. Financial: Passed. Documents: Verified.'), (C) full evidence ('Employment: Software engineer, 4 years, verified Feb 2026. Financial: Income 4.2x rental. Documents: Govt ID verified.'). After each, ask: 'How confident are you in accepting this guest?' (1-10) and 'What is still worrying you?'",
+      "success_criteria": "Confidence increases monotonically from A to C. Full evidence (C) achieves average confidence above 8/10 with 80%+ of hosts reporting 'nothing' when asked what worries them.",
+      "failure_meaning": "If confidence does not increase from B to C, the category summary level is sufficient and full evidence adds cognitive load without emotional benefit. Optimize for the summary level and make full evidence available on-demand.",
+      "implementation_hint": "Create three Figma mockups of the same proposal at different vetting detail levels. Use within-subjects design (each host sees all three, randomized order). Record confidence scores and qualitative 'worry' responses."
+    },
+    {
+      "id": "tests-033",
+      "type": "validation_strategy",
+      "title": "Human Guardian Persistence Emotional Validation",
+      "validates_element": "feels-007",
+      "journey_phases": ["onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "If the platform feels like Frederick vanished behind a system, the trust built during the 12-minute call is destroyed in seconds.",
+      "solution": "Measure host-reported guardian presence across different touchpoint designs.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 08:48-09:10",
+          "type": "host_call",
+          "quote": "Also let share with you my information so you can have it hand like my email and phone number.",
+          "insight": "Frederick's personal accessibility creates an emotional contract. The platform must maintain it."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "usability_test",
+      "test_description": "Show 6-8 hosts two dashboard prototypes: (A) generic platform dashboard (Split Lease branding, no agent presence, system notifications), (B) agent-attributed dashboard (Frederick's name and photo in header, agent-attributed notifications, one-tap contact). Task: 'Imagine you just had a call with Frederick and now you are seeing the platform for the first time.' Ask: 'Does this feel like a continuation of your conversation with Frederick, or like a new, separate experience?' Rate 1-10.",
+      "success_criteria": "Agent-attributed dashboard (B) scores above 7/10 on continuation rating. Generic dashboard (A) scores below 4/10. 90%+ of hosts in variant B can identify how to contact their agent within 5 seconds.",
+      "failure_meaning": "If the generic dashboard scores comparably, hosts may separate their trust in Frederick (person) from their trust in the platform (system) and build platform trust independently. The agent presence element would be nice-to-have but not essential. Focus on platform quality over agent attribution.",
+      "implementation_hint": "Create two Figma dashboard prototypes. Use moderated testing with the scenario prompt. Record continuation rating, time-to-agent-contact, and qualitative impressions about the transition from call to platform."
+    },
+    {
+      "id": "tests-034",
+      "type": "validation_strategy",
+      "title": "Journey-Level Arc Validation: Due-Diligence Host End-to-End Conversion",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease", "retention"],
+      "problem": "Individual element validations may all pass while the overall journey fails. The due-diligence host archetype identified in this run has specific needs at every phase, and a failure at any single phase can invalidate the entire journey design.",
+      "solution": "Track the end-to-end conversion funnel specifically for due-diligence hosts (identified by question count during calls) and identify the highest-dropout phase.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, 09:10",
+          "type": "host_call",
+          "quote": "I wanna, you know, do my due diligence before I agree to anything.",
+          "insight": "Kent represents an archetype that touches every phase. The journey must work end-to-end for this archetype, not just at individual touchpoints."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, The Call to Adventure",
+          "type": "book",
+          "quote": "The familiar life horizon has been outgrown; the old concepts, ideals, and emotional patterns no longer fit; the time for the passing of a threshold is at hand.",
+          "insight": "The hero's journey is an arc, not a series of disconnected events. If any threshold crossing fails, the entire arc breaks."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Create a named segment in the analytics platform: 'Due-Diligence Hosts' (defined as hosts who asked 5+ questions during the evaluation call, as tagged by the agent). Track this segment through the full funnel: call -> materials_opened -> first_platform_action -> listing_created -> first_proposal_received -> first_proposal_accepted -> first_lease_active -> re-listing. Identify: (1) overall conversion rate from call to active lease, (2) the single phase with the highest dropout rate, (3) median time through the full funnel.",
+      "success_criteria": "Due-diligence host conversion rate (call to first active lease) above 25%. No single phase has a dropout rate above 40%. Median funnel time under 30 days.",
+      "failure_meaning": "If overall conversion is below 25%, identify the highest-dropout phase and prioritize element improvements for that phase. If one phase has 40%+ dropout, it is the structural bottleneck and needs immediate intervention -- regardless of how well individual elements test in isolation.",
+      "implementation_hint": "Create the segment in Mixpanel or Amplitude based on CRM tags. Build a funnel report with stage-by-stage conversion rates. Set up weekly automated reports for the first 3 months to track trends."
+    },
+    {
+      "id": "tests-035",
+      "type": "validation_strategy",
+      "title": "Journey-Level Arc Validation: Emotional Coherence Across Phases",
+      "validates_element": "journey-level",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "proposal_mgmt"],
+      "problem": "The emotional arc prescribed by this run (safety -> confidence -> control -> calm) may not be experienced coherently if different phases use inconsistent emotional registers (e.g., evaluation phase is factual but onboarding phase uses marketing language).",
+      "solution": "Qualitative assessment of emotional coherence through a longitudinal diary study or retrospective interviews with hosts who completed the full evaluation-to-listing journey.",
+      "evidence": [
+        {
+          "source": "kent-call.txt, full transcript",
+          "type": "host_call",
+          "quote": "Kent's emotional posture is consistent throughout: careful, methodical, evidence-seeking. Any phase that breaks this consistency will feel jarring.",
+          "insight": "The arc must be coherent. If evaluation feels factual but onboarding feels salesy, the host experiences emotional whiplash."
+        },
+        {
+          "source": "campbell-departure-heros-journey.txt, The Call to Adventure through The Belly of the Whale",
+          "type": "book",
+          "quote": "Campbell's Departure is a coherent narrative arc: Call -> Refusal -> Aid -> Threshold -> Whale. Each stage leads naturally to the next.",
+          "insight": "The emotional journey must feel like a single narrative, not a series of disconnected emotional states."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "manual_review",
+      "test_description": "Interview 5-8 hosts who have completed the evaluation-to-first-proposal journey (or as far as they got before dropping off). Ask at each phase: 'How did you feel during this part of the process? Did it feel like a continuation of the previous step or like something new? Was there any moment where the tone or style changed in a way that surprised you?' Map responses to the prescribed emotional arc and identify any phase boundaries where hosts report emotional discontinuity.",
+      "success_criteria": "80%+ of hosts describe the journey as a coherent experience. Zero hosts report a phase boundary where the emotional tone changed so dramatically that it undermined their trust.",
+      "failure_meaning": "If hosts report emotional discontinuity at specific phase boundaries, those boundaries need design attention to smooth the transition. The most likely failure points are: call-to-platform (Frederick's warmth vs. platform's impersonality) and evaluation-to-listing-creation (factual evidence vs. form-filling tedium).",
+      "implementation_hint": "Recruit hosts from the CRM who completed at least 3 phases. Conduct 30-minute semi-structured interviews via video call. Use a journey map as a visual aid during the interview. Code responses for emotional descriptors and discontinuity markers."
+    }
+  ]
+}

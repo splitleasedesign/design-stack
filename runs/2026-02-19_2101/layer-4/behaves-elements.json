@@ -1,0 +1,296 @@
+{
+  "lens": {
+    "host_call": "user-stories-initial-analysis.md",
+    "book_extract": "becker-terror-vital-lie.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Wizard Step Transition with Armor-Preservation Saves",
+      "journey_phases": ["listing_creation"],
+      "problem": "During listing creation, each wizard step is a micro-death of privacy and a micro-birth of the host identity. If the transition between steps feels abrupt (instant page swap) or uncertain (no confirmation of saved state), the host loses the character armor of completed work and faces the new step undefended. If the transition is too slow or ceremonial, the host lingers at the impasse layer and may retreat.",
+      "solution": "On 'Save & Continue,' the current card performs a soft exit: content fades to 80% opacity over 200ms while the progress indicator advances (the completed step dot transitions from accent-bright to accent fill over 300ms using easing-out). After a 100ms hold, the new step card fades in from 0% to 100% opacity over 250ms. Total transition: 550ms. Critically, the save is confirmed by a brief 'Saved' micro-label that appears beside the progress dot for 1.5 seconds — this is the platform's acknowledgment that the character work is preserved. If the host navigates away mid-step, auto-save fires on field blur, and on return the wizard resumes at the exact state left — no work is ever lost.",
+      "states": {
+        "idle": "Current step card visible, fields editable, 'Save & Continue' button in default accent state",
+        "saving": "Button shows a subtle loading spinner (16px, accent color) for <500ms while data persists; fields remain visible but non-interactive",
+        "saved_transitioning": "Current card fades out, progress dot fills, 'Saved' micro-label appears; new step card fades in",
+        "new_step_active": "New step card fully visible, fields editable, 'Saved' label fades out after 1.5s",
+        "auto_saved_on_blur": "When host navigates away mid-step, all entered data persists; on return, a 'Draft saved — pick up where you left off' banner appears above the card for 3 seconds",
+        "completed_review": "Host can tap any completed progress dot to review (read-only) previous steps without losing current position"
+      },
+      "transition_principle": "Transitions must feel like a gentle hand guiding the host forward — not a door slamming behind them. The fade-out/fade-in pattern avoids the psychological jolt of instant page replacement while remaining fast enough to maintain momentum. The 'Saved' micro-label is the platform whispering 'I have this' — a moment of delegated power that allows the host to release the previous step and engage the next.",
+      "timing": {
+        "card_fade_out": "200ms, easing-out (cubic-bezier(0.16, 1, 0.3, 1))",
+        "progress_dot_fill": "300ms, easing-out",
+        "hold_between_steps": "100ms",
+        "card_fade_in": "250ms, easing-out",
+        "saved_label_display": "1500ms, then fade out over 300ms",
+        "auto_save_debounce": "2000ms after last field interaction",
+        "draft_banner_display": "3000ms, then slide up over 300ms"
+      },
+      "journey_state_awareness": "The wizard tracks both structural completion (which steps are done) and emotional momentum (time spent per step, field interaction patterns). If a host spends >3 minutes on the photo upload step without uploading, the system may surface a contextual reassurance ('You can add more photos later — one is enough to get started'). If a host completes steps 1-3 in quick succession but stalls at step 4, the progress indicator gently pulses the next step dot once after 30 seconds — a subtle nudge that maintains momentum without pressure.",
+      "edge_cases": [
+        "Host closes browser mid-step: All entered data auto-saved. On next visit, wizard resumes at exact state with 'Welcome back — your listing draft is saved' banner. No data loss, ever — destroying character work is the platform's gravest sin.",
+        "Host completes all steps except photos: Listing saved as 'Almost ready' draft with a specific 'Add photos to go live' prompt on the listing card. No generic 'Incomplete' label — specificity reduces overwhelm.",
+        "Host clicks 'Back' to a previous step: Previous step opens in editable mode; current step remains saved. The host can revise without re-doing later steps — revision is character armor adjustment, not retreat.",
+        "Network failure during save: Button shows 'Trying to save...' state for up to 5 seconds, then 'Saved to this device — we'll sync when you're back online.' The host must never feel their character work is at risk."
+      ],
+      "evidence": [
+        {
+          "source": "becker-terror-vital-lie.txt",
+          "type": "theory",
+          "quote": "The great boon of repression is that it makes it possible to live decisively in an overwhelmingly miraculous and incomprehensible world.",
+          "insight": "The fade transition between steps is repression in motion — the previous step's content disappears (repressed) as the new step emerges, allowing the host to live decisively within the current step."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "user_research",
+          "quote": "Pause matters more than delete. Hosts who stop a listing aren't always done with it. Pause preserves the work, keeps the door open, and costs nothing.",
+          "insight": "Auto-save is the micro version of pause — it preserves character work at every moment, ensuring the host can retreat and return without loss."
+        }
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Proposal Notification to Decision Flow",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "A new proposal notification is the moment a specific stranger requests entry to the host's hero system. The notification itself can trigger what Becker calls 'the fear of losing support, of standing alone' — the host is suddenly confronted with a decision that has real-world consequences for their domestic safety. If the notification is jarring (aggressive push, alarm sound) it amplifies terror; if it is too subtle (buried in-app) the host misses it and the anxiety of an unresolved proposal accumulates.",
+      "solution": "The proposal notification arrives as a calm but clear push notification: '[Guest Name] sent a proposal for [Listing Name]' with the guest's avatar and verification badge visible in the notification preview. Tapping the notification opens the app directly to the proposal detail view (not the dashboard — avoid the extra navigation step during heightened vigilance). The proposal view loads with the guest identity header already visible, providing immediate threat-assessment data. If the host does not respond within 12 hours, a gentle follow-up appears: 'You have an open proposal from [Guest Name] — take a look when you're ready.' The language is invitational, not urgent — respecting the host's psychological processing time.",
+      "states": {
+        "notification_received": "Push notification with guest avatar, name, verification badge, and listing name. Badge count increments on dashboard icon.",
+        "proposal_viewing": "Full proposal detail view with guest identity header, terms grid, guest message, and sticky action bar (Accept / Counter / Decline)",
+        "counter_offer_editing": "Tapping 'Counter' smoothly expands the terms grid to reveal editable fields (duration dropdown, price field, message textarea). The expansion animates over 300ms using easing-out — the controls emerge from within the existing layout rather than jumping to a new page.",
+        "counter_offer_sending": "Send button shows spinner; on success, terms grid collapses back to read-only with updated values and a 'Counter sent — waiting for [Guest Name]' status badge",
+        "awaiting_guest_response": "Proposal card on dashboard shows 'Counter sent' status in signal-info (#2d5a8a) with time elapsed. No additional notifications to the host during this wait — the anxiety of waiting must not be amplified by the platform.",
+        "proposal_accepted": "On accept, a confirmation modal appears with lease summary, start date, and 'Your space will be ready for [Guest Name] on [Date].' Modal uses accent-light bg (#e8f0eb) — the green signals safety confirmed.",
+        "proposal_declined": "On decline, a brief confirmation: 'Proposal declined. [Guest Name] has been notified.' No guilt-inducing 'Are you sure?' modal — the host's boundary must be respected immediately."
+      },
+      "transition_principle": "The flow from notification to decision must feel like a guided descent from alarm to resolution. Each state reduces ambient anxiety: the notification provides a name and face (stranger becomes person), the detail view provides terms and history (person becomes manageable), the action buttons provide agency (manageable becomes decided). The counter-offer expansion is particularly important: it must feel like opening a drawer, not entering a new room — the host stays in their assessment context while gaining editing powers.",
+      "timing": {
+        "notification_to_view": "Immediate on tap — proposal view is pre-loaded when notification is generated",
+        "counter_expand": "300ms, easing-out",
+        "counter_collapse": "250ms, easing-out",
+        "accept_confirmation_appear": "200ms fade-in",
+        "decline_confirmation_appear": "150ms fade-in, auto-dismiss after 3s",
+        "follow_up_nudge": "12 hours after initial notification, then 36 hours, then no more — maximum 2 follow-ups",
+        "response_deadline_visible": "Show 'Proposal expires in X days' only after 48 hours, not immediately — premature deadline display amplifies urgency anxiety"
+      },
+      "journey_state_awareness": "If this is the host's first-ever proposal, prepend a brief contextual guide above the proposal detail: 'This is your first proposal. Here's what you're looking at:' with inline labels on the guest identity, terms, and action sections. This guide appears only once and can be dismissed. For experienced hosts (3+ proposals processed), skip the guide and present the proposal in its standard form. If the host has declined the last 3 proposals in a row, surface a soft check-in after the 3rd decline: 'Finding the right guest takes time. Would you like to adjust your listing preferences?' — this acknowledges the host's heightened selectivity without pathologizing it.",
+      "edge_cases": [
+        "Guest has no prior reviews or stay history: The identity header shows 'New to Split Lease' badge in signal-info-bg (#e8f0fa) instead of review score. The guest's verification status and ID check become the primary trust signals. An additional line appears: 'This guest has completed identity verification and background check.' The platform compensates for missing social proof with institutional proof.",
+        "Multiple proposals arrive simultaneously: Dashboard shows a proposal count badge. Proposals are listed in reverse-chronological order, each as a summary card (guest avatar, name, key dates, status). The host can process them one at a time — no comparison view that might trigger decision paralysis.",
+        "Host opens proposal but takes no action for 7+ days: The proposal card on the dashboard shifts to signal-warn border treatment. A single, final nudge: '[Guest Name] is still waiting for your response.' If no action after 10 days, the proposal auto-expires with a neutral notification to both parties.",
+        "Host's network is intermittent during counter-offer submission: Counter-offer queues locally and submits when connection restores. A 'Counter saved — will send when you're back online' status prevents the host from feeling their negotiation effort was lost."
+      ],
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "user_research",
+          "quote": "A well-structured proposal — clear dates, schedule, pricing, intent — activates the host to respond. A vague or incomplete one creates friction.",
+          "insight": "The interaction flow must make the proposal's structure immediately legible — no hunting for information, no extra taps to reveal terms. Activation requires instant comprehension."
+        },
+        {
+          "source": "becker-terror-vital-lie.txt",
+          "type": "theory",
+          "quote": "Appetites may be innocent because they are naturally given, but any organism caught in the myriad cross-purposes of this planet is a potential victim of this very innocence.",
+          "insight": "The calm notification tone, the immediate display of the guest's identity, and the structured terms grid all work to reframe the stranger's innocent appetite as manageable — contained within the platform's order."
+        }
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Pause/Resume Listing Toggle",
+      "journey_phases": ["listing_creation", "retention"],
+      "problem": "The host needs to retreat from exposure without the finality of deletion or the continuation of vulnerability. The pause action must feel immediate and reversible — not a negotiation with the platform, not a multi-step process, not an occasion for the platform to interrogate the host's motives. Becker's insight is that 'repression lives on life energies and uses them creatively' — pause is the creative use of the host's retreat impulse.",
+      "solution": "On any listing card (dashboard or listing detail), the host taps a three-dot menu to reveal Pause/Resume as the first option. Tapping 'Pause' triggers an immediate state change: the listing card desaturates by 30%, a 'Paused' badge appears (ink-muted text on bg-deep background, radius-full), and the listing is instantly removed from guest search results. No confirmation modal, no 'Are you sure?', no reason-collection form. The pause is instant and silent — the host's boundary is respected without interrogation. Resume follows the same instant pattern: tap 'Resume,' listing card returns to full saturation, 'Paused' badge is replaced by live status, and the listing re-enters search results within 30 seconds.",
+      "states": {
+        "live": "Listing card at full color saturation, 'Active' status badge in accent-light (#e8f0eb), card is interactive with full action menu",
+        "pausing": "200ms desaturation transition; 'Paused' badge fades in over 200ms; listing removed from search index in background",
+        "paused": "Card at 70% saturation, 'Paused' badge visible, menu shows 'Resume' as first option. Card remains in host's listing grid — never hidden, never moved to an archive. The host can see their paused listing alongside active ones.",
+        "resuming": "200ms re-saturation transition; 'Active' badge fades in; listing re-enters search index",
+        "resumed": "Card at full saturation, fully live. A brief 'Your listing is live again' toast appears for 2 seconds."
+      },
+      "transition_principle": "Pause and resume must feel like flipping a light switch — instant, reversible, undramatic. The desaturation visual treatment makes the paused state visible without making it feel punitive or alarming. The host can see their paused listing and know: my work is here, my space is protected, I can come back. No ceremonial transitions, no modal interruptions — these would force the host to linger at the decision point, amplifying the anxiety the pause is meant to relieve.",
+      "timing": {
+        "desaturation_transition": "200ms, easing-out",
+        "badge_transition": "200ms fade",
+        "search_index_removal": "Background, within 5 seconds",
+        "resume_resaturation": "200ms, easing-out",
+        "search_index_reinsertion": "Within 30 seconds",
+        "toast_display": "2000ms, then slide up over 200ms"
+      },
+      "journey_state_awareness": "If a listing has been paused for >30 days, the 'Paused' badge subtly shifts to ink-ghost (#bdb8b0) — a gentle visual signal that the listing is aging without being alarmist. After 60 days paused, the dashboard shows a single, non-intrusive inline note below the listing card: 'This listing has been paused for 60 days. Resume anytime, or we can keep it saved.' No email re-engagement before 45 days — respect the retreat. If the host has active proposals when they pause, a brief inline alert appears: 'You have 2 open proposals. Pausing will auto-decline them.' This is the one case where a confirmation is warranted — the host's action affects another person.",
+      "edge_cases": [
+        "Host pauses during active lease: Pause only affects the listing's search visibility for future tenants. Current lease continues unaffected. A clarifying note: 'Your current lease with [Guest Name] continues — pausing only hides your listing from new guests.'",
+        "Host pauses and deletes account: If the host requests account deletion while a listing is paused, show a data-preservation notice: 'Your listing data will be permanently removed. Consider keeping your account paused instead — your data stays safe.' Delete requires a separate confirmation.",
+        "Host rapidly toggles pause/resume: Rate-limit to one state change per 5 minutes. On rapid toggle, show: 'Your listing status was just changed. Give it a moment before changing again.' This prevents accidental state oscillation while preserving agency.",
+        "Host pauses all listings simultaneously: A batch pause option is not provided — each listing must be paused individually. This is deliberate: forcing individual action for each listing prevents impulsive total retreat and ensures the host consciously decides about each space."
+      ],
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "user_research",
+          "quote": "Pause matters more than delete. Hosts who stop a listing aren't always done with it. Pause preserves the work, keeps the door open, and costs nothing. Delete is a one-way door that creates regret.",
+          "insight": "The interaction must make pause feel costless and instant — any friction in the pause action undermines its function as a retreat mechanism."
+        },
+        {
+          "source": "becker-terror-vital-lie.txt",
+          "type": "theory",
+          "quote": "Repression is not simply a negative force opposing life energies; it lives on life energies and uses them creatively.",
+          "insight": "Pause is creative repression: it channels the retreat impulse into a productive holding state rather than destructive deletion. The interaction design must honor this by making pause feel like a positive action, not a failure."
+        }
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Cleaning Photo Approval Ritual Interaction",
+      "journey_phases": ["active_lease"],
+      "problem": "The cleaning photo review is the ritual moment when the host confirms their sanctuary survived stranger-contact. If this interaction is buried in a notification center or requires multiple navigation steps, the ritual loses its power. If approval is a passive auto-accept, the host is denied the active confirmation their self-preservation instinct requires. The host must actively verify and seal the restoration.",
+      "solution": "When cleaning photos arrive, a high-priority dashboard card appears in the urgency stack (signal-warn left-border — due today). Tapping the card expands it inline (no page navigation) to reveal the photo grid. The host can tap individual photos to view them full-screen with swipe navigation. The approval interaction requires a deliberate action: a full-width 'Approve: Space Restored' button that, when tapped, triggers a satisfying confirmation animation — the card's border transitions from signal-warn to accent green over 300ms, photos gain the accent-light overlay with checkmark, and the card text updates to 'Space verified.' A subtle haptic pulse (on supported devices) accompanies the confirmation — a physical acknowledgment of restoration.",
+      "states": {
+        "photos_received": "Dashboard urgency card with signal-warn left-border. Card label: 'Review cleaning photos from [Guest Name]'. Tap to expand.",
+        "reviewing": "Card expands inline to reveal 2x2 photo grid. Each photo is tappable for full-screen view. Approve and Flag buttons visible below grid.",
+        "photo_fullscreen": "Full-screen photo view with swipe navigation, dark overlay background, close button (X) top-right. Pinch-to-zoom available.",
+        "approving": "Approve button shows brief spinner (200ms), then card transitions: border goes from warn to accent green (300ms), photos gain overlay (200ms), text updates, haptic fires.",
+        "approved": "Card in confirmed state — accent green border, checkmark overlay on photos, 'Space verified' text. Card remains visible for 48 hours in reassurance zone, then archives.",
+        "flagged": "If host taps 'Flag an Issue,' a text input expands for description. On submit, card border transitions to signal-danger, text updates to 'Issue flagged — support will follow up.' Platform support is auto-notified."
+      },
+      "transition_principle": "The approval must feel conclusive and ceremonial — not a checkbox tap but a seal being placed. The border color transition from warn-amber to safe-green creates a visual resolution arc that mirrors the host's psychological transition from vigilance to relief. The haptic pulse is the physical punctuation of this ritual: the body feels the confirmation that the mind seeks. The 48-hour persistence of the confirmed card serves as an afterglow — ongoing visual proof that the sanctuary is intact.",
+      "timing": {
+        "card_expand": "250ms, easing-out",
+        "photo_to_fullscreen": "200ms scale transition",
+        "approval_spinner": "200ms",
+        "border_color_transition": "300ms, easing-out",
+        "photo_overlay_appear": "200ms fade",
+        "haptic_pulse": "Single medium pulse on confirmation",
+        "confirmed_card_persistence": "48 hours in reassurance zone",
+        "flag_input_expand": "200ms, easing-out"
+      },
+      "journey_state_awareness": "If the host has approved cleaning photos for the same guest multiple times (recurring stays), the system trusts the pattern and shows the photos in a slightly more compact layout — acknowledgment that the host's anxiety has been managed through positive repetition. If the host has flagged an issue in a previous stay, the next cleaning photo review card opens with a subtle note: 'Previously flagged: [brief issue]. Check if resolved.' This supports the host's heightened vigilance without requiring them to remember the history themselves.",
+      "edge_cases": [
+        "Guest does not send cleaning photos: After 24 hours post-checkout, the dashboard shows a card: 'Cleaning photos not yet received from [Guest Name]. We've sent a reminder.' After 48 hours without photos: 'Still waiting on photos. Would you like to flag this for support?' The host must never feel the platform has abandoned the protocol.",
+        "Photos show damage or uncleanliness: The Flag interaction opens an inline form with photo annotation capability — the host can circle problem areas. This channels the host's alarm into structured, actionable documentation rather than panic messaging.",
+        "Host never reviews photos (ignores the card for 7+ days): Photos auto-archive with a note: 'Cleaning photos from [Guest Name] — reviewed later.' No auto-approval — the host's explicit confirmation is never assumed. A gentle note on the listing: 'You have unreviewed cleaning photos.'",
+        "Multiple sets of cleaning photos pending: Each set is a separate urgency card, ordered by stay end date. The host processes them one at a time — no batch approval. Each space-restoration is a separate ritual that deserves its own confirmation."
+      ],
+      "evidence": [
+        {
+          "source": "becker-terror-vital-lie.txt",
+          "type": "theory",
+          "quote": "Such constant expenditure of psychological energy on the business of preserving life would be impossible if the fear of death were not as constant. The very term 'self-preservation' implies an effort against some force of disintegration.",
+          "insight": "The cleaning photo ritual is the host's self-preservation instinct given a concrete, satisfying outlet. The active approval action channels constant background anxiety into a discrete, resolvable moment."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "user_research",
+          "quote": "Urgency should surface first on the dashboard.",
+          "insight": "Cleaning photos are urgency items that resolve into reassurance items — the interaction design must make this transition visible and satisfying, moving the card from the threat-zone to the safety-zone."
+        }
+      ],
+      "priority": "medium"
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Pricing Default Accept vs. Adjust Decision Point",
+      "journey_phases": ["pricing"],
+      "problem": "The pricing step forces the host to either accept the platform's self-valuation (delegating to other-power) or override it (asserting autonomous judgment about their own worth). Both paths carry existential weight: accepting defaults means surrendering self-determination; adjusting means confronting the anxiety of self-valuation. The interaction must make acceptance feel like a confident choice and adjustment feel like a safe exploration — neither should feel like defeat.",
+      "solution": "The pricing card loads with the default price already displayed as the hero number (see looks-004). The primary action is 'Accept this price' — a full-width accent button that, when tapped, triggers a confirmation animation: the price number briefly scales up 5% over 200ms (using easing-spring) and the guaranteed income line subtly highlights in accent for 500ms. This 'stamp of approval' animation makes acceptance feel active, not passive. The secondary action 'Adjust price' is a text link below the button. Tapping it smoothly reveals a slider constrained to the market range, with the current default marked. As the host slides, the hero price number and guaranteed income update in real-time — the host sees the consequence of every adjustment instantly. Releasing the slider snaps to the nearest $25 increment. A 'Confirm adjusted price' button replaces the original Accept button.",
+      "states": {
+        "default_displayed": "Hero price number, trust line, guarantee projection, market range bar, Accept button, Adjust link. This is the landing state — designed for rapid acceptance.",
+        "accepting_default": "Accept button shows brief spinner (150ms), then price number scales up 5% over 200ms (spring easing), guaranteed income highlights in accent for 500ms, then wizard transitions to next step.",
+        "adjusting": "Slider expands below the market range bar over 300ms. Hero price and guarantee update in real-time as slider moves. 'Confirm adjusted price' button replaces Accept button. Adjust link changes to 'Reset to recommended' link.",
+        "confirming_adjustment": "Same animation as accepting default — price scales up, guarantee highlights. Wizard proceeds.",
+        "resetting_to_default": "'Reset to recommended' smoothly returns slider to default position over 300ms, hero price reverts, Accept button reappears."
+      },
+      "transition_principle": "The price acceptance animation (scale-up + highlight) must feel like a stamp being placed, not a button being clicked. The spring easing on the scale creates a subtle bounce that conveys confidence — the platform affirming the choice. The slider reveal uses a smooth expansion to avoid jarring the host out of the decision context. Real-time price updating during slider interaction provides immediate feedback that prevents the host from feeling lost in the adjustment — every position on the slider has a visible consequence.",
+      "timing": {
+        "accept_spinner": "150ms",
+        "price_scale_up": "200ms, easing-spring (cubic-bezier(0.34, 1.56, 0.64, 1))",
+        "guarantee_highlight": "500ms, then fade over 300ms",
+        "slider_expand": "300ms, easing-out",
+        "price_realtime_update": "Continuous during slide, throttled to 60fps",
+        "snap_to_increment": "100ms on release",
+        "reset_to_default": "300ms slide animation"
+      },
+      "journey_state_awareness": "If the host adjusts the price significantly below the recommended default (>20% lower), a gentle contextual note appears: 'This price is below most listings in [neighborhood]. Your guaranteed income will be $X,XXX/month.' The note is informational, not blocking — the host's autonomy is preserved. If the host adjusts above default (>20% higher), a different note: 'At this price, your listing may take longer to receive proposals.' Both notes disappear if the host returns to within 20% of default. No note appears for adjustments within the 20% band — this range is the platform's tolerance for the host's self-valuation needs.",
+      "edge_cases": [
+        "Host taps Accept without reading: The acceptance is honored. No 'Did you review the price?' gate. The host who accepts instantly is delegating to other-power decisively — this is the healthiest Beckerian response and the platform should not second-guess it.",
+        "Host adjusts price to market minimum: The slider allows it. A note appears: 'This is the lowest recommended price for your area. Your space is worth at least this much.' The note validates even the minimum — no self-deprecation.",
+        "Host adjusts price to market maximum: The slider allows it. A note appears: 'This is the highest recommended price for your area. You may receive fewer proposals.' Honest but not discouraging.",
+        "Host repeatedly slides back and forth without confirming: After 3 slider direction changes, a subtle message: 'Not sure? The recommended price works well for most hosts in your area.' This is the platform gently offering to resume its role as delegated authority.",
+        "Host returns to pricing step after completing later steps: The previously accepted/adjusted price is displayed as the hero number. The host can re-enter adjustment mode but the existing price is visually affirmed — no 'unsaved' anxiety."
+      ],
+      "evidence": [
+        {
+          "source": "becker-terror-vital-lie.txt",
+          "type": "theory",
+          "quote": "We don't want to admit that we do not stand alone, that we always rely on something that transcends us, some system of ideas and powers in which we are embedded and which support us.",
+          "insight": "The Accept button is the host's admission of reliance on the platform's power. The confirmation animation must make this feel like a confident embedding, not a surrender."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "user_research",
+          "quote": "Value before the ask — always.",
+          "insight": "The default price (value) is displayed before the Adjust option (the ask). The interaction flow ensures the host sees and internalizes the platform's recommendation before being invited to modify it."
+        }
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Re-List Streamlined Flow at Lease End",
+      "journey_phases": ["retention"],
+      "problem": "At lease end, the host has completed the full cycle of exposure and must decide whether to recommit. If the re-listing flow requires re-entering data, re-uploading photos, or re-navigating the full wizard, the character-work cost of recommitment is too high — the host experiences the full existential weight of listing creation again, but this time with experiential knowledge of what it actually entails. The returning host needs the re-listing flow to honor their prior investment.",
+      "solution": "The re-list CTA (on the Legacy Summary page) opens a single confirmation screen — not a wizard. The screen displays the existing listing as a compact review card: listing title, main photo, price, key terms — all pre-populated from the previous lease. The host can tap any section to edit (inline expand, not page navigation), but the default action is 'Re-list as-is' — a full-width accent button. If the host wants to adjust pricing based on their experience, the price section opens with the same slider interaction (behaves-005) but now shows 'Previous price: $X | Recommended: $Y' where Y may have been updated by the algorithm. The entire flow should be completable in under 60 seconds for a host who re-lists without changes.",
+      "states": {
+        "legacy_summary_viewed": "Host has seen their hosting impact metrics and review excerpts. Re-list CTA is prominent at bottom.",
+        "review_card_displayed": "Single screen showing listing preview card with all prior data. 'Re-list as-is' button (accent, full-width) at bottom. 'Edit details' link available for each section.",
+        "editing_section": "Tapped section expands inline (300ms, easing-out) to reveal editable fields. Other sections remain collapsed but visible. 'Done editing' collapses the section.",
+        "relisting": "Re-list button shows spinner, then confirmation: listing card animates from 70% to 100% saturation (reversing the pause visual), 'Live' badge appears, confetti-free — a brief, warm 'Your listing is live' toast appears for 3 seconds.",
+        "relisted": "Host returns to dashboard with updated listing card. A 'Welcome back' inline note appears once on the dashboard.",
+        "choosing_pause_instead": "If host taps Pause instead of Re-list, listing remains in paused state from previous lease end. No additional confirmation needed."
+      },
+      "transition_principle": "The re-list flow must feel like resuming, not restarting. The single-screen review card communicates: 'Everything you built is still here.' Inline editing preserves context — the host adjusts within the existing structure rather than re-entering a wizard that evokes the vulnerability of initial listing creation. The re-saturation animation (70% to 100%) directly reverses the pause desaturation, creating a satisfying visual closure: what was dimmed is now alive again.",
+      "timing": {
+        "review_card_load": "Instant — data pre-populated from existing listing",
+        "section_expand": "300ms, easing-out",
+        "section_collapse": "250ms, easing-out",
+        "relist_spinner": "300ms",
+        "resaturation_animation": "400ms, easing-out",
+        "live_badge_appear": "200ms fade",
+        "toast_display": "3000ms, then slide up over 200ms"
+      },
+      "journey_state_awareness": "If the host's previous lease included any flagged issues (cleaning problems, date change disputes), the review card surfaces a contextual note in the relevant section: 'Last time, you flagged a cleaning issue. Consider updating your house rules.' This helps the host strengthen their character armor based on experience rather than ignoring lessons learned. If the algorithm recommends a different price than the previous lease, the pricing section auto-expands to highlight the change — drawing the host's attention to a meaningful update without forcing a full review of unchanged sections.",
+      "edge_cases": [
+        "Host received negative reviews during previous lease: The review card does not show the negative review — this is a forward-looking moment, not a retrospective. But if the listing's average rating dropped below 3.5, a gentle note appears: 'Consider updating your listing photos and description to attract great-fit guests.'",
+        "Listing data has become stale (photos >1 year old): A non-blocking suggestion appears below the photo: 'Your photos are from [month, year]. Want to update them?' The host can dismiss this and re-list with existing photos.",
+        "Host wants to re-list but at a different property: This is a new listing, not a re-list. The CTA 'List a new space' is available on the dashboard but separate from the re-list flow. The re-list flow is exclusively for the same space.",
+        "Host re-lists immediately after lease end (same day): The flow works identically. No cooling-off period is enforced — if the host wants to sustain exposure without a gap, the platform should enable that momentum."
+      ],
+      "evidence": [
+        {
+          "source": "becker-terror-vital-lie.txt",
+          "type": "theory",
+          "quote": "The neurotic who has had therapy is like a member of Alcoholics Anonymous: he can never take his cure for granted, and the best sign of the genuineness of that cure is that he lives with humility.",
+          "insight": "The re-list flow must be humble — a quiet, efficient recommitment, not a triumphant relaunch. The host's courage to continue is honored by minimizing the effort required, not by celebrating it loudly."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "user_research",
+          "quote": "Pause matters more than delete. Hosts who stop a listing aren't always done with it. Pause preserves the work, keeps the door open, and costs nothing.",
+          "insight": "The re-list flow IS the 'door' that pause keeps open. The ease of re-listing validates the pause decision — the host who paused and returns finds their world intact."
+        }
+      ],
+      "priority": "medium"
+    }
+  ]
+}

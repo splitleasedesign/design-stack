@@ -1,0 +1,303 @@
+{
+  "lens": {
+    "guest_call": "user-stories-initial-analysis.md",
+    "book_extract": "flow-conditions-of-flow.txt"
+  },
+  "elements": [
+    {
+      "id": "looks-001",
+      "type": "visual_pattern",
+      "title": "Progressive Visual Density on Listing Cards: Boredom-to-Flow Layering",
+      "journey_phases": ["search", "listing_evaluation"],
+      "problem": "The listing card currently presents a single visual density regardless of the guest's engagement level. A first-time visitor and a returning power-searcher see the same flat card with the same depth of visual information. Csikszentmihalyi's A1-to-A4 progression predicts that as the guest's search skills grow, a static card moves them from flow (A1) into boredom (A2): 'After a while, if he keeps practicing, his skills are bound to improve, and then he will grow bored just batting the ball over the net.' The user stories confirm this: 'The current card works but it is leaving engagement on the table. Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions -- all without leaving the search grid.' Visually, the card lacks the layered complexity that keeps a growing-skill guest in the flow channel.",
+      "solution": "Design the listing card with three visual density tiers that reveal themselves through interaction, creating the visual complexity ratchet that Flow demands. Tier 1 (default): hero photo at full bleed with price badge (--text-dark on --bg-white surface), location label in --font-inter at --text-sm, and a single availability dot (green/amber/red). Maximum 4 visual elements. Clean, glanceable, optimized for System 1 scanning. Tier 2 (hover/focus): the card elevates via --shadow-md transitioning to --shadow-purple-md over --transition-base (0.2s) with --easing-ease-in-out. New visual elements fade in: image counter badge (e.g., '1/8') in a frosted pill using --overlay-light-blur, neighborhood label in --text-sm with --font-weight-medium, host response time micro-badge, and a subtle save-heart icon at --opacity-hover that brightens to full on hover. Maximum 4 additional elements. Tier 3 (expanded preview or long-hover): a bottom drawer slides up within the card (not a new page), revealing transit proximity icons, availability calendar strip, and a 'Message Host' quick-action pill. This tier uses --spacing-sm internal padding and --rounded-lg corners. Transition between tiers uses the taste model's principle: fast response (< 100ms acknowledgment via shadow lift), gentle settle (300ms for content reveal). Each tier must feel like zooming into a photograph -- the structure stays, detail increases.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "The current card works but it's leaving engagement on the table. Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions -- all without leaving the search grid.",
+          "insight": "The user stories describe exactly the visual layers missing from the card. Each requested element (hover state, image counter, availability indicator, neighborhood label, quick action) is a visual density upgrade that matches a growing-skill guest's readiness for more complex visual information."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "It is this dynamic feature that explains why flow activities lead to growth and discovery. One cannot enjoy doing the same thing at the same level for long. We grow either bored or frustrated.",
+          "insight": "Visual density must be dynamic, not static. A card that looks identical on first view and tenth view guarantees visual boredom. Progressive density layers are the visual implementation of Csikszentmihalyi's complexity ratchet."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "It provided a sense of discovery, a creative feeling of transporting the person into a new reality.",
+          "insight": "Each visual tier should feel like discovery -- the guest's interaction (hover, focus, pause) reveals something they did not see before. This is visual flow: the act of exploring cards becomes intrinsically rewarding because each interaction produces new visual information."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--bg-white", "--text-dark", "--text-gray", "--secondary-purple", "--overlay-light-blur", "--accent-coral (proposed, for save-heart)"],
+        "typography": ["--font-inter at --text-sm for labels", "--font-weight-medium for neighborhood name", "--text-xs for micro-badges"],
+        "spacing": ["--spacing-sm (8px) internal padding for hover content", "--spacing-xs (4px) between micro-badges", "--spacing-md (12px) card internal padding"],
+        "new_tokens_needed": [
+          "--card-hover-translate-y: -2px (subtle lift on hover to signal interactive depth)",
+          "--card-tier-transition: 0.2s ease-in-out (tier reveal timing)",
+          "--card-drawer-height: 64px (expanded preview drawer max height)"
+        ]
+      },
+      "contrast_requirements": "Price badge text (#1a1a1a) on white surface achieves 16.1:1 -- exceeds WCAG AAA. Availability dot colors must achieve minimum 3:1 against --bg-white for non-text graphical elements per WCAG 2.1 SC 1.4.11. Neighborhood label (--text-gray #5A6370 proposed) on white achieves 5.9:1 -- passes AA. Micro-badge text (--text-light-gray #8891A0 proposed) on white achieves 4.5:1 -- passes AA for large text, borderline for small; use at --text-sm minimum or darker variant.",
+      "visual_hierarchy_rule": "Eye sees first: hero photo (emotional anchor, full card width). Second: price badge (positioned top-right or bottom-left, high contrast). Third: location text (below photo, left-aligned). Fourth (on hover): neighborhood + availability + image count appear as a secondary information band. The photo is the emotional hook; price is the feasibility filter; location is the relevance signal. This matches L2's scan order: photo > price > location > availability.",
+      "brand_alignment": "Taste model: 'Confident, not flashy. The product speaks through clarity, not decoration.' Each tier adds information, not decoration. No gratuitous animation or color bursts. The hover elevation uses --shadow-purple-md (brand-tinted shadow) to subtly assert brand identity without competing with the photo. 'Premium-accessible' is achieved through the frosted overlay pill (--overlay-light-blur) for image count -- a technique associated with high-end interfaces. 'Warm, not cold' is maintained by using warm whites (--bg-off-white rgb(252,250,255)) as the card background rather than stark #ffffff."
+    },
+    {
+      "id": "looks-002",
+      "type": "visual_pattern",
+      "title": "Living Map Visual Feedback: Motion and Context as Flow Signals",
+      "journey_phases": ["search"],
+      "problem": "The map currently displays static pins on a static surface. When the guest pans, zooms, or hovers over a neighborhood, the map provides no visual feedback -- no contextual data appears, no pins animate, no neighborhood boundaries highlight. Csikszentmihalyi identifies feedback as one of four necessary conditions for flow: 'a goal-directed, rule-bound action system that provides clear clues as to how well one is performing.' A static map provides no clues. The guest explores but receives no visual signal that their exploration is productive. The user stories describe this gap precisely: 'Transit stops, landmarks, real-time context -- this is about mood, not just utility. The feeling that something is happening.'",
+      "solution": "Design the map as a visual feedback system where every guest interaction produces a visible response, creating the sense of 'aliveness' the user stories demand. Pin behavior: listing pins at rest use a small, muted dot (8px, --primary-purple at 60% opacity). On map hover-proximity, pins scale to 12px and increase to full opacity over --transition-fast (0.1s). The pin currently under the cursor or nearest to it elevates to 16px with --shadow-purple-sm glow. This creates a visual field effect: the map breathes around the guest's cursor. Neighborhood feedback: when the guest's cursor dwells over a neighborhood zone for 500ms+, a translucent boundary fades in (--primary-purple at 8% opacity fill, --secondary-purple at 40% opacity stroke, 1px dashed) with a floating label showing the neighborhood name in --font-inter --text-sm --font-weight-semibold. Transit and landmark icons appear as small monochrome Feather icons (--icon-xs, 16px) at 60% opacity, fading in over --transition-base (0.2s). Panning feedback: as the guest pans, new pins load with a subtle scale-up entrance animation (from 0.8 to 1.0 scale, --transition-base, --easing-ease-out). This communicates that new information is arriving in response to their action. Price context: on zoom-in past a threshold, price labels appear adjacent to pins in --font-inter --text-xs --font-weight-semibold, using --bg-white pills with --shadow-sm. On zoom-out, they fade out to prevent clutter. All map transitions respect prefers-reduced-motion by collapsing to instant state changes.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Transit stops, landmarks, real-time context -- this is about mood, not just utility. The feeling that something is happening.",
+          "insight": "The alive map is fundamentally a visual feedback request. The guest wants the visual environment to respond to their actions. Static pins on a static background provide content but zero feedback. Visual motion (pin scaling, neighborhood boundaries, transit icons appearing) transforms the map from a reference tool into a flow activity."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "A sense that one's skills are adequate to cope with the challenges at hand, in a goal-directed, rule-bound action system that provides clear clues as to how well one is performing.",
+          "insight": "The map must provide 'clear clues' that the guest's spatial exploration is productive. When hovering over a neighborhood reveals transit access and listing density, the guest receives a performance clue: 'I am exploring the right area' or 'I should pan elsewhere.' Without these visual signals, the guest has no way to assess whether their map exploration is effective."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "They facilitate concentration and involvement by making the activity as distinct as possible from the so-called 'paramount reality' of everyday existence.",
+          "insight": "An alive map creates a distinct visual world -- one that responds to the guest's presence and actions. This visual distinctiveness separates the search experience from the 'paramount reality' of generic map browsing (Google Maps, Apple Maps) and makes it a uniquely engaging activity."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--primary-purple (pin color)", "--secondary-purple (boundary stroke)", "--primary-purple at 8% opacity (boundary fill)", "--bg-white (price pills)", "--text-dark (price text)"],
+        "typography": ["--font-inter --text-xs --font-weight-semibold for price labels", "--font-inter --text-sm --font-weight-semibold for neighborhood floating labels"],
+        "spacing": ["--spacing-xs (4px) padding inside price pills", "--spacing-sm (8px) offset between pin and price label"],
+        "new_tokens_needed": [
+          "--map-pin-rest: 8px (resting pin diameter)",
+          "--map-pin-proximity: 12px (proximity-hover pin diameter)",
+          "--map-pin-active: 16px (active pin diameter)",
+          "--map-neighborhood-fill-opacity: 0.08 (boundary fill transparency)",
+          "--map-neighborhood-stroke-opacity: 0.40 (boundary stroke transparency)"
+        ]
+      },
+      "contrast_requirements": "Price labels (--text-dark #1a1a1a on --bg-white pill) achieve 16.1:1 -- exceeds AAA. Neighborhood floating labels must maintain 4.5:1 minimum against the map tile background; use a frosted white pill backdrop (--overlay-light rgba(255,255,255,0.9)) behind the label to guarantee contrast regardless of map tile color. Pin glow (--shadow-purple-sm) is decorative, not informational, so it does not carry contrast requirements. Transit/landmark Feather icons at 60% opacity on map tiles may fall below 3:1; they must be accompanied by text labels on hover to be WCAG compliant for graphical objects.",
+      "visual_hierarchy_rule": "Eye sees first: listing pins (clustered, colored, primary information). Second: neighborhood boundary on dwell (contextual, secondary). Third: price labels on zoom (detail, tertiary). Fourth: transit/landmark icons on dwell (supplementary). The map reads as a pin density heatmap at overview zoom, a priced listing grid at mid zoom, and a rich contextual neighborhood at close zoom. Each zoom level reveals a new visual layer, matching the progressive disclosure pattern from L2.",
+      "brand_alignment": "Taste model: 'Fast response, gentle settle. User actions feel instant (< 100ms acknowledgment) but transitions are smooth (300-500ms).' Pin proximity scaling responds in --transition-fast (0.1s) for instant acknowledgment; neighborhood boundaries and transit icons fade in over --transition-base (0.2s) for gentle settle. 'One signature animation per component -- restraint over spectacle.' The map's signature animation is the proximity-based pin breathing effect. No other animation competes. 'Warm, not cold': the purple-tinted pin glow and boundary fills add brand warmth to the typically cold, utilitarian map interface."
+    },
+    {
+      "id": "looks-003",
+      "type": "visual_pattern",
+      "title": "Contextual Continuity: Visual State Preservation Across Transitions",
+      "journey_phases": ["search", "listing_evaluation", "proposal_creation"],
+      "problem": "Every full-page navigation between search, listing, and proposal forces a complete visual reset: new layout, new spatial arrangement, new scroll position. This visual discontinuity is what Csikszentmihalyi calls 'stimulus overinclusion' imposed by the system -- the guest must visually re-orient to a completely new screen when their attention should be invested in their task. The user stories identify authentication as the most egregious example: 'Inline auth pop-up, not a full-page redirect. Users don't lose search context.' But the visual continuity problem extends to every transition in the high-engagement path. L1 (works-003) and L2 (communicates-007) both identify concentration preservation as a high priority. The visual design must ensure that no transition forces the guest's eyes to 'start over' on a new page.",
+      "solution": "Design transitions between search, listing, and proposal as visual transformations of the current view, not navigations to new views. Search-to-listing: when the guest clicks a card, the card expands in place or slides to become the listing detail panel. The search grid remains visible behind/beside it, dimmed to 40% opacity (--overlay-light at 0.6 opacity). The expansion animation uses --transition-slow (0.3s) with --easing-ease-out, giving the guest visual continuity: they can see exactly where they came from and how to get back. The listing panel slides in from the right edge with a max-width of --max-width-sidebar (380px) on desktop or full-screen with a visible back-arrow on mobile. Listing-to-proposal: when the guest initiates a proposal from the listing, the proposal form unfolds as a new section below or alongside the listing content -- not on a separate page. The listing photos, price, and host info remain visible above as reference context. The form appears via a downward expand animation (height: 0 to auto, --transition-slow, --easing-ease-out). Authentication overlay: a centered modal (--max-width-modal 400px, --rounded-2xl 16px corners, --shadow-xl) with --overlay-dark (rgba(0,0,0,0.7)) backdrop. The underlying page remains fully rendered but inert. After auth completes, the modal dismisses (--transition-base fade-out) and the guest is exactly where they were -- no visual reset, no scroll change, no layout shift. All transitions must be reversible: pressing back or escape reverses the animation, restoring the previous visual state exactly.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Inline auth pop-up, not a full-page redirect. Users don't lose search context.",
+          "insight": "The request for inline auth is a visual continuity principle. The guest's visual context -- the search grid they were scanning, the card they were about to click, the map position they had navigated to -- must remain visually present behind the auth overlay. Any visual reset breaks flow."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "Concentration is so intense that there is no attention left over to think about anything irrelevant, or to worry about problems. Self-consciousness disappears, and the sense of time becomes distorted.",
+          "insight": "Flow's concentration requirement is absolute: no attention to spare on irrelevant visual stimuli. A full-page navigation forces the guest to process an entirely new visual layout -- navigation bar position, content width, scroll state -- all irrelevant to their actual task. Visual state preservation eliminates this irrelevant visual processing."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Richer hover states, image counters, availability indicators, neighborhood labels, and quick actions -- all without leaving the search grid.",
+          "insight": "The emphasis on 'without leaving the search grid' is a visual continuity demand. Every additional visual element must appear within the current spatial context, not require navigation to a new spatial context. The search grid is the visual anchor; everything else layers on top of or beside it."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--overlay-dark rgba(0,0,0,0.7) for modal backdrops", "--overlay-light rgba(255,255,255,0.9) for dimmed search grid", "--bg-white for slide-in panels", "--border-color #e5e7eb for panel edges"],
+        "typography": ["No new typography tokens required -- panels and modals inherit the existing type system"],
+        "spacing": ["--spacing-2xl (24px) panel internal padding", "--max-width-sidebar (380px) for listing slide-in panel", "--max-width-modal (400px) for auth overlay"],
+        "new_tokens_needed": [
+          "--panel-slide-duration: 0.3s (listing panel entrance/exit timing)",
+          "--panel-backdrop-opacity: 0.6 (search grid dimming behind panel)",
+          "--form-expand-duration: 0.3s (proposal form height expansion)"
+        ]
+      },
+      "contrast_requirements": "Auth modal content (--text-dark on --bg-white) maintains 16.1:1. Modal backdrop (--overlay-dark) ensures the modal is visually dominant -- the 0.7 opacity effectively eliminates contrast interference from the underlying page. Dimmed search grid behind listing panel at 0.6 opacity must not create false interactive affordances -- use pointer-events: none on dimmed elements and reduce saturation via a CSS filter to visually signal inertness. Focus states (--secondary-purple 2px outline with 2px offset) must be clearly visible on all modal and panel interactive elements.",
+      "visual_hierarchy_rule": "Eye sees first: the active panel or modal (highest z-index, full opacity, focused content). Second: the dimmed but visible prior context (search grid at reduced opacity behind the panel). Third: any persistent navigation elements. The guest always knows where they are (active panel) and where they came from (dimmed prior context). This dual-layer visual hierarchy is the visual implementation of the concentration-preserving information containment principle from L2.",
+      "brand_alignment": "Taste model: 'Never bounce. Spring easing for interactive elements, ease-out for transitions.' Panel entrances use --easing-ease-out for a smooth slide that decelerates naturally -- no bounce or overshoot. 'Confident, not flashy': the slide-in panel is a simple, clean reveal, not a 3D transform or parallax effect. 'Trustworthy, not corporate': maintaining the search grid visible behind the panel communicates transparency -- the platform is not hiding anything or taking the guest somewhere unexpected. The visual message is: your context is safe, you can return at any time."
+    },
+    {
+      "id": "looks-004",
+      "type": "visual_pattern",
+      "title": "Proposal Form as Visual Continuation, Not Visual Rupture",
+      "journey_phases": ["proposal_creation"],
+      "problem": "Proposal creation is the highest-stakes flow moment in the pre-lease journey. L0 identifies it as 'critical' dropout risk because the guest transitions from passive evaluation to active creation. Visually, if the proposal form arrives as a separate page with a new layout, new color treatment, or unfamiliar form patterns, the guest's visual flow breaks precisely when they are most committed. Csikszentmihalyi warns that self-consciousness destroys flow: 'A person who is constantly worried about how others will perceive her, who is afraid of creating the wrong impression, or of doing something inappropriate, is also condemned to permanent exclusion from enjoyment.' A cold, clinical form with empty fields amplifies self-consciousness. The guest sees blank space where they must produce content, and they worry about whether they are doing it correctly.",
+      "solution": "Design the proposal form as a visual extension of the listing page, using pre-populated content and the listing's visual language to reduce self-consciousness and maintain flow. Visual continuity: the form shares the same background color (--bg-white or --bg-off-white), the same type hierarchy (--font-inter, same size scale), and the same spacing rhythm (--spacing-lg, --spacing-2xl) as the listing page. There is no visual break between listing content and proposal content. Pre-populated visual state: instead of empty form fields, the form arrives with the listing's dates, price, and location pre-filled, rendered in the same visual treatment as the listing detail (--text-dark, --font-weight-medium). The pre-populated fields use a subtle background tint (--bg-light #f9fafb) to indicate they are editable but not empty. This transforms the visual message from 'fill in these blank boxes' to 'confirm or adjust these pre-set values.' Real-time price feedback: as the guest adjusts dates or duration, the total price updates visually in real time using a --transition-fast (0.1s) color pulse -- the price text briefly highlights in --secondary-purple before settling back to --text-dark. This micro-animation is the visual feedback that Flow requires during action, not only after. Proposal preview: before the submit button, a compact visual summary renders the proposal as the host will see it -- a mini-card with the guest's photo, dates, price, and message. This preview uses --rounded-xl (12px), --shadow-sm, and --border-color to visually match the listing card language, reinforcing that the proposal is a natural extension of the listing interaction, not a bureaucratic form submission.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "A person who is constantly worried about how others will perceive her, who is afraid of creating the wrong impression, or of doing something inappropriate, is also condemned to permanent exclusion from enjoyment.",
+          "insight": "The blank form field is a visual trigger for self-consciousness: it demands the guest produce content from nothing, then worry about whether it is correct. Pre-populated fields and a host-view preview reduce this visual anxiety by showing the guest what 'right' looks like before they submit."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "A well-structured proposal -- clear dates, schedule, pricing, intent -- activates the host to respond. A vague or incomplete one creates friction.",
+          "insight": "The visual design of the proposal form directly affects proposal quality. Pre-populated fields guide the guest toward a well-structured output. The host-view preview lets the guest visually assess their proposal's clarity before submitting, serving as visual feedback on their 'performance' in the flow activity."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "They have rules that require the learning of skills, they set up goals, they provide feedback, they make control possible.",
+          "insight": "The real-time price update is visual feedback during action. The proposal preview is visual feedback before commitment. Together they provide the 'clear clues as to how well one is performing' that Flow requires -- the guest can see their proposal taking shape and assess its quality at every step."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--bg-white (form background)", "--bg-light #f9fafb (pre-populated field tint)", "--text-dark (field values)", "--secondary-purple (price update pulse)", "--border-color #e5e7eb (preview card border)"],
+        "typography": ["--font-inter --text-base for form fields", "--font-inter --text-lg --font-weight-bold for total price", "--font-inter --text-sm for form labels"],
+        "spacing": ["--spacing-lg (16px) between form groups", "--spacing-2xl (24px) between sections", "--spacing-sm (8px) between label and field"],
+        "new_tokens_needed": [
+          "--price-pulse-duration: 0.4s (time for price update highlight to appear and fade)",
+          "--field-prefill-bg: var(--bg-light) (background for pre-populated fields to signal editability)"
+        ]
+      },
+      "contrast_requirements": "Pre-populated field text (--text-dark #1a1a1a on --bg-light #f9fafb) achieves approximately 15.5:1 -- exceeds AAA. Form labels (--text-gray proposed #5A6370 on --bg-white) achieve 5.9:1 -- passes AA. The price update pulse (--secondary-purple on --bg-white) must maintain 4.5:1 during the brief highlight moment; rgb(109,49,194) on white achieves approximately 5.7:1 -- passes AA. Submit button (--white text on --secondary-purple background) must achieve 4.5:1; #FFFFFF on rgb(109,49,194) achieves approximately 5.7:1 -- passes AA. Focus ring on form inputs uses --secondary-purple 2px outline with 2px offset, visible at 100% opacity.",
+      "visual_hierarchy_rule": "Eye sees first: the pre-populated listing summary at the top of the form (photo thumbnail, address, price -- visual anchor that confirms 'this is the listing I chose'). Second: the date/duration fields (the primary decision the guest must make). Third: the real-time price total (feedback on their date selection). Fourth: the message field (optional elaboration). Fifth: the host-view preview and submit button (confirmation and action). This top-to-bottom flow mirrors the guest's decision sequence and prevents the eye from jumping to the submit button before the form is complete.",
+      "brand_alignment": "Taste model: 'Trustworthy, not corporate. Rounded corners, human language, real data.' The pre-populated form with real listing data (not placeholder text) communicates trustworthiness -- the platform already knows the relevant information and shares it rather than demanding the guest re-enter it. 'Premium-accessible': the host-view preview card elevates the form from a bureaucratic data-entry experience to a premium interaction where the guest can see their proposal as a polished communication. 'Relentless personalization': the form should adapt to what the platform knows -- if the guest previously messaged this host, reference that conversation; if the guest has a profile, pre-fill their introduction."
+    },
+    {
+      "id": "looks-005",
+      "type": "visual_pattern",
+      "title": "Stays Manager Visual Evolution: Temporal Skin on Stable Structure",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager is visited 13+ times during a 3-month lease -- the highest-frequency touchpoint in the entire guest journey. If the page looks the same on visit 1 and visit 13, Csikszentmihalyi's complexity ratchet guarantees boredom by mid-lease: 'One cannot enjoy doing the same thing at the same level for long.' L1 (works-004) and L2 (communicates-004) both identify this as a critical gap. The visual design challenge is specific: the page layout must remain stable (clarity -- one of the five autotelic traits) while the visual content within it must evolve (challenge -- another autotelic trait). Static visual content on a weekly-visit page is the visual equivalent of the Shushwap's 'world becoming too predictable.'",
+      "solution": "Design the Stays Manager with a fixed visual skeleton and temporally-evolving visual content. Stable skeleton: the page divides into three persistent visual zones -- (1) a top action band (time-sensitive items, max 3), (2) a main content area (this week's stay + engagement prompt), and (3) a reference footer (lease terms, House Manual, host contact). These zones occupy the same screen positions on every visit. Their visual containers (--rounded-xl cards, --shadow-sm, --border-color) never change. The guest always knows where to look. Evolving content: the visual elements within each zone change weekly. The action band surfaces new visual badges when items need attention: a purple dot indicator (--secondary-purple, 8px, --rounded-full) for new messages, an amber indicator (--status-warning proposed #C4841D) for upcoming date changes, a count badge for review prompts. These indicators appear only when relevant and disappear when addressed, creating the visual feedback loop of 'something new each visit.' The main content area shifts its primary visual weight across the lease phases. Weeks 1-3 (orientation): a visual checklist with Feather check-circle icons (--icon-sm 20px) that the guest completes -- visually satisfying as checks turn from --text-light-gray to --secondary-purple. Weeks 4-9 (rhythm): a visual stay timeline showing completed and upcoming stay cycles as a horizontal progress visualization -- filled segments in --secondary-purple, upcoming in --bg-light-gray, with the current week highlighted via --shadow-purple-sm glow. A micro-review prompt appears as a compact card (--rounded-lg, --bg-off-white) after each completed stay cycle. Weeks 10-13 (reflection): a cumulative visual summary -- total nights stayed, total reviews written, a mini-heatmap of stay patterns. The visual density increases across phases, matching the guest's growing platform skill. 'What changed since last visit' indicator: a subtle animated dot or highlight (--secondary-purple pulse, 2s cycle, respects prefers-reduced-motion) on any section that has new content since the guest's last visit.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "One cannot enjoy doing the same thing at the same level for long. We grow either bored or frustrated; and then the desire to enjoy ourselves again pushes us to stretch our skills, or to discover new opportunities for using them.",
+          "insight": "The Stays Manager's visual design must present new visual stimuli on each visit to prevent boredom. The temporal skin approach -- stable layout, evolving content -- ensures the guest finds something visually new every week without the disorientation of a redesigned page."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "The family context promoting optimal experience could be described as having five characteristics. The first one is clarity... And finally there is challenge.",
+          "insight": "Clarity (stable visual skeleton) and challenge (evolving visual content) are the two autotelic traits most directly expressed through visual design. The Stays Manager must deliver both simultaneously: the layout never surprises, but the content always offers something worth looking at."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "The elders said, at times the world became too predictable and the challenge began to go out of life. Without challenge, life had no meaning. So the elders, in their wisdom, would decide that the entire village should move.",
+          "insight": "The Stays Manager cannot move the village (redesign the layout), but it can refresh the landscape within it. The phased visual content -- orientation checklist, stay timeline, cumulative summary -- is the visual equivalent of the Shushwap moving to new land: same structural life, new visual challenges to process."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--secondary-purple (progress fills, active indicators)", "--bg-light-gray #f3f4f6 (incomplete segments)", "--status-warning #C4841D (date change alerts)", "--bg-off-white rgb(252,250,255) (micro-review card)", "--text-dark (primary content)"],
+        "typography": ["--font-inter --text-md --font-weight-semibold for section headers", "--font-inter --text-sm for timeline labels and review prompts", "--font-inter --text-xs for timestamps and meta-information"],
+        "spacing": ["--spacing-2xl (24px) between the three visual zones", "--spacing-lg (16px) within each zone's content", "--spacing-sm (8px) between timeline segments"],
+        "new_tokens_needed": [
+          "--stays-timeline-segment-width: 24px (width of each stay-cycle segment in the progress bar)",
+          "--stays-new-content-pulse: 2s ease-in-out infinite (animation for new-content indicator)",
+          "--stays-checklist-complete-color: var(--secondary-purple) (visual reward for completed orientation items)"
+        ]
+      },
+      "contrast_requirements": "Timeline filled segments (--secondary-purple on --bg-white) at full saturation are decorative and paired with text labels, so they primarily need to be distinguishable from empty segments (--bg-light-gray). The difference between rgb(109,49,194) and #f3f4f6 is visually clear (high saturation vs. near-white). Action band indicators use color-plus-shape: the purple dot for messages is paired with a count number; the amber alert for date changes is paired with a Feather icon. This satisfies WCAG 1.4.1 (use of color) by ensuring color is never the sole differentiator. Review prompt card text (--text-dark on --bg-off-white) achieves approximately 15.5:1.",
+      "visual_hierarchy_rule": "Eye sees first: the action band at the top (if any action items exist -- if none, this zone collapses to zero height so the main content rises). Second: this week's stay status in the main content area (the most time-relevant information). Third: the engagement prompt (review, date management, milestone). Fourth: the reference footer (accessible but not visually dominant). On return visits, the 'what changed' indicator pulls the eye to the specific zone with new content, overriding the default hierarchy for a focused scan.",
+      "brand_alignment": "Taste model: 'Relentless personalization. The UI should adapt to who you are and where you are in your journey. Generic states are a failure.' The temporal skin directly implements this principle: the Stays Manager on week 2 looks different from week 8 because the guest IS different at week 8. 'Warm, not cold': the orientation checklist with its satisfying check-mark animations and the stay timeline with its filling purple segments create a sense of progress and warmth -- the platform is celebrating the guest's journey, not just tracking it. 'Confident, not flashy': the visual evolution is content-driven (new information appears) not animation-driven (no unnecessary motion or transitions between states)."
+    },
+    {
+      "id": "looks-006",
+      "type": "visual_pattern",
+      "title": "Trust Signal Visual Grammar: Consistent Credibility Across All Phases",
+      "journey_phases": ["discovery", "search", "listing_evaluation", "proposal_creation"],
+      "problem": "Trust is re-evaluated at every decision gate in the guest journey, but trust signals currently lack a consistent visual grammar. L2 (communicates-003) identifies that trust information must be distributed across all pre-commitment phases, calibrated to each phase's decision gate. The visual challenge is: how should trust signals look so they are instantly recognizable across contexts (card, listing, proposal) without competing for visual attention with primary content? Csikszentmihalyi identifies 'commitment' (the trust that allows unselfconscious involvement) as one of five conditions for the autotelic family context. Without consistent, recognizable trust visuals, the guest remains in a defensive, self-conscious evaluation mode that prevents flow entry.",
+      "solution": "Establish a unified visual grammar for trust signals that scales from compact (search card) to detailed (listing page) to reassuring (proposal form), using consistent visual elements across all contexts. Core visual language: all trust signals share a common visual DNA -- a small Feather shield-check icon (--icon-xs 16px) paired with a monochrome text label in --font-inter --text-xs --font-weight-medium, rendered in --text-gray (#5A6370 proposed) on a --bg-light-gray (#f3f4f6) pill with --rounded-pill (20px). This visual pattern is the 'trust badge' and it appears everywhere trust is communicated. Discovery (ambient): platform-level trust signals appear as a horizontal strip of small pills at the top or bottom of the landing view -- 'ID Verified Hosts', '2,400+ Stays Completed', 'Payment Protected'. Visually lightweight: --text-xs, no icons, no bold, --text-light-gray on --bg-light. They set a trust floor without demanding attention. Search card (compact): a single trust badge on each card -- the host's verification status. One shield-check icon + 'Verified' + review count number. Positioned bottom-left of the card, using --text-xs. Visually subordinate to price and location. Listing page (detailed): a dedicated trust section with three visual rows: (1) host verification badge (expanded: photo, name, verification badges, member-since date), (2) review summary (star rating in --secondary-purple + count + most recent excerpt), (3) guarantee strip ('Payment held until 48hrs after move-in' in an info-tinted bar using --bg-info #f0f7ff with --info-blue icon). Each row uses consistent left-alignment, --spacing-lg between rows. Proposal form (reassuring): inline trust micro-copy adjacent to commitment fields. Next to the payment field: a small shield icon + 'Your payment is held securely' in --text-gray --text-xs. Next to the submit button: 'You can modify or withdraw before the host accepts' in --text-light-gray --text-xs. These are visually minimal but precisely positioned at the moment of maximum anxiety.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "A skeptical guest who sees verified reviews, ID checks, and real host history doesn't need the platform to convince them -- another user already did. Every review is a past guest activating a future one.",
+          "insight": "Trust signals must be visually present at every decision gate because skepticism reappears at each gate. A consistent visual grammar (the shield-check + pill pattern) creates instant recognition: the guest's System 1 learns to associate this visual pattern with credibility, making each subsequent encounter faster to process."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "The fourth differentiating characteristic is commitment, or the trust that allows the child to feel comfortable enough to set aside the shield of his defenses, and become unselfconsciously involved in whatever he is interested in.",
+          "insight": "Trust signals are the visual mechanism for lowering the guest's defenses. Each consistently-designed trust badge at each gate progressively lowers the shield of self-consciousness. By the time the guest reaches proposal creation, they have encountered the same visual trust grammar 4+ times and can engage unselfconsciously with the commitment."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "When it is no longer clear what is permitted and what is not, when it is uncertain what public opinion values, behavior becomes erratic and meaningless.",
+          "insight": "Anomie (unclear rules, uncertain social validation) is the visual absence of trust signals. When the guest sees no reviews, no verification badges, no evidence that the system works, they experience visual anomie -- nothing in the visual field signals that this platform is socially validated. The trust badge grammar resolves visual anomie by making social validation consistently visible."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--text-gray #5A6370 (trust badge label text)", "--bg-light-gray #f3f4f6 (trust badge pill background)", "--secondary-purple (star rating color)", "--bg-info #f0f7ff (guarantee strip background)", "--info-blue #2196F3 (guarantee strip icon)"],
+        "typography": ["--font-inter --text-xs --font-weight-medium for trust badge labels", "--font-inter --text-sm for listing page trust section", "--font-inter --text-xs for proposal form inline reassurance"],
+        "spacing": ["--spacing-xs (4px) inside trust badge pills", "--spacing-sm (8px) between badge icon and label", "--spacing-lg (16px) between trust section rows on listing page"],
+        "new_tokens_needed": [
+          "--trust-badge-height: 24px (consistent badge pill height across all contexts)",
+          "--trust-badge-icon-size: 14px (slightly smaller than --icon-xs for visual subordination)"
+        ]
+      },
+      "contrast_requirements": "Trust badge label text (--text-gray proposed #5A6370 on --bg-light-gray #f3f4f6) achieves approximately 4.1:1 -- borderline for AA at --text-xs size. For small text (under 14px), WCAG AA requires 4.5:1. Two options: (a) darken the text to #4F5864 for 5.0:1, or (b) use --font-weight-semibold (600) which improves perceived legibility at lower contrast. Recommend option (a) for strict compliance. Star rating (--secondary-purple on --bg-white) achieves 5.7:1 -- passes AA. Guarantee strip text (--text-dark on --bg-info #f0f7ff) achieves approximately 15.8:1 -- exceeds AAA. Proposal inline reassurance (--text-light-gray proposed #8891A0 on --bg-white) achieves 4.5:1 -- passes AA at the boundary; acceptable for supplementary text but monitor in production.",
+      "visual_hierarchy_rule": "Trust signals are ALWAYS visually subordinate to primary content (photos, price, listing details). They use smaller type (--text-xs), muted color (--text-gray), and lighter background (--bg-light-gray) to remain readable without competing. The eye should never be drawn to trust signals before primary content. Trust signals should feel like a reassuring presence, not a shouting claim. Exception: on the proposal form, trust reassurance adjacent to the submit button can be slightly more prominent (--text-sm instead of --text-xs) because this is the moment of maximum anxiety where trust must actively counterbalance fear.",
+      "brand_alignment": "Taste model: 'Trustworthy, not corporate.' The shield-check icon + text label pattern communicates trust through substance (specific claims: 'ID Verified', '12 reviews', 'Payment Protected') not through corporate bluster ('100% Guaranteed!' '#1 Platform!'). 'Confident, not flashy': trust badges are understated pills, not bold banners or animated seals. 'Premium-accessible': the consistent visual grammar across all phases creates a sense of system quality -- every detail is considered, every context is addressed. This consistency itself is a trust signal: a platform that presents coherent trust visuals at every stage feels more trustworthy than one that shows trust badges in some places and forgets them in others."
+    },
+    {
+      "id": "looks-007",
+      "type": "visual_pattern",
+      "title": "Real-Time Visual Feedback Layer: Micro-Responses to Every Guest Action",
+      "journey_phases": ["search", "proposal_creation", "negotiation", "active_lease"],
+      "problem": "Flow requires continuous feedback -- 'clear clues as to how well one is performing' -- but the guest journey's visual design provides feedback primarily through page-level state changes (loading a new page, showing an alert) rather than through micro-level visual responses to individual actions. L1 (works-002) and L2 (communicates-002) identify this as a cross-phase pattern: the map does not respond to exploration, the proposal form shows summaries only after completion, negotiation has no visual signal during the waiting period. The visual design lacks a dedicated feedback layer -- a set of lightweight, consistent visual micro-responses that acknowledge every meaningful guest action without cluttering the interface.",
+      "solution": "Establish a visual feedback layer that sits between the primary content layer (information) and the system chrome layer (navigation), providing immediate micro-responses to guest actions. Button and CTA acknowledgment: on click/tap, buttons execute a brief scale-down-then-up pulse (scale 0.97 to 1.0, --transition-fast 0.1s, --easing-ease) plus an immediate color shift (--secondary-purple to --secondary-purple-hover, or gradient shift for gradient buttons). This provides the < 100ms acknowledgment the taste model demands. Form field focus: on focus, input fields receive a 3px ring in rgba(109,49,194,0.15) -- the same purple-tinted focus ring documented in the style guide -- plus a bottom border color transition from --border-color to --secondary-purple over --transition-fast. This signals 'the system is listening to this field.' Filter application: when the guest applies a search filter, affected listing cards animate a brief opacity dip (1.0 to 0.7 to 1.0, --transition-base 0.2s) to signal that results have changed. New cards entering the grid use a fade-in from 0 to 1.0 opacity over --transition-base. Cards leaving the grid shrink to 0.95 scale and fade to 0 over --transition-fast. The net visual effect: the grid visibly responds to every filter change. Progress indicators: any multi-step process (proposal form, onboarding) shows a compact horizontal progress bar at the top of its container. The bar fills in --secondary-purple with a subtle shine gradient (linear-gradient from --secondary-purple to a slightly lighter variant). Each completed step triggers a micro-fill animation (width transition, --transition-base, --easing-ease-out). Waiting states: during async waits (proposal submitted, waiting for host), show a contextual pulse -- a subtle, slow opacity cycle (1.0 to 0.6 to 1.0, 2s cycle) on a status indicator pill. The pill reads 'Host notified' or 'Awaiting response' in --text-gray --text-sm. This replaces the feedback vacuum with a living indicator that something is happening. All animations respect prefers-reduced-motion by resolving instantly.",
+      "evidence": [
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "A sense that one's skills are adequate to cope with the challenges at hand, in a goal-directed, rule-bound action system that provides clear clues as to how well one is performing.",
+          "insight": "Every visual micro-response is a 'clear clue' about performance. A button that pulses confirms 'your click registered.' A filter that animates card changes confirms 'your refinement worked.' A progress bar that fills confirms 'you are advancing.' Without these visual clues, the guest operates in a feedback vacuum where they cannot assess their own performance."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "guest_call",
+          "quote": "Transit stops, landmarks, real-time context -- this is about mood, not just utility. The feeling that something is happening.",
+          "insight": "The feeling that something is happening is fundamentally a visual feedback principle. The user stories express it about the map, but the same principle applies everywhere: every action the guest takes should produce a visible response that confirms the system is alive and listening."
+        },
+        {
+          "source": "flow-conditions-of-flow.txt",
+          "type": "book",
+          "quote": "Neither boredom nor anxiety are positive experiences, so Alex will be motivated to return to the flow state.",
+          "insight": "Visual feedback vacuums produce anxiety (is this working?) or boredom (nothing is responding). The micro-feedback layer prevents both by ensuring every action gets a visible response. The guest never wonders whether the system received their input."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--secondary-purple (progress bar fill, focus ring tint)", "--border-color (default field border, transitions to purple on focus)", "--text-gray (waiting state pill text)"],
+        "typography": ["--font-inter --text-sm for waiting state indicators", "--font-inter --text-xs for progress step labels"],
+        "spacing": ["--spacing-xs (4px) progress bar height", "--spacing-sm (8px) between progress bar and content below"],
+        "new_tokens_needed": [
+          "--feedback-pulse-scale: 0.97 (button click scale-down value)",
+          "--feedback-filter-transition: 0.2s (card opacity dip duration on filter change)",
+          "--feedback-wait-pulse: 2s ease-in-out infinite (waiting state opacity cycle)",
+          "--progress-bar-height: 4px (compact progress indicator thickness)"
+        ]
+      },
+      "contrast_requirements": "The visual feedback layer is primarily animation-based (scale, opacity, color transitions) rather than content-based, so WCAG contrast requirements apply mainly to the static states that bookend each animation. Progress bar (--secondary-purple on --bg-white) in its filled state achieves 5.7:1 -- passes AA. Waiting state pill text (--text-gray on --bg-light-gray) needs the same 4.5:1+ minimum addressed in looks-006. Focus rings use rgba(109,49,194,0.15) which is decorative and enhances the solid --secondary-purple border transition -- the border itself (rgb(109,49,194) on --bg-white at 2px) is the primary focus indicator and meets WCAG 2.4.7. All opacity-based animations must ensure that at minimum opacity (0.6 for waiting pulse, 0.7 for filter dip), the affected content still meets minimum contrast requirements against its background.",
+      "visual_hierarchy_rule": "The feedback layer is ALWAYS visually subordinate to primary content. Feedback animations are brief (< 300ms for action acknowledgment, 2s cycle for waiting states), small in scale (3% button scale, 30% opacity dip), and use the brand accent color (--secondary-purple) at reduced opacity to avoid visual competition. The eye should perceive feedback as a background rhythm -- confirming, reassuring, keeping the visual environment alive -- not as a foreground event demanding attention. Exception: error feedback (validation failures) must be foreground-level, using --status-error (#C53030) at full opacity with a persistent (not animated) visual state.",
+      "brand_alignment": "Taste model: 'Fast response, gentle settle. User actions feel instant (< 100ms acknowledgment) but transitions are smooth (300-500ms).' The feedback layer directly implements this principle: button pulse at --transition-fast (0.1s) for instant response, filter card animations at --transition-base (0.2s) for gentle settle. 'One signature animation per component -- restraint over spectacle.' Each component has exactly one feedback animation: buttons pulse, cards fade, progress fills, waiting states breathe. No component has two competing animations. 'Never bounce': all feedback uses ease or ease-out easing, never spring or bounce easing. The visual tone is responsive and alive, but composed and restrained."
+    }
+  ]
+}

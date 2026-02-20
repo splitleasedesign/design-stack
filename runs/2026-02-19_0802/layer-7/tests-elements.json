@@ -1,0 +1,123 @@
+{
+  "lens": {
+    "host_call": "dimitri-call.txt",
+    "book_extract": "coldstart-network-effects.txt"
+  },
+  "elements": [
+    {
+      "id": "tests-001",
+      "type": "validation_strategy",
+      "title": "Atomic Network Assembly Speed Validation",
+      "validates_element": "works-001",
+      "journey_phases": ["discovery", "evaluation", "onboarding"],
+      "problem": "If the match-first onboarding is too slow or requires too many steps, agent-recruited hosts will default to direct dealing before the atomic network forms.",
+      "solution": "Measure the end-to-end time from magic link delivery to first deal acceptance for agent-recruited hosts.",
+      "evidence": [
+        {
+          "source": "dimitri-call.txt, 6:10",
+          "type": "host_call",
+          "quote": "Within next week.",
+          "insight": "The one-week deadline is the hard constraint. Validation must prove the flow completes well within this window."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "Track the funnel: magic link sent -> link opened -> match reviewed -> account created -> deal accepted. Measure time between each step and overall time-to-deal.",
+      "success_criteria": "Median time from link-open to deal-acceptance under 24 hours. 50%+ of agent-recruited hosts complete the flow within 7 days. Link-to-match-view conversion above 70%.",
+      "failure_meaning": "If time-to-deal exceeds 7 days, the single-session flow has too much friction or the match quality is insufficient. If link-to-match-view is below 70%, the magic link is not reaching hosts or is being ignored.",
+      "implementation_hint": "Analytics events: magic_link_sent, magic_link_opened, match_viewed, account_created, deal_accepted. Calculate cohort-based funnel metrics weekly. Alert Bryant (agent) if a host opens the link but doesn't complete within 48 hours."
+    },
+    {
+      "id": "tests-002",
+      "type": "validation_strategy",
+      "title": "Dual Verification Transparency Usability Test",
+      "validates_element": "works-002",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "If hosts can't find both platform verification and personal guest documents in a single view, they'll either bypass the platform (contact guests directly) or reject proposals out of insufficient information.",
+      "solution": "Run a task-based usability test where hosts review a proposal and are asked: 'What do you know about this guest? Where would you find their ID?'",
+      "evidence": [
+        {
+          "source": "dimitri-call.txt, 4:56-5:07",
+          "type": "host_call",
+          "quote": "Still have their information, their driver's license.",
+          "insight": "The test must verify that hosts can locate personal documents within the platform UI, not just see verification badges."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "usability_test",
+      "test_description": "5-8 participants who match the 'experienced host' profile. Task: Review a guest proposal. Questions: (1) Do you feel comfortable accepting? Why/why not? (2) Where would you find the guest's ID? (3) What did Split Lease verify? Follow-up: Compare time-to-confidence with vs. without the dual-track display.",
+      "success_criteria": "80%+ of participants can locate guest personal documents within 2 taps. 70%+ report higher confidence with dual-track display vs. badge-only display. Average time to 'comfortable to accept' decision under 3 minutes.",
+      "failure_meaning": "If hosts can't find documents, the information hierarchy is wrong (documents are too deeply nested). If confidence doesn't increase with the dual-track display, the evidence shown isn't meaningful to hosts.",
+      "implementation_hint": "Prototype the dual-track verification display in Figma. Recruit 5 hosts who have previously managed direct subleases. Record screen and think-aloud. Focus on the moment of 'I feel comfortable' or 'I need more info.'"
+    },
+    {
+      "id": "tests-003",
+      "type": "validation_strategy",
+      "title": "Remote Host Digest Engagement Validation",
+      "validates_element": "works-004",
+      "journey_phases": ["active_lease"],
+      "problem": "If the weekly digest is not opened, the remote host loses the engagement loop and either contacts tenants directly or builds unchecked anxiety.",
+      "solution": "Track digest open rates, click-through to app, and correlation with platform bypass (direct host-tenant communication outside the platform).",
+      "evidence": [
+        {
+          "source": "dimitri-call.txt, 0:33",
+          "type": "host_call",
+          "quote": "I will be in Europe.",
+          "insight": "The digest is the primary engagement mechanism for overseas hosts. Its effectiveness determines whether the host stays on-platform."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "For all hosts whose timezone differs from their property's timezone by 4+ hours: track weekly digest open rate, time-to-open (from send), click-through to app, and whether the host contacted the tenant directly (off-platform) in the same week.",
+      "success_criteria": "Digest open rate above 60% for remote hosts. Time-to-open under 12 hours. Platform bypass rate (off-platform communication detected or reported) below 20%.",
+      "failure_meaning": "Low open rate: digest content is not valuable enough or delivery time is wrong. High bypass rate: the digest doesn't answer the host's core question ('is my apartment okay?'), so they seek answers elsewhere.",
+      "implementation_hint": "Email analytics: track opens, clicks. Correlate with in-app engagement on the same day. Survey remote hosts quarterly: 'Did you contact your tenant directly this month? If so, why?'"
+    },
+    {
+      "id": "tests-004",
+      "type": "validation_strategy",
+      "title": "Language Translation Comprehension Test",
+      "validates_element": "works-005",
+      "journey_phases": ["evaluation", "onboarding"],
+      "problem": "If platform terminology confuses experienced hosts, they'll either misunderstand what they're agreeing to or abandon the process out of frustration.",
+      "solution": "A/B test the agreement review page: Version A uses platform terminology ('custom rental agreement,' 'proposal,' 'guest'). Version B uses host-native terminology ('your sublease agreement,' 'rental interest,' 'tenant'). Measure comprehension and completion.",
+      "evidence": [
+        {
+          "source": "dimitri-call.txt, 3:27-3:48",
+          "type": "host_call",
+          "quote": "Standard sublease agreement... custom rental agreement... supplemental agreement.",
+          "insight": "Three unfamiliar terms in 22 seconds caused confusion. The test must validate whether translated language improves comprehension."
+        }
+      ],
+      "priority": "medium",
+      "validation_method": "a_b_test",
+      "test_description": "A/B test on the agreement review page. Group A: platform terminology. Group B: translated host-native terminology. Track: time on page, completion rate, support ticket rate, and post-completion comprehension quiz (3 questions about what they agreed to).",
+      "success_criteria": "Group B shows 20%+ higher completion rate and 30%+ fewer 'what does this mean' support tickets. Comprehension quiz scores 80%+ in Group B.",
+      "failure_meaning": "If no difference between groups, the vocabulary mismatch is not the primary barrier — something else (trust, complexity, visual design) is the issue.",
+      "implementation_hint": "Create two versions of the agreement review page text. Use feature flags to split traffic 50/50. Track analytics events: page_view, agreement_accepted, support_ticket_opened. Run for 2 months or 200 completions, whichever comes first."
+    },
+    {
+      "id": "tests-005",
+      "type": "validation_strategy",
+      "title": "Journey-Level Atomic Network Formation Rate",
+      "validates_element": "all",
+      "journey_phases": ["discovery", "evaluation", "onboarding", "listing_creation", "pricing", "proposal_mgmt"],
+      "problem": "Individual elements may test well in isolation, but the full atomic network formation requires all elements to work together: match presentation + verification + speed + emotional tone must combine to convert a skeptical host into a first deal.",
+      "solution": "Track the atomic network formation rate: the percentage of agent-recruited hosts who complete their first deal through the platform (not through direct dealing bypassing the platform).",
+      "evidence": [
+        {
+          "source": "coldstart-network-effects.txt, Ch 6",
+          "type": "book",
+          "quote": "The atomic network is the smallest possible network where there are enough people for the product to become useful.",
+          "insight": "The journey-level metric is: did the atomic network form? One host + one guest + one completed deal = one atomic network. This is the fundamental health metric."
+        }
+      ],
+      "priority": "high",
+      "validation_method": "analytics",
+      "test_description": "For every agent-recruited host: track whether they complete a first deal within 30 days of initial contact. Segment by: deal completed through platform, deal completed outside platform (host found tenants themselves), and no deal (host didn't proceed). This is the north star metric for the Cold Start lens.",
+      "success_criteria": "Atomic network formation rate (first deal through platform) above 40% for agent-recruited hosts within 30 days. Platform bypass rate below 25%. No-deal rate below 35%.",
+      "failure_meaning": "If the formation rate is below 40%, the overall pipeline has too much friction. Identify the dropout point (match review? account creation? agreement review?) and loop back to the relevant layer. If bypass rate is above 25%, the platform is not proving sufficient value over direct dealing.",
+      "implementation_hint": "Cohort analysis: group hosts by week of first agent contact. Track 30-day outcome for each cohort. Dashboard showing: formation rate, bypass rate, no-deal rate, with trend lines. Review weekly in ops meeting."
+    }
+  ]
+}

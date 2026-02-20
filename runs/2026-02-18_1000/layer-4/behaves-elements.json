@@ -1,0 +1,253 @@
+{
+  "lens": {
+    "host_call": "dana-call.txt",
+    "book_extract": "refactoringui-hierarchy-spacing-color.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Proposal Quick-Action Swipe Pattern for Time-Starved Hosts",
+      "journey_phases": ["proposal_mgmt"],
+      "problem": "Dana checks her phone in 5-second bursts between flights. The current proposal review flow likely requires: open app -> navigate to proposals -> tap proposal -> read details -> scroll to action buttons -> tap accept/reject -> confirm. This multi-step flow exceeds her attention budget. Refactoring UI's principle of matching input speed to cognitive speed applies: the interaction pattern must allow Dana to make her accept/reject decision and execute it in the same time window she uses to read a text message.",
+      "solution": "Implement a quick-action pattern on proposal cards that allows primary decisions without navigating into a detail view. (1) Swipe right to accept (with confirmation overlay), swipe left to reject (with optional reason). (2) Alternatively, show inline action buttons directly on the proposal card in the list view — a checkmark button and an X button visible without tapping into the card. (3) Before any quick action, show a 2-second confirmation overlay that displays the key facts (guest name, occupancy pattern, duration) and requires a final tap to confirm. This overlay uses Refactoring UI's hierarchy principles: guest name bold and dark, occupancy pattern via day badges, duration in secondary text. (4) For hosts who want more detail, the full card tap-through remains available. The quick-action is an acceleration, not a replacement.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I have to go to work tonight. I won't be back towards Sunday.",
+          "insight": "Dana's interaction windows are measured in seconds between obligations. Every tap, navigation step, and scroll reduces the probability of completing the action."
+        },
+        {
+          "source": "refactoringui, Limit your choices — Define systems in advance",
+          "type": "book",
+          "quote": "When you build systems like this, you only have to do the hard work once instead of every time. It'll save you a ton of decision fatigue.",
+          "insight": "The quick-action pattern reduces the proposal decision from a multi-step process to a single gesture. The system (day badges, compatibility badges) does the analytical work so the host only needs to confirm."
+        },
+        {
+          "source": "dana-call.txt, 04:07-05:02",
+          "type": "host_call",
+          "quote": "I have never, ever, ever had a problem with the travelers... I will never do that again. Never.",
+          "insight": "Dana's decisions are binary and fast — her mental model is 'right type = accept, wrong type = reject.' The interaction pattern should match this binary speed."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Proposal card in list view showing guest name, day-badge row, secondary address badge, and duration. Inline accept/reject buttons visible on the right side of the card.",
+        "loading": "After tap on accept/reject, the confirmation overlay animates in from the card (200ms ease-out). The overlay shows key facts for a final review. A subtle progress indicator appears while the action submits.",
+        "empty": "No proposals state shows the reassuring empty state from communicates-005: 'No proposals right now. Your listing is active and visible.'",
+        "error": "If submission fails, the card returns to default state with a subtle error indicator (red bottom border, 200ms transition). A retry option appears. The host's action choice is preserved so they don't need to re-decide.",
+        "success": "On successful action, the card animates out (300ms ease-out with slight opacity fade) and the list reflows. A brief toast notification confirms: 'Proposal accepted — Allen has been notified.' Toast auto-dismisses after 3 seconds."
+      },
+      "transition_principle": "All transitions should feel 'settled and confident' per the taste model. Cards slide and fade; they don't bounce or spring. Confirmation overlays expand from the card rather than sliding in from an edge, maintaining spatial context.",
+      "timing": {
+        "response_target": "100ms for initial visual feedback (button press state). 300ms for confirmation overlay animation. 500ms maximum for server response before showing optimistic success.",
+        "easing": "ease-out for all forward transitions (opening overlays, confirming actions). ease-in-out for card removal animations.",
+        "rationale": "Fast initial feedback (100ms) prevents Dana from second-guessing whether her tap registered. The 300ms overlay gives enough time to read 3 data points without feeling slow."
+      },
+      "journey_state_awareness": "If the host has set guest preferences in listing creation, the quick-action card can show a match indicator (green check or amber caution) that pre-validates the guest against preferences. This reduces the decision to confirming the system's recommendation rather than analyzing from scratch.",
+      "edge_cases": [
+        "Host accidentally accepts when intending to reject — the toast notification includes an 'Undo' link for 5 seconds after action",
+        "Multiple proposals pending — the list must handle rapid sequential decisions without lag or confusion",
+        "Network failure during action — optimistic UI shows success but rolls back with clear messaging if the server rejects",
+        "Host navigates away during confirmation overlay — save the pending action state and resume on return"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Smart Default Pre-Selection for Listing Import Flow",
+      "journey_phases": ["listing_creation", "onboarding"],
+      "problem": "When Dana imports her listing from Furnished Finder, the platform must pre-fill fields with imported data. But imported data may not map perfectly to Split Lease's field structure. The interaction challenge is: how does the host confirm and correct imported data without re-doing the work? Refactoring UI's 'define systems in advance' principle: the import flow should use a constrained set of options (dropdowns, chips, toggles) so imported data maps to system-defined values, not freeform text that requires manual cleanup.",
+      "solution": "Design the import confirmation flow as a 'review and correct' pattern, not a 'fill in' pattern. (1) Show all imported data pre-populated in editable fields. Fields that were successfully mapped are visually confirmed (subtle check mark, normal visual weight). Fields that couldn't be mapped or need attention are highlighted (accent border, slightly elevated per looks-004). (2) Use toggle chips for categorical data (space type, parking, amenities) — the system pre-selects based on import, and Dana can tap to change. Per Refactoring UI's 'designing by process of elimination' principle, chips make it easy to compare options and select the right one. (3) For fields unique to Split Lease (guest preferences, occupancy rules), present them as a new section clearly separated from imported data, with smart defaults based on the call notes (Bryant knows Dana wants part-week guests).",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 01:27-01:49",
+          "type": "host_call",
+          "quote": "I don't have it, it maybe on the listing as well, but, uh, parking... Yeah, this garage was around... Everything else, yep, like you said, it should be able to get from the listing here.",
+          "insight": "Bryant references the existing listing for property details. The platform should import what Bryant found and present it for confirmation, not ask Dana to re-enter it."
+        },
+        {
+          "source": "refactoringui, Limit your choices — Designing by process of elimination",
+          "type": "book",
+          "quote": "When you're designing using a constrained set of values, decision-making is a lot easier because there are a lot fewer 'right' choices.",
+          "insight": "Toggle chips with constrained options (Private Room / Shared Room / Entire Place) are faster than freeform fields. Pre-selection from imported data means the host only needs to verify, not decide."
+        },
+        {
+          "source": "dana-call.txt, 05:33",
+          "type": "host_call",
+          "quote": "I came across it on furnished finder. It's called the furnished room with private roof garden.",
+          "insight": "The listing name, type, and key feature (roof garden) are all extractable from the existing listing. Pre-fill and confirm."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Import confirmation screen showing all pre-filled fields. Successfully mapped fields have a subtle check indicator. Unmapped fields have accent highlight calling attention.",
+        "loading": "During import, show a progress indicator with the Furnished Finder listing URL and 'Importing your listing...' message. Use skeleton loading for field areas so the host can see the structure before data arrives.",
+        "empty": "If import fails or URL is invalid, show an error state with option to try another URL or switch to manual creation. Never a dead end.",
+        "error": "Field-level validation errors appear inline next to the affected field. Use Refactoring UI's principle: error messaging should be close to the error, not in a banner at the top. Use --status-error color for error states.",
+        "success": "After confirming all fields, a brief animation confirms: 'Listing imported — reviewing...' followed by redirect to the listing preview. Total time from import to preview under 30 seconds."
+      },
+      "transition_principle": "The confirmation flow uses vertical scrolling through pre-filled sections, not a multi-step wizard. This respects Refactoring UI's 'work in cycles' principle — the host sees everything at once and can correct in any order, rather than stepping through a rigid sequence.",
+      "timing": {
+        "response_target": "Import fetch: under 3 seconds. Field pre-fill animation: 150ms staggered per field group. Confirmation submit: under 1 second.",
+        "easing": "ease-out for field population animations. ease-in-out for section transitions.",
+        "rationale": "Staggered field population (150ms per group) creates a satisfying 'data arriving' effect that confirms the import is working, without being slow enough to feel laggy."
+      },
+      "journey_state_awareness": "If Bryant has notes from the call (property type, guest preference, availability date), these should also pre-fill in the Split Lease-specific fields. The import flow should combine data from two sources: the external listing + the agent's call notes.",
+      "edge_cases": [
+        "Furnished Finder listing has data that doesn't map to any Split Lease field — show in an 'Additional Notes' section, don't discard",
+        "Import partially fails — show what was imported and flag what needs manual entry",
+        "Host has multiple listings on Furnished Finder — let them select which to import",
+        "Listing has been updated on Furnished Finder after import — provide a 're-sync' option"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Notification Batching and Priority Escalation for Absent Hosts",
+      "journey_phases": ["active_lease", "proposal_mgmt"],
+      "problem": "Dana's phone is 'blown up nonstop' with notifications from people helping her parents after the house fire. Platform notifications that arrive in this stream will be lost. Sending more notifications doesn't solve the problem — it makes it worse. The interaction pattern needs to be smart about when and how to notify, escalating priority only when an action deadline is approaching. Refactoring UI's 'limit your choices' principle applies: don't give the notification system unlimited frequency options — define a constrained set of notification behaviors.",
+      "solution": "Implement a three-tier notification system: (1) Batch tier (non-urgent): Daily digest email/push summarizing all activity — listing views, messages received, completed stays. Sent at a consistent time (morning). Uses Refactoring UI's hierarchy: the digest email itself must have visual hierarchy with the most important item first. (2) Priority tier (action needed): Individual notification sent when a time-sensitive action is required (proposal received, date change request). Sent once, with the deadline embedded in the notification text ('Review Allen's proposal — 2 days left'). (3) Escalation tier (deadline approaching): If a priority notification hasn't been acted on within 24 hours of deadline, escalate to SMS (not just push). SMS text is minimalist: 'Split Lease: Proposal from Allen expires tomorrow. Tap to review: [link]'. Per Refactoring UI's hierarchy principle, each tier uses progressively more attention-grabbing channels (email < push < SMS) but the number of notifications decreases (many batched < few priority < rare escalation).",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 06:46",
+          "type": "host_call",
+          "quote": "All the people that helping them with the fire because they can't get ahold of them. All my folders and blown up nonstop.",
+          "insight": "Dana's notification environment is hostile to any new notification. The platform must be respectful of this reality and use escalation only when truly necessary."
+        },
+        {
+          "source": "refactoringui, Limit your choices — Systematize everything",
+          "type": "book",
+          "quote": "The more systems you have in place, the faster you'll be able to work and the less you'll second guess your own decisions.",
+          "insight": "The notification system should be systematic: clear rules for what triggers each tier, not ad-hoc decisions per notification type."
+        },
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I have to go to work tonight. I won't be back towards Sunday.",
+          "insight": "Dana's schedule means she may not see a push notification for days. The escalation tier (SMS) is essential for time-sensitive actions."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Host receives daily digest at configured time. No interruptions for non-urgent activity.",
+        "loading": "N/A for notifications — they are sent, not loaded.",
+        "empty": "When there's nothing to report, the daily digest still sends a reassuring one-liner: 'All quiet on your listings today. No action needed.'",
+        "error": "If notification delivery fails (email bounces, push fails), the system falls back to the next tier up (push fail -> try SMS for priority items). Error logged for system monitoring.",
+        "success": "When the host acts on a notification (opens the link, completes the action), the notification system records this and adjusts future timing based on the host's active hours."
+      },
+      "transition_principle": "Notifications should feel like a respectful assistant, not an alarm system. Batch notifications are calm and comprehensive. Priority notifications are clear and actionable. Escalation notifications are urgent but not panicky.",
+      "timing": {
+        "response_target": "Daily digest: sent once per day at configured time. Priority notification: sent within 5 minutes of trigger event. Escalation: sent when deadline is within 24 hours and no action has been taken.",
+        "easing": "N/A for notification timing — this is about delivery scheduling, not animation.",
+        "rationale": "The three-tier timing prevents notification fatigue while ensuring time-sensitive actions aren't missed. The 24-hour escalation threshold gives the host a full day to act through normal channels before SMS."
+      },
+      "journey_state_awareness": "The notification system should learn from the host's behavior: when do they typically open the app? (Dana likely checks between flights — specific times of day.) Shift the daily digest to align with the host's active window. If the host consistently responds to proposals within 2 hours of a push notification, don't escalate to SMS for that host.",
+      "edge_cases": [
+        "Host has Do Not Disturb enabled on phone — escalation to SMS bypasses DND on most phones, but this should be a configurable option",
+        "Host is in a different timezone (flight attendant traveling) — notification timing should be based on the host's last known timezone or their home timezone preference",
+        "Multiple time-sensitive actions pending simultaneously — batch them into a single priority notification with a prioritized list, don't send multiple",
+        "Host marks all notifications as read without acting — distinguish between 'seen' and 'acted on' to avoid false-positive escalation"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Guest Preference Quick-Set During Listing Creation",
+      "journey_phases": ["listing_creation"],
+      "problem": "Dana has strong guest preferences (part-week, secondary address, professional travelers) but the listing creation wizard likely doesn't capture these preferences, or buries them in a complex form. The interaction must capture preferences with the same speed that Dana expresses them verbally: 'I want travelers, not full-time tenants. Monday to Thursday. Secondary address.' This takes 5 seconds in conversation. The platform interaction should take under 15 seconds. Refactoring UI's principle of using constrained choices (toggle chips, select-one groups) maps perfectly.",
+      "solution": "Add a 'Guest Preferences' step to the listing flow (or the import confirmation flow) that uses rapid-selection interaction patterns. (1) Preferred occupancy: visual day-badge selector where Dana taps to highlight preferred days (toggle on/off). Default to Mon-Thu based on the most common part-week pattern. (2) Stay type: toggle chips — 'Part-week stays' (pre-selected based on day selection) / 'Full-week stays' / 'Either'. (3) Guest profile: toggle chips — 'Travel professionals' / 'Hybrid workers' / 'Students' / 'Any'. Pre-select based on call notes. (4) Presence level: toggle — 'Secondary address only' / 'Any'. Each selection requires a single tap. The entire step should be completable in 3-4 taps plus a confirm button. Apply Refactoring UI's 'designing by process of elimination' principle: the constrained options make it obvious which to choose because wrong options look obviously wrong.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 04:07-05:02",
+          "type": "host_call",
+          "quote": "I have never, ever, ever had a problem with the travelers... He was a computer guy working at home. I will never do that again.",
+          "insight": "Dana's preference is expressed as a binary: travelers YES, full-time WFH NO. The interaction should match this binary clarity with simple toggles and chips."
+        },
+        {
+          "source": "refactoringui, Limit your choices — Designing by process of elimination",
+          "type": "book",
+          "quote": "To pick the best option, start by taking a guess at which one will look best. Then try the values on either side for comparison. Chances are, two of those options will seem like obviously bad choices.",
+          "insight": "With constrained chip options, Dana can scan the 3-4 options and immediately identify the right one. The wrong options serve as contrast that confirms her choice."
+        },
+        {
+          "source": "dana-call.txt, 04:46",
+          "type": "host_call",
+          "quote": "All of the guests that we work with, this is their secondary address. They have another place.",
+          "insight": "The 'secondary address only' toggle directly maps to this stated preference. Pre-selecting it saves Dana a tap and confirms the platform understands her."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Guest preference step showing day-badge selector (Mon-Thu pre-highlighted), stay type chips (Part-week pre-selected), guest profile chips (Travel professionals pre-selected), presence toggle (Secondary address pre-selected).",
+        "loading": "N/A — this is a local selection step with no server dependency until save.",
+        "empty": "N/A — defaults are always pre-selected based on common patterns or call notes.",
+        "error": "If the host selects contradictory preferences (e.g., 'Full-week stays' + 'Secondary address only'), show inline guidance explaining the tension and suggest adjustment. Don't block — let the host decide.",
+        "success": "On confirm, show a brief summary of preferences: '4 nights/week · Mon-Thu · Travel professionals · Secondary address.' This summary becomes the compact representation that appears on the listing and in the host's dashboard."
+      },
+      "transition_principle": "Chip selection should feel instant and decisive. Tapping a chip selects it with a 100ms color transition (background shifts to --selected-purple, text shifts to white). Deselecting reverses with the same timing. No bouncing, no delays. The interaction should feel like flipping light switches.",
+      "timing": {
+        "response_target": "100ms for chip selection visual feedback. 0ms for day-badge toggle (instant color change). 200ms for the preference summary animation on confirm.",
+        "easing": "ease for chip selection transitions. Linear for day-badge toggles (they should feel like physical switches).",
+        "rationale": "Ultra-fast selection feedback prevents second-guessing. When Dana taps 'Travel professionals,' the instant visual confirmation tells her the system heard her."
+      },
+      "journey_state_awareness": "If the platform has call notes from Bryant indicating Dana's preferences, these should be pre-populated as defaults. The step should open with 'Based on your conversation with Bryant, we've set some preferences. Adjust anything that doesn't look right.' This connects the digital experience to the human conversation.",
+      "edge_cases": [
+        "Host wants to change preferences after listing creation — provide an edit path from listing management, not requiring re-creation",
+        "Guest proposals that don't match preferences — still show them but with a clear mismatch indicator (per looks-005 compatibility badges), don't auto-reject",
+        "Host selects no preferences (deselects all) — treat as 'open to all guests' and confirm this interpretation",
+        "Preferences conflict with listing details (e.g., part-week preference but listing priced for full-month) — flag the conflict and suggest pricing adjustment"
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Between-Stay Empty State with Proactive Status Updates",
+      "journey_phases": ["active_lease"],
+      "problem": "For a host with a Mon-Thu guest, the active lease dashboard shows no activity on Fri-Sun. This is the period when Dana (a flight attendant) is most likely to check the app — between Friday departure and Sunday return. An empty or static dashboard during this period creates anxiety: 'Did the guest leave? Is everything okay? Did they send cleaning photos?' Refactoring UI's 'don't overlook empty states' and 'supercharge the defaults' principles demand that the between-stay state communicates useful information, not emptiness.",
+      "solution": "Design the between-stay state as an active status display that transitions through a timeline. (1) Thursday evening: 'Allen's stay ends tonight. Cleaning photos expected.' (2) Friday (photos received): 'Allen checked out. Cleaning photos received.' with a thumbnail of the photos and a one-tap 'View photos' action. (3) Friday (photos not received): 'Allen checked out. Cleaning photos not yet received.' with a 'Request photos' action button. (4) Saturday-Sunday: 'Next stay: Monday, Feb 24. Allen arrives.' with the day-badge row showing the upcoming week. Each state transition happens automatically based on the stay schedule. Use Refactoring UI's visual hierarchy: the current status uses Tier 1 text (dark, bold), the next event uses Tier 2 (grey, normal), and historical events use Tier 3 (light grey, small). The between-stay screen should have generous white space per looks-003, communicating calm confidence.",
+      "evidence": [
+        {
+          "source": "refactoringui, Finishing Touches — Don't overlook empty states",
+          "type": "book",
+          "quote": "Empty states are a user's first interaction with a new product and your chance to make everything click for them.",
+          "insight": "The between-stay state is the most frequent state for a Mon-Thu guest lease. It's not really 'empty' — it's the calm phase of the weekly cycle. Design it with as much care as the active-stay state."
+        },
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I'm a flight attendant... I won't be back towards Sunday.",
+          "insight": "Dana checks on weekends when the guest is not staying. The between-stay state is her primary view of the lease. It must answer 'is everything fine?' without requiring any action."
+        },
+        {
+          "source": "refactoringui, Finishing Touches — Supercharge the defaults",
+          "type": "book",
+          "quote": "Replace boring defaults with something more interesting.",
+          "insight": "The default between-stay screen should not be a blank card. It should actively communicate the stay cycle: what happened, what's coming next."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Between-stay state showing: (1) Status of last stay (checked out, photos received/pending), (2) Next stay date and guest name, (3) Weekly day-badge pattern showing the rhythm.",
+        "loading": "When transitioning between stay states (e.g., guest checkout triggers photo request), show a brief transition animation (200ms) as the status text updates.",
+        "empty": "If no future stays are scheduled, show: 'No upcoming stays. Your listing is active.' with listing stats (views this week).",
+        "error": "If cleaning photos are overdue (>24 hours after checkout), the status shifts to: 'Cleaning photos not received — we've reminded Allen.' Uses a subtle warning treatment (amber text, not red).",
+        "success": "When cleaning photos arrive, the status updates with a satisfying transition: the 'photos pending' indicator resolves to 'photos received' with a thumbnail preview."
+      },
+      "transition_principle": "State transitions should feel like a clock ticking forward, not like a page reload. The status text fades and swaps (200ms cross-fade), the timeline advances, and new information slides in from the right. The rhythm should feel organic and predictable — Dana expects the cycle and the UI confirms it.",
+      "timing": {
+        "response_target": "Status updates should be near-real-time (within 5 minutes of the triggering event). Visual transition: 200ms cross-fade for text changes.",
+        "easing": "ease-out for forward transitions (new status appearing). ease-in for old status fading.",
+        "rationale": "Near-real-time updates mean Dana can trust the status she sees. The 200ms cross-fade is fast enough to feel responsive but slow enough to be noticed — confirming that something changed."
+      },
+      "journey_state_awareness": "The between-stay state adapts based on lease history. If the guest has reliably sent cleaning photos for the last 3 stays, the 'photos pending' state includes a confidence note: 'Allen has sent photos for all previous stays.' This builds cumulative trust, addressing Dana's anxiety about guest behavior when she's absent.",
+      "edge_cases": [
+        "Guest checks out early (before Thursday) — the status should update to reflect the early checkout and adjust the next-stay display",
+        "Guest doesn't check out (overstay) — the status should escalate: 'Allen was expected to check out yesterday. We're following up.'",
+        "Multiple guests on the same listing (different rooms) — the between-stay state should show per-guest status, not aggregate",
+        "Host hasn't opened the app in weeks — the between-stay state should still be current when she eventually opens it, showing the latest stay status"
+      ]
+    }
+  ]
+}

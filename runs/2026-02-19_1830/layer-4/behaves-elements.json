@@ -1,0 +1,357 @@
+{
+  "lens": {
+    "host_call": "user-stories-initial-analysis.md",
+    "book_extract": "freud-civilization-discontents-ch3-ch5.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Optimistic Commit for Civilizational Acts",
+      "journey_phases": ["proposal_mgmt", "active_lease"],
+      "problem": "When a host accepts a proposal or confirms a stay, they are performing what Freud would call a civilizational act -- voluntarily surrendering instinctual autonomy (control over their space) in exchange for marketplace security (guaranteed income, vetted guest). These are the highest-value, most psychologically costly actions in the journey. Yet the platform treats them with the same interaction latency as any other action: submit, wait for server, show spinner, return confirmation. This delay introduces doubt at exactly the moment the host has overcome their instinctual resistance. Freud Ch III identifies that 'order is a kind of repetition-compulsion by which it is ordained once for all when, where and how a thing shall be done so that on every similar occasion doubt and hesitation shall be avoided.' A spinner after a civilizational commitment reintroduces the doubt that the host just resolved. The user stories document confirms that 'a well-structured proposal activates the host to respond' -- but activation is wasted if the response moment itself creates friction.",
+      "solution": "Use optimistic UI for all civilizational acts: the moment the host taps Accept Proposal, Confirm Stay, or Approve Date Change, the interface immediately transitions to the success state. The server round-trip happens in the background. The host sees confirmation before the server confirms, because the psychological need for immediate reinforcement of a costly decision outweighs the small risk of a rollback. If the server fails (rare), the UI gracefully reverts with a protective explanation ('We could not complete this right now -- your space is still protected, nothing has changed'). The optimistic commit transforms the interaction from 'submit and hope' to 'decide and done,' which mirrors the conversational speed of the phone call (L1, works-003) and provides the immediate feedback loop that civilization requires to reinforce compliance.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "A well-structured proposal -- clear dates, schedule, pricing, intent -- activates the host to respond. A vague or incomplete one creates friction.",
+          "insight": "The host's activation to respond is a psychologically expensive moment -- they have overcome instinctual distrust of the stranger. The interaction must reward this activation instantly, not punish it with a loading state that reintroduces doubt."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "Order is a kind of repetition-compulsion by which it is ordained once for all when, where and how a thing shall be done so that on every similar occasion doubt and hesitation shall be avoided.",
+          "insight": "Optimistic UI eliminates the hesitation gap between decision and confirmation. Each time the host accepts a proposal and sees instant success, the 'repetition-compulsion' of order strengthens: they learn that civilizational acts produce immediate, reliable results."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "If the deprivation is not made good economically, one may be certain of producing serious disorders.",
+          "insight": "A loading spinner after a civilizational act is a micro-deprivation: the host surrendered control and received nothing in return for 1-3 seconds. Optimistic UI makes the deprivation 'good economically' by providing the reward (confirmation) at the same instant as the sacrifice (commitment)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Accept/Confirm button visible with full context summary (guest name, dates, rate). Button uses secondary-purple CTA styling. The host can review all terms before acting.",
+        "loading": "No visible loading state for the host. The button immediately transitions to success. Server round-trip occurs in background. A subtle progress indicator (thin purple bar at top of card) is visible only if the round-trip exceeds 3 seconds.",
+        "empty": "No proposals or stays to act on. Dashboard shows a calm, informational empty state: 'No pending actions right now. Your listing is active and visible to guests.' Uses the reassurance typographic register.",
+        "error": "If the background server call fails, the UI gracefully reverts the optimistic state. The card returns to its pre-acceptance appearance with a warm protective message: 'We could not complete this right now. Your space is still protected -- nothing has changed. Try again or contact [agent name].' Never uses red for this state; uses amber urgency background to signal attention without alarm.",
+        "success": "Instant transition: the card background shifts to a subtle green-tinted confirmation state. A checkmark icon appears next to the action. The text updates to reflect the completed state ('Proposal accepted -- [Guest Name] for [dates]'). A secondary action appears: 'View lease details' or 'Message [Guest Name].' The success state feels like a warm conclusion, not a transaction receipt."
+      },
+      "transition_principle": "The transition from default to success must feel like a decision landing, not a form submission. The animation should communicate certainty: a swift, confident fade from the action state to the confirmation state, with no intermediate 'processing' visual. The host should feel that their decision was received and honored the instant they made it.",
+      "timing": {
+        "response_target": "0ms perceived (optimistic); background server call within 2000ms",
+        "easing": "ease-out, 200ms for the success state transition. The card background color shift uses a 300ms ease-in-out to feel settled rather than abrupt.",
+        "rationale": "Civilizational acts (accepting strangers into your space) carry the highest psychological cost in the journey. The interaction must provide the fastest possible reinforcement to prevent post-decision doubt. Freud's pleasure principle demands that the reward (confirmation) arrive as close to the sacrifice (commitment) as physically possible."
+      },
+      "journey_state_awareness": "In proposal_mgmt, the host is in 'vigilant gatekeeping' mode (L0). Optimistic UI reduces the time spent in this high-anxiety state. In active_lease, the host is in 'oscillating comfort and vigilance' mode. Instant confirmation of stay approvals and date changes keeps the host in the comfort zone rather than triggering a vigilance spike. For first-time hosts (no prior accepted proposals), add a subtle celebration micro-interaction (a brief purple pulse on the card border) to mark the civilizational milestone.",
+      "edge_cases": [
+        "Server failure after optimistic commit: revert gracefully with protective messaging, never blame the host, never show a raw error",
+        "Double-tap: debounce the action to prevent duplicate submissions. The first tap commits; subsequent taps within 500ms are ignored",
+        "Slow network: if the background call exceeds 3 seconds, show a minimal progress indicator (thin bar, not a spinner) so the host knows the system is working without feeling that their decision is in question",
+        "Concurrent edits: if the guest modifies the proposal while the host is accepting, the server rejects the optimistic commit and the UI reverts with an explanation: 'The guest updated their proposal while you were reviewing. Here is the updated version.'",
+        "Host immediately navigates away after accept: the background call must complete independently of page navigation. The success state persists on return."
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Cautious Reversible Flows for Instinctual Acts",
+      "journey_phases": ["listing_creation", "active_lease", "retention"],
+      "problem": "When a host pauses a listing, declines a proposal, or deletes their account, they are performing what Freud would call an instinctual act -- reasserting autonomy over their private space, retreating from civilizational participation. The user stories document identifies that 'Pause matters more than delete. Hosts who stop a listing aren't always done with it. Pause preserves the work, keeps the door open, and costs nothing. Delete is a one-way door that creates regret.' Freud distinguishes two origins of the desire for freedom: civilized revolt against a specific injustice (the host had a bad guest) and primitive instinctual need for autonomy (the host simply wants their space back). The interaction pattern must accommodate both without making either feel punished. Currently, destructive actions (decline, delete, deactivate) use the same interaction speed and confirmation pattern as constructive ones. This is wrong: a host who impulsively deletes a listing they spent 45 minutes creating suffers disproportionate loss. The interaction for instinctual acts must be cautious -- not to prevent the host from acting, but to ensure the action reflects their settled intention rather than a momentary impulse.",
+      "solution": "Design instinctual acts (pause, decline, delete, deactivate) with a graduated friction pattern that increases proportionally to the irreversibility of the action. (1) Pause (fully reversible): single action, no confirmation dialog. The listing disappears from the marketplace immediately but remains fully preserved on the host's dashboard. One-tap reactivation. The interaction feels like closing a door, not locking it. (2) Decline (partially reversible -- the host can message the guest later but the specific proposal terms are gone): a brief confirmation surface using the bidirectional protection frame (L3, looks-007). The surface shows what declining means ('This proposal will be removed. You can still message [Guest Name] if you change your mind.') and what it does not mean ('Your listing remains active for other guests.'). (3) Delete (irreversible): a two-step confirmation with a 5-second cool-down. Step 1 shows what will be permanently lost (photos, descriptions, reviews, earnings history associated with this listing). Step 2 requires the host to wait 5 seconds before the Delete button becomes active, giving the impulse time to subside. The cool-down is not punitive -- it is Freud's insight that 'the desire for freedom may have its origin in the primitive roots of the personality' and the platform's job is to ensure the host is acting from their civilized self, not their impulsive self.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Pause matters more than delete. Hosts who stop a listing aren't always done with it. Pause preserves the work, keeps the door open, and costs nothing. Delete is a one-way door that creates regret.",
+          "insight": "Rod's observation maps directly to Freud's two types of freedom-seeking. Pause accommodates both the civilized revolt (temporary withdrawal due to a specific problem) and the primitive instinctual need (wanting autonomy). Delete forces a permanent decision that may not reflect the host's settled intention."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "The desire for freedom that makes itself felt in a human community may be a revolt against some existing injustice and so may prove favourable to a further development of civilization and remain compatible with it. But it may also have its origin in the primitive roots of the personality, still unfettered by civilizing influences, and so become a source of antagonism to culture.",
+          "insight": "The interaction pattern must distinguish between these two origins without interrogating the host. The graduated friction achieves this structurally: reversible actions (pause) need no friction because they accommodate both motives; irreversible actions (delete) need friction because only one motive (settled, civilized decision) should lead to permanent loss."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "If the deprivation is not made good economically, one may be certain of producing serious disorders.",
+          "insight": "Deleting a listing without showing the host what they will lose is an economic deprivation they cannot assess. The two-step confirmation makes the loss visible (photos, descriptions, reviews) so the host can weigh it against their desire for freedom. This is not manipulation -- it is honest accounting of what civilization built for them."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Pause/Decline/Delete actions are accessible but visually subordinate to constructive actions. Pause uses a neutral outline button. Decline uses a text link, not a button. Delete is available only through a secondary menu or settings panel, never on the primary action surface.",
+        "loading": "For Pause: no loading state needed -- the listing's marketplace visibility toggles instantly (optimistic for reversible actions). For Decline: a brief 500ms transition as the proposal card fades to a muted state. For Delete: the 5-second cool-down timer is the 'loading' equivalent -- a countdown displayed on the button itself ('Delete in 5... 4... 3...').",
+        "empty": "Not applicable -- these are action states, not content states. However, if a host has no active listings and attempts to navigate to listing management, the empty state should say: 'You do not have any active listings. You can create a new one or reactivate a paused listing.' with a link to paused listings if any exist.",
+        "error": "If the pause/decline/delete fails server-side: 'We could not process this right now. Nothing has changed -- your listing is still in its current state. Try again in a moment.' The error message must reassure the host that the failed action did not leave their listing in an ambiguous state.",
+        "success": "Pause success: the listing card on the dashboard dims to 60% opacity with a 'Paused' badge. A single-action reactivation button appears: 'Reactivate.' No celebratory animation -- pausing is not an achievement, it is a rest. Decline success: the proposal card slides out of the action-required tier with a brief 300ms animation. A quiet confirmation appears: 'Proposal declined. [Guest Name] has been notified.' Delete success: a clean confirmation: 'Listing deleted. If you want to host again in the future, you can create a new listing at any time.' Warm, not final."
+      },
+      "transition_principle": "Instinctual acts should feel deliberate and calm, never urgent or dramatic. The transition animations for pause (opacity dim) and decline (card slide-out) are slow enough to communicate 'this is happening with your full awareness' but not so slow that they feel like obstruction. Delete's 5-second cool-down uses a smooth countdown animation that feels like a breathing pause, not a punishment timer.",
+      "timing": {
+        "response_target": "Pause: 0ms perceived (optimistic). Decline: 500ms transition. Delete: 5000ms cool-down + 300ms confirmation transition.",
+        "easing": "Pause: instant opacity change, no easing needed. Decline: ease-in-out, 300ms slide. Delete cool-down: linear countdown (the timer should feel steady, not accelerating or decelerating).",
+        "rationale": "Reversible actions get instant response (matching optimistic commit speed) because the cost of error is zero -- the host can undo immediately. Irreversible actions get graduated delay because the cost of error is permanent loss. The timing hierarchy mirrors the irreversibility hierarchy."
+      },
+      "journey_state_awareness": "In listing_creation, pause accommodates the host who is mid-wizard and needs to step away -- the wizard state is preserved exactly as-is for resumption. In active_lease, decline applies to date change requests or proposed modifications, not to the lease itself -- the interaction must make clear that declining a modification does not affect the active lease. In retention, pause vs. delete is the critical fork: the interaction must make pause dramatically easier than delete, structurally steering the host toward the reversible option.",
+      "edge_cases": [
+        "Host pauses a listing with an active proposal pending: the proposal is automatically declined with a message to the guest ('The host has paused this listing. You may hear from them if it becomes available again.'). The host is informed of this consequence before pausing.",
+        "Host attempts to delete a listing with an active lease: deletion is blocked. The interaction explains: 'This listing has an active lease. You can pause it to prevent new proposals, but it cannot be deleted until the current lease ends.'",
+        "Host pauses and reactivates rapidly (within minutes): no friction on reactivation. The listing returns to its exact prior state immediately. The marketplace re-indexes it within the standard refresh cycle.",
+        "Host declines all proposals within a short window: after 3 consecutive declines in one session, show a non-blocking check-in: 'You have declined several proposals recently. Would you like to pause your listing temporarily?' This is not punitive -- it is the platform checking whether the host is in civilized revolt (specific issues with specific proposals) or primitive retreat (wanting to stop hosting).",
+        "Delete with associated earnings history: the earnings history is preserved in the host's account even after listing deletion. The confirmation explains: 'Your hosting history and earnings records will be preserved in your account even after this listing is deleted.'"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Protective Error States That Preserve Civilizational Trust",
+      "journey_phases": ["onboarding", "listing_creation", "pricing", "proposal_mgmt", "active_lease"],
+      "problem": "Errors in the host journey carry disproportionate psychological weight because the host is already managing the anxiety of instinctual renunciation. Freud identifies that civilization produces an 'element of disappointment' when its promises fail to deliver: 'Mankind is proud of its exploits and has a right to be. But men are beginning to perceive that all this newly won power... has not increased the amount of pleasure they can obtain in life.' Every platform error -- a failed upload, a validation rejection, a server timeout -- is a micro-disappointment that confirms the host's unconscious suspicion that civilization (the platform) is not worth the instinctual sacrifice. Current error patterns across most platforms use red text, exclamation marks, and blame-adjacent language ('Invalid input', 'Upload failed', 'Something went wrong'). These patterns punish the host for the platform's failure and activate the aggressive instinct Freud identifies: 'their neighbour is to them not only a possible helper... but also a temptation to them to gratify their aggressiveness on him.' An error that feels punitive turns the host's aggression toward the platform itself.",
+      "solution": "Design every error state to feel protective rather than punitive. The error interaction follows a three-part pattern: (1) Acknowledge without blame: 'This did not go through' rather than 'Invalid input' or 'Error.' The language describes the outcome, not the cause. (2) Protect what matters: immediately reassure the host that their prior work is preserved. 'Your listing progress is saved. Nothing you have entered has been lost.' This addresses the deepest anxiety -- that the error destroyed their civilizational investment. (3) Offer a clear path forward: a single, specific next action. 'Try uploading the photo again' or 'Refresh to reconnect.' Never present multiple error-recovery options that create a new decision at a moment of frustration. The visual treatment uses amber urgency (L3, looks-004), not red. The tone uses the reassurance typographic register. The error state should feel like a trusted advisor saying 'this happens, here is what to do' rather than a system saying 'you did something wrong.'",
+      "evidence": [
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "Mankind is proud of its exploits and has a right to be. But men are beginning to perceive that all this newly won power over space and time, this conquest of the forces of nature, this fulfilment of age-old longings, has not increased the amount of pleasure they can obtain in life, has not made them feel any happier.",
+          "insight": "Every platform error confirms this civilizational disappointment. The host surrendered privacy and time to the platform, and the platform repays them with a red error message. Protective error states break this cycle by ensuring that even when the platform fails, the host's trust investment is acknowledged and preserved."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Any flow that requires users to give information before seeing results will lose most of them. Show something useful first. Offer to refine after.",
+          "insight": "The 'value before the ask' principle applies to error recovery: before asking the host to retry, confirm that their prior investment (the information they already provided) is safe. The error state must deliver value (preservation assurance) before making the ask (retry action)."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "The bit of truth behind all this -- one so eagerly denied -- is that men are not gentle, friendly creatures wishing for love... but that a powerful measure of desire for aggression has to be reckoned as part of their instinctual endowment.",
+          "insight": "A punitive error state activates the host's aggressive instinct toward the platform. The host who sees 'Upload failed -- file too large' does not think 'I should resize my photo.' They think 'this platform is wasting my time.' Protective error states defuse this aggression by positioning the platform as an ally, not an adversary."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Normal interaction state. No error indicators visible. All form fields and actions are styled in the standard warm containment pattern.",
+        "loading": "While the system processes an action that may fail (upload, save, submit), show a calm progress indicator. Never show 'Processing...' -- instead show what is happening: 'Saving your listing details...' or 'Uploading photo 2 of 4...' This contextual loading state sets expectations for what a successful outcome looks like.",
+        "empty": "Not directly applicable to error states. However, an empty state after an error-caused data loss would be the worst possible outcome. The pattern rule is: error states must never produce empty states. All prior data must be preserved through the error.",
+        "error": "Three-part protective pattern: (1) Amber-tinted inline notice (not a modal, not a toast -- inline, in context, where the error occurred). (2) Preservation assurance: 'Your progress is saved.' (3) Single recovery action as a button or link. No error codes, no technical language, no red. The error indicator uses the amber urgency palette (--signal-warn-bg) with a shield or info icon in --signal-warn color. The error text uses the action typographic register at --font-weight-medium to feel authoritative but not alarming.",
+        "success": "After successful error recovery, a brief (2-second) inline confirmation replaces the error notice: 'Done. You are back on track.' The confirmation fades to invisible after 2 seconds, returning the interface to normal. No persistent success badges -- the goal is to make the error episode forgettable."
+      },
+      "transition_principle": "The transition into an error state must feel like a gentle catch, not a sudden stop. The amber notice slides into view with a 200ms ease-out animation. The transition out of an error state (after successful recovery) uses a 300ms fade-out. The host should never feel that the interface 'broke' -- the error state is a designed, intentional surface, not a system failure made visible.",
+      "timing": {
+        "response_target": "Error detection: immediate (0ms after failure detected). Inline notice appearance: 200ms slide-in. Error recovery confirmation: immediate (optimistic for retry actions). Error notice fade-out after recovery: 2000ms display + 300ms fade.",
+        "easing": "Error slide-in: ease-out (arrives quickly, settles gently). Error fade-out: ease-in (lingers briefly, then disappears).",
+        "rationale": "Error states must appear quickly (the host needs to know something happened) but not abruptly (abrupt appearance triggers the startle response, which Freud would map to the aggressive instinct). The 200ms slide-in is fast enough to be responsive but slow enough to feel designed."
+      },
+      "journey_state_awareness": "In onboarding, errors occur during identity verification or account creation -- the protective message must emphasize that the host's personal information is secure even if the process failed. In listing_creation, errors most commonly occur at photo upload (the most intimate disclosure) -- the message must specifically confirm that other listing steps are preserved. In pricing, a validation error on a custom rate should offer the smart default as the recovery path. In proposal_mgmt, a failed acceptance must make clear that the proposal is still available and the host can try again. In active_lease, a failed date change approval must confirm that the current schedule is unchanged.",
+      "edge_cases": [
+        "Multiple simultaneous errors (e.g., two photos fail to upload at once): consolidate into a single inline notice listing all affected items, not separate notices per failure",
+        "Persistent error (server is down): after 2 failed retries, escalate the message: 'We are experiencing a temporary issue. Your data is safe. We will notify you when this is resolved, or you can reach [agent name] directly.' Provide the agent's contact as the human fallback.",
+        "Error during a multi-step wizard: never reset the wizard to step 1. The host returns to the exact step where the error occurred, with all prior steps preserved.",
+        "Error on the final confirmation of a high-stakes action (accepting a proposal): this is the most sensitive case. The message must be: 'This did not go through, but the proposal is still waiting for you. Nothing has expired. You can accept again when ready.'",
+        "Client-side validation errors (empty required field): show inline guidance at the field level, not a page-level error. Use the action register, not error styling. Example: 'This field is needed to publish your listing' -- descriptive, not accusatory."
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Ritual Cadence Interaction for Stay Cycle Confirmation",
+      "journey_phases": ["active_lease"],
+      "problem": "Freud identifies that 'civilized society is perpetually menaced with disintegration through this primary hostility of men towards one another.' During the active lease, this hostility manifests as the host's recurring anxiety: Is my space being respected? Is the guest following the rules? Each stay cycle (weekly for most leases) is a renewal of the civilizational contract. L1 (works-004) prescribes repetitive rituals (arrival confirmation, cleaning photos, micro-reviews). L2 (communicates-005) prescribes a three-signal information cadence. L3 (looks-005) prescribes a fixed visual grid. But none of these layers define how the host interacts with these rituals -- the behavioral layer. The interaction problem is: the rituals must feel automatic and predictable to the host (Freud's 'order as repetition-compulsion') while requiring minimal effort. If the host must actively check for each ritual completion, the rituals become a new source of anxiety rather than a remedy for it. If the rituals are purely passive (push notifications only), the host has no sense of agency over the monitoring process.",
+      "solution": "Design the stay cycle interaction as a three-beat rhythm that the host learns after the first two cycles and can rely on for the duration of the lease. Beat 1 -- Arrival Signal: when the guest confirms arrival through the Stays Manager, the host's dashboard automatically updates the current stay card to 'In Progress' with the guest's confirmed dates. No host action required. A subtle notification (badge update, not a push alert) signals that the cycle has started. Beat 2 -- Departure + Cleaning: when the guest submits cleaning photos at departure, the stay card updates to show a 2x2 photo thumbnail grid. The host can tap any thumbnail to enlarge. The interaction is: glance (under 3 seconds to confirm cleanliness) or inspect (tap to zoom for detail). No action required unless the host wants to flag an issue, in which case a single 'Flag for review' text link appears below the grid. Beat 3 -- Cycle Close: 24 hours after departure, the stay card prompts a one-tap micro-review. The interaction is a single row of 5 icons (representing aspects like cleanliness, communication, rule compliance, timing, overall) that the host taps to rate. Total interaction time: under 10 seconds. The micro-review is optional but the prompt is consistent -- it appears at the same time after every stay, creating the repetition-compulsion Freud describes. The three beats always occur in the same order, at the same relative times, on the same surface (the stay card within the dashboard). The host never needs to navigate to find them.",
+      "evidence": [
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "Order is a kind of repetition-compulsion by which it is ordained once for all when, where and how a thing shall be done so that on every similar occasion doubt and hesitation shall be avoided. The benefits of order are incontestable: it enables us to use space and time to the best advantage, while saving expenditure of mental energy.",
+          "insight": "The three-beat rhythm is Freud's order made interactive. After 2-3 cycles, the host knows: arrival signal comes first, cleaning photos come second, review prompt comes third. The predictability saves mental energy -- the host does not need to wonder 'what should I check?' because the ritual tells them when, where, and how."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Urgency should surface first on the dashboard. Unread proposals, pending actions, incomplete listings -- that's what a host needs to see the moment they log in.",
+          "insight": "The stay cycle card is the active-lease equivalent of an unread proposal: it surfaces the current stay's status as the first thing the host sees. But unlike a proposal (which requires a decision), the stay card usually requires only a glance. The interaction pattern must distinguish between 'look at this' (stay status) and 'act on this' (proposal or flag)."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "Culture has to call up every possible reinforcement in order to erect barriers against the aggressive instincts of men and hold their manifestations in check by reaction-formations in men's minds.",
+          "insight": "Each completed ritual beat is a 'barrier against aggressive instincts': the arrival signal confirms the guest is present and accountable; the cleaning photos confirm the space is respected; the micro-review channels any dissatisfaction into a structured, productive format rather than letting it fester as unstructured resentment."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "The stay card shows the upcoming stay with confirmed dates, guest avatar, and a status badge: 'Upcoming.' The card is in the status-confirmation zone of the dashboard (middle tier, L2 communicates-004), not the action-required zone. No host action needed.",
+        "loading": "Beat 1 (arrival): the card transitions from 'Upcoming' to 'In Progress' within 1 second of the guest's confirmation. No loading spinner -- the status badge updates directly. Beat 2 (cleaning): photo thumbnails populate as each photo uploads, appearing one by one in the 2x2 grid. This progressive loading gives the host real-time evidence that the guest is submitting photos, which itself is a reassurance signal. Beat 3 (review prompt): appears 24 hours after departure as an inline expansion of the stay card, no page navigation required.",
+        "empty": "If a ritual beat is not completed (guest does not confirm arrival, does not submit cleaning photos): the card shows a neutral status -- 'Arrival not yet confirmed' or 'Cleaning photos pending.' The language is descriptive, not accusatory. If the guest misses the ritual window, the platform follows up with the guest directly. The host sees: 'We have asked [Guest Name] to submit cleaning photos.' The host is never asked to chase the guest -- the platform handles it.",
+        "error": "If the stay card fails to update (connectivity issue, server error): the card shows its last known state with a subtle amber indicator: 'Status may be outdated. Pull to refresh.' The host's mental model of the ritual is preserved -- the card still shows the last confirmed beat, and the error does not reset the ritual sequence.",
+        "success": "Each beat completion updates the stay card with a subtle green check next to the completed ritual. After all three beats are complete (arrival confirmed, cleaning photos submitted, micro-review given), the card transitions to a 'Completed' state: dimmed opacity, all three checks visible, and a one-line summary ('Stay completed -- all clear'). The completed card moves to a historical section below the active card."
+      },
+      "transition_principle": "Each beat transition should feel like a page turning in a familiar book. The host knows what comes next because it is always the same sequence. The transition between beats uses a consistent animation: the status badge slides from left to right as it updates (Upcoming -> In Progress -> Cleaning Submitted -> Completed), creating a visual progression that maps to the temporal progression of the stay cycle. The animation is subtle (200ms ease-in-out) -- it should be noticeable on the first few cycles and become invisible through familiarity.",
+      "timing": {
+        "response_target": "Beat 1 (arrival): card updates within 1000ms of guest confirmation. Beat 2 (cleaning photos): thumbnails appear as each photo finishes uploading (progressive, not batched). Beat 3 (review prompt): appears exactly 24 hours after guest's departure confirmation, not sooner (the host should have a full day before being asked to reflect).",
+        "easing": "Status badge transition: ease-in-out, 200ms. Photo thumbnail appearance: fade-in, 150ms per photo. Review prompt expansion: ease-out, 250ms slide-down from the card's bottom edge.",
+        "rationale": "The timing is dictated by the stay cycle's natural rhythm, not by interaction design preference. Arrival happens when the guest arrives; cleaning happens when the guest departs; review happens the next day. The interaction design respects this rhythm rather than trying to compress it. Freud's repetition-compulsion works precisely because the timing is predictable and unchanging."
+      },
+      "journey_state_awareness": "The stay cycle interaction adapts to the host's experience level. First lease, first stay: each beat includes a brief contextual tooltip ('Your guest has confirmed arrival. You will see cleaning photos after they check out.'). After the third completed cycle: tooltips disappear. The host has internalized the ritual. For hosts with multiple active listings: each listing has its own stay card, and the cards are sorted by next-action-required, so the host always sees the most relevant stay first.",
+      "edge_cases": [
+        "Guest confirms arrival late (after the expected check-in window): the card updates to 'In Progress (late arrival)' without alarming the host. The lateness is noted but not flagged as a problem unless it exceeds 24 hours.",
+        "Guest does not submit cleaning photos: after 12 hours past expected departure, the card shows 'Cleaning photos pending -- we have reminded [Guest Name].' If no photos after 24 hours: 'Cleaning photos not submitted this stay. This has been noted in [Guest Name]'s record.'",
+        "Host wants to skip the micro-review: the review prompt has a 'Skip this time' text link. Skipping is tracked internally but never penalized. The prompt does not reappear for this stay cycle.",
+        "Guest disputes the host's micro-review: reviews are private between host and platform for the first 24 hours. If disputed, the platform mediates before any review is published.",
+        "Multiple stays overlap (two guests in different rooms): each stay has its own card. Cards are visually distinct (different guest avatars, different date ranges) but follow the identical three-beat rhythm."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Wizard Save-and-Resume with Civilizational Progress Preservation",
+      "journey_phases": ["listing_creation", "pricing"],
+      "problem": "The listing wizard demands the highest intensity of instinctual renunciation in the host journey (L0): each of its 6 steps converts something private into something public. L1 (works-001) prescribes graduating the renunciation gradient; L1 (works-002) prescribes reversibility. But neither addresses the interaction behavior when the host abandons mid-wizard. Currently, a host who completes 4 of 6 steps and closes the browser loses their session state. When they return, they face two possible failures: (1) they restart from step 1, which wastes their prior civilizational investment and produces Freud's 'serious disorders' from uncompensated deprivation, or (2) they land on an ambiguous state that does not clearly show what was completed and what remains. Both outcomes punish the host for the natural human need to take breaks from sustained instinctual renunciation. The user stories document confirms: 'A visible progress indicator on the listing card creates just enough friction to get them to finish -- without being in the way.' But this indicator is meaningless if the progress it shows can be lost.",
+      "solution": "Every keystroke, selection, and upload within the listing wizard is auto-saved to a persistent draft. The interaction pattern has three components: (1) Continuous auto-save: every input is saved within 2 seconds of entry. A subtle, non-intrusive save indicator ('Saved' with a small check, positioned in the wizard header) confirms persistence. The host never needs to click a Save button -- the concept of saving does not exist as an action because it is the default behavior. (2) Resume exactly: when the host returns (hours, days, or weeks later), they land on the exact step and field where they left off. Completed steps show green checks in the progress indicator. The current step shows their partial input restored. The host's first impression on return is: 'everything I did is here, and I am exactly where I stopped.' This is Freud's 'order' applied to the resume experience: predictable, reliable, no doubt about the state. (3) Completion percentage on the dashboard: the listing card on the host's dashboard shows a progress bar (e.g., '4 of 6 steps complete -- 67%'). This serves as both a reminder and a motivator. The user stories document's insight applies: the visible progress is 'just enough friction to get them to finish.' The progress bar uses the evidence typographic register for the percentage number, making it precise and reliable.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Hosts need to know what's unfinished before a listing goes live. A visible progress indicator on the listing card creates just enough friction to get them to finish -- without being in the way.",
+          "insight": "The progress indicator serves a dual interaction function: on the dashboard, it motivates return; within the wizard, it orients the host within the renunciation gradient. Both require that progress is genuinely preserved -- a progress bar that resets to 0% when the host returns is not friction, it is betrayal."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "It is impossible to ignore the extent to which civilization is built up on renunciation of instinctual gratifications... This 'cultural privation' dominates the whole field of social relations between human beings.",
+          "insight": "Each completed wizard step is an instinctual renunciation the host has already performed. Losing that progress forces the host to renounce again, doubling the psychological cost. Auto-save ensures that every renunciation is counted once and preserved permanently."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "If the deprivation is not made good economically, one may be certain of producing serious disorders.",
+          "insight": "Lost wizard progress is a deprivation without economic remedy -- the host gave photos, descriptions, and time, and the platform erased them. Auto-save is the economic guarantee that prevents this 'serious disorder' (in platform terms: permanent listing abandonment)."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Within the wizard: each step shows its completion status (completed steps have a green check, current step is highlighted, future steps are muted). The progress indicator is always visible in the wizard header. The auto-save indicator shows 'Saved' after each successful save. On the dashboard: the listing card shows the progress bar with the completion percentage and a 'Continue' button that takes the host directly to their current step.",
+        "loading": "Auto-save in progress: the save indicator shows a subtle animated ellipsis ('Saving...') for 1-2 seconds. This is informational only -- the host is not blocked from continuing to edit while the save is in flight. Photo uploads show a per-photo progress bar within the upload zone.",
+        "empty": "A brand-new wizard (no progress yet) shows all 6 steps as empty circles in the progress indicator with step labels. The first step is highlighted as active. A brief orientation message appears: 'We will walk you through 6 steps to create your listing. You can stop at any time and come back later -- everything is saved automatically.'",
+        "error": "If auto-save fails (connectivity loss): the save indicator shows an amber warning: 'Not saved -- check your connection.' The host's input is preserved in local browser storage as a fallback. When connectivity is restored, the local state is reconciled with the server state, and the save indicator returns to 'Saved.' If a photo upload fails: the upload zone shows a retry button for the specific photo that failed, without affecting other photos that uploaded successfully.",
+        "success": "When the final step (step 6) is completed and the host clicks Publish: the wizard transitions to a full-card confirmation state: 'Your listing is live. Guests can now find and propose to your space.' The confirmation shows a preview of the listing card as it will appear in search results. A 'View your listing' link opens the public-facing listing page. The host's dashboard updates to show the listing in its active state, replacing the progress bar with the listing's live status."
+      },
+      "transition_principle": "The wizard's step-to-step transitions should feel like progression, not page changes. Each step slides in from the right (forward) or left (backward) with a 250ms ease-in-out animation. The progress indicator updates simultaneously, with the completed step's circle filling with a 150ms fill animation. The overall feeling is: moving through a sequence, not navigating between pages. The host should never feel 'lost' within the wizard -- the progress indicator anchors them at all times.",
+      "timing": {
+        "response_target": "Auto-save: within 2000ms of last input (debounced to avoid saving on every keystroke). Step transition: 250ms slide animation. Progress indicator update: 150ms fill animation. Photo upload feedback: immediate progress bar (0ms to start showing progress).",
+        "easing": "Step slide: ease-in-out, 250ms. Progress fill: ease-out, 150ms. Save indicator: fade-in 100ms, persist for 2000ms, fade-out 200ms.",
+        "rationale": "Auto-save must be fast enough that the host never waits for it (the 2000ms debounce means saving happens behind the scenes between natural pauses in input). Step transitions must be fast enough to feel responsive but slow enough to communicate spatial progression. Freud's order principle requires that the wizard's behavior be perfectly predictable: every step transition looks and feels the same."
+      },
+      "journey_state_awareness": "For first-time hosts: the wizard includes brief contextual help at each step (collapsible, not blocking). For returning hosts who are resuming a draft: the wizard opens directly on the incomplete step, with a brief 'Welcome back -- you are on step [N] of 6' banner that fades after 3 seconds. For hosts who have created a previous listing: the wizard offers to pre-fill common fields from the prior listing ('Your previous listing included in-unit laundry. Include it here too?'). This reduces the renunciation cost by carrying forward prior civilizational investments.",
+      "edge_cases": [
+        "Host opens the wizard on two devices simultaneously: the most recent save wins. If the host switches devices, the wizard on the second device shows the state saved by the first. A subtle notice: 'This listing was last edited on another device. Showing the latest version.'",
+        "Host's browser crashes mid-step: local storage fallback ensures that even unsaved input (between the last auto-save and the crash) is recoverable. On reopening, the wizard reconciles local storage with server state.",
+        "Host fills out a step, then clicks Back to a prior step to change something: the later step's progress is preserved. Changing something on step 2 does not reset steps 3-6. If the change on step 2 invalidates something on step 4 (e.g., changing the lease style affects pricing defaults), step 4 shows a gentle flag: 'Your pricing may need updating based on the changes you made to lease style.'",
+        "Host abandons the wizard for more than 30 days: the draft is preserved indefinitely. When the host returns, a check-in message appears: 'You started this listing 30 days ago. Would you like to continue, or start fresh?' Starting fresh creates a new draft without deleting the old one.",
+        "Photo upload order matters to the host: the photo upload step allows drag-to-reorder within the uploaded photo grid. The order is auto-saved like any other input."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Bidirectional Constraint Acknowledgment at Every Platform Rule Enforcement",
+      "journey_phases": ["proposal_mgmt", "active_lease"],
+      "problem": "Freud identifies the 'first requisite of culture' as 'justice -- that is, the assurance that a law once made will not be broken in favour of any individual.' The platform enforces rules at multiple interaction points: confirmation dialogs, approval requirements, date change restrictions. L1 (works-006) prescribes making mediation feel like justice, not bureaucracy. L2 (communicates-002) prescribes bidirectional framing. L3 (looks-007) prescribes the visual protection surface. But the interaction behavior -- how the host encounters and acknowledges these constraints -- determines whether the host's experience is 'I am being protected' or 'I am being controlled.' The critical insight: a confirmation dialog is not just a UI pattern, it is a moment where the host confronts the limits of their autonomy within the civilizational framework. If the dialog's interaction behavior is wrong (too many clicks, confusing options, unclear consequences), the host experiences the constraint as bureaucratic friction rather than bidirectional protection. The host's aggressive instinct is activated against the platform rather than channeled into trust of the platform.",
+      "solution": "Replace standard confirmation dialogs with a single-surface bidirectional acknowledgment pattern. When the platform enforces a rule (requiring approval for a date change, confirming before declining a proposal, verifying intent before a schedule modification), the interaction follows a consistent three-element surface: (1) Protection headline: a single sentence in the reassurance register stating what is protected ('Both parties are protected from unexpected changes'). (2) Bidirectional explanation: two parallel statements showing the reciprocal constraint ('The guest cannot change dates without your approval' / 'You also cannot change dates without the guest's agreement'). These are rendered in identical typographic treatment to make the bidirectionality visually self-evident. (3) Single primary action: one button for the intended action ('Confirm date change request') with a secondary text link for the alternative ('Cancel'). No third option. The surface uses the protection visual pattern (L3, looks-007): warm purple-tinted background, shield icon, rounded container. The host should be able to read, understand, and act on the surface in under 8 seconds. The consistency of this pattern across all enforcement points creates Freud's repetition-compulsion: the host learns that every time they see the warm purple surface with the shield icon, the platform is protecting them, not constraining them.",
+      "evidence": [
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "The first requisite of culture, therefore, is justice -- that is, the assurance that a law once made will not be broken in favour of any individual.",
+          "insight": "The bidirectional acknowledgment pattern is Freud's justice made interactive. The host sees that the rule applies equally to both parties at the exact moment the rule constrains their own action. This simultaneity is critical: if the host first feels constrained and only later learns the guest is equally constrained, the initial impression (frustration) dominates."
+        },
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "The park analogy holds -- you check availability before committing. A message action reduces abandonment when someone isn't ready for a proposal. Having the option is better than having no action at all.",
+          "insight": "The park analogy applies to constraint surfaces: a low-stakes intermediate step (the bidirectional acknowledgment) before a high-stakes committed action (the confirmation). The acknowledgment surface is the 'park bench' where the host can absorb the implications before deciding."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "Civilization expects to prevent the worst atrocities of brutal violence by taking upon itself the right to employ violence against criminals, but the law is not able to lay hands on the more discreet and subtle forms in which human aggressions are expressed.",
+          "insight": "The platform's rules address the 'discreet and subtle forms' of aggression that could undermine the host-guest relationship (surprise date changes, unilateral schedule modifications). The bidirectional acknowledgment makes this protection visible at the exact moment it is relevant."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "The action that triggers the constraint (e.g., 'Request date change' button) appears in its normal interactive state. No pre-indication of the constraint -- the acknowledgment surface appears only when the action is initiated.",
+        "loading": "After the host confirms through the acknowledgment surface, the action processes with a brief optimistic transition (matching behaves-001 for civilizational acts). The surface closes with a 200ms fade, and the underlying card updates to reflect the pending state.",
+        "empty": "Not applicable -- constraint surfaces appear only in response to specific actions.",
+        "error": "If the constrained action fails after acknowledgment: the acknowledgment surface remains visible (does not close) and updates its content to show the error in the same protective framing: 'This change could not be processed right now. Both parties' current schedule remains as-is. Try again or contact [agent name].' The surface retains its warm purple background and shield icon throughout the error state.",
+        "success": "After successful confirmation, the acknowledgment surface closes with a 200ms fade, and the underlying surface shows a brief inline confirmation: 'Date change request sent to [Guest Name] for approval.' The confirmation uses the success visual treatment (green-tinted, check icon) and fades after 3 seconds."
+      },
+      "transition_principle": "The acknowledgment surface should feel like a deliberate pause in the interaction flow -- not a roadblock, but a moment of grounding. It appears with a 200ms fade-in over a subtle backdrop overlay (10% opacity dark, not the heavy modal overlays typical of confirmation dialogs). The host's peripheral context remains visible behind the overlay, reinforcing that this is a moment within the flow, not a detour from it. The surface disappears with equal subtlety after the host acts.",
+      "timing": {
+        "response_target": "Acknowledgment surface appearance: 200ms fade-in after action trigger. Host reading time: designed for 5-8 seconds (based on the three-element content volume). Confirmation processing: optimistic (0ms perceived). Surface fade-out: 200ms.",
+        "easing": "Surface fade-in: ease-out, 200ms. Backdrop overlay: ease-out, 150ms. Surface fade-out: ease-in, 200ms.",
+        "rationale": "The acknowledgment surface must appear quickly enough that the host understands it is a direct response to their action (not a random interruption), but gently enough that it does not feel like an alarm. The 200ms fade-in achieves this balance. The reading time (5-8 seconds) is calibrated to the three-element content: one sentence headline + two parallel statements + one action button."
+      },
+      "journey_state_awareness": "In proposal_mgmt, the acknowledgment surface appears when declining or counter-proposing. The bidirectional explanation adapts: for decline, it shows 'You can still message this guest if you change your mind' / 'The guest can still apply to your listing with a new proposal.' For counter-proposal, it shows 'Your counter-terms will replace the original proposal' / 'The guest can accept, counter, or decline your new terms.' In active_lease, the acknowledgment surface appears for date changes, schedule modifications, and lease-end decisions. The bidirectional explanation always shows the reciprocal constraint on the guest, which the host may not have considered.",
+      "edge_cases": [
+        "Host rapidly triggers and cancels the acknowledgment surface multiple times: the surface appears and disappears cleanly each time with no state leakage or animation glitches. No debounce needed -- the host should feel free to explore the constraint without commitment.",
+        "Host triggers a constraint-governed action but loses connectivity before confirming: the acknowledgment surface remains visible with the host's context preserved. When connectivity returns, the host can confirm from the same surface without re-triggering the action.",
+        "The bidirectional explanation does not apply (a unilateral host action, like publishing a listing): the surface omits the bidirectional element and shows only the protection headline and action. Example: 'Publishing makes your listing visible to all guests on Split Lease. You can pause it at any time.'",
+        "Screen reader / accessibility: the acknowledgment surface is an ARIA dialog with focus trapped inside. The protection headline is announced first, followed by the bidirectional statements, followed by the action buttons. Tab order matches visual order."
+      ]
+    },
+    {
+      "id": "behaves-007",
+      "type": "interaction_pattern",
+      "title": "Retention Re-Entry as One-Action Continuation",
+      "journey_phases": ["retention"],
+      "problem": "Retention is the weakest phase in the host journey (L0 identifies it as high dropout risk with zero structural commitment). Freud's 'narcissism of minor differences' means the host's retrospective assessment anchors on small grievances rather than the cumulative positive record. L1 (works-005) prescribes building host identity for retention. L2 (communicates-006) prescribes the cumulative civilizational investment narrative. L3 (looks-006) prescribes the data visualization for the retention moment. But the interaction behavior at the retention moment -- the actual sequence of actions the host must take to re-list -- determines whether the platform's retention design succeeds. If re-listing requires navigating to a settings page, clicking 'Create New Listing,' and re-entering information, the host faces the full renunciation gradient again. This is Freud's prediction: 'we should be much happier if we were to give it up and go back to primitive conditions.' The interaction cost of re-entering civilization (re-listing) must be lower than the psychological appeal of primitive conditions (not hosting). The re-entry path must feel like a continuation, not a new beginning.",
+      "solution": "At the moment a lease ends, the host's dashboard presents a single-action continuation flow. (1) The lease-end card appears in the action-required zone (top tier) showing the Hosting Summary metrics (L2 communicates-006): total earnings, successful stays, average rating. These appear in the evidence register at prominent scale, counteracting the narcissism of minor differences with cumulative evidence. (2) Below the summary, a single primary CTA: 'Continue Hosting' (not 'Create New Listing' or 'Re-list'). The language frames re-entry as continuation, not restart. (3) Tapping 'Continue Hosting' does not open a wizard. It reactivates the existing listing with all prior data preserved: photos, descriptions, pricing, rules. The listing returns to its pre-lease active state in one action. (4) If the host wants to adjust anything before re-listing, a secondary text link appears: 'Review listing details first.' This opens the listing editor (not the wizard) where the host can make specific changes without walking through all 6 steps. The pattern ensures that the path of least resistance is continuation. Freud's 'inertia of libido' works in the platform's favor: the host's default is to continue, not to restart, because continuing is easier than deciding to stop.",
+      "evidence": [
+        {
+          "source": "user-stories-initial-analysis.md",
+          "type": "host_call",
+          "quote": "Pause preserves the work, keeps the door open, and costs nothing. Delete is a one-way door that creates regret.",
+          "insight": "The retention re-entry pattern extends the Pause principle to the lease-end moment. Even though the lease has ended (not paused), the listing is preserved in its full state. Re-entry costs nothing -- one tap, no re-creation. The host's civilizational investment (photos, descriptions, reviews, pricing) persists as an asset that lowers the barrier to return."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "Civilized man has exchanged some part of his chances of happiness for a measure of security.",
+          "insight": "At retention, the Hosting Summary makes the 'measure of security' tangible: '$X earned, Y successful stays, Z average rating.' The single-action continuation path ensures that the host evaluates re-listing in the context of this evidence, not in the context of imagined future renunciation costs."
+        },
+        {
+          "source": "freud-civilization-discontents-ch3-ch5.txt",
+          "type": "book",
+          "quote": "There is an advantage, not to be undervalued, in the existence of smaller communities, through which the aggressive instinct can find an outlet in enmity towards those outside the group.",
+          "insight": "The Hosting Summary positions the host within the hosting community -- their record is visible, their achievements are quantified. The one-action continuation preserves this community membership. If re-listing required rebuilding from scratch, the community membership would reset, and the host would lose the identity investment that Freud identifies as the binding mechanism of civilization."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "During an active lease, the retention interaction is dormant. The dashboard shows the active lease card with the stay cycle interaction (behaves-004). No retention prompts appear until the lease's final stay is completed.",
+        "loading": "When the host taps 'Continue Hosting': optimistic transition (behaves-001 applies). The listing immediately shows as 'Active' on the dashboard. The marketplace re-indexing happens in the background. A subtle progress note: 'Your listing will appear in search results within a few minutes.'",
+        "empty": "If the host has no prior listing data (edge case -- listing was deleted before lease ended): the 'Continue Hosting' CTA changes to 'Create a New Listing,' which opens the wizard at step 1. But this should be extremely rare given the pause-over-delete design principle.",
+        "error": "If reactivation fails: 'Your listing could not be reactivated right now. All your data is preserved. Try again in a moment, or contact [agent name].' The Hosting Summary remains visible through the error -- the host's cumulative evidence is never hidden.",
+        "success": "After tapping 'Continue Hosting': the lease-end card transforms into the reactivated listing card with a brief celebration animation (a subtle purple pulse around the card border, 500ms). The card shows: 'Your listing is live again. Guests can find and propose to your space.' The Hosting Summary metrics persist on the card as a compact footer, reminding the host of their cumulative record."
+      },
+      "transition_principle": "The retention re-entry should feel like reopening a book you set down, not picking up a new one. The lease-end card's transformation into the reactivated listing card uses a smooth morph animation (card dimensions adjust, content cross-fades, 400ms ease-in-out) that communicates continuity. The host sees the same card in the same position on the dashboard, with updated content. Nothing moves, nothing navigates, nothing reloads.",
+      "timing": {
+        "response_target": "Lease-end card appearance: within 24 hours of final stay completion (not immediate -- the host should have time to absorb the end of the lease before being prompted). 'Continue Hosting' tap to reactivation: 0ms perceived (optimistic). Marketplace re-indexing: within 15 minutes (background).",
+        "easing": "Card transformation: ease-in-out, 400ms morph. Purple celebration pulse: ease-out, 500ms. Hosting Summary metrics entrance: staggered fade-in, 100ms per metric, starting from the largest (total earnings).",
+        "rationale": "The 24-hour delay before the retention prompt respects the host's emotional state at lease end. Freud's 'retrospective weighing' needs time. The host should not be asked to re-commit while still processing the experience of the completed lease. After the delay, the one-action path must be instant to capitalize on the positive retrospective assessment that the Hosting Summary supports."
+      },
+      "journey_state_awareness": "For hosts completing their first lease: the retention card includes a congratulatory message: 'You completed your first lease. [X] earned, [Y] successful stays.' This marks the civilizational milestone. For experienced hosts (2+ leases): the card shows growth trajectory: 'Your [Nth] lease. You have earned [total] across [total stays] stays.' For hosts whose last lease had issues (disputes, low reviews): the retention card leads with 'What we have improved for your next guest' rather than metrics, addressing the specific grievance before asking for re-commitment.",
+      "edge_cases": [
+        "Host does not act on the retention card for 30+ days: the card persists in the action-required zone but does not escalate. After 30 days, a single gentle notification (email or push): 'Your listing is ready whenever you are. All your data is preserved.' No urgency language, no countdown timers.",
+        "Host wants to host in a different property: the 'Continue Hosting' path reactivates the existing listing. A secondary option: 'Host a different space' opens the wizard for a new listing. Both options are visible, but 'Continue Hosting' is the primary CTA.",
+        "Host's listing data has become outdated (photos are 18 months old, amenities changed): after reactivation, the dashboard shows a gentle prompt: 'Your listing was last updated [date]. Would you like to review your photos and details?' This is a suggestion, not a requirement -- the listing is already active.",
+        "Multiple listings ending simultaneously: each listing gets its own retention card, sorted by most recent lease-end date. The Hosting Summary shows aggregate metrics across all listings.",
+        "Host re-enters and immediately receives a proposal: the transition from retention to proposal_mgmt should feel seamless. The reactivated listing card can show a new proposal badge within minutes of reactivation."
+      ]
+    }
+  ]
+}

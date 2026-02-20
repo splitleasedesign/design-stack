@@ -1,0 +1,198 @@
+{
+  "lens": {
+    "host_call": "dana-call.txt",
+    "book_extract": "refactoringui-hierarchy-spacing-color.txt"
+  },
+  "elements": [
+    {
+      "id": "looks-001",
+      "type": "visual_pattern",
+      "title": "Day-Badge Occupancy Pattern as Visual Anchor",
+      "journey_phases": ["proposal_mgmt", "active_lease", "listing_creation"],
+      "problem": "Guest occupancy pattern (Mon-Thu vs. full-week) is Dana's primary decision criterion, but there is no established visual pattern for displaying weekly occupancy at a glance. Text-based descriptions ('Part-week: Monday to Thursday') are scannable but slow. The platform needs a visual element that communicates weekly occupancy pattern as instantly as a progress bar communicates completion. Refactoring UI's 'balance weight and contrast' principle: this visual element must be visually heavy enough to serve as the anchor point of guest cards, but not so heavy it overwhelms the rest of the card.",
+      "solution": "Create a 7-circle day-badge row (M T W T F S S) where active days use the brand accent color (filled, high contrast) and inactive days use a muted, de-emphasized style (outline only or very light fill). Apply the production style guide's day-badge pattern but repurpose it for occupancy visualization. Use the existing --chat-purple (#4B47CE) for active days and --bg-light-gray (#f3f4f6) for inactive days. The badge row should be compact (32px circle diameter per the style guide's day-badge spec) and positioned as the first visual element after the guest's name in any card. Per Refactoring UI's 'don't use grey text on colored backgrounds' principle, text inside the active badges should be pure white, not reduced opacity.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 02:38",
+          "type": "host_call",
+          "quote": "He was looking just to be for the workweek, Monday to Thursday.",
+          "insight": "The occupancy pattern is always described as specific days of the week. A day-badge row is the natural visual translation of this verbal pattern."
+        },
+        {
+          "source": "refactoringui, Balance weight and contrast",
+          "type": "book",
+          "quote": "Just like bold text, icons (especially solid ones) are generally pretty 'heavy.' As a result, when you put an icon next to some text, the icon tends to feel emphasized.",
+          "insight": "Filled day-badges for active days naturally draw the eye due to their visual weight, making them effective as the primary visual anchor without needing to be oversized."
+        },
+        {
+          "source": "refactoringui, Don't use grey text on colored backgrounds",
+          "type": "book",
+          "quote": "A better approach is to hand-pick a new color, based on the background color. Choose a color with the same hue, and adjust the saturation and lightness.",
+          "insight": "Text inside active day-badges (M, T, W, T) should be white (#FFFFFF) on the purple background, not a reduced-opacity variant. Text inside inactive badges should be --text-light-gray, not pure grey."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--chat-purple (active badge bg)", "--bg-light-gray (inactive badge bg)", "--white (active badge text)", "--text-light-gray (inactive badge text)"],
+        "typography": ["--text-sm-md (13px) for badge letters", "--font-weight-semibold (600) for badge letters"],
+        "spacing": ["--spacing-xs (4px) gap between badges", "--spacing-md (12px) margin below badge row"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "Active badge: white text on --chat-purple (#4B47CE) = contrast ratio ~4.6:1 (WCAG AA pass). Inactive badge: --text-light-gray (#9ca3af) on --bg-light-gray (#f3f4f6) = decorative only, not required to meet AA for text since the letters are supplementary to the pattern itself.",
+      "visual_hierarchy_rule": "The day-badge row serves as the visual anchor of any guest-related card. It should be positioned immediately after the guest's name and before any text-based information. Its compact but visually heavy nature (7 circles with 4 filled in bright purple) makes it the natural eye-landing point per Refactoring UI's weight principle.",
+      "brand_alignment": "Aligns with the production style guide's existing day-badge component pattern. Uses the Split Lease purple palette rather than green (matching the production system, not tokens.json). The circular badge shape with --rounded-full aligns with the taste model's 'trustworthy, not corporate' and 'rounded corners' personality."
+    },
+    {
+      "id": "looks-002",
+      "type": "visual_pattern",
+      "title": "Three-Tier Text Hierarchy for Host Dashboards",
+      "journey_phases": ["active_lease", "proposal_mgmt", "listing_creation"],
+      "problem": "Host dashboards currently use inconsistent text sizing and weight to create hierarchy, likely resulting in the 'everything looks the same' problem. Refactoring UI explicitly warns against relying on font size alone: 'Relying too much on font size to control your hierarchy is a mistake — it often leads to primary content that's too large, and secondary content that's too small.' For a host like Dana who scans in 5-second bursts, the visual hierarchy must use all available tools (size, weight, AND color) to make the status information immediately distinguishable from supporting context.",
+      "solution": "Establish a three-tier text hierarchy system using the production style guide tokens. Tier 1 (Primary — status, actions, key numbers): --text-dark (#1a1a1a), --font-weight-bold (700), --text-lg (18px). Tier 2 (Secondary — descriptions, context, labels): --text-gray (#6b7280), --font-weight-normal (400), --text-base (14px). Tier 3 (Tertiary — timestamps, metadata, helper text): --text-light-gray (#9ca3af), --font-weight-normal (400), --text-sm (12px). Per Refactoring UI's guidance: 'two font weights are usually enough for UI work — a normal weight (400 or 500) and a heavier weight (600 or 700).' The hierarchy is primarily achieved through color contrast, not size jumps.",
+      "evidence": [
+        {
+          "source": "refactoringui, Size isn't everything",
+          "type": "book",
+          "quote": "Instead of leaving all of the heavy lifting to font size alone, try using font weight or color to do the same job. Making a primary element bolder lets you use a more reasonable font size.",
+          "insight": "The hierarchy system should use weight + color as the primary differentiation tools, with modest size differences. This keeps primary text at a readable but not oversized 18px."
+        },
+        {
+          "source": "refactoringui, Size isn't everything",
+          "type": "book",
+          "quote": "Try and stick to two or three colors: a dark color for primary content, a grey for secondary, a lighter grey for tertiary.",
+          "insight": "Three text colors from the production style guide map directly to three information tiers: --text-dark, --text-gray, --text-light-gray."
+        },
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I'm a flight attendant... I have to go to work tonight.",
+          "insight": "Dana scans in seconds. The three-tier system ensures the most important information (Tier 1) is visually distinct enough to be read in a 2-second glance without reading Tier 2 or 3."
+        }
+      ],
+      "priority": "high",
+      "tokens": {
+        "colors": ["--text-dark (#1a1a1a) for Tier 1", "--text-gray (#6b7280) for Tier 2", "--text-light-gray (#9ca3af) for Tier 3"],
+        "typography": ["--text-lg (18px) + --font-weight-bold (700) for Tier 1", "--text-base (14px) + --font-weight-normal (400) for Tier 2", "--text-sm (12px) + --font-weight-normal (400) for Tier 3"],
+        "spacing": ["--spacing-xs (4px) between Tier 1 and Tier 2 within a group", "--spacing-lg (16px) between distinct groups"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "Tier 1: --text-dark (#1a1a1a) on --bg-white (#ffffff) = 16.1:1 (WCAG AAA). Tier 2: --text-gray (#6b7280) on --bg-white = 4.6:1 (WCAG AA pass). Tier 3: --text-light-gray (#9ca3af) on --bg-white = 2.6:1 (below WCAG AA for small text — acceptable only for supplementary information that is not essential for comprehension).",
+      "visual_hierarchy_rule": "Within any card or section, the eye should land on Tier 1 text first (dark, bold), understand the context from Tier 2 (grey, normal), and optionally read Tier 3 (light grey, small) for metadata. This must hold true at a 2-foot phone viewing distance and at a 2-second time budget.",
+      "brand_alignment": "Uses the production style guide's text color tokens exactly. The system is neutral and professional, aligning with the taste model's 'confident, not flashy' and 'trustworthy, not corporate' personality. The modest size jumps (12/14/18) prevent the design from feeling either too corporate (uniform sizing) or too playful (large size jumps)."
+    },
+    {
+      "id": "looks-003",
+      "type": "visual_pattern",
+      "title": "Generous White Space as Functional Readability Tool",
+      "journey_phases": ["listing_creation", "active_lease", "proposal_mgmt", "onboarding"],
+      "problem": "For time-starved, cognitively overloaded hosts like Dana, dense interfaces feel hostile. Every pixel of whitespace that's removed forces the eye to work harder to distinguish groups, find boundaries, and locate action items. Refactoring UI is explicit: 'Start with too much white space' and 'you don't have to fill the whole screen.' The current platform likely uses standard 16px padding and 8px gaps, which feel adequate for focused users but insufficient for users scanning in 5-second distracted bursts.",
+      "solution": "Apply Refactoring UI's spacing philosophy across all host-facing screens. (1) Component internal padding: increase from --spacing-lg (16px) to --spacing-2xl (24px) for cards and sections. (2) Group separation: use --spacing-4xl (32px) between distinct content groups, making it impossible to mistake one group's content for another. (3) Content width: constrain to --container-sm (640px) for single-column flows (listing wizard, proposal review) per Refactoring UI's guidance that you don't need to fill the whole screen. (4) Apply the 'avoid ambiguous spacing' principle strictly: intra-group spacing must be visibly smaller than inter-group spacing. Use the ratio from the book: space within groups should be no more than half the space between groups.",
+      "evidence": [
+        {
+          "source": "refactoringui, Start with too much white space",
+          "type": "book",
+          "quote": "One of the easiest ways to clean up a design is to give every element a little more room to breathe. White space should be removed, not added.",
+          "insight": "The default state should be generous spacing. Only remove whitespace when a specific design decision requires density (e.g., data tables). For host dashboard and listing flows, density is never required."
+        },
+        {
+          "source": "refactoringui, Avoid ambiguous spacing",
+          "type": "book",
+          "quote": "Whenever you're relying on spacing to connect a group of elements, always make sure there's more space around the group than there is within it.",
+          "insight": "Clear spacing hierarchy prevents the visual parsing errors that waste seconds for distracted hosts."
+        },
+        {
+          "source": "dana-call.txt, 06:46",
+          "type": "host_call",
+          "quote": "All my folders and blown up nonstop.",
+          "insight": "Dana's visual environment is already noisy (phone notifications, multiple apps). The platform must be a visual oasis — calm, spacious, easy to parse."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--bg-white (#ffffff) for card backgrounds", "--bg-light (#f9fafb) for page backgrounds to create subtle depth separation"],
+        "typography": [],
+        "spacing": ["--spacing-2xl (24px) for card internal padding", "--spacing-4xl (32px) for inter-group spacing", "--spacing-lg (16px) for intra-group spacing", "--container-sm (640px) for single-column content width"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "Background contrast: --bg-white on --bg-light creates a 1.03:1 ratio — purely decorative, not functional. The contrast serves to visually separate cards from page background, not to convey information.",
+      "visual_hierarchy_rule": "White space IS hierarchy. More space between groups = stronger visual separation. Less space within groups = stronger visual connection. This creates a 'breathing' rhythm that allows the eye to parse information in natural chunks without conscious effort.",
+      "brand_alignment": "Aligns with taste model's 'warm, not cold' and 'premium-accessible' personality. Generous white space communicates quality and confidence — the design has nothing to hide and doesn't need to fill space with marketing noise."
+    },
+    {
+      "id": "looks-004",
+      "type": "visual_pattern",
+      "title": "Shadow-Based Elevation for Actionable vs. Informational Content",
+      "journey_phases": ["active_lease", "proposal_mgmt"],
+      "problem": "When a host like Dana glances at her dashboard, she needs to instantly distinguish between content that requires action (a proposal to review, a date change to approve) and content that's informational (past stay summary, listing stats). Currently, cards and sections likely use the same visual treatment regardless of their actionability. Refactoring UI's 'use shadows to convey elevation' principle provides the solution: elevated elements feel closer and more urgent, while flat elements recede into the background.",
+      "solution": "Apply a two-level elevation system to distinguish actionable from informational content. Level 1 (Actionable — proposals awaiting response, date changes pending, unread messages): Use --shadow-md ('0 2px 8px rgba(0, 0, 0, 0.08)') to lift these cards off the page. Additionally, add a 3px left border using --secondary-purple to signal interactivity. Level 2 (Informational — past stays, listing stats, completed actions): Use --shadow-sm ('0 1px 3px rgba(0, 0, 0, 0.05)') or no shadow at all. These sit flat on the page background. Per Refactoring UI's 'even flat designs can have depth' principle, the informational cards can use a subtle border (--border-color) instead of shadow to maintain structure without elevation. On hover/press, actionable cards transition to --shadow-lg with a smooth 0.2s ease, confirming interactivity.",
+      "evidence": [
+        {
+          "source": "refactoringui, Use shadows to convey elevation",
+          "type": "book",
+          "quote": "Shadows are a great way to add some visual cue that an element is raised. Small shadows with a tight blur radius make an element feel only slightly raised, while larger shadows with a higher blur radius make an element feel much closer to the user.",
+          "insight": "Elevation = urgency/actionability. Actionable items should feel closer to the user (higher shadow) while informational items recede (lower or no shadow)."
+        },
+        {
+          "source": "refactoringui, Add color with accent borders (Finishing Touches)",
+          "type": "book",
+          "quote": "If you need to add a pop of color to an element, consider adding a colorful accent border.",
+          "insight": "A colored left border on actionable cards adds visual distinction without changing the card's overall design. Uses the brand purple to connect actionability with brand identity."
+        },
+        {
+          "source": "dana-call.txt, 05:56",
+          "type": "host_call",
+          "quote": "I have to go to work tonight. I won't be back towards Sunday.",
+          "insight": "When Dana checks on Saturday, she must instantly see which cards need action vs. which are status updates. Shadow + accent border provides this distinction without requiring text labels."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--secondary-purple for accent border on actionable cards", "--border-color (#e5e7eb) for informational card borders"],
+        "typography": [],
+        "spacing": ["3px left border width for accent borders"],
+        "new_tokens_needed": ["--border-width-accent: 3px (or use existing --border-width-thick: 2px)"]
+      },
+      "contrast_requirements": "The shadow differential between actionable and informational cards must be perceptible at a glance. Testing needed to confirm that --shadow-md vs --shadow-sm is distinguishable on mobile screens where shadows render with less precision.",
+      "visual_hierarchy_rule": "Elevated (actionable) cards sit above informational cards in both visual and z-axis hierarchy. The accent border breaks the symmetry of the card layout, drawing the eye to actionable items first. This creates a 'what needs attention' scanning pattern that doesn't rely on color coding or text labels.",
+      "brand_alignment": "Uses the production style guide's shadow system and brand purple for accent borders. Aligns with taste model's 'confident, not flashy' — the elevation difference is subtle but functional, not dramatic."
+    },
+    {
+      "id": "looks-005",
+      "type": "visual_pattern",
+      "title": "Compatibility Badge Visual System for Guest Matching",
+      "journey_phases": ["proposal_mgmt", "evaluation"],
+      "problem": "Dana needs to see at a glance whether a guest matches her preferences (part-week, secondary address, professional traveler). There is no visual language for expressing guest-host compatibility. Text descriptions ('This guest matches your preferences') are slow to process and don't allow comparison across multiple proposals. Refactoring UI's principles of visual hierarchy through color and the 'don't rely on color alone' accessibility guideline both apply: the compatibility signal needs to be instantly recognizable while remaining accessible.",
+      "solution": "Create a compact badge system that communicates guest-host match quality. Each badge represents one preference criterion: (1) Occupancy Pattern Match: shows a day-badge miniature with a check icon. (2) Secondary Address: badge showing the guest's primary city (e.g., 'Lives in Boston') with a subtle icon. (3) Professional Category: badge showing work type with an appropriate icon (briefcase for hybrid worker, etc.). Badges use the purple palette for matches and neutral grey for uncategorized. Per Refactoring UI's 'don't rely on color alone' principle, each badge also includes text and/or an icon, not just color. Per the 'accessible doesn't have to mean ugly' principle, the badge design should be clean and integrated, not clinical. Position badges immediately below the day-badge row in guest cards, forming a scannable visual cluster.",
+      "evidence": [
+        {
+          "source": "dana-call.txt, 04:07-04:46",
+          "type": "host_call",
+          "quote": "I have never, ever, ever had a problem with the travelers... all of the guests that we work with, this is their secondary address. They have another place.",
+          "insight": "Three distinct preference criteria emerge from Dana's call: (1) occupancy pattern, (2) address status, (3) professional category. Each needs its own visual badge."
+        },
+        {
+          "source": "refactoringui, Don't rely on color alone",
+          "type": "book",
+          "quote": "Always use color to support something that your design already communicates in some other way. Use changes in contrast for colorblind users.",
+          "insight": "Compatibility badges must use text + icon + color, not color alone. A green badge means nothing to a colorblind user; a badge that says 'Secondary Address' with a check icon communicates regardless of color perception."
+        },
+        {
+          "source": "refactoringui, Accessible doesn't have to mean ugly",
+          "type": "book",
+          "quote": "The best way to improve accessibility is to use color to support something that is already communicated in other ways.",
+          "insight": "Badges should be visually elegant while being accessible — using the brand purple palette, clean typography, and subtle icons rather than traffic-light color coding."
+        }
+      ],
+      "priority": "medium",
+      "tokens": {
+        "colors": ["--bg-off-white (rgb(252, 250, 255)) for badge background", "--text-purple (rgb(82, 31, 147)) for badge text", "--text-gray (#6b7280) for neutral badge text", "--bg-light-gray (#f3f4f6) for neutral badge background"],
+        "typography": ["--text-xs (11px) for badge text", "--font-weight-medium (500) for badge text"],
+        "spacing": ["--spacing-xs (4px) horizontal padding inside badge", "--spacing-sm (8px) between badges"],
+        "new_tokens_needed": []
+      },
+      "contrast_requirements": "--text-purple on --bg-off-white: approximately 7.5:1 (WCAG AAA). --text-gray on --bg-light-gray: approximately 3.7:1 (borderline AA for small text — acceptable given badges also use icons and are supplementary to the day-badge pattern above).",
+      "visual_hierarchy_rule": "Badges are secondary visual elements that support the primary day-badge row. They should be smaller and lighter than the day badges but still scannable. The cluster (day badges + compatibility badges) forms a single visual group that communicates the full guest-match picture.",
+      "brand_alignment": "Uses the purple-tinted palette (--bg-off-white, --text-purple) to maintain brand consistency. The pill-shaped badge design (--rounded-pill: 20px) aligns with the taste model's 'rounded corners' and 'premium-accessible' personality."
+    }
+  ]
+}

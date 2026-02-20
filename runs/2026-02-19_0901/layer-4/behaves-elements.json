@@ -1,0 +1,338 @@
+{
+  "lens": {
+    "guest_call": "Walaa customer call.txt",
+    "book_extract": "100things-attention-memory-decisions.txt"
+  },
+  "elements": [
+    {
+      "id": "behaves-001",
+      "type": "interaction_pattern",
+      "title": "Agent-Context Warm Handoff on Listing Landing",
+      "journey_phases": ["discovery", "search", "listing_evaluation"],
+      "problem": "Walaa's entire trust relationship is with Bryant, not Split Lease. When she taps a listing link Bryant texted her, she lands on a generic platform page with no visual connection to the person she trusts. Weinschenk Ch. 79 (people use look and feel as their first indicator of trust) means this first platform encounter is a binary trust evaluation. Ch. 84 (people want what is familiar when scared) predicts that the absence of Bryant's context triggers retreat -- closing the browser and texting Bryant 'I don't understand this.' The transition from text message to platform page is a state change the user did not initiate and does not expect. The listing page must immediately resolve the question 'Is this still from Bryant?' through its interaction behavior, not just its visual design. If the page loads without acknowledging the referral source, every subsequent interaction inherits a trust deficit.",
+      "solution": "When a listing URL contains an agent referral parameter, the page loads with a two-phase warm handoff interaction. Phase 1 (0-300ms): The agent context bar slides down from behind the navigation into its fixed position. It contains the agent's avatar, name, and a single line ('Bryant picked this for you'). This animation draws the eye to Bryant's familiar name before the listing content finishes loading, establishing trust continuity before evaluation begins. Phase 2 (300-600ms): The criteria-match summary (L2 communicates-001) fades in below the context bar, with each of the four match indicators (budget, location, roommate, schedule) appearing in staggered 75ms intervals. This progressive reveal directs attention to one criterion at a time, preventing the cognitive overload (Weinschenk Ch. 40, selective attention) that a simultaneous data dump would cause. The context bar remains fixed during scroll. After the guest's third platform visit, the context bar collapses to an avatar badge with a 200ms ease-out shrink, reflecting the graduated mental model transition (L1 works-004). Tapping the collapsed badge expands it back to full. Throughout the listing page, the 'Tell Bryant I'm interested' button (not 'Create Proposal') remains anchored at the bottom as a persistent action, framing all interaction as communication with Bryant rather than platform operation.",
+      "evidence": [
+        {
+          "source": "Walaa customer call.txt, 4:46-4:59",
+          "type": "guest_call",
+          "quote": "I can share some listings with you just over text, if that works and you can let me know if any of them interests you.",
+          "insight": "Bryant established text-message as the information channel. The listing page is the first break in that channel. The warm handoff interaction must bridge this gap by making the platform feel like an extension of Bryant's text, not a separate system."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 79",
+          "type": "book",
+          "quote": "People use look and feel as their first indicator of trust.",
+          "insight": "The first 300ms of page load determine whether Walaa stays or retreats. The agent context bar must be the first meaningful element she perceives, establishing trust before she evaluates any listing content."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 84",
+          "type": "book",
+          "quote": "People want what is familiar when they're sad or scared.",
+          "insight": "Encountering an unfamiliar platform is a mild threat state. Bryant's avatar and name are familiar anchors. Their animated entry at page load activates the familiarity response before the threat response can trigger retreat."
+        },
+        {
+          "source": "Walaa customer call.txt, 0:03-0:16",
+          "type": "guest_call",
+          "quote": "Hello is this, um, is it <inaudible> Hi, this is it. And I'm talking to you or am I talking to, uh, her, her friend.",
+          "insight": "Walaa is confused about who she is talking to even in a phone call. On a platform page, this confusion is amplified. The warm handoff must immediately and unambiguously answer 'Who is behind this page?'"
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Agent context bar is fully visible with avatar, name, and personalized message. Criteria-match summary shows four indicators. 'Tell Bryant I'm interested' button is anchored at bottom. All text uses icon-plus-text pairs for language accessibility.",
+        "loading": "The context bar skeleton loads first (agent avatar placeholder + shimmer line for name) within 100ms, before any listing content. This signals 'Bryant's page is loading' rather than 'a generic page is loading.' Criteria-match indicators show placeholder dots that fill with color as data resolves.",
+        "empty": "If the agent referral parameter is missing or invalid, the context bar does not appear. The listing page falls back to standard platform presentation. No broken or empty agent bar should ever be visible -- the handoff either succeeds completely or is absent.",
+        "error": "If the listing is no longer available (booked, removed), the context bar still appears with Bryant's name, but the listing content is replaced with: 'This listing is no longer available. Bryant can find you another.' with a single 'Message Bryant' button. The error state maintains the agent relationship rather than dropping to a generic 404.",
+        "success": "After tapping 'Tell Bryant I'm interested,' an optimistic success state appears immediately: the button transforms into a confirmation ('Sent to Bryant') with a brief checkmark animation. Behind the scenes, this triggers the proposal scaffolding flow. If the backend confirmation fails within 3 seconds, the button reverts with a gentle retry prompt: 'Couldn't reach Bryant. Try again?'"
+      },
+      "transition_principle": "All transitions use the platform easing curve (cubic-bezier(0.16, 1, 0.3, 1)) from tokens.json. The warm handoff is a choreographed sequence, not a simultaneous reveal. Context bar enters first (trust), then match criteria (relevance), then listing content (detail). This sequence mirrors the cognitive priority: who sent this > does it match > what is it.",
+      "timing": {
+        "response_target": "Context bar visible within 100ms of page load. Full handoff sequence complete by 600ms. Button tap response within 50ms (optimistic).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Weinschenk Ch. 79 establishes that trust evaluation happens on first impression. The 100ms context bar target ensures Bryant's presence registers before Walaa's threat-detection system can trigger. The 600ms total handoff stays within the 1-second perceived-instant threshold."
+      },
+      "journey_state_awareness": "First visit: full context bar with personalized agent message. Visits 2-3: context bar persists but message may update ('Bryant is still helping you'). Visit 4+: context bar collapses to avatar badge, reflecting the guest's growing platform familiarity. During active_lease, the agent context is replaced by the Stays Manager's own identity -- the handoff is complete.",
+      "edge_cases": [
+        "Guest opens the listing link days after Bryant texted it -- the context bar should still appear with a time-appropriate message ('Bryant shared this with you')",
+        "Guest shares the listing link with a friend -- the friend's view should NOT show Bryant's context bar, since the referral parameter is agent-specific",
+        "Bryant is no longer available (left company, off shift) -- the context bar should show the agent team, not a specific unavailable individual",
+        "Guest has multiple agent contacts from different listing shares -- the context bar shows the agent who shared THIS specific listing"
+      ]
+    },
+    {
+      "id": "behaves-002",
+      "type": "interaction_pattern",
+      "title": "Flexible-Duration Proposal with Uncertainty-Safe Defaults",
+      "journey_phases": ["proposal_creation", "negotiation", "acceptance"],
+      "problem": "Walaa explicitly cannot commit to a lease duration: 'I don't know because no, I I'm not fixing yet in this worker, so I don't know how to be' (5:11-5:22). The proposal creation form likely requires duration as a mandatory field. Weinschenk Ch. 30 (the more uncertain people are, the more they defend their ideas) predicts that forcing a duration choice triggers defensive refusal, not commitment. Ch. 93 (people think choice equals control) means the form must offer flexibility as the default, not as a hidden alternative. Ch. 86 (people make errors when under stress) means Walaa's housing urgency combined with work instability creates stress that degrades form completion accuracy. The interaction pattern must handle the state where the guest genuinely does not know a required field's value -- not through validation errors, but through uncertainty-safe defaults that let the guest proceed without lying or guessing.",
+      "solution": "Redesign the proposal creation interaction to treat uncertainty as a valid input state. (1) Duration selection presents 4 options in a single horizontal row: 'Flexible' (pre-selected, highlighted), '1 month,' '2 months,' '3 months.' The Flexible option is visually distinct -- it uses the primary action color and a subtle pulse animation on first view to draw attention. Selecting Flexible immediately shows a reassurance tooltip: 'Stay as long as you need. Renews monthly. 2 weeks notice to end.' This appears for 3 seconds then fades, not requiring dismissal. (2) When the guest taps any duration option, the price summary below updates in real-time (under 200ms) showing the monthly cost for their schedule. The live update provides immediate feedback that the selection has been registered (Weinschenk Ch. 7, affordance cues). (3) If the host counters with a fixed duration during negotiation, the counter-offer screen presents a clear side-by-side comparison: left column shows 'Your request: Flexible,' right column shows 'Host prefers: 3 months,' with the monthly price difference clearly stated. A single 'Accept host's terms' or 'Keep flexible' toggle controls the response, reducing the negotiation to a binary choice. (4) At acceptance, the commitment is framed as reversible: 'Your stay renews monthly. Change or end anytime with 2 weeks notice.' The word 'lease' is avoided in the acceptance UI; 'stay' is used instead. Weinschenk Ch. 82 (people overestimate reactions to future events) means reducing the perceived magnitude of the commitment through language framing.",
+      "evidence": [
+        {
+          "source": "Walaa customer call.txt, 5:11-5:22",
+          "type": "guest_call",
+          "quote": "I don't know. I don't know because no, I I'm not fixing yet in this worker, so I don't know how to be.",
+          "insight": "Duration is genuinely unknowable for Walaa. This is not reluctance -- it is inability. The interaction must accommodate genuine uncertainty without blocking progress."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 93",
+          "type": "book",
+          "quote": "People think choice equals control.",
+          "insight": "The Flexible option gives Walaa perceived control over an uncertain situation. Pre-selecting it communicates that flexibility is the platform's recommendation, not a special accommodation."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 30",
+          "type": "book",
+          "quote": "The more uncertain people are, the more they defend their ideas.",
+          "insight": "Forcing a fixed duration when Walaa is uncertain about her work situation triggers defensive resistance. The form must never make uncertainty feel like an obstacle."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 82",
+          "type": "book",
+          "quote": "People overestimate reactions to future events.",
+          "insight": "Walaa fears commitment more than the actual commitment warrants. Framing the acceptance as 'renews monthly' instead of 'lease agreement' reduces the perceived weight of the decision."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Duration selector shows 4 horizontal options with Flexible pre-selected and highlighted. Price summary shows estimated monthly cost based on the guest's schedule. 'Continue' button is enabled because the default selection is valid.",
+        "loading": "When the guest changes duration selection, the price summary shows a brief shimmer (150ms) while recalculating. The shimmer is localized to the price number only, not the entire summary card, to minimize visual disruption.",
+        "empty": "If the guest somehow deselects all options (edge case), the Continue button disables with a soft message: 'Pick how long you'd like to stay.' No error styling -- just guidance. The Flexible option gently pulses once to suggest re-selection.",
+        "error": "If the backend rejects a Flexible-duration proposal (host requires minimum commitment), the error appears as a contextual inline message below the duration selector: 'This host requires at least 1 month. Would you like to start with 1 month and extend later?' The error reframes the constraint as still-flexible, not as a rejection.",
+        "success": "After proposal submission, an optimistic success screen appears immediately showing 'Your proposal has been sent. Bryant will negotiate the best terms for you.' The success message references the agent to maintain trust continuity. A progress indicator shows 'Waiting for host response' with an estimated timeline ('Hosts typically respond within 24 hours')."
+      },
+      "transition_principle": "Duration selection changes trigger an immediate visual response (option highlight within 50ms) followed by a price recalculation (200ms). The transition between proposal submission and success uses a forward slide animation (300ms, ease-out) to convey forward progress. The negotiation counter-offer screen slides in from the right (300ms) to signal 'new information arriving' without disorienting the user.",
+      "timing": {
+        "response_target": "Duration option highlight: 50ms. Price recalculation: 200ms. Proposal submission optimistic response: 100ms. Negotiation screen transition: 300ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "Immediate (50ms) feedback on duration selection confirms the tap was registered -- critical for a guest who may doubt her interactions with an unfamiliar interface. The 200ms price update keeps the cognitive link between 'I chose this' and 'this is what it costs' within the perceived-causation window."
+      },
+      "journey_state_awareness": "During proposal_creation, the Flexible option is pre-selected and prominently featured. During negotiation, if the host has countered with a fixed duration, the Flexible option still appears but is marked 'Host preference differs -- see their offer.' During acceptance, the commitment framing adapts: Flexible shows 'Renews monthly'; fixed durations show 'Your X-month stay.' During active_lease, the Date Change Tool and renewal options reference the original commitment type.",
+      "edge_cases": [
+        "Guest selects Flexible but the host only accepts 3+ month commitments -- the error must reframe the constraint without making the guest feel rejected",
+        "Guest selects a fixed duration but later realizes they need flexibility -- the active_lease Date Change Tool must support converting from fixed to month-to-month",
+        "Alternating-weekend schedule makes monthly cost variable -- the price summary must show a range or average, not a single precise number",
+        "Guest abandons the proposal form mid-completion -- save the draft state and show it when they return, pre-populated with their last selections"
+      ]
+    },
+    {
+      "id": "behaves-003",
+      "type": "interaction_pattern",
+      "title": "Alternating-Schedule Smart Configuration with Error Prevention",
+      "journey_phases": ["proposal_creation", "active_lease"],
+      "problem": "Walaa's schedule alternates biweekly: Mon-Thu every week, plus Fri-Sat-Sun every other week. This creates two week types (4-night and 7-night) that a standard day-of-week picker cannot represent. Weinschenk Ch. 88 (people make predictable types of errors) predicts with near certainty that Walaa will misconfigure this pattern using a simple toggle interface -- either selecting every weekend (wrong) or no weekends (also wrong). Ch. 85 (people will always make mistakes) means the interface cannot rely on the guest getting it right the first time; it must prevent the error structurally. Ch. 86 (people make errors when under stress) compounds this: Walaa is stressed about housing and work, making error-prone configuration even more likely. The interaction must capture the alternating pattern through a guided flow that makes the correct configuration easier to achieve than the incorrect one.",
+      "solution": "Replace the standard day-of-week picker with a two-step guided configuration flow. Step 1: 'Which days do you need each week?' presents a simplified weekday block (Mon-Thu pre-highlighted as a group, not individual toggles) and a weekend block (Fri-Sat-Sun). The guest taps the weekday block (single tap selects all 4 nights). Step 2: If the guest also taps the weekend block, a follow-up appears with smooth slide-down animation (250ms): 'Every weekend or every other weekend?' This is a binary choice, not a calendar. If 'Every other weekend' is selected, a third micro-step asks 'Starting this weekend or next weekend?' with a visual two-week preview showing which weekends are included. After configuration, the system generates a 4-week preview strip using the L3 looks-004 color-coded week cards (light/dark alternating pattern), which Walaa can visually verify: 'Does this look right? Short week - Full week - Short week - Full week.' A single 'Looks good' tap confirms. If the pattern is wrong, she taps any week card to adjust. This preview-before-commit interaction prevents misconfiguration by making the result visible before it becomes binding. In the Stays Manager during active_lease, the alternating pattern is pre-computed for the entire lease and displayed as a fixed visual rhythm. Each week's card shows the correct dates without requiring Walaa to remember which type of week it is.",
+      "evidence": [
+        {
+          "source": "Walaa customer call.txt, 2:43-3:17",
+          "type": "guest_call",
+          "quote": "Monday to Friday, each week and then every other weekend... I traveled to another state every other weekend. I covered, uh, Friday morning and they come in Monday.",
+          "insight": "The alternating pattern is explicit in Walaa's description but would be extremely difficult to configure via a standard calendar interface. The two-step flow captures this pattern through guided questions, not free-form selection."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 88",
+          "type": "book",
+          "quote": "People make predictable types of errors.",
+          "insight": "The predicted error: Walaa will select 'every weekend' or 'no weekends' because a simple toggle cannot represent 'every other.' The two-step flow eliminates this error class by explicitly asking about alternation."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 3",
+          "type": "book",
+          "quote": "People identify objects by recognizing patterns.",
+          "insight": "The 4-week preview strip uses the visual alternating pattern (light-dark-light-dark) from L3 looks-004 to let Walaa verify her configuration through pattern recognition rather than reading dates."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 85",
+          "type": "book",
+          "quote": "People will always make mistakes; there is no fail-safe product.",
+          "insight": "The preview-before-commit step acknowledges that errors will happen and provides a visual check before the configuration becomes binding. This is cheaper than fixing errors after proposal submission."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Step 1 visible: weekday and weekend blocks as two tappable cards. Weekday block shows Mon-Thu with a moon icon (nights). Weekend block shows Fri-Sat-Sun. Both use the L3 purple palette. No individual day toggles visible at this stage.",
+        "loading": "After the guest confirms the pattern, a brief shimmer (200ms) appears on the preview strip while the system computes the full-lease date schedule. The shimmer runs left-to-right across the 4-week strip, mimicking a progress wave.",
+        "empty": "If no days are selected, the preview strip is empty with a gentle prompt: 'Tap the days you need' with an arrow pointing at the weekday block. No error state -- just guidance.",
+        "error": "If the computed schedule results in zero available nights (impossible edge case), show: 'Something doesn't look right with these dates. Let's try again.' and reset to Step 1 with previous selections still highlighted. If the host's listing doesn't have availability for the alternating pattern, show: 'This listing has limited availability on some of your weekends. See which ones.' with affected weeks highlighted in amber.",
+        "success": "After 'Looks good' confirmation, the preview strip locks with a subtle checkmark badge and the date configuration collapses into a compact summary line ('Weekdays + every other weekend, starting Feb 24'). The proposal form's next section slides into view, maintaining forward momentum."
+      },
+      "transition_principle": "The two-step flow uses sequential reveal: Step 2 slides down only after Step 1 is answered. This progressive disclosure prevents Walaa from seeing all options at once (Weinschenk Ch. 92, people want more choices than they can process). Each step's transition uses a 250ms slide-down with the platform easing curve. The preview strip appears with a 300ms fade-and-scale that draws attention to the visual pattern.",
+      "timing": {
+        "response_target": "Block tap highlight: 50ms. Step 2 reveal: 250ms. Preview strip generation: 300ms. Pattern confirmation: 50ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 250ms step reveal is fast enough to feel responsive but slow enough to be perceived as a deliberate sequence, signaling 'we're asking you one thing at a time.' The 300ms preview generation creates a micro-pause that directs attention to the visual pattern before the guest acts on it."
+      },
+      "journey_state_awareness": "At proposal_creation, the full two-step flow runs. At active_lease, the configured pattern is pre-loaded into the Stays Manager -- no re-configuration needed. If the guest uses the Date Change Tool to modify a specific week (adding or removing a weekend), the system asks: 'Just this week, or change the pattern going forward?' to distinguish one-off changes from permanent schedule modifications.",
+      "edge_cases": [
+        "Guest's alternating pattern shifts mid-lease (she starts traveling every weekend instead of every other) -- the Date Change Tool must support pattern modification, not just individual date changes",
+        "Guest cannot remember which weekend she started on -- the preview strip must show real calendar dates alongside the pattern visualization",
+        "Host has blackout dates that fall on one of the guest's alternating weekends -- the conflict must be surfaced during configuration, not after proposal submission",
+        "Guest works irregular shifts and her 'weekday' pattern is actually Tue-Fri, not Mon-Thu -- the weekday block must be adjustable, not hard-coded to Mon-Thu"
+      ]
+    },
+    {
+      "id": "behaves-004",
+      "type": "interaction_pattern",
+      "title": "Stays Manager Progressive Habit Loop with Single-Action Focus",
+      "journey_phases": ["active_lease"],
+      "problem": "The Stays Manager is visited 13+ times during the lease. Weinschenk Ch. 60 (forming a habit takes a long time and requires small steps) means the interaction must start minimal and stay minimal. Ch. 42 (well-practiced skills don't require conscious attention) defines the target: automatic interaction by week 5. Ch. 92 (people want more choices than they can process) warns against presenting multiple actions simultaneously. Walaa's language barrier means she navigates by position and pattern, not by reading. If the Stays Manager shows multiple buttons, tabs, or action options on each visit, the cognitive cost per visit stays high and habit formation never begins. The interaction must present exactly one action per visit, and that action must be completable in a single tap. The L1 works-002 element defines the graduated complexity schedule: weeks 1-2 are single-tap, weeks 3-4 add one micro-task, weeks 5+ present the full routine. The interaction layer must implement this graduation through state-aware behavior.",
+      "solution": "The Stays Manager loads with a single Zone 1 action card that adapts based on the guest's current state within the weekly cycle. (1) Pre-arrival state (before the guest's first scheduled night this week): Zone 1 shows a single 'Confirm Arrival' button. One tap confirms. The button uses the primary gradient-purple style at full card width for maximum tap target and minimum decision cost. (2) During stay: Zone 1 shows a neutral 'Enjoying your stay' status with no action required. The card's background shifts to a calm, settled color to signal 'nothing to do right now.' (3) Post-checkout state (after the guest's scheduled departure): Zone 1 transitions to the micro-review prompt. In weeks 1-2, the review prompt does NOT appear -- the weekly interaction is arrival confirmation only, establishing the visit habit without adding tasks. In weeks 3-4, the review prompt appears as a single row of 5 emoji faces (L3 looks-006). One tap submits a valid review. In weeks 5+, the review prompt appears immediately at checkout detection, and the optional text field becomes visible. (4) Completed state: After the weekly action is done, Zone 1 shows a brief 'All set for this week' message with a purple checkmark. This state persists until the next weekly cycle begins. The key behavioral principle: Zone 1 never shows more than one button. The guest never decides between actions -- she responds to the one action presented. Weinschenk Ch. 57 (people are inherently lazy) means the lowest-effort interaction is the one that will form into a habit.",
+      "evidence": [
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 60",
+          "type": "book",
+          "quote": "Forming a habit takes a long time and requires small steps.",
+          "insight": "Weeks 1-2 are the habit initiation period. Adding micro-reviews too early overloads the new routine and prevents the visit-tap-close pattern from becoming automatic."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 42",
+          "type": "book",
+          "quote": "Well-practiced skills don't require conscious attention.",
+          "insight": "By week 5, the weekly Stays Manager visit should be: open, glance at Zone 1, tap the one button, close. Under 30 seconds with no conscious decision-making. This automaticity requires the interaction to be identical in structure every week."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 57",
+          "type": "book",
+          "quote": "People are inherently lazy.",
+          "insight": "A single button is lazier than two buttons. The Stays Manager must never present a choice between actions. It presents the one action that is relevant right now. Laziness becomes reliability when the lazy path is the correct path."
+        },
+        {
+          "source": "Walaa customer call.txt, 5:11-5:22",
+          "type": "guest_call",
+          "quote": "I don't know. I don't know because no, I I'm not fixing yet in this worker, so I don't know how to be.",
+          "insight": "Walaa's life is unpredictable. The Stays Manager must be a point of predictable simplicity. Every week, one thing to do, always in the same place. This consistency is therapeutic for a guest in an unstable life situation."
+        }
+      ],
+      "priority": "high",
+      "states": {
+        "default": "Zone 1 displays a single action card appropriate to the guest's current weekly state (pre-arrival, during-stay, post-checkout, or completed). Zone 2 shows the progress bar. Zone 3 shows the scrollable history. Only Zone 1 has interactive elements; Zones 2 and 3 are informational.",
+        "loading": "When the Stays Manager opens, Zone 1 shows a skeleton card (same dimensions as the action card) with a shimmer animation. The skeleton resolves within 500ms. Zone 2 progress bar loads from a local cache so it appears instantly. Zone 3 history items load progressively from most recent, with a skeleton list that populates from top to bottom.",
+        "empty": "If the guest opens the Stays Manager before their first scheduled stay has begun, Zone 1 shows a welcome card: 'Your first stay starts [date]. We'll be here when you arrive.' No action button -- just anticipation. Zone 3 is empty with a friendly message: 'Your stay history will appear here.' No sad empty-state illustration -- just clean, reassuring text.",
+        "error": "If arrival confirmation fails (network issue), the button shows a brief shake animation (200ms) and updates text to 'Tap to try again.' No error modal, no technical message. The button remains the single interaction point. If the micro-review submission fails, the emoji face selection is preserved and a subtle 'Saving...' indicator appears. The system retries automatically up to 3 times before showing 'Saved offline -- will sync when connected.'",
+        "success": "After tapping the weekly action, Zone 1 transitions to the completed state with a checkmark animation (300ms, ease-out). The progress bar in Zone 2 advances by one segment with a fill animation (400ms). Occasionally (variable reward per Weinschenk Ch. 51), a small host message or reciprocal rating appears below the checkmark: 'Your host rated last week 5 stars.' This variable reward sustains engagement through unpredictability."
+      },
+      "transition_principle": "Zone 1 state transitions use a crossfade (250ms): the current state fades out while the new state fades in at the same position. This maintains spatial consistency -- the action card never moves, only its content changes. The progress bar fill animation (400ms) starts after the Zone 1 transition completes, creating a sequential celebration: action confirmed, then progress acknowledged. No bounce animations, no confetti -- restraint communicates respect for the guest's time.",
+      "timing": {
+        "response_target": "Button tap response: 50ms (optimistic color change). Confirmation animation: 300ms. Progress bar advance: 400ms. Full cycle (tap to completed state): under 800ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 50ms tap response prevents the guest from wondering if her tap registered -- critical for a guest who may distrust unfamiliar interfaces. The 300ms confirmation animation is fast enough to not impede the 30-second weekly visit target but slow enough to be perceived as acknowledgment."
+      },
+      "journey_state_awareness": "Weeks 1-2: Only arrival confirmation appears. No micro-reviews, no photos, no additional prompts. The habit is 'open, tap, close.' Weeks 3-4: After arrival confirmation and checkout, the micro-review emoji prompt appears as a new Zone 1 state. The review is optional but visible. Weeks 5+: The full cycle (arrival → during-stay → review → completed) runs with the optional text field added to the review. The graduated introduction prevents early-stage overwhelm while building toward the full engagement pattern.",
+      "edge_cases": [
+        "Guest opens the Stays Manager multiple times in the same day -- the completed state persists, no repeated prompts",
+        "Guest misses a week's arrival confirmation (doesn't open the app) -- the system does not guilt or nag. The next week's card simply appears when she returns. Missed weeks show as neutral in Zone 3 history.",
+        "Guest is on an alternating-weekend schedule and this is a short week (Mon-Thu only) -- the checkout detection triggers at Thursday's departure time, not Friday",
+        "Push notification for the micro-review arrives during an inconvenient time -- the guest can dismiss it and complete the review when she next opens the Stays Manager. No expiration on the review prompt until the next weekly cycle begins."
+      ]
+    },
+    {
+      "id": "behaves-005",
+      "type": "interaction_pattern",
+      "title": "Post-Checkout Micro-Review with Immediate Memory Capture",
+      "journey_phases": ["active_lease"],
+      "problem": "With 13+ weekly stays, the platform has 13+ opportunities to capture review data. But Weinschenk Ch. 24 (people reconstruct memories each time they remember them) means reviews prompted days after checkout are reconstructed narratives, not accurate accounts. Ch. 26 (the most vivid memories are wrong) compounds this: the review Walaa feels most confident about is the one most distorted by emotional intensity. The platform must capture feedback within hours of checkout, when the memory trace is freshest. Weinschenk Ch. 57 (people are inherently lazy) means the review must require the absolute minimum effort -- one tap. Ch. 60 (habit formation requires small steps) means the review interaction must start as nothing (weeks 1-2), become a single tap (weeks 3-4), and remain a single tap plus optional text (weeks 5+). For Walaa specifically, her language barrier makes text reviews impossible and emoji-based reviews essential. The interaction must be universally comprehensible regardless of English proficiency.",
+      "solution": "The micro-review is triggered 2-4 hours after the guest's predicted checkout time (derived from their schedule pattern -- Thursday evening for short weeks, Sunday evening for full weeks). Trigger mechanism: a push notification with preview text 'How was this week?' opens a bottom sheet overlay (L3 looks-006). The bottom sheet contains: (1) A header: 'How was this week?' in 18px text. (2) Five emoji faces in a horizontal row, each 48px touch target with 16px gaps. The faces are on-brand purple outlines (not yellow system emojis). (3) Tapping any face immediately submits the review. The face scales to 1.2x with a purple glow (300ms), then the bottom sheet slides down (250ms). Total interaction: one tap, under 5 seconds. No confirmation screen, no additional steps. (4) Below the emoji row, a single-line text input with 'Anything to mention? (optional)' placeholder. This field is never required and is visually subordinate. In weeks 1-2, it is hidden entirely. In weeks 3-4, only the emoji row appears. In weeks 5+, the text field appears below the emojis. (5) Variable reward: after 40% of review submissions, a reciprocal reveal slides up: 'Your host rated this week [emoji].' This creates the variable reward loop (Weinschenk Ch. 51) that sustains the micro-review habit. The reveal is brief (2 seconds visible, then auto-dismisses) and creates curiosity for next week's review. (6) At lease end, the system auto-generates a summary from accumulated micro-reviews: '13 weeks: 10 great, 2 good, 1 mentioned an issue.' The guest confirms or edits the summary with a single tap -- recognition-based review (Ch. 22), not recall-based writing.",
+      "evidence": [
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 24",
+          "type": "book",
+          "quote": "People reconstruct memories each time they remember them.",
+          "insight": "A review submitted 3 days after checkout is a reconstruction, not a record. The 2-4 hour trigger window captures the freshest possible memory trace. Delaying even to the next morning loses meaningful accuracy."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 57",
+          "type": "book",
+          "quote": "People are inherently lazy.",
+          "insight": "One tap on an emoji face is the minimum viable review. If the review requires two taps, some percentage of guests will abandon after the first. If it requires text, the percentage rises dramatically for language-constrained guests like Walaa."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 51",
+          "type": "book",
+          "quote": "Variable rewards are powerful.",
+          "insight": "The 40% reciprocal reveal rate creates an intermittent reinforcement schedule. Walaa never knows if she'll see her host's rating this week, making the post-review moment compelling rather than routine."
+        },
+        {
+          "source": "Walaa customer call.txt, 3:06-3:17",
+          "type": "guest_call",
+          "quote": "I traveled to another state every other weekend. I covered, uh, Friday morning and they come in Monday.",
+          "insight": "Walaa's departure pattern is predictable. The system can compute checkout times (Thursday evening or Sunday evening) without asking, enabling automatic review triggers at the right moment."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Bottom sheet is hidden. Push notification is queued for 2-4 hours post-predicted-checkout. The Stays Manager's Zone 1 shows 'Rate this week' card if the guest opens the app instead of using the notification.",
+        "loading": "After tapping an emoji face, a micro-loading state (100ms) shows the face being 'registered' via the 1.2x scale animation. The submission happens optimistically -- the animation IS the loading state. Backend confirmation follows asynchronously.",
+        "empty": "In weeks 1-2, the micro-review does not appear at all. The notification is not sent. The Stays Manager Zone 1 transitions directly from checkout to 'All set for this week.' This absence is intentional: the empty state for reviews in early weeks is a design choice for habit staging, not a bug.",
+        "error": "If the review submission fails, the emoji face stays scaled and a subtle 'Saving...' label appears beneath it. The system retries up to 3 times over 30 seconds. If all retries fail: 'Saved on your phone. Will sync later.' The bottom sheet does not re-open or show an error modal. The guest's one tap is honored regardless of network state.",
+        "success": "Emoji face scales to 1.2x with purple glow. A brief checkmark appears (200ms), then the bottom sheet slides down (250ms). If this is a variable-reward week, the reciprocal reveal slides up 500ms after the sheet dismisses: 'Your host rated this week [emoji face]' displayed for 2 seconds before auto-dismissing. The review emoji appears in the Stays Manager Zone 3 history for this week."
+      },
+      "transition_principle": "The bottom sheet uses a slide-up entrance (300ms) and slide-down exit (250ms) with the platform easing curve. The exit is slightly faster than the entrance to convey 'done, moving on.' The emoji scale animation (300ms) overlaps with the sheet exit start, creating a fluid 'select-and-dismiss' motion. No intermediate screens between tap and completion. The reciprocal reveal, when it appears, uses a separate slide-up animation to signal 'bonus information, not a required action.'",
+      "timing": {
+        "response_target": "Bottom sheet appearance: 300ms from notification tap. Emoji tap to visual confirmation: 100ms. Sheet dismissal: 250ms. Reciprocal reveal (when triggered): appears 500ms after sheet dismissal, visible for 2000ms.",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 300ms sheet appearance is fast enough to not feel sluggish but slow enough to be perceived as an intentional overlay, not a jarring interruption. The 100ms emoji response is near-instantaneous, critical for the one-tap interaction to feel like the review was captured the moment the finger lifted."
+      },
+      "journey_state_awareness": "Weeks 1-2: No review prompt. Weeks 3-4: Emoji-only review (no text field). Weeks 5+: Full review (emojis + optional text). Week 13 (final): The micro-review prompt includes an additional line: 'Last week! Your summary review will be ready soon.' End-of-lease: Summary review screen shows accumulated emoji data as a visual timeline, with a single 'Confirm' tap to publish.",
+      "edge_cases": [
+        "Guest checks out early (leaves Tuesday instead of Thursday) -- the system should detect non-arrival and adjust the review trigger time accordingly, not send it after the originally predicted Thursday checkout",
+        "Guest receives the notification but is busy -- the review prompt remains available in the Stays Manager Zone 1 until the next weekly cycle begins, then expires silently",
+        "Guest submits a negative review (frowning face) -- the system queues a follow-up question 24 hours later: 'Would you like to tell us more about what happened?' This delayed follow-up captures detailed feedback without disrupting the one-tap primary interaction",
+        "Guest skips reviews for 3+ consecutive weeks -- the system does not increase notification frequency or add guilt messaging. It quietly continues offering the prompt at the normal cadence."
+      ]
+    },
+    {
+      "id": "behaves-006",
+      "type": "interaction_pattern",
+      "title": "Date Change Tool as Autonomy-Preserving Self-Service",
+      "journey_phases": ["active_lease"],
+      "problem": "Walaa's work situation is unstable ('I'm not fixing yet in this worker' at 5:11). She may need to change her dates frequently -- adding a weekend, removing a weeknight, swapping weeks. Weinschenk Ch. 62 (people are motivated by autonomy) means date changes must feel like exercising control, not requesting permission. Ch. 94 (people may care about time more than money) suggests that schedule flexibility may be more important to Walaa than price flexibility. Ch. 55 (people are motivated by progress, mastery, and control) means the Date Change Tool should reinforce Walaa's sense of agency over her living situation. If the Date Change Tool requires filling out a form, waiting for host approval, and receiving a confirmation, the interaction pattern feels like a bureaucratic request. If it provides immediate visual feedback with asynchronous host notification, it feels like personal control. The distinction is critical for a guest whose life circumstances already make her feel out of control.",
+      "solution": "Design the Date Change Tool as an optimistic, immediate-feedback interaction. (1) Access: A persistent 'Change dates' link appears on every active_lease Stays Manager screen (Zone 1 card includes a subtle calendar-edit icon). Tapping opens a bottom sheet showing the current week's scheduled dates with an editable calendar strip. (2) Modification: The guest taps dates to add or remove them. Each tap produces immediate visual feedback: added dates glow purple, removed dates fade to gray. A running cost adjustment appears in real-time: '+$40 for 1 extra night' or '-$40 for 1 fewer night.' The monthly summary updates live. (3) Pattern vs. one-off: After modifying dates, the tool asks: 'Just this week?' or 'Every week going forward?' If the guest selects 'Every week going forward' and the change affects the alternating pattern, the 4-week preview strip (from behaves-003) appears showing the new pattern for visual verification. (4) Confirmation: A single 'Save changes' button sends the modification. Optimistic UI: the Stays Manager immediately reflects the new dates. The host is notified asynchronously. If the host declines the change within 24 hours (rare for minor adjustments), the guest receives a notification: 'Your host suggested keeping the original dates. Chat with them?' with a direct message link. (5) Framing: The Date Change Tool header says 'Adjust your schedule' not 'Request a date change.' The language communicates ownership, not dependency. Weinschenk Ch. 93 (choice equals control): the guest feels in control of her own schedule.",
+      "evidence": [
+        {
+          "source": "Walaa customer call.txt, 5:11-5:22",
+          "type": "guest_call",
+          "quote": "I don't know. I don't know because no, I I'm not fixing yet in this worker, so I don't know how to be.",
+          "insight": "Walaa's work instability means her schedule is a moving target. The Date Change Tool is not a nice-to-have; it is the primary mechanism through which she manages an unpredictable life situation. It must be fast, accessible, and autonomy-preserving."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 62",
+          "type": "book",
+          "quote": "People are motivated by autonomy.",
+          "insight": "Date changes framed as 'adjust your schedule' (autonomy) rather than 'request a change' (dependency) affect the guest's emotional relationship with the platform. Autonomy increases satisfaction; dependency breeds resentment."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 55",
+          "type": "book",
+          "quote": "People are motivated by progress, mastery, and control.",
+          "insight": "Each successful date change reinforces the guest's mastery of the platform and control over her living situation. The optimistic UI pattern (immediate visual update) amplifies this sense of control by removing the delay between action and result."
+        },
+        {
+          "source": "100things-attention-memory-decisions.txt, Ch. 94",
+          "type": "book",
+          "quote": "People may care about time more than they care about money.",
+          "insight": "For Walaa, the ability to adjust her schedule quickly (time value) may matter more than the per-night cost (money value). The Date Change Tool must prioritize speed and ease over price optimization."
+        }
+      ],
+      "priority": "medium",
+      "states": {
+        "default": "Calendar-edit icon visible on the Stays Manager Zone 1 card. Tapping opens the Date Change bottom sheet showing the current week's scheduled dates. Added dates are solid purple, available-to-add dates are outlined, unavailable dates (host blackout) are grayed.",
+        "loading": "After tapping 'Save changes,' the Stays Manager reflects the new dates immediately (optimistic update). A subtle sync indicator (spinning purple dot, 12px) appears in the Zone 1 card corner, visible but not attention-grabbing. It disappears when the backend confirms (typically 1-3 seconds).",
+        "empty": "If no dates are currently scheduled for the week (guest removed all nights), a friendly message appears: 'No nights scheduled this week. Add some?' This state is non-judgmental -- the guest may have a valid reason for skipping a week entirely.",
+        "error": "If the optimistic update fails (host has blocked those dates, pricing conflict), the dates revert with a gentle animation (300ms crossfade) and an inline message appears: 'These dates aren't available. [See why].' Tapping 'See why' shows a brief explanation ('Host has another guest on Friday'). No error modals. No form re-submission. The guest adjusts and tries again. If the host declines an already-confirmed change, the notification is empathetic: 'Your host would prefer to keep the original dates. Chat with them to work it out.'",
+        "success": "Dates update immediately (optimistic). Sync indicator disappears. The cost adjustment line briefly highlights green (if cheaper) or stays neutral (if more expensive), visible for 2 seconds. The Stays Manager Zone 1 card reflects the updated schedule with the correct week-type color coding."
+      },
+      "transition_principle": "The Date Change bottom sheet uses the standard slide-up (300ms) and slide-down (250ms) transitions. Date additions and removals use a 150ms color transition (outline to solid, or solid to faded). The cost adjustment number uses a count-up/count-down animation (200ms) that draws attention to the financial impact without being alarming. The optimistic update on the Stays Manager uses a crossfade (200ms) so the date change feels instantaneous, not like a page reload.",
+      "timing": {
+        "response_target": "Bottom sheet open: 300ms. Date tap feedback: 50ms. Cost recalculation: 150ms. Save and optimistic update: 100ms. Backend sync: 1-3 seconds (invisible to user if successful).",
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "rationale": "The 50ms date tap feedback is critical: Walaa must see the date change the instant she taps, confirming her action was registered. The 150ms cost recalculation keeps the price update within the perceived-causation window, so she connects 'I added a night' with 'it costs more' without a cognitive gap."
+      },
+      "journey_state_awareness": "Available only during active_lease. In weeks 1-2, the Date Change icon is present but not highlighted -- the guest is establishing routines, not changing them yet. In weeks 3+, the icon becomes more prominent (subtle pulse on first visit to indicate 'you can change your dates'). If the guest uses the tool frequently (3+ times in 4 weeks), the Stays Manager surfaces a proactive suggestion: 'Your schedule seems to be changing. Would you like to update your regular pattern?'",
+      "edge_cases": [
+        "Guest tries to add dates that overlap with another guest's booking -- the conflict must be surfaced immediately during date selection, not after submission",
+        "Guest removes all dates for a week then adds them back -- the system should not double-charge or create duplicate bookings; idempotent date management is essential",
+        "Host changes their availability while the guest has the Date Change sheet open -- the system should refresh availability when 'Save changes' is tapped, not when the sheet opens",
+        "Guest modifies dates for a past week (e.g., she realizes she left a day early last week) -- the system should allow retroactive adjustments for billing accuracy, with a 72-hour modification window"
+      ]
+    }
+  ]
+}
