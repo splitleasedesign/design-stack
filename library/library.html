@@ -352,6 +352,19 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 .element-card--trashed { opacity: 0.6; }
 .element-card--trashed:hover { opacity: 0.85; }
 
+/* FILTER MODAL BUTTON & MODAL */
+.filter-modal-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer; transition: all 0.15s; }
+.filter-modal-btn:hover { border-color: var(--border-strong); background: var(--bg-deep); }
+.filter-modal-btn.has-active { background: var(--accent-light); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+.filter-modal-btn svg { width: 15px; height: 15px; }
+.filter-modal-btn__count:empty { display: none; }
+.filter-modal-btn__count { font-family: var(--font-mono); font-size: 11px; font-weight: 700; background: var(--accent); color: #fff; padding: 1px 6px; border-radius: var(--radius-full); }
+.filter-modal { max-width: 520px; }
+.filter-modal__group { margin-bottom: 20px; }
+.filter-modal__group .filter-label { display: block; margin-bottom: 8px; }
+.filter-modal__group .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-modal__footer { display: flex; align-items: center; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+
 /* RUN FILTER & INFO */
 .run-banner { display: none; padding: 16px 20px; background: var(--accent-light); border: 1px solid var(--accent); border-radius: var(--radius-md); margin-bottom: 20px; }
 .run-banner.visible { display: block; }
@@ -410,16 +423,10 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
       <div class="filter-pills" id="runFilters"></div>
     </div>
     <div class="toolbar__row">
-      <span class="filter-label">Category</span>
-      <div class="filter-pills" id="categoryFilters"></div>
-    </div>
-    <div class="toolbar__row">
-      <span class="filter-label">Phase</span>
-      <div class="filter-pills" id="phaseFilters"></div>
-    </div>
-    <div class="toolbar__row">
-      <span class="filter-label">Priority</span>
-      <div class="filter-pills" id="priorityFilters"></div>
+      <button class="filter-modal-btn" id="filterModalBtn" data-action="open-filter-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+        Filters <span class="filter-modal-btn__count" id="activeFilterCount"></span>
+      </button>
     </div>
   </div>
 
@@ -440,6 +447,35 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 
 <div class="modal-overlay compare-modal" id="compareOverlay">
   <div class="modal" id="compareContent"></div>
+</div>
+
+<div class="modal-overlay" id="filterModalOverlay">
+  <div class="modal filter-modal">
+    <div class="modal__header">
+      <div class="modal__header-left">
+        <div class="modal__title" style="font-size:22px;">Filters</div>
+      </div>
+      <button class="modal__close" data-action="close-filter-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="filter-modal__group">
+        <span class="filter-label">Category</span>
+        <div class="filter-pills" id="categoryFilters"></div>
+      </div>
+      <div class="filter-modal__group">
+        <span class="filter-label">Phase</span>
+        <div class="filter-pills" id="phaseFilters"></div>
+      </div>
+      <div class="filter-modal__group">
+        <span class="filter-label">Priority</span>
+        <div class="filter-pills" id="priorityFilters"></div>
+      </div>
+      <div class="filter-modal__footer">
+        <button class="modal__action-form__cancel" data-action="clear-filters" style="margin-right:auto;">Clear all</button>
+        <button class="modal__action-form__submit" data-action="close-filter-modal">Apply</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="floating-banner" id="floatingBanner">
@@ -659,6 +695,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     var s = state[stateMap[type]]; s[value] = !s[value];
     document.querySelectorAll('[data-filter-type="' + type + '"]').forEach(function(btn) { btn.classList.toggle("active", !!s[btn.getAttribute("data-filter-value")]); });
     updateRunBanner();
+    updateActiveFilterCount();
     renderElements();
   }
 
@@ -931,7 +968,23 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     document.getElementById("searchInput").value = "";
     document.querySelectorAll(".filter-pill").forEach(function(b) { b.classList.remove("active"); });
     updateRunBanner();
+    updateActiveFilterCount();
     renderElements();
+  }
+
+  // FILTER MODAL
+  function openFilterModal() { document.getElementById("filterModalOverlay").classList.add("open"); document.body.style.overflow = "hidden"; }
+  function closeFilterModal() { document.getElementById("filterModalOverlay").classList.remove("open"); document.body.style.overflow = ""; }
+
+  function updateActiveFilterCount() {
+    var count = 0;
+    for (var k in state.categories) { if (state.categories[k]) count++; }
+    for (var k in state.phases) { if (state.phases[k]) count++; }
+    for (var k in state.priorities) { if (state.priorities[k]) count++; }
+    var el = document.getElementById("activeFilterCount");
+    var btn = document.getElementById("filterModalBtn");
+    if (el) el.textContent = count > 0 ? count : "";
+    if (btn) btn.classList.toggle("has-active", count > 0);
   }
 
   // TRASH TOGGLE
@@ -1053,6 +1106,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     if (!target) {
       if (ev.target === document.getElementById("modalOverlay")) closeDetail();
       if (ev.target === document.getElementById("compareOverlay")) closeCompare();
+      if (ev.target === document.getElementById("filterModalOverlay")) closeFilterModal();
       var pill = ev.target.closest("[data-filter-type]");
       if (pill) toggleFilter(pill.getAttribute("data-filter-type"), pill.getAttribute("data-filter-value"));
       return;
@@ -1078,11 +1132,13 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
       case "restore-from-trash": ev.stopPropagation(); restoreFromTrash(target.getAttribute("data-uid")); break;
       case "export-json": exportJson(); break;
       case "dismiss-banner": hideBanner(); bannerDismissed = true; break;
+      case "open-filter-modal": openFilterModal(); break;
+      case "close-filter-modal": closeFilterModal(); break;
     }
   });
 
   document.getElementById("searchInput").addEventListener("input", function(ev) { state.search = ev.target.value.toLowerCase().trim(); renderElements(); });
-  document.addEventListener("keydown", function(ev) { if (ev.key === "Escape") { closeDetail(); closeCompare(); } });
+  document.addEventListener("keydown", function(ev) { if (ev.key === "Escape") { closeDetail(); closeCompare(); closeFilterModal(); } });
 
   loadData();
 })();
