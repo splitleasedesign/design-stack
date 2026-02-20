@@ -87,7 +87,7 @@ function main() {
     }
 
     const uiData = JSON.parse(fs.readFileSync(uiPath, "utf8"));
-    const rawElements = uiData.elements || uiData.ui_elements || [];
+    const rawElements = Array.isArray(uiData) ? uiData : (uiData.elements || uiData.ui_elements || []);
     const elements = rawElements.map(normalizeElement);
     totalElements += elements.length;
 
