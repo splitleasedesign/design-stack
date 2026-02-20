@@ -338,6 +338,8 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 .floating-banner__count { font-family: var(--font-mono); font-weight: 700; color: var(--accent); }
 .floating-banner__export { height: 34px; padding: 0 18px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
 .floating-banner__export:hover { background: #5A2AAD; }
+.floating-banner__discard { height: 34px; padding: 0 18px; background: transparent; color: var(--signal-danger); border: 1px solid var(--signal-danger); border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.floating-banner__discard:hover { background: var(--signal-danger-bg); }
 .floating-banner__dismiss { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); cursor: pointer; color: var(--ink-muted); }
 .floating-banner__dismiss:hover { background: var(--bg-deep); color: var(--ink); }
 .floating-banner__dismiss svg { width: 16px; height: 16px; }
@@ -481,6 +483,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
 <div class="floating-banner" id="floatingBanner">
   <span class="floating-banner__text">You have <span class="floating-banner__count" id="bannerCount">0</span> pending action(s) &mdash; <strong>Export JSON</strong> to save your feedback</span>
   <button class="floating-banner__export" data-action="export-json">Export JSON</button>
+  <button class="floating-banner__discard" data-action="discard-all">Discard All</button>
   <button class="floating-banner__dismiss" data-action="dismiss-banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
 </div>
 
@@ -1085,6 +1088,20 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
     hideBanner();
   }
 
+  function discardAll() {
+    if (!confirm("Discard all trash, feedback, and implementation requests? This cannot be undone.")) return;
+    localStorage.removeItem("library-trash");
+    localStorage.removeItem("library-feedback");
+    resetPending();
+    hideBanner();
+    state.trashView = false;
+    document.getElementById("trashToggle").classList.remove("active");
+    updateTrashBadge();
+    renderStats();
+    renderElements();
+    updateSubtitle();
+  }
+
   // COPY CODE
   function copyCode(btn) {
     var uid = btn.getAttribute("data-copy-uid");
@@ -1131,6 +1148,7 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
       case "submit-action": ev.stopPropagation(); submitAction(target.getAttribute("data-submit-type"), target.getAttribute("data-uid"), target.getAttribute("data-name")); break;
       case "restore-from-trash": ev.stopPropagation(); restoreFromTrash(target.getAttribute("data-uid")); break;
       case "export-json": exportJson(); break;
+      case "discard-all": discardAll(); break;
       case "dismiss-banner": hideBanner(); bannerDismissed = true; break;
       case "open-filter-modal": openFilterModal(); break;
       case "close-filter-modal": closeFilterModal(); break;
